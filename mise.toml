@@ -8,3 +8,6 @@ poetry = "latest"
 python = "3.13.0"
 ruby = "2.7"
 rust = "latest"
+
+[env]
+_.python.venv = { path = ".build-cache/venv", create = true }
