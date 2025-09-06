@@ -1,0 +1,10 @@
+[tools]
+cocoapods = "latest"
+gcloud = "latest"
+"github:cli/cli" = "latest"
+jq = "latest"
+node = "22.14.0"
+poetry = "latest"
+python = "3.13.0"
+ruby = "2.7"
+rust = "latest"

@@ -4,6 +4,8 @@ set -ex
 
 # Prepare environment
 
+curl https://mise.run | sh
+
 # sudo apt update (perhaps)
 sudo apt-get install -y libasound2-dev
 

@@ -4,10 +4,13 @@ set -ex
 
 # Prepare environment
 
-# Assume brew, python 3.13+, ruby 3.3.x+, JDK, gcloud cli, poetry, node, gem,
-# npm, npx, bundler, gh (the GitHub command line), cocoapods, Android Studio,
-# XCode, rust, cargo, and Docker are already present.
+# Assume brew, JDK, Android Studio, XCode, and Docker are already present.
 # Will modify globals nonetheless.
+
+curl https://mise.run | sh
+echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
+mise use -g usage
+mise install
 
 mkdir -p .build-cache
 python3 -m venv .build-cache/venv
