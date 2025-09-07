@@ -8,7 +8,7 @@ T = TypeVar("T")
 S = TypeVar("S")  # whatever the Response actually contains (may be a union)
 
 
-def get_parsed_from_response[T, S](clazz: Type[T], response: Response[S]) -> T:
+def get_parsed_from_response(clazz: Type[T], response: Response[S]) -> T:
     """Get the parsed response as a specific type."""
     if response.status_code != 200:
         raise ValueError(f"Unexpected status code: {response.status_code}")

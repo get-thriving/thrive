@@ -43,6 +43,18 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 hide = true
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/cli/README.md"
 
+["package:src:cli:lint:pyflakes"]
+hide = true
+run = "poetry run pyflakes src/cli"
+
+["package:src:cli:lint:bandit"]
+hide = true
+run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/cli"
+
+["package:src:cli:lint:pydocstyle"]
+hide = true
+run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/cli"
+
 ["package:src:cli:lint"]
 description = "Check src/cli module"
 depends = ["package:src:cli:lint:*"]

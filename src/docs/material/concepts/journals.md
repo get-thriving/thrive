@@ -7,12 +7,13 @@ Journals live in the "journals" view.
 
 ## Auto-Generation
 
-Journals can be configured to be generated automatically, via the 
+Journals can be configured to be generated automatically, via the
 [task gen mechanism](tasks-generation.md). The mechanism is simple: a few
 days in advance of the time period a journal would target, a new journal is
 generated, with an optional journaling inbox task attached to it.
 
 There are a number of settings you can control:
+
 * The periods you are using for journaling. A typical scenario would be
   daily and weekly journals.
 * Whether to generate journals and journaling tasks, just journals, or

@@ -27,6 +27,18 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 hide = true
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" itests/README.md"
 
+["package:itests:lint:pyflakes"]
+hide = true
+run = "poetry run pyflakes itests"
+
+["package:itests:lint:bandit"]
+hide = true
+run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.test.ini -r itests"
+
+["package:itests:lint:pydocstyle"]
+hide = true
+run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle itests"
+
 ["package:itests:lint"]
 description = "Check itests module"
 depends = ["package:itests:lint:*"]

@@ -43,6 +43,18 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 hide = true
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/webapi/README.md"
 
+["package:src:webapi:lint:pyflakes"]
+hide = true
+run = "poetry run pyflakes src/webapi"
+
+["package:src:webapi:lint:bandit"]
+hide = true
+run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/webapi"
+
+["package:src:webapi:lint:pydocstyle"]
+hide = true
+run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/webapi"
+
 ["package:src:webapi:lint"]
 description = "Check src/webapi module"
 depends = ["package:src:webapi:lint:*"]

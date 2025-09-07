@@ -1,3 +1,4 @@
+"""Infer sync targets for enabled features."""
 from collections.abc import Iterable
 
 from jupiter.core.domain.concept.user.user import User

@@ -21,7 +21,7 @@ from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response
 
-_FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."
+_FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."  # nosec
 
 
 @pytest.fixture(autouse=True)

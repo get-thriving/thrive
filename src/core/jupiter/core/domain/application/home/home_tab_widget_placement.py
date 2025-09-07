@@ -28,14 +28,14 @@ class HomeTabWidgetPlacement(CompositeValue, abc.ABC):
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTabWidgetPlacement":
-        pass
+        """Add a widget to the placement."""
 
     @abc.abstractmethod
     def remove_widget(
         self,
         widget_ref_id: EntityId,
     ) -> "HomeTabWidgetPlacement":
-        pass
+        """Remove a widget from the placement."""
 
     @abc.abstractmethod
     def move_widget_to(
@@ -43,7 +43,7 @@ class HomeTabWidgetPlacement(CompositeValue, abc.ABC):
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTabWidgetPlacement":
-        pass
+        """Move a widget to a new position."""
 
 
 @value
@@ -56,6 +56,7 @@ class BigScreenHomeTabWidgetPlacement(HomeTabWidgetPlacement):
 
     @staticmethod
     def empty() -> "BigScreenHomeTabWidgetPlacement":
+        """Create an empty big screen home tab widget placement."""
         matrix = BigScreenHomeTabWidgetPlacement._compile_sections([])
         return BigScreenHomeTabWidgetPlacement(
             kind="big-screen", matrix=matrix, sections=[]
@@ -171,6 +172,7 @@ class SmallScreenHomeTabWidgetPlacement(HomeTabWidgetPlacement):
 
     @staticmethod
     def empty() -> "SmallScreenHomeTabWidgetPlacement":
+        """Create an empty small screen home tab widget placement."""
         matrix = SmallScreenHomeTabWidgetPlacement._compile_sections([])
         return SmallScreenHomeTabWidgetPlacement(
             kind="small-screen", matrix=matrix, sections=[]
@@ -285,6 +287,7 @@ OneOfHomeTabWidgetPlacement = (
 def build_home_tab_widget_placement(
     target: HomeTabTarget,
 ) -> OneOfHomeTabWidgetPlacement:
+    """Build a home tab widget placement for a target."""
     if target == HomeTabTarget.BIG_SCREEN:
         return BigScreenHomeTabWidgetPlacement.empty()
     else:
