@@ -15,6 +15,20 @@ description = "Fix src/webapi module"
 depends = ["package:src:webapi:fix:*"]
 run = "true"
 
+["package:src:webapi:lint:hadolint"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+docker run --rm -i \
+  -v "$(pwd)/scripts/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/webapi/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
 ["package:src:webapi:lint:mypy"]
 env.MYPYPATH = "../core"
 hide = true
@@ -24,6 +38,10 @@ run = "cd src/webapi && poetry run mypy --config=../../scripts/check/lint/mypy -
 env.MYPYPATH = "../core"
 hide = true
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/webapi"
+
+["package:src:webapi:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/webapi/README.md"
 
 ["package:src:webapi:lint"]
 description = "Check src/webapi module"

@@ -11,6 +11,21 @@ description = "Fix src/webui module"
 depends = ["package:src:webui:fix:*"]
 run = "true"
 
+["package:src:webui:lint:hadolint"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+docker run --rm -i \
+  -v "$(pwd)/scripts/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/webui/Dockerfile:/Dockerfile" \
+  hadolint/hadolint:latest-debian \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+
 ["package:src:webui:lint:tsc"]
 hide = true
 run = "cd src/webui && npx tsc"
@@ -22,6 +37,10 @@ run = "npx prettier --check src/webui"
 ["package:src:webui:lint:eslint"]
 hide = true
 run = "npx eslint src/webui"
+
+["package:src:webui:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/webui/README.md"
 
 ["package:src:webui:lint"]
 description = "Check src/webui module"

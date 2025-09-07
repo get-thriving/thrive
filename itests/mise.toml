@@ -23,6 +23,10 @@ run = "poetry run mypy --config=scripts/check/lint/mypy --explicit-package-bases
 hide = true
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests"
 
+["package:itests:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" itests/README.md"
+
 ["package:itests:lint"]
 description = "Check itests module"
 depends = ["package:itests:lint:*"]

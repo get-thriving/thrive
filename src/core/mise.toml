@@ -23,6 +23,10 @@ run = "cd src/core && poetry run mypy --config=../../scripts/check/lint/mypy --p
 hide = true
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core"
 
+["package:src:core:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/core/README.md"
+
 ["package:src:core:lint"]
 description = "Check src/core module"
 depends = ["package:src:core:lint:*"]

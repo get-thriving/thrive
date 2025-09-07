@@ -6,3 +6,20 @@ run = "libyear toml src/docs/pyproject.toml"
 description = "Check src/docs libyear"
 depends = ["package:src:docs:libyear:*"]
 run = "true"
+
+["package:src:docs:lint:yamllint"]
+hide = true
+run = "poetry run yamllint --config-file=./scripts/check/lint/yamllint src/docs/mkdocs.yml"
+
+["package:src:docs:lint:mdl-docs"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+mdl --config="./scripts/check/lint/mdl-docs" src/docs/
+'''
+
+["package:src:docs:lint"]
+description = "Check src/docs module"
+depends = ["package:src:docs:lint:*"]
+run = "true"

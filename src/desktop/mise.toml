@@ -11,6 +11,10 @@ run = "true"
 hide = true
 run = "npx prettier --check src/desktop"
 
+["package:src:desktop:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/desktop/README.md"
+
 ["package:src:desktop:lint"]
 description = "Check src/desktop module"
 depends = ["package:src:desktop:lint:*"]
