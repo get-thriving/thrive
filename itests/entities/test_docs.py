@@ -2,6 +2,7 @@
 
 import uuid
 
+from jupiter_webapi_client.models.doc_create_result import DocCreateResult
 import pytest
 from jupiter_webapi_client.api.docs.doc_create import (
     sync_detailed as doc_create_sync,
@@ -19,6 +20,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -57,9 +60,7 @@ def create_doc(logged_in_client: AuthenticatedClient):
                 parent_doc_ref_id=parent_doc_ref_id,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_doc
+        return get_parsed_from_response(DocCreateResult, result).new_doc
 
     return _create_doc
 

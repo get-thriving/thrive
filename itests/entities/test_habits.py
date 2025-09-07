@@ -1,5 +1,6 @@
 """Tests about habits."""
 
+from jupiter_webapi_client.models.habit_create_result import HabitCreateResult
 import pytest
 from jupiter_webapi_client.api.habits.habit_create import (
     sync_detailed as habit_create_sync,
@@ -19,6 +20,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -57,9 +60,7 @@ def create_habit(logged_in_client: AuthenticatedClient):
                 repeats_in_period_count=repeats_in_period_count,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_habit
+        return get_parsed_from_response(HabitCreateResult, result).new_habit
 
     return _create_habit
 

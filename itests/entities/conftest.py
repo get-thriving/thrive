@@ -2,11 +2,9 @@
 
 from collections.abc import Iterator
 
+from jupiter_webapi_client.models.user_feature import UserFeature
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 import pytest
-from jupiter.core.domain.features import (
-    BASIC_USER_FEATURE_FLAGS_ARR,
-    BASIC_WORKSPACE_FEATURE_FLAGS_ARR,
-)
 from jupiter_webapi_client import Client
 from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
 from jupiter_webapi_client.api.test_helper.clear_all import (
@@ -23,6 +21,10 @@ from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
 from playwright.sync_api import Page
 
 from itests.conftest import TestUser
+from itests.helpers import get_parsed_from_response
+
+
+_FAKE_TOKEN = "eyJhbGciOiJub25lIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTczNjI5MjEyNH0."
 
 
 @pytest.fixture(autouse=True, scope="package")
@@ -36,7 +38,7 @@ def new_user_and_workspace(
     webapi_server_url: str, new_user: TestUser
 ) -> Iterator[InitResult]:
     """Create a new user and workspace."""
-    guest_client = Client(base_url=webapi_server_url)
+    guest_client = AuthenticatedClient(base_url=webapi_server_url, token=_FAKE_TOKEN)
 
     init_response = init_sync(
         client=guest_client,
@@ -44,23 +46,23 @@ def new_user_and_workspace(
             user_email_address=new_user.email,
             user_name=new_user.name,
             user_timezone="UTC",
-            user_feature_flags=BASIC_USER_FEATURE_FLAGS_ARR,
+            user_feature_flags=[UserFeature.GAMIFICATION],
             auth_password=new_user.password,
             auth_password_repeat=new_user.password,
             workspace_name="Test Workspace",
             workspace_root_project_name="Root Project",
             workspace_first_schedule_stream_name="Life",
-            workspace_feature_flags=BASIC_WORKSPACE_FEATURE_FLAGS_ARR,
+            workspace_feature_flags=[WorkspaceFeature.INBOX_TASKS, WorkspaceFeature.HABITS, WorkspaceFeature.DOCS],
         ),
     )
     if init_response.status_code != 200:
         raise Exception(init_response.content)
 
     logged_in_client = AuthenticatedClient(
-        base_url=webapi_server_url, token=init_response.parsed.auth_token_ext
+        base_url=webapi_server_url, token=get_parsed_from_response(InitResult, init_response).auth_token_ext
     )
 
-    yield init_response
+    yield get_parsed_from_response(InitResult, init_response)
 
     remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
 
@@ -71,7 +73,7 @@ def logged_in_client(
 ) -> AuthenticatedClient:
     """An authenticated client."""
     return AuthenticatedClient(
-        base_url=webapi_server_url, token=new_user_and_workspace.parsed.auth_token_ext
+        base_url=webapi_server_url, token=new_user_and_workspace.auth_token_ext
     )
 
 

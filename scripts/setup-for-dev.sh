@@ -16,7 +16,8 @@ mkdir -p .build-cache
 python3 -m venv .build-cache/venv
 source .build-cache/venv/bin/activate
 
-# brew install shellcheck
+brew install shellcheck
+brew install tree
 brew install cloc
 brew install create-dmg
 docker pull hadolint/hadolint:latest-debian

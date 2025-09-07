@@ -1,0 +1,14 @@
+["package:src:webapi:lint:mypy"]
+env.MYPYPATH = "../core"
+hide = true
+run = "cd src/webapi && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:webapi:lint:ruff"]
+env.MYPYPATH = "../core"
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/webapi"
+
+["package:src:webapi:lint"]
+description = "Check src/webapi module"
+depends = ["package:src:webapi:lint:mypy", "package:src:webapi:lint:ruff"]
+run = "true"

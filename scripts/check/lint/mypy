@@ -25,6 +25,10 @@ init_typed = True
 warn_required_dynamic_aliases = True
 warn_untyped_fields = True
 
+[mypy-itests.*]
+disallow_untyped_defs = False
+disallow_incomplete_defs = False
+
 [mypy-jupiter.core.framework.update_action.*]
 disallow_any_explicit = False
 

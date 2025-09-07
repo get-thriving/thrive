@@ -1,5 +1,7 @@
 """Tests about smart lists."""
 
+from jupiter_webapi_client.models.smart_list_create_result import SmartListCreateResult
+from jupiter_webapi_client.models.smart_list_item_create_result import SmartListItemCreateResult
 import pytest
 from jupiter_webapi_client.api.item.smart_list_item_create import (
     sync_detailed as smart_list_item_create_sync,
@@ -22,6 +24,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -47,9 +51,7 @@ def create_smart_list(logged_in_client: AuthenticatedClient):
                 icon=icon,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_smart_list
+        return get_parsed_from_response(SmartListCreateResult, result).new_smart_list
 
     return _create_smart_list
 
@@ -67,9 +69,7 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
                 url=None,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_smart_list_item
+        return get_parsed_from_response(SmartListItemCreateResult, result).new_smart_list_item
 
     return _create_smart_list_item
 

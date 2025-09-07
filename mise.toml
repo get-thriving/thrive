@@ -11,3 +11,12 @@ rust = "latest"
 
 [env]
 _.python.venv = { path = ".build-cache/venv", create = true }
+
+[task_config]
+includes = [
+    "tasks",
+    "src/core/mise.toml",
+    "src/cli/mise.toml",
+    "src/webapi/mise.toml",
+    "itests/mise.toml",
+]

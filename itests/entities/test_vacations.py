@@ -4,6 +4,7 @@ import re
 import time
 from collections.abc import Iterator
 
+from jupiter_webapi_client.models.vacation_create_result import VacationCreateResult
 import pytest
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -19,6 +20,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Browser, Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -47,9 +50,7 @@ def create_vacation(logged_in_client: AuthenticatedClient):
                 end_date=f"2024-{end_month}-{end_day}",
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_vacation
+        return get_parsed_from_response(VacationCreateResult, result).new_vacation
 
     return _create_vacation
 

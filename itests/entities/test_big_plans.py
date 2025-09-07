@@ -1,5 +1,6 @@
 """Tests about big plans."""
 
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
@@ -21,6 +22,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -61,9 +64,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
                 time_plan_activity_feasability=time_plan_activity_feasability,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_big_plan
+        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
 
     return _create_big_plan
 

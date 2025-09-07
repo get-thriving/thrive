@@ -1,5 +1,8 @@
 """Tests about projects."""
 
+from typing import cast
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
+from jupiter_webapi_client.types import UNSET, Unset
 import pytest
 from jupiter_webapi_client.api.get_summaries.get_summaries import (
     sync_detailed as get_summaries_sync,
@@ -12,6 +15,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
+from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.project import Project
 from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -19,6 +23,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -43,15 +49,16 @@ def get_root_project_id(logged_in_client: AuthenticatedClient):
                 include_projects=True,
             ),
         )
-        if response.status_code != 200:
-            raise Exception(response.content)
-        return response.parsed.root_project.ref_id
+        root_project = get_parsed_from_response(GetSummariesResult, response).root_project
+        if root_project is None or isinstance(root_project, Unset):
+            raise ValueError("Root project is None")
+        return cast(str, root_project.ref_id)
 
     return _get_root_project_id
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_project(logged_in_client: AuthenticatedClient, get_root_project_id: str):
+def create_project(logged_in_client: AuthenticatedClient, get_root_project_id):
     def _create_project(name: str, parent_project_ref_id: str | None = None) -> Project:
         if parent_project_ref_id is None:
             parent_project_ref_id = get_root_project_id()
@@ -63,9 +70,7 @@ def create_project(logged_in_client: AuthenticatedClient, get_root_project_id: s
                 parent_project_ref_id=parent_project_ref_id,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_project
+        return get_parsed_from_response(ProjectCreateResult, result).new_project
 
     return _create_project
 

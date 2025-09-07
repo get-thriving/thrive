@@ -1,0 +1,14 @@
+["package:src:cli:lint:mypy"]
+env.MYPYPATH = "../core"
+hide = true
+run = "cd src/cli && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:cli:lint:ruff"]
+env.MYPYPATH = "../core"
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/cli"
+
+["package:src:cli:lint"]
+description = "Check src/cli module"
+depends = ["package:src:cli:lint:mypy", "package:src:cli:lint:ruff"]
+run = "true"

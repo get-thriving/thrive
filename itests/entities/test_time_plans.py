@@ -5,6 +5,16 @@ import re
 import time
 from collections.abc import Iterator
 
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
+from jupiter_webapi_client.models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
+from jupiter_webapi_client.models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
+from jupiter_webapi_client.models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
+from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
+from jupiter_webapi_client.models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
+from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
+from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import TimePlanAssociateBigPlanWithPlanResult
+from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import TimePlanAssociateInboxTaskWithPlanResult
+from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
@@ -25,7 +35,7 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans imp
     sync_detailed as time_plan_activity_create_big_plan_sync,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
-    sync_detailed as time_plan_activity_create_inbox_task_sync,
+    sync_detailed as time_plan_activity_associate_inbox_task_sync,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_create import (
     sync_detailed as time_plan_create_sync,
@@ -98,6 +108,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 from jupiter_webapi_client.types import UNSET
 from playwright.sync_api import Page, expect
 
+from itests.helpers import get_parsed_from_response
+
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_time_plans_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
@@ -127,49 +139,43 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
             client=logged_in_client,
             body=TimePlanCreateArgs(today=day, period=period),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_time_plan
+        return get_parsed_from_response(TimePlanCreateResult, result).new_time_plan
 
     return _create_time_plan
 
 
 @pytest.fixture()
 def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClient):
-    def _create_time_plan_activity(time_plan_id: int, big_plan_id: int) -> None:
+    def _create_time_plan_activity(time_plan_id: int, big_plan_id: int) -> TimePlanActivity:
         result = time_plan_activity_create_big_plan_sync(
             client=logged_in_client,
             body=TimePlanAssociateWithBigPlansArgs(
-                ref_id=time_plan_id,
-                big_plan_ref_ids=[big_plan_id],
+                ref_id=str(time_plan_id),
+                big_plan_ref_ids=[str(big_plan_id)],
                 override_existing_dates=False,
                 kind=TimePlanActivityKind.FINISH,
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_time_plan_activities[0]
+        return get_parsed_from_response(TimePlanAssociateBigPlanWithPlanResult, result).new_time_plan_activities[0]
 
     return _create_time_plan_activity
 
 
 @pytest.fixture()
 def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedClient):
-    def _create_time_plan_activity(time_plan_id: int, inbox_task_id: int) -> None:
-        result = time_plan_activity_create_inbox_task_sync(
+    def _create_time_plan_activity(time_plan_id: int, inbox_task_id: int) -> TimePlanActivity:
+        result = time_plan_activity_associate_inbox_task_sync(
             client=logged_in_client,
             body=TimePlanAssociateWithInboxTasksArgs(
-                ref_id=time_plan_id,
-                inbox_task_ref_ids=[inbox_task_id],
+                ref_id=str(time_plan_id),
+                inbox_task_ref_ids=[str(inbox_task_id)],
                 override_existing_dates=False,
                 kind=TimePlanActivityKind.FINISH,
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_time_plan_activities[0]
+        return get_parsed_from_response(TimePlanAssociateInboxTaskWithPlanResult, result).new_time_plan_activities[0]
 
     return _create_time_plan_activity
 
@@ -184,15 +190,13 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
             body=InboxTaskCreateArgs(
                 name=name,
                 is_key=False,
-                big_plan_ref_id=big_plan_id or UNSET,
+                big_plan_ref_id=str(big_plan_id) if big_plan_id else UNSET,
                 due_date=due_date or UNSET,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_inbox_task
+        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
 
     return _create_inbox_task
 
@@ -213,9 +217,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
                 due_date=due_date or UNSET,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_big_plan
+        return get_parsed_from_response(BigPlanCreateResult, result).new_big_plan
 
     return _create_big_plan
 
@@ -2444,6 +2446,7 @@ def _mark_inbox_task_done(
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
             project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
+            is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )
 
@@ -2465,6 +2468,7 @@ def _clear_inbox_task_dates(
             due_date=InboxTaskUpdateArgsDueDate(should_change=True, value=None),
             project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
+            is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )
 
@@ -2486,6 +2490,7 @@ def _associate_inbox_task_with_big_plan(
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(
                 should_change=True, value=big_plan.ref_id
             ),
+            is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )
 
@@ -2504,6 +2509,9 @@ def _mark_big_plan_done(
             actionable_date=BigPlanUpdateArgsActionableDate(should_change=False),
             due_date=BigPlanUpdateArgsDueDate(should_change=False),
             project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            is_key=BigPlanUpdateArgsIsKey(should_change=False),
+            eisen=BigPlanUpdateArgsEisen(should_change=False),
+            difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
         ),
     )
 
@@ -2522,6 +2530,9 @@ def _clear_big_plan_dates(
             ),
             due_date=BigPlanUpdateArgsDueDate(should_change=True, value=None),
             project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            is_key=BigPlanUpdateArgsIsKey(should_change=False),
+            eisen=BigPlanUpdateArgsEisen(should_change=False),
+            difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
         ),
     )
 

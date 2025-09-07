@@ -1,5 +1,6 @@
 """Tests about journals."""
 
+from jupiter_webapi_client.models.journal_create_result import JournalCreateResult
 import pendulum
 import pytest
 from jupiter_webapi_client.api.journals.journal_create import (
@@ -17,6 +18,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -49,9 +52,7 @@ def create_journal(logged_in_client: AuthenticatedClient):
                 period=period,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_journal
+        return get_parsed_from_response(JournalCreateResult, result).new_journal
 
     return _create_journal
 
@@ -86,7 +87,6 @@ def test_journal_view_all(page: Page, create_journal) -> None:
     expect(page.locator(f"#journal-{journal2.ref_id}")).to_contain_text(
         f"Weekly journal for {pendulum.now().subtract(days=1).format('YYYY-MM-DD')}"
     )
-    print(pendulum.now().subtract(days=7).to_iso8601_string())
     expect(page.locator(f"#journal-{journal3.ref_id}")).to_contain_text(
         f"Monthly journal for {pendulum.now().subtract(days=7).format('YYYY-MM-DD')}"
     )

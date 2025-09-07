@@ -1,5 +1,6 @@
 """Tests about inbox tasks."""
 
+from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
 import pytest
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
     sync_detailed as inbox_task_create_sync,
@@ -10,6 +11,8 @@ from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
 from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -28,9 +31,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                 difficulty=difficulty,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_inbox_task
+        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
 
     return _create_inbox_task
 

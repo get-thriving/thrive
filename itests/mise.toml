@@ -1,0 +1,12 @@
+["package:itests:lint:mypy"]
+hide = true
+run = "poetry run mypy --config=scripts/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
+
+["package:itests:lint:ruff"]
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests"
+
+["package:itests:lint"]
+description = "Check itests module"
+depends = ["package:itests:lint:*"]
+run = "true"
