@@ -15,3 +15,12 @@ run = "npx prettier --check src/desktop"
 description = "Check src/desktop module"
 depends = ["package:src:desktop:lint:*"]
 run = "true"
+
+["package:src:desktop:audit:npm-audit"]
+hide = true
+run = "cd src/desktop && npm audit --audit-level=high"
+
+["package:src:desktop:audit"]
+description = "Audit src/desktop module"
+depends = ["package:src:desktop:audit:*"]
+run = "true"

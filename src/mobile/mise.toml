@@ -15,3 +15,12 @@ run = "npx prettier --check src/mobile"
 description = "Check src/mobile module"
 depends = ["package:src:mobile:lint:*"]
 run = "true"
+
+["package:src:mobile:audit:npm-audit"]
+hide = true
+run = "cd src/mobile && npm audit --audit-level=high"
+
+["package:src:mobile:audit"]
+description = "Audit src/mobile module"
+depends = ["package:src:mobile:audit:*"]
+run = "true"

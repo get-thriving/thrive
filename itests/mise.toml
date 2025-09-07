@@ -27,3 +27,12 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 description = "Check itests module"
 depends = ["package:itests:lint:*"]
 run = "true"
+
+["package:itests:audit:pip-audit"]
+hide = true
+run = "poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)"
+
+["package:itests:audit"]
+description = "Audit itests module"
+depends = ["package:itests:audit:*"]
+run = "true"

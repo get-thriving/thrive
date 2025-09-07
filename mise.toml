@@ -15,6 +15,7 @@ _.python.venv = { path = ".build-cache/venv", create = true }
 [task_config]
 includes = [
     "tasks",
+    "root.mise.toml",
     "src/core/mise.toml",
     "src/cli/mise.toml",
     "src/webapi/mise.toml",

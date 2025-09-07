@@ -2,5 +2,5 @@
 
 set -ex
 
-#MISE description="Lint the src modules"
+#MISE description="Run all lint tasks"
 #MISE depends=["package:*:lint", "package:*:*:lint"]

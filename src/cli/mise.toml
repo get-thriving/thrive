@@ -29,3 +29,17 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 description = "Check src/cli module"
 depends = ["package:src:cli:lint:*"]
 run = "true"
+
+["package:src:cli:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+cd src/cli
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["package:src:cli:audit"]
+description = "Audit src/cli module"
+depends = ["package:src:cli:audit:*"]
+run = "true"

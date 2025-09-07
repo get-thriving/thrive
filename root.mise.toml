@@ -1,0 +1,16 @@
+["root:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["root:audit:npm-audit"]
+hide = true
+run = "npm audit --audit-level=info"
+
+["root:audit"]
+description = "Audit root dependencies"
+depends = ["root:audit:*"]
+run = "true"

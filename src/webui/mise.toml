@@ -27,3 +27,12 @@ run = "npx eslint src/webui"
 description = "Check src/webui module"
 depends = ["package:src:webui:lint:*"]
 run = "true"
+
+["package:src:webui:audit:npm-audit"]
+hide = true
+run = "cd src/webui && npm audit --audit-level=high"
+
+["package:src:webui:audit"]
+description = "Audit src/webui module"
+depends = ["package:src:webui:audit:*"]
+run = "true"

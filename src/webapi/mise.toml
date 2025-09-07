@@ -29,3 +29,17 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 description = "Check src/webapi module"
 depends = ["package:src:webapi:lint:*"]
 run = "true"
+
+["package:src:webapi:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -ex
+cd src/webapi
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["package:src:webapi:audit"]
+description = "Audit src/webapi module"
+depends = ["package:src:webapi:audit:*"]
+run = "true"
