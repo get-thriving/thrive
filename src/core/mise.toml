@@ -1,3 +1,20 @@
+["package:src:core:fix:autoflake"]
+hide = true
+run = "poetry run autoflake --config=scripts/check/lint/autoflake src/core"
+
+["package:src:core:fix:black"]
+hide = true
+run = "poetry run black src/core"
+
+["package:src:core:fix:ruff"]
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core --fix"
+
+["package:src:core:fix"]
+description = "Fix src/core module"
+depends = ["package:src:core:fix:*"]
+run = "true"
+
 ["package:src:core:lint:mypy"]
 hide = true
 run = "cd src/core && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"

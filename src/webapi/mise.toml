@@ -1,3 +1,20 @@
+["package:src:webapi:fix:autoflake"]
+hide = true
+run = "poetry run autoflake --config=scripts/check/lint/autoflake src/webapi"
+
+["package:src:webapi:fix:black"]
+hide = true
+run = "poetry run black src/webapi"
+
+["package:src:webapi:fix:ruff"]
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/webapi --fix"
+
+["package:src:webapi:fix"]
+description = "Fix src/webapi module"
+depends = ["package:src:webapi:fix:*"]
+run = "true"
+
 ["package:src:webapi:lint:mypy"]
 env.MYPYPATH = "../core"
 hide = true

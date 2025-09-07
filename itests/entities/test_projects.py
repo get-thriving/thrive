@@ -1,8 +1,7 @@
 """Tests about projects."""
 
 from typing import cast
-from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
-from jupiter_webapi_client.types import UNSET, Unset
+
 import pytest
 from jupiter_webapi_client.api.get_summaries.get_summaries import (
     sync_detailed as get_summaries_sync,
@@ -18,10 +17,12 @@ from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.project import Project
 from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
+from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
+from jupiter_webapi_client.types import Unset
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response
@@ -49,7 +50,9 @@ def get_root_project_id(logged_in_client: AuthenticatedClient):
                 include_projects=True,
             ),
         )
-        root_project = get_parsed_from_response(GetSummariesResult, response).root_project
+        root_project = get_parsed_from_response(
+            GetSummariesResult, response
+        ).root_project
         if root_project is None or isinstance(root_project, Unset):
             raise ValueError("Root project is None")
         return cast(str, root_project.ref_id)

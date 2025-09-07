@@ -1,6 +1,5 @@
 """Tests about chores."""
 
-from jupiter_webapi_client.models.chore_create_result import ChoreCreateResult
 import pytest
 from jupiter_webapi_client.api.chores.chore_create import (
     sync_detailed as chore_create_sync,
@@ -11,6 +10,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.chore import Chore
 from jupiter_webapi_client.models.chore_create_args import ChoreCreateArgs
+from jupiter_webapi_client.models.chore_create_result import ChoreCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod

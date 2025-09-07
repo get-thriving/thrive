@@ -1,6 +1,5 @@
 """Tests about habits."""
 
-from jupiter_webapi_client.models.habit_create_result import HabitCreateResult
 import pytest
 from jupiter_webapi_client.api.habits.habit_create import (
     sync_detailed as habit_create_sync,
@@ -13,6 +12,7 @@ from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.habit import Habit
 from jupiter_webapi_client.models.habit_create_args import HabitCreateArgs
+from jupiter_webapi_client.models.habit_create_result import HabitCreateResult
 from jupiter_webapi_client.models.habit_repeats_strategy import HabitRepeatsStrategy
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature

@@ -2,10 +2,7 @@
 
 from typing import Iterator
 
-from jupiter_webapi_client.models.user_feature import UserFeature
-from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 import pytest
-from jupiter_webapi_client import Client
 from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
 from jupiter_webapi_client.api.test_helper.clear_all import (
     sync_detailed as clear_all_sync,
@@ -18,6 +15,8 @@ from jupiter_webapi_client.models.clear_all_args import ClearAllArgs
 from jupiter_webapi_client.models.init_args import InitArgs
 from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
+from jupiter_webapi_client.models.user_feature import UserFeature
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 
 from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response
@@ -50,14 +49,19 @@ def new_user_and_workspace(
             workspace_name="Test Workspace",
             workspace_root_project_name="Root Project",
             workspace_first_schedule_stream_name="Life",
-            workspace_feature_flags=[WorkspaceFeature.INBOX_TASKS, WorkspaceFeature.HABITS, WorkspaceFeature.DOCS],
+            workspace_feature_flags=[
+                WorkspaceFeature.INBOX_TASKS,
+                WorkspaceFeature.HABITS,
+                WorkspaceFeature.DOCS,
+            ],
         ),
     )
     if init_response.status_code != 200:
         raise Exception(init_response.content)
 
     logged_in_client = AuthenticatedClient(
-        base_url=webapi_server_url, token=get_parsed_from_response(InitResult, init_response).auth_token_ext
+        base_url=webapi_server_url,
+        token=get_parsed_from_response(InitResult, init_response).auth_token_ext,
     )
 
     yield get_parsed_from_response(InitResult, init_response)

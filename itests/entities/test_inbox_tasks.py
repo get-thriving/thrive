@@ -1,6 +1,5 @@
 """Tests about inbox tasks."""
 
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
 import pytest
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
     sync_detailed as inbox_task_create_sync,
@@ -10,6 +9,7 @@ from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
 from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
+from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
 from playwright.sync_api import Page, expect
 
 from itests.helpers import get_parsed_from_response

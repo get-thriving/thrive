@@ -1,10 +1,12 @@
 """Helpers for the tests."""
 
-from typing import Any, TypeVar, cast, Type
+from typing import Type, TypeVar, cast
+
 from jupiter_webapi_client.types import Response
 
 T = TypeVar("T")
 S = TypeVar("S")  # whatever the Response actually contains (may be a union)
+
 
 def get_parsed_from_response[T, S](clazz: Type[T], response: Response[S]) -> T:
     """Get the parsed response as a specific type."""
@@ -14,5 +16,7 @@ def get_parsed_from_response[T, S](clazz: Type[T], response: Response[S]) -> T:
         raise ValueError("Response parsed is None")
     # Optional safety: ensure it's the expected type at runtime
     if not isinstance(response.parsed, clazz):
-        raise TypeError(f"Expected {clazz.__name__}, got {type(response.parsed).__name__}")
+        raise TypeError(
+            f"Expected {clazz.__name__}, got {type(response.parsed).__name__}"
+        )
     return cast(T, response.parsed)

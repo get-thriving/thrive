@@ -1,6 +1,5 @@
 """Tests about big plans."""
 
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
@@ -11,6 +10,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.big_plan import BigPlan
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.time_plan_activity_feasability import (

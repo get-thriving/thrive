@@ -1,3 +1,12 @@
+["package:src:mobile:fix:prettier"]
+hide = true
+run = "npx prettier --write --list-different src/mobile"
+
+["package:src:mobile:fix"]
+description = "Fix src/mobile module"
+depends = ["package:src:mobile:fix:*"]
+run = "true"
+
 ["package:src:mobile:lint:prettier"]
 hide = true
 run = "npx prettier --check src/mobile"

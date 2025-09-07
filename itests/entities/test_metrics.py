@@ -1,7 +1,5 @@
 """Tests about metrics."""
 
-from jupiter_webapi_client.models.metric_create_result import MetricCreateResult
-from jupiter_webapi_client.models.metric_entry_create_result import MetricEntryCreateResult
 import pytest
 from jupiter_webapi_client.api.entry.metric_entry_create import (
     sync_detailed as metric_entry_create_sync,
@@ -17,8 +15,12 @@ from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.metric import Metric
 from jupiter_webapi_client.models.metric_create_args import MetricCreateArgs
+from jupiter_webapi_client.models.metric_create_result import MetricCreateResult
 from jupiter_webapi_client.models.metric_entry import MetricEntry
 from jupiter_webapi_client.models.metric_entry_create_args import MetricEntryCreateArgs
+from jupiter_webapi_client.models.metric_entry_create_result import (
+    MetricEntryCreateResult,
+)
 from jupiter_webapi_client.models.metric_unit import MetricUnit
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -86,7 +88,9 @@ def create_metric_entry(logged_in_client: AuthenticatedClient):
                 collection_time=collection_time,
             ),
         )
-        return get_parsed_from_response(MetricEntryCreateResult, result).new_metric_entry
+        return get_parsed_from_response(
+            MetricEntryCreateResult, result
+        ).new_metric_entry
 
     return _create_metric_entry
 

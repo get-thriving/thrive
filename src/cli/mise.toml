@@ -1,3 +1,20 @@
+["package:src:cli:fix:autoflake"]
+hide = true
+run = "poetry run autoflake --config=scripts/check/lint/autoflake src/cli"
+
+["package:src:cli:fix:black"]
+hide = true
+run = "poetry run black src/cli"
+
+["package:src:cli:fix:ruff"]
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/cli --fix"
+
+["package:src:cli:fix"]
+description = "Fix src/cli module"
+depends = ["package:src:cli:fix:*"]
+run = "true"
+
 ["package:src:cli:lint:mypy"]
 env.MYPYPATH = "../core"
 hide = true

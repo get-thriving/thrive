@@ -5,16 +5,6 @@ import re
 import time
 from collections.abc import Iterator
 
-from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
-from jupiter_webapi_client.models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
-from jupiter_webapi_client.models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
-from jupiter_webapi_client.models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
-from jupiter_webapi_client.models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
-from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
-from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import TimePlanAssociateBigPlanWithPlanResult
-from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import TimePlanAssociateInboxTaskWithPlanResult
-from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
@@ -43,13 +33,23 @@ from jupiter_webapi_client.api.time_plans.time_plan_create import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.big_plan import BigPlan
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.big_plan_status import BigPlanStatus
 from jupiter_webapi_client.models.big_plan_update_args import BigPlanUpdateArgs
 from jupiter_webapi_client.models.big_plan_update_args_actionable_date import (
     BigPlanUpdateArgsActionableDate,
 )
+from jupiter_webapi_client.models.big_plan_update_args_difficulty import (
+    BigPlanUpdateArgsDifficulty,
+)
 from jupiter_webapi_client.models.big_plan_update_args_due_date import (
     BigPlanUpdateArgsDueDate,
+)
+from jupiter_webapi_client.models.big_plan_update_args_eisen import (
+    BigPlanUpdateArgsEisen,
+)
+from jupiter_webapi_client.models.big_plan_update_args_is_key import (
+    BigPlanUpdateArgsIsKey,
 )
 from jupiter_webapi_client.models.big_plan_update_args_name import BigPlanUpdateArgsName
 from jupiter_webapi_client.models.big_plan_update_args_project_ref_id import (
@@ -62,6 +62,7 @@ from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
 from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
+from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
 from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
 from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
 from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
@@ -79,6 +80,9 @@ from jupiter_webapi_client.models.inbox_task_update_args_due_date import (
 from jupiter_webapi_client.models.inbox_task_update_args_eisen import (
     InboxTaskUpdateArgsEisen,
 )
+from jupiter_webapi_client.models.inbox_task_update_args_is_key import (
+    InboxTaskUpdateArgsIsKey,
+)
 from jupiter_webapi_client.models.inbox_task_update_args_name import (
     InboxTaskUpdateArgsName,
 )
@@ -90,10 +94,17 @@ from jupiter_webapi_client.models.inbox_task_update_args_status import (
 )
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.time_plan import TimePlan
+from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
 from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
+from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import (
+    TimePlanAssociateBigPlanWithPlanResult,
+)
+from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import (
+    TimePlanAssociateInboxTaskWithPlanResult,
+)
 from jupiter_webapi_client.models.time_plan_associate_with_big_plans_args import (
     TimePlanAssociateWithBigPlansArgs,
 )
@@ -101,6 +112,7 @@ from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_args impo
     TimePlanAssociateWithInboxTasksArgs,
 )
 from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArgs
+from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -146,7 +158,9 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
 
 @pytest.fixture()
 def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClient):
-    def _create_time_plan_activity(time_plan_id: int, big_plan_id: int) -> TimePlanActivity:
+    def _create_time_plan_activity(
+        time_plan_id: int, big_plan_id: int
+    ) -> TimePlanActivity:
         result = time_plan_activity_create_big_plan_sync(
             client=logged_in_client,
             body=TimePlanAssociateWithBigPlansArgs(
@@ -157,14 +171,18 @@ def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClien
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
-        return get_parsed_from_response(TimePlanAssociateBigPlanWithPlanResult, result).new_time_plan_activities[0]
+        return get_parsed_from_response(
+            TimePlanAssociateBigPlanWithPlanResult, result
+        ).new_time_plan_activities[0]
 
     return _create_time_plan_activity
 
 
 @pytest.fixture()
 def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedClient):
-    def _create_time_plan_activity(time_plan_id: int, inbox_task_id: int) -> TimePlanActivity:
+    def _create_time_plan_activity(
+        time_plan_id: int, inbox_task_id: int
+    ) -> TimePlanActivity:
         result = time_plan_activity_associate_inbox_task_sync(
             client=logged_in_client,
             body=TimePlanAssociateWithInboxTasksArgs(
@@ -175,7 +193,9 @@ def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedCli
                 feasability=TimePlanActivityFeasability.MUST_DO,
             ),
         )
-        return get_parsed_from_response(TimePlanAssociateInboxTaskWithPlanResult, result).new_time_plan_activities[0]
+        return get_parsed_from_response(
+            TimePlanAssociateInboxTaskWithPlanResult, result
+        ).new_time_plan_activities[0]
 
     return _create_time_plan_activity
 

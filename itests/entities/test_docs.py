@@ -2,7 +2,6 @@
 
 import uuid
 
-from jupiter_webapi_client.models.doc_create_result import DocCreateResult
 import pytest
 from jupiter_webapi_client.api.docs.doc_create import (
     sync_detailed as doc_create_sync,
@@ -13,6 +12,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.doc import Doc
 from jupiter_webapi_client.models.doc_create_args import DocCreateArgs
+from jupiter_webapi_client.models.doc_create_result import DocCreateResult
 from jupiter_webapi_client.models.paragraph_block import ParagraphBlock
 from jupiter_webapi_client.models.paragraph_block_kind import ParagraphBlockKind
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature

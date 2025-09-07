@@ -1,3 +1,20 @@
+["package:itests:fix:autoflake"]
+hide = true
+run = "poetry run autoflake --config=scripts/check/lint/autoflake itests"
+
+["package:itests:fix:black"]
+hide = true
+run = "poetry run black itests"
+
+["package:itests:fix:ruff"]
+hide = true
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests --fix"
+
+["package:itests:fix"]
+description = "Fix itests module"
+depends = ["package:itests:fix:*"]
+run = "true"
+
 ["package:itests:lint:mypy"]
 hide = true
 run = "poetry run mypy --config=scripts/check/lint/mypy --explicit-package-bases --show-absolute-path itests"

@@ -1,6 +1,5 @@
 """Tests about journals."""
 
-from jupiter_webapi_client.models.journal_create_result import JournalCreateResult
 import pendulum
 import pytest
 from jupiter_webapi_client.api.journals.journal_create import (
@@ -12,6 +11,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.journal import Journal
 from jupiter_webapi_client.models.journal_create_args import JournalCreateArgs
+from jupiter_webapi_client.models.journal_create_result import JournalCreateResult
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (

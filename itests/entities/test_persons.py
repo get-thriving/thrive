@@ -1,6 +1,5 @@
 """Tests about persons."""
 
-from jupiter_webapi_client.models.person_create_result import PersonCreateResult
 import pytest
 from jupiter_webapi_client.api.persons.person_create import (
     sync_detailed as person_create_sync,
@@ -11,6 +10,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.person import Person
 from jupiter_webapi_client.models.person_create_args import PersonCreateArgs
+from jupiter_webapi_client.models.person_create_result import PersonCreateResult
 from jupiter_webapi_client.models.person_relationship import PersonRelationship
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (

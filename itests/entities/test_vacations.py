@@ -4,7 +4,6 @@ import re
 import time
 from collections.abc import Iterator
 
-from jupiter_webapi_client.models.vacation_create_result import VacationCreateResult
 import pytest
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -15,6 +14,7 @@ from jupiter_webapi_client.api.vacations.vacation_create import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.vacation import Vacation
 from jupiter_webapi_client.models.vacation_create_args import VacationCreateArgs
+from jupiter_webapi_client.models.vacation_create_result import VacationCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,

@@ -1,5 +1,5 @@
-from playwright.sync_api import Page, expect
 from jupiter_webapi_client.models.init_result import InitResult
+from playwright.sync_api import Page, expect
 
 from itests.conftest import TestUser
 

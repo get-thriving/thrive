@@ -1,3 +1,12 @@
+["package:src:desktop:fix:prettier"]
+hide = true
+run = "npx prettier --write --list-different src/desktop"
+
+["package:src:desktop:fix"]
+description = "Fix src/desktop module"
+depends = ["package:src:desktop:fix:*"]
+run = "true"
+
 ["package:src:desktop:lint:prettier"]
 hide = true
 run = "npx prettier --check src/desktop"

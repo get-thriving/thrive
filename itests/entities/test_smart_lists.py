@@ -1,7 +1,5 @@
 """Tests about smart lists."""
 
-from jupiter_webapi_client.models.smart_list_create_result import SmartListCreateResult
-from jupiter_webapi_client.models.smart_list_item_create_result import SmartListItemCreateResult
 import pytest
 from jupiter_webapi_client.api.item.smart_list_item_create import (
     sync_detailed as smart_list_item_create_sync,
@@ -15,9 +13,13 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.smart_list import SmartList
 from jupiter_webapi_client.models.smart_list_create_args import SmartListCreateArgs
+from jupiter_webapi_client.models.smart_list_create_result import SmartListCreateResult
 from jupiter_webapi_client.models.smart_list_item import SmartListItem
 from jupiter_webapi_client.models.smart_list_item_create_args import (
     SmartListItemCreateArgs,
+)
+from jupiter_webapi_client.models.smart_list_item_create_result import (
+    SmartListItemCreateResult,
 )
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
@@ -69,7 +71,9 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
                 url=None,
             ),
         )
-        return get_parsed_from_response(SmartListItemCreateResult, result).new_smart_list_item
+        return get_parsed_from_response(
+            SmartListItemCreateResult, result
+        ).new_smart_list_item
 
     return _create_smart_list_item
 
