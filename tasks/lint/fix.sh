@@ -3,4 +3,4 @@
 set -ex
 
 #MISE description="Fix lint issues"
-#MISE depends=["package:*:fix", "package:*:*:fix"]
+#MISE depends=["package:**:fix"]
