@@ -14,3 +14,16 @@ run = "npm audit --audit-level=info"
 description = "Audit root dependencies"
 depends = ["root:audit:*"]
 run = "true"
+
+["root:libyear:libyear-toml"]
+hide = true
+run = "libyear toml pyproject.toml"
+
+["root:libyear:npm-libyear"]
+hide = true
+run = "npx libyear"
+
+["root:libyear"]
+description = "Check root libyear"
+depends = ["root:libyear:*"]
+run = "true"

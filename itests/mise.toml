@@ -36,3 +36,12 @@ run = "poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups 
 description = "Audit itests module"
 depends = ["package:itests:audit:*"]
 run = "true"
+
+["package:itests:libyear:libyear-toml"]
+hide = true
+run = "libyear toml itests/pyproject.toml"
+
+["package:itests:libyear"]
+description = "Check itests libyear"
+depends = ["package:itests:libyear:*"]
+run = "true"

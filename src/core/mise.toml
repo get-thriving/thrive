@@ -41,3 +41,12 @@ poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --witho
 description = "Audit src/core module"
 depends = ["package:src:core:audit:*"]
 run = "true"
+
+["package:src:core:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/core/pyproject.toml"
+
+["package:src:core:libyear"]
+description = "Check src/core libyear"
+depends = ["package:src:core:libyear:*"]
+run = "true"

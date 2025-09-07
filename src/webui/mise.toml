@@ -36,3 +36,12 @@ run = "cd src/webui && npm audit --audit-level=high"
 description = "Audit src/webui module"
 depends = ["package:src:webui:audit:*"]
 run = "true"
+
+["package:src:webui:libyear:npm-libyear"]
+hide = true
+run = "cd src/webui && npx libyear"
+
+["package:src:webui:libyear"]
+description = "Check src/webui libyear"
+depends = ["package:src:webui:libyear:*"]
+run = "true"

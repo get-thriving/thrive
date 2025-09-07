@@ -1,0 +1,8 @@
+["package:src:docs:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/docs/pyproject.toml"
+
+["package:src:docs:libyear"]
+description = "Check src/docs libyear"
+depends = ["package:src:docs:libyear:*"]
+run = "true"

@@ -43,3 +43,12 @@ poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --witho
 description = "Audit src/webapi module"
 depends = ["package:src:webapi:audit:*"]
 run = "true"
+
+["package:src:webapi:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/webapi/pyproject.toml"
+
+["package:src:webapi:libyear"]
+description = "Check src/webapi libyear"
+depends = ["package:src:webapi:libyear:*"]
+run = "true"

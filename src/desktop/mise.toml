@@ -24,3 +24,12 @@ run = "cd src/desktop && npm audit --audit-level=high"
 description = "Audit src/desktop module"
 depends = ["package:src:desktop:audit:*"]
 run = "true"
+
+["package:src:desktop:libyear:npm-libyear"]
+hide = true
+run = "cd src/desktop && npx libyear"
+
+["package:src:desktop:libyear"]
+description = "Check src/desktop libyear"
+depends = ["package:src:desktop:libyear:*"]
+run = "true"

@@ -24,3 +24,12 @@ run = "cd src/mobile && npm audit --audit-level=high"
 description = "Audit src/mobile module"
 depends = ["package:src:mobile:audit:*"]
 run = "true"
+
+["package:src:mobile:libyear:npm-libyear"]
+hide = true
+run = "cd src/mobile && npx libyear"
+
+["package:src:mobile:libyear"]
+description = "Check src/mobile libyear"
+depends = ["package:src:mobile:libyear:*"]
+run = "true"
