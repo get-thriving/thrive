@@ -1,0 +1,8 @@
+["package:src:desktop:lint:prettier"]
+hide = true
+run = "npx prettier --check src/desktop"
+
+["package:src:desktop:lint"]
+description = "Check src/desktop module"
+depends = ["package:src:desktop:lint:*"]
+run = "true"

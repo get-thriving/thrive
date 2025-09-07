@@ -1,0 +1,16 @@
+["package:src:webui:lint:tsc"]
+hide = true
+run = "cd src/webui && npx tsc"
+
+["package:src:webui:lint:prettier"]
+hide = true
+run = "npx prettier --check src/webui"
+
+["package:src:webui:lint:eslint"]
+hide = true
+run = "npx eslint src/webui"
+
+["package:src:webui:lint"]
+description = "Check src/webui module"
+depends = ["package:src:webui:lint:*"]
+run = "true"

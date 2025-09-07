@@ -1,0 +1,8 @@
+["package:src:mobile:lint:prettier"]
+hide = true
+run = "npx prettier --check src/mobile"
+
+["package:src:mobile:lint"]
+description = "Check src/mobile module"
+depends = ["package:src:mobile:lint:*"]
+run = "true"

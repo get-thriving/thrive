@@ -10,5 +10,5 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/ch
 
 ["package:src:cli:lint"]
 description = "Check src/cli module"
-depends = ["package:src:cli:lint:mypy", "package:src:cli:lint:ruff"]
+depends = ["package:src:cli:lint:*"]
 run = "true"

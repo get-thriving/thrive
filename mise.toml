@@ -18,5 +18,8 @@ includes = [
     "src/core/mise.toml",
     "src/cli/mise.toml",
     "src/webapi/mise.toml",
+    "src/webui/mise.toml",
+    "src/desktop/mise.toml",
+    "src/mobile/mise.toml",
     "itests/mise.toml",
 ]
