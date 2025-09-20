@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Build documentation using mkdocs"
 
 mkdir -p .build-cache/docs
 

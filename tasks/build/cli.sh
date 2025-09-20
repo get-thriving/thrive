@@ -1,18 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
 
-RELEASE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+#MISE description="Build CLI standalone binary"
 
-if ! [[ "${RELEASE_BRANCH}" =~ "release/" ]]
+release_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if ! [[ "${release_branch}" =~ "release/" ]]
 then
-    RELEASE_VERSION="current"
+    release_version="current"
 else
-    RELEASE_VERSION=${RELEASE_BRANCH/release\/}
+    release_version=${release_branch/release\/}
 fi
 
-PLATFORM=$(uname -s | awk '{print tolower($0)}')
-ARCH=$(arch)
+platform=$(uname -s | awk '{print tolower($0)}')
+arch=$(arch)
 
 pyinstaller \
   --noconfirm \
@@ -28,12 +30,12 @@ pyinstaller \
   --icon assets/jupiter.icns \
   src/cli/jupiter/cli/jupiter.py
 
-if [[ "${PLATFORM}" == "darwin" ]]
+if [[ "${platform}" == "darwin" ]]
 then
-  DMG_IMAGE_NAME="jupiter-cli-${RELEASE_VERSION}-${PLATFORM}-${ARCH}.dmg"
+  dmg_image_name="jupiter-cli-${release_version}-${platform}-${arch}.dmg"
 
   rm -f rw.*.dmg
-  rm -f "${DMG_IMAGE_NAME}"
+  rm -f "${dmg_image_name}"
   create-dmg \
     --volname "Thrive-Cli" \
     --volicon "assets/jupiter.icns" \
@@ -43,9 +45,9 @@ then
     --app-drop-link 200 160 \
     --eula LICENSE \
     --skip-jenkins \
-    "${DMG_IMAGE_NAME}" \
+    "${dmg_image_name}" \
     .build-cache/standalone-binary/dist/Thrive-Cli.app
 
   mv Thrive-Cli.spec ".build-cache/standalone-binary/Thrive-Cli.spec"
-  mv "${DMG_IMAGE_NAME}" ".build-cache/standalone-binary/${DMG_IMAGE_NAME}"
+  mv "${dmg_image_name}" ".build-cache/standalone-binary/${dmg_image_name}"
 fi

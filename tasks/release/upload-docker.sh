@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Upload Docker images to Docker Hub"
 
 source src/Config.global
 

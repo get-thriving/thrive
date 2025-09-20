@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Build iOS mobile app"
 
 # If the secrets/Config.secrets file does not exist, bail
 if [ ! -f secrets/Config.secrets ]; then
@@ -15,12 +17,12 @@ export VERSION
 export BUNDLE_ID
 export PUBLIC_NAME
 
-WORKSPACE=ios/App/App.xcworkspace
-SCHEME=App
-CONFIGURATION=Release
-ARCHIVE_PATH=../../.build-cache/mobile/ios/v${VERSION}/build.xcarchive
-EXPORT_OPTIONS_PLIST=ios/App/archive.plist
-IPA_PATH=../../.build-cache/mobile/ios/v${VERSION}/build
+workspace=ios/App/App.xcworkspace
+scheme=App
+configuration=Release
+archive_path=../../.build-cache/mobile/ios/v${VERSION}/build.xcarchive
+export_options_plist=ios/App/archive.plist
+ipa_path=../../.build-cache/mobile/ios/v${VERSION}/build
 
 mkdir -p .build-cache/mobile
 
@@ -32,21 +34,21 @@ ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx vite build --mode prod
 ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx cap copy
 
 xcodebuild clean \
-    -workspace "$WORKSPACE" \
-    -scheme "$SCHEME" \
-    -configuration "$CONFIGURATION"
+    -workspace "$workspace" \
+    -scheme "$scheme" \
+    -configuration "$configuration"
 
 xcodebuild archive \
-    -workspace "$WORKSPACE" \
-    -scheme "$SCHEME" \
-    -configuration "$CONFIGURATION" \
-    -archivePath "$ARCHIVE_PATH" \
+    -workspace "$workspace" \
+    -scheme "$scheme" \
+    -configuration "$configuration" \
+    -archivePath "$archive_path" \
     -allowProvisioningUpdates
 
 
 xcodebuild -exportArchive \
-    -archivePath "$ARCHIVE_PATH" \
-    -exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
-    -exportPath "$IPA_PATH"
+    -archivePath "$archive_path" \
+    -exportOptionsPlist "$export_options_plist" \
+    -exportPath "$ipa_path"
 
-cp $IPA_PATH/App.ipa $IPA_PATH/App-${VERSION}.ipa
+cp $ipa_path/App.ipa $ipa_path/App-${VERSION}.ipa

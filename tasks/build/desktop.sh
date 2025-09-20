@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Build desktop app for macOS"
 
 replace_package_json() {
   # Create a backup before making changes

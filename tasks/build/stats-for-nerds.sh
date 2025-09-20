@@ -1,16 +1,18 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Generate code statistics using cloc"
 
 source src/Config.global
 source secrets/Config.secrets
 
 mkdir -p .build-cache/cloc/$VERSION
 
-CLOC_FILE=.build-cache/cloc/$VERSION/cloc.txt
+cloc_file=.build-cache/cloc/$VERSION/cloc.txt
 
 cloc \
-  --report-file="${CLOC_FILE}" \
+  --report-file="${cloc_file}" \
   --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
   --not-match-f="(package-lock.json|poetry.lock)" \
   .dockerignore \
@@ -26,4 +28,4 @@ cloc \
   src/ \
   itests/ \
 
-cat "${CLOC_FILE}"
+cat "${cloc_file}"

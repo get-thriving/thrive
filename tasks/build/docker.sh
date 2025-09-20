@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Build Docker images for webapi, webui, and cli"
 
 source src/Config.global
 

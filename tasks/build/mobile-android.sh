@@ -1,6 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
+
+#MISE description="Build Android mobile app"
 
 # If the secrets/Config.secrets file does not exist, bail
 if [ ! -f secrets/Config.secrets ]; then
@@ -11,7 +13,7 @@ fi
 source src/Config.global
 source secrets/Config.secrets
 
-AAB_OUTPUT_PATH="app/build/outputs/bundle/release"
+aab_output_path="app/build/outputs/bundle/release"
 
 export VERSION
 export BUNDLE_ID
@@ -36,8 +38,8 @@ jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
   -keystore ../../../$ANDROID_UPLOAD_KEYSTORE_PATH \
   -storepass $ANDROID_UPLOAD_KEYSTORE_PASSWORD \
   -keypass $ANDROID_UPLOAD_KEYSTORE_PASSWORD \
-  $AAB_OUTPUT_PATH/app-release.aab \
+  $aab_output_path/app-release.aab \
   $ANDROID_UPLOAD_KEYSTORE_ALIAS
 
 mkdir -p ../../../.build-cache/mobile/android/v$VERSION
-cp $AAB_OUTPUT_PATH/app-release.aab ../../../.build-cache/mobile/android/v$VERSION/app-${VERSION}.aab
+cp $aab_output_path/app-release.aab ../../../.build-cache/mobile/android/v$VERSION/app-${VERSION}.aab
