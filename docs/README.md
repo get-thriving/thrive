@@ -42,7 +42,7 @@ session from a shell first. Then there's some small ceremony about creating a fe
 Finally there's commands for running a local instance of Jupiter.
 
 ```bash
-% ./scripts/run-dev.sh a-test
+% ./scripts/run-srv.sh a-test
 ```
 
 This will start the instance with the name `a-test`. If ommited, the standard name `dev`
@@ -91,11 +91,11 @@ they are in.
   `live` environment because it is accessible to users.
 * There is the `dev` enviroment of which there can be many, and which are the ones
   developers create when they're running their work on their dev machines. Every
-  time you run `./scripts/run-dev.sh` you're creating/using such an environment.
+  time you run `./scripts/run-srv.sh` you're creating/using such an environment.
   This is not considered `local` environment because it is not accessible to users.
 
 Feature environments are a subset of `dev` and `staging` environments. When you specificy a
-particular name in `./scripts/run-dev.sh <your-name>` you create such an env for example,
+particular name in `./scripts/run-srv.sh <your-name>` you create such an env for example,
 or reuse if you created it before. When you open a PR, the same happens but in a `live`
 setting. These environments are separate between each other, and start in a blank but valid state.
 

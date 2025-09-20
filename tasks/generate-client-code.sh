@@ -1,21 +1,23 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -ex
 
+#MISE description="Generate client code for TypeScript and Python from OpenAPI spec"
+
 source scripts/common.sh
 
-WEBAPI_PORT=$(get_free_port)
-WEBAPI_URL=http://0.0.0.0:${WEBAPI_PORT}
-WEBUI_PORT=$(get_free_port)
+webapi_port=$(get_free_port)
+webapi_url=http://0.0.0.0:${webapi_port}
+webui_port=$(get_free_port)
 
-run_jupiter apigen "$WEBAPI_PORT" "$WEBUI_PORT" wait:webapi no-monit ci pm2
+run_jupiter apigen "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
 
 mkdir -p gen/ts
 mkdir -p gen/py
 
 mkdir -p .build-cache/apigen
 rm -f .build-cache/apigen/openapi.json
-http --timeout 2 get "$WEBAPI_URL/openapi.json" > .build-cache/apigen/openapi.json
+http --timeout 2 get "$webapi_url/openapi.json" > .build-cache/apigen/openapi.json
 
 stop_jupiter apigen
 
