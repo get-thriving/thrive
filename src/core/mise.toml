@@ -44,6 +44,13 @@ description = "Check src/core module"
 depends = ["package:src:core:lint:*"]
 run = "true"
 
+["package:src:core:test"]
+description = "Run tests"
+run = '''
+mkdir -p .build-cache/test
+pytest src/core/tests --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
+'''
+
 ["package:src:core:audit:pip-audit"]
 hide = true
 run = '''
