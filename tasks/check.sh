@@ -3,4 +3,4 @@
 set -ex
 
 #MISE description="Run checks for packages"
-#MISE depends=["package:**:lint", "package:**:test"]
+#MISE depends=["lint:tasks", "lint:lint", "test:unit"]

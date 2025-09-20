@@ -11,6 +11,10 @@ run = "true"
 hide = true
 run = "npx prettier --check src/mobile"
 
+["package:src:mobile:lint:mdl-readme"]
+hide = true
+run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/mobile/README.md"
+
 ["package:src:mobile:lint"]
 description = "Check src/mobile module"
 depends = ["package:src:mobile:lint:*"]
