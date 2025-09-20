@@ -15,7 +15,7 @@ fi
 
 release_tag="v${usage_version}"
 
-if ! [[ $(git tag | grep "${release_tag}") ]]
+if git tag | grep -q "${release_tag}"
 then
     echo "Release tag ${usage_version} seems to not exist"
     exit 1
@@ -38,7 +38,7 @@ edit_id=$(curl -X POST \
 # Upload the bundle
 
 curl -X POST \
-    -T .build-cache/mobile/android/v${usage_version}/app-${usage_version}.aab \
+    -T .build-cache/mobile/android/v"${usage_version}"/app-"${usage_version}".aab \
     -H "Authorization: Bearer $access_token" \
     -H "Content-Type: application/octet-stream" \
     "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${BUNDLE_ID}/edits/${edit_id}/bundles"
@@ -47,4 +47,4 @@ curl -X POST \
 
 curl -X POST \
     -H "Authorization: Bearer $access_token" \
-    https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${BUNDLE_ID}/edits/${edit_id}:commit
+    https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${BUNDLE_ID}/edits/"${edit_id}":commit

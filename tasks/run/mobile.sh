@@ -26,4 +26,4 @@ export BUILD_TARGET=$platform
 
 cd src/mobile
 npx vite build
-npx cap run $platform
+npx cap run "$platform"

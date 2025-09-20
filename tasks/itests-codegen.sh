@@ -14,10 +14,12 @@ namespace="${usage_namespace}"
 if [[ -z "$namespace" ]]; then
     namespace=$STANDARD_NAMESPACE
 fi
-webapi_port=$(get_jupiter_port $namespace webapi)
-webui_port=$(get_jupiter_port $namespace webui)
+webapi_port=$(get_jupiter_port "$namespace" webapi)
+webapi_url="http://0.0.0.0:${webapi_port}"
+webui_port=$(get_jupiter_port "$namespace" webui)
 webui_url="http://0.0.0.0:${webui_port}"
 
+wait_for_service_to_start webapi "$webapi_url"
 wait_for_service_to_start webui "$webui_url"
 
 playwright codegen "$webui_url"

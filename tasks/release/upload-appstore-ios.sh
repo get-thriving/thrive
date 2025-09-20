@@ -15,7 +15,7 @@ fi
 
 release_tag="v${usage_version}"
 
-if ! [[ $(git tag | grep "${release_tag}") ]]
+if git tag | grep -q "${release_tag}"
 then
     echo "Release tag ${usage_version} seems to not exist"
     exit 1
@@ -23,5 +23,5 @@ fi
 
 source secrets/Config.secrets
 
-xcrun altool --validate-app -f .build-cache/mobile/ios/v${usage_version}/build/App.ipa --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD --type ios
-xcrun altool --upload-app -f .build-cache/mobile/ios/v${usage_version}/build/App.ipa --type ios --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD
+xcrun altool --validate-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD --type ios
+xcrun altool --upload-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --type ios --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD

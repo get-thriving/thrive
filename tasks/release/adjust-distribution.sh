@@ -28,7 +28,7 @@ fi
 
 release_tag="v${usage_version}"
 
-if ! [[ $(git tag | grep "${release_tag}") ]]
+if git tag | grep -q "${release_tag}"
 then
     echo "Release tag ${usage_version} seems to not exist"
     exit 1
@@ -62,15 +62,15 @@ then
     exit 1
 fi
 
-mkdir -p .build-cache/release/${usage_version}
+mkdir -p .build-cache/release/"${usage_version}"
 
-current_manifest_url=$(gh release view ${release_tag} --json assets | jq -r '.assets[] | select(.name == "release-manifest.json") | .url')
+current_manifest_url=$(gh release view "${release_tag}" --json assets | jq -r '.assets[] | select(.name == "release-manifest.json") | .url')
 
 if [ -z "$current_manifest_url" ]
 then
-    cp scripts/release/release-manifest.template.json .build-cache/release/${usage_version}/current-release-manifest.json
+    cp scripts/release/release-manifest.template.json .build-cache/release/"${usage_version}"/current-release-manifest.json
 else
-    curl -L $current_manifest_url > .build-cache/release/${usage_version}/current-release-manifest.json
+    curl -L "$current_manifest_url" > .build-cache/release/"${usage_version}"/current-release-manifest.json
 fi
 
 jq --arg mac_web_status "$mac_web_status" \
@@ -81,6 +81,6 @@ jq --arg mac_web_status "$mac_web_status" \
      if $mac_store_status != "do-nothing" then .["mac-store"] = $mac_store_status else . end |
      if $app_store_status != "do-nothing" then .["app-store"] = $app_store_status else . end |
      if $google_play_store_status != "do-nothing" then .["google-play-store"] = $google_play_store_status else . end' \
-    .build-cache/release/${usage_version}/current-release-manifest.json > .build-cache/release/${usage_version}/release-manifest.json
+    .build-cache/release/"${usage_version}"/current-release-manifest.json > .build-cache/release/"${usage_version}"/release-manifest.json
 
-gh release upload ${release_tag} --clobber .build-cache/release/${usage_version}/release-manifest.json
+gh release upload "${release_tag}" --clobber .build-cache/release/"${usage_version}"/release-manifest.json
