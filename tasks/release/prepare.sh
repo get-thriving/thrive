@@ -8,7 +8,6 @@ set -ex
 : "${usage_version:=}"
 
 echo "Usage version: ${usage_version}"
-exit 1
 
 if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 then

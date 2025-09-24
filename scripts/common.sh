@@ -9,6 +9,7 @@ set +x
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 set -x
+
 run_jupiter() {
     local NAMESPACE=$1
     local WEBAPI_PORT=$2
@@ -193,5 +194,42 @@ wait_for_service_to_start() {
     if [ "$attempts" -eq "$max_attempts" ]; then
         echo "Reached maximum attempts for ${service}."
         return 1
+    fi
+}
+
+check_service_is_running() {
+    local mode=$1
+    local namespace=$2
+    local service=$3
+    
+    if [[ "$mode" == "docker" ]]; then
+        echo "Docker mode not supported for service status check"
+        exit 1
+    elif [[ "$mode" == "pm2" ]]; then
+        if npx pm2 ps | grep -q "$namespace:$service"; then
+            return 0
+        else
+            return 1
+        fi
+    else
+        echo "Unknown mode: $mode"
+        exit 1
+    fi
+}
+
+get_logs() {
+    local mode=$1
+    local namespace=$2
+    local service=$3
+    
+    if [[ "$mode" == "docker" ]]; then
+        echo "Docker mode not supported for log retrieval"
+        exit 1
+    elif [[ "$mode" == "pm2" ]]; then
+        webapi_log_file=$RUN_ROOT/$namespace/webapi.log
+        cat "$webapi_log_file" | tail -n 100
+    else
+        echo "Unknown mode: $mode"
+        exit 1
     fi
 }
