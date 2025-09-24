@@ -4,27 +4,30 @@ set -ex
 
 #MISE description="Adjust distribution status for release platforms"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
-#USAGE flag "--mac-store <status>" help="Mac Store status (ready|in-review|not-available)"
-#USAGE flag "--app-store <status>" help="App Store status (ready|in-review|not-available)"
-#USAGE flag "--mac-web <status>" help="Mac Web status (ready|in-review|not-available)"
-#USAGE flag "--google-play-store <status>" help="Google Play Store status (ready|in-review|not-available)"
+#USAGE flag "--mac-store <status>" help="Mac Store status" default="do-nothing" {
+#USAGE   choices "do-nothing" "ready" "in-review" "not-available"
+#USAGE }
+#USAGE flag "--app-store <status>" help="App Store status" default="do-nothing" {
+#USAGE   choices "do-nothing" "ready" "in-review" "not-available"
+#USAGE }
+#USAGE flag "--mac-web <status>" help="Mac Web status" default="do-nothing" {
+#USAGE   choices "do-nothing" "ready" "in-review" "not-available"
+#USAGE }
+#USAGE flag "--google-play-store <status>" help="Google Play Store status" default="do-nothing" {
+#USAGE   choices "do-nothing" "ready" "in-review" "not-available"
+#USAGE }
+#USAGE completie "version" run="./tasks/release/list-versions.sh"
 
 : "${usage_version:=}"
-: "${usage_mac_store:=do-nothing}"
-: "${usage_app_store:=do-nothing}"
-: "${usage_mac_web:=do-nothing}"
-: "${usage_google_play_store:=do-nothing}"
+: "${usage_mac_store:=}"
+: "${usage_app_store:=}"
+: "${usage_mac_web:=}"
+: "${usage_google_play_store:=}"
 
 mac_web_status="${usage_mac_web}"
 mac_store_status="${usage_mac_store}"
 app_store_status="${usage_app_store}"
 google_play_store_status="${usage_google_play_store}"
-
-if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-then
-    echo "Not a valid X.Y.Z version string"
-    exit 1
-fi
 
 release_tag="v${usage_version}"
 
