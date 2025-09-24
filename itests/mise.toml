@@ -1,13 +1,19 @@
 ["package:itests:fix:autoflake"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run autoflake --config=scripts/check/lint/autoflake itests"
 
 ["package:itests:fix:black"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run black itests"
 
 ["package:itests:fix:ruff"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests --fix"
 
 ["package:itests:fix"]
@@ -17,26 +23,38 @@ run = "true"
 
 ["package:itests:lint:mypy"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run mypy --config=scripts/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
 
 ["package:itests:lint:ruff"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests"
 
 ["package:itests:lint:mdl-readme"]
 hide = true
+sources = ["itests/README.md"]
+outputs = { auto = true }
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" itests/README.md"
 
 ["package:itests:lint:pyflakes"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run pyflakes itests"
 
 ["package:itests:lint:bandit"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.test.ini -r itests"
 
 ["package:itests:lint:pydocstyle"]
 hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
 run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle itests"
 
 ["package:itests:lint"]

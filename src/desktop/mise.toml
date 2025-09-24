@@ -1,5 +1,7 @@
 ["package:src:desktop:fix:prettier"]
 hide = true
+sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
 run = "npx prettier --write --list-different src/desktop"
 
 ["package:src:desktop:fix"]
@@ -9,10 +11,14 @@ run = "true"
 
 ["package:src:desktop:lint:prettier"]
 hide = true
+sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
 run = "npx prettier --check src/desktop"
 
 ["package:src:desktop:lint:mdl-readme"]
 hide = true
+sources = ["src/desktop/README.md"]
+outputs = { auto = true }
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/desktop/README.md"
 
 ["package:src:desktop:lint"]

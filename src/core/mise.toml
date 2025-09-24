@@ -1,13 +1,19 @@
 ["package:src:core:fix:autoflake"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run autoflake --config=scripts/check/lint/autoflake src/core"
 
 ["package:src:core:fix:black"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run black src/core"
 
 ["package:src:core:fix:ruff"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core --fix"
 
 ["package:src:core:fix"]
@@ -17,26 +23,38 @@ run = "true"
 
 ["package:src:core:lint:mypy"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "cd src/core && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:core:lint:ruff"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core"
 
 ["package:src:core:lint:mdl-readme"]
 hide = true
+sources = ["src/core/README.md"]
+outputs = { auto = true }
 run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/core/README.md"
 
 ["package:src:core:lint:pyflakes"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run pyflakes src/core"
 
 ["package:src:core:lint:bandit"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/core"
 
 ["package:src:core:lint:pydocstyle"]
 hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
 run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/core"
 
 ["package:src:core:lint"]
