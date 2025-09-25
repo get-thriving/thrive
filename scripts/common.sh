@@ -8,7 +8,6 @@ export STANDARD_WEBUI_PORT=10020
 set +x
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-set -x
 
 run_jupiter() {
     local NAMESPACE=$1

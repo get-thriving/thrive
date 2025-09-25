@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Run desktop app with optional namespace"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 
 : "${usage_namespace:=}"
 

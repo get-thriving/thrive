@@ -6,6 +6,7 @@ set -ex
 #USAGE flag "--webapi-url <webapiUrl>" help="The webapi url"
 #USAGE flag "--webui-url <webuiUrl>" help="The webui url"
 #USAGE flag "--namespace <namespace>" help="The namespace"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }

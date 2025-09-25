@@ -7,6 +7,7 @@ set -ex
 #USAGE   choices "ios" "android"
 #USAGE }
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 
 : "${usage_platform:=}"
 : "${usage_namespace:=}"

@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Adjust distribution status for release platforms"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
+#USAGE complete "version" run="./tasks/release/list.sh"
 #USAGE flag "--mac-store <status>" help="Mac Store status" default="do-nothing" {
 #USAGE   choices "do-nothing" "ready" "in-review" "not-available"
 #USAGE }
@@ -16,7 +17,6 @@ set -ex
 #USAGE flag "--google-play-store <status>" help="Google Play Store status" default="do-nothing" {
 #USAGE   choices "do-nothing" "ready" "in-review" "not-available"
 #USAGE }
-#USAGE completie "version" run="./tasks/release/list-versions.sh"
 
 : "${usage_version:=}"
 : "${usage_mac_store:=}"

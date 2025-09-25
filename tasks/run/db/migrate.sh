@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Run database migrations on Jupiter database"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 
 : "${usage_namespace:=}"
 

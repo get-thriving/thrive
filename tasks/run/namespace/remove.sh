@@ -4,6 +4,7 @@ set -e
 
 #MISE description="Remove a Jupiter namespace"
 #USAGE arg "<namespace>" required help="The namespace to remove"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 #USAGE flag "--force" optional help="Force removal without confirmation"
 
 : "${usage_namespace:=}"

@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Upload release to GitHub with optional platform flags"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
+#USAGE complete "version" run="./tasks/release/list.sh"
 #USAGE flag "--desktop-macos" help="Include desktop macOS builds"
 #USAGE flag "--mobile-ios" help="Include mobile iOS builds"
 #USAGE flag "--mobile-android" help="Include mobile Android builds"

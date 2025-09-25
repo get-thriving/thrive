@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Restore Jupiter database from backup"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
+#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 
 : "${usage_namespace:=}"
 

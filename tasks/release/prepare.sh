@@ -4,6 +4,7 @@ set -ex
 
 #MISE description="Prepare a new release"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
+#USAGE complete "version" run="./tasks/release/list.sh"
 
 : "${usage_version:=}"
 

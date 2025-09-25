@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e
+set +x
 
 #MISE description="List all available releases"
 
-git pull --ff-only --tags origin develop
-git tag --list
+git tag --list | sort -r
