@@ -1,3 +1,55 @@
+["root:install:pyproject"]
+hide = true
+sources = ["pyproject.toml"]
+outputs = { auto = true }
+run = "poetry install --no-interaction --no-ansi"
+
+["root:install:npm"]
+hide = true
+sources = ["package.json"]
+outputs = { auto = true }
+run = "npm install --no-save"
+
+["root:install:docker"]
+hide = true
+sources = ["Dockfile"]
+outputs = { auto = true }
+run = "xargs docker pull < Dockfile"
+
+["root:install:brew"]
+hide = true
+sources = ["Brewfile"]
+outputs = { auto = true }
+run = '''
+if [ "$1" = "--in-ci" ]; then
+  exit 0
+fi
+brew bundle install
+'''
+
+["root:install:apt"]
+hide = true
+sources = ["aptfile"]
+outputs = { auto = true }
+run = '''
+# Are we truly in a CI environment, or on a local machine but running the CI script?
+# If we are, GitHub (and other CI providers) will set the CI environment variable.
+if [[ -z "$CI" ]]; then
+  exit 0
+fi
+xargs sudo apt-get install -y < aptfile
+'''
+
+["root:install:gem"]
+hide = true
+sources = ["Gemfile"]
+outputs = { auto = true }
+run = "bundle install"
+
+["root:install"]
+hide = true
+depends = ["root:install:*"]
+
 ["root:audit:pip-audit"]
 hide = true
 run = '''

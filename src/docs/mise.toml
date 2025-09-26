@@ -1,3 +1,9 @@
+["package:src:docs:install"]
+hide = true
+sources = ["src/docs/pyproject.toml"]
+outputs = { auto = true }
+run = "cd src/docs && poetry install --no-interaction --no-ansi"
+
 ["package:src:docs:libyear:libyear-toml"]
 hide = true
 run = "libyear toml src/docs/pyproject.toml"

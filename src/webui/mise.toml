@@ -1,3 +1,9 @@
+["package:src:webui:install"]
+hide = true
+sources = ["src/webui/package.json"]
+outputs = { auto = true }
+run = "cd src/webui && npm install --no-save"
+
 ["package:src:webui:fix:prettier"]
 hide = true
 sources = ["src/webui/**/*.{ts,tsx,js,jsx,json,md}"]

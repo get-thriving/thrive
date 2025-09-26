@@ -1,3 +1,9 @@
+["package:src:cli:install"]
+hide = true
+sources = ["src/cli/pyproject.toml"]
+outputs = { auto = true }
+run = "cd src/cli && poetry install --no-interaction --no-ansi"
+
 ["package:src:cli:fix:autoflake"]
 hide = true
 sources = ["src/cli/**/*.py"]

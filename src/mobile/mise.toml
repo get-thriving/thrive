@@ -1,3 +1,9 @@
+["package:src:mobile:install"]
+hide = true
+sources = ["src/mobile/package.json"]
+outputs = { auto = true }
+run = "cd src/mobile && npm install --no-save"
+
 ["package:src:mobile:fix:prettier"]
 hide = true
 sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]

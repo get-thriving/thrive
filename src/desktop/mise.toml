@@ -1,3 +1,9 @@
+["package:src:desktop:install"]
+hide = true
+sources = ["src/desktop/package.json"]
+outputs = { auto = true }
+run = "cd src/desktop && npm install --no-save"
+
 ["package:src:desktop:fix:prettier"]
 hide = true
 sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
