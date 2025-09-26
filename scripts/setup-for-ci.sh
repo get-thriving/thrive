@@ -5,9 +5,10 @@ set -ex
 # Prepare environment
 
 curl https://mise.run | sh
+mise install
 
 # sudo apt update (perhaps)
-sudo apt-get install -y libasound2-dev
+xargs sudo apt-get install -y < aptfile
 
 poetry config virtualenvs.create false
 poetry config virtualenvs.in-project false
