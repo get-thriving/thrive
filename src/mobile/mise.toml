@@ -19,6 +19,12 @@ description = "Fix src/mobile module"
 depends = ["package:src:mobile:fix:*"]
 run = "true"
 
+["package:src:mobile:lint:toml"]
+hide = true
+sources = ["src/mobile/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/mobile/mise.toml"
+
 ["package:src:mobile:lint:prettier"]
 hide = true
 sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]

@@ -1,6 +1,12 @@
 ["docs:prepare"]
 hide = true
-run = "true"
+run  = "true"
+
+["docs:lint:toml"]
+hide = true
+sources = ["docs/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint docs/mise.toml"
 
 ["docs:lint:mdl-docs"]
 hide = true

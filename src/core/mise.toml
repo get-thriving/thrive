@@ -31,6 +31,12 @@ description = "Fix src/core module"
 depends = ["package:src:core:fix:*"]
 run = "true"
 
+["package:src:core:lint:toml"]
+hide = true
+sources = ["src/core/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/core/mise.toml"
+
 ["package:src:core:lint:mypy"]
 hide = true
 sources = ["src/core/**/*.py"]

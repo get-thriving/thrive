@@ -1,3 +1,14 @@
+["package:gen:py:{{packageName}}:lint:toml"]
+hide = true
+sources = ["gen/py/{{packageName}}/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint gen/py/{{packageName}}/mise.toml"
+
+["package:gen:py:{{packageName}}:lint"]
+hide = true
+depends = ["package:gen:py:{{packageName}}:lint:*"]
+run = "true"
+
 ["package:gen:py:{{packageName}}:prepare"]
 hide = true
 run = "true"

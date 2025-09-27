@@ -31,6 +31,13 @@ description = "Fix src/cli module"
 depends = ["package:src:cli:fix:*"]
 run = "true"
 
+
+["package:src:cli:lint:toml"]
+hide = true
+sources = ["src/cli/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/cli/mise.toml"
+
 ["package:src:cli:lint:hadolint"]
 hide = true
 sources = ["src/cli/Dockerfile"]

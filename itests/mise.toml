@@ -36,6 +36,12 @@ description = "Fix itests module"
 depends = ["package:itests:fix:*"]
 run = "true"
 
+["package:itests:lint:toml"]
+hide = true
+sources = ["itests/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint itests/mise.toml"
+
 ["package:itests:lint:mypy"]
 hide = true
 sources = ["itests/**/*.py"]

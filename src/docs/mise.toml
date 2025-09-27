@@ -17,6 +17,12 @@ description = "Check src/docs libyear"
 depends = ["package:src:docs:libyear:*"]
 run = "true"
 
+["package:src:docs:lint:toml"]
+hide = true
+sources = ["src/docs/mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/docs/mise.toml"
+
 ["package:src:docs:lint:yamllint"]
 hide = true
 sources = ["src/docs/**/*.{yml|yaml}"]
