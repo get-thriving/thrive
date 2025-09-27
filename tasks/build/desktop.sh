@@ -49,6 +49,7 @@ if [ ! -f secrets/Config.secrets ]; then
 fi
 
 source src/Config.global
+# shellcheck disable=SC1091
 source secrets/Config.secrets
 
 mkdir -p .build-cache/desktop
