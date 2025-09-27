@@ -33,9 +33,9 @@ run = "true"
 
 ["package:itests:lint:toml"]
 hide = true
-sources = ["itests/mise.toml"]
+sources = ["itests/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint itests/mise.toml"
+run = "npx eslint itests/package.mise.toml"
 
 ["package:itests:lint:mypy"]
 hide = true

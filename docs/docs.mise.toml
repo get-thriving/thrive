@@ -4,9 +4,9 @@ run  = "true"
 
 ["docs:lint:toml"]
 hide = true
-sources = ["docs/mise.toml"]
+sources = ["docs/docs.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint docs/mise.toml"
+run = "npx eslint docs/docs.mise.toml"
 
 ["docs:lint:mdl-docs"]
 hide = true

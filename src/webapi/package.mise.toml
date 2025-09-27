@@ -33,9 +33,9 @@ run = "true"
 
 ["package:src:webapi:lint:toml"]
 hide = true
-sources = ["src/webapi/mise.toml"]
+sources = ["src/webapi/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/webapi/mise.toml"
+run = "npx eslint src/webapi/package.mise.toml"
 
 ["package:src:webapi:lint:hadolint"]
 hide = true

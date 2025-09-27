@@ -21,9 +21,9 @@ run = "true"
 
 ["package:src:desktop:lint:toml"]
 hide = true
-sources = ["src/desktop/mise.toml"]
+sources = ["src/desktop/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/desktop/mise.toml"
+run = "npx eslint src/desktop/package.mise.toml"
 
 ["package:src:desktop:lint:prettier"]
 hide = true

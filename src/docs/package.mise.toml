@@ -19,9 +19,9 @@ run = "true"
 
 ["package:src:docs:lint:toml"]
 hide = true
-sources = ["src/docs/mise.toml"]
+sources = ["src/docs/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/docs/mise.toml"
+run = "npx eslint src/docs/package.mise.toml"
 
 ["package:src:docs:lint:yamllint"]
 hide = true

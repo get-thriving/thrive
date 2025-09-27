@@ -31,7 +31,7 @@ npx openapi \
     --name ApiClient
 
 ts_package_json="$(jo packageName="$PACKAGE_NAME")"
-npx hbs-cli --stdout -D "$ts_package_json" tasks/_resources/ts-package.mise.toml.hbs > gen/ts/$PACKAGE_NAME/mise.toml
+npx hbs-cli --stdout -D "$ts_package_json" tasks/_resources/ts-package.mise.toml.hbs > gen/ts/$PACKAGE_NAME/package.mise.toml
 
 trap "rm -rf jupiter-webapi-client" EXIT
 rm -rf gen/py/$PACKAGE_NAME
@@ -39,7 +39,7 @@ poetry run openapi-python-client generate --path .build-cache/apigen/openapi.jso
 mv jupiter-webapi-client gen/py/$PACKAGE_NAME
 
 py_package_json="$(jo packageName="$PACKAGE_NAME")"
-npx hbs-cli --stdout -D "$py_package_json" tasks/_resources/py-package.mise.toml.hbs > gen/py/$PACKAGE_NAME/mise.toml
+npx hbs-cli --stdout -D "$py_package_json" tasks/_resources/py-package.mise.toml.hbs > gen/py/$PACKAGE_NAME/package.mise.toml
 
-mise tasks run rebuild-mise gen/ts/$PACKAGE_NAME/mise.toml gen/py/$PACKAGE_NAME/mise.toml
+mise tasks run rebuild-mise gen/ts/$PACKAGE_NAME/package.mise.toml gen/py/$PACKAGE_NAME/package.mise.toml
 mise tasks run prepare

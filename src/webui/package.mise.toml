@@ -43,9 +43,9 @@ docker run --rm -i \
 
 ["package:src:webui:lint:toml"]
 hide = true
-sources = ["src/webui/mise.toml"]
+sources = ["src/webui/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/webui/mise.toml"
+run = "npx eslint src/webui/package.mise.toml"
 
 ["package:src:webui:lint:tsc"]
 hide = true

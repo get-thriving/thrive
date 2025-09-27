@@ -33,9 +33,9 @@ run = "true"
 
 ["package:src:core:lint:toml"]
 hide = true
-sources = ["src/core/mise.toml"]
+sources = ["src/core/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/core/mise.toml"
+run = "npx eslint src/core/package.mise.toml"
 
 ["package:src:core:lint:mypy"]
 hide = true

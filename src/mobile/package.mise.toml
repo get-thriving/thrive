@@ -21,9 +21,9 @@ run = "true"
 
 ["package:src:mobile:lint:toml"]
 hide = true
-sources = ["src/mobile/mise.toml"]
+sources = ["src/mobile/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/mobile/mise.toml"
+run = "npx eslint src/mobile/package.mise.toml"
 
 ["package:src:mobile:lint:prettier"]
 hide = true

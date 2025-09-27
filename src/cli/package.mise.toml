@@ -35,9 +35,9 @@ run = "true"
 
 ["package:src:cli:lint:toml"]
 hide = true
-sources = ["src/cli/mise.toml"]
+sources = ["src/cli/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint src/cli/mise.toml"
+run = "npx eslint src/cli/package.mise.toml"
 
 ["package:src:cli:lint:hadolint"]
 hide = true
