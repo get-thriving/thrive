@@ -22,7 +22,7 @@ jobs:
           cache: true
           experimental: true
       - name: Install dependencies
-        run: mise run install
+        run: mise run --jobs=1 install
       - name: Prepare for development
         run: mise run prepare
       - name: Check scripts
