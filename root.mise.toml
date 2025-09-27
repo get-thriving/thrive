@@ -1,3 +1,7 @@
+["root:prepare"]
+hide = true
+run = "true"
+
 ["root:install:pyproject"]
 hide = true
 sources = ["pyproject.toml"]

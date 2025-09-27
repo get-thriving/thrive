@@ -12,10 +12,5 @@ echo 'eval "$(~/.local/bin/mise activate zsh)"' >> ~/.zshrc
 mise use -g usage
 mise install
 
-mkdir -p .build-cache
-python3 -m venv .build-cache/venv
-source .build-cache/venv/bin/activate
-
-(cd gen/ts/webapi-client && npx tsc)
-
 mise run --jobs=1 install
+mise run prepare

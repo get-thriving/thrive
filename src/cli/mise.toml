@@ -1,3 +1,7 @@
+["package:src:cli:prepare"]
+hide = true
+run = "true"
+
 ["package:src:cli:install"]
 hide = true
 sources = ["src/cli/pyproject.toml"]

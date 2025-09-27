@@ -1,3 +1,7 @@
+["package:itests:prepare"]
+hide = true
+run = "true"
+
 ["package:itests:post-install"]
 hide = true
 run = "playwright install"

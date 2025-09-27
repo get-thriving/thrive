@@ -1,4 +1,4 @@
-# THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks rebuild-mise TO UPDATE.
+# {{ warning }}
 
 [settings]
 lockfile = true
@@ -29,6 +29,7 @@ includes = [
     "src/desktop/mise.toml",
     "src/mobile/mise.toml",
     "itests/mise.toml",
-    "gen/ts/webapi-client/mise.toml",
-    "gen/py/webapi-client/mise.toml",
+    {{#each packageMisePaths as |path|}}
+    "{{path}}",
+    {{/each}}
 ]

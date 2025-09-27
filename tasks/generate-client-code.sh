@@ -21,16 +21,23 @@ http --timeout 2 get "$webapi_url/openapi.json" > .build-cache/apigen/openapi.js
 
 stop_jupiter apigen
 
+export PACKAGE_NAME=webapi-client
+
 npx openapi \
     --input .build-cache/apigen/openapi.json \
-    --request gen/ts/webapi-client/request-template.ts \
-    --output gen/ts/webapi-client/gen \
+    --request gen/ts/$PACKAGE_NAME/request-template.ts \
+    --output gen/ts/$PACKAGE_NAME/gen \
     --client fetch \
     --name ApiClient
 
-(cd gen/ts/webapi-client && npx tsc)
+npx hbs-cli --stdout -D $(jo packageName="$PACKAGE_NAME") tasks/_resources/ts-package.mise.toml.hbs > gen/ts/$PACKAGE_NAME/mise.toml
 
 trap "rm -rf jupiter-webapi-client" EXIT
-rm -rf gen/py/webapi-client
+rm -rf gen/py/$PACKAGE_NAME
 poetry run openapi-python-client generate --path .build-cache/apigen/openapi.json
-mv jupiter-webapi-client gen/py/webapi-client
+mv jupiter-webapi-client gen/py/$PACKAGE_NAME
+
+npx hbs-cli --stdout -D $(jo packageName="$PACKAGE_NAME") tasks/_resources/py-package.mise.toml.hbs > gen/py/$PACKAGE_NAME/mise.toml
+
+mise tasks run rebuild-mise gen/ts/$PACKAGE_NAME/mise.toml gen/py/$PACKAGE_NAME/mise.toml
+mise tasks run prepare

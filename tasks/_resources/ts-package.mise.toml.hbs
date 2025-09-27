@@ -1,0 +1,7 @@
+["package:gen:ts:{{packageName}}:prepare"]
+hide = true
+run = "cd gen/ts/{{packageName}} && npx tsc"
+
+["package:gen:ts:{{packageName}}:install"]
+hide = true
+run = "cd gen/ts/{{packageName}} && npm install --no-save"
