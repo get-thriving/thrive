@@ -1,9 +1,5 @@
 ["package:itests:prepare"]
 hide = true
-run = "true"
-
-["package:itests:post-install"]
-hide = true
 run = "playwright install"
 
 ["package:itests:install"]
@@ -11,7 +7,6 @@ hide = true
 sources = ["itests/pyproject.toml"]
 outputs = { auto = true }
 run = "cd itests && poetry install --no-interaction --no-ansi"
-depends_post = ["package:itests:post-install"]
 
 ["package:itests:fix:autoflake"]
 hide = true

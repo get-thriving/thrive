@@ -22,7 +22,8 @@ then
     exit 1
 fi
 
+# shellcheck disable=SC1091
 source secrets/Config.secrets
 
-xcrun altool --validate-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD --type ios
-xcrun altool --upload-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --type ios --username $APPLE_ID --password $APPLE_NOTARIZATION_PASSWORD
+xcrun altool --validate-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD" --type ios
+xcrun altool --upload-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --type ios --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD"

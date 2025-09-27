@@ -11,6 +11,7 @@ if [ ! -f secrets/Config.secrets ]; then
 fi
 
 source src/Config.global
+# shellcheck disable=SC1091
 source secrets/Config.secrets
 
 aab_output_path="app/build/outputs/bundle/release"
@@ -35,11 +36,11 @@ cd android
 ./gradlew bundleRelease
 
 jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 \
-  -keystore ../../../$ANDROID_UPLOAD_KEYSTORE_PATH \
-  -storepass $ANDROID_UPLOAD_KEYSTORE_PASSWORD \
-  -keypass $ANDROID_UPLOAD_KEYSTORE_PASSWORD \
-  $aab_output_path/app-release.aab \
-  $ANDROID_UPLOAD_KEYSTORE_ALIAS
+  -keystore "../../../$ANDROID_UPLOAD_KEYSTORE_PATH" \
+  -storepass "$ANDROID_UPLOAD_KEYSTORE_PASSWORD" \
+  -keypass "$ANDROID_UPLOAD_KEYSTORE_PASSWORD" \
+  "$aab_output_path/app-release.aab" \
+  "$ANDROID_UPLOAD_KEYSTORE_ALIAS"
 
-mkdir -p ../../../.build-cache/mobile/android/v$VERSION
-cp $aab_output_path/app-release.aab ../../../.build-cache/mobile/android/v$VERSION/app-${VERSION}.aab
+mkdir -p "../../../.build-cache/mobile/android/v$VERSION"
+cp "$aab_output_path/app-release.aab" "../../../.build-cache/mobile/android/v$VERSION/app-${VERSION}.aab"

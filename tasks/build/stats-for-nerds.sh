@@ -5,7 +5,6 @@ set -ex
 #MISE description="Generate code statistics using cloc"
 
 source src/Config.global
-source secrets/Config.secrets
 
 mkdir -p .build-cache/cloc/$VERSION
 

@@ -27,7 +27,7 @@ mkdir -p .build-cache/itest
 webapi_url=$usage_webapi_url
 webui_url=$usage_webui_url
 
-if [[ ! -z "$usage_namespace" ]]; then
+if [[ -n "$usage_namespace" ]]; then
     webapi_port=$(get_jupiter_port "$usage_namespace" webapi)
     webui_port=$(get_jupiter_port "$usage_namespace" webui)
     webapi_url="http://0.0.0.0:$webapi_port"

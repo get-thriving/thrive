@@ -24,6 +24,6 @@ jobs:
       - name: Install dependencies
         run: mise run --jobs=1 install
       - name: Prepare for development
-        run: mise run prepare
+        run: mise run --jobs=1 prepare
       - name: Check scripts
-        run: mise run check
+        run: mise run --jobs=1 check

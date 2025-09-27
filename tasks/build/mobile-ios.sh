@@ -11,18 +11,19 @@ if [ ! -f secrets/Config.secrets ]; then
 fi
 
 source src/Config.global
+# shellcheck disable=SC1091
 source secrets/Config.secrets
 
 export VERSION
 export BUNDLE_ID
 export PUBLIC_NAME
 
-workspace=ios/App/App.xcworkspace
-scheme=App
-configuration=Release
-archive_path=../../.build-cache/mobile/ios/v${VERSION}/build.xcarchive
-export_options_plist=ios/App/archive.plist
-ipa_path=../../.build-cache/mobile/ios/v${VERSION}/build
+workspace="ios/App/App.xcworkspace"
+scheme="App"
+configuration="Release"
+archive_path="../../.build-cache/mobile/ios/v${VERSION}/build.xcarchive"
+export_options_plist="ios/App/archive.plist"
+ipa_path="../../.build-cache/mobile/ios/v${VERSION}/build"
 
 mkdir -p .build-cache/mobile
 
@@ -51,4 +52,4 @@ xcodebuild -exportArchive \
     -exportOptionsPlist "$export_options_plist" \
     -exportPath "$ipa_path"
 
-cp $ipa_path/App.ipa $ipa_path/App-${VERSION}.ipa
+cp "$ipa_path/App.ipa" "$ipa_path/App-${VERSION}.ipa"

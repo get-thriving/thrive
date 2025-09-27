@@ -231,8 +231,7 @@ get_logs() {
         echo "Docker mode not supported for log retrieval"
         exit 1
     elif [[ "$mode" == "pm2" ]]; then
-        webapi_log_file=$RUN_ROOT/$namespace/webapi.log
-        cat "$webapi_log_file" | tail -n 100
+        tail -n 100 "$RUN_ROOT/$namespace/webapi.log"
     else
         echo "Unknown mode: $mode"
         exit 1

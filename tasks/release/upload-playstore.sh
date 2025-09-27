@@ -23,6 +23,7 @@ then
 fi
 
 source src/Config.global
+# shellcheck disable=SC1091
 source secrets/Config.secrets
 
 export GOOGLE_APPLICATION_CREDENTIALS=./secrets/play-store-bundle-uploader-key.json
