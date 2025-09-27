@@ -25,7 +25,7 @@ hide = true
 sources = ["Brewfile"]
 outputs = { auto = true }
 run = '''
-if [ "$1" = "--in-ci" ]; then
+if [ ! -z "$CI" ]; then
   exit 0
 fi
 brew bundle install
