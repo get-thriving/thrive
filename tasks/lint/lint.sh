@@ -3,4 +3,4 @@
 set -ex
 
 #MISE description="Run all lint tasks"
-#MISE depends=["package:**:lint"]
+#MISE depends=["docs:lint", "package:**:lint"]

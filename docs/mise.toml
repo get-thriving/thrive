@@ -1,0 +1,18 @@
+["docs:prepare"]
+hide = true
+run = "true"
+
+["docs:lint:mdl-docs"]
+hide = true
+sources = ["docs/**/*.md"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -ex
+mdl --config="./scripts/check/lint/mdl-docs" docs/
+'''
+
+["docs:lint"]
+description = "Check docs module"
+depends = ["docs:lint:*"]
+run = "true"

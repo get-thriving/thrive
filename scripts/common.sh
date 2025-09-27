@@ -39,41 +39,43 @@ run_jupiter() {
 }
 
 _run_jupiter_with_pm2() {
-    export local NAMESPACE=$1
-    export local WEBAPI_LOG_FILE=../../$RUN_ROOT/$NAMESPACE/webapi.log
-    export local WEBAPI_SQLITE_DB_URL=sqlite+aiosqlite:///../../$RUN_ROOT/$NAMESPACE/jupiter.sqlite
-    export local WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
-    export local WEBAPI_PORT=$2
-    export local WEBUI_LOG_FILE=../../$RUN_ROOT/$NAMESPACE/webui.log
-    export local WEBUI_PORT=$3
-    export local WEBUI_SERVER_URL=http://0.0.0.0:${WEBUI_PORT}
+    local namespace=$1
+    local webapiLogFile=../../$RUN_ROOT/$namespace/webapi.log
+    local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
+    local webapiPort=$2
+    local webapiServerUrl=http://0.0.0.0:${webapiPort}
+    local webuiLogFile=../../$RUN_ROOT/$namespace/webui.log
+    local webuiPort=$3
+    local webuiServerUrl=http://0.0.0.0:${webuiPort}
     local should_wait=$4
     local should_monit=$5
     local in_ci=$6
 
     if [[ "$in_ci" == "dev" ]]; then
-        _envsubst < scripts/pm2.config.dev.template.js > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
+        npx hbs-cli --stdout -D "$data" scripts/pm2.config.dev.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     else
-        _envsubst < scripts/pm2.config.ci.template.js > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
+        npx hbs-cli --stdout -D "$data" scripts/pm2.config.ci.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     fi
 
-    trap "npx pm2 delete $RUN_ROOT/$NAMESPACE/pm2.config.js" EXIT
-    npx pm2 --no-color start "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+    trap "npx pm2 delete $RUN_ROOT/$namespace/pm2.config.js" EXIT
+    npx pm2 --no-color start "$RUN_ROOT/$namespace/pm2.config.js"
 
-    echo "$WEBAPI_PORT" > "$RUN_ROOT/$NAMESPACE/webapi.port"
-    echo "$WEBUI_PORT" > "$RUN_ROOT/$NAMESPACE/webui.port"
+    echo "$webapiPort" > "$RUN_ROOT/$namespace/webapi.port"
+    echo "$webuiPort" > "$RUN_ROOT/$namespace/webui.port"
 
     if [[ "$should_wait" == "wait:all" ]]; then
-        wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
-        wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+        wait_for_service_to_start webapi "$webapiServerUrl"
+        wait_for_service_to_start webui "$webuiServerUrl"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
-        wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
+        wait_for_service_to_start webapi "$webapiServerUrl"
     fi 
 
     if [[ ${should_wait} == "wait:webui" ]]; then
-        wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+        wait_for_service_to_start webui "$webuiServerUrl"
     fi
 
     if [[ ${should_monit} == "monit" ]]; then
@@ -128,10 +130,6 @@ _run_jupiter_with_docker() {
     if [[ ${should_monit} == "monit" ]]; then
         docker compose -f infra/self-hosted/compose.yaml logs -f
     fi
-}
-
-_envsubst() {
-  python -c 'import os,sys;[sys.stdout.write(os.path.expandvars(l)) for l in sys.stdin]'
 }
 
 stop_jupiter() {

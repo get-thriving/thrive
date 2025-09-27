@@ -10,6 +10,6 @@ set -ex
 source scripts/common.sh
 
 warning="THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks rebuild-mise TO UPDATE."
-data_json="$(jo warning="$warning" packageMisePaths="$(jo -a $usage_package_mise_path)")"
+data_json="$(jo warning="$warning" packageMisePaths="$(jo -a "$usage_package_mise_path")")"
 
 npx hbs-cli --stdout -D "$data_json" mise.toml.hbs > mise.toml
