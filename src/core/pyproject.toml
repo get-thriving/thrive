@@ -12,7 +12,7 @@ packages = [{ include = "jupiter" }]
 
 [tool.poetry.dependencies]
 python = "^3.13"
-pendulum = "^3.0.0"
+pendulum = "^3.1.0"
 python-dotenv = "^1.0.1"
 pytz = "^2025.1"
 requests = "^2.32.3"
