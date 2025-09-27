@@ -8,6 +8,7 @@ export STANDARD_WEBUI_PORT=10020
 original_x_status=$(set +o | grep xtrace)
 set +x
 export NVM_DIR="$HOME/.nvm"
+# shellcheck disable=SC1091
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 eval "$original_x_status"
 
@@ -20,8 +21,8 @@ run_jupiter() {
     local in_ci=$6
     local mode=$7
 
-    export local SCRIPT_ARGS=
-    local platform=$(uname -s | awk '{print tolower($0)}')
+    export SCRIPT_ARGS=
+    platform=$(uname -s | awk '{print tolower($0)}')
     if [[ "${platform}" == "darwin" ]]
     then
         SCRIPT_ARGS="-qF"
@@ -53,13 +54,14 @@ _run_jupiter_with_pm2() {
 
     if [[ "$in_ci" == "dev" ]]; then
         data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
-        npx hbs-cli --stdout -D "$data" scripts/pm2.config.dev.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        npx hbs-cli --stdout -D "$data" tasks/_resources/pm2.config.dev.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     else
         data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
-        npx hbs-cli --stdout -D "$data" scripts/pm2.config.ci.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        npx hbs-cli --stdout -D "$data" tasks/_resources/pm2.config.ci.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     fi
 
-    trap "npx pm2 delete $RUN_ROOT/$namespace/pm2.config.js" EXIT
+    # shellcheck disable=SC2064
+    trap "npx pm2 delete '$RUN_ROOT/$namespace/pm2.config.js'" EXIT
     npx pm2 --no-color start "$RUN_ROOT/$namespace/pm2.config.js"
 
     echo "$webapiPort" > "$RUN_ROOT/$namespace/webapi.port"
@@ -84,28 +86,32 @@ _run_jupiter_with_pm2() {
 }
 
 _run_jupiter_with_docker() {
-    export local NAMESPACE=$1
-    export local WEBAPI_PORT=$2
-    export local WEBUI_PORT=$3
-    export local WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
-    export local WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
+    export NAMESPACE=$1
+    export WEBAPI_PORT=$2
+    export WEBUI_PORT=$3
+    export WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
+    export WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
     local should_wait=$4
     local should_monit=$5
     local in_ci=$6
-    export local NAME="My Hosting"
-    export local AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
-    export local SESSION_COOKIE_SECRET=$(openssl rand -hex 32)
+    export NAME="My Hosting"
+    AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
+    export AUTH_TOKEN_SECRET
+    SESSION_COOKIE_SECRET=$(openssl rand -hex 32)
+    export SESSION_COOKIE_SECRET
 
-    export local FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$NAMESPACE/fullchain.pem
-    export local PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$NAMESPACE/privkey.pem
+    FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$NAMESPACE/fullchain.pem
+    export FULLCHAIN_PEM
+    PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$NAMESPACE/privkey.pem
+    export PRIVKEY_PEM
 
     openssl req -x509 \
         -nodes \
         -days 365 \
         -subj "/CN=localhost" \
         -newkey rsa:2048 \
-        -keyout $PRIVKEY_PEM \
-        -out $FULLCHAIN_PEM
+        -keyout "$PRIVKEY_PEM" \
+        -out "$FULLCHAIN_PEM"
 
     trap "docker compose -f infra/self-hosted/compose.yaml down" EXIT
 
@@ -175,7 +181,7 @@ wait_for_service_to_start() {
 
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        response=$(http --verify=no --timeout 10 --check-status get "${url}" 2>/dev/null)
+        http --verify=no --timeout 10 --check-status get "${url}" 2>/dev/null
         resp=$?
         set -e
         
@@ -186,7 +192,7 @@ wait_for_service_to_start() {
             echo "Waiting for ${service}. Attempt $((attempts+1)) of $max_attempts."
         fi
         
-        attempts=$(expr $attempts + 1)
+        attempts=$((attempts + 1))
         sleep 1  # Adjust the sleep time as needed
     done
 

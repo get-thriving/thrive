@@ -12,7 +12,7 @@ set -ex
 : "${usage_pytest_args:=}"
 
 
-source scripts/common.sh
+source tasks/_common.sh
 source tasks/test/_common.sh
 
 mkdir -p .build-cache/itest

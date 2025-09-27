@@ -19,7 +19,7 @@ set -ex
 : "${usage_namespace:=}"
 
 
-source scripts/common.sh
+source tasks/_common.sh
 source tasks/test/_common.sh
 
 mkdir -p .build-cache/itest

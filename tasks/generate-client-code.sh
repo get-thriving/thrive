@@ -4,7 +4,7 @@ set -ex
 
 #MISE description="Generate client code for TypeScript and Python from OpenAPI spec"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 webapi_port=$(get_free_port)
 webapi_url=http://0.0.0.0:${webapi_port}

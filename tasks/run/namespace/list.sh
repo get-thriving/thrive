@@ -2,7 +2,7 @@
 
 #MISE description="List all Jupiter namespaces"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 # Don't echo commands (useful if caller enabled -x)
 set +x

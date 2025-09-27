@@ -12,7 +12,7 @@ set -ex
 : "${usage_platform:=}"
 : "${usage_namespace:=}"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 platform="${usage_platform}"
 namespace="${usage_namespace}"

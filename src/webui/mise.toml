@@ -33,7 +33,7 @@ run = '''
 #!/usr/bin/env bash
 set -ex
 docker run --rm -i \
-  -v "$(pwd)/scripts/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
   -v "$(pwd)/src/webui/Dockerfile:/Dockerfile" \
   hadolint/hadolint:latest-debian \
   hadolint \
@@ -69,7 +69,7 @@ run = "npx eslint src/webui"
 hide = true
 sources = ["src/webui/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/webui/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/webui/README.md"
 
 ["package:src:webui:lint"]
 description = "Check src/webui module"

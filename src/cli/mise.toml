@@ -12,7 +12,7 @@ run = "cd src/cli && poetry install --no-interaction --no-ansi"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=scripts/check/lint/autoflake src/cli"
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/cli"
 
 ["package:src:cli:fix:black"]
 hide = true
@@ -24,7 +24,7 @@ run = "poetry run black src/cli"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/cli --fix"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli --fix"
 
 ["package:src:cli:fix"]
 description = "Fix src/cli module"
@@ -46,7 +46,7 @@ run = '''
 #!/usr/bin/env bash
 set -ex
 docker run --rm -i \
-  -v "$(pwd)/scripts/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
   -v "$(pwd)/src/cli/Dockerfile:/Dockerfile" \
   hadolint/hadolint \
   hadolint \
@@ -59,20 +59,20 @@ env.MYPYPATH = "../core"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "cd src/cli && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/cli && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:cli:lint:ruff"]
 env.MYPYPATH = "../core"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/cli"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli"
 
 ["package:src:cli:lint:mdl-readme"]
 hide = true
 sources = ["src/cli/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/cli/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/cli/README.md"
 
 ["package:src:cli:lint:pyflakes"]
 hide = true
@@ -84,13 +84,13 @@ run = "poetry run pyflakes src/cli"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/cli"
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/cli"
 
 ["package:src:cli:lint:pydocstyle"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/cli"
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/cli"
 
 ["package:src:cli:lint"]
 description = "Check src/cli module"

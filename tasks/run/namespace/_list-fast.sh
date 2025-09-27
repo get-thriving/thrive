@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 
-source scripts/common.sh
+source tasks/_common.sh
 
 set -e
 set +x

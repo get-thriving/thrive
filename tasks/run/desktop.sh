@@ -8,7 +8,7 @@ set -ex
 
 : "${usage_namespace:=}"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 namespace="${usage_namespace}"
 

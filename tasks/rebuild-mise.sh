@@ -7,7 +7,7 @@ set -ex
 
 : "${usage_package_mise_path:=}"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 warning="THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks rebuild-mise TO UPDATE."
 # shellcheck disable=SC2068

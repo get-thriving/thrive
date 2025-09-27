@@ -35,7 +35,7 @@ run = "npx prettier --check src/mobile"
 hide = true
 sources = ["src/mobile/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/mobile/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/mobile/README.md"
 
 ["package:src:mobile:lint"]
 description = "Check src/mobile module"

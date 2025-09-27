@@ -84,13 +84,19 @@ description = "Check root libyear"
 depends = ["root:libyear:*"]
 run = "true"
 
+["docs:lint:toml"]
+hide = true
+sources = ["mise.toml", "root.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint mise.toml root.mise.toml"
+
 ["root:lint:yamllint-workflows"]
 hide = true
-run = "poetry run yamllint --config-file=./scripts/check/lint/yamllint .github/"
+run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
 
 ["root:lint:mdl-readme"]
 hide = true
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" README.md"
 
 ["root:lint"]
 description = "Check root lint"

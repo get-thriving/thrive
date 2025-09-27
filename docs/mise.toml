@@ -15,7 +15,7 @@ outputs = { auto = true }
 run = '''
 #!/usr/bin/env bash
 set -ex
-mdl --config="./scripts/check/lint/mdl-docs" docs/
+mdl --config="./tasks/_resources/check/lint/mdl-docs" docs/
 '''
 
 ["docs:lint"]

@@ -12,7 +12,7 @@ set -ex
 : "${usage_namespace:=}"
 : "${usage_run_mode:=pm2}"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 namespace="${usage_namespace}"
 

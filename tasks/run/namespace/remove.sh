@@ -9,7 +9,7 @@ set -e
 
 : "${usage_namespace:=}"
 
-source scripts/common.sh
+source tasks/_common.sh
 
 set +x
 

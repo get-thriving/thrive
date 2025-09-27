@@ -2,7 +2,7 @@
 
 set -ex
 
-source scripts/common.sh
+source tasks/_common.sh
 
 run_tests() {
     local webapi_url=$1

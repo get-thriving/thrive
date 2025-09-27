@@ -12,7 +12,7 @@ run = "cd src/core && poetry install --no-interaction --no-ansi"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=scripts/check/lint/autoflake src/core"
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/core"
 
 ["package:src:core:fix:black"]
 hide = true
@@ -24,7 +24,7 @@ run = "poetry run black src/core"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core --fix"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
 
 ["package:src:core:fix"]
 description = "Fix src/core module"
@@ -41,19 +41,19 @@ run = "npx eslint src/core/mise.toml"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "cd src/core && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/core && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:core:lint:ruff"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/core"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core"
 
 ["package:src:core:lint:mdl-readme"]
 hide = true
 sources = ["src/core/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/core/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/core/README.md"
 
 ["package:src:core:lint:pyflakes"]
 hide = true
@@ -65,13 +65,13 @@ run = "poetry run pyflakes src/core"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/core"
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/core"
 
 ["package:src:core:lint:pydocstyle"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/core"
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/core"
 
 ["package:src:core:lint"]
 description = "Check src/core module"

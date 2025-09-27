@@ -12,7 +12,7 @@ run = "cd src/webapi && poetry install --no-interaction --no-ansi"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=scripts/check/lint/autoflake src/webapi"
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi"
 
 ["package:src:webapi:fix:black"]
 hide = true
@@ -24,7 +24,7 @@ run = "poetry run black src/webapi"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/webapi --fix"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi --fix"
 
 ["package:src:webapi:fix"]
 description = "Fix src/webapi module"
@@ -45,7 +45,7 @@ run = '''
 #!/usr/bin/env bash
 set -ex
 docker run --rm -i \
-  -v "$(pwd)/scripts/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
   -v "$(pwd)/src/webapi/Dockerfile:/Dockerfile" \
   hadolint/hadolint:latest-debian \
   hadolint \
@@ -58,20 +58,20 @@ env.MYPYPATH = "../core"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "cd src/webapi && poetry run mypy --config=../../scripts/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/webapi && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:webapi:lint:ruff"]
 env.MYPYPATH = "../core"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml src/webapi"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi"
 
 ["package:src:webapi:lint:mdl-readme"]
 hide = true
 sources = ["src/webapi/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" src/webapi/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/webapi/README.md"
 
 ["package:src:webapi:lint:pyflakes"]
 hide = true
@@ -83,13 +83,13 @@ run = "poetry run pyflakes src/webapi"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.src.ini -r src/webapi"
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi"
 
 ["package:src:webapi:lint:pydocstyle"]
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle src/webapi"
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi"
 
 ["package:src:webapi:lint"]
 description = "Check src/webapi module"

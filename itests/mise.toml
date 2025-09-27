@@ -17,7 +17,7 @@ depends_post = ["package:itests:post-install"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=scripts/check/lint/autoflake itests"
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake itests"
 
 ["package:itests:fix:black"]
 hide = true
@@ -29,7 +29,7 @@ run = "poetry run black itests"
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests --fix"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests --fix"
 
 ["package:itests:fix"]
 description = "Fix itests module"
@@ -46,19 +46,19 @@ run = "npx eslint itests/mise.toml"
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run mypy --config=scripts/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
+run = "poetry run mypy --config=tasks/_resources/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
 
 ["package:itests:lint:ruff"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./scripts/check/lint/ruff.toml itests"
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests"
 
 ["package:itests:lint:mdl-readme"]
 hide = true
 sources = ["itests/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./scripts/check/lint/mdl-readme\" itests/README.md"
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" itests/README.md"
 
 ["package:itests:lint:pyflakes"]
 hide = true
@@ -70,13 +70,13 @@ run = "poetry run pyflakes itests"
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./scripts/check/lint/bandit --ini=./scripts/check/lint/bandit.test.ini -r itests"
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.test.ini -r itests"
 
 ["package:itests:lint:pydocstyle"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./scripts/check/lint/pydocstyle itests"
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle itests"
 
 ["package:itests:lint"]
 description = "Check itests module"
