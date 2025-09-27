@@ -38,6 +38,6 @@ jobs:
         with:
           version: 2.1.1
       - name: Prepare for CI
-        run: ./scripts/setup-for-ci.sh
+        run: ./tasks/setup-for-ci.sh
       - name: Check scripts
         run: mise check
