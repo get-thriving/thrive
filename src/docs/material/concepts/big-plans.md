@@ -60,7 +60,7 @@ before the earliest milestone, or after the latest one, respectively.
 ## Stats
 
 Big plans have a notion of progress associated with them, which is quantified by a number
-ranging from `0` to `100`. 
+ranging from `0` to `100`.
 
 * Big plans that are not started are at `0`.
 * Big plans that are in progress or blocked are at `10` at a mimum and `95` at a maximum.

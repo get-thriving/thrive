@@ -48,6 +48,7 @@ class HomeConfig(TrunkEntity):
         target: HomeTabTarget,
         tab_ref_id: EntityId,
     ) -> "HomeConfig":
+        """Add a tab to the home config."""
         return self._new_version(
             ctx,
             order_of_tabs={
@@ -63,6 +64,7 @@ class HomeConfig(TrunkEntity):
         target: HomeTabTarget,
         tab_ref_id: EntityId,
     ) -> "HomeConfig":
+        """Remove a tab from the home config."""
         return self._new_version(
             ctx,
             order_of_tabs={
@@ -80,6 +82,7 @@ class HomeConfig(TrunkEntity):
         target: HomeTabTarget,
         order_of_tabs: list[EntityId],
     ) -> "HomeConfig":
+        """Reorder the tabs for a target."""
         return self._new_version(
             ctx, order_of_tabs={**self.order_of_tabs, target: order_of_tabs}
         )

@@ -1,0 +1,108 @@
+["root:prepare"]
+hide = true
+run = "true"
+
+["root:install:pyproject"]
+hide = true
+sources = ["pyproject.toml"]
+outputs = { auto = true }
+run = "poetry install --no-interaction --no-ansi"
+
+["root:install:npm"]
+hide = true
+sources = ["package.json"]
+outputs = { auto = true }
+run = "npm install --no-save"
+
+["root:install:docker"]
+hide = true
+sources = ["Dockfile"]
+outputs = { auto = true }
+run = "xargs docker pull < Dockfile"
+
+["root:install:brew"]
+hide = true
+sources = ["Brewfile"]
+outputs = { auto = true }
+run = '''
+if [ ! -z "$CI" ]; then
+  exit 0
+fi
+brew bundle install
+'''
+
+["root:install:apt"]
+hide = true
+sources = ["aptfile"]
+outputs = { auto = true }
+run = '''
+# Are we truly in a CI environment, or on a local machine but running the CI script?
+# If we are, GitHub (and other CI providers) will set the CI environment variable.
+if [[ -z "$CI" ]]; then
+  exit 0
+fi
+xargs sudo apt-get install -y < aptfile
+'''
+
+["root:install:gem"]
+hide = true
+sources = ["Gemfile"]
+outputs = { auto = true }
+run = "bundle install"
+
+["root:install"]
+hide = true
+depends = ["root:install:*"]
+
+["root:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["root:audit:npm-audit"]
+hide = true
+run = "npm audit --audit-level=info"
+
+["root:audit"]
+description = "Audit root dependencies"
+depends = ["root:audit:*"]
+run = "true"
+
+["root:libyear:libyear-toml"]
+hide = true
+run = "libyear toml pyproject.toml"
+
+["root:libyear:npm-libyear"]
+hide = true
+run = "npx libyear"
+
+["root:libyear"]
+description = "Check root libyear"
+depends = ["root:libyear:*"]
+run = "true"
+
+["docs:lint:toml"]
+hide = true
+sources = ["mise.toml", "root.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint mise.toml root.mise.toml"
+
+["root:lint:yamllint-workflows"]
+hide = true
+sources = [".github/**/*.(yaml|yml)"]
+outputs = { auto = true }
+run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
+
+["root:lint:mdl-readme"]
+hide = true
+sources = ["README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" README.md"
+
+["root:lint"]
+description = "Check root lint"
+depends = ["root:lint:*"]
+run = "true"

@@ -1,0 +1,45 @@
+["package:src:docs:prepare"]
+hide = true
+run = "true"
+
+["package:src:docs:install"]
+hide = true
+sources = ["src/docs/pyproject.toml"]
+outputs = { auto = true }
+run = "cd src/docs && poetry install --no-interaction --no-ansi"
+
+["package:src:docs:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/docs/pyproject.toml"
+
+["package:src:docs:libyear"]
+description = "Check src/docs libyear"
+depends = ["package:src:docs:libyear:*"]
+run = "true"
+
+["package:src:docs:lint:toml"]
+hide = true
+sources = ["src/docs/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/docs/package.mise.toml"
+
+["package:src:docs:lint:yamllint"]
+hide = true
+sources = ["src/docs/**/*.{yml|yaml}"]
+outputs = { auto = true }
+run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
+
+["package:src:docs:lint:mdl-docs"]
+hide = true
+sources = ["src/docs/**/*.md"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+mdl --config="./tasks/_resources/check/lint/mdl-docs" src/docs/
+'''
+
+["package:src:docs:lint"]
+description = "Check src/docs module"
+depends = ["package:src:docs:lint:*"]
+run = "true"

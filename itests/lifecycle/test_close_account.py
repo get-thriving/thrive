@@ -1,4 +1,4 @@
-from jupiter.core.use_cases.application.init import InitResult
+from jupiter_webapi_client.models.init_result import InitResult
 from playwright.sync_api import Page, expect
 
 from itests.conftest import TestUser

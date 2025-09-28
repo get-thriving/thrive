@@ -10,6 +10,7 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.chore import Chore
 from jupiter_webapi_client.models.chore_create_args import ChoreCreateArgs
+from jupiter_webapi_client.models.chore_create_result import ChoreCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
@@ -18,6 +19,8 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -54,9 +57,7 @@ def create_chore(logged_in_client: AuthenticatedClient):
                 must_do=must_do,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_chore
+        return get_parsed_from_response(ChoreCreateResult, result).new_chore
 
     return _create_chore
 

@@ -18,16 +18,24 @@ from jupiter_webapi_client.models.schedule_event_in_day import ScheduleEventInDa
 from jupiter_webapi_client.models.schedule_event_in_day_create_args import (
     ScheduleEventInDayCreateArgs,
 )
+from jupiter_webapi_client.models.schedule_event_in_day_create_result import (
+    ScheduleEventInDayCreateResult,
+)
 from jupiter_webapi_client.models.schedule_stream import ScheduleStream
 from jupiter_webapi_client.models.schedule_stream_color import ScheduleStreamColor
 from jupiter_webapi_client.models.schedule_stream_create_for_user_args import (
     ScheduleStreamCreateForUserArgs,
+)
+from jupiter_webapi_client.models.schedule_stream_create_for_user_result import (
+    ScheduleStreamCreateForUserResult,
 )
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -56,9 +64,9 @@ def create_schedule_stream(logged_in_client: AuthenticatedClient):
                 color=color,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_schedule_stream
+        return get_parsed_from_response(
+            ScheduleStreamCreateForUserResult, result
+        ).new_schedule_stream
 
     return _create_schedule_stream
 
@@ -85,9 +93,9 @@ def create_schedule_event_in_day(logged_in_client: AuthenticatedClient):
                 duration_mins=duration_mins,
             ),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_schedule_event_in_day
+        return get_parsed_from_response(
+            ScheduleEventInDayCreateResult, result
+        ).new_schedule_event_in_day
 
     return _create_schedule_event_in_day
 

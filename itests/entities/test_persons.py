@@ -10,12 +10,15 @@ from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.person import Person
 from jupiter_webapi_client.models.person_create_args import PersonCreateArgs
+from jupiter_webapi_client.models.person_create_result import PersonCreateResult
 from jupiter_webapi_client.models.person_relationship import PersonRelationship
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
 )
 from playwright.sync_api import Page, expect
+
+from itests.helpers import get_parsed_from_response
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -38,9 +41,7 @@ def create_person(logged_in_client: AuthenticatedClient):
             client=logged_in_client,
             body=PersonCreateArgs(name=name, relationship=relationship),
         )
-        if result.status_code != 200:
-            raise Exception(result.content)
-        return result.parsed.new_person
+        return get_parsed_from_response(PersonCreateResult, result).new_person
 
     return _create_person
 

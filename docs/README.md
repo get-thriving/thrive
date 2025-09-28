@@ -12,8 +12,9 @@ application copy, images, legal material, etc.
 
 ## Prepare For Development
 
-Checkout `scripts/setup-for-dev.sh`. It outlines the tools you need to have in order to
-develop Jupiter. It's a pretty standard Node & Python development setup. A modern IDE is
+We use [mise](https://mise.jdx.dev/) to manage the toolset used and as a general
+repository tasks and build tool.  Checkout `scripts/setup-for-dev.sh` for other tools
+needed. It's a pretty standard Node & Python development setup. A modern IDE is
 implied, though no particular brand is assumed.
 
 After a `git clone jupiter ~/Work/jupiter` kind of setup, you should also run the following:
@@ -33,16 +34,14 @@ When you want to develop a new feature or bugfix you need to activate the new de
 session from a shell first. Then there's some small ceremony about creating a feature branch for the work (see below).
 
 ```bash
-% source ./scripts/work/new-dev-session.sh
-# Set everything up in the Python and Node settings
-% ./scripts/work/new-feature work-on-something
+% mise run work:feature:new work-on-something
 # Creates branch feature/work-on-something and switch to it
 ```
 
 Finally there's commands for running a local instance of Jupiter.
 
 ```bash
-% ./scripts/run-dev.sh a-test
+% mise run run:srv a-test
 ```
 
 This will start the instance with the name `a-test`. If ommited, the standard name `dev`
@@ -50,21 +49,21 @@ is used. You can start as many as you want, and they live independently (use dif
 DBs, different ports, etc.). You can watch the overview of the started processes and their
 logs for easier debugging. Though `npx pm2 logs` is also useful here.
 
-For quick checks you can run `./scripts/fast-lint.sh`. And for the whole test-suite with
-linters, type checkers, unit tests, integration tests, etc. you can run `make check` (it'll take a couple minutes).
+For quick checks you can run `mise lint:lint-fast`. And for the whole test-suite with
+linters, type checkers, unit tests, integration tests, etc. you can run `mise check` (it'll take a couple minutes).
 
 When you're finished you can run:
 
 ```bash
-./scripts/close-feature.sh
+% mise run work:feature:close
 ```
 
-This will perform all ceremonies, merge the branch correctly into `main` and push to GitHub.
+This will perform all ceremonies, merge the branch correctly into `develop` and push to GitHub.
 
-> A note on using `./scripts/work/new-feature.sh`, `./scripts/work/new-bugfix.sh`, and other
-counterparts: we want to keep hygene of the `main` branch to have a linear history of
+> A note on using `work:feature:new`, `work:feature:close`, and other
+counterparts: we want to keep hygene of the `master` branch to have a linear history of
 features and bugfixes, ocassionally tagged with releases. To enforce these, there's no
-straight coding on the `main` branch, and the helper scripts help you setup things
+straight coding on the `develop` branch, and the helper scripts help you setup things
 in the right way.
 
 ## Environments
@@ -91,11 +90,11 @@ they are in.
   `live` environment because it is accessible to users.
 * There is the `dev` enviroment of which there can be many, and which are the ones
   developers create when they're running their work on their dev machines. Every
-  time you run `./scripts/run-dev.sh` you're creating/using such an environment.
+  time you run `./scripts/run-srv.sh` you're creating/using such an environment.
   This is not considered `local` environment because it is not accessible to users.
 
 Feature environments are a subset of `dev` and `staging` environments. When you specificy a
-particular name in `./scripts/run-dev.sh <your-name>` you create such an env for example,
+particular name in `./scripts/run-srv.sh <your-name>` you create such an env for example,
 or reuse if you created it before. When you open a PR, the same happens but in a `live`
 setting. These environments are separate between each other, and start in a blank but valid state.
 
@@ -177,10 +176,10 @@ where this thing is more clear, there is something that the shell does.
 
 ## Running Tests
 
-The full test suite is run via `make check`. This runs linters, type checkers, and
+The full test suite is run via `mise check`. This runs linters, type checkers, and
 various test batteriess on all the sources, config files, etc.
 
-There is `./scripts/fast-lint.sh` that runs just the linters and type checkers and
+There is `mise lint:lint-fast` that runs just the linters and type checkers and
 is used for quicker feedback on the changes that you're doing. Most of the info
 here is given by various IDE tooling (which in the case of VS Code is configured
 to use the same configs as the CLI tooling). But the one produced by `fast-lint`
@@ -190,22 +189,25 @@ We aim to keep this under 30 seconds.
 
 ## Fixing Issues
 
-Run `./scripts/check/fix-style.sh` to fix many linting issues.
+Run `mise lint:fix` to fix many linting issues.
 
 ### Integration Tests
 
 Jupiter has a large battery of integration tests that look at all aspects of the
 application and its functionality, typically on the happy paths.
 
-To run these specifically you can use `./scripts/run-itests.sh`. A typical invocation
+To run these specifically you can use `mise test:int-dev`. A typical invocation
 might be:
 
-`./scripts/run-itests.sh dev -k my_test_prefix`
+```bash
+% mise test:int-dev -- -k test_vacations
+```
 
-This starts a distinct dev feature environment and opens a browser intstrumented for
+This connects to an existing environment and opens a browser intstrumented for
 testing. You'll see a typical test result from this one.
 
-Tests are written in `Python` with `pytest` and `playwright`.
+Tests are written in `Python` with `pytest` and `playwright`. After the `--` you
+can pass in `pytest` arguments.
 
 ## Releases
 
@@ -213,7 +215,7 @@ Jupiter has a notion of versions, represented by releases. These mark specific
 code versions, and the associated "release entities" for them (typically packaged apps).
 
 The main Jupiter system has a continuous deployment release model. Every piece
-of work that gets created via `./scripts/work/new-feature|new-bugfix` triggers a
+of work that gets created via `work:feature:new` or `work:bugfix:new` triggers a
 a release to production - `webui` and `webapi` and `docs` and the others are thus
 handled. Ditto, every PR also is pushed immediately to a staging environment.
 
@@ -237,18 +239,18 @@ In terms of representation:
 
 In terms of working:
 
-* To create a release use `./scripts/release/prepare.sh x.y.z`.
+* To create a release use `mise run release:prepare x.y.z`.
 * You'll need to edit `src/docs/material/releases/release-x.y.z.md` with the
   release notes. And update `mkdocs.yaml` to include it.
-* Also run a `./scripts/build/stats-for-nerds.sh` to include some per-release info.
-* Then run `./scripts/release/finish.sh` to finish everything about the
-  release on GitHub size.
-* You can run `./scripts/build/desktop.sh` to build the new version of the
+* Also run `mise run build:stats-for-nerds` to include some per-release info.
+* Then run `mise run release:finish` to finish everything about the
+  release on GitHub side.
+* You can run `mise run build:desktop` to build the new version of the
   desktop apps.
-* And then `./scripts/release/upload-gh.sh x.y.z` to create a new release
+* And then `mise run release:upload-gh x.y.z` to create a new release
   on GitHub.
-* Finally, if you so with you can upload to the AppStore via
-  `./scripts/release/appstore-upload-(ios|macos).sh x.y.z`. As mentioned above, not
+* Finally, if you wish, you can upload to the AppStore via
+  `mise run release:appstore-upload-(ios|macos) x.y.z`. As mentioned above, not
   always necessary.
 
 We'll work to unify these more in the future, but for now they're manual
@@ -301,3 +303,5 @@ There's some trickyness that's easy to miss.
   messed up. To prevent this we force a client-side reload to a
   very safe page. Which then does a Remix reload to the final page.
   We're gonna log this at some point.
+* For desktop and mobile, there is a `vite` build step inherent in the
+  build process, but not necessarily obvious. Study the scripts.

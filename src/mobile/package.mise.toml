@@ -1,0 +1,61 @@
+["package:src:mobile:prepare"]
+hide = true
+run = "true"
+
+["package:src:mobile:install"]
+hide = true
+sources = ["src/mobile/package.json"]
+outputs = { auto = true }
+run = "cd src/mobile && npm install --no-save"
+
+["package:src:mobile:fix:prettier"]
+hide = true
+sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/mobile"
+
+["package:src:mobile:fix"]
+description = "Fix src/mobile module"
+depends = ["package:src:mobile:fix:*"]
+run = "true"
+
+["package:src:mobile:lint:toml"]
+hide = true
+sources = ["src/mobile/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/mobile/package.mise.toml"
+
+["package:src:mobile:lint:prettier"]
+hide = true
+sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
+run = "npx prettier --check src/mobile"
+
+["package:src:mobile:lint:mdl-readme"]
+hide = true
+sources = ["src/mobile/README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/mobile/README.md"
+
+["package:src:mobile:lint"]
+description = "Check src/mobile module"
+depends = ["package:src:mobile:lint:*"]
+run = "true"
+
+["package:src:mobile:audit:npm-audit"]
+hide = true
+run = "cd src/mobile && npm audit --audit-level=high"
+
+["package:src:mobile:audit"]
+description = "Audit src/mobile module"
+depends = ["package:src:mobile:audit:*"]
+run = "true"
+
+["package:src:mobile:libyear:npm-libyear"]
+hide = true
+run = "cd src/mobile && npx libyear"
+
+["package:src:mobile:libyear"]
+description = "Check src/mobile libyear"
+depends = ["package:src:mobile:libyear:*"]
+run = "true"

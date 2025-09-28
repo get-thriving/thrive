@@ -1,0 +1,61 @@
+["package:src:desktop:prepare"]
+hide = true
+run = "true"
+
+["package:src:desktop:install"]
+hide = true
+sources = ["src/desktop/package.json"]
+outputs = { auto = true }
+run = "cd src/desktop && npm install --no-save"
+
+["package:src:desktop:fix:prettier"]
+hide = true
+sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/desktop"
+
+["package:src:desktop:fix"]
+description = "Fix src/desktop module"
+depends = ["package:src:desktop:fix:*"]
+run = "true"
+
+["package:src:desktop:lint:toml"]
+hide = true
+sources = ["src/desktop/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/desktop/package.mise.toml"
+
+["package:src:desktop:lint:prettier"]
+hide = true
+sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+outputs = { auto = true }
+run = "npx prettier --check src/desktop"
+
+["package:src:desktop:lint:mdl-readme"]
+hide = true
+sources = ["src/desktop/README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/desktop/README.md"
+
+["package:src:desktop:lint"]
+description = "Check src/desktop module"
+depends = ["package:src:desktop:lint:*"]
+run = "true"
+
+["package:src:desktop:audit:npm-audit"]
+hide = true
+run = "cd src/desktop && npm audit --audit-level=high"
+
+["package:src:desktop:audit"]
+description = "Audit src/desktop module"
+depends = ["package:src:desktop:audit:*"]
+run = "true"
+
+["package:src:desktop:libyear:npm-libyear"]
+hide = true
+run = "cd src/desktop && npx libyear"
+
+["package:src:desktop:libyear"]
+description = "Check src/desktop libyear"
+depends = ["package:src:desktop:libyear:*"]
+run = "true"

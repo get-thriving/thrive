@@ -1,0 +1,18 @@
+["package:gen:ts:{{packageName}}:lint:toml"]
+hide = true
+sources = ["gen/ts/{{packageName}}/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint gen/ts/{{packageName}}/package.mise.toml"
+
+["package:gen:ts:{{packageName}}:lint"]
+hide = true
+depends = ["package:gen:ts:{{packageName}}:lint:*"]
+run = "true"
+
+["package:gen:ts:{{packageName}}:prepare"]
+hide = true
+run = "cd gen/ts/{{packageName}} && npx tsc"
+
+["package:gen:ts:{{packageName}}:install"]
+hide = true
+run = "cd gen/ts/{{packageName}} && npm install --no-save"

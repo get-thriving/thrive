@@ -47,6 +47,7 @@ class HomeTab(BranchEntity):
         name: EntityName,
         icon: EntityIcon | None,
     ) -> "HomeTab":
+        """Create a new home tab."""
         return HomeTab._create(
             ctx,
             home_config=ParentLink(home_config_ref_id),
@@ -63,6 +64,7 @@ class HomeTab(BranchEntity):
         name: UpdateAction[EntityName],
         icon: UpdateAction[EntityIcon | None],
     ) -> "HomeTab":
+        """Update the home tab."""
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
@@ -76,6 +78,7 @@ class HomeTab(BranchEntity):
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTab":
+        """Add a widget to the home tab."""
         widget_placement = self.widget_placement.add_widget(widget_ref_id, geometry)
         return self._new_version(ctx, widget_placement=widget_placement)
 
@@ -85,6 +88,7 @@ class HomeTab(BranchEntity):
         ctx: DomainContext,
         widget_ref_id: EntityId,
     ) -> "HomeTab":
+        """Remove a widget from the home tab."""
         widget_placement = self.widget_placement.remove_widget(widget_ref_id)
         return self._new_version(ctx, widget_placement=widget_placement)
 
@@ -95,5 +99,6 @@ class HomeTab(BranchEntity):
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTab":
+        """Move a widget to a new position."""
         widget_placement = self.widget_placement.move_widget_to(widget_ref_id, geometry)
         return self._new_version(ctx, widget_placement=widget_placement)

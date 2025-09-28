@@ -25,6 +25,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
+    'plugin:toml/recommended',
     'prettier',
   ],
   rules: {
@@ -60,6 +61,10 @@ module.exports = {
         project: ['src/*/tsconfig.json'],
         tsconfigRootDir: __dirname,
       },
+    },
+    {
+      files: ["*.toml"],
+      parser: "toml-eslint-parser",
     },
   ],
 };

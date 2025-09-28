@@ -20,12 +20,13 @@ journals are backward looking, time plans are forward looking.
 
 ## Auto-Generation
 
-Time plans can be configured to be generated automatically, via the 
+Time plans can be configured to be generated automatically, via the
 [task gen mechanism](tasks-generation.md). The mechanism is simple: a few
 days in advance of the time period a plan would target, a new plan is
 generated, with an optional planning inbox task attached to it.
 
 There are a number of settings you can control:
+
 * The periods you are using for planning. A typical scenario would be
   yearly and weekly plans.
 * Whether to generate time plans and planning tasks, just time plans, or

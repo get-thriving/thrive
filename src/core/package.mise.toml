@@ -1,0 +1,109 @@
+["package:src:core:prepare"]
+hide = true
+run = "true"
+
+["package:src:core:install"]
+hide = true
+sources = ["src/core/pyproject.toml"]
+outputs = { auto = true }
+run = "cd src/core && poetry install --no-interaction --no-ansi"
+
+["package:src:core:fix:autoflake"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/core"
+
+["package:src:core:fix:black"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run black src/core"
+
+["package:src:core:fix:ruff"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
+
+["package:src:core:fix"]
+description = "Fix src/core module"
+depends = ["package:src:core:fix:*"]
+run = "true"
+
+["package:src:core:lint:toml"]
+hide = true
+sources = ["src/core/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/core/package.mise.toml"
+
+["package:src:core:lint:mypy"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "cd src/core && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:core:lint:ruff"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core"
+
+["package:src:core:lint:mdl-readme"]
+hide = true
+sources = ["src/core/README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/core/README.md"
+
+["package:src:core:lint:pyflakes"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pyflakes src/core"
+
+["package:src:core:lint:bandit"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/core"
+
+["package:src:core:lint:pydocstyle"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/core"
+
+["package:src:core:lint"]
+description = "Check src/core module"
+depends = ["package:src:core:lint:*"]
+run = "true"
+
+["package:src:core:test"]
+description = "Run tests"
+run = '''
+mkdir -p .build-cache/test
+pytest src/core/tests --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
+'''
+
+["package:src:core:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/core
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["package:src:core:audit"]
+description = "Audit src/core module"
+depends = ["package:src:core:audit:*"]
+run = "true"
+
+["package:src:core:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/core/pyproject.toml"
+
+["package:src:core:libyear"]
+description = "Check src/core libyear"
+depends = ["package:src:core:libyear:*"]
+run = "true"

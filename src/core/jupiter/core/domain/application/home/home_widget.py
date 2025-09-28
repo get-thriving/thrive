@@ -36,6 +36,7 @@ class HomeWidget(LeafEntity):
         the_type: WidgetType,
         geometry: WidgetGeometry,
     ) -> "HomeWidget":
+        """Create a new home widget."""
         constraints = WIDGET_CONSTRAINTS.get(the_type, None)
         if constraints is None:
             raise ValueError(f"Widget type {the_type} is not supported")
@@ -64,6 +65,7 @@ class HomeWidget(LeafEntity):
         col: int,
         dimension: WidgetDimension,
     ) -> "HomeWidget":
+        """Move and resize a widget."""
         constraints = WIDGET_CONSTRAINTS.get(self.the_type, None)
         if constraints is None:
             raise ValueError(f"Widget type {self.the_type} is not supported")
@@ -87,4 +89,5 @@ class HomeWidget(LeafEntity):
     def _build_name(
         home_tab_target: HomeTabTarget, home_tab_ref_id: EntityId
     ) -> EntityName:
+        """Build a name for a widget."""
         return EntityName(f"Widget on {home_tab_target.value} {home_tab_ref_id}")

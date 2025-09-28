@@ -1,0 +1,97 @@
+["package:itests:prepare"]
+hide = true
+run = "playwright install"
+
+["package:itests:install"]
+hide = true
+sources = ["itests/pyproject.toml"]
+outputs = { auto = true }
+run = "cd itests && poetry install --no-interaction --no-ansi"
+
+["package:itests:fix:autoflake"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake itests"
+
+["package:itests:fix:black"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run black itests"
+
+["package:itests:fix:ruff"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests --fix"
+
+["package:itests:fix"]
+description = "Fix itests module"
+depends = ["package:itests:fix:*"]
+run = "true"
+
+["package:itests:lint:toml"]
+hide = true
+sources = ["itests/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint itests/package.mise.toml"
+
+["package:itests:lint:mypy"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run mypy --config=tasks/_resources/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
+
+["package:itests:lint:ruff"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests"
+
+["package:itests:lint:mdl-readme"]
+hide = true
+sources = ["itests/README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" itests/README.md"
+
+["package:itests:lint:pyflakes"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pyflakes itests"
+
+["package:itests:lint:bandit"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.test.ini -r itests"
+
+["package:itests:lint:pydocstyle"]
+hide = true
+sources = ["itests/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle itests"
+
+["package:itests:lint"]
+description = "Check itests module"
+depends = ["package:itests:lint:*"]
+run = "true"
+
+["package:itests:audit:pip-audit"]
+hide = true
+run = "poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)"
+
+["package:itests:audit"]
+description = "Audit itests module"
+depends = ["package:itests:audit:*"]
+run = "true"
+
+["package:itests:libyear:libyear-toml"]
+hide = true
+run = "libyear toml itests/pyproject.toml"
+
+["package:itests:libyear"]
+description = "Check itests libyear"
+depends = ["package:itests:libyear:*"]
+run = "true"
