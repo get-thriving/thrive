@@ -196,15 +196,18 @@ Run `mise lint:fix` to fix many linting issues.
 Jupiter has a large battery of integration tests that look at all aspects of the
 application and its functionality, typically on the happy paths.
 
-To run these specifically you can use `./scripts/run-itests.sh`. A typical invocation
+To run these specifically you can use `mise test:int-dev`. A typical invocation
 might be:
 
-`./scripts/run-itests.sh dev -k my_test_prefix`
+```bash
+% mise test:int-dev -- -k test_vacations
+```
 
-This starts a distinct dev feature environment and opens a browser intstrumented for
+This connects to an existing environment and opens a browser intstrumented for
 testing. You'll see a typical test result from this one.
 
-Tests are written in `Python` with `pytest` and `playwright`.
+Tests are written in `Python` with `pytest` and `playwright`. After the `--` you
+can pass in `pytest` arguments.
 
 ## Releases
 
@@ -212,7 +215,7 @@ Jupiter has a notion of versions, represented by releases. These mark specific
 code versions, and the associated "release entities" for them (typically packaged apps).
 
 The main Jupiter system has a continuous deployment release model. Every piece
-of work that gets created via `./scripts/work/new-feature|new-bugfix` triggers a
+of work that gets created via `work:feature:new` or `work:bugfix:new` triggers a
 a release to production - `webui` and `webapi` and `docs` and the others are thus
 handled. Ditto, every PR also is pushed immediately to a staging environment.
 
@@ -236,18 +239,18 @@ In terms of representation:
 
 In terms of working:
 
-* To create a release use `./scripts/release/prepare.sh x.y.z`.
+* To create a release use `mise run release:prepare x.y.z`.
 * You'll need to edit `src/docs/material/releases/release-x.y.z.md` with the
   release notes. And update `mkdocs.yaml` to include it.
-* Also run a `./scripts/build/stats-for-nerds.sh` to include some per-release info.
-* Then run `./scripts/release/finish.sh` to finish everything about the
-  release on GitHub size.
-* You can run `./scripts/build/desktop.sh` to build the new version of the
+* Also run `mise run build:stats-for-nerds` to include some per-release info.
+* Then run `mise run release:finish` to finish everything about the
+  release on GitHub side.
+* You can run `mise run build:desktop` to build the new version of the
   desktop apps.
-* And then `./scripts/release/upload-gh.sh x.y.z` to create a new release
+* And then `mise run release:upload-gh x.y.z` to create a new release
   on GitHub.
-* Finally, if you so with you can upload to the AppStore via
-  `./scripts/release/appstore-upload-(ios|macos).sh x.y.z`. As mentioned above, not
+* Finally, if you wish, you can upload to the AppStore via
+  `mise run release:appstore-upload-(ios|macos) x.y.z`. As mentioned above, not
   always necessary.
 
 We'll work to unify these more in the future, but for now they're manual
@@ -300,3 +303,5 @@ There's some trickyness that's easy to miss.
   messed up. To prevent this we force a client-side reload to a
   very safe page. Which then does a Remix reload to the final page.
   We're gonna log this at some point.
+* For desktop and mobile, there is a `vite` build step inherent in the
+  build process, but not necessarily obvious. Study the scripts.

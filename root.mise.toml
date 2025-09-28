@@ -92,10 +92,14 @@ run = "npx eslint mise.toml root.mise.toml"
 
 ["root:lint:yamllint-workflows"]
 hide = true
+sources = [".github/**/*.(yaml|yml)"]
+outputs = { auto = true }
 run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
 
 ["root:lint:mdl-readme"]
 hide = true
+sources = ["README.md"]
+outputs = { auto = true }
 run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" README.md"
 
 ["root:lint"]
