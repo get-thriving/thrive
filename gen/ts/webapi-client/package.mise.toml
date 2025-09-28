@@ -1,8 +1,8 @@
 ["package:gen:ts:webapi-client:lint:toml"]
 hide = true
-sources = ["gen/ts/webapi-client/mise.toml"]
+sources = ["gen/ts/webapi-client/package.mise.toml"]
 outputs = { auto = true }
-run = "npx eslint gen/ts/webapi-client/mise.toml"
+run = "npx eslint gen/ts/webapi-client/package.mise.toml"
 
 ["package:gen:ts:webapi-client:lint"]
 hide = true

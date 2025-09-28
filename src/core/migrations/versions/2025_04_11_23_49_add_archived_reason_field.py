@@ -84,7 +84,9 @@ def upgrade() -> None:
             batch_op.add_column(
                 sa.Column("archival_reason", sa.String(), nullable=True)
             )
-        op.execute(f"UPDATE {table} SET archival_reason = 'user' WHERE archived = 1") # nosec
+        op.execute(
+            f"UPDATE {table} SET archival_reason = 'user' WHERE archived = 1"
+        )  # nosec
 
 
 def downgrade() -> None:

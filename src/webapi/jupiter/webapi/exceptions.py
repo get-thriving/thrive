@@ -259,6 +259,7 @@ class JournalExistsForDatePeriodCombinationHandler(
     WebExceptionHandler[JournalExistsForDatePeriodCombinationError]
 ):
     """Handle journal exists for date period combination errors."""
+
     def handle(
         self, app: WebServiceApp, exception: JournalExistsForDatePeriodCombinationError
     ) -> JSONResponse:

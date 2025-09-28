@@ -12,8 +12,9 @@ application copy, images, legal material, etc.
 
 ## Prepare For Development
 
-Checkout `scripts/setup-for-dev.sh`. It outlines the tools you need to have in order to
-develop Jupiter. It's a pretty standard Node & Python development setup. A modern IDE is
+We use [mise](https://mise.jdx.dev/) to manage the toolset used and as a general
+repository tasks and build tool.  Checkout `scripts/setup-for-dev.sh` for other tools
+needed. It's a pretty standard Node & Python development setup. A modern IDE is
 implied, though no particular brand is assumed.
 
 After a `git clone jupiter ~/Work/jupiter` kind of setup, you should also run the following:
@@ -33,16 +34,14 @@ When you want to develop a new feature or bugfix you need to activate the new de
 session from a shell first. Then there's some small ceremony about creating a feature branch for the work (see below).
 
 ```bash
-% source ./scripts/work/new-dev-session.sh
-# Set everything up in the Python and Node settings
-% ./scripts/work/new-feature work-on-something
+% mise run work:feature:new work-on-something
 # Creates branch feature/work-on-something and switch to it
 ```
 
 Finally there's commands for running a local instance of Jupiter.
 
 ```bash
-% ./scripts/run-srv.sh a-test
+% mise run run:srv a-test
 ```
 
 This will start the instance with the name `a-test`. If ommited, the standard name `dev`
@@ -50,21 +49,21 @@ is used. You can start as many as you want, and they live independently (use dif
 DBs, different ports, etc.). You can watch the overview of the started processes and their
 logs for easier debugging. Though `npx pm2 logs` is also useful here.
 
-For quick checks you can run `./scripts/fast-lint.sh`. And for the whole test-suite with
-linters, type checkers, unit tests, integration tests, etc. you can run `make check` (it'll take a couple minutes).
+For quick checks you can run `mise lint:lint-fast`. And for the whole test-suite with
+linters, type checkers, unit tests, integration tests, etc. you can run `mise check` (it'll take a couple minutes).
 
 When you're finished you can run:
 
 ```bash
-./scripts/close-feature.sh
+% mise run work:feature:close
 ```
 
-This will perform all ceremonies, merge the branch correctly into `main` and push to GitHub.
+This will perform all ceremonies, merge the branch correctly into `develop` and push to GitHub.
 
-> A note on using `./scripts/work/new-feature.sh`, `./scripts/work/new-bugfix.sh`, and other
-counterparts: we want to keep hygene of the `main` branch to have a linear history of
+> A note on using `work:feature:new`, `work:feature:close`, and other
+counterparts: we want to keep hygene of the `master` branch to have a linear history of
 features and bugfixes, ocassionally tagged with releases. To enforce these, there's no
-straight coding on the `main` branch, and the helper scripts help you setup things
+straight coding on the `develop` branch, and the helper scripts help you setup things
 in the right way.
 
 ## Environments
@@ -177,10 +176,10 @@ where this thing is more clear, there is something that the shell does.
 
 ## Running Tests
 
-The full test suite is run via `make check`. This runs linters, type checkers, and
+The full test suite is run via `mise check`. This runs linters, type checkers, and
 various test batteriess on all the sources, config files, etc.
 
-There is `./scripts/fast-lint.sh` that runs just the linters and type checkers and
+There is `mise lint:lint-fast` that runs just the linters and type checkers and
 is used for quicker feedback on the changes that you're doing. Most of the info
 here is given by various IDE tooling (which in the case of VS Code is configured
 to use the same configs as the CLI tooling). But the one produced by `fast-lint`
@@ -190,7 +189,7 @@ We aim to keep this under 30 seconds.
 
 ## Fixing Issues
 
-Run `./scripts/check/fix-style.sh` to fix many linting issues.
+Run `mise lint:fix` to fix many linting issues.
 
 ### Integration Tests
 
