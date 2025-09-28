@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Run mobile app on iOS or Android with optional namespace"
 #USAGE arg "<platform>" required help="Mobile platform (ios or android)" {
@@ -8,6 +8,9 @@ set -ex
 #USAGE }
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_platform:=}"
 : "${usage_namespace:=}"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Adjust distribution status for release platforms"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
@@ -16,6 +16,9 @@ set -ex
 #USAGE }
 #USAGE flag "--google-play-store <status>" help="Google Play Store status" default="do-nothing" {
 #USAGE   choices "do-nothing" "ready" "in-review" "not-available"
+#USAGE }
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
 #USAGE }
 
 : "${usage_version:=}"

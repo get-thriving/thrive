@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Run desktop app with optional namespace"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_namespace:=}"
 

@@ -6,6 +6,9 @@ set -e
 #USAGE arg "<namespace>" required help="The namespace to remove"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 #USAGE flag "--force" optional help="Force removal without confirmation"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_namespace:=}"
 

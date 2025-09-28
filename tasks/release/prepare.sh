@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Prepare a new release"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
 #USAGE complete "version" run="./tasks/release/list.sh"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_version:=}"
 

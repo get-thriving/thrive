@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Setup for development"
 #MISE hide=true

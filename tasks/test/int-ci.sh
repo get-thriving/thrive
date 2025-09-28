@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Run integration tests for CI"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
 #USAGE arg "[pytestArgs]" double_dash="required" var=#true help="The pytest args"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_run_mode:=}"
 : "${usage_pytest_args:=}"

@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Connect to Jupiter database"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_namespace:=}"
 

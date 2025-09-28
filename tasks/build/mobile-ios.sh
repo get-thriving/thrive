@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Build iOS mobile app"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 # If the secrets/Config.secrets file does not exist, bail
 if [ ! -f secrets/Config.secrets ]; then

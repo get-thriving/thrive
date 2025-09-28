@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Upload release to GitHub with optional platform flags"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
@@ -8,6 +8,9 @@ set -ex
 #USAGE flag "--desktop-macos" help="Include desktop macOS builds"
 #USAGE flag "--mobile-ios" help="Include mobile iOS builds"
 #USAGE flag "--mobile-android" help="Include mobile Android builds"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 : "${usage_version:=}"
 : "${usage_desktop_macos:=}"

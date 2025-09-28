@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Build CLI standalone binary"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 release_branch=$(git rev-parse --abbrev-ref HEAD)
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 source tasks/_common.sh
 

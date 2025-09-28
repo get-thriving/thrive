@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
 #MISE description="List all Jupiter namespaces"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
 
 source tasks/_common.sh
 
-# Don't echo commands (useful if caller enabled -x)
-set +x
+log debug Listing Jupiter namespaces
 
 # --- Config ---
 COL_W=42

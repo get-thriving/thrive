@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
-set -ex
+set -e -o pipefail
 
 #MISE description="Run Jupiter server with optional namespace and mode"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="Run mode" {
 #USAGE   choices "pm2" "docker"
+#USAGE }
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
 #USAGE }
 
 : "${usage_namespace:=}"
