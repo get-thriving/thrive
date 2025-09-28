@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Build desktop app for macOS"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 replace_package_json() {
   # Create a backup before making changes

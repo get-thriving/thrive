@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Abandon current release and return to develop"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 release_branch=$(git rev-parse --abbrev-ref HEAD)
 

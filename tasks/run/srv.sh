@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Run Jupiter server with optional namespace and mode"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
@@ -14,6 +12,8 @@ set -e -o pipefail
 
 : "${usage_namespace:=}"
 : "${usage_run_mode:=pm2}"
+
+set -e -o pipefail
 
 source tasks/_common.sh
 

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Generate a new database migration with Alembic"
 #USAGE arg "[migration_name]" var=#true help="The name of the migration (will be slugified)"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 : "${usage_migration_name:=}"
 

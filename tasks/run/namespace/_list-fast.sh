@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
+set -e -o pipefail
 
 source tasks/_common.sh
-
-set -e
-set +x
 
 # Check if RUN_ROOT is set
 if [[ -z "${RUN_ROOT:-}" ]]; then

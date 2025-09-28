@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Generate Playwright test code using codegen"
 #USAGE arg "[namespace]" help="Jupiter namespace (defaults to standard namespace)"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
@@ -10,6 +8,8 @@ set -e -o pipefail
 #USAGE }
 
 : "${usage_namespace:=}"
+
+set -e -o pipefail
 
 source tasks/_common.sh
 

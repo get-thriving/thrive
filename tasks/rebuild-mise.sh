@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Rebuild mise.toml"
 #USAGE arg "<packageMisePath>" var=#true help="Paths to the mise.toml files"
 #USAGE flag "--log <log>" default="info" help="Log output" {
@@ -9,6 +7,8 @@ set -e -o pipefail
 #USAGE }
 
 : "${usage_package_mise_path:=}"
+
+set -e -o pipefail
 
 source tasks/_common.sh
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Run integration tests on a dev machine"
 #USAGE flag "--webapi-url <webapiUrl>" help="The webapi url"
 #USAGE flag "--webui-url <webuiUrl>" help="The webui url"
@@ -21,6 +19,7 @@ set -e -o pipefail
 : "${usage_webui_url:=}"
 : "${usage_namespace:=}"
 
+set -e -o pipefail
 
 source tasks/_common.sh
 source tasks/test/_common.sh

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Close a bugfix branch by merging it into develop"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 bugfix_branch_name=$(git rev-parse --abbrev-ref HEAD)
 

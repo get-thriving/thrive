@@ -1,9 +1,11 @@
 #!/bin/bash
 
-set -e -o pipefail
-
 #MISE description="Setup for development"
 #MISE hide=true
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 # Prepare environment
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Run mobile app on iOS or Android with optional namespace"
 #USAGE arg "<platform>" required help="Mobile platform (ios or android)" {
 #USAGE   choices "ios" "android"
@@ -14,6 +12,8 @@ set -e -o pipefail
 
 : "${usage_platform:=}"
 : "${usage_namespace:=}"
+
+set -e -o pipefail
 
 source tasks/_common.sh
 

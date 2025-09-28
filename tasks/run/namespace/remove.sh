@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 #MISE description="Remove a Jupiter namespace"
 #USAGE arg "<namespace>" required help="The namespace to remove"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
@@ -12,9 +10,9 @@ set -e
 
 : "${usage_namespace:=}"
 
-source tasks/_common.sh
+set -e -o pipefail
 
-set +x
+source tasks/_common.sh
 
 namespace="${usage_namespace}"
 

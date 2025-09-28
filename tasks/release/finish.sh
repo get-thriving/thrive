@@ -1,24 +1,14 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Finish release by merging to master and develop"
 #USAGE about "Finishes a release by merging to master and develop"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_verbose:=}" 
+set -e -o pipefail
 
-
-
-if [[ "${usage_verbose}" == "true" ]]; then
-    set -x
-fi
-
-if [[ "${usage_verbose}" == "false" ]]; then
-    set +x
-fi
+source tasks/_common.sh
 
 release_branch=$(git rev-parse --abbrev-ref HEAD)
 

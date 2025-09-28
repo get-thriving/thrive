@@ -9,5 +9,9 @@
 
 set -e -o pipefail
 
+source tasks/_common.sh
+
+log debug "Starting task linting process"
+
 tree -fi tasks | grep '\.sh$' | xargs shellcheck --external-sources --shell=bash
 

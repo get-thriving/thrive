@@ -5,6 +5,8 @@
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
+set -e -o pipefail
+
 source tasks/_common.sh
 
 log debug Listing Jupiter namespaces

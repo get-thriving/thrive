@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Upload iOS app to Apple App Store"
 #USAGE arg "<version>" required help="Release version (X.Y.Z format)"
 #USAGE complete "version" run="./tasks/release/list.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
 
 : "${usage_version:=}"
 

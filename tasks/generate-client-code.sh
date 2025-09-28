@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Generate client code for TypeScript and Python from OpenAPI spec"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
+
+set -e -o pipefail
 
 source tasks/_common.sh
 

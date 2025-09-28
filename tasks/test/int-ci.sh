@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e -o pipefail
-
 #MISE description="Run integration tests for CI"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
@@ -14,6 +12,7 @@ set -e -o pipefail
 : "${usage_run_mode:=}"
 : "${usage_pytest_args:=}"
 
+set -e -o pipefail
 
 source tasks/_common.sh
 source tasks/test/_common.sh
