@@ -17,6 +17,10 @@ export PUBLIC_NAME
 export AUTHOR
 export COPYRIGHT
 
+log info "Building documentation"
+
 (cd src/docs && poetry install --only main --no-interaction --no-ansi --no-root)
 
 mkdocs build --config-file src/docs/mkdocs.yml --site-dir ../../.build-cache/docs --clean
+
+log info "Documentation built in .build-cache/docs"

@@ -23,29 +23,29 @@ db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
 backup_path="$RUN_ROOT/$namespace/jupiter.sqlite.bak"
 
 if [[ ! -f "$backup_path" ]]; then
-    echo "Backup file not found at: $backup_path"
-    echo "Make sure you have created a backup first using backup.sh"
+    log info "Backup file not found at: $backup_path"
+    log info "Make sure you have created a backup first using backup.sh"
     exit 1
 fi
 
-echo "Restoring Jupiter database from backup..."
-echo "Source (backup): $backup_path"
-echo "Destination: $db_path"
-echo "Namespace: $namespace"
+log info "Restoring Jupiter database from backup..."
+log info "Source (backup): $backup_path"
+log info "Destination: $db_path"
+log info "Namespace: $namespace"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$(dirname "$db_path")"
 
 if cp "$backup_path" "$db_path"; then
-    echo "Restore completed successfully!"
-    echo "Database file: $db_path"
+    log info "Restore completed successfully!"
+    log info "Database file: $db_path"
     
     # Show file sizes
     backup_size=$(find "$backup_path" -prune -exec ls -lh {} \; | awk '{print $5}')
     restored_size=$(find "$db_path" -prune -exec ls -lh {} \; | awk '{print $5}')
-    echo "Backup size: $backup_size"
-    echo "Restored size: $restored_size"
+    log info "Backup size: $backup_size"
+    log info "Restored size: $restored_size"
 else
-    echo "Restore failed!"
+    log info "Restore failed!"
     exit 1
 fi

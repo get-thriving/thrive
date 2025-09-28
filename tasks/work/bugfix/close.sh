@@ -13,15 +13,17 @@ bugfix_branch_name=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "${bugfix_branch_name}" != bugfix/* ]]
 then
-    echo "Must be on a bugfix branch"
+    log info "Must be on a bugfix branch"
     exit 1
 fi
 
 if ! git diff --cached --exit-code --quiet
 then
-    echo "There are uncomitted changed"
+    log info "There are uncomitted changed"
     exit 1
 fi
+
+log info "Closing bugfix branch: $bugfix_branch_name"
 
 git checkout develop
 git merge --squash "${bugfix_branch_name}"

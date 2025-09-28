@@ -59,6 +59,8 @@ run_jupiter() {
 
     mkdir -p "$RUN_ROOT/$NAMESPACE"
 
+    log info "Running Jupiter with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, mode: $mode"
+
     if [[ "$mode" == "pm2" ]]; then
         _run_jupiter_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
     else
@@ -89,6 +91,7 @@ _run_jupiter_with_pm2() {
 
     # shellcheck disable=SC2064
     trap "npx pm2 delete '$RUN_ROOT/$namespace/pm2.config.js'" EXIT
+    log info "Starting Jupiter with pm2 config: $RUN_ROOT/$namespace/pm2.config.js"
     npx pm2 --no-color start "$RUN_ROOT/$namespace/pm2.config.js"
 
     echo "$webapiPort" > "$RUN_ROOT/$namespace/webapi.port"
@@ -132,6 +135,8 @@ _run_jupiter_with_docker() {
     PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$NAMESPACE/privkey.pem
     export PRIVKEY_PEM
 
+    log info "Running Jupiter with docker config: $RUN_ROOT/$NAMESPACE/docker.config.yaml"
+
     openssl req -x509 \
         -nodes \
         -days 365 \
@@ -144,6 +149,8 @@ _run_jupiter_with_docker() {
 
     echo "$WEBAPI_PORT" > "$RUN_ROOT/$NAMESPACE/webapi.port"
     echo "$WEBUI_PORT" > "$RUN_ROOT/$NAMESPACE/webui.port"
+
+    log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
     docker compose -f infra/self-hosted/compose.yaml up -d
 
@@ -168,6 +175,8 @@ _run_jupiter_with_docker() {
 stop_jupiter() {
     local service=$1
 
+    log info "Stopping Jupiter with service: $service"
+
     npx pm2 delete "$RUN_ROOT/$service/pm2.config.js"
 }
 
@@ -176,7 +185,7 @@ get_jupiter_port() {
     local service=$2
 
     if ! [[ -f "$RUN_ROOT/$namespace/$service.port" ]]; then
-        echo "Port file not found for $service in $namespace namespace."
+        log info "Port file not found for $service in $namespace namespace."
         exit 1
     fi
 
@@ -206,17 +215,19 @@ wait_for_service_to_start() {
     local attempts=0
     local max_attempts=21
 
+    log info "Waiting for ${service}. Attempt $attempts of $max_attempts."
+
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        http --verify=no --timeout 10 --check-status get "${url}" 2>/dev/null
+        http --verify=no --timeout 10 --check-status --quiet --quiet get "${url}"
         resp=$?
         set -e
         
         if [ "$resp" -eq 0 ]; then
-            echo "${service} is up and responding."
+            log info "${service} is up and responding."
             break
         else
-            echo "Waiting for ${service}. Attempt $((attempts+1)) of $max_attempts."
+            log info "Waiting for ${service}. Attempt $((attempts+1)) of $max_attempts."
         fi
         
         attempts=$((attempts + 1))
@@ -224,7 +235,7 @@ wait_for_service_to_start() {
     done
 
     if [ "$attempts" -eq "$max_attempts" ]; then
-        echo "Reached maximum attempts for ${service}."
+        log info "Reached maximum attempts for ${service}."
         return 1
     fi
 }
@@ -235,7 +246,7 @@ check_service_is_running() {
     local service=$3
     
     if [[ "$mode" == "docker" ]]; then
-        echo "Docker mode not supported for service status check"
+        log info "Docker mode not supported for service status check"
         exit 1
     elif [[ "$mode" == "pm2" ]]; then
         if npx pm2 ps | grep -q "$namespace:$service"; then
@@ -244,7 +255,7 @@ check_service_is_running() {
             return 1
         fi
     else
-        echo "Unknown mode: $mode"
+        log info "Unknown mode: $mode"
         exit 1
     fi
 }
@@ -255,12 +266,12 @@ get_logs() {
     local service=$3
     
     if [[ "$mode" == "docker" ]]; then
-        echo "Docker mode not supported for log retrieval"
+        log info "Docker mode not supported for log retrieval"
         exit 1
     elif [[ "$mode" == "pm2" ]]; then
         tail -n 100 "$RUN_ROOT/$namespace/webapi.log"
     else
-        echo "Unknown mode: $mode"
+        log info "Unknown mode: $mode"
         exit 1
     fi
 }

@@ -22,14 +22,11 @@ fi
 db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
 
 if [[ ! -f "$db_path" ]]; then
-    echo "Database file not found at: $db_path"
-    echo "Make sure Jupiter is running or the database exists."
+    log info "Database file not found at: $db_path"
+    log info "Make sure Jupiter is running or the database exists."
     exit 1
 fi
 
-echo "Connecting to Jupiter SQLite database..."
-echo "Database path: $db_path"
-echo "Namespace: $namespace"
-echo ""
+log info "Connecting to Jupiter SQLite database for namespace: $namespace at path: $db_path"
 
 sqlite3 "$db_path"

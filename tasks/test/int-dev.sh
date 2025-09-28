@@ -44,10 +44,12 @@ if [[ -z $webui_url ]]; then
     webui_url="http://0.0.0.0:${STANDARD_WEBUI_PORT}"
 fi
 
-echo "Using Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
+log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
 
 wait_for_service_to_start "webapi" "$webapi_url"
 wait_for_service_to_start "webui" "$webui_url"
+
+log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
 run_tests "$webapi_url" "$webui_url" --headed "${usage_pytest_args[*]}"
 

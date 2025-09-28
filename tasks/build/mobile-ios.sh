@@ -34,15 +34,21 @@ mkdir -p .build-cache/mobile
 
 cd src/mobile
 
+log info "Generating iOS mobile app"
+
 npx @capacitor/assets generate --iconBackgroundColor '#eeeeee' --iconBackgroundColorDark '#222222' --splashBackgroundColor '#eeeeee' --splashBackgroundColorDark '#111111'  --ios --android
 npx trapeze run config.yaml --diff
 ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx vite build --mode production --config vite.config.ts
 ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx cap copy
 
+log info "Building iOS mobile app"
+
 xcodebuild clean \
     -workspace "$workspace" \
     -scheme "$scheme" \
     -configuration "$configuration"
+
+log info "Archiving iOS mobile app"
 
 xcodebuild archive \
     -workspace "$workspace" \
@@ -51,6 +57,7 @@ xcodebuild archive \
     -archivePath "$archive_path" \
     -allowProvisioningUpdates
 
+log info "Exporting iOS mobile app"
 
 xcodebuild -exportArchive \
     -archivePath "$archive_path" \
@@ -58,3 +65,5 @@ xcodebuild -exportArchive \
     -exportPath "$ipa_path"
 
 cp "$ipa_path/App.ipa" "$ipa_path/App-${VERSION}.ipa"
+
+log info "iOS mobile app exported in .build-cache/mobile/ios/v${VERSION}/build/App-${VERSION}.ipa"

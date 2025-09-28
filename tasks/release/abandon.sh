@@ -13,9 +13,11 @@ release_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if ! [[ "${release_branch}" =~ "release/" ]]
 then
-    echo "Must be in a release"
+    log info "Must be in a release"
     exit 1
 fi
+
+log info "Abandoning release: $release_branch"
 
 git checkout -- .
 git reset --hard HEAD

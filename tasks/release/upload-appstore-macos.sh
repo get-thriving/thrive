@@ -15,7 +15,7 @@ source tasks/_common.sh
 
 if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 then
-    echo "Not a valid X.Y.Z version string"
+    log info "Not a valid X.Y.Z version string"
     exit 1
 fi
 
@@ -23,12 +23,19 @@ release_tag="v${usage_version}"
 
 if git tag | grep -q "${release_tag}"
 then
-    echo "Release tag ${usage_version} seems to not exist"
+    log info "Release tag ${usage_version} seems to not exist"
     exit 1
 fi
 
 # shellcheck disable=SC1091
 source secrets/Config.secrets
 
+log info "Uploading macOS app to Apple App Store"
+
 xcrun altool --validate-app -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD" --type osx
+
+log info "Uploading macOS app to Apple App Store"
+
 xcrun altool --upload-app -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg --type osx --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD"
+
+log info "macOS app uploaded to Apple App Store"

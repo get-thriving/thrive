@@ -12,6 +12,13 @@ source tasks/_common.sh
 
 : "${usage_feature_name:=}"
 
+log info "Creating new feature branch: $usage_feature_name"
+
+if [[ -z "$usage_feature_name" ]]; then
+    log info "Feature name is required"
+    exit 1
+fi
+
 git checkout develop
 git pull
 git checkout -b "feature/${usage_feature_name}"

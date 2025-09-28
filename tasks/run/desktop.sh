@@ -22,6 +22,8 @@ fi
 webui_port=$(get_jupiter_port "$namespace" "webui")
 export HOSTED_GLOBAL_WEBUI_URL="http://localhost:$webui_port"
 
+log info "Running desktop app with namespace $namespace"
+
 cd src/desktop
 npx vite build
 npx electron-forge start

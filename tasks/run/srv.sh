@@ -33,6 +33,4 @@ else
     webui_port=$(get_free_port)
 fi
 
-echo "Running Jupiter with namespace: $namespace, webapi port: $webapi_port, webui port: $webui_port, mode: $usage_run_mode"
-
 run_jupiter "$namespace" "$webapi_port" "$webui_port" no-wait monit dev "$usage_run_mode"

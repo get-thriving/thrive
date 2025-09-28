@@ -15,4 +15,6 @@ export PUBLIC_NAME
 export AUTHOR
 export COPYRIGHT
 
+log info "Running documentation server"
+
 cd src/docs && mkdocs serve

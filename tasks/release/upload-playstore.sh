@@ -15,7 +15,7 @@ source tasks/_common.sh
 
 if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 then
-    echo "Not a valid X.Y.Z version string"
+    log info "Not a valid X.Y.Z version string"
     exit 1
 fi
 
@@ -23,7 +23,7 @@ release_tag="v${usage_version}"
 
 if git tag | grep -q "${release_tag}"
 then
-    echo "Release tag ${usage_version} seems to not exist"
+    log info "Release tag ${usage_version} seems to not exist"
     exit 1
 fi
 
@@ -37,12 +37,16 @@ access_token=$(gcloud auth application-default print-access-token --scopes=https
 
 # Start the edit
 
+log info "Authenticating with Google Play Store"
+
 edit_id=$(curl -X POST \
     -H "Authorization: Bearer $access_token" \
     -H "Content-Type: application/json" \
     https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${BUNDLE_ID}/edits | jq -r '.id')
 
 # Upload the bundle
+
+log info "Uploading Android app to Google Play Store"
 
 curl -X POST \
     -T .build-cache/mobile/android/v"${usage_version}"/app-"${usage_version}".aab \
@@ -51,6 +55,8 @@ curl -X POST \
     "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${BUNDLE_ID}/edits/${edit_id}/bundles"
 
 # Close the edit
+
+log info "Closing edit"
 
 curl -X POST \
     -H "Authorization: Bearer $access_token" \

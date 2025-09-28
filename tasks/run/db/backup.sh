@@ -23,26 +23,23 @@ db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
 backup_path="$RUN_ROOT/$namespace/jupiter.sqlite.bak"
 
 if [[ ! -f "$db_path" ]]; then
-    echo "Database file not found at: $db_path"
-    echo "Make sure Jupiter is running or the database exists."
+    log info "Database file not found at: $db_path"
+    log info "Make sure Jupiter is running or the database exists."
     exit 1
 fi
 
-echo "Backing up Jupiter database..."
-echo "Source: $db_path"
-echo "Destination: $backup_path"
-echo "Namespace: $namespace"
+log info "Backing up Jupiter database for namespace: $namespace at path: $db_path to path: $backup_path"
 
 if cp "$db_path" "$backup_path"; then
-    echo "Backup completed successfully!"
-    echo "Backup file: $backup_path"
+    log info "Backup completed successfully!"
+    log info "Backup file: $backup_path"
     
     # Show file sizes
     original_size=$(find "$db_path" -prune -exec ls -lh {} \; | awk '{print $5}')
     backup_size=$(find "$backup_path" -prune -exec ls -lh {} \; | awk '{print $5}')
-    echo "Original size: $original_size"
-    echo "Backup size: $backup_size"
+    log info "Original size: $original_size"
+    log info "Backup size: $backup_size"
 else
-    echo "Backup failed!"
+    log info "Backup failed!"
     exit 1
 fi

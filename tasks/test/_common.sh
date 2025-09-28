@@ -10,6 +10,8 @@ run_tests() {
     local webui_url=$1
     shift
 
+    log info "Running tests with pytest args ${@}"
+
     LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL=$webapi_url pytest itests \
         -o log_cli=true \
         --html-report=.build-cache/itest/test-report.html \

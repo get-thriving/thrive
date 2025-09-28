@@ -21,6 +21,8 @@ fi
 platform=$(uname -s | awk '{print tolower($0)}')
 arch=$(arch)
 
+log info "Building CLI standalone binary for platform: $platform and architecture: $arch and release version: $release_version"
+
 pyinstaller \
   --noconfirm \
   --name Thrive-Cli \
@@ -35,9 +37,14 @@ pyinstaller \
   --icon assets/jupiter.icns \
   src/cli/jupiter/cli/jupiter.py
 
+
+log info "CLI generated at path: .build-cache/standalone-binary/dist/Thrive-Cli.app"
+
 if [[ "${platform}" == "darwin" ]]
 then
   dmg_image_name="jupiter-cli-${release_version}-${platform}-${arch}.dmg"
+
+  log info "Creating DMG image for platform: $platform and architecture: $arch and release version: $release_version"
 
   rm -f rw.*.dmg
   rm -f "${dmg_image_name}"
@@ -55,4 +62,6 @@ then
 
   mv Thrive-Cli.spec ".build-cache/standalone-binary/Thrive-Cli.spec"
   mv "${dmg_image_name}" ".build-cache/standalone-binary/${dmg_image_name}"
+
+  log info "DMG image created for at path: .build-cache/standalone-binary/${dmg_image_name}"
 fi

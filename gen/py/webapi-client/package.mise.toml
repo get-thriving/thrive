@@ -1,8 +1,8 @@
 ["package:gen:py:webapi-client:lint:toml"]
 hide = true
-sources = ["gen/py/webapi-client/package.mise.toml"]
+sources = ["gen/py/webapi-client/mise.toml"]
 outputs = { auto = true }
-run = "npx eslint gen/py/webapi-client/package.mise.toml"
+run = "npx eslint gen/py/webapi-client/mise.toml"
 
 ["package:gen:py:webapi-client:lint"]
 hide = true

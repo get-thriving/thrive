@@ -28,6 +28,8 @@ webui_port=$(get_jupiter_port "$namespace" "webui")
 export HOSTED_GLOBAL_WEBUI_URL="http://localhost:$webui_port"
 export BUILD_TARGET=$platform
 
+log info "Running mobile app on $platform with namespace $namespace"
+
 cd src/mobile
 npx vite build
 npx cap run "$platform"

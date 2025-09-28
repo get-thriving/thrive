@@ -38,8 +38,10 @@ else
     in_ci="ci"
 fi
 
+log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
+
 run_jupiter "$namespace" "$webapi_port" "$webui_port" wait:all no-monit $in_ci "$usage_run_mode"
 
-echo "Using Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
+log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
 run_tests "$webapi_url" "$webui_url" "${usage_pytest_args[*]}"

@@ -13,11 +13,9 @@ source tasks/_common.sh
 
 : "${usage_version:=}"
 
-echo "Usage version: ${usage_version}"
-
 if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 then
-    echo "Not a valid X.Y.Z version string"
+    log info "Not a valid X.Y.Z version string"
     exit 1
 fi
 
@@ -27,18 +25,20 @@ release_branch="release/"v${usage_version}""
 # shellcheck disable=SC2143
 if [[ $(git tag | grep "${release_tag}") ]]
 then
-    echo "Release ${usage_version} seems to already exist"
+    log info "Release ${usage_version} seems to already exist"
     exit 1
 fi
 
 if [[ $(git rev-parse --abbrev-ref HEAD) != develop ]]
 then
-    echo "Must be on the develop branch"
+    log info "Must be on the develop branch"
     exit 1
 fi
 
 release_notes_path="src/docs/material/releases/version-${usage_version}.md"
 release_date=$(date +"%Y/%m/%d")
+
+log info "Preparing release: $release_branch"
 
 git pull
 git checkout -b "${release_branch}"
@@ -48,3 +48,5 @@ cp scripts/release/template.md "${release_notes_path}"
 sed -i "" -E "s/{{release_version}}/${usage_version}/g" "${release_notes_path}"
 sed -i "" -E "s|{{release_date}}|${release_date}|g" "${release_notes_path}"
 git add "${release_notes_path}"
+
+log info "Release prepared: $release_branch"

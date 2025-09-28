@@ -13,15 +13,17 @@ feature_branch_name=$(git rev-parse --abbrev-ref HEAD)
 
 if [[ "${feature_branch_name}" != feature/* ]]
 then
-    echo "Must be on a feature branch"
+    log info "Must be on a feature branch"
     exit 1
 fi
 
 if ! git diff --cached --exit-code --quiet
 then
-    echo "There are uncomitted changed"
+    log info "There are uncomitted changed"
     exit 1
 fi
+
+log info "Closing feature branch: $feature_branch_name"
 
 git checkout develop
 git merge --squash "${feature_branch_name}"

@@ -15,7 +15,7 @@ source tasks/_common.sh
 
 if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
 then
-    echo "Not a valid X.Y.Z version string"
+    log info "Not a valid X.Y.Z version string"
     exit 1
 fi
 
@@ -23,12 +23,19 @@ release_tag="v${usage_version}"
 
 if git tag | grep -q "${release_tag}"
 then
-    echo "Release tag ${usage_version} seems to not exist"
+    log info "Release tag ${usage_version} seems to not exist"
     exit 1
 fi
 
 # shellcheck disable=SC1091
 source secrets/Config.secrets
 
+log info "Uploading iOS app to Apple App Store"
+
 xcrun altool --validate-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD" --type ios
+
+log info "Uploading iOS app to Apple App Store"
+
 xcrun altool --upload-app -f .build-cache/mobile/ios/v"${usage_version}"/build/App.ipa --type ios --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD"
+
+log info "iOS app uploaded to Apple App Store"

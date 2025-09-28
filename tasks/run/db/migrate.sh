@@ -19,20 +19,18 @@ if [[ -z "$namespace" ]]; then
     namespace=$STANDARD_NAMESPACE
 fi
 
-echo "Running database migrations for namespace: $namespace"
+log info "Running database migrations for namespace: $namespace"
 
 # Get free ports for the migration run
 webapi_port=$(get_free_port)
 webui_port=$(get_free_port)
 
-echo "Starting Jupiter for migrations..."
-echo "WebAPI port: $webapi_port"
-echo "WebUI port: $webui_port"
+log info "Starting Jupiter for migrations with webapi port: $webapi_port and webui port: $webui_port"
 
 # Check if webapi service is already running for this namespace
 if check_service_is_running pm2 "$namespace" webapi; then
-    echo "WebAPI service is already running for namespace: $namespace"
-    echo "Please stop the service first before running migrations"
+    log info "WebAPI service is already running for namespace: $namespace"
+    log info "Please stop the service first before running migrations"
     exit 1
 fi
 
@@ -42,9 +40,9 @@ run_jupiter "$namespace" "$webapi_port" "$webui_port" wait:webapi no-monit ci pm
 
 get_logs pm2 "$namespace" webapi
 
-echo "Migrations completed successfully!"
-echo "Stopping Jupiter..."
+log info "Migrations completed successfully!"
+log info "Stopping Jupiter..."
 
 stop_jupiter "$namespace"
 
-echo "Database migrations finished for namespace: $namespace"
+log info "Database migrations finished for namespace: $namespace"
