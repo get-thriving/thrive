@@ -25,6 +25,10 @@ def infer_timeline(period: RecurringTaskPeriod | None, right_now: Timestamp) -> 
         quarter = _month_to_quarter(start_of_week)
         month = _month_to_month(start_of_week)
         week = f"W{start_of_week.week_of_year}"
+        # If the month is december, and the week is 1
+        # we need to use week 53.
+        if start_of_week.month == 12 and start_of_week.week_of_year == 1:
+            week = "W53"
 
         return f"{year},{quarter},{month},{week}"
     elif period == RecurringTaskPeriod.MONTHLY:

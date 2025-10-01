@@ -41,7 +41,7 @@ run = "npx eslint src/core/package.mise.toml"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "cd src/core && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/core && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --explicit-package-bases --show-absolute-path"
 
 ["package:src:core:lint:ruff"]
 hide = true
@@ -82,7 +82,7 @@ run = "true"
 description = "Run tests"
 run = '''
 mkdir -p .build-cache/test
-pytest src/core/tests --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
+pytest src/core --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
 '''
 
 ["package:src:core:audit:pip-audit"]

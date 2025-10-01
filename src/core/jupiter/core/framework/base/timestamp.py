@@ -29,6 +29,13 @@ class Timestamp(AtomicValue[datetime.datetime]):
     the_ts: DateTime
 
     @staticmethod
+    def from_components(
+        year: int, month: int, day: int, hour: int, minute: int
+    ) -> "Timestamp":
+        """Construct a Timestamp from its components."""
+        return Timestamp(pendulum.datetime(year, month, day, hour, minute, tz=UTC))
+
+    @staticmethod
     def from_date_and_time(date_and_time: DateTime) -> "Timestamp":
         """Construct a Timestamp from a datetime object."""
         return Timestamp(date_and_time.in_timezone(tz=UTC))
