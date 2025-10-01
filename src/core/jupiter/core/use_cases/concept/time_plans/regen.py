@@ -1,15 +1,17 @@
 """A use case for regenerating time plans."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.use_case import ProgressReporter
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -18,18 +20,18 @@ class TimePlanRegenArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
-class TimePlanRegenUseCase(AppLoggedInMutationUseCase[TimePlanRegenArgs, None]):
+class TimePlanRegenUseCase(JupiterLoggedInMutationUseCase[TimePlanRegenArgs, None]):
     """A use case for regenerating time plans."""
 
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: TimePlanRegenArgs,
     ) -> None:
         """Perform the mutation."""
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gen_service.do_it(

@@ -577,6 +577,20 @@ files = [
 ]
 
 [[package]]
+name = "jupiter-framework"
+version = "0.1.0"
+description = "The application framework for Jupiter"
+optional = false
+python-versions = "^3.13"
+groups = ["main"]
+files = []
+develop = true
+
+[package.source]
+type = "directory"
+url = "../alib/py/framework"
+
+[[package]]
 name = "mako"
 version = "1.3.3"
 description = "A super-fast templating language that borrows the best ideas from the existing templating languages."
@@ -1308,4 +1322,4 @@ tzdata = "*"
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "c1a89ecc54b0d06a50320e075c35e6d63c88823336d2d648436c2e83b3c0ebbd"
+content-hash = "5fc55ff68d2e16070d8fd9c0b6c1679e7e60a125c551d0e3138ccd2d01b47943"

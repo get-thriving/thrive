@@ -1,5 +1,9 @@
 """Use case for loading a schedule full days event."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
 )
@@ -9,18 +13,16 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
 )
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -43,7 +45,7 @@ class ScheduleEventFullDaysLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventFullDaysLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         ScheduleEventFullDaysLoadArgs, ScheduleEventFullDaysLoadResult
     ]
 ):
@@ -52,7 +54,7 @@ class ScheduleEventFullDaysLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: ScheduleEventFullDaysLoadArgs,
     ) -> ScheduleEventFullDaysLoadResult:
         """Execute the command's action."""

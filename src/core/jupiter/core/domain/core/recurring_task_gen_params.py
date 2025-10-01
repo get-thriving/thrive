@@ -6,8 +6,8 @@ from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueA
 from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.value import CompositeValue, value
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

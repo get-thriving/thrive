@@ -20,10 +20,10 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import ProgressReporter
 
 
 class BigPlanRemoveService:

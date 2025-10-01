@@ -5,18 +5,18 @@ from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.auth.recovery_token_hash import RecoveryTokenHash
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ParentLink,
     StubEntity,
     create_entity_action,
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.realm import DatabaseRealm, only_in_realm
-from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.realm import DatabaseRealm, only_in_realm
+from jupiter.framework_new.secure import secure_class
 
 
 class IncorrectPasswordError(Exception):

@@ -1,21 +1,23 @@
 """Use case for free form searching through jupiter."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.search.infra.search_repository import SearchMatch
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
-from jupiter.core.domain.core.adate import ADate
-from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.use_case import UnavailableForContextError
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 
@@ -44,11 +46,11 @@ class SearchResult(UseCaseResultBase):
 
 
 @readonly_use_case()
-class SearchUseCase(AppLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
+class SearchUseCase(JupiterLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
     """Use case for free form searching through jupiter."""
 
     async def _execute(
-        self, context: AppLoggedInReadonlyUseCaseContext, args: SearchArgs
+        self, context: JupiterLoggedInReadonlyUseCaseContext, args: SearchArgs
     ) -> SearchResult:
         """Execute the command's action."""
         workspace = context.workspace
@@ -64,11 +66,11 @@ class SearchUseCase(AppLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
             )
         )
         if len(filter_entity_tags_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Entities {','.join(s.value for s in filter_entity_tags_diff)} are not supported in this workspace"
             )
 
-        async with self._search_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
             matches = await uow.search_repository.search(
                 workspace_ref_id=workspace.ref_id,
                 query=args.query,

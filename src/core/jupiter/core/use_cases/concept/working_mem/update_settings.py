@@ -2,6 +2,10 @@
 
 from typing import cast
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
     InboxTaskRepository,
@@ -19,24 +23,21 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
     WorkingMemCollection,
 )
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.repository import EntityNotFoundError
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -49,7 +50,7 @@ class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
 
 @mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.PROJECTS])
 class WorkingMemUpdateSettingsUseCase(
-    AppTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
+    JupiterTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
 ):
     """The command for updating the settings for working mem."""
 
@@ -57,7 +58,7 @@ class WorkingMemUpdateSettingsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: WorkingMemUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""

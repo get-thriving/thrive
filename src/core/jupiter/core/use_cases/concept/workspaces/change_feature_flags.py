@@ -1,20 +1,25 @@
 """Change the workspace feature flags."""
 
+from typing import cast
+
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import (
-    DomainUnitOfWork,
-)
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.repository import (
+    DomainUnitOfWork,
+)
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -26,7 +31,7 @@ class WorkspaceChangeFeatureFlagsArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class WorkspaceChangeFeatureFlagsUseCase(
-    AppTransactionalLoggedInMutationUseCase[WorkspaceChangeFeatureFlagsArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[WorkspaceChangeFeatureFlagsArgs, None]
 ):
     """Usecase for changing the feature flags for the workspace."""
 
@@ -34,12 +39,15 @@ class WorkspaceChangeFeatureFlagsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: WorkspaceChangeFeatureFlagsArgs,
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        _, feature_flags_controls = infer_feature_flag_controls(self._global_properties)
+        # TODO(horia141): params
+        _, feature_flags_controls = infer_feature_flag_controls(
+            cast(JupiterGlobalProperties, self._global_properties)
+        )
         workspace_feature_flags = {}
         for feature_flag in WorkspaceFeature:
             workspace_feature_flags[feature_flag] = feature_flag in args.feature_flags

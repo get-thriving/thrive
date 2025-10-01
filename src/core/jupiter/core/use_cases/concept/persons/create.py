@@ -1,5 +1,9 @@
 """Create a person."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
@@ -13,21 +17,19 @@ from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDu
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.use_case import (
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
+)
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -56,7 +58,7 @@ class PersonCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.PERSONS)
 class PersonCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonCreateArgs, PersonCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[PersonCreateArgs, PersonCreateResult]
 ):
     """The command for creating a person."""
 
@@ -64,7 +66,7 @@ class PersonCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: PersonCreateArgs,
     ) -> PersonCreateResult:
         """Execute the command's action."""
@@ -102,15 +104,15 @@ class PersonCreateUseCase(
 
         return PersonCreateResult(new_person=new_person)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: PersonCreateArgs,
         result: PersonCreateResult,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

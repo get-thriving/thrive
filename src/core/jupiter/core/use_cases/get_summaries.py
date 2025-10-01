@@ -1,5 +1,9 @@
 """A use case for retrieving summaries about entities."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
@@ -33,17 +37,15 @@ from jupiter.core.domain.fast_info_repository import (
     VacationSummary,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -89,14 +91,14 @@ class GetSummariesResult(UseCaseResultBase):
 
 @readonly_use_case()
 class GetSummariesUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[GetSummariesArgs, GetSummariesResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[GetSummariesArgs, GetSummariesResult]
 ):
     """The use case for retrieving summaries about entities."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: GetSummariesArgs,
     ) -> GetSummariesResult:
         """Execute the command."""

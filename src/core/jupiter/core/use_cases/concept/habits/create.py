@@ -1,5 +1,9 @@
 """The command for creating a habit."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
@@ -17,25 +21,23 @@ from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenP
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -67,7 +69,7 @@ class HabitCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.HABITS)
 class HabitCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[HabitCreateArgs, HabitCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[HabitCreateArgs, HabitCreateResult]
 ):
     """The command for creating a habit."""
 
@@ -75,7 +77,7 @@ class HabitCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: HabitCreateArgs,
     ) -> HabitCreateResult:
         """Execute the command's action."""
@@ -85,7 +87,7 @@ class HabitCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id,
@@ -128,15 +130,15 @@ class HabitCreateUseCase(
 
         return HabitCreateResult(new_habit=new_habit)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: HabitCreateArgs,
         result: HabitCreateResult,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

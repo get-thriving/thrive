@@ -27,6 +27,11 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.types import DecoratedCallable
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterPorts,
+)
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -35,44 +40,8 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.core.domain.concept.auth.auth_token_ext import (
-    AuthTokenExt,
-    AuthTokenExtDatabaseDecoder,
-)
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.framework.entity import Entity, ParentLink
-from jupiter.core.framework.optional import normalize_optional
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import DomainThing, RealmCodecRegistry, WebRealm
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    EmptySession,
-    MutationUseCaseInvocationRecorder,
-    UseCase,
-    UseCaseContextBase,
-    UseCaseSessionBase,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.utils import (
-    find_all_modules,
-    is_primitive_type,
-    is_thing_ish_type,
-)
-from jupiter.core.framework.value import (
-    AtomicValue,
-    CompositeValue,
-    EnumValue,
-    SecretValue,
-)
-from jupiter.core.use_cases.infra.realms import (
-    _StandardEnumValueDatabaseDecoder,
-)
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,
@@ -83,12 +52,48 @@ from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
-from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.core.utils.progress_reporter import (
     EmptyProgressReporterFactory,
     NoOpProgressReporterFactory,
 )
-from jupiter.webapi.time_provider import CronRunTimeProvider, PerRequestTimeProvider
+from jupiter.framework_new.auth.auth_token_ext import (
+    AuthTokenExt,
+    AuthTokenExtDatabaseDecoder,
+)
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.entity import Entity, ParentLink
+from jupiter.framework_new.optional import normalize_optional
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
+from jupiter.framework_new.realms import (
+    _StandardEnumValueDatabaseDecoder,
+)
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    EmptySession,
+    MutationUseCaseInvocationRecorder,
+    UseCase,
+    UseCaseContextBase,
+    UseCaseSessionBase,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
+from jupiter.framework_new.utils import (
+    find_all_modules,
+    is_primitive_type,
+    is_thing_ish_type,
+)
+from jupiter.framework_new.value import (
+    AtomicValue,
+    CompositeValue,
+    EnumValue,
+    SecretValue,
+)
+from jupiter.webapi.time_provider import (
+    CronRunTimeProvider,
+    PerRequestTimeProvider,
+)
 from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
 from pendulum.date import Date
 from pendulum.datetime import DateTime
@@ -156,8 +161,15 @@ def construct_guest_session(
             app_shell = APP_SHELL_DECODER.decode(bits[1])
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
-    return AppGuestUseCaseSession.for_webui(
-        auth_token_ext, app_client_version, app_shell, app_platform, app_distribution
+    return AppGuestUseCaseSession.build(
+        JupiterComponentProperties.for_app(
+            core=AppCore.WEBUI,
+            the_shell=app_shell,
+            platform=app_platform,
+            distribution=app_distribution,
+            version=app_client_version,
+        ),
+        auth_token_ext,
     )
 
 
@@ -181,8 +193,15 @@ def construct_logged_in_session(
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
 
-    return AppLoggedInUseCaseSession.for_webui(
-        auth_token_ext, app_client_version, app_shell, app_platform, app_distribution
+    return AppLoggedInUseCaseSession.build(
+        JupiterComponentProperties.for_app(
+            core=AppCore.WEBUI,
+            the_shell=app_shell,
+            platform=app_platform,
+            distribution=app_distribution,
+            version=app_client_version,
+        ),
+        auth_token_ext,
     )
 
 
@@ -480,17 +499,15 @@ class WebExceptionHandler(Generic[_ExceptionT], abc.ABC):
 class WebServiceApp:
     """The app."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
     _use_case_commands: Final[
         dict[
             type[
@@ -511,17 +528,15 @@ class WebServiceApp:
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
@@ -531,10 +546,8 @@ class WebServiceApp:
         self._progress_reporter_factory = progress_reporter_factory
         self._realm_codec_registry = realm_codec_registry
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
         self._use_case_commands = {}
         self._commands = {}
         self._exception_handlers = {}
@@ -551,17 +564,15 @@ class WebServiceApp:
 
     @staticmethod
     def build_from_module_root(
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         request_time_provider: PerRequestTimeProvider,
         cron_run_time_provider: CronRunTimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
         *module_root: types.ModuleType,
     ) -> "WebServiceApp":
         """Build the app from the module root."""
@@ -637,10 +648,8 @@ class WebServiceApp:
             progress_reporter_factory,
             realm_codec_registry,
             auth_token_stamper,
-            domain_storage_engine,
-            search_storage_engine,
+            ports,
             use_case_storage_engine,
-            crm=crm,
         )
 
         login_use_case = LoginUseCase(
@@ -648,8 +657,7 @@ class WebServiceApp:
             time_provider=request_time_provider,
             realm_codec_registry=realm_codec_registry,
             auth_token_stamper=auth_token_stamper,
-            domain_storage_engine=domain_storage_engine,
-            search_storage_engine=search_storage_engine,
+            ports=ports,
         )
 
         @app.fast_app.get("/healthz", status_code=status.HTTP_200_OK)
@@ -670,12 +678,15 @@ class WebServiceApp:
             )
 
             result = await login_use_case.execute(
-                AppGuestUseCaseSession.for_webui(
+                AppGuestUseCaseSession.build(
+                    JupiterComponentProperties.for_app(
+                        core=AppCore.WEBUI,
+                        the_shell=AppShell.BROWSER,
+                        platform=AppPlatform.DESKTOP_MACOS,
+                        distribution=AppDistribution.WEB,
+                        version=global_properties.version,
+                    ),
                     auth_token_ext=None,
-                    app_client_version=global_properties.version,
-                    app_shell=AppShell.BROWSER,
-                    app_platform=AppPlatform.DESKTOP_MACOS,
-                    app_distribution=AppDistribution.WEB,
                 ),
                 LoginArgs(email_address=email_address, password=password),
             )
@@ -781,9 +792,7 @@ class WebServiceApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )
@@ -795,65 +804,52 @@ class WebServiceApp:
                     time_provider=self._request_time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
-            scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-            scoped_to_env = use_case_type.get_scoped_to_env()  # type: ignore
-            if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                if (
-                    scoped_to_env is None
-                    or self._global_properties.env in scoped_to_env
-                ):
-                    self._use_case_commands[use_case_type] = LoggedInMutationCommand(
-                        realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case_type(  # type: ignore
-                            global_properties=self._global_properties,
-                            time_provider=self._request_time_provider,
-                            realm_codec_registry=self._realm_codec_registry,
-                            invocation_recorder=self._invocation_recorder,
-                            progress_reporter_factory=self._progress_reporter_factory,
-                            auth_token_stamper=self._auth_token_stamper,
-                            domain_storage_engine=self._domain_storage_engine,
-                            search_storage_engine=self._search_storage_engine,
-                            use_case_storage_engine=self._use_case_storage_engine,
-                            crm=self._crm,
-                        ),
-                        root_module=root_module,
-                    )
+            use_case = use_case_type(  # type: ignore
+                global_properties=self._global_properties,
+                time_provider=self._request_time_provider,
+                realm_codec_registry=self._realm_codec_registry,
+                invocation_recorder=self._invocation_recorder,
+                progress_reporter_factory=self._progress_reporter_factory,
+                auth_token_stamper=self._auth_token_stamper,
+                ports=self._ports,
+                use_case_storage_engine=self._use_case_storage_engine,
+            )
+
+            if use_case.is_allowed_globally:
+                self._use_case_commands[use_case_type] = LoggedInMutationCommand(
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
-            scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-            scoped_to_env = use_case_type.get_scoped_to_env()  # type: ignore
-            if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                if (
-                    scoped_to_env is None
-                    or self._global_properties.env in scoped_to_env
-                ):
-                    self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
-                        realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case_type(  # type: ignore
-                            global_properties=self._global_properties,
-                            time_provider=self._request_time_provider,
-                            realm_codec_registry=self._realm_codec_registry,
-                            auth_token_stamper=self._auth_token_stamper,
-                            domain_storage_engine=self._domain_storage_engine,
-                            search_storage_engine=self._search_storage_engine,
-                        ),
-                        root_module=root_module,
-                    )
+            use_case = use_case_type(  # type: ignore
+                global_properties=self._global_properties,
+                time_provider=self._request_time_provider,
+                realm_codec_registry=self._realm_codec_registry,
+                auth_token_stamper=self._auth_token_stamper,
+                ports=self._ports,
+            )
+
+            if use_case.is_allowed_globally:
+                self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
         elif issubclass(use_case_type, SysBackgroundMutationUseCase):
             self._use_case_commands[use_case_type] = CronCommand(
                 realm_codec_registry=self._realm_codec_registry,
                 use_case=use_case_type(  # type: ignore
+                    global_properties=self._global_properties,
                     time_provider=self._cron_time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     progress_reporter_factory=EmptyProgressReporterFactory(),
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )

@@ -7,6 +7,7 @@ hide = true
 sources = ["src/webapi/pyproject.toml"]
 outputs = { auto = true }
 run = "cd src/webapi && poetry install --no-interaction --no-ansi"
+wait_for = ["package:src:core:install"]
 
 ["package:src:webapi:fix:autoflake"]
 hide = true

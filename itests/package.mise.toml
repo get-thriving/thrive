@@ -1,6 +1,10 @@
 ["package:itests:prepare"]
 hide = true
-run = "playwright install"
+run = '''
+#!/usr/bin/env bash
+playwright install-deps
+playwright install
+'''
 
 ["package:itests:install"]
 hide = true

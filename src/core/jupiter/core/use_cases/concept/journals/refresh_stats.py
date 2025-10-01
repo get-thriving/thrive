@@ -1,18 +1,20 @@
 """Use case for refreshing stats for a journal."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -24,18 +26,18 @@ class JournalRefreshStatsArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.JOURNALS)
 class JournalRefreshStatsUseCase(
-    AppLoggedInMutationUseCase[JournalRefreshStatsArgs, None]
+    JupiterLoggedInMutationUseCase[JournalRefreshStatsArgs, None]
 ):
     """Use case for refreshing stats for a journal."""
 
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: JournalRefreshStatsArgs,
     ) -> None:
         """Execute the command's action."""
-        stats_service = StatsService(self._domain_storage_engine)
+        stats_service = StatsService(self._ports.domain_storage_engine)
 
         await stats_service.do_it(
             ctx=context.domain_context,

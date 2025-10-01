@@ -1,22 +1,24 @@
 """The command for removing a doc."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.service.doc_remove_service import (
     DocRemoveService,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -26,15 +28,17 @@ class DocRemoveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
-class DocRemoveUseCase(AppTransactionalLoggedInMutationUseCase[DocRemoveArgs, None]):
+@mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
+class DocRemoveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[DocRemoveArgs, None]
+):
     """The command for removing a doc."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: DocRemoveArgs,
     ) -> None:
         """Execute the command's action."""

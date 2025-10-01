@@ -1,17 +1,17 @@
 """A smart list tag."""
 
 from jupiter.core.domain.core.tags.tag_name import TagName
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import NOT_USED_NAME
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import NOT_USED_NAME
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.update_action import UpdateAction
 
 
 @entity

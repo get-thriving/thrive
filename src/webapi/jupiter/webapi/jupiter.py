@@ -8,7 +8,7 @@ import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
 import jupiter.core.use_cases
 import jupiter.webapi.exceptions
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
@@ -22,13 +22,16 @@ from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
 from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
-from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
-from jupiter.core.utils.global_properties import build_global_properties
+from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.webapi.app import WebServiceApp
-from jupiter.webapi.time_provider import CronRunTimeProvider, PerRequestTimeProvider
+from jupiter.webapi.time_provider import (
+    CronRunTimeProvider,
+    PerRequestTimeProvider,
+)
 from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
 from rich import print
 from rich.console import Console
@@ -113,6 +116,12 @@ async def main() -> None:
         storage_engine=usecase_storage_engine,
     )
 
+    ports = JupiterPorts(
+        domain_storage_engine=domain_storage_engine,
+        search_storage_engine=search_storage_engine,
+        crm=crm,
+    )
+
     web_app = WebServiceApp.build_from_module_root(
         global_properties,
         request_time_provider,
@@ -121,10 +130,8 @@ async def main() -> None:
         progress_reporter_factory,
         realm_codec_registry,
         auth_token_stamper,
-        domain_storage_engine,
-        search_storage_engine,
+        ports,
         usecase_storage_engine,
-        crm,
         jupiter.core.use_cases,
         jupiter.webapi.exceptions,
     )

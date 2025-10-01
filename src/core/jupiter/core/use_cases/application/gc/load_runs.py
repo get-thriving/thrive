@@ -1,20 +1,22 @@
 """Load previous runs of GC."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gc.gc_log_entry import (
     GCLogEntry,
     GCLogEntryRepository,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 
@@ -31,16 +33,18 @@ class GCLoadRunsResult(UseCaseResultBase):
 
 
 @readonly_use_case()
-class GCLoadRunsUseCase(AppLoggedInReadonlyUseCase[GCLoadRunsArgs, GCLoadRunsResult]):
+class GCLoadRunsUseCase(
+    JupiterLoggedInReadonlyUseCase[GCLoadRunsArgs, GCLoadRunsResult]
+):
     """Load previous runs of GC."""
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: GCLoadRunsArgs,
     ) -> GCLoadRunsResult:
         """Execute the use case."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             gc_log = await uow.get_for(GCLog).load_by_parent(context.workspace.ref_id)
             entries = await uow.get(GCLogEntryRepository).find_last(gc_log.ref_id, 30)
 

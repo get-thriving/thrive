@@ -1,5 +1,9 @@
 """The command for creating a inbox task."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -21,30 +25,28 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability impor
 from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
     TimePlanActivityKind,
 )
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -75,7 +77,9 @@ class InboxTaskCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.INBOX_TASKS)
 class InboxTaskCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[InboxTaskCreateArgs, InboxTaskCreateResult],
+    JupiterTransactionalLoggedInMutationUseCase[
+        InboxTaskCreateArgs, InboxTaskCreateResult
+    ],
 ):
     """The command for creating a inbox task."""
 
@@ -83,7 +87,7 @@ class InboxTaskCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: InboxTaskCreateArgs,
     ) -> InboxTaskCreateResult:
         """Execute the command's action."""
@@ -93,17 +97,17 @@ class InboxTaskCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
             and args.time_plan_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.TIME_PLANS)
+            raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
             and args.big_plan_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.BIG_PLANS)
+            raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:

@@ -16,7 +16,6 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.concept.smart_lists.smart_list_name import SmartListName
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.fast_info_repository import (
@@ -33,9 +32,10 @@ from jupiter.core.domain.fast_info_repository import (
     SmartListSummary,
     VacationSummary,
 )
-from jupiter.core.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
-from jupiter.core.framework.base.entity_name import EntityNameDatabaseDecoder
 from jupiter.core.impl.repository.sqlite.infra.repository import SqliteRepository
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework_new.base.entity_name import EntityNameDatabaseDecoder
 from sqlalchemy import text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()

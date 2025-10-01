@@ -17,10 +17,10 @@ from jupiter.cli.command.rendering import (
     skip_rule_to_rich_text,
 )
 from jupiter.core.domain.concept.projects.project import Project
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.habits.find import HabitFindResult, HabitFindUseCase
 from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
+from jupiter.framework_new.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

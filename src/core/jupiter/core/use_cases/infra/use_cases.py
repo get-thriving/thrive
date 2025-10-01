@@ -5,43 +5,30 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
-from jupiter.core.domain.app import (
-    AppCore,
-    AppDistribution,
-    AppPlatform,
-    AppShell,
-    AppVersion,
-)
-from jupiter.core.domain.concept.auth.auth_token import (
+from jupiter.framework_new import use_case as uc
+from jupiter.framework_new.auth.auth_token import (
     AuthToken,
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
 )
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
-    UserWorkspaceLinkRepository,
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.component_properties import (
+    ComponentProperties,
+    UnavailableForComponentError,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import (
-    FeatureScope,
-    FeatureUnavailableError,
-    UserFeature,
-    WorkspaceFeature,
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.global_properties import (
+    GlobalProperties,
+    UnavailableGloballyError,
 )
-from jupiter.core.domain.storage_engine import (
-    DomainStorageEngine,
+from jupiter.framework_new.ports import DomainPorts, Ports
+from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.repository import (
     DomainUnitOfWork,
-    SearchStorageEngine,
 )
-from jupiter.core.framework import use_case as uc
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.realm import RealmCodecRegistry
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.time_provider import TimeProvider
+from jupiter.framework_new.use_case import (
     EmptyContext,
     EmptySession,
     MutationUseCase,
@@ -49,63 +36,45 @@ from jupiter.core.framework.use_case import (
     ProgressReporter,
     ProgressReporterFactory,
     ReadonlyUseCase,
+    UnavailableForContextError,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
-from jupiter.core.utils.global_properties import GlobalProperties
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
+from jupiter.framework_new.value import EnumValue
 
-UseCaseSession = TypeVar("UseCaseSession", bound=UseCaseSessionBase)
-UseCaseContext = TypeVar("UseCaseContext", bound=UseCaseContextBase)
-UseCaseArgs = TypeVar("UseCaseArgs", bound=UseCaseArgsBase)
-UseCaseResult = TypeVar("UseCaseResult", bound=Union[None, UseCaseResultBase])
+PortsT = TypeVar("PortsT", bound=Ports)
+DomainPortsT = TypeVar("DomainPortsT", bound=DomainPorts)
+GlobalPropertiesT = TypeVar("GlobalPropertiesT", bound=GlobalProperties)
+ComponentPropertiesT = TypeVar("ComponentPropertiesT", bound=ComponentProperties)
+UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
+UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
+UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
+UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
 
 @dataclass(frozen=True)
 class AppGuestUseCaseSession(EmptySession):
     """The application use case session."""
 
+    component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt | None
-    app_client_version: AppVersion
-    app_core: AppCore
-    app_shell: AppShell
-    app_platform: AppPlatform
-    app_distribution: AppDistribution
 
     @staticmethod
-    def for_cli(
-        app_client_version: AppVersion, auth_token_ext: AuthTokenExt | None
-    ) -> "AppGuestUseCaseSession":
-        """Create a CLI session."""
-        return AppGuestUseCaseSession(
-            auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.CLI,
-            app_shell=AppShell.CLI,
-            app_platform=AppPlatform.DESKTOP_MACOS,
-            app_distribution=AppDistribution.MAC_WEB,
-        )
-
-    @staticmethod
-    def for_webui(
+    def build(
+        component_properties: ComponentProperties,
         auth_token_ext: AuthTokenExt | None,
-        app_client_version: AppVersion,
-        app_shell: AppShell,
-        app_platform: AppPlatform,
-        app_distribution: AppDistribution,
     ) -> "AppGuestUseCaseSession":
-        """Create a WebUI session."""
+        """Create a session for a given app particulars."""
         return AppGuestUseCaseSession(
+            component_properties=component_properties,
             auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.WEBUI,
-            app_shell=app_shell,
-            app_platform=app_platform,
-            app_distribution=app_distribution,
         )
+
+
+GuestUseCaseSessionT = TypeVar("GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
 
 
 @dataclass(frozen=True)
@@ -122,54 +91,62 @@ class AppGuestMutationUseCaseContext(AppGuestUseCaseContext):
     domain_context: DomainContext
 
 
+GuestMutationUseCaseContextT = TypeVar(
+    "GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+)
+
+
 class AppGuestMutationUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
+    Generic[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        GuestUseCaseSessionT,
+        GuestMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     MutationUseCase[
-        AppGuestUseCaseSession,
-        AppGuestMutationUseCaseContext,
-        UseCaseArgs,
-        UseCaseResult,
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        GuestUseCaseSessionT,
+        GuestMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
     ],
     abc.ABC,
 ):
     """A command which does some sort of mutation for the app, but does not assume a logged-in user."""
 
-    _global_properties: Final[GlobalProperties]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
-    _crm: Final[CRM]
 
     def __init__(
         self,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory[
-            AppGuestMutationUseCaseContext
+            GuestMutationUseCaseContextT
         ],
-        global_properties: GlobalProperties,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         super().__init__(
+            ports,
+            global_properties,
             time_provider,
             realm_codec_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
-        self._global_properties = global_properties
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
-        self._crm = crm
 
     async def _build_context(
-        self, session: AppGuestUseCaseSession
-    ) -> AppGuestMutationUseCaseContext:
+        self, session: GuestUseCaseSessionT
+    ) -> GuestMutationUseCaseContextT:
         """Construct the context for the use case."""
         try:
             auth_token = (
@@ -181,17 +158,19 @@ class AppGuestMutationUseCase(
             )
         except (InvalidAuthTokenError, ExpiredAuthTokenError):
             auth_token = None
-        return AppGuestMutationUseCaseContext(
-            auth_token=auth_token,
-            domain_context=DomainContext.from_app(
-                session.app_client_version,
-                session.app_core,
-                session.app_shell,
-                session.app_platform,
-                session.app_distribution,
-                self._time_provider.get_current_time(),
-            ),
+
+        domain_context = DomainContext.build(
+            session.component_properties,
+            self._time_provider.get_current_time(),
         )
+
+        return await self._construct_context(auth_token, domain_context)
+
+    @abc.abstractmethod
+    async def _construct_context(
+        self, auth_token: AuthToken | None, domain_context: DomainContext
+    ) -> GuestMutationUseCaseContextT:
+        """Build a context here."""
 
 
 @dataclass(frozen=True)
@@ -199,44 +178,53 @@ class AppGuestReadonlyUseCaseContext(AppGuestUseCaseContext):
     """The applicatin context to use for guest-OK interactions."""
 
 
+GuestReadonlyUseCaseContextT = TypeVar(
+    "GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+)
+
+
 class AppGuestReadonlyUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
+    Generic[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        GuestUseCaseSessionT,
+        GuestReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     ReadonlyUseCase[
-        AppGuestUseCaseSession,
-        AppGuestReadonlyUseCaseContext,
-        UseCaseArgs,
-        UseCaseResult,
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        GuestUseCaseSessionT,
+        GuestReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
     ],
     abc.ABC,
 ):
     """A query which does not mutate anything, and does not assume a logged-in user."""
 
-    _global_properties: Final[GlobalProperties]
     _time_provider: Final[TimeProvider]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
     ) -> None:
         """Constructor."""
-        super().__init__(realm_codec_registry)
-        self._global_properties = global_properties
+        super().__init__(ports, global_properties, realm_codec_registry)
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
 
     async def _build_context(
-        self, session: AppGuestUseCaseSession
-    ) -> AppGuestReadonlyUseCaseContext:
+        self, session: GuestUseCaseSessionT
+    ) -> GuestReadonlyUseCaseContextT:
         """Construct the context for the use case."""
         try:
             auth_token = (
@@ -248,69 +236,44 @@ class AppGuestReadonlyUseCase(
             )
         except (InvalidAuthTokenError, ExpiredAuthTokenError):
             auth_token = None
-        return AppGuestReadonlyUseCaseContext(auth_token=auth_token)
+
+        return await self._construct_context(auth_token)
+
+    @abc.abstractmethod
+    async def _construct_context(
+        self, auth_token: AuthToken | None
+    ) -> GuestReadonlyUseCaseContextT:
+        """Build a context here."""
 
 
 @dataclass(frozen=True)
 class AppLoggedInUseCaseSession(UseCaseSessionBase):
     """The application use case session for logged-in-OK interactions."""
 
+    component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt
-    app_client_version: AppVersion
-    app_core: AppCore
-    app_shell: AppShell
-    app_platform: AppPlatform
-    app_distribution: AppDistribution
 
     @staticmethod
-    def for_cli(
-        app_client_version: AppVersion, auth_token_ext: AuthTokenExt
+    def build(
+        component_properties: ComponentProperties, auth_token_ext: AuthTokenExt
     ) -> "AppLoggedInUseCaseSession":
-        """Create a CLI session."""
+        """Create a session for a given app particulars."""
         return AppLoggedInUseCaseSession(
+            component_properties=component_properties,
             auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.CLI,
-            app_shell=AppShell.CLI,
-            app_platform=AppPlatform.DESKTOP_MACOS,
-            app_distribution=AppDistribution.MAC_WEB,
         )
 
-    @staticmethod
-    def for_webui(
-        auth_token_ext: AuthTokenExt,
-        app_client_version: AppVersion,
-        app_shell: AppShell,
-        app_platform: AppPlatform,
-        app_distribution: AppDistribution,
-    ) -> "AppLoggedInUseCaseSession":
-        """Create a WebUI session."""
-        return AppLoggedInUseCaseSession(
-            auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.WEBUI,
-            app_shell=app_shell,
-            app_platform=app_platform,
-            app_distribution=app_distribution,
-        )
+
+LoggedInUseCaseSessionT = TypeVar(
+    "LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
+)
 
 
 @dataclass(frozen=True)
-class AppLoggedInUseCaseContext(UseCaseContextBase):
+class AppLoggedInUseCaseContext(UseCaseContextBase, abc.ABC):
     """The application use case context for logged-in-OK interactions."""
 
-    user: User
-    workspace: Workspace
-
-    @property
-    def user_ref_id(self) -> EntityId:
-        """The user id."""
-        return self.user.ref_id
-
-    @property
-    def workspace_ref_id(self) -> EntityId:
-        """The workspace id."""
-        return self.workspace.ref_id
+    auth_token: AuthToken
 
 
 @dataclass(frozen=True)
@@ -320,155 +283,182 @@ class AppLoggedInMutationUseCaseContext(AppLoggedInUseCaseContext):
     domain_context: DomainContext
 
 
+LoggedInMutationUseCaseContextT = TypeVar(
+    "LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+)
+
+
 class AppLoggedInMutationUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
+    Generic[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     MutationUseCase[
-        AppLoggedInUseCaseSession,
-        AppLoggedInMutationUseCaseContext,
-        UseCaseArgs,
-        UseCaseResult,
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
     ],
     abc.ABC,
 ):
     """A command which does some sort of mutation for the app, and assumes a logged-in user."""
 
-    _global_properties: Final[GlobalProperties]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
 
     @staticmethod
-    def get_scoped_to_feature() -> FeatureScope:
+    def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
         """The feature the use case is scope to."""
         return None
 
     @staticmethod
-    def get_scoped_to_app() -> list[AppCore] | None:
-        """The apps the command is available in."""
+    def get_only_for_component() -> list[EnumValue] | None:
+        """The components the commandis available in."""
         return None
 
     @staticmethod
-    def get_scoped_to_env() -> list[Env] | None:
-        """The apps the command is available in."""
+    def get_excluded_component() -> list[EnumValue] | None:
+        """The component properties the command is excluded from."""
         return None
+
+    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+        """Whather the command is allowed for this component."""
+        return session.component_properties.allows(
+            self.get_only_for_component(), self.get_excluded_component()
+        )
+
+    @staticmethod
+    def get_only_for_globally() -> list[EnumValue] | None:
+        """The global properties the command is available in."""
+        return None
+
+    @staticmethod
+    def get_excluded_globally() -> list[EnumValue] | None:
+        """The global properties the command is excluded from."""
+        return None
+
+    @property
+    def is_allowed_globally(self) -> bool:
+        """Whether this command is allowed with the current global properties."""
+        return self._global_properties.allows(
+            self.get_only_for_globally(), self.get_excluded_globally()
+        )
 
     def __init__(
         self,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory[
-            AppLoggedInMutationUseCaseContext
+            LoggedInMutationUseCaseContextT
         ],
-        global_properties: GlobalProperties,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         super().__init__(
+            ports,
+            global_properties,
             time_provider,
             realm_codec_registry,
             invocation_recorder,
             progress_reporter_factory,
         )
-        self._global_properties = global_properties
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
 
     async def _build_context(
-        self, session: AppLoggedInUseCaseSession
-    ) -> AppLoggedInMutationUseCaseContext:
+        self, session: LoggedInUseCaseSessionT
+    ) -> LoggedInMutationUseCaseContextT:
+        if not self.is_allowed_globally:
+            raise UnavailableGloballyError(
+                "This action is not available in this environment"
+            )
+
+        if not self.is_allowed_for_component(session):
+            raise UnavailableForComponentError(
+                f"This action is not available in component {session.component_properties.as_event_source()}"
+            )
+
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
         )
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
-            user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
-            user_workspace_link = await uow.get(
-                UserWorkspaceLinkRepository
-            ).load_by_user(auth_token.user_ref_id)
-            workspace = await uow.get_for(Workspace).load_by_id(
-                user_workspace_link.workspace_ref_id
-            )
 
-            scoped_feature = self.get_scoped_to_feature()
-            if scoped_feature is not None:
-                if isinstance(scoped_feature, UserFeature):
-                    if not user.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                elif isinstance(scoped_feature, WorkspaceFeature):
-                    if not workspace.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                else:
-                    for feature in scoped_feature:
-                        if isinstance(feature, UserFeature):
-                            if not user.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
-                        elif isinstance(feature, WorkspaceFeature):
-                            if not workspace.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
+        domain_context = DomainContext.build(
+            session.component_properties,
+            self._time_provider.get_current_time(),
+        )
 
-            return AppLoggedInMutationUseCaseContext(
-                user=user,
-                workspace=workspace,
-                domain_context=DomainContext.from_app(
-                    session.app_client_version,
-                    session.app_core,
-                    session.app_shell,
-                    session.app_platform,
-                    session.app_distribution,
-                    self._time_provider.get_current_time(),
-                ),
-            )
+        context = await self._construct_context(auth_token, domain_context)
+
+        if feature := context.allows(self.get_only_for_use_case_context()):
+            raise UnavailableForContextError(feature)
+
+        return context
 
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInMutationUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
         result = await self._perform_mutation(progress_reporter, context, args)
-
-        # Register all entities that were created/changed/removed with the search index.
-        async with self._search_storage_engine.get_unit_of_work() as uow:
-            for created_entity in progress_reporter.created_entities:
-                await uow.search_repository.upsert(
-                    context.workspace_ref_id, created_entity
-                )
-
-            for updated_entity in progress_reporter.updated_entities:
-                await uow.search_repository.upsert(
-                    context.workspace_ref_id, updated_entity
-                )
-
-            for removed_entity in progress_reporter.removed_entities:
-                await uow.search_repository.remove(
-                    context.workspace_ref_id, removed_entity
-                )
-
+        await self._perform_post_mutation_work(progress_reporter, context)
         return result
+
+    @abc.abstractmethod
+    async def _construct_context(
+        self, auth_token: AuthToken, domain_context: DomainContext
+    ) -> LoggedInMutationUseCaseContextT:
+        """Build a context here."""
 
     @abc.abstractmethod
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInMutationUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
+
+    async def _perform_post_mutation_work(
+        self,
+        progress_reporter: ProgressReporter,
+        context: LoggedInMutationUseCaseContextT,
+    ) -> None:
+        """Perform some work after the mutation is done."""
 
 
 class AppTransactionalLoggedInMutationUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
-    AppLoggedInMutationUseCase[UseCaseArgs, UseCaseResult],
+    Generic[
+        DomainPortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
+    AppLoggedInMutationUseCase[
+        DomainPortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     abc.ABC,
 ):
     """A command which does some sort of mutation for the app transactionally, and assumes a logged-in user."""
@@ -476,15 +466,17 @@ class AppTransactionalLoggedInMutationUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInMutationUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             result = await self._perform_transactional_mutation(
                 uow, progress_reporter, context, args
             )
-        await self._perform_post_mutation_work(progress_reporter, context, args, result)
+        await self._perform_post_transactional_mutation_work(
+            progress_reporter, context, args, result
+        )
         return result
 
     @abc.abstractmethod
@@ -492,17 +484,17 @@ class AppTransactionalLoggedInMutationUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInMutationUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
-        args: UseCaseArgs,
-        results: UseCaseResult,
+        context: LoggedInMutationUseCaseContextT,
+        args: UseCaseArgsT,
+        results: UseCaseResultT,
     ) -> None:
         """Execute the command's action."""
 
@@ -512,120 +504,174 @@ class AppLoggedInReadonlyUseCaseContext(AppLoggedInUseCaseContext):
     """The application use case context for logged-in-OK interactions."""
 
 
+LoggedInReadonlyUseCaseContextT = TypeVar(
+    "LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+)
+
+
 class AppLoggedInReadonlyUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
+    Generic[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     ReadonlyUseCase[
-        AppLoggedInUseCaseSession,
-        AppLoggedInReadonlyUseCaseContext,
-        UseCaseArgs,
-        UseCaseResult,
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
     ],
     abc.ABC,
 ):
     """A command which does some sort of read in the app, and assumes a logged-in user."""
 
-    _global_properties: Final[GlobalProperties]
     _time_provider: Final[TimeProvider]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
 
     @staticmethod
-    def get_scoped_to_feature() -> FeatureScope:
+    def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
         """The feature the use case is scope to."""
         return None
 
     @staticmethod
-    def get_scoped_to_app() -> list[AppCore] | None:
-        """The apps the command is available in."""
+    def get_only_for_globally() -> list[EnumValue] | None:
+        """The global properties the command is available in."""
         return None
 
     @staticmethod
-    def get_scoped_to_env() -> list[Env] | None:
-        """The apps the command is available in."""
+    def get_excluded_globally() -> list[EnumValue] | None:
+        """The global properties the command is excluded from."""
         return None
+
+    @property
+    def is_allowed_globally(self) -> bool:
+        """Whether this command is allowed with the current global properties."""
+        return self._global_properties.allows(
+            self.get_only_for_globally(), self.get_excluded_globally()
+        )
+
+    @staticmethod
+    def get_only_for_component() -> list[EnumValue] | None:
+        """The components the commandis available in."""
+        return None
+
+    @staticmethod
+    def get_excluded_component() -> list[EnumValue] | None:
+        """The component properties the command is excluded from."""
+        return None
+
+    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+        """Whather the command is allowed for this component."""
+        return session.component_properties.allows(
+            self.get_only_for_component(), self.get_excluded_component()
+        )
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
     ) -> None:
         """Constructor."""
-        super().__init__(realm_codec_registry)
-        self._global_properties = global_properties
+        super().__init__(ports, global_properties, realm_codec_registry)
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
 
     async def _build_context(
-        self, session: AppLoggedInUseCaseSession
-    ) -> AppLoggedInReadonlyUseCaseContext:
+        self, session: LoggedInUseCaseSessionT
+    ) -> LoggedInReadonlyUseCaseContextT:
+        if not self.is_allowed_globally:
+            raise UnavailableGloballyError(
+                "This action is not available in this environment"
+            )
+
+        if not self.is_allowed_for_component(session):
+            raise UnavailableForComponentError(
+                f"This action is not available in component {session.component_properties.as_event_source()}"
+            )
+
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
         )
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
-            user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
-            user_workspace_link = await uow.get(
-                UserWorkspaceLinkRepository
-            ).load_by_user(auth_token.user_ref_id)
-            workspace = await uow.get_for(Workspace).load_by_id(
-                user_workspace_link.workspace_ref_id
-            )
 
-            scoped_feature = self.get_scoped_to_feature()
-            if scoped_feature is not None:
-                if isinstance(scoped_feature, UserFeature):
-                    if not user.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                elif isinstance(scoped_feature, WorkspaceFeature):
-                    if not workspace.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                else:
-                    for feature in scoped_feature:
-                        if isinstance(feature, UserFeature):
-                            if not user.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
-                        elif isinstance(feature, WorkspaceFeature):
-                            if not workspace.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
+        context = await self._construct_context(auth_token)
 
-            return AppLoggedInReadonlyUseCaseContext(user=user, workspace=workspace)
+        if feature := context.allows(self.get_only_for_use_case_context()):
+            raise UnavailableForContextError(feature)
+
+        return context
+
+    @abc.abstractmethod
+    async def _construct_context(
+        self, auth_token: AuthToken
+    ) -> LoggedInReadonlyUseCaseContextT:
+        """Build a context here."""
 
 
 class AppTransactionalLoggedInReadOnlyUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
-    AppLoggedInReadonlyUseCase[UseCaseArgs, UseCaseResult],
+    Generic[
+        DomainPortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
+    AppLoggedInReadonlyUseCase[
+        DomainPortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInReadonlyUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     abc.ABC,
 ):
     """A command which does some sort of transactional read in the app, and assumes a logged-in user."""
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInReadonlyUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             return await self._perform_transactional_read(uow, context, args)
 
     @abc.abstractmethod
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        context: LoggedInReadonlyUseCaseContextT,
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
 
 
 class SysBackgroundMutationUseCase(
-    Generic[UseCaseArgs, UseCaseResult],
-    UseCase[EmptySession, EmptyContext, UseCaseArgs, UseCaseResult],
+    Generic[
+        PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseArgsT, UseCaseResultT
+    ],
+    UseCase[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        EmptySession,
+        EmptyContext,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     abc.ABC,
 ):
     """A command which does some sort of mutation for the app in the background."""
@@ -633,26 +679,20 @@ class SysBackgroundMutationUseCase(
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _progress_reporter_factory: ProgressReporterFactory[EmptyContext]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
-    _crm: Final[CRM]
 
     def __init__(
         self,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         progress_reporter_factory: ProgressReporterFactory[EmptyContext],
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
+        super().__init__(self._ports, self._global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._progress_reporter_factory = progress_reporter_factory
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
-        self._crm = crm
 
     async def _build_context(self, session: EmptySession) -> EmptyContext:
         """Construct the context for the use case."""
@@ -661,8 +701,8 @@ class SysBackgroundMutationUseCase(
     async def execute(
         self,
         session: EmptySession,
-        args: UseCaseArgs,
-    ) -> tuple[EmptyContext, UseCaseResult]:
+        args: UseCaseArgsT,
+    ) -> tuple[EmptyContext, UseCaseResultT]:
         """Execute the command's action."""
         # A hacky hack!
         uc.LOGGER.info(
@@ -676,60 +716,52 @@ class SysBackgroundMutationUseCase(
     async def _execute(
         self,
         context: EmptyContext,
-        args: UseCaseArgs,
-    ) -> UseCaseResult:
+        args: UseCaseArgsT,
+    ) -> UseCaseResultT:
         """Execute the command's action."""
 
 
-_MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCase[Any, Any])  # type: ignore
+_MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
 
 
 def mutation_use_case(  # type: ignore
-    feature_scope: FeatureScope = None,
-    exclude_app: list[AppCore] | None = None,
-    exclude_env: list[Env] | None = None,
+    *only_for_use_case_context: EnumValue | list[EnumValue],
+    only_for_component: list[EnumValue] | None = None,
+    exclude_component: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
 ) -> Callable[[type[_MutationUseCaseT]], type[_MutationUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_MutationUseCaseT]) -> type[_MutationUseCaseT]:  # type: ignore
-        app_scope = [
-            s
-            for s in AppCore
-            if (True if exclude_app is None else s not in exclude_app)
-        ]
-        env_scope = [
-            e for e in Env if (True if exclude_env is None else e not in exclude_env)
-        ]
-        cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
-        cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_scoped_to_env = lambda *args: env_scope  # type: ignore
+        cls.get_only_for_use_case_context = lambda *args: only_for_use_case_context  # type: ignore
+        cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
+        cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
+        cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
+        cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
         return cls
 
     return decorator
 
 
-_ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCase[Any, Any])  # type: ignore
+_ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
 
 
 def readonly_use_case(  # type: ignore
-    feature_scope: FeatureScope = None,
-    exclude_app: list[AppCore] | None = None,
-    exclude_env: list[Env] | None = None,
+    *only_for_use_case_context: EnumValue | list[EnumValue],
+    only_for_component: list[EnumValue] | None = None,
+    exclude_component: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
 ) -> Callable[[type[_ReadonlyUseCaseT]], type[_ReadonlyUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_ReadonlyUseCaseT]) -> type[_ReadonlyUseCaseT]:  # type: ignore
-        app_scope = [
-            s
-            for s in AppCore
-            if (True if exclude_app is None else s not in exclude_app)
-        ]
-        env_scope = [
-            e for e in Env if (True if exclude_env is None else e not in exclude_env)
-        ]
-        cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
-        cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_scoped_to_env = lambda *args: env_scope  # type: ignore
+        cls.get_only_for_use_case_context = lambda *args: only_for_use_case_context  # type: ignore
+        cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
+        cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
+        cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
+        cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
         return cls
 
     return decorator

@@ -12,7 +12,17 @@ from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterPorts,
+    build_global_properties,
+)
+from jupiter.core.domain.app import (
+    AppCore,
+    AppDistribution,
+    AppPlatform,
+    AppShell,
+)
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
@@ -22,17 +32,17 @@ from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
 from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
-from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
-    PersistentMutationUseCaseInvocationRecorder,
-)
-from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.core.use_cases.infra.use_cases import AppGuestUseCaseSession
 from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,
 )
-from jupiter.core.utils.global_properties import build_global_properties
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.persistent_mutation_use_case_recoder import (
+    PersistentMutationUseCaseInvocationRecorder,
+)
+from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
+from jupiter.framework_new.time_provider import TimeProvider
 from rich.console import Console
 
 # import coverage
@@ -86,6 +96,12 @@ async def main() -> None:
         usecase_storage_engine,
     )
 
+    ports = JupiterPorts(
+        domain_storage_engine=domain_storage_engine,
+        search_storage_engine=search_storage_engine,
+        crm=crm,
+    )
+
     console = Console()
 
     progress_reporter_factory = RichConsoleProgressReporterFactory(console)
@@ -95,8 +111,7 @@ async def main() -> None:
         time_provider=time_provider,
         realm_codec_registry=realm_codec_registry,
         auth_token_stamper=auth_token_stamper,
-        domain_storage_engine=domain_storage_engine,
-        search_storage_engine=search_storage_engine,
+        ports=ports,
     )
 
     await sqlite_connection.prepare()
@@ -105,8 +120,14 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = AppGuestUseCaseSession.for_cli(
-        app_client_version=global_properties.version,
+    guest_session = AppGuestUseCaseSession.build(
+        component_properties=JupiterComponentProperties.for_app(
+            core=AppCore.CLI,
+            the_shell=AppShell.CLI,
+            platform=AppPlatform.DESKTOP_MACOS,
+            distribution=AppDistribution.MAC_WEB,
+            version=global_properties.version,
+        ),
         auth_token_ext=session_info.auth_token_ext if session_info else None,
     )
     _, top_level_info = await load_top_level_info_use_case.execute(
@@ -130,10 +151,8 @@ async def main() -> None:
         realm_codec_registry,
         session_storage,
         auth_token_stamper,
-        domain_storage_engine,
-        search_storage_engine,
+        ports,
         usecase_storage_engine,
-        crm,
         jupiter.core.use_cases,
         jupiter.cli.command,
     )

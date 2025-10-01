@@ -1,20 +1,22 @@
 """Load previous runs of stats computation."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 
@@ -32,17 +34,17 @@ class StatsLoadRunsResult(UseCaseResultBase):
 
 @readonly_use_case()
 class StatsLoadRunsUseCase(
-    AppLoggedInReadonlyUseCase[StatsLoadRunsArgs, StatsLoadRunsResult]
+    JupiterLoggedInReadonlyUseCase[StatsLoadRunsArgs, StatsLoadRunsResult]
 ):
     """Load previous runs of stats computation."""
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: StatsLoadRunsArgs,
     ) -> StatsLoadRunsResult:
         """Execute the use case."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             stats_log = await uow.get_for(StatsLog).load_by_parent(
                 context.workspace.ref_id
             )

@@ -1,9 +1,9 @@
 """A task generation log attched to a workspace."""
 
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,

@@ -2,18 +2,20 @@
 
 import hashlib
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.motd.motd import MOTD, MOTDs
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -31,14 +33,16 @@ class MOTDGetForTodayResult(UseCaseResultBase):
 
 @readonly_use_case()
 class MOTDGetForTodayUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[MOTDGetForTodayArgs, MOTDGetForTodayResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        MOTDGetForTodayArgs, MOTDGetForTodayResult
+    ]
 ):
     """Use case for getting a random Message of the Day."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: MOTDGetForTodayArgs,
     ) -> MOTDGetForTodayResult:
         """Execute the command's action."""

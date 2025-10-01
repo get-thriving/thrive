@@ -20,10 +20,9 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.repository import EntityAlreadyExistsError
-from jupiter.core.framework.value import CompositeValue, value
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.repository import DomainUnitOfWork, EntityAlreadyExistsError
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

@@ -1,5 +1,9 @@
 """Use case for reseting a password."""
 
+from jupiter.core.config import (
+    JupiterGuestMutationUseCase,
+    JupiterGuestMutationUseCaseContext,
+)
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectRecoveryTokenError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
@@ -8,19 +12,15 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.secure import secure_class
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
 )
 
 
@@ -47,18 +47,18 @@ class ResetPasswordResult(UseCaseResultBase):
 
 @secure_class
 class ResetPasswordUseCase(
-    AppGuestMutationUseCase[ResetPasswordArgs, ResetPasswordResult]
+    JupiterGuestMutationUseCase[ResetPasswordArgs, ResetPasswordResult]
 ):
     """Use case for reseting a password."""
 
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationUseCaseContext,
         args: ResetPasswordArgs,
     ) -> ResetPasswordResult:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 user = await uow.get(UserRepository).load_by_email_address(
                     args.email_address

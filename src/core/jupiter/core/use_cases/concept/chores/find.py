@@ -2,6 +2,10 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -15,23 +19,21 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import UnavailableForContextError
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
     use_case_result_part,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -66,14 +68,14 @@ class ChoreFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.CHORES)
 class ChoreFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[ChoreFindArgs, ChoreFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[ChoreFindArgs, ChoreFindResult]
 ):
     """The command for finding a chore."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: ChoreFindArgs,
     ) -> ChoreFindResult:
         """Execute the command's action."""
@@ -83,7 +85,7 @@ class ChoreFindUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             workspace.ref_id,

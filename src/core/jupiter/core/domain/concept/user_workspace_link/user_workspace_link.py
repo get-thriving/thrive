@@ -2,10 +2,10 @@
 
 import abc
 
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import RootEntity, create_entity_action, entity
-from jupiter.core.framework.repository import RootEntityRepository
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import RootEntity, create_entity_action, entity
+from jupiter.framework_new.repository import RootEntityRepository
 
 
 @entity

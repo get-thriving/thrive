@@ -2,6 +2,10 @@
 
 from typing import cast
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -27,16 +31,14 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import ProgressReporter
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -53,18 +55,18 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanUpdateSettingsUseCase(
-    AppLoggedInMutationUseCase[TimePlanUpdateSettingsArgs, None]
+    JupiterLoggedInMutationUseCase[TimePlanUpdateSettingsArgs, None]
 ):
     """Command for updating the settings for time plans in general."""
 
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: TimePlanUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspace = context.workspace
 
             time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
@@ -113,7 +115,7 @@ class TimePlanUpdateSettingsUseCase(
             await uow.get_for(TimePlanDomain).save(time_plan_domain)
 
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gen_service.do_it(
@@ -127,7 +129,7 @@ class TimePlanUpdateSettingsUseCase(
             period=None,
         )
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             for period in RecurringTaskPeriod:
                 schedule = schedules.get_schedule(
                     period=period,

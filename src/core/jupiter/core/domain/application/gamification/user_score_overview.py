@@ -1,6 +1,6 @@
 """An overview of the scores for a user."""
 
-from jupiter.core.framework.value import CompositeValue, value
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

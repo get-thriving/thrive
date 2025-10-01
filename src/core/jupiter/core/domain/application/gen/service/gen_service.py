@@ -58,7 +58,6 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
@@ -71,19 +70,20 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.domain.features import FeatureUnavailableError, WorkspaceFeature
+from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.domain.storage_engine import DomainStorageEngine
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.repository import DomainStorageEngine
+from jupiter.framework_new.use_case import ProgressReporter, UnavailableForContextError
 
 
 class GenService:
@@ -123,7 +123,7 @@ class GenService:
             )
         )
         if len(big_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Gen targets {','.join(s.value for s in big_diff)} are not supported in this workspace"
             )
 
@@ -131,37 +131,37 @@ class GenService:
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.HABITS)
+            raise UnavailableForContextError(WorkspaceFeature.HABITS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.CHORES)
             and filter_chore_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.CHORES)
+            raise UnavailableForContextError(WorkspaceFeature.CHORES)
         if (
             not workspace.is_feature_available(WorkspaceFeature.METRICS)
             and filter_metric_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.METRICS)
+            raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.PERSONS)
             and filter_person_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.SLACK_TASKS)
+            raise UnavailableForContextError(WorkspaceFeature.SLACK_TASKS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS)
             and filter_email_task_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.EMAIL_TASKS)
+            raise UnavailableForContextError(WorkspaceFeature.EMAIL_TASKS)
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             gen_log = await uow.get_for(GenLog).load_by_parent(workspace.ref_id)

@@ -1,5 +1,12 @@
 """The command for clearing all branch and leaf type entities."""
 
+from typing import cast
+
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.concept.auth.auth import Auth
@@ -38,17 +45,15 @@ from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -66,14 +71,14 @@ class ClearAllArgs(UseCaseArgsBase):
     workspace_feature_flags: set[WorkspaceFeature] | None
 
 
-@mutation_use_case(exclude_env=[Env.PRODUCTION])
-class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
+@mutation_use_case(exclude_globally=[Env.PRODUCTION])
+class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
     """The command for clearing all branch and leaf type entities."""
 
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ClearAllArgs,
     ) -> None:
         """Execute the command's action."""
@@ -81,11 +86,14 @@ class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
         workspace = context.workspace
 
         try:
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
+            async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
+                # TODO(horia141): params
                 (
                     user_feature_flags_controls,
                     workspace_feature_flags_controls,
-                ) = infer_feature_flag_controls(self._global_properties)
+                ) = infer_feature_flag_controls(
+                    cast(JupiterGlobalProperties, self._global_properties)
+                )
 
                 home_config = await uow.get_for(HomeConfig).load_by_parent(
                     workspace.ref_id,
@@ -285,7 +293,7 @@ class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
                     )
 
             async with progress_reporter.section("Clearing the search index"):
-                async with self._search_storage_engine.get_unit_of_work() as search_uow:
+                async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                     await search_uow.search_repository.drop(workspace.ref_id)
         except Exception as e:
             # Nothing should go wrong here, but if it does, it's kind of hard to debug.

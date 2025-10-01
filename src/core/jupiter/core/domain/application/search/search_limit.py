@@ -1,12 +1,12 @@
 """A search limit parameter for searches."""
 
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, value
-from jupiter.core.use_cases.infra.realms import (
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
+from jupiter.framework_new.value import AtomicValue, value
 
 _MAX_QUERY_LIMIT = 1000
 

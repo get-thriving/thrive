@@ -1,23 +1,23 @@
 """Use case for logging in as a particular user."""
 
+from jupiter.core.config import (
+    JupiterGuestReadonlyUseCase,
+    JupiterGuestReadonlyUseCaseContext,
+)
 from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.secure import secure_class
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
 )
 
 
@@ -41,16 +41,16 @@ class LoginResult(UseCaseResultBase):
 
 
 @secure_class
-class LoginUseCase(AppGuestReadonlyUseCase[LoginArgs, LoginResult]):
+class LoginUseCase(JupiterGuestReadonlyUseCase[LoginArgs, LoginResult]):
     """Use case for logging in as a particular user."""
 
     async def _execute(
         self,
-        context: AppGuestReadonlyUseCaseContext,
+        context: JupiterGuestReadonlyUseCaseContext,
         args: LoginArgs,
     ) -> LoginResult:
         """Execute the command."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 user = await uow.get(UserRepository).load_by_email_address(
                     args.email_address
@@ -64,6 +64,6 @@ class LoginUseCase(AppGuestReadonlyUseCase[LoginArgs, LoginResult]):
                     "User email or password invalid"
                 ) from err
 
-            auth_token = self._auth_token_stamper.stamp_for_general(user)
+            auth_token = self._auth_token_stamper.stamp_for_general(user.ref_id)
 
             return LoginResult(auth_token_ext=auth_token.to_ext())

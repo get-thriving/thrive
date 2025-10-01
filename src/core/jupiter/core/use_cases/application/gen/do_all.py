@@ -1,5 +1,13 @@
 """The command for doing task generation for all workspaces."""
 
+from typing import cast
+
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterSysBackgroundMutationUseCase,
+)
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -9,15 +17,11 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.event import EventSource
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.use_case import (
     EmptyContext,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.core.use_cases.infra.use_cases import (
-    SysBackgroundMutationUseCase,
-)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -25,12 +29,12 @@ class GenDoAllArgs(UseCaseArgsBase):
     """GenDoAllArgs."""
 
 
-class GenDoAllUseCase(SysBackgroundMutationUseCase[GenDoAllArgs, None]):
+class GenDoAllUseCase(JupiterSysBackgroundMutationUseCase[GenDoAllArgs, None]):
     """The command for doing task generation for all workspaces."""
 
     async def _execute(self, context: EmptyContext, args: GenDoAllArgs) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
             users = await uow.get_for(User).find_all(allow_archived=False)
             users_by_id = {u.ref_id: u for u in users}
@@ -41,12 +45,17 @@ class GenDoAllUseCase(SysBackgroundMutationUseCase[GenDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.from_sys(
-            EventSource.GEN_CRON, self._time_provider.get_current_time()
+        # TODO(horia141): params
+        ctx = DomainContext.build(
+            JupiterComponentProperties.for_cron(
+                component=AppComponent.GEN_CRON,
+                version=cast(JupiterGlobalProperties, self._global_properties).version,
+            ),
+            self._time_provider.get_current_time(),
         )
 
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         today = self._time_provider.get_current_date()
@@ -74,7 +83,7 @@ class GenDoAllUseCase(SysBackgroundMutationUseCase[GenDoAllArgs, None]):
                 filter_email_task_ref_ids=None,
             )
 
-            async with self._search_storage_engine.get_unit_of_work() as search_uow:
+            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, created_entity

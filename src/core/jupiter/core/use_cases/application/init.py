@@ -1,12 +1,18 @@
 """UseCase for initialising the workspace."""
 
+from typing import cast
+
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterGuestMutationUseCase,
+    JupiterGuestMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
@@ -72,21 +78,18 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.framework.use_case import (
+from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.secure import secure_class
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
-)
-from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 
 
 @use_case_args
@@ -116,20 +119,23 @@ class InitResult(UseCaseResultBase):
 
 
 @secure_class
-class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
+class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
     """UseCase for initialising the workspace."""
 
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationUseCaseContext,
         args: InitArgs,
     ) -> InitResult:
         """Execute the command's action."""
+        # TODO(horia141): params
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,
-        ) = infer_feature_flag_controls(self._global_properties)
+        ) = infer_feature_flag_controls(
+            cast(JupiterGlobalProperties, self._global_properties)
+        )
 
         user_feature_flags = {}
         for user_feature in UserFeature:
@@ -151,7 +157,7 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
 
         for_app_review = False  # args.for_app_review
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if for_app_review:
                 new_user = User.new_app_store_review_user(
                     ctx=context.domain_context,
@@ -433,15 +439,15 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        async with self._search_storage_engine.get_unit_of_work() as search_uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.upsert(
                 new_workspace.ref_id, new_root_project
             )
 
-        auth_token = self._auth_token_stamper.stamp_for_general(new_user)
+        auth_token = self._auth_token_stamper.stamp_for_general(new_user.ref_id)
 
         if new_user.should_go_through_onboarding_flow:
-            await self._crm.upsert_as_user(new_user)
+            await self._ports.crm.upsert_as_user(new_user)
 
         return InitResult(
             new_user=new_user,

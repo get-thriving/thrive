@@ -1,17 +1,19 @@
 """A client facing application."""
 
-from jupiter.core.framework.value import AtomicValue, EnumValue, enum_value, value
+from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, value
 
 
-@value
-class AppVersion(AtomicValue[str]):
-    """The version of the app."""
+@enum_value
+class AppComponent(EnumValue):
+    """The component of the app."""
 
-    the_version: str
-
-    def __str__(self) -> str:
-        """Transform this to a string version."""
-        return self.the_version
+    _OLD_WEB = "web"
+    _OLD_CLI = "cli"
+    APP = "app"
+    GC_CRON = "gc-cron"
+    GEN_CRON = "gen-cron"
+    STATS_CRON = "stats-cron"
+    SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
 
 
 @enum_value
@@ -62,3 +64,14 @@ class AppDistributionState(EnumValue):
     READY = "ready"
     IN_REVIEW = "in-review"
     NOT_AVAILABLE = "not-available"
+
+
+@value
+class AppVersion(AtomicValue[str]):
+    """The version of the app."""
+
+    the_version: str
+
+    def __str__(self) -> str:
+        """Transform this to a string version."""
+        return self.the_version

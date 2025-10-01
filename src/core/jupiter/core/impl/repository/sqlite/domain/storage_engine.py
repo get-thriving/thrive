@@ -17,30 +17,9 @@ from jupiter.core.domain.application.search.infra.search_repository import (
     SearchRepository,
 )
 from jupiter.core.domain.storage_engine import (
-    DomainStorageEngine,
-    DomainUnitOfWork,
     SearchStorageEngine,
     SearchUnitOfWork,
 )
-from jupiter.core.framework.entity import (
-    CrownEntity,
-    Entity,
-    RootEntity,
-    StubEntity,
-    TrunkEntity,
-)
-from jupiter.core.framework.realm import RealmCodecRegistry
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.repository import (
-    CrownEntityRepository,
-    EntityRepository,
-    RecordRepository,
-    Repository,
-    RootEntityRepository,
-    StubEntityRepository,
-    TrunkEntityRepository,
-)
-from jupiter.core.framework.utils import find_all_modules
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.domain.application.search import (
     SqliteSearchRepository,
@@ -54,6 +33,27 @@ from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteStubEntityRepository,
     SqliteTrunkEntityRepository,
 )
+from jupiter.framework_new.entity import (
+    CrownEntity,
+    Entity,
+    RootEntity,
+    StubEntity,
+    TrunkEntity,
+)
+from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.repository import (
+    CrownEntityRepository,
+    DomainStorageEngine,
+    DomainUnitOfWork,
+    EntityRepository,
+    RecordRepository,
+    Repository,
+    RootEntityRepository,
+    StubEntityRepository,
+    TrunkEntityRepository,
+)
+from jupiter.framework_new.utils import find_all_modules
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 

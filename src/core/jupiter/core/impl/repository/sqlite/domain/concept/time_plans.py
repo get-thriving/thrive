@@ -14,15 +14,15 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.realm import RealmCodecRegistry
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.realm import RealmCodecRegistry
 from sqlalchemy import (
     MetaData,
 )

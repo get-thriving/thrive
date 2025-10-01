@@ -3,7 +3,7 @@
 import pytest
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.core.framework.base.timestamp import Timestamp
+from jupiter.framework_new.base.timestamp import Timestamp
 
 
 def test_infer_timeline_none_period() -> None:

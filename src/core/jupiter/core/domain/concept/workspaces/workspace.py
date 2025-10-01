@@ -40,8 +40,8 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ContainsOne,
     IsRefId,
     RootEntity,
@@ -49,8 +49,8 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.repository import EntityNotFoundError, RootEntityRepository
-from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.repository import EntityNotFoundError, RootEntityRepository
+from jupiter.framework_new.update_action import UpdateAction
 
 
 @entity

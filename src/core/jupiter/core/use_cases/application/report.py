@@ -1,24 +1,26 @@
 """The command for reporting on progress."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.application.report.report_period_result import (
     ReportPeriodResult,
 )
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 
@@ -49,19 +51,19 @@ class ReportResult(UseCaseResultBase):
 
 
 @readonly_use_case()
-class ReportUseCase(AppLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
+class ReportUseCase(JupiterLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
     """The command for reporting on progress."""
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: ReportArgs,
     ) -> ReportResult:
         """Execute the command."""
         user = context.user
         workspace = context.workspace
 
-        report_service = ReportService(self._domain_storage_engine)
+        report_service = ReportService(self._ports.domain_storage_engine)
 
         report_period_result = await report_service.do_it(
             user=user,

@@ -51,20 +51,20 @@ from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.schedules import Schedule
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainStorageEngine
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.errors import InputValidationError
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainStorageEngine
+from jupiter.framework_new.use_case import UnavailableForContextError
 
 
 class ReportService:
@@ -99,37 +99,37 @@ class ReportService:
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.HABITS)
+            raise UnavailableForContextError(WorkspaceFeature.HABITS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.CHORES)
             and filter_chore_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.CHORES)
+            raise UnavailableForContextError(WorkspaceFeature.CHORES)
         if (
             not workspace.is_feature_available(WorkspaceFeature.METRICS)
             and filter_metric_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.METRICS)
+            raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.PERSONS)
             and filter_person_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.SLACK_TASKS)
+            raise UnavailableForContextError(WorkspaceFeature.SLACK_TASKS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS)
             and filter_email_task_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.EMAIL_TASKS)
+            raise UnavailableForContextError(WorkspaceFeature.EMAIL_TASKS)
 
         sources = (
             sources
@@ -143,7 +143,7 @@ class ReportService:
             )
         )
         if len(big_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Sources {','.join(s.value for s in big_diff)} are not supported in this workspace"
             )
 

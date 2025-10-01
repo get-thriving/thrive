@@ -2,6 +2,10 @@
 
 from typing import cast
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -14,7 +18,6 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -22,20 +25,20 @@ from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDu
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.domain.features import FeatureUnavailableError, WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -61,7 +64,7 @@ class ChoreUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.CHORES)
 class ChoreUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChoreUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ChoreUpdateArgs, None]
 ):
     """The command for updating a chore."""
 
@@ -69,7 +72,7 @@ class ChoreUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ChoreUpdateArgs,
     ) -> None:
         """Execute the command's action."""
@@ -82,7 +85,7 @@ class ChoreUpdateUseCase(
             and args.project_ref_id.should_change
             and args.project_ref_id.just_the_value != chore.project_ref_id
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         need_to_change_inbox_tasks = (
             args.name.should_change

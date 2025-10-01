@@ -8,10 +8,10 @@ from jupiter.core.domain.application.gamification.user_score_history import (
     UserScoreHistory,
 )
 from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.timestamp import Timestamp
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.repository import DomainUnitOfWork
 
 
 class ScoreHistoryService:

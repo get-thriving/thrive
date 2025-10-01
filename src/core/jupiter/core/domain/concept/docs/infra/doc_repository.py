@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.core.domain.concept.docs.doc import Doc
-from jupiter.core.framework.repository import (
+from jupiter.framework_new.repository import (
     LeafEntityRepository,
 )
 

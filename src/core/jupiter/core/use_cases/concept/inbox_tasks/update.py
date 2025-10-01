@@ -1,5 +1,9 @@
 """The command for updating a inbox task."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
@@ -33,32 +37,30 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     UserFeature,
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -87,7 +89,9 @@ class InboxTaskUpdateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.INBOX_TASKS)
 class InboxTaskUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[InboxTaskUpdateArgs, InboxTaskUpdateResult]
+    JupiterTransactionalLoggedInMutationUseCase[
+        InboxTaskUpdateArgs, InboxTaskUpdateResult
+    ]
 ):
     """The command for updating a inbox task."""
 
@@ -95,7 +99,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: InboxTaskUpdateArgs,
     ) -> InboxTaskUpdateResult:
         """Execute the command's action."""
@@ -117,7 +121,7 @@ class InboxTaskUpdateUseCase(
             if args.big_plan_ref_id.should_change:
                 if args.big_plan_ref_id.just_the_value is not None:
                     if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                        raise FeatureUnavailableError(WorkspaceFeature.BIG_PLANS)
+                        raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
 
                     new_big_plan = await uow.get_for(BigPlan).load_by_id(
                         args.big_plan_ref_id.just_the_value,
@@ -199,7 +203,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         workspace: Workspace,
         inbox_task_before_update: InboxTask,
         big_plan: BigPlan,
@@ -254,7 +258,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         inbox_task_before_update: InboxTask,
         inbox_task_after_update: InboxTask,
         previous_big_plan: BigPlan | None,
@@ -298,7 +302,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         inbox_task: InboxTask,
     ) -> None:
         if inbox_task.source != InboxTaskSource.HABIT:

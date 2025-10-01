@@ -1,5 +1,12 @@
 """The command for loading workspaces if they exist."""
 
+from typing import cast
+
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterGuestReadonlyUseCase,
+    JupiterGuestReadonlyUseCaseContext,
+)
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -36,17 +43,13 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-)
-from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 
 
 @use_case_args
@@ -80,22 +83,23 @@ class LoadTopLevelInfoResult(UseCaseResultBase):
 
 
 class LoadTopLevelInfoUseCase(
-    AppGuestReadonlyUseCase[LoadTopLevelInfoArgs, LoadTopLevelInfoResult],
+    JupiterGuestReadonlyUseCase[LoadTopLevelInfoArgs, LoadTopLevelInfoResult],
 ):
     """The command for loading a user and workspace if they exist and other data too."""
 
     async def _execute(
         self,
-        context: AppGuestReadonlyUseCaseContext,
+        context: JupiterGuestReadonlyUseCaseContext,
         args: LoadTopLevelInfoArgs,
     ) -> LoadTopLevelInfoResult:
         """Execute the command's action."""
+        gp = cast(JupiterGlobalProperties, self._global_properties)
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,
-        ) = infer_feature_flag_controls(self._global_properties)
+        ) = infer_feature_flag_controls(gp)
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if context.auth_token is None:
                 user = None
                 workspace = None
@@ -123,8 +127,8 @@ class LoadTopLevelInfoUseCase(
                     user_score_overview = None
 
         return LoadTopLevelInfoResult(
-            env=self._global_properties.env,
-            hosting=self._global_properties.hosting,
+            env=gp.env,
+            hosting=gp.hosting,
             user_feature_flag_controls=user_feature_flags_controls,
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),

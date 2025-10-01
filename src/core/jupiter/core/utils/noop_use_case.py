@@ -1,10 +1,10 @@
 """A use case that doesn't do anything."""
 
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInUseCaseContext,
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
 )
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -12,11 +12,11 @@ class NoOpArgs(UseCaseArgsBase):
     """NoOp args."""
 
 
-class NoOpUseCase(AppLoggedInReadonlyUseCase[NoOpArgs, None]):
+class NoOpUseCase(JupiterLoggedInReadonlyUseCase[NoOpArgs, None]):
     """A use case that doesn't do anything."""
 
     async def _execute(
-        self, context: AppLoggedInUseCaseContext, args: NoOpArgs
+        self, context: JupiterLoggedInReadonlyUseCaseContext, args: NoOpArgs
     ) -> None:
         """Execute the command's actions."""
         return None

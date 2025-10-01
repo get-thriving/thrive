@@ -6,9 +6,9 @@ from jupiter.core.domain.concept.docs.doc_idempotency_key import DocIdempotencyK
 from jupiter.core.domain.concept.docs.doc_name import DocName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
     OwnsOne,
@@ -17,8 +17,8 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.repository import LeafEntityRepository
-from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework_new.update_action import UpdateAction
 
 
 @entity

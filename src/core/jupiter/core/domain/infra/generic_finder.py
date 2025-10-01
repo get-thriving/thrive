@@ -3,9 +3,9 @@
 from collections.abc import Iterable
 from typing import TypeVar, overload
 
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.entity import CrownEntity, EntityLink
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.entity import CrownEntity, EntityLink
+from jupiter.framework_new.repository import DomainUnitOfWork
 
 _EntityT = TypeVar("_EntityT", bound=CrownEntity)
 _LinkedEntity1T = TypeVar("_LinkedEntity1T", bound=CrownEntity)

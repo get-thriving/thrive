@@ -15,33 +15,17 @@ import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import CliRealm, RealmCodecRegistry
-from jupiter.core.framework.thing import Thing
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    MutationUseCaseInvocationRecorder,
-    UseCase,
-    UseCaseContextBase,
-    UseCaseSessionBase,
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterPorts,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.utils import find_all_modules
-from jupiter.core.framework.value import (
-    AtomicValue,
-    CompositeValue,
-    EnumValue,
-    SecretValue,
+from jupiter.core.domain.app import (
+    AppCore,
+    AppDistribution,
+    AppPlatform,
+    AppShell,
 )
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -54,9 +38,28 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
     AppLoggedInUseCaseSession,
 )
-from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
+from jupiter.framework_new.thing import Thing
+from jupiter.framework_new.time_provider import TimeProvider
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    MutationUseCaseInvocationRecorder,
+    UseCase,
+    UseCaseContextBase,
+    UseCaseSessionBase,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
+from jupiter.framework_new.utils import find_all_modules
+from jupiter.framework_new.value import (
+    AtomicValue,
+    CompositeValue,
+    EnumValue,
+    SecretValue,
+)
 from pendulum.date import Date
 from pendulum.datetime import DateTime
 from rich.console import Console
@@ -96,25 +99,13 @@ class Command(abc.ABC):
         """Callback to execute when the command is invoked."""
 
     @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        return True
-
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return True
 
     @property
     def should_appear_in_global_help(self) -> bool:
         """Should the command appear in the global help info or not."""
-        return True
-
-    def is_allowed_for_user(self, workspace: User) -> bool:
-        """Is this command allowed for a particular user."""
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
         return True
 
     @property
@@ -141,14 +132,14 @@ UseCaseResultT = TypeVar("UseCaseResultT", bound=UseCaseResultBase | None)
 class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
     """Base class for commands based on use cases."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _args_type: Final[type[UseCaseArgsBase]]
     _use_case: UseCaseT
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         use_case: UseCaseT,
@@ -707,8 +698,14 @@ class GuestMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_cli(
-                self._global_properties.version,
+            AppGuestUseCaseSession.build(
+                JupiterComponentProperties.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
                 session_info.auth_token_ext if session_info else None,
             ),
             parsed_args,
@@ -756,8 +753,14 @@ class GuestReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_cli(
-                self._global_properties.version,
+            AppGuestUseCaseSession.build(
+                JupiterComponentProperties.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
                 session_info.auth_token_ext if session_info else None,
             ),
             parsed_args,
@@ -810,8 +813,15 @@ class LoggedInMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_cli(
-                self._global_properties.version, session.auth_token_ext
+            AppLoggedInUseCaseSession.build(
+                JupiterComponentProperties.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
+                session.auth_token_ext,
             ),
             parsed_args,
         )
@@ -826,49 +836,9 @@ class LoggedInMutationCommand(
         """Render the result."""
 
     @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        scoped_to_app = self._use_case.get_scoped_to_app()
-        if scoped_to_app is None:
-            return True
-        return AppCore.CLI in scoped_to_app
-
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
-        scoped_to_env = self._use_case.get_scoped_to_env()
-        if scoped_to_env is None:
-            return True
-        return env in scoped_to_env
-
-    def is_allowed_for_user(self, user: User) -> bool:
-        """Is this command allowed for a particular user."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return user.is_feature_available(scoped_feature)
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return True
-        for feature in scoped_feature:
-            if isinstance(feature, UserFeature):
-                if not user.is_feature_available(feature):
-                    return False
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return True
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return workspace.is_feature_available(scoped_feature)
-        for feature in scoped_feature:
-            if isinstance(feature, WorkspaceFeature):
-                if not workspace.is_feature_available(feature):
-                    return False
-        return True
+        return self._use_case.is_allowed_globally
 
 
 LoggedInReadonlyCommandUseCase = TypeVar(
@@ -903,8 +873,15 @@ class LoggedInReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_cli(
-                self._global_properties.version, session.auth_token_ext
+            AppLoggedInUseCaseSession.build(
+                JupiterComponentProperties.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
+                session.auth_token_ext,
             ),
             parsed_args,
         )
@@ -919,49 +896,9 @@ class LoggedInReadonlyCommand(
         """Render the result."""
 
     @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        scoped_to_app = self._use_case.get_scoped_to_app()
-        if scoped_to_app is None:
-            return True
-        return AppCore.CLI in scoped_to_app
-
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
-        scoped_to_env = self._use_case.get_scoped_to_env()
-        if scoped_to_env is None:
-            return True
-        return env in scoped_to_env
-
-    def is_allowed_for_user(self, user: User) -> bool:
-        """Is this command allowed for a particular user."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return user.is_feature_available(scoped_feature)
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return True
-        for feature in scoped_feature:
-            if isinstance(feature, UserFeature):
-                if not user.is_feature_available(feature):
-                    return False
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return True
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return workspace.is_feature_available(scoped_feature)
-        for feature in scoped_feature:
-            if isinstance(feature, WorkspaceFeature):
-                if not workspace.is_feature_available(feature):
-                    return False
-        return True
+        return self._use_case.is_allowed_globally
 
     @property
     def should_have_streaming_progress_report(self) -> bool:
@@ -997,7 +934,7 @@ class CliExceptionHandler(Generic[_ExceptionT], abc.ABC):
 class CliApp:
     """A CLI application."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _top_level_context: Final[TopLevelContext]
     _console: Final[Console]
     _time_provider: Final[TimeProvider]
@@ -1006,10 +943,8 @@ class CliApp:
     _realm_codec_registry: Final[RealmCodecRegistry]
     _session_storage: Final[SessionStorage]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
     _use_case_commands: dict[
         type[
             UseCase[
@@ -1026,7 +961,7 @@ class CliApp:
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
@@ -1035,10 +970,8 @@ class CliApp:
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
@@ -1050,17 +983,15 @@ class CliApp:
         self._realm_codec_registry = realm_codec_registry
         self._session_storage = session_storage
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
         self._use_case_commands = {}
         self._commands = {}
         self._exception_handlers = {}
 
     @staticmethod
     def build_from_module_root(
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
@@ -1069,10 +1000,8 @@ class CliApp:
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
         *module_root: types.ModuleType,
     ) -> "CliApp":
         """Build a CLI app from the module root."""
@@ -1218,10 +1147,8 @@ class CliApp:
             realm_codec_registry=realm_codec_registry,
             session_storage=session_storage,
             auth_token_stamper=auth_token_stamper,
-            domain_storage_engine=domain_storage_engine,
-            search_storage_engine=search_storage_engine,
+            ports=ports,
             use_case_storage_engine=use_case_storage_engine,
-            crm=crm,
         )
 
         for m in find_all_modules(*module_root):
@@ -1267,9 +1194,7 @@ class CliApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
@@ -1282,8 +1207,7 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -1298,10 +1222,8 @@ class CliApp:
                     progress_reporter_factory=self._progress_reporter_factory,
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                     use_case_storage_engine=self._use_case_storage_engine,
-                    crm=self._crm,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
@@ -1314,8 +1236,7 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
             )
         else:
@@ -1352,9 +1273,9 @@ class CliApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
+                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
@@ -1367,8 +1288,8 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -1383,10 +1304,10 @@ class CliApp:
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=self._progress_reporter_factory,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                     use_case_storage_engine=self._use_case_storage_engine,
-                    crm=self._crm,
+                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
@@ -1399,8 +1320,8 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         else:
@@ -1444,25 +1365,10 @@ class CliApp:
         for command in itertools.chain(
             self._commands.values(), self._use_case_commands.values()
         ):
-            if not command.is_allowed_for_cli:
+            if not command.is_allowed_globally:
                 continue
 
-            if not command.is_allowed_for_environment(self._global_properties.env):
-                continue
-
-            if (
-                command.should_appear_in_global_help
-                and (
-                    self._top_level_context.user is None
-                    or command.is_allowed_for_user(self._top_level_context.user)
-                )
-                and (
-                    self._top_level_context.workspace is None
-                    or command.is_allowed_for_workspace(
-                        self._top_level_context.workspace
-                    )
-                )
-            ):
+            if command.should_appear_in_global_help:
                 command_parser = subparsers.add_parser(
                     command.name(),
                     help=command.description(),
@@ -1510,6 +1416,6 @@ class CliApp:
             break
 
     @property
-    def global_properties(self) -> GlobalProperties:
+    def global_properties(self) -> JupiterGlobalProperties:
         """The global properties."""
         return self._global_properties

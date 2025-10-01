@@ -1,5 +1,9 @@
 """The command for creating a big plan."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
@@ -18,30 +22,28 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability impor
 from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
     TimePlanActivityKind,
 )
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -71,7 +73,7 @@ class BigPlanCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[BigPlanCreateArgs, BigPlanCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanCreateArgs, BigPlanCreateResult]
 ):
     """The command for creating a big plan."""
 
@@ -79,7 +81,7 @@ class BigPlanCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: BigPlanCreateArgs,
     ) -> BigPlanCreateResult:
         """Execute the command's action."""
@@ -89,12 +91,12 @@ class BigPlanCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
             and args.time_plan_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.TIME_PLANS)
+            raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:

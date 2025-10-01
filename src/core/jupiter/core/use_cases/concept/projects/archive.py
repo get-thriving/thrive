@@ -1,5 +1,9 @@
 """Use case for archiving a project."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
@@ -27,19 +31,17 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 )
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -52,7 +54,7 @@ class ProjectArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.PROJECTS)
 class ProjectArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[ProjectArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ProjectArchiveArgs, None]
 ):
     """The command for archiving a project."""
 
@@ -60,7 +62,7 @@ class ProjectArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ProjectArchiveArgs,
     ) -> None:
         """Execute the command's action."""

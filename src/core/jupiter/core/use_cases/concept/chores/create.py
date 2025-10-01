@@ -1,12 +1,15 @@
 """The command for creating a chore."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -15,25 +18,24 @@ from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenP
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    UnavailableForContextError,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -66,7 +68,7 @@ class ChoreCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.CHORES)
 class ChoreCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChoreCreateArgs, ChoreCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[ChoreCreateArgs, ChoreCreateResult]
 ):
     """The command for creating a chore."""
 
@@ -74,7 +76,7 @@ class ChoreCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ChoreCreateArgs,
     ) -> ChoreCreateResult:
         """Execute the command's action."""
@@ -84,7 +86,7 @@ class ChoreCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
             workspace.ref_id,
@@ -128,15 +130,15 @@ class ChoreCreateUseCase(
 
         return ChoreCreateResult(new_chore=new_chore)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ChoreCreateArgs,
         result: ChoreCreateResult,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

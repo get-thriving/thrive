@@ -2,13 +2,13 @@
 
 import avinit
 from jupiter.core.domain.concept.user.user_name import UserName
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, hashable_value
-from jupiter.core.use_cases.infra.realms import (
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
+from jupiter.framework_new.value import AtomicValue, hashable_value
 
 
 @hashable_value

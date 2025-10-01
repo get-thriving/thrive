@@ -1,18 +1,20 @@
 """The command for loading a progress reporter specific token."""
 
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.secure import secure_class
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -31,7 +33,7 @@ class LoadProgressReporterTokenResult(UseCaseResultBase):
 @secure_class
 @readonly_use_case()
 class LoadProgressReporterTokenUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         LoadProgressReporterTokenArgs, LoadProgressReporterTokenResult
     ]
 ):
@@ -40,11 +42,13 @@ class LoadProgressReporterTokenUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: LoadProgressReporterTokenArgs,
     ) -> LoadProgressReporterTokenResult:
         """Execute the command."""
-        auth_token = self._auth_token_stamper.stamp_for_progress_reporter(context.user)
+        auth_token = self._auth_token_stamper.stamp_for_progress_reporter(
+            context.user.ref_id
+        )
         return LoadProgressReporterTokenResult(
             progress_reporter_token_ext=auth_token.to_ext()
         )

@@ -15,9 +15,9 @@ from jupiter.core.domain.concept.push_integrations.email.email_task_collection i
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import ProgressReporter
 
 
 class EmailTaskRemoveService:

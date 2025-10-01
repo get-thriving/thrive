@@ -1,5 +1,9 @@
 """Use case for loading history of runs."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_external_sync_log import (
     ScheduleExternalSyncLog,
@@ -9,16 +13,14 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
     ScheduleExternalSyncLogEntryRepository,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 
@@ -36,7 +38,7 @@ class ScheduleExternalSyncLoadRunsResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExternalSyncLoadRunsUseCase(
-    AppLoggedInReadonlyUseCase[
+    JupiterLoggedInReadonlyUseCase[
         ScheduleExternalSyncLoadRunsArgs, ScheduleExternalSyncLoadRunsResult
     ]
 ):
@@ -44,11 +46,11 @@ class ScheduleExternalSyncLoadRunsUseCase(
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: ScheduleExternalSyncLoadRunsArgs,
     ) -> ScheduleExternalSyncLoadRunsResult:
         """Execute the use case."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
                 context.workspace.ref_id
             )

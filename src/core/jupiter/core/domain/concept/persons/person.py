@@ -5,7 +5,6 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
 from jupiter.core.domain.concept.persons.person_name import PersonName
 from jupiter.core.domain.concept.persons.person_relationship import PersonRelationship
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
@@ -13,9 +12,10 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -25,7 +25,7 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.update_action import UpdateAction
 
 
 @entity

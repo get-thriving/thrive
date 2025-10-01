@@ -2,13 +2,14 @@
 
 import abc
 
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     CrownEntity,
     LeafEntity,
     ParentLink,
@@ -16,8 +17,7 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.event import EventSource
-from jupiter.core.framework.repository import LeafEntityRepository
+from jupiter.framework_new.repository import LeafEntityRepository
 
 
 @entity
@@ -25,7 +25,7 @@ class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 
     gc_log: ParentLink
-    source: EventSource
+    source: AppComponent
     gc_targets: list[SyncTarget]
     opened: bool
     entity_records: list[EntitySummary]

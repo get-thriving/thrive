@@ -1,5 +1,9 @@
 """The command for updating a email task."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
@@ -18,24 +22,22 @@ from jupiter.core.domain.concept.push_integrations.email.email_user_name import 
 from jupiter.core.domain.concept.push_integrations.push_generation_extra_info import (
     PushGenerationExtraInfo,
 )
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
-    ProgressReporter,
-)
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -58,7 +60,7 @@ class EmailTaskUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.EMAIL_TASKS)
 class EmailTaskUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[EmailTaskUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[EmailTaskUpdateArgs, None]
 ):
     """The command for updating a email task."""
 
@@ -66,7 +68,7 @@ class EmailTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: EmailTaskUpdateArgs,
     ) -> None:
         """Execute the command's action."""
@@ -149,15 +151,15 @@ class EmailTaskUpdateUseCase(
         await uow.get_for(EmailTask).save(email_task)
         await progress_reporter.mark_updated(email_task)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: EmailTaskUpdateArgs,
         result: None,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

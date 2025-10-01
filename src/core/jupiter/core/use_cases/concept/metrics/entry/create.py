@@ -1,24 +1,26 @@
 """The command for creating a metric entry."""
 
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
-from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case import (
+from jupiter.core.use_cases.infra.use_cases import (
+    mutation_use_case,
+)
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 
@@ -40,7 +42,7 @@ class MetricEntryCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         MetricEntryCreateArgs, MetricEntryCreateResult
     ],
 ):
@@ -50,7 +52,7 @@ class MetricEntryCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: MetricEntryCreateArgs,
     ) -> MetricEntryCreateResult:
         """Execute the command's action."""

@@ -1,1 +1,4 @@
 libasound2-dev
+shellcheck
+jo
+cloc

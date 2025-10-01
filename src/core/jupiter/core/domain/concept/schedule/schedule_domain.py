@@ -10,9 +10,9 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log import (
     ScheduleExternalSyncLog,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ContainsMany,
     ContainsOne,
     IsRefId,

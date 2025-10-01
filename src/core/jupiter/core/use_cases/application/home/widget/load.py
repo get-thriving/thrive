@@ -1,18 +1,20 @@
 """The use case for loading a home small screen widget."""
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.application.home.home_widget import HomeWidget
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -33,14 +35,16 @@ class HomeWidgetLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class HomeWidgetLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[HomeWidgetLoadArgs, HomeWidgetLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        HomeWidgetLoadArgs, HomeWidgetLoadResult
+    ]
 ):
     """The use case for loading a home widget."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: HomeWidgetLoadArgs,
     ) -> HomeWidgetLoadResult:
         """Execute the use case's action."""

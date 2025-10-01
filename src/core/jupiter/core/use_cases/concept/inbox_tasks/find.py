@@ -2,6 +2,10 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.chores.chore import Chore
@@ -48,24 +52,22 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.errors import InputValidationError
-from jupiter.core.framework.use_case_io import (
+from jupiter.core.use_cases.infra.use_cases import (
+    readonly_use_case,
+)
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.use_case import UnavailableForContextError
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
     use_case_result_part,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 
@@ -114,14 +116,14 @@ class InboxTaskFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.INBOX_TASKS)
 class InboxTaskFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[InboxTaskFindArgs, InboxTaskFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[InboxTaskFindArgs, InboxTaskFindResult]
 ):
     """The command for finding a inbox task."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: InboxTaskFindArgs,
     ) -> InboxTaskFindResult:
         """Execute the command's action."""
@@ -136,7 +138,7 @@ class InboxTaskFindUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         filter_sources = (
             args.filter_sources
@@ -154,7 +156,7 @@ class InboxTaskFindUseCase(
             )
         )
         if len(big_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Sources {','.join(s.value for s in big_diff)} are not supported in this workspace"
             )
 
