@@ -9,7 +9,6 @@ import pendulum.parser
 import pendulum.parsing
 import pendulum.tz
 from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.realm import (
     CliRealm,
     DatabaseRealm,
@@ -20,6 +19,7 @@ from jupiter.core.framework.realm import (
     WebRealm,
 )
 from jupiter.core.framework.value import AtomicValue, hashable_value
+from jupiter.framework_new.errors import InputValidationError
 from pendulum.date import Date
 from pendulum.datetime import DateTime
 from pendulum.tz.timezone import UTC

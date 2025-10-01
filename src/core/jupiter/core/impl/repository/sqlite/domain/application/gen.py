@@ -5,10 +5,10 @@ from jupiter.core.domain.application.gen.gen_log_entry import (
     GenLogEntryRepository,
 )
 from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )
+from jupiter.framework_new.errors import InputValidationError
 from sqlalchemy import (
     select,
 )

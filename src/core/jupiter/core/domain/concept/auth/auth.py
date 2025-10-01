@@ -14,9 +14,9 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.realm import DatabaseRealm, only_in_realm
 from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.errors import InputValidationError
 
 
 class IncorrectPasswordError(Exception):

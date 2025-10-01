@@ -5,10 +5,10 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
     ScheduleExternalSyncLogEntryRepository,
 )
 from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )
+from jupiter.framework_new.errors import InputValidationError
 from sqlalchemy import (
     select,
 )

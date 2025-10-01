@@ -8,7 +8,6 @@ from typing import (
     TypeVar,
 )
 
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.realm import (
     DatabaseRealm,
     RealmDecoder,
@@ -17,6 +16,7 @@ from jupiter.core.framework.realm import (
     RealmThing,
 )
 from jupiter.core.framework.value import AtomicValue, hashable_value
+from jupiter.framework_new.errors import InputValidationError
 
 _ENTITY_NAME_RE: Final[re.Pattern[str]] = re.compile(r"^.+$")
 

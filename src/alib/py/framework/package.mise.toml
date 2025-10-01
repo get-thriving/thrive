@@ -41,7 +41,7 @@ run = "npx eslint src/alib/py/framework/package.mise.toml"
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "cd src/alib/py/framework && poetry run mypy --config=../../../../tasks/_resources/check/lint/mypy --package jupiter.framework --explicit-package-bases --show-absolute-path"
+run = "cd src/alib/py/framework && poetry run mypy --config=../../../../tasks/_resources/check/lint/mypy --package jupiter.framework_new --explicit-package-bases --show-absolute-path"
 
 ["package:src:alib:py:framework:lint:ruff"]
 hide = true

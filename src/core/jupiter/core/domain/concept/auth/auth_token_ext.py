@@ -4,13 +4,13 @@ import re
 from re import Pattern
 from typing import Final
 
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.secure import secure_class
 from jupiter.core.framework.value import AtomicValue, value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
+from jupiter.framework_new.errors import InputValidationError
 
 _JWT_RE: Final[Pattern[str]] = re.compile(
     r"([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_=]+)\.([a-zA-Z0-9_\-\+\/=]*)"

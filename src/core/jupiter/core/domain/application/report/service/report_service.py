@@ -64,7 +64,7 @@ from jupiter.core.framework.base.entity_id import EntityId
 from jupiter.core.framework.base.entity_name import EntityName
 from jupiter.core.framework.base.timestamp import Timestamp
 from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.errors import InputValidationError
+from jupiter.framework_new.errors import InputValidationError
 
 
 class ReportService:

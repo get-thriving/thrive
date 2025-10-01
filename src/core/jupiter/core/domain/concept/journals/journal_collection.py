@@ -21,8 +21,8 @@ from jupiter.core.framework.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.errors import InputValidationError
 
 
 @entity

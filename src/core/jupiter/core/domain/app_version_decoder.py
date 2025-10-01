@@ -1,12 +1,12 @@
 """App version decoder."""
 
 from jupiter.core.domain.app import AppVersion
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.primitive import Primitive
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
+from jupiter.framework_new.errors import InputValidationError
 
 
 class AppVersionDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[AppVersion]):

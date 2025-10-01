@@ -1,16 +1,18 @@
-[project]
-name = "framework"
+[tool.poetry]
+name = "jupiter-framework"
 version = "0.1.0"
 description = "The application framework for Jupiter"
-authors = [
-    {name = "Horia Coman",email = "horia141@gmail.com"}
-]
-license = {text = "MIT"}
+authors = ["Horia Coman <horia141@gmail.com>"]
+license = "MIT"
+homepage = "https://get-thriving.com"
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-]
+repository = "https://github.com/horia141/thrive"
+documentation = "https://docs.get-thriving.com"
+packages = [{ include = "jupiter" }]
+include = ["jupiter/framework/py.typed"]
 
+[tool.poetry.dependencies]
+python = "^3.13"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

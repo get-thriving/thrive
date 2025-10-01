@@ -6,7 +6,7 @@ run = "true"
 hide = true
 sources = ["src/cli/pyproject.toml"]
 outputs = { auto = true }
-wait_for = ["root:install:apt"]
+wait_for = ["root:install:apt", "package:src:core:install"]
 run = "cd src/cli && poetry install --no-interaction --no-ansi"
 
 ["package:src:cli:fix:autoflake"]

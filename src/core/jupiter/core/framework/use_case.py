@@ -16,10 +16,10 @@ from typing import (
 from jupiter.core.framework.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.core.framework.base.timestamp import Timestamp
 from jupiter.core.framework.entity import CrownEntity
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.realm import RealmCodecRegistry
 from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.errors import InputValidationError
 
 LOGGER = logging.getLogger(__name__)
 

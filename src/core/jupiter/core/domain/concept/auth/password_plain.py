@@ -1,6 +1,5 @@
 """A password in plain text, as received from a user."""
 
-from jupiter.core.framework.errors import InputValidationError
 from jupiter.core.framework.realm import (
     CliRealm,
     EventStoreRealm,
@@ -11,6 +10,7 @@ from jupiter.core.framework.realm import (
     only_in_realm,
 )
 from jupiter.core.framework.value import SecretValue, secret_value
+from jupiter.framework_new.errors import InputValidationError
 
 
 @secret_value

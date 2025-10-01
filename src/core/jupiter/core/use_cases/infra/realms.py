@@ -36,10 +36,6 @@ from jupiter.core.framework.base.timestamp import (
 )
 from jupiter.core.framework.concept import Concept
 from jupiter.core.framework.entity import Entity, ParentLink
-from jupiter.core.framework.errors import (
-    InputValidationError,
-    MultiInputValidationError,
-)
 from jupiter.core.framework.event import EventSource
 from jupiter.core.framework.optional import normalize_optional
 from jupiter.core.framework.primitive import Primitive
@@ -72,6 +68,10 @@ from jupiter.core.framework.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,
+)
+from jupiter.framework_new.errors import (
+    InputValidationError,
+    MultiInputValidationError,
 )
 from pendulum.date import Date
 from pendulum.datetime import DateTime
