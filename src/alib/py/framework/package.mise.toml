@@ -1,0 +1,109 @@
+["package:src:alib:py:framework:prepare"]
+hide = true
+run = "true"
+
+["package:src:alib:py:framework:install"]
+hide = true
+sources = ["src/alib/py/framework/pyproject.toml"]
+outputs = { auto = true }
+run = "cd src/alib/py/framework && poetry install --no-interaction --no-ansi"
+
+["package:src:alib:py:framework:fix:autoflake"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/alib/py/framework"
+
+["package:src:alib:py:framework:fix:black"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run black src/alib/py/framework"
+
+["package:src:alib:py:framework:fix:ruff"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework --fix"
+
+["package:src:alib:py:framework:fix"]
+description = "Fix src/alib/py/framework module"
+depends = ["package:src:alib:py:framework:fix:*"]
+run = "true"
+
+["package:src:alib:py:framework:lint:toml"]
+hide = true
+sources = ["src/alib/py/framework/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/alib/py/framework/package.mise.toml"
+
+["package:src:alib:py:framework:lint:mypy"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "cd src/alib/py/framework && poetry run mypy --config=../../../../tasks/_resources/check/lint/mypy --package jupiter.framework --explicit-package-bases --show-absolute-path"
+
+["package:src:alib:py:framework:lint:ruff"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework"
+
+["package:src:alib:py:framework:lint:mdl-readme"]
+hide = true
+sources = ["src/alib/py/framework/README.md"]
+outputs = { auto = true }
+run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/alib/py/framework/README.md"
+
+["package:src:alib:py:framework:lint:pyflakes"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pyflakes src/alib/py/framework"
+
+["package:src:alib:py:framework:lint:bandit"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/alib/py/framework"
+
+["package:src:alib:py:framework:lint:pydocstyle"]
+hide = true
+sources = ["src/alib/py/framework/**/*.py"]
+outputs = { auto = true }
+run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/alib/py/framework"
+
+["package:src:alib:py:framework:lint"]
+description = "Check src/alib/py/framework module"
+depends = ["package:src:alib:py:framework:lint:*"]
+run = "true"
+
+["package:src:alib:py:framework:test"]
+description = "Run tests"
+run = '''
+mkdir -p .build-cache/test
+pytest src/alib/py/framework --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
+'''
+
+["package:src:alib:py:framework:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/alib/py/framework
+poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+'''
+
+["package:src:alib:py:framework:audit"]
+description = "Audit src/alib/py/framework module"
+depends = ["package:src:alib:py:framework:audit:*"]
+run = "true"
+
+["package:src:alib:py:framework:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/alib/py/framework/pyproject.toml"
+
+["package:src:alib:py:framework:libyear"]
+description = "Check src/alib/py/framework libyear"
+depends = ["package:src:alib:py:framework:libyear:*"]
+run = "true"
