@@ -18,6 +18,7 @@ from typing import (
 )
 
 from jupiter.core.domain.app import EventSource
+from jupiter.framework_new.base.adate import ADateCliDecoder, ADateDatabaseDecoder, ADateDatabaseEncoder, ADateWebDecoder
 from jupiter.framework_new.base.entity_id import (
     EntityId,
     EntityIdDatabaseDecoder,
@@ -30,6 +31,7 @@ from jupiter.framework_new.base.entity_name import (
     EntityNameDatabaseDecoder,
     EntityNameDatabaseEncoder,
 )
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.timestamp import (
     Timestamp,
     TimestampDatabaseDecoder,
@@ -1549,6 +1551,10 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
             EntityName, DatabaseRealm, EntityNameDatabaseDecoder(EntityName)
         )
 
+        registry._add_encoder(ADate, DatabaseRealm, ADateDatabaseEncoder())
+        registry._add_decoder(ADate, DatabaseRealm, ADateDatabaseDecoder())
+        registry._add_decoder(ADate, WebRealm, ADateWebDecoder())
+        registry._add_decoder(ADate, CliRealm, ADateCliDecoder())
         registry._add_encoder(Timestamp, DatabaseRealm, TimestampDatabaseEncoder())
         registry._add_decoder(Timestamp, DatabaseRealm, TimestampDatabaseDecoder())
 
