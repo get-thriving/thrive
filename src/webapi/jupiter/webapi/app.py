@@ -44,9 +44,6 @@ from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.use_cases.infra.realms import (
-    _StandardEnumValueDatabaseDecoder,
-)
 from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
@@ -67,6 +64,9 @@ from jupiter.framework_new.entity import Entity, ParentLink
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
+from jupiter.framework_new.realms import (
+    _StandardEnumValueDatabaseDecoder,
+)
 from jupiter.framework_new.record import Record
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (

@@ -4,11 +4,11 @@ import re
 from re import Pattern
 from typing import Final
 
-from jupiter.core.use_cases.infra.realms import (
+from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.value import AtomicValue, value
 

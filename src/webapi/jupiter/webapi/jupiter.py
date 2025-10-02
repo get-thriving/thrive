@@ -25,8 +25,8 @@ from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
 from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.core.utils.global_properties import build_global_properties
+from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.webapi.app import WebServiceApp
 from jupiter.webapi.time_provider import (
     CronRunTimeProvider,
