@@ -15,7 +15,7 @@ from jupiter.cli.command.rendering import (
     metric_unit_to_rich_text,
     period_to_rich_text,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.notes.note_content_block import ParagraphBlock
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.metrics.find import (

@@ -3,7 +3,7 @@
 import typing
 
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (

@@ -27,7 +27,7 @@ from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
@@ -57,7 +57,7 @@ from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.time_provider import TimeProvider
 
 
 class ScheduleExternalSyncService:

@@ -18,7 +18,7 @@ from jupiter.core.domain.application.gamification.score_stats import (
     ScoreStats,
     ScoreStatsRepository,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing

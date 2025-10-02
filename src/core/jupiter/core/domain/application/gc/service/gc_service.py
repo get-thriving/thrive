@@ -47,7 +47,7 @@ from jupiter.core.domain.storage_engine import (
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.time_provider import TimeProvider
 
 
 class GCService:

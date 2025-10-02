@@ -3,7 +3,7 @@
 from typing import Final
 
 import pendulum
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.timestamp import Timestamp
 from pendulum import UTC
 

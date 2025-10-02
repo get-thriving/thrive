@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.journals.journal_stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId

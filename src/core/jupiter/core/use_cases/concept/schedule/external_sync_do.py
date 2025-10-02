@@ -3,7 +3,7 @@
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case import ProgressReporter

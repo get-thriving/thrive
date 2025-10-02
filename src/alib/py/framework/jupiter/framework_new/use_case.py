@@ -18,7 +18,7 @@ from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.errors import InputValidationError
 
 LOGGER = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 """The command for computing stats."""
 
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )

@@ -19,7 +19,7 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
     WorkingMemCollection,
 )
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork

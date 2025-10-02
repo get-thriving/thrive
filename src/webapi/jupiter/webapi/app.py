@@ -88,7 +88,7 @@ from jupiter.core.utils.progress_reporter import (
     EmptyProgressReporterFactory,
     NoOpProgressReporterFactory,
 )
-from jupiter.webapi.time_provider import CronRunTimeProvider, PerRequestTimeProvider
+from jupiter.webapijupiter.framework_new.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
 from pendulum.date import Date
 from pendulum.datetime import DateTime

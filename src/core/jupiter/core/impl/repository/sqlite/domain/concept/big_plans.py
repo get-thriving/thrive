@@ -18,7 +18,7 @@ from jupiter.core.domain.concept.big_plans.big_plan_stats import (
     BigPlanStatsRepository,
 )
 from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing

@@ -4,7 +4,7 @@ import pytest
 from jupiter.core.domain.concept.habits.habit_repeats_strategy import (
     HabitRepeatsStrategy,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 
 START_DATE = ADate.from_str("2024-01-01")
 END_DATE = ADate.from_str("2024-01-07")

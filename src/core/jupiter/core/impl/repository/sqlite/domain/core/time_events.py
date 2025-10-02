@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.core.adate import ADate, ADateDatabaseDecoder
+from jupiter.framework_new.base.adateimport ADate, ADateDatabaseDecoder
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,

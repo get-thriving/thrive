@@ -28,7 +28,7 @@ from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
 from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.core.utils.global_properties import build_global_properties
 from jupiter.webapi.app import WebServiceApp
-from jupiter.webapi.time_provider import CronRunTimeProvider, PerRequestTimeProvider
+from jupiter.webapijupiter.framework_new.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
 from rich import print
 from rich.console import Console

@@ -56,7 +56,7 @@ from jupiter.framework_new.use_case import (
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.utils.global_properties import GlobalProperties
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.time_provider import TimeProvider
 
 UseCaseSession = TypeVar("UseCaseSession", bound=UseCaseSessionBase)
 UseCaseContext = TypeVar("UseCaseContext", bound=UseCaseContextBase)

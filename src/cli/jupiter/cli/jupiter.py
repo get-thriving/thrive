@@ -32,7 +32,7 @@ from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoUseCase,
 )
 from jupiter.core.utils.global_properties import build_global_properties
-from jupiter.core.utils.time_provider import TimeProvider
+from jupiter.framework_new.time_provider import TimeProvider
 from rich.console import Console
 
 # import coverage

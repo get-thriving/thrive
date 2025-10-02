@@ -7,7 +7,7 @@ from jupiter.core.domain.concept.habits.habit_streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
 from jupiter.framework_new.repository import (

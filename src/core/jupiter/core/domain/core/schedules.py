@@ -4,7 +4,7 @@ import abc
 from typing import cast
 
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_name import InboxTaskName
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod

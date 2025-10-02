@@ -24,8 +24,8 @@ run = "xargs docker pull < Dockfile"
 hide = true
 sources = ["Brewfile"]
 outputs = { auto = true }
-run = '''
-if [ ! -z "$CI" ]; then
+run = '''#!/usr/bin/env bash
+if [[ "$(uname)" != "Darwin" ]]; then
   exit 0
 fi
 brew bundle install
@@ -36,11 +36,13 @@ hide = true
 sources = ["aptfile"]
 outputs = { auto = true }
 run = '''
+#!/usr/bin/env bash
 # Are we truly in a CI environment, or on a local machine but running the CI script?
 # If we are, GitHub (and other CI providers) will set the CI environment variable.
-if [[ -z "$CI" ]]; then
+if [[ "$(uname)" != "Linux" ]]; then
   exit 0
 fi
+sudo apt-get update
 xargs sudo apt-get install -y < aptfile
 '''
 

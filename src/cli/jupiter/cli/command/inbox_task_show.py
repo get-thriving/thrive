@@ -12,7 +12,7 @@ from jupiter.cli.command.rendering import (
     project_to_rich_text,
     source_to_rich_text,
 )
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.inbox_tasks.find import (
     InboxTaskFindResult,

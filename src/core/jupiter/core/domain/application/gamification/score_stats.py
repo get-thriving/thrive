@@ -8,7 +8,7 @@ from jupiter.core.domain.application.gamification.user_score_history import (
     UserScoreAtDate,
 )
 from jupiter.core.domain.application.gamification.user_score_overview import UserScore
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext

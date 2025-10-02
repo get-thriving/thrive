@@ -4,7 +4,7 @@ from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
 )
 from jupiter.core.domain.concept.schedule.schedule_event_name import ScheduleEventName
-from jupiter.core.domain.core.adate import ADate
+from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
