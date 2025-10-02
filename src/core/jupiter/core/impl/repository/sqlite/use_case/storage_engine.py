@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Final
 
-from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.use_case.mutation_use_case_invocation_records import (
     SqliteMutationUseCaseInvocationRecordRepository,
@@ -17,6 +16,7 @@ from jupiter.core.use_cases.infra.storage_engine import (
     UseCaseStorageEngine,
     UseCaseUnitOfWork,
 )
+from jupiter.framework_new.realm import RealmCodecRegistry
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncEngine
 

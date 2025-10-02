@@ -6,8 +6,8 @@ from typing import Literal
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.application.home.widget import WidgetDimension, WidgetGeometry
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.value import CompositeValue, value
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

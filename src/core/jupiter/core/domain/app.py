@@ -3,6 +3,19 @@
 from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, value
 
 
+@enum_value
+class EventSource(EnumValue):
+    """The source of the modification which this event records."""
+
+    _OLD_WEB = "web"
+    _OLD_CLI = "cli"
+    APP = "app"
+    GC_CRON = "gc-cron"
+    GEN_CRON = "gen-cron"
+    STATS_CRON = "stats-cron"
+    SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
+
+
 @value
 class AppVersion(AtomicValue[str]):
     """The version of the app."""

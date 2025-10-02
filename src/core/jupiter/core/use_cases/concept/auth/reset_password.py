@@ -8,6 +8,10 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
+from jupiter.core.use_cases.infra.use_cases import (
+    AppGuestMutationUseCase,
+    AppGuestMutationUseCaseContext,
+)
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -17,10 +21,6 @@ from jupiter.framework_new.use_case_io import (
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
 )
 
 

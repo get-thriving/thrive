@@ -7,10 +7,10 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteRootEntityRepository,
 )
+from jupiter.framework_new.realm import RealmCodecRegistry
 from sqlalchemy import (
     MetaData,
     select,

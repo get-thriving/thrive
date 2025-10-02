@@ -2,6 +2,7 @@
 
 import uuid
 
+from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.realm import (
     DatabaseRealm,
     RealmDecoder,
@@ -9,7 +10,6 @@ from jupiter.framework_new.realm import (
     RealmThing,
 )
 from jupiter.framework_new.value import SecretValue, secret_value
-from jupiter.framework_new.errors import InputValidationError
 
 
 @secret_value

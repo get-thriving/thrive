@@ -21,6 +21,13 @@ from typing import (
 import inflection
 import pendulum
 from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.impl.repository.sqlite.infra.events import (
+    build_event_table,
+    remove_events,
+    upsert_events,
+)
+from jupiter.core.impl.repository.sqlite.infra.filters import compile_query_relative_to
+from jupiter.core.impl.repository.sqlite.infra.row import RowType
 from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
@@ -49,13 +56,6 @@ from jupiter.framework_new.value import (
     EnumValue,
     SecretValue,
 )
-from jupiter.core.impl.repository.sqlite.infra.events import (
-    build_event_table,
-    remove_events,
-    upsert_events,
-)
-from jupiter.core.impl.repository.sqlite.infra.filters import compile_query_relative_to
-from jupiter.core.impl.repository.sqlite.infra.row import RowType
 from sqlalchemy import (
     JSON,
     Boolean,

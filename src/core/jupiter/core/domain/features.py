@@ -3,8 +3,8 @@
 from collections.abc import Iterable
 from typing import Final
 
-from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
 
 
 class FeatureUnavailableError(Exception):

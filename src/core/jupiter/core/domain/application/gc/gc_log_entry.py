@@ -2,6 +2,7 @@
 
 import abc
 
+from jupiter.core.domain.app import EventSource
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.entity_id import EntityId
@@ -16,7 +17,6 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.event import EventSource
 from jupiter.framework_new.repository import LeafEntityRepository
 
 

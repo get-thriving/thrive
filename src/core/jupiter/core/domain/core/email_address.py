@@ -4,12 +4,12 @@ from functools import total_ordering
 from typing import cast
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
-from jupiter.framework_new.value import AtomicValue, hashable_value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.value import AtomicValue, hashable_value
 
 
 @hashable_value

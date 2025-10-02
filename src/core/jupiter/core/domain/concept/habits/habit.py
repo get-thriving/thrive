@@ -23,9 +23,9 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
+from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.record import ContainsManyRecords
 from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.errors import InputValidationError
 
 
 @entity

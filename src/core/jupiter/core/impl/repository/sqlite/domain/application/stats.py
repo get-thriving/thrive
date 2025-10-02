@@ -4,10 +4,10 @@ from jupiter.core.domain.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
 from sqlalchemy import (
     select,

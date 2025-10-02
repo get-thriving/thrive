@@ -30,6 +30,11 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.use_cases.infra.use_cases import (
+    AppLoggedInMutationUseCaseContext,
+    AppTransactionalLoggedInMutationUseCase,
+    mutation_use_case,
+)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.update_action import UpdateAction
@@ -37,11 +42,6 @@ from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
-)
 
 
 @use_case_args

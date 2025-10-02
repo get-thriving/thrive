@@ -1,16 +1,16 @@
 """The commnad for syncing a schedule once."""
 
+from jupiter.core.domain.app import EventSource
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.event import EventSource
-from jupiter.framework_new.use_case import EmptyContext
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.use_case import EmptyContext
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -30,8 +30,8 @@ class ScheduleExternalSyncDoAllUseCase(
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
-        ctx = DomainContext.from_sys(
-            EventSource.SCHEDULE_EXTERNAL_SYNC_CRON,
+        ctx = DomainContext.from_app(
+            str(EventSource.SCHEDULE_EXTERNAL_SYNC_CRON),
             self._time_provider.get_current_time(),
         )
 

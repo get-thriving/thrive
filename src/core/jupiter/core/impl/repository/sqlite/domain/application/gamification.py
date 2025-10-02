@@ -18,20 +18,20 @@ from jupiter.core.domain.application.gamification.score_stats import (
     ScoreStats,
     ScoreStatsRepository,
 )
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework_new.repository import (
-    RecordAlreadyExistsError,
-    RecordNotFoundError,
-)
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
     SqliteRecordRepository,
     SqliteTrunkEntityRepository,
 )
 from jupiter.core.impl.repository.sqlite.infra.row import RowType
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework_new.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from sqlalchemy import (
     Column,
     DateTime,

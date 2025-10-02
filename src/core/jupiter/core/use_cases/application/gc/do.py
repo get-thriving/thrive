@@ -8,15 +8,15 @@ from jupiter.core.domain.infer_sync_targets import (
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

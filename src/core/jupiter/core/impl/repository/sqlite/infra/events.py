@@ -62,7 +62,7 @@ async def upsert_events(
                 timestamp=realm_codec_registry.db_encode(event.timestamp),
                 session_index=event_idx,
                 name=str(event.name),
-                source=str(event.source.value),
+                source=event.source,
                 owner_version=event.entity_version,
                 kind=str(event.kind.value),
                 data=_serialize_event(realm_codec_registry, event),

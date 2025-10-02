@@ -51,7 +51,6 @@ from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.schedules import Schedule
 from jupiter.core.domain.features import (
@@ -60,6 +59,7 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.storage_engine import DomainStorageEngine
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp

@@ -11,6 +11,7 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
     AppVersion,
+    EventSource,
 )
 from jupiter.core.domain.concept.auth.auth_token import (
     AuthToken,
@@ -37,10 +38,13 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
+from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
+from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case import (
     EmptyContext,
     EmptySession,
@@ -54,9 +58,6 @@ from jupiter.framework_new.use_case import (
     UseCaseSessionBase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
-from jupiter.core.utils.global_properties import GlobalProperties
-from jupiter.framework_new.time_provider import TimeProvider
 
 UseCaseSession = TypeVar("UseCaseSession", bound=UseCaseSessionBase)
 UseCaseContext = TypeVar("UseCaseContext", bound=UseCaseContextBase)
@@ -184,11 +185,7 @@ class AppGuestMutationUseCase(
         return AppGuestMutationUseCaseContext(
             auth_token=auth_token,
             domain_context=DomainContext.from_app(
-                session.app_client_version,
-                session.app_core,
-                session.app_shell,
-                session.app_platform,
-                session.app_distribution,
+                str(EventSource.APP),
                 self._time_provider.get_current_time(),
             ),
         )
@@ -419,11 +416,7 @@ class AppLoggedInMutationUseCase(
                 user=user,
                 workspace=workspace,
                 domain_context=DomainContext.from_app(
-                    session.app_client_version,
-                    session.app_core,
-                    session.app_shell,
-                    session.app_platform,
-                    session.app_distribution,
+                    str(EventSource.APP),
                     self._time_provider.get_current_time(),
                 ),
             )

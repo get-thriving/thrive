@@ -103,7 +103,7 @@ class Entity(Concept):
         )
         archived_entity.events.append(
             Event(
-                source=ctx.event_source,
+                source=str(ctx.event_source),
                 entity_version=archived_entity.version,
                 timestamp=ctx.action_timestamp,
                 frame_args={"reason": (str(reason.value), str)},
@@ -383,7 +383,7 @@ def _make_event_from_frame_args(  # type: ignore
         frame_args[arg_name] = (arg_value, f.__annotations__[arg_name])
 
     new_event = Event(
-        source=ctx.event_source,
+        source=str(ctx.event_source),
         entity_version=entity_version,
         timestamp=created_time,
         frame_args=frame_args,

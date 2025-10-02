@@ -5,9 +5,9 @@ from collections.abc import Iterable
 
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.repository import Repository

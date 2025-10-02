@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.framework_new.base.adateimport ADate
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.context import DomainContext

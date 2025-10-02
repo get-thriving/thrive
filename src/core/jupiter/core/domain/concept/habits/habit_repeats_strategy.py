@@ -1,6 +1,6 @@
 """The repeat strategy for habits when there are more than one in a period."""
 
-from jupiter.framework_new.base.adateimport ADate
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.value import EnumValue, enum_value
 
 

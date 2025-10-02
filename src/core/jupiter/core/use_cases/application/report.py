@@ -6,19 +6,19 @@ from jupiter.core.domain.application.report.report_period_result import (
 )
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.use_cases.infra.use_cases import (
+    AppLoggedInReadonlyUseCase,
+    AppLoggedInReadonlyUseCaseContext,
+    readonly_use_case,
+)
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    readonly_use_case,
 )
 
 

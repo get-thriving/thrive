@@ -3,6 +3,7 @@
 import argon2.profiles
 from argon2 import PasswordHasher
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
+from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.realm import (
     DatabaseRealm,
     RealmDecoder,
@@ -11,7 +12,6 @@ from jupiter.framework_new.realm import (
     only_in_realm,
 )
 from jupiter.framework_new.value import SecretValue, secret_value
-from jupiter.framework_new.errors import InputValidationError
 
 _PROFILE = argon2.profiles.RFC_9106_LOW_MEMORY
 _PASSWORD_HASHER = PasswordHasher.from_parameters(_PROFILE)

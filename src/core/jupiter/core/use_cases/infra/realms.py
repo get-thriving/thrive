@@ -17,6 +17,7 @@ from typing import (
     get_origin,
 )
 
+from jupiter.core.domain.app import EventSource
 from jupiter.framework_new.base.entity_id import (
     EntityId,
     EntityIdDatabaseDecoder,
@@ -36,7 +37,10 @@ from jupiter.framework_new.base.timestamp import (
 )
 from jupiter.framework_new.concept import Concept
 from jupiter.framework_new.entity import Entity, ParentLink
-from jupiter.framework_new.event import EventSource
+from jupiter.framework_new.errors import (
+    InputValidationError,
+    MultiInputValidationError,
+)
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import (
@@ -68,10 +72,6 @@ from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,
-)
-from jupiter.framework_new.errors import (
-    InputValidationError,
-    MultiInputValidationError,
 )
 from pendulum.date import Date
 from pendulum.datetime import DateTime

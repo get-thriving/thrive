@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
-from jupiter.framework_new.base.adateimport ADate
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.entity import ParentLink

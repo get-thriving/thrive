@@ -8,6 +8,7 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.entity import ParentLink
+from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.record import (
     Record,
     create_record_action,
@@ -15,7 +16,6 @@ from jupiter.framework_new.record import (
     update_record_action,
 )
 from jupiter.framework_new.repository import RecordRepository
-from jupiter.framework_new.errors import InputValidationError
 
 
 @record

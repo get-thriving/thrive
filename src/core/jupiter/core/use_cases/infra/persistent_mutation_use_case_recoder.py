@@ -2,12 +2,12 @@
 
 from typing import Final
 
+from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.use_case import (
     MutationUseCaseInvocationRecord,
     MutationUseCaseInvocationRecorder,
     UseCaseArgs,
 )
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 
 
 class PersistentMutationUseCaseInvocationRecorder(MutationUseCaseInvocationRecorder):

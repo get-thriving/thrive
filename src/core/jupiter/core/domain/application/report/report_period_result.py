@@ -8,8 +8,8 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.value import CompositeValue, value

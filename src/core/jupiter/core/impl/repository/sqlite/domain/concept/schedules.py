@@ -4,10 +4,10 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
     ScheduleExternalSyncLogEntry,
     ScheduleExternalSyncLogEntryRepository,
 )
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
 from sqlalchemy import (
     select,

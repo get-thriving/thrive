@@ -1,21 +1,21 @@
 """The command for generating new tasks in the context of a time plan."""
 
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+)
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

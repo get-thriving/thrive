@@ -36,17 +36,17 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
+from jupiter.core.use_cases.infra.use_cases import (
+    AppGuestReadonlyUseCase,
+    AppGuestReadonlyUseCaseContext,
+)
+from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
     use_case_result,
 )
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-)
-from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 
 
 @use_case_args

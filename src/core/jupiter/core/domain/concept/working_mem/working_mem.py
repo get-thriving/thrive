@@ -4,11 +4,11 @@ import abc
 
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
@@ -22,8 +22,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import LeafEntityRepository
 
 
 @entity

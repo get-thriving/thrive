@@ -5,6 +5,10 @@ from typing import Literal
 
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
+from jupiter.core.use_cases.infra.realms import (
+    PrimitiveAtomicValueDatabaseDecoder,
+    PrimitiveAtomicValueDatabaseEncoder,
+)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmDecodingError
 from jupiter.framework_new.value import (
@@ -12,10 +16,6 @@ from jupiter.framework_new.value import (
     CompositeValue,
     hashable_value,
     value,
-)
-from jupiter.core.use_cases.infra.realms import (
-    PrimitiveAtomicValueDatabaseDecoder,
-    PrimitiveAtomicValueDatabaseEncoder,
 )
 
 

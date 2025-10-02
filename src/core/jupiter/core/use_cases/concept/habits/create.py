@@ -22,6 +22,11 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.use_cases.infra.use_cases import (
+    AppLoggedInMutationUseCaseContext,
+    AppTransactionalLoggedInMutationUseCase,
+    mutation_use_case,
+)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -31,11 +36,6 @@ from jupiter.framework_new.use_case_io import (
     UseCaseResultBase,
     use_case_args,
     use_case_result,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
-    mutation_use_case,
 )
 
 

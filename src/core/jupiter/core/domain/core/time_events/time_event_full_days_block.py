@@ -2,8 +2,8 @@
 
 import abc
 
-from jupiter.framework_new.base.adateimport ADate
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import NOT_USED_NAME
 from jupiter.framework_new.context import DomainContext
@@ -14,10 +14,10 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
+from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.repository import LeafEntityRepository
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.value import CompositeValue, value
-from jupiter.framework_new.errors import InputValidationError
 
 
 @entity

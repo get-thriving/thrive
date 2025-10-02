@@ -10,6 +10,11 @@ from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
+from jupiter.core.use_cases.infra.use_cases import (
+    AppLoggedInReadonlyUseCaseContext,
+    AppTransactionalLoggedInReadOnlyUseCase,
+    readonly_use_case,
+)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.use_case_io import (
@@ -18,11 +23,6 @@ from jupiter.framework_new.use_case_io import (
     use_case_args,
     use_case_result,
     use_case_result_part,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
-    readonly_use_case,
 )
 
 

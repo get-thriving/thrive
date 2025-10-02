@@ -1,5 +1,6 @@
 """The command for computing stats for all workspaces."""
 
+from jupiter.core.domain.app import EventSource
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -9,15 +10,14 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
+from jupiter.core.use_cases.infra.use_cases import (
+    SysBackgroundMutationUseCase,
+)
 from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.event import EventSource
 from jupiter.framework_new.use_case import (
     EmptyContext,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.core.use_cases.infra.use_cases import (
-    SysBackgroundMutationUseCase,
-)
 
 
 @use_case_args
@@ -45,8 +45,8 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.from_sys(
-            EventSource.STATS_CRON, self._time_provider.get_current_time()
+        ctx = DomainContext.from_app(
+            str(EventSource.STATS_CRON), self._time_provider.get_current_time()
         )
 
         stats_service = StatsService(
