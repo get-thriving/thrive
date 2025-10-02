@@ -1,6 +1,6 @@
 """The doneness of a time plan activity."""
 
-from jupiter.core.framework.value import EnumValue, enum_value
+from jupiter.framework_new.value import EnumValue, enum_value
 
 
 @enum_value

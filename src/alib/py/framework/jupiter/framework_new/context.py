@@ -9,8 +9,8 @@ from jupiter.core.domain.app import (
     AppShell,
     AppVersion,
 )
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.event import EventSource
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.event import EventSource
 
 
 @dataclass(frozen=True)

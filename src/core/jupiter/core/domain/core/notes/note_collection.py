@@ -1,9 +1,9 @@
 """The note collection."""
 
 from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,

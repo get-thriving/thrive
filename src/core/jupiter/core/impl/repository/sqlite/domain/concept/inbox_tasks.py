@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.core.framework.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )

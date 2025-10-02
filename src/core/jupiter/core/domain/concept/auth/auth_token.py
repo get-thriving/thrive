@@ -4,10 +4,10 @@ from typing import ClassVar
 
 import jwt
 from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
-from jupiter.core.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.realm import CliRealm, WebRealm, only_in_realm
-from jupiter.core.framework.value import SecretValue, secret_value
+from jupiter.framework_new.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.realm import CliRealm, WebRealm, only_in_realm
+from jupiter.framework_new.value import SecretValue, secret_value
 
 _ALGORITHM = "HS256"
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()

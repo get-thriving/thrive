@@ -14,13 +14,13 @@ from typing import (
     get_origin,
 )
 
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.concept import Concept
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import IsOneOfRefId, IsRefId, ParentLink
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, EnumValue
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.concept import Concept
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import IsOneOfRefId, IsRefId, ParentLink
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.value import AtomicValue, EnumValue
 from typing_extensions import dataclass_transform
 
 _RecordT = TypeVar("_RecordT", bound="Record")

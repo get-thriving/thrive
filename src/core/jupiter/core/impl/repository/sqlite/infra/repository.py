@@ -21,10 +21,10 @@ from typing import (
 import inflection
 import pendulum
 from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.core.framework.base.entity_id import BAD_REF_ID, EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.entity import (
     BranchEntity,
     CrownEntity,
     Entity,
@@ -35,15 +35,15 @@ from jupiter.core.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.repository import (
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
     RecordRepository,
 )
-from jupiter.core.framework.value import (
+from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,

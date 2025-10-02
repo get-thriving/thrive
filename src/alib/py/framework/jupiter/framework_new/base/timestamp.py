@@ -8,14 +8,14 @@ import pendulum
 import pendulum.parser
 import pendulum.parsing
 import pendulum.tz
-from jupiter.core.framework.realm import (
+from jupiter.framework_new.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,
     RealmEncoder,
     RealmThing,
 )
-from jupiter.core.framework.value import AtomicValue, value
+from jupiter.framework_new.value import AtomicValue, value
 from pendulum.date import Date
 from pendulum.datetime import DateTime
 from pendulum.tz.timezone import UTC

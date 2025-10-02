@@ -2,7 +2,7 @@
 
 from jupiter.cli.command.command import GuestMutationCommand
 from jupiter.cli.session_storage import SessionInfo
-from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.secure import secure_class
 from jupiter.core.use_cases.application.init import InitResult, InitUseCase
 from jupiter.core.use_cases.infra.use_cases import AppGuestMutationUseCaseContext
 from rich.console import Console

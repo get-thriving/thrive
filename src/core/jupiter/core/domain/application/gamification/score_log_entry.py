@@ -9,16 +9,16 @@ from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     LeafEntity,
     ParentLink,
     create_entity_action,
     entity,
 )
-from jupiter.core.framework.repository import LeafEntityRepository
+from jupiter.framework_new.repository import LeafEntityRepository
 
 
 @entity

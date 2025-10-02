@@ -9,7 +9,7 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
     ScheduleExternalSyncLogEntryRepository,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

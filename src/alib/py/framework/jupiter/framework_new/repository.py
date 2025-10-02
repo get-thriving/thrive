@@ -4,8 +4,8 @@ import abc
 from collections.abc import Iterable
 from typing import Generic, TypeVar
 
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.entity import (
     BranchEntity,
     CrownEntity,
     Entity,
@@ -15,8 +15,8 @@ from jupiter.core.framework.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.value import EnumValue
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.value import EnumValue
 
 
 class Repository:

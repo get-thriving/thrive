@@ -17,29 +17,29 @@ from typing import (
     get_origin,
 )
 
-from jupiter.core.framework.base.entity_id import (
+from jupiter.framework_new.base.entity_id import (
     EntityId,
     EntityIdDatabaseDecoder,
     EntityIdDatabaseEncoder,
     EntityIdWebEncoder,
 )
-from jupiter.core.framework.base.entity_name import (
+from jupiter.framework_new.base.entity_name import (
     NOT_USED_NAME,
     EntityName,
     EntityNameDatabaseDecoder,
     EntityNameDatabaseEncoder,
 )
-from jupiter.core.framework.base.timestamp import (
+from jupiter.framework_new.base.timestamp import (
     Timestamp,
     TimestampDatabaseDecoder,
     TimestampDatabaseEncoder,
 )
-from jupiter.core.framework.concept import Concept
-from jupiter.core.framework.entity import Entity, ParentLink
-from jupiter.core.framework.event import EventSource
-from jupiter.core.framework.optional import normalize_optional
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import (
+from jupiter.framework_new.concept import Concept
+from jupiter.framework_new.entity import Entity, ParentLink
+from jupiter.framework_new.event import EventSource
+from jupiter.framework_new.optional import normalize_optional
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import (
     PROVIDE_VIA_REGISTRY,
     CliRealm,
     DatabaseRealm,
@@ -56,15 +56,15 @@ from jupiter.core.framework.realm import (
     WebRealm,
     allowed_in_realm,
 )
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.thing import Thing
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.utils import (
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.thing import Thing
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.utils import (
     find_all_modules,
     is_thing_ish_type,
 )
-from jupiter.core.framework.value import (
+from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,

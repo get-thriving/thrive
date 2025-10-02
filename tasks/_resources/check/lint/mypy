@@ -29,7 +29,7 @@ warn_untyped_fields = True
 disallow_untyped_defs = False
 disallow_incomplete_defs = False
 
-[mypy-jupiter.core.framework.update_action.*]
+[mypy-jupiter.framework_new.update_action.*]
 disallow_any_explicit = False
 
 [mypy-jupiter.core.domain.core.adate]

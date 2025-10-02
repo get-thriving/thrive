@@ -9,7 +9,7 @@ import dotenv
 from jupiter.core.domain.app import AppVersion
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.framework.secure import secure_fn
+from jupiter.framework_new.secure import secure_fn
 
 
 @dataclass(frozen=True)

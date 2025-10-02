@@ -37,11 +37,11 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
-from jupiter.core.framework import use_case as uc
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.realm import RealmCodecRegistry
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new import use_case as uc
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.use_case import (
     EmptyContext,
     EmptySession,
     MutationUseCase,
@@ -53,7 +53,7 @@ from jupiter.core.framework.use_case import (
     UseCaseContextBase,
     UseCaseSessionBase,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.core.utils.time_provider import TimeProvider

@@ -7,7 +7,7 @@ from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
 )
-from jupiter.core.framework.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.core.use_cases.concept.projects.find import (
     ProjectFindResult,
     ProjectFindResultEntry,

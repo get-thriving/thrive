@@ -2,7 +2,7 @@
 
 from typing import Final
 
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.use_case import (
     MutationUseCaseInvocationRecord,
     MutationUseCaseInvocationRecorder,
     UseCaseArgs,

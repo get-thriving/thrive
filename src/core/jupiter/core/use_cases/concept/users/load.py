@@ -15,7 +15,7 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.features import UserFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

@@ -45,8 +45,8 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
 )
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.core.utils.time_provider import TimeProvider
 
 

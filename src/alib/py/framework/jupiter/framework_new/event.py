@@ -3,9 +3,9 @@
 import enum
 from dataclasses import dataclass
 
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.realm import DomainThing
-from jupiter.core.framework.value import EnumValue, enum_value
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.realm import DomainThing
+from jupiter.framework_new.value import EnumValue, enum_value
 
 
 @enum.unique

@@ -8,8 +8,8 @@ from jupiter.core.domain.application.report.service.report_service import Report
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

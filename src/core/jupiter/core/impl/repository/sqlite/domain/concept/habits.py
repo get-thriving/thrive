@@ -8,9 +8,9 @@ from jupiter.core.domain.concept.habits.habit_streak_mark import (
     HabitStreakMarkRepository,
 )
 from jupiter.core.domain.core.adate import ADate
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.realm import RealmCodecRegistry, RealmThing
-from jupiter.core.framework.repository import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework_new.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )

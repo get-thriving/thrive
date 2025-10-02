@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 from typing import Final
 
-from jupiter.core.framework.value import CompositeValue, EnumValue, enum_value, value
+from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
 from jupiter.framework_new.errors import InputValidationError
 
 

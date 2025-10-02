@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Final
 
 from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
-from jupiter.core.framework.realm import RealmCodecRegistry, RealmDecodingError
-from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
+from jupiter.framework_new.secure import secure_class
 
 
 class SessionInfoNotFoundError(Exception):

@@ -23,19 +23,19 @@ from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import CliRealm, RealmCodecRegistry
-from jupiter.core.framework.thing import Thing
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
+from jupiter.framework_new.thing import Thing
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
     MutationUseCaseInvocationRecorder,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.utils import find_all_modules
-from jupiter.core.framework.value import (
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.utils import find_all_modules
+from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,

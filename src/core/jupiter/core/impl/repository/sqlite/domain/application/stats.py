@@ -4,7 +4,7 @@ from jupiter.core.domain.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )
-from jupiter.core.framework.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )

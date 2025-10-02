@@ -12,15 +12,15 @@ from typing import (
     cast,
 )
 
-from jupiter.core.framework.base.entity_id import BAD_REF_ID, EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.concept import Concept
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.event import Event, EventKind
-from jupiter.core.framework.optional import normalize_optional
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, EnumValue, Value
+from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.concept import Concept
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.event import Event, EventKind
+from jupiter.framework_new.optional import normalize_optional
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.value import AtomicValue, EnumValue, Value
 from typing_extensions import dataclass_transform
 
 FIRST_VERSION = 1

@@ -4,8 +4,8 @@ from typing import Literal, cast
 
 import pendulum
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, value
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.value import AtomicValue, value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,

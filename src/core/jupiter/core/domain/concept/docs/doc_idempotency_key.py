@@ -2,8 +2,8 @@
 
 from functools import total_ordering
 
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.value import AtomicValue, value
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.value import AtomicValue, value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,

@@ -3,11 +3,11 @@
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import ProgressReporter
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
     AppTransactionalLoggedInMutationUseCase,

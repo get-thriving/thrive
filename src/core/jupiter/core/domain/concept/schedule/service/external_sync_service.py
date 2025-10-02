@@ -50,13 +50,13 @@ from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.storage_engine import DomainStorageEngine
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.realm import RealmCodecRegistry
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.core.utils.time_provider import TimeProvider
 
 

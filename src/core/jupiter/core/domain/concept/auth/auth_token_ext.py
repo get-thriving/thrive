@@ -4,8 +4,8 @@ import re
 from re import Pattern
 from typing import Final
 
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.framework.value import AtomicValue, value
+from jupiter.framework_new.secure import secure_class
+from jupiter.framework_new.value import AtomicValue, value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,

@@ -32,13 +32,13 @@ from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipR
 from jupiter.core.domain.features import FeatureUnavailableError, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.timestamp import Timestamp
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
     AppTransactionalLoggedInMutationUseCase,

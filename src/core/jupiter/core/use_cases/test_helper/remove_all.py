@@ -8,10 +8,10 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.infra.generic_destroyer import generic_destroyer
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,

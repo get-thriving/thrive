@@ -3,7 +3,7 @@
 import re
 from functools import total_ordering
 
-from jupiter.core.framework.realm import (
+from jupiter.framework_new.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,
@@ -11,7 +11,7 @@ from jupiter.core.framework.realm import (
     RealmThing,
     WebRealm,
 )
-from jupiter.core.framework.value import AtomicValue, hashable_value
+from jupiter.framework_new.value import AtomicValue, hashable_value
 
 _ENTITY_ID_RE: re.Pattern[str] = re.compile(r"^\d+|[a-zA-Z0-9_]+|bad-entity-id$")
 

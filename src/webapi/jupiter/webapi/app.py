@@ -44,26 +44,26 @@ from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.framework.entity import Entity, ParentLink
-from jupiter.core.framework.optional import normalize_optional
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import DomainThing, RealmCodecRegistry, WebRealm
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.update_action import UpdateAction
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.entity import Entity, ParentLink
+from jupiter.framework_new.optional import normalize_optional
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework_new.use_case import (
     EmptySession,
     MutationUseCaseInvocationRecorder,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.utils import (
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.utils import (
     find_all_modules,
     is_primitive_type,
     is_thing_ish_type,
 )
-from jupiter.core.framework.value import (
+from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,

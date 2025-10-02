@@ -7,14 +7,14 @@ from typing import TypeVar, overload
 from jupiter.core.domain.application.search.infra.search_repository import (
     SearchRepository,
 )
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.entity import (
     CrownEntity,
     RootEntity,
     StubEntity,
     TrunkEntity,
 )
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.repository import (
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.repository import (
     CrownEntityRepository,
     RecordRepository,
     Repository,

@@ -8,10 +8,10 @@ from jupiter.core.domain.application.search.search_query import SearchQuery
 from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.entity import CrownEntity
-from jupiter.core.framework.repository import Repository
-from jupiter.core.framework.value import CompositeValue, value
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.entity import CrownEntity
+from jupiter.framework_new.repository import Repository
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

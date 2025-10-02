@@ -8,7 +8,7 @@ from typing import Final
 import sqlalchemy.exc
 from alembic import command
 from alembic.config import Config
-from jupiter.core.framework.storage import Connection, ConnectionPrepareError
+from jupiter.framework_new.storage import Connection, ConnectionPrepareError
 from pydantic_core import to_jsonable_python
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 

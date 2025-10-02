@@ -14,9 +14,9 @@ from jupiter.core.domain.concept.journals.journal_stats import (
 from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.realm import RealmCodecRegistry, RealmThing
-from jupiter.core.framework.repository import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework_new.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )

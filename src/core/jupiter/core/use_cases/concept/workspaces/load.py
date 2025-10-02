@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.use_case_io import (
+from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

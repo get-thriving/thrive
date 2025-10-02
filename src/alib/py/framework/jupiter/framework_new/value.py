@@ -4,9 +4,9 @@ import enum
 from dataclasses import dataclass
 from typing import Generic, TypeVar, cast, get_args
 
-from jupiter.core.framework.concept import Concept
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.concept import Concept
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.secure import secure_class
 from typing_extensions import dataclass_transform
 
 

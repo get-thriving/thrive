@@ -1,6 +1,6 @@
 """An external UID for a schedule."""
 
-from jupiter.core.framework.value import AtomicValue, value
+from jupiter.framework_new.value import AtomicValue, value
 from jupiter.core.use_cases.infra.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,

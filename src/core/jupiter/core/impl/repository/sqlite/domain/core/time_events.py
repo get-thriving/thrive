@@ -17,8 +17,8 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlockStatsPerGroup,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.repository import EntityNotFoundError
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import EntityNotFoundError
 from jupiter.core.impl.repository.sqlite.infra.repository import (
     SqliteLeafEntityRepository,
 )

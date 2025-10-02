@@ -4,10 +4,10 @@ from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.event import EventSource
-from jupiter.core.framework.use_case import EmptyContext
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.event import EventSource
+from jupiter.framework_new.use_case import EmptyContext
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )

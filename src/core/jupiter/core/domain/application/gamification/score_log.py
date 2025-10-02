@@ -6,9 +6,9 @@ from jupiter.core.domain.application.gamification.score_log_entry import ScoreLo
 from jupiter.core.domain.application.gamification.score_period_best import (
     ScorePeriodBest,
 )
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -16,8 +16,8 @@ from jupiter.core.framework.entity import (
     create_entity_action,
     entity,
 )
-from jupiter.core.framework.record import ContainsManyRecords
-from jupiter.core.framework.repository import TrunkEntityRepository
+from jupiter.framework_new.record import ContainsManyRecords
+from jupiter.framework_new.repository import TrunkEntityRepository
 
 
 @entity

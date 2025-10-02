@@ -79,11 +79,11 @@ from jupiter.core.domain.storage_engine import DomainStorageEngine
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import NoFilter
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.use_case import ProgressReporter
 
 
 class GenService:

@@ -9,7 +9,7 @@ from jupiter.core.domain.core.adate import ADate
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.timezone import UTC, Timezone
-from jupiter.core.framework.realm import (
+from jupiter.framework_new.realm import (
     PROVIDE_VIA_REGISTRY,
     DatabaseRealm,
     RealmCodecRegistry,
@@ -18,7 +18,7 @@ from jupiter.core.framework.realm import (
     RealmEncoder,
     RealmThing,
 )
-from jupiter.core.framework.value import CompositeValue, value
+from jupiter.framework_new.value import CompositeValue, value
 
 
 @value

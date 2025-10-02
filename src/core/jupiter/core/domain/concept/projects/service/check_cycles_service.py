@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_id import EntityId
 
 
 class ProjectTreeHasCyclesError(Exception):

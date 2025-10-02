@@ -6,12 +6,12 @@ from datetime import date, datetime
 from types import ModuleType
 from typing import Any, TypeGuard, get_origin
 
-from jupiter.core.framework.entity import Entity
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.record import Record
-from jupiter.core.framework.thing import Thing
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.core.framework.value import (
+from jupiter.framework_new.entity import Entity
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.record import Record
+from jupiter.framework_new.thing import Thing
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,
     EnumValue,

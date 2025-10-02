@@ -5,10 +5,10 @@ from jupiter.core.domain.features import UserFeature
 from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
 )
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
-from jupiter.core.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
     AppTransactionalLoggedInMutationUseCase,

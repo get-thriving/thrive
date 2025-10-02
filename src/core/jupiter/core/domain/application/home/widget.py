@@ -7,7 +7,7 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,
 )
-from jupiter.core.framework.value import CompositeValue, EnumValue, enum_value, value
+from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
 
 
 @enum_value

@@ -3,10 +3,10 @@
 from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry import (
     ScheduleExternalSyncLogEntry,
 )
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import NOT_USED_NAME
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import NOT_USED_NAME
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     BranchEntity,
     ContainsMany,
     IsRefId,

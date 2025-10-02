@@ -4,9 +4,9 @@ import abc
 from collections.abc import Callable, Iterator, Mapping
 from typing import ForwardRef, Generic, TypeVar, Union
 
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.thing import Thing
-from jupiter.core.framework.update_action import UpdateAction
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.thing import Thing
+from jupiter.framework_new.update_action import UpdateAction
 
 
 class DecoderNotFoundError(Exception):

@@ -7,10 +7,10 @@ from jupiter.core.domain.application.home.widget import (
     WidgetGeometry,
     WidgetType,
 )
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import (
     LeafEntity,
     ParentLink,
     create_entity_action,

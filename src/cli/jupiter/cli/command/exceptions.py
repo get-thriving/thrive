@@ -24,8 +24,8 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.domain.features import FeatureUnavailableError
-from jupiter.core.framework.repository import EntityNotFoundError
-from jupiter.core.framework.storage import ConnectionPrepareError
+from jupiter.framework_new.repository import EntityNotFoundError
+from jupiter.framework_new.storage import ConnectionPrepareError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.framework_new.errors import (
     InputValidationError,

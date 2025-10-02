@@ -6,8 +6,8 @@ from jupiter.core.domain.concept.smart_lists.smart_list_tag import SmartListTag
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.use_case import ProgressReporter
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.use_case import ProgressReporter
 
 
 class SmartListRemoveService:

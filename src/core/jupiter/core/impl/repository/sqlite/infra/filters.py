@@ -1,10 +1,10 @@
 """This module contains the implementation of the filters for the SQLite repository."""
 
-from jupiter.core.framework.entity import EntityLinkFiltersCompiled, NoFilter
-from jupiter.core.framework.primitive import Primitive
-from jupiter.core.framework.realm import DatabaseRealm, RealmCodecRegistry
-from jupiter.core.framework.utils import is_primitive_type
-from jupiter.core.framework.value import AtomicValue, EnumValue
+from jupiter.framework_new.entity import EntityLinkFiltersCompiled, NoFilter
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry
+from jupiter.framework_new.utils import is_primitive_type
+from jupiter.framework_new.value import AtomicValue, EnumValue
 from sqlalchemy import Select, Table, false
 
 

@@ -4,16 +4,16 @@ import abc
 
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.adate import ADate
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.context import DomainContext
-from jupiter.core.framework.entity import ParentLink
-from jupiter.core.framework.record import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.entity import ParentLink
+from jupiter.framework_new.record import (
     Record,
     create_record_action,
     record,
     update_record_action,
 )
-from jupiter.core.framework.repository import RecordRepository
+from jupiter.framework_new.repository import RecordRepository
 
 
 @record

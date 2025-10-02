@@ -10,11 +10,11 @@ from typing import (
 )
 
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.entity import CrownEntity
-from jupiter.core.framework.realm import RealmThing
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.entity import CrownEntity
+from jupiter.framework_new.realm import RealmThing
+from jupiter.framework_new.use_case import (
     ProgressReporter,
     ProgressReporterFactory,
 )

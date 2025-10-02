@@ -2,7 +2,7 @@
 
 from jupiter.cli.command.command import GuestReadonlyCommand
 from jupiter.cli.session_storage import SessionInfo
-from jupiter.core.framework.secure import secure_class
+from jupiter.framework_new.secure import secure_class
 from jupiter.core.use_cases.infra.use_cases import AppGuestReadonlyUseCaseContext
 from jupiter.core.use_cases.login import LoginResult, LoginUseCase
 from rich.console import Console

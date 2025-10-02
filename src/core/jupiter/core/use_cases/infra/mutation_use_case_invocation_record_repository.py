@@ -2,9 +2,9 @@
 
 import abc
 
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.repository import Repository
-from jupiter.core.framework.use_case import MutationUseCaseInvocationRecord, UseCaseArgs
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import Repository
+from jupiter.framework_new.use_case import MutationUseCaseInvocationRecord, UseCaseArgs
 
 
 class MutationUseCaseInvocationRecordRepository(Repository, abc.ABC):

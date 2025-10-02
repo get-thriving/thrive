@@ -47,11 +47,11 @@ from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.framework.base.entity_id import EntityId
-from jupiter.core.framework.base.entity_name import EntityName
-from jupiter.core.framework.entity import CrownEntity
-from jupiter.core.framework.event import EventSource
-from jupiter.core.framework.use_case import (
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework_new.entity import CrownEntity
+from jupiter.framework_new.event import EventSource
+from jupiter.framework_new.use_case import (
     ProgressReporter,
     ProgressReporterFactory,
 )

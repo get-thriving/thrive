@@ -4,7 +4,7 @@ import re
 from re import Pattern
 from typing import Final
 
-from jupiter.core.framework.realm import (
+from jupiter.framework_new.realm import (
     CliRealm,
     EventStoreRealm,
     RealmDecoder,
@@ -13,7 +13,7 @@ from jupiter.core.framework.realm import (
     WebRealm,
     only_in_realm,
 )
-from jupiter.core.framework.value import SecretValue, secret_value
+from jupiter.framework_new.value import SecretValue, secret_value
 from jupiter.framework_new.errors import InputValidationError
 
 _PASSWORD_PLAIN_RE: Final[Pattern[str]] = re.compile(r"^\S+$")
