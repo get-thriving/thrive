@@ -33,6 +33,7 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
     AppVersion,
+    JupiterAppParticulars,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
@@ -159,8 +160,15 @@ def construct_guest_session(
             app_shell = APP_SHELL_DECODER.decode(bits[1])
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
-    return AppGuestUseCaseSession.for_webui(
-        auth_token_ext, app_client_version, app_shell, app_platform, app_distribution
+    return AppGuestUseCaseSession.for_app_particulars(
+        JupiterAppParticulars.for_app(
+            core=AppCore.WEBUI,
+            the_shell=app_shell,
+            platform=app_platform,
+            distribution=app_distribution,
+            version=app_client_version,
+        ),
+        auth_token_ext,
     )
 
 
@@ -184,8 +192,15 @@ def construct_logged_in_session(
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
 
-    return AppLoggedInUseCaseSession.for_webui(
-        auth_token_ext, app_client_version, app_shell, app_platform, app_distribution
+    return AppLoggedInUseCaseSession.for_app_particulars(
+        JupiterAppParticulars.for_app(
+            core=AppCore.WEBUI,
+            the_shell=app_shell,
+            platform=app_platform,
+            distribution=app_distribution,
+            version=app_client_version,
+        ),
+        auth_token_ext,
     )
 
 
@@ -673,12 +688,15 @@ class WebServiceApp:
             )
 
             result = await login_use_case.execute(
-                AppGuestUseCaseSession.for_webui(
+                AppGuestUseCaseSession.for_app_particulars(
+                    JupiterAppParticulars.for_app(
+                        core=AppCore.WEBUI,
+                        the_shell=AppShell.BROWSER,
+                        platform=AppPlatform.DESKTOP_MACOS,
+                        distribution=AppDistribution.WEB,
+                        version=global_properties.version,
+                    ),
                     auth_token_ext=None,
-                    app_client_version=global_properties.version,
-                    app_shell=AppShell.BROWSER,
-                    app_platform=AppPlatform.DESKTOP_MACOS,
-                    app_distribution=AppDistribution.WEB,
                 ),
                 LoginArgs(email_address=email_address, password=password),
             )
@@ -851,6 +869,7 @@ class WebServiceApp:
             self._use_case_commands[use_case_type] = CronCommand(
                 realm_codec_registry=self._realm_codec_registry,
                 use_case=use_case_type(  # type: ignore
+                    global_properties=self._global_properties,
                     time_provider=self._cron_time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     progress_reporter_factory=EmptyProgressReporterFactory(),

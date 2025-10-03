@@ -7,7 +7,7 @@ from typing import Union, cast
 
 import dotenv
 from jupiter.core.domain.app import AppVersion
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.framework_new.secure import secure_fn
 

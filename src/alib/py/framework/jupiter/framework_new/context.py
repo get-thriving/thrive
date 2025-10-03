@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+from jupiter.framework_new.app_particulars import AppParticulars
 from jupiter.framework_new.base.timestamp import Timestamp
 
 
@@ -13,14 +14,12 @@ class DomainContext:
     action_timestamp: Timestamp
 
     @staticmethod
-    def from_app(
-        event_source: str,
+    def from_app_particulars(
+        app_particulars: AppParticulars,
         action_timestamp: Timestamp,
     ) -> "DomainContext":
         """Create a domain context from an app."""
-        if len(event_source) == 0:
-            raise Exception("Invalid event")
         return DomainContext(
-            event_source=event_source,
+            event_source=app_particulars.as_event_source(),
             action_timestamp=action_timestamp,
         )

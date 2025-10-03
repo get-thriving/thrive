@@ -35,7 +35,7 @@ from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timezone import Timezone
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
 from jupiter.core.use_cases.infra.use_cases import (

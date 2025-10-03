@@ -75,6 +75,10 @@ class EnumValue(Value, enum.Enum):
         """Get all the values for this enum."""
         return list(s.value for s in cls)
 
+    def __str__(self) -> str:
+        """Get a string representation of this value."""
+        return str(self.value)
+
 
 _EnumValueT = TypeVar("_EnumValueT", bound=EnumValue)
 

@@ -24,7 +24,7 @@ from jupiter.core.domain.concept.workspaces.workspace import (
     WorkspaceNotFoundError,
 )
 from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import (
     BASIC_USER_FEATURE_FLAGS,
     BASIC_WORKSPACE_FEATURE_FLAGS,

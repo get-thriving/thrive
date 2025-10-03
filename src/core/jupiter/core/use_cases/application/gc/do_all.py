@@ -1,6 +1,6 @@
 """The command for doing garbage collection for all workspaces."""
 
-from jupiter.core.domain.app import AppComponent
+from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -45,8 +45,12 @@ class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.from_app(
-            str(AppComponent.GC_CRON), self._time_provider.get_current_time()
+        ctx = DomainContext.from_app_particulars(
+            JupiterAppParticulars.for_cron(
+                component=AppComponent.GC_CRON,
+                version=self._global_properties.version,
+            ),
+            self._time_provider.get_current_time(),
         )
 
         gc_service = GCService(

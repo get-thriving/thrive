@@ -15,11 +15,17 @@ import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.domain.app import AppCore
+from jupiter.core.domain.app import (
+    AppCore,
+    AppDistribution,
+    AppPlatform,
+    AppShell,
+    JupiterAppParticulars,
+)
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
@@ -707,8 +713,14 @@ class GuestMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_cli(
-                self._global_properties.version,
+            AppGuestUseCaseSession.for_app_particulars(
+                JupiterAppParticulars.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
                 session_info.auth_token_ext if session_info else None,
             ),
             parsed_args,
@@ -756,8 +768,14 @@ class GuestReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_cli(
-                self._global_properties.version,
+            AppGuestUseCaseSession.for_app_particulars(
+                JupiterAppParticulars.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
                 session_info.auth_token_ext if session_info else None,
             ),
             parsed_args,
@@ -810,8 +828,15 @@ class LoggedInMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_cli(
-                self._global_properties.version, session.auth_token_ext
+            AppLoggedInUseCaseSession.for_app_particulars(
+                JupiterAppParticulars.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
+                session.auth_token_ext,
             ),
             parsed_args,
         )
@@ -903,8 +928,15 @@ class LoggedInReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_cli(
-                self._global_properties.version, session.auth_token_ext
+            AppLoggedInUseCaseSession.for_app_particulars(
+                JupiterAppParticulars.for_app(
+                    core=AppCore.CLI,
+                    the_shell=AppShell.CLI,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.MAC_WEB,
+                    version=self._global_properties.version,
+                ),
+                session.auth_token_ext,
             ),
             parsed_args,
         )

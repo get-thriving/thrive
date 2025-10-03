@@ -1,6 +1,6 @@
 """The command for doing task generation for all workspaces."""
 
-from jupiter.core.domain.app import AppComponent
+from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -41,8 +41,12 @@ class GenDoAllUseCase(SysBackgroundMutationUseCase[GenDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.from_app(
-            str(AppComponent.GEN_CRON), self._time_provider.get_current_time()
+        ctx = DomainContext.from_app_particulars(
+            JupiterAppParticulars.for_cron(
+                component=AppComponent.GEN_CRON,
+                version=self._global_properties.version,
+            ),
+            self._time_provider.get_current_time(),
         )
 
         gen_service = GenService(

@@ -1,6 +1,6 @@
 """The commnad for syncing a schedule once."""
 
-from jupiter.core.domain.app import AppComponent
+from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
@@ -30,8 +30,11 @@ class ScheduleExternalSyncDoAllUseCase(
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
-        ctx = DomainContext.from_app(
-            str(AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON),
+        ctx = DomainContext.from_app_particulars(
+            JupiterAppParticulars.for_cron(
+                component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
+                version=self._global_properties.version,
+            ),
             self._time_provider.get_current_time(),
         )
 

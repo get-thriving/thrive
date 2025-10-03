@@ -9,7 +9,7 @@ import jupiter.core.impl.repository.sqlite.domain
 import jupiter.core.use_cases
 import jupiter.webapi.exceptions
 from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.crm.wix import WixCRM

@@ -6,12 +6,8 @@ from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import (
-    AppComponent,
     AppCore,
-    AppDistribution,
-    AppPlatform,
-    AppShell,
-    AppVersion,
+    JupiterAppParticulars,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -19,7 +15,7 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
+from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import (
     FeatureScope,
     FeatureUnavailableError,
@@ -69,43 +65,17 @@ UseCaseResult = TypeVar("UseCaseResult", bound=Union[None, UseCaseResultBase])
 class AppGuestUseCaseSession(EmptySession):
     """The application use case session."""
 
+    app_particulars: JupiterAppParticulars
     auth_token_ext: AuthTokenExt | None
-    app_client_version: AppVersion
-    app_core: AppCore
-    app_shell: AppShell
-    app_platform: AppPlatform
-    app_distribution: AppDistribution
 
     @staticmethod
-    def for_cli(
-        app_client_version: AppVersion, auth_token_ext: AuthTokenExt | None
+    def for_app_particulars(
+        app_particulars: JupiterAppParticulars, auth_token_ext: AuthTokenExt | None
     ) -> "AppGuestUseCaseSession":
-        """Create a CLI session."""
+        """Create a session for a given app particulars."""
         return AppGuestUseCaseSession(
+            app_particulars=app_particulars,
             auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.CLI,
-            app_shell=AppShell.CLI,
-            app_platform=AppPlatform.DESKTOP_MACOS,
-            app_distribution=AppDistribution.MAC_WEB,
-        )
-
-    @staticmethod
-    def for_webui(
-        auth_token_ext: AuthTokenExt | None,
-        app_client_version: AppVersion,
-        app_shell: AppShell,
-        app_platform: AppPlatform,
-        app_distribution: AppDistribution,
-    ) -> "AppGuestUseCaseSession":
-        """Create a WebUI session."""
-        return AppGuestUseCaseSession(
-            auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.WEBUI,
-            app_shell=app_shell,
-            app_platform=app_platform,
-            app_distribution=app_distribution,
         )
 
 
@@ -184,8 +154,8 @@ class AppGuestMutationUseCase(
             auth_token = None
         return AppGuestMutationUseCaseContext(
             auth_token=auth_token,
-            domain_context=DomainContext.from_app(
-                str(AppComponent.APP),
+            domain_context=DomainContext.from_app_particulars(
+                session.app_particulars,
                 self._time_provider.get_current_time(),
             ),
         )
@@ -252,43 +222,17 @@ class AppGuestReadonlyUseCase(
 class AppLoggedInUseCaseSession(UseCaseSessionBase):
     """The application use case session for logged-in-OK interactions."""
 
+    app_particulars: JupiterAppParticulars
     auth_token_ext: AuthTokenExt
-    app_client_version: AppVersion
-    app_core: AppCore
-    app_shell: AppShell
-    app_platform: AppPlatform
-    app_distribution: AppDistribution
 
     @staticmethod
-    def for_cli(
-        app_client_version: AppVersion, auth_token_ext: AuthTokenExt
+    def for_app_particulars(
+        app_particulars: JupiterAppParticulars, auth_token_ext: AuthTokenExt
     ) -> "AppLoggedInUseCaseSession":
-        """Create a CLI session."""
+        """Create a session for a given app particulars."""
         return AppLoggedInUseCaseSession(
+            app_particulars=app_particulars,
             auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.CLI,
-            app_shell=AppShell.CLI,
-            app_platform=AppPlatform.DESKTOP_MACOS,
-            app_distribution=AppDistribution.MAC_WEB,
-        )
-
-    @staticmethod
-    def for_webui(
-        auth_token_ext: AuthTokenExt,
-        app_client_version: AppVersion,
-        app_shell: AppShell,
-        app_platform: AppPlatform,
-        app_distribution: AppDistribution,
-    ) -> "AppLoggedInUseCaseSession":
-        """Create a WebUI session."""
-        return AppLoggedInUseCaseSession(
-            auth_token_ext=auth_token_ext,
-            app_client_version=app_client_version,
-            app_core=AppCore.WEBUI,
-            app_shell=app_shell,
-            app_platform=app_platform,
-            app_distribution=app_distribution,
         )
 
 
@@ -415,8 +359,8 @@ class AppLoggedInMutationUseCase(
             return AppLoggedInMutationUseCaseContext(
                 user=user,
                 workspace=workspace,
-                domain_context=DomainContext.from_app(
-                    str(AppComponent.APP),
+                domain_context=DomainContext.from_app_particulars(
+                    session.app_particulars,
                     self._time_provider.get_current_time(),
                 ),
             )
@@ -623,6 +567,7 @@ class SysBackgroundMutationUseCase(
 ):
     """A command which does some sort of mutation for the app in the background."""
 
+    _global_properties: Final[GlobalProperties]
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _progress_reporter_factory: ProgressReporterFactory[EmptyContext]
@@ -632,6 +577,7 @@ class SysBackgroundMutationUseCase(
 
     def __init__(
         self,
+        global_properties: GlobalProperties,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         progress_reporter_factory: ProgressReporterFactory[EmptyContext],
@@ -640,6 +586,7 @@ class SysBackgroundMutationUseCase(
         crm: CRM,
     ) -> None:
         """Constructor."""
+        self._global_properties = global_properties
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._progress_reporter_factory = progress_reporter_factory

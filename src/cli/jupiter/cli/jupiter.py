@@ -12,6 +12,13 @@ from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
+from jupiter.core.domain.app import (
+    AppCore,
+    AppDistribution,
+    AppPlatform,
+    AppShell,
+    JupiterAppParticulars,
+)
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
@@ -105,8 +112,14 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = AppGuestUseCaseSession.for_cli(
-        app_client_version=global_properties.version,
+    guest_session = AppGuestUseCaseSession.for_app_particulars(
+        app_particulars=JupiterAppParticulars.for_app(
+            core=AppCore.CLI,
+            the_shell=AppShell.CLI,
+            platform=AppPlatform.DESKTOP_MACOS,
+            distribution=AppDistribution.MAC_WEB,
+            version=global_properties.version,
+        ),
         auth_token_ext=session_info.auth_token_ext if session_info else None,
     )
     _, top_level_info = await load_top_level_info_use_case.execute(

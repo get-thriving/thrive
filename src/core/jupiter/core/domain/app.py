@@ -1,6 +1,20 @@
 """A client facing application."""
 
+from dataclasses import dataclass
+
+from jupiter.framework_new.app_particulars import AppParticulars
 from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, value
+
+
+@value
+class AppVersion(AtomicValue[str]):
+    """The version of the app."""
+
+    the_version: str
+
+    def __str__(self) -> str:
+        """Transform this to a string version."""
+        return self.the_version
 
 
 @enum_value
@@ -14,17 +28,6 @@ class AppComponent(EnumValue):
     GEN_CRON = "gen-cron"
     STATS_CRON = "stats-cron"
     SCHEDULE_EXTERNAL_SYNC_CRON = "schedule-external-sync-cron"
-
-
-@value
-class AppVersion(AtomicValue[str]):
-    """The version of the app."""
-
-    the_version: str
-
-    def __str__(self) -> str:
-        """Transform this to a string version."""
-        return self.the_version
 
 
 @enum_value
@@ -75,3 +78,57 @@ class AppDistributionState(EnumValue):
     READY = "ready"
     IN_REVIEW = "in-review"
     NOT_AVAILABLE = "not-available"
+
+
+@dataclass(frozen=True)
+class JupiterAppParticulars(AppParticulars):
+    """The particulars of the Jupiter app."""
+
+    _component: AppComponent
+    _core: AppCore | None
+    _the_shell: AppShell | None
+    _platform: AppPlatform | None
+    _distribution: AppDistribution | None
+    _version: AppVersion
+
+    @staticmethod
+    def for_app(
+        core: AppCore,
+        the_shell: AppShell,
+        platform: AppPlatform,
+        distribution: AppDistribution,
+        version: AppVersion,
+    ) -> "JupiterAppParticulars":
+        """Create a Jupiter app particulars."""
+        return JupiterAppParticulars(
+            _component=AppComponent.APP,
+            _core=core,
+            _the_shell=the_shell,
+            _platform=platform,
+            _distribution=distribution,
+            _version=version,
+        )
+
+    @staticmethod
+    def for_cron(
+        component: AppComponent,
+        version: AppVersion,
+    ) -> "JupiterAppParticulars":
+        """Create a Jupiter app particulars."""
+        if component == AppComponent.APP:
+            raise Exception("App component cannot be used for cron.")
+        return JupiterAppParticulars(
+            _component=component,
+            _core=None,
+            _the_shell=None,
+            _platform=None,
+            _distribution=None,
+            _version=version,
+        )
+
+    def as_event_source(self) -> str:
+        """The event source of the app."""
+        if self._component == AppComponent.APP:
+            return f"{self._component}:{self._core}:{self._the_shell}:{self._platform}:{self._distribution}@{self._version}"
+        else:
+            return f"{self._component}@{self._version}"
