@@ -23,7 +23,6 @@ from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -50,6 +49,7 @@ from jupiter.framework_new.use_case import (
     UseCaseSessionBase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.utils import find_all_modules
 from jupiter.framework_new.value import (
     AtomicValue,

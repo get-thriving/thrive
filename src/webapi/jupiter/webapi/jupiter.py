@@ -22,10 +22,10 @@ from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
 from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
+from jupiter.core.utils.global_properties import build_global_properties
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.core.utils.global_properties import build_global_properties
 from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.webapi.app import WebServiceApp
 from jupiter.webapi.time_provider import (

@@ -44,7 +44,6 @@ from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,
@@ -77,6 +76,7 @@ from jupiter.framework_new.use_case import (
     UseCaseSessionBase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.utils import (
     find_all_modules,
     is_primitive_type,
