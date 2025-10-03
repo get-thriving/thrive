@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
@@ -27,7 +27,7 @@ class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 
     gen_log: ParentLink
-    source: EventSource
+    source: AppComponent
     gen_even_if_not_modified: bool
     today: ADate
     gen_targets: list[SyncTarget]

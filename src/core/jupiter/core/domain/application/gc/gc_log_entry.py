@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.entity_id import EntityId
@@ -25,7 +25,7 @@ class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 
     gc_log: ParentLink
-    source: EventSource
+    source: AppComponent
     gc_targets: list[SyncTarget]
     opened: bool
     entity_records: list[EntitySummary]

@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from typing import Final
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
@@ -401,7 +401,7 @@ def sync_target_to_rich_text(sync_target: SyncTarget) -> Text:
     return Text(sync_target.value, style="yellow italic")
 
 
-def event_source_to_rich_text(source: EventSource) -> Text:
+def event_source_to_rich_text(source: AppComponent) -> Text:
     """Transform an event source into text."""
     return Text(source.value, style="red italic underline")
 

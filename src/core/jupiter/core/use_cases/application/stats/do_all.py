@@ -1,6 +1,6 @@
 """The command for computing stats for all workspaces."""
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -46,7 +46,7 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
             }
 
         ctx = DomainContext.from_app(
-            str(EventSource.STATS_CRON), self._time_provider.get_current_time()
+            str(AppComponent.STATS_CRON), self._time_provider.get_current_time()
         )
 
         stats_service = StatsService(

@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.adate import ADate
@@ -25,7 +25,7 @@ class StatsLogEntry(LeafSupportEntity):
     """A particular entry in the stats log."""
 
     stats_log: ParentLink
-    source: EventSource
+    source: AppComponent
     stats_targets: list[SyncTarget]
     today: ADate
     filter_big_plan_ref_ids: list[EntityId] | None

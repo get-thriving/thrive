@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.app import EventSource
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
@@ -36,7 +36,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     """An entry in a sync log."""
 
     schedule_external_sync_log: ParentLink
-    source: EventSource
+    source: AppComponent
     today: ADate
     start_of_window: ADate
     end_of_window: ADate

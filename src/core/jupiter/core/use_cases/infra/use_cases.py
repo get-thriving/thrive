@@ -6,12 +6,12 @@ from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import (
+    AppComponent,
     AppCore,
     AppDistribution,
     AppPlatform,
     AppShell,
     AppVersion,
-    EventSource,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -185,7 +185,7 @@ class AppGuestMutationUseCase(
         return AppGuestMutationUseCaseContext(
             auth_token=auth_token,
             domain_context=DomainContext.from_app(
-                str(EventSource.APP),
+                str(AppComponent.APP),
                 self._time_provider.get_current_time(),
             ),
         )
@@ -416,7 +416,7 @@ class AppLoggedInMutationUseCase(
                 user=user,
                 workspace=workspace,
                 domain_context=DomainContext.from_app(
-                    str(EventSource.APP),
+                    str(AppComponent.APP),
                     self._time_provider.get_current_time(),
                 ),
             )

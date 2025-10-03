@@ -4,8 +4,8 @@ from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, valu
 
 
 @enum_value
-class EventSource(EnumValue):
-    """The source of the modification which this event records."""
+class AppComponent(EnumValue):
+    """The component of the app."""
 
     _OLD_WEB = "web"
     _OLD_CLI = "cli"
