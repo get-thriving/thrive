@@ -38,7 +38,7 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
-from jupiter.core.use_cases.infra.storage_engine import UseCaseStorageEngine
+from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.base.entity_id import EntityId
