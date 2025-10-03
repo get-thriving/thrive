@@ -35,7 +35,6 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.crm import CRM
@@ -59,6 +58,7 @@ from jupiter.framework_new.auth.auth_token_ext import (
     AuthTokenExt,
     AuthTokenExtDatabaseDecoder,
 )
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.entity import Entity, ParentLink
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.primitive import Primitive

@@ -16,7 +16,6 @@ from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
@@ -37,6 +36,7 @@ from jupiter.core.use_cases.infra.use_cases import (
 )
 from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing

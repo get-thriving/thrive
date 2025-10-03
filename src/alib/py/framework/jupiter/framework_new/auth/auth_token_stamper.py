@@ -3,8 +3,8 @@
 from typing import Final
 
 from jupiter.framework_new.auth.auth_token import AuthToken
-from jupiter.core.domain.concept.user.user import User
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.time_provider import TimeProvider
 
@@ -21,19 +21,19 @@ class AuthTokenStamper:
         self._auth_token_secret = auth_token_secret
         self._time_provider = time_provider
 
-    def stamp_for_general(self, user: User) -> AuthToken:
+    def stamp_for_general(self, user_ref_id: EntityId) -> AuthToken:
         """Produce a token for a particular user and general modifications."""
         return AuthToken.new_for_general(
             secret=self._auth_token_secret,
-            user_ref_id=user.ref_id,
+            user_ref_id=user_ref_id,
             right_now=self._time_provider.get_current_time(),
         )
 
-    def stamp_for_progress_reporter(self, user: User) -> AuthToken:
+    def stamp_for_progress_reporter(self, user_ref_id: EntityId) -> AuthToken:
         """Produce a token for progress reporting."""
         return AuthToken.new_for_progress_reporter(
             secret=self._auth_token_secret,
-            user_ref_id=user.ref_id,
+            user_ref_id=user_ref_id,
             right_now=self._time_provider.get_current_time(),
         )
 

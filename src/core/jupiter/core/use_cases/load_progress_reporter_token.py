@@ -44,7 +44,9 @@ class LoadProgressReporterTokenUseCase(
         args: LoadProgressReporterTokenArgs,
     ) -> LoadProgressReporterTokenResult:
         """Execute the command."""
-        auth_token = self._auth_token_stamper.stamp_for_progress_reporter(context.user)
+        auth_token = self._auth_token_stamper.stamp_for_progress_reporter(
+            context.user.ref_id
+        )
         return LoadProgressReporterTokenResult(
             progress_reporter_token_ext=auth_token.to_ext()
         )

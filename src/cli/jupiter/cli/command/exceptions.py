@@ -4,10 +4,6 @@ import sys
 
 from jupiter.cli.command.command import CliApp, CliExceptionHandler
 from jupiter.cli.session_storage import SessionInfoNotFoundError
-from jupiter.core.domain.concept.auth.auth_token import (
-    ExpiredAuthTokenError,
-    InvalidAuthTokenError,
-)
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -25,6 +21,10 @@ from jupiter.core.domain.concept.user.user import (
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
+from jupiter.framework_new.auth.auth_token import (
+    ExpiredAuthTokenError,
+    InvalidAuthTokenError,
+)
 from jupiter.framework_new.errors import (
     InputValidationError,
     MultiInputValidationError,

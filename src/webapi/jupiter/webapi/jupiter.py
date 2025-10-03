@@ -8,7 +8,6 @@ import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
 import jupiter.core.use_cases
 import jupiter.webapi.exceptions
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
@@ -23,6 +22,7 @@ from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
 from jupiter.core.utils.global_properties import build_global_properties
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )

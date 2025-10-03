@@ -438,7 +438,7 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
                 new_workspace.ref_id, new_root_project
             )
 
-        auth_token = self._auth_token_stamper.stamp_for_general(new_user)
+        auth_token = self._auth_token_stamper.stamp_for_general(new_user.ref_id)
 
         if new_user.should_go_through_onboarding_flow:
             await self._crm.upsert_as_user(new_user)

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
 from jupiter.framework_new.secure import secure_class
 

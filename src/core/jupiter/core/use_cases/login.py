@@ -64,6 +64,6 @@ class LoginUseCase(AppGuestReadonlyUseCase[LoginArgs, LoginResult]):
                     "User email or password invalid"
                 ) from err
 
-            auth_token = self._auth_token_stamper.stamp_for_general(user)
+            auth_token = self._auth_token_stamper.stamp_for_general(user.ref_id)
 
             return LoginResult(auth_token_ext=auth_token.to_ext())

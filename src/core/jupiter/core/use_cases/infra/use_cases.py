@@ -13,12 +13,6 @@ from jupiter.core.domain.app import (
     AppVersion,
     EventSource,
 )
-from jupiter.framework_new.auth.auth_token import (
-    AuthToken,
-    ExpiredAuthTokenError,
-    InvalidAuthTokenError,
-)
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
@@ -39,7 +33,13 @@ from jupiter.core.domain.storage_engine import (
 )
 from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.framework_new import use_case as uc
+from jupiter.framework_new.auth.auth_token import (
+    AuthToken,
+    ExpiredAuthTokenError,
+    InvalidAuthTokenError,
+)
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.realm import RealmCodecRegistry
