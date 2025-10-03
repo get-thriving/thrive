@@ -3,7 +3,7 @@
 from typing import ClassVar
 
 import jwt
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.realm import CliRealm, WebRealm, only_in_realm

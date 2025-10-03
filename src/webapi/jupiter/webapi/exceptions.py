@@ -1,7 +1,7 @@
 """Exceptions handling for the webapi module."""
 
 from fastapi.responses import JSONResponse
-from jupiter.core.domain.concept.auth.auth_token import (
+from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
 )

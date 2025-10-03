@@ -1,7 +1,6 @@
 """Use case for logging in as a particular user."""
 
 from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
@@ -12,6 +11,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
 )
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,

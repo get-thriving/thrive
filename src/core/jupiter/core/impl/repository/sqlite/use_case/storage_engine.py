@@ -9,14 +9,14 @@ from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.use_case.mutation_use_case_invocation_records import (
     SqliteMutationUseCaseInvocationRecordRepository,
 )
-from jupiter.core.use_cases.infra.mutation_use_case_invocation_record_repository import (
+from jupiter.framework_new.mutation_use_case_invocation_record_repository import (
     MutationUseCaseInvocationRecordRepository,
 )
-from jupiter.core.use_cases.infra.storage_engine import (
+from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.use_case_storage_engine import (
     UseCaseStorageEngine,
     UseCaseUnitOfWork,
 )
-from jupiter.framework_new.realm import RealmCodecRegistry
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncEngine
 

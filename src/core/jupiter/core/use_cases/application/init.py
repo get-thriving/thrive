@@ -6,7 +6,6 @@ from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.auth_token_ext import AuthTokenExt
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
@@ -77,6 +76,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCaseContext,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import (
     ProgressReporter,
