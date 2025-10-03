@@ -22,7 +22,7 @@ from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
 from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
-from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
+from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
 from jupiter.core.use_cases.infra.use_cases import AppGuestUseCaseSession

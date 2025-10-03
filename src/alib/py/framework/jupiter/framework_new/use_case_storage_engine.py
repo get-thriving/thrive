@@ -3,7 +3,7 @@
 import abc
 from contextlib import AbstractAsyncContextManager
 
-from jupiter.core.use_cases.infra.mutation_use_case_invocation_record_repository import (
+from jupiter.framework_new.mutation_use_case_invocation_record_repository import (
     MutationUseCaseInvocationRecordRepository,
 )
 
