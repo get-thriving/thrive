@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from jupiter.framework_new.value import EnumValue
 
 
-class UnavailableDueToGlobalPropertiesError(Exception):
+class UnavailableGloballyError(Exception):
     """Exception raised when global properties block a certain action."""
 
 

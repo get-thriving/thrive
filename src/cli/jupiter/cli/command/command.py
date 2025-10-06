@@ -20,7 +20,7 @@ from jupiter.core.domain.app import (
     AppDistribution,
     AppPlatform,
     AppShell,
-    JupiterAppParticulars,
+    JupiterComponentProperties,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
@@ -713,8 +713,8 @@ class GuestMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_app_particulars(
-                JupiterAppParticulars.for_app(
+            AppGuestUseCaseSession.build(
+                JupiterComponentProperties.for_app(
                     core=AppCore.CLI,
                     the_shell=AppShell.CLI,
                     platform=AppPlatform.DESKTOP_MACOS,
@@ -768,8 +768,8 @@ class GuestReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.for_app_particulars(
-                JupiterAppParticulars.for_app(
+            AppGuestUseCaseSession.build(
+                JupiterComponentProperties.for_app(
                     core=AppCore.CLI,
                     the_shell=AppShell.CLI,
                     platform=AppPlatform.DESKTOP_MACOS,
@@ -828,8 +828,8 @@ class LoggedInMutationCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_app_particulars(
-                JupiterAppParticulars.for_app(
+            AppLoggedInUseCaseSession.build(
+                JupiterComponentProperties.for_app(
                     core=AppCore.CLI,
                     the_shell=AppShell.CLI,
                     platform=AppPlatform.DESKTOP_MACOS,
@@ -926,8 +926,8 @@ class LoggedInReadonlyCommand(
             self._args_type, CliRealm
         ).decode(vars(args))
         context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.for_app_particulars(
-                JupiterAppParticulars.for_app(
+            AppLoggedInUseCaseSession.build(
+                JupiterComponentProperties.for_app(
                     core=AppCore.CLI,
                     the_shell=AppShell.CLI,
                     platform=AppPlatform.DESKTOP_MACOS,

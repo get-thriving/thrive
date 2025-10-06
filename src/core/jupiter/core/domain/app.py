@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from jupiter.framework_new.app_particulars import AppParticulars
+from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, value
 
 
@@ -81,7 +81,7 @@ class AppDistributionState(EnumValue):
 
 
 @dataclass(frozen=True)
-class JupiterAppParticulars(AppParticulars):
+class JupiterComponentProperties(ComponentProperties):
     """The particulars of the Jupiter app."""
 
     _component: AppComponent
@@ -98,9 +98,9 @@ class JupiterAppParticulars(AppParticulars):
         platform: AppPlatform,
         distribution: AppDistribution,
         version: AppVersion,
-    ) -> "JupiterAppParticulars":
+    ) -> "JupiterComponentProperties":
         """Create a Jupiter app particulars."""
-        return JupiterAppParticulars(
+        return JupiterComponentProperties(
             _component=AppComponent.APP,
             _core=core,
             _the_shell=the_shell,
@@ -113,11 +113,11 @@ class JupiterAppParticulars(AppParticulars):
     def for_cron(
         component: AppComponent,
         version: AppVersion,
-    ) -> "JupiterAppParticulars":
+    ) -> "JupiterComponentProperties":
         """Create a Jupiter app particulars."""
         if component == AppComponent.APP:
             raise Exception("App component cannot be used for cron.")
-        return JupiterAppParticulars(
+        return JupiterComponentProperties(
             _component=component,
             _core=None,
             _the_shell=None,
@@ -125,6 +125,44 @@ class JupiterAppParticulars(AppParticulars):
             _distribution=None,
             _version=version,
         )
+
+    def allows(
+        self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
+    ) -> bool:
+        """Whether this global properties allows for a given filter."""
+        if only_for is not None:
+            for filter_val in only_for:
+                if isinstance(filter_val, AppComponent):
+                    return self._component == filter_val
+                elif self._core is not None and isinstance(filter_val, AppCore):
+                    return self._core == filter_val
+                elif self._the_shell is not None and isinstance(filter_val, AppShell):
+                    return self._the_shell == filter_val
+                elif self._platform is not None and isinstance(filter_val, AppPlatform):
+                    return self._platform == filter_val
+                elif self._distribution is not None and isinstance(
+                    filter_val, AppDistribution
+                ):
+                    return self._distribution == filter_val
+                else:
+                    raise Exception(f"Invalid filter type: {type(filter_val)}")
+        if excluded is not None:
+            for filter_val in only_for:
+                if isinstance(filter_val, AppComponent):
+                    return self._component != filter_val
+                elif self._core is not None and isinstance(filter_val, AppCore):
+                    return self._core != filter_val
+                elif self._the_shell is not None and isinstance(filter_val, AppShell):
+                    return self._the_shell != filter_val
+                elif self._platform is not None and isinstance(filter_val, AppPlatform):
+                    return self._platform != filter_val
+                elif self._distribution is not None and isinstance(
+                    filter_val, AppDistribution
+                ):
+                    return self._distribution != filter_val
+                else:
+                    raise Exception(f"Invalid filter type: {type(filter_val)}")
+        return True
 
     def as_event_source(self) -> str:
         """The event source of the app."""

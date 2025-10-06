@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
+from jupiter.core.domain.app import AppComponent, JupiterComponentProperties
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -45,8 +45,8 @@ class GenDoAllUseCase(SysBackgroundMutationUseCase[GenDoAllArgs, None]):
             }
 
         # TODO(horia141): params
-        ctx = DomainContext.from_app_particulars(
-            JupiterAppParticulars.for_cron(
+        ctx = DomainContext.build(
+            JupiterComponentProperties.for_cron(
                 component=AppComponent.GEN_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),

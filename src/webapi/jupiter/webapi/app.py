@@ -33,7 +33,7 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
     AppVersion,
-    JupiterAppParticulars,
+    JupiterComponentProperties,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
@@ -160,8 +160,8 @@ def construct_guest_session(
             app_shell = APP_SHELL_DECODER.decode(bits[1])
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
-    return AppGuestUseCaseSession.for_app_particulars(
-        JupiterAppParticulars.for_app(
+    return AppGuestUseCaseSession.build(
+        JupiterComponentProperties.for_app(
             core=AppCore.WEBUI,
             the_shell=app_shell,
             platform=app_platform,
@@ -192,8 +192,8 @@ def construct_logged_in_session(
             app_platform = APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
 
-    return AppLoggedInUseCaseSession.for_app_particulars(
-        JupiterAppParticulars.for_app(
+    return AppLoggedInUseCaseSession.build(
+        JupiterComponentProperties.for_app(
             core=AppCore.WEBUI,
             the_shell=app_shell,
             platform=app_platform,
@@ -688,8 +688,8 @@ class WebServiceApp:
             )
 
             result = await login_use_case.execute(
-                AppGuestUseCaseSession.for_app_particulars(
-                    JupiterAppParticulars.for_app(
+                AppGuestUseCaseSession.build(
+                    JupiterComponentProperties.for_app(
                         core=AppCore.WEBUI,
                         the_shell=AppShell.BROWSER,
                         platform=AppPlatform.DESKTOP_MACOS,

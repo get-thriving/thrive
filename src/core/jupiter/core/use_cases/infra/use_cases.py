@@ -7,7 +7,7 @@ from typing import Any, Final, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import (
     AppCore,
-    JupiterAppParticulars,
+    JupiterComponentProperties,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -38,7 +38,7 @@ from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.global_properties import (
     GlobalProperties,
-    UnavailableDueToGlobalPropertiesError,
+    UnavailableGloballyError,
 )
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
@@ -68,16 +68,17 @@ UseCaseResult = TypeVar("UseCaseResult", bound=Union[None, UseCaseResultBase])
 class AppGuestUseCaseSession(EmptySession):
     """The application use case session."""
 
-    app_particulars: JupiterAppParticulars
+    component_properties: JupiterComponentProperties
     auth_token_ext: AuthTokenExt | None
 
     @staticmethod
-    def for_app_particulars(
-        app_particulars: JupiterAppParticulars, auth_token_ext: AuthTokenExt | None
+    def build(
+        component_properties: JupiterComponentProperties,
+        auth_token_ext: AuthTokenExt | None,
     ) -> "AppGuestUseCaseSession":
         """Create a session for a given app particulars."""
         return AppGuestUseCaseSession(
-            app_particulars=app_particulars,
+            component_properties=component_properties,
             auth_token_ext=auth_token_ext,
         )
 
@@ -157,8 +158,8 @@ class AppGuestMutationUseCase(
             auth_token = None
         return AppGuestMutationUseCaseContext(
             auth_token=auth_token,
-            domain_context=DomainContext.from_app_particulars(
-                session.app_particulars,
+            domain_context=DomainContext.build(
+                session.component_properties,
                 self._time_provider.get_current_time(),
             ),
         )
@@ -225,16 +226,16 @@ class AppGuestReadonlyUseCase(
 class AppLoggedInUseCaseSession(UseCaseSessionBase):
     """The application use case session for logged-in-OK interactions."""
 
-    app_particulars: JupiterAppParticulars
+    component_properties: JupiterComponentProperties
     auth_token_ext: AuthTokenExt
 
     @staticmethod
-    def for_app_particulars(
-        app_particulars: JupiterAppParticulars, auth_token_ext: AuthTokenExt
+    def build(
+        component_properties: JupiterComponentProperties, auth_token_ext: AuthTokenExt
     ) -> "AppLoggedInUseCaseSession":
         """Create a session for a given app particulars."""
         return AppLoggedInUseCaseSession(
-            app_particulars=app_particulars,
+            component_properties=component_properties,
             auth_token_ext=auth_token_ext,
         )
 
@@ -343,7 +344,9 @@ class AppLoggedInMutationUseCase(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInMutationUseCaseContext:
         if not self.is_allowed_globally:
-            raise UnavailableDueToGlobalPropertiesError("This action is not available in this environment")
+            raise UnavailableGloballyError(
+                "This action is not available in this environment"
+            )
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
@@ -378,8 +381,8 @@ class AppLoggedInMutationUseCase(
             return AppLoggedInMutationUseCaseContext(
                 user=user,
                 workspace=workspace,
-                domain_context=DomainContext.from_app_particulars(
-                    session.app_particulars,
+                domain_context=DomainContext.build(
+                    session.component_properties,
                     self._time_provider.get_current_time(),
                 ),
             )
@@ -534,7 +537,9 @@ class AppLoggedInReadonlyUseCase(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInReadonlyUseCaseContext:
         if not self.is_allowed_globally:
-            raise UnavailableDueToGlobalPropertiesError("This action is not available in this environment")
+            raise UnavailableGloballyError(
+                "This action is not available in this environment"
+            )
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext

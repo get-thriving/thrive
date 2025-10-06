@@ -17,7 +17,7 @@ from jupiter.core.domain.app import (
     AppDistribution,
     AppPlatform,
     AppShell,
-    JupiterAppParticulars,
+    JupiterComponentProperties,
 )
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
@@ -112,8 +112,8 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = AppGuestUseCaseSession.for_app_particulars(
-        app_particulars=JupiterAppParticulars.for_app(
+    guest_session = AppGuestUseCaseSession.build(
+        component_properties=JupiterComponentProperties.for_app(
             core=AppCore.CLI,
             the_shell=AppShell.CLI,
             platform=AppPlatform.DESKTOP_MACOS,

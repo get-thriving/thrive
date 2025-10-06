@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
+from jupiter.core.domain.app import AppComponent, JupiterComponentProperties
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
@@ -34,8 +34,8 @@ class ScheduleExternalSyncDoAllUseCase(
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
         # TODO(horia141): params
-        ctx = DomainContext.from_app_particulars(
-            JupiterAppParticulars.for_cron(
+        ctx = DomainContext.build(
+            JupiterComponentProperties.for_cron(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
