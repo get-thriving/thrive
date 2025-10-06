@@ -15,7 +15,6 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
@@ -26,6 +25,7 @@ from jupiter.core.use_cases.infra.use_cases import (
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.use_case import UnavailableForContextError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -83,7 +83,7 @@ class ChoreFindUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             workspace.ref_id,

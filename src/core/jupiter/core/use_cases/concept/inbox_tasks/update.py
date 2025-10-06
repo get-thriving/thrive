@@ -36,7 +36,6 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     UserFeature,
     WorkspaceFeature,
 )
@@ -53,6 +52,7 @@ from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    UnavailableForContextError,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -117,7 +117,7 @@ class InboxTaskUpdateUseCase(
             if args.big_plan_ref_id.should_change:
                 if args.big_plan_ref_id.just_the_value is not None:
                     if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                        raise FeatureUnavailableError(WorkspaceFeature.BIG_PLANS)
+                        raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
 
                     new_big_plan = await uow.get_for(BigPlan).load_by_id(
                         args.big_plan_ref_id.just_the_value,

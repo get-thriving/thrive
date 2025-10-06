@@ -3,7 +3,6 @@
 from jupiter.core.domain.application.search.infra.search_repository import SearchMatch
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
-from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCase,
@@ -11,6 +10,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.use_case import UnavailableForContextError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -64,7 +64,7 @@ class SearchUseCase(AppLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
             )
         )
         if len(filter_entity_tags_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Entities {','.join(s.value for s in filter_entity_tags_diff)} are not supported in this workspace"
             )
 

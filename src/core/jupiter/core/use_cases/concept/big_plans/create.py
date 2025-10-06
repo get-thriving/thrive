@@ -21,7 +21,6 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
@@ -36,6 +35,7 @@ from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    UnavailableForContextError,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -89,12 +89,12 @@ class BigPlanCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
             and args.time_plan_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.TIME_PLANS)
+            raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
         if (
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:

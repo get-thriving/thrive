@@ -1,29 +1,9 @@
 """Even features are expressed here."""
 
 from collections.abc import Iterable
-from typing import Final
 
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
-
-
-class FeatureUnavailableError(Exception):
-    """Exception raised when a feature is unavailable."""
-
-    _error_str: Final[str]
-
-    def __init__(self, feature_or_str: "UserFeature | WorkspaceFeature | str"):
-        """Constructor."""
-        super().__init__()
-        self._error_str = (
-            (f"Feature {feature_or_str.value} is not available in this workspace")
-            if isinstance(feature_or_str, (UserFeature, WorkspaceFeature))
-            else feature_or_str
-        )
-
-    def __str__(self) -> str:
-        """Form a string representation here."""
-        return self._error_str
 
 
 @enum_value

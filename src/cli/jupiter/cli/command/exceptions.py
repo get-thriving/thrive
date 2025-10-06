@@ -19,7 +19,6 @@ from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
-from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
@@ -31,6 +30,7 @@ from jupiter.framework_new.errors import (
 )
 from jupiter.framework_new.repository import EntityNotFoundError
 from jupiter.framework_new.storage import ConnectionPrepareError
+from jupiter.framework_new.use_case import UnavailableForContextError
 from rich.console import Console
 
 
@@ -71,11 +71,11 @@ class MultiInputValidationHandler(CliExceptionHandler[MultiInputValidationError]
         sys.exit(1)
 
 
-class FeatureUnavailableHandler(CliExceptionHandler[FeatureUnavailableError]):
+class FeatureUnavailableHandler(CliExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: FeatureUnavailableError
+        self, app: CliApp, console: Console, exception: UnavailableForContextError
     ) -> None:
         """Handle feature unavailable errors."""
         console.print(f"{exception}")

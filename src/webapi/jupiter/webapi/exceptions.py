@@ -16,7 +16,6 @@ from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
-from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
@@ -27,6 +26,7 @@ from jupiter.framework_new.errors import (
     MultiInputValidationError,
 )
 from jupiter.framework_new.repository import EntityNotFoundError
+from jupiter.framework_new.use_case import UnavailableForContextError
 from jupiter.webapi.app import WebExceptionHandler, WebServiceApp
 from starlette import status
 
@@ -79,11 +79,11 @@ class MultiInputValidationHandler(WebExceptionHandler[MultiInputValidationError]
         )
 
 
-class FeatureUnavailableHandler(WebExceptionHandler[FeatureUnavailableError]):
+class FeatureUnavailableHandler(WebExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: FeatureUnavailableError
+        self, app: WebServiceApp, exception: UnavailableForContextError
     ) -> JSONResponse:
         """Handle feature unavailable errors."""
         return JSONResponse(

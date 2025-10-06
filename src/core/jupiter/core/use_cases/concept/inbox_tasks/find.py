@@ -48,7 +48,6 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
@@ -60,6 +59,7 @@ from jupiter.core.use_cases.infra.use_cases import (
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.use_case import UnavailableForContextError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -136,7 +136,7 @@ class InboxTaskFindUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.filter_project_ref_ids is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         filter_sources = (
             args.filter_sources
@@ -154,7 +154,7 @@ class InboxTaskFindUseCase(
             )
         )
         if len(big_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"Sources {','.join(s.value for s in big_diff)} are not supported in this workspace"
             )
 

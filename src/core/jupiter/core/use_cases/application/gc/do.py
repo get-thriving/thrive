@@ -1,7 +1,6 @@
 """The command for doing a garbage collection run."""
 
 from jupiter.core.domain.application.gc.service.gc_service import GCService
-from jupiter.core.domain.features import FeatureUnavailableError
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
@@ -15,6 +14,7 @@ from jupiter.core.use_cases.infra.use_cases import (
 )
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    UnavailableForContextError,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -51,7 +51,7 @@ class GCDoUseCase(AppLoggedInMutationUseCase[GCDoArgs, None]):
             )
         )
         if len(gc_targets_diff) > 0:
-            raise FeatureUnavailableError(
+            raise UnavailableForContextError(
                 f"GC targets {','.join(s.value for s in gc_targets_diff)} are not supported in this workspace"
             )
 

@@ -22,10 +22,7 @@ from jupiter.core.domain.app import (
     AppShell,
     JupiterComponentProperties,
 )
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
@@ -108,14 +105,6 @@ class Command(abc.ABC):
     @property
     def should_appear_in_global_help(self) -> bool:
         """Should the command appear in the global help info or not."""
-        return True
-
-    def is_allowed_for_user(self, workspace: User) -> bool:
-        """Is this command allowed for a particular user."""
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
         return True
 
     @property
@@ -850,36 +839,6 @@ class LoggedInMutationCommand(
         """Is this command allowed for a particular environment."""
         return self._use_case.is_allowed_globally
 
-    def is_allowed_for_user(self, user: User) -> bool:
-        """Is this command allowed for a particular user."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return user.is_feature_available(scoped_feature)
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return True
-        for feature in scoped_feature:
-            if isinstance(feature, UserFeature):
-                if not user.is_feature_available(feature):
-                    return False
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return True
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return workspace.is_feature_available(scoped_feature)
-        for feature in scoped_feature:
-            if isinstance(feature, WorkspaceFeature):
-                if not workspace.is_feature_available(feature):
-                    return False
-        return True
-
 
 LoggedInReadonlyCommandUseCase = TypeVar(
     "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any, Any]
@@ -939,36 +898,6 @@ class LoggedInReadonlyCommand(
     def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return self._use_case.is_allowed_globally
-
-    def is_allowed_for_user(self, user: User) -> bool:
-        """Is this command allowed for a particular user."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return user.is_feature_available(scoped_feature)
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return True
-        for feature in scoped_feature:
-            if isinstance(feature, UserFeature):
-                if not user.is_feature_available(feature):
-                    return False
-        return True
-
-    def is_allowed_for_workspace(self, workspace: Workspace) -> bool:
-        """Is this command allowed for a particular workspace."""
-        scoped_feature = self._use_case.get_scoped_to_feature()
-        if scoped_feature is None:
-            return True
-        if isinstance(scoped_feature, UserFeature):
-            return True
-        elif isinstance(scoped_feature, WorkspaceFeature):
-            return workspace.is_feature_available(scoped_feature)
-        for feature in scoped_feature:
-            if isinstance(feature, WorkspaceFeature):
-                if not workspace.is_feature_available(feature):
-                    return False
-        return True
 
     @property
     def should_have_streaming_progress_report(self) -> bool:
@@ -1454,19 +1383,7 @@ class CliApp:
             if not command.is_allowed_globally:
                 continue
 
-            if (
-                command.should_appear_in_global_help
-                and (
-                    self._top_level_context.user is None
-                    or command.is_allowed_for_user(self._top_level_context.user)
-                )
-                and (
-                    self._top_level_context.workspace is None
-                    or command.is_allowed_for_workspace(
-                        self._top_level_context.workspace
-                    )
-                )
-            ):
+            if command.should_appear_in_global_help:
                 command_parser = subparsers.add_parser(
                     command.name(),
                     help=command.description(),

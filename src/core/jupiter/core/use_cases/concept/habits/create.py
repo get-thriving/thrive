@@ -17,7 +17,6 @@ from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenP
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     WorkspaceFeature,
 )
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
@@ -30,6 +29,7 @@ from jupiter.core.use_cases.infra.use_cases import (
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    UnavailableForContextError,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -85,7 +85,7 @@ class HabitCreateUseCase(
             not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
             and args.project_ref_id is not None
         ):
-            raise FeatureUnavailableError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
 
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id,

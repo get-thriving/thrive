@@ -20,6 +20,7 @@ from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework_new.value import EnumValue
 
 LOGGER = logging.getLogger(__name__)
 
@@ -28,8 +29,33 @@ class UseCaseSessionBase:
     """The base class for use case sessions."""
 
 
+class UnavailableForContextError(Exception):
+    """Exception raised when the user context blocks a certain action."""
+
+    _error_str: Final[str]
+
+    def __init__(self, feature_or_str: EnumValue | str):
+        """Constructor."""
+        super().__init__()
+        self._error_str = (
+            (f"Feature {feature_or_str.value} is not available")
+            if isinstance(feature_or_str, EnumValue)
+            else feature_or_str
+        )
+
+    def __str__(self) -> str:
+        """Form a string representation here."""
+        return self._error_str
+
+
 class UseCaseContextBase(abc.ABC):
     """Info about a particular invocation of a use case."""
+
+    @abc.abstractmethod
+    def allows(
+        self, only_for: list[EnumValue | list[EnumValue]] | None
+    ) -> EnumValue | None:
+        """Whether this particular context allows for a given filter."""
 
     @property
     @abc.abstractmethod
@@ -197,6 +223,12 @@ class EmptySession(UseCaseSessionBase):
 @dataclass(frozen=True)
 class EmptyContext(UseCaseContextBase):
     """An empty context."""
+
+    def allows(
+        self, only_for: list[EnumValue | list[EnumValue]] | None
+    ) -> EnumValue | None:
+        """Does the particular context allow an use case invocation."""
+        return None
 
     @property
     def user_ref_id(self) -> EntityId:

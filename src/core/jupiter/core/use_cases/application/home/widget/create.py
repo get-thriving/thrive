@@ -9,7 +9,6 @@ from jupiter.core.domain.application.home.widget import (
     WidgetType,
 )
 from jupiter.core.domain.features import (
-    FeatureUnavailableError,
     UserFeature,
     WorkspaceFeature,
 )
@@ -20,7 +19,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case import ProgressReporter, UnavailableForContextError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -80,7 +79,7 @@ class HomeWidgetCreateUseCase(
                 and len(constraints.only_for_workspace_features) > 0
             ):
                 the_feature = constraints.only_for_workspace_features[0]
-            raise FeatureUnavailableError(the_feature)
+            raise UnavailableForContextError(the_feature)
 
         home_tab = await uow.get_for(HomeTab).load_by_id(
             args.home_tab_ref_id,

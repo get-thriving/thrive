@@ -12,8 +12,6 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.features import (
-    FeatureScope,
-    FeatureUnavailableError,
     UserFeature,
     WorkspaceFeature,
 )
@@ -22,7 +20,6 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
-from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.auth.auth_token import (
     AuthToken,
@@ -33,6 +30,7 @@ from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import (
+    ComponentProperties,
     UnavailableForComponentError,
 )
 from jupiter.framework_new.context import DomainContext
@@ -50,6 +48,7 @@ from jupiter.framework_new.use_case import (
     ProgressReporter,
     ProgressReporterFactory,
     ReadonlyUseCase,
+    UnavailableForContextError,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
@@ -247,6 +246,33 @@ class AppLoggedInUseCaseContext(UseCaseContextBase):
     user: User
     workspace: Workspace
 
+    def allows(
+        self, only_for: list[EnumValue | list[EnumValue]] | None
+    ) -> EnumValue | None:
+        """Does the particular context allow an use case invocation."""
+        if only_for is not None:
+            for filter_val in only_for:
+                if isinstance(filter_val, UserFeature):
+                    if not self.user.is_feature_available(filter_val):
+                        return filter_val
+                elif isinstance(filter_val, WorkspaceFeature):
+                    if not self.workspace.is_feature_available(filter_val):
+                        return filter_val
+                elif isinstance(filter_val, list):
+                    for feature in filter_val:
+                        if isinstance(feature, UserFeature):
+                            if not self.user.is_feature_available(feature):
+                                return feature
+                        elif isinstance(feature, WorkspaceFeature):
+                            if not self.workspace.is_feature_available(feature):
+                                return feature
+                        else:
+                            raise Exception(f"Invalid filter type: {type(filter_val)}")
+                else:
+                    raise Exception(f"Invalid filter type: {type(filter_val)}")
+
+        return None
+
     @property
     def user_ref_id(self) -> EntityId:
         """The user id."""
@@ -285,9 +311,25 @@ class AppLoggedInMutationUseCase(
     _crm: Final[CRM]
 
     @staticmethod
-    def get_scoped_to_feature() -> FeatureScope:
+    def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
         """The feature the use case is scope to."""
         return None
+
+    @staticmethod
+    def get_only_for_component() -> list[EnumValue] | None:
+        """The components the commandis available in."""
+        return None
+
+    @staticmethod
+    def get_excluded_component() -> list[EnumValue] | None:
+        """The component properties the command is excluded from."""
+        return None
+
+    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+        """Whather the command is allowed for this component."""
+        return session.component_properties.allows(
+            self.get_only_for_component(), self.get_excluded_component()
+        )
 
     @staticmethod
     def get_only_for_globally() -> list[EnumValue] | None:
@@ -304,22 +346,6 @@ class AppLoggedInMutationUseCase(
         """Whether this command is allowed with the current global properties."""
         return self._global_properties.allows(
             self.get_only_for_globally(), self.get_excluded_globally()
-        )
-
-    @staticmethod
-    def get_only_for_component() -> list[EnumValue] | None:
-        """The components the commandis available in."""
-        return None
-
-    @staticmethod
-    def get_excluded_component() -> list[EnumValue] | None:
-        """The component properties the command is excluded from."""
-        return None
-
-    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
-        """Whather the command is allowed for this component."""
-        return session.component_properties.allows(
-            self.get_only_for_component(), self.get_excluded_component()
         )
 
     def __init__(
@@ -377,24 +403,7 @@ class AppLoggedInMutationUseCase(
                 user_workspace_link.workspace_ref_id
             )
 
-            scoped_feature = self.get_scoped_to_feature()
-            if scoped_feature is not None:
-                if isinstance(scoped_feature, UserFeature):
-                    if not user.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                elif isinstance(scoped_feature, WorkspaceFeature):
-                    if not workspace.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                else:
-                    for feature in scoped_feature:
-                        if isinstance(feature, UserFeature):
-                            if not user.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
-                        elif isinstance(feature, WorkspaceFeature):
-                            if not workspace.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
-
-            return AppLoggedInMutationUseCaseContext(
+            context = AppLoggedInMutationUseCaseContext(
                 user=user,
                 workspace=workspace,
                 domain_context=DomainContext.build(
@@ -402,6 +411,12 @@ class AppLoggedInMutationUseCase(
                     self._time_provider.get_current_time(),
                 ),
             )
+
+            # TODO(horia141):params
+            if feature := context.allows(self.get_only_for_use_case_context()):
+                raise UnavailableForContextError(feature)
+
+            return context
 
     async def _execute(
         self,
@@ -506,7 +521,7 @@ class AppLoggedInReadonlyUseCase(
     _search_storage_engine: Final[SearchStorageEngine]
 
     @staticmethod
-    def get_scoped_to_feature() -> FeatureScope:
+    def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
         """The feature the use case is scope to."""
         return None
 
@@ -586,22 +601,10 @@ class AppLoggedInReadonlyUseCase(
                 user_workspace_link.workspace_ref_id
             )
 
-            scoped_feature = self.get_scoped_to_feature()
-            if scoped_feature is not None:
-                if isinstance(scoped_feature, UserFeature):
-                    if not user.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                elif isinstance(scoped_feature, WorkspaceFeature):
-                    if not workspace.is_feature_available(scoped_feature):
-                        raise FeatureUnavailableError(scoped_feature)
-                else:
-                    for feature in scoped_feature:
-                        if isinstance(feature, UserFeature):
-                            if not user.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
-                        elif isinstance(feature, WorkspaceFeature):
-                            if not workspace.is_feature_available(feature):
-                                raise FeatureUnavailableError(feature)
+            context = AppLoggedInReadonlyUseCaseContext(user=user, workspace=workspace)
+
+            if feature := context.allows(self.get_only_for_use_case_context()):
+                raise UnavailableForContextError(feature)
 
             return AppLoggedInReadonlyUseCaseContext(user=user, workspace=workspace)
 
@@ -697,16 +700,16 @@ _MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCas
 
 
 def mutation_use_case(  # type: ignore
-    feature_scope: FeatureScope = None,
-    only_for_globally: list[EnumValue] | None = None,
-    exclude_globally: list[EnumValue] | None = None,
+    *only_for_use_case_context: EnumValue | list[EnumValue],
     only_for_component: list[EnumValue] | None = None,
     exclude_component: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
 ) -> Callable[[type[_MutationUseCaseT]], type[_MutationUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_MutationUseCaseT]) -> type[_MutationUseCaseT]:  # type: ignore
-        cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
+        cls.get_only_for_use_case_context = lambda *args: only_for_use_case_context  # type: ignore
         cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
         cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
         cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
@@ -720,16 +723,16 @@ _ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCas
 
 
 def readonly_use_case(  # type: ignore
-    feature_scope: FeatureScope = None,
-    only_for_globally: list[EnumValue] | None = None,
-    exclude_globally: list[EnumValue] | None = None,
+    *only_for_use_case_context: EnumValue | list[EnumValue],
     only_for_component: list[EnumValue] | None = None,
     exclude_component: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
 ) -> Callable[[type[_ReadonlyUseCaseT]], type[_ReadonlyUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_ReadonlyUseCaseT]) -> type[_ReadonlyUseCaseT]:  # type: ignore
-        cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
+        cls.get_only_for_use_case_context = lambda *args: only_for_use_case_context  # type: ignore
         cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
         cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
         cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
