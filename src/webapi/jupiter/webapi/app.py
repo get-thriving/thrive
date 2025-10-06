@@ -27,7 +27,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.types import DecoratedCallable
-from jupiter.core.domain.app import (
+from jupiter.core.component import (
     AppCore,
     AppDistribution,
     AppPlatform,
@@ -50,7 +50,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
-from jupiter.core.utils.global_properties import JupiterGlobalProperties
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.core.utils.progress_reporter import (
     EmptyProgressReporterFactory,
     NoOpProgressReporterFactory,

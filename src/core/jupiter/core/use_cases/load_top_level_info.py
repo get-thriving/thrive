@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.app import (
+from jupiter.core.component import (
     AppCore,
     AppDistribution,
     AppDistributionState,

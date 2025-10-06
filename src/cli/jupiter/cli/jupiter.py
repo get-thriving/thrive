@@ -12,7 +12,7 @@ from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.domain.app import (
+from jupiter.core.component import (
     AppCore,
     AppDistribution,
     AppPlatform,
@@ -33,7 +33,7 @@ from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,
 )
-from jupiter.core.utils.global_properties import build_global_properties
+from jupiter.core.global_properties import build_global_properties
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,

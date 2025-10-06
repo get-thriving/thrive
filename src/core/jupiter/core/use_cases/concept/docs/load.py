@@ -1,6 +1,6 @@
 """Load a particulr doc."""
 
-from jupiter.core.domain.app import AppCore
+from jupiter.core.component import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain

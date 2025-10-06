@@ -46,7 +46,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.core.utils.global_properties import JupiterGlobalProperties
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,

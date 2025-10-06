@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.app import AppComponent, JupiterComponentProperties
+from jupiter.core.component import AppComponent, JupiterComponentProperties
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
@@ -10,7 +10,7 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
-from jupiter.core.utils.global_properties import JupiterGlobalProperties
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import EmptyContext
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args

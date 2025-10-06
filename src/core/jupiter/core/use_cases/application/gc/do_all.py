@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.domain.app import AppComponent, JupiterComponentProperties
+from jupiter.core.component import AppComponent, JupiterComponentProperties
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -15,7 +15,7 @@ from jupiter.core.domain.infer_sync_targets import (
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
-from jupiter.core.utils.global_properties import JupiterGlobalProperties
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import (
     EmptyContext,

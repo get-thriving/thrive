@@ -1,6 +1,6 @@
 """Update a doc use case."""
 
-from jupiter.core.domain.app import AppCore
+from jupiter.core.component import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.doc_name import DocName
 from jupiter.core.domain.features import WorkspaceFeature

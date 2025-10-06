@@ -1,6 +1,6 @@
 """Use case for archiving a note."""
 
-from jupiter.core.domain.app import AppCore
+from jupiter.core.component import AppCore
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.service.note_archive_service import (

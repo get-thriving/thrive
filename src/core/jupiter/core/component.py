@@ -6,17 +6,6 @@ from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.value import AtomicValue, EnumValue, enum_value, value
 
 
-@value
-class AppVersion(AtomicValue[str]):
-    """The version of the app."""
-
-    the_version: str
-
-    def __str__(self) -> str:
-        """Transform this to a string version."""
-        return self.the_version
-
-
 @enum_value
 class AppComponent(EnumValue):
     """The component of the app."""
@@ -78,6 +67,18 @@ class AppDistributionState(EnumValue):
     READY = "ready"
     IN_REVIEW = "in-review"
     NOT_AVAILABLE = "not-available"
+
+
+@value
+class AppVersion(AtomicValue[str]):
+    """The version of the app."""
+
+    the_version: str
+
+    def __str__(self) -> str:
+        """Transform this to a string version."""
+        return self.the_version
+
 
 
 @dataclass(frozen=True)
