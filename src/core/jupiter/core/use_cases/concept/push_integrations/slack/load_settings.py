@@ -1,6 +1,6 @@
 """Load settings for email tasks use case."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,

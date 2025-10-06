@@ -1,6 +1,6 @@
 """Load settings for metrics use case."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature

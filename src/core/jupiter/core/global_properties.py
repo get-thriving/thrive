@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Union, cast
 
 import dotenv
-from jupiter.core.component import AppVersion
+from jupiter.core.domain.app import AppVersion
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.framework_new.global_properties import GlobalProperties

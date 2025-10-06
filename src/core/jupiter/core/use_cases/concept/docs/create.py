@@ -1,6 +1,6 @@
 """Use case for creating a doc."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc, DocRepository
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
 from jupiter.core.domain.concept.docs.doc_idempotency_key import DocIdempotencyKey

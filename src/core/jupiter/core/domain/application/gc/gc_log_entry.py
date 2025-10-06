@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.component import AppComponent
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.entity_id import EntityId

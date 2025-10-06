@@ -1,6 +1,6 @@
 """The command for changing the parent for a doc."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork

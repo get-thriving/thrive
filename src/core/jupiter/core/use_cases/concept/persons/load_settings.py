@@ -1,6 +1,6 @@
 """Load settings for persons use case."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature

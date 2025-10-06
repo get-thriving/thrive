@@ -73,12 +73,12 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import (

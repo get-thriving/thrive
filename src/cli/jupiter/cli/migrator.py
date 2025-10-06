@@ -3,8 +3,8 @@
 import asyncio
 
 import jupiter.core.domain
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.global_properties import build_global_properties
+from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
 
 

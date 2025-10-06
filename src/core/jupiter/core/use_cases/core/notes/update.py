@@ -1,6 +1,6 @@
 """Update a note use case."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.core.domain.storage_engine import DomainUnitOfWork

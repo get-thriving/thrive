@@ -1,6 +1,6 @@
 """The command for removing a note."""
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.service.note_remove_service import (
     NoteRemoveService,

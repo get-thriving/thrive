@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-from jupiter.core.component import AppCore
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
 from jupiter.core.domain.core.notes.note import Note

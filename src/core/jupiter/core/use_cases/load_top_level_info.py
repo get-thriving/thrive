@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.component import (
+from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
     AppDistributionState,
@@ -38,11 +38,11 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
+from jupiter.core.global_properties import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
 )
-from jupiter.core.utils import global_properties
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -93,7 +93,7 @@ class LoadTopLevelInfoUseCase(
         args: LoadTopLevelInfoArgs,
     ) -> LoadTopLevelInfoResult:
         """Execute the command's action."""
-        gp = cast(global_properties.JupiterGlobalProperties, self._global_properties)
+        gp = cast(JupiterGlobalProperties, self._global_properties)
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,

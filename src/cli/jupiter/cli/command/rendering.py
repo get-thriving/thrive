@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from typing import Final
 
-from jupiter.core.component import AppComponent
+from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
