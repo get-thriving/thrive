@@ -835,7 +835,7 @@ class WebServiceApp:
                 crm=self._crm,
             )
 
-            if use_case.is_allowed_by_global_properties:
+            if use_case.is_allowed_globally:
                 scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
                 if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
                     self._use_case_commands[use_case_type] = LoggedInMutationCommand(
@@ -853,7 +853,7 @@ class WebServiceApp:
                 search_storage_engine=self._search_storage_engine,
             )
 
-            if use_case.is_allowed_by_global_properties:
+            if use_case.is_allowed_globally:
                 scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
                 if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
                     self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(

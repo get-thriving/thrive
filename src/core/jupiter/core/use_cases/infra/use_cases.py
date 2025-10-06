@@ -304,7 +304,7 @@ class AppLoggedInMutationUseCase(
         return None
 
     @property
-    def is_allowed_by_global_properties(self) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Whether this command is allowed with the current global properties."""
         return self._global_properties.allows(
             self.get_only_for_global_properties(), self.get_excluded_global_properties()
@@ -342,10 +342,8 @@ class AppLoggedInMutationUseCase(
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInMutationUseCaseContext:
-        if not self.is_allowed_by_global_properties:
-            raise UnavailableDueToGlobalPropertiesError(
-                "This action is not available in this environment"
-            )
+        if not self.is_allowed_globally:
+            raise UnavailableDueToGlobalPropertiesError("This action is not available in this environment")
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
@@ -509,7 +507,7 @@ class AppLoggedInReadonlyUseCase(
         return None
 
     @property
-    def is_allowed_by_global_properties(self) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Whether this command is allowed with the current global properties."""
         return self._global_properties.allows(
             self.get_only_for_global_properties(), self.get_excluded_global_properties()
@@ -535,10 +533,8 @@ class AppLoggedInReadonlyUseCase(
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInReadonlyUseCaseContext:
-        if not self.is_allowed_by_global_properties:
-            raise UnavailableDueToGlobalPropertiesError(
-                "This action is not available in this environment"
-            )
+        if not self.is_allowed_globally:
+            raise UnavailableDueToGlobalPropertiesError("This action is not available in this environment")
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext

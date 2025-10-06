@@ -168,8 +168,13 @@ class UseCase(
     """A generic use case."""
 
     @property
-    def is_allowed_for_global_properties(self) -> bool:
-        """Wether this use case's invocation is permitted under the global properties."""
+    def is_allowed_globally(self) -> bool:
+        """Wether this use case's invocation is permitted globally."""
+        return True
+
+    @property
+    def is_allowed_for_component(self) -> bool:
+        """Whether this use case's invocation is permitted under in the component."""
         return True
 
     @abc.abstractmethod

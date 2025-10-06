@@ -106,7 +106,7 @@ class Command(abc.ABC):
         return True
 
     @property
-    def is_allowed_for_global_properties(self) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return True
 
@@ -859,9 +859,9 @@ class LoggedInMutationCommand(
         return AppCore.CLI in scoped_to_app
 
     @property
-    def is_allowed_for_global_properties(self) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
-        return self._use_case.is_allowed_by_global_properties
+        return self._use_case.is_allowed_globally
 
     def is_allowed_for_user(self, user: User) -> bool:
         """Is this command allowed for a particular user."""
@@ -957,9 +957,9 @@ class LoggedInReadonlyCommand(
         return AppCore.CLI in scoped_to_app
 
     @property
-    def is_allowed_for_global_properties(self) -> bool:
+    def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
-        return self._use_case.is_allowed_for_global_properties
+        return self._use_case.is_allowed_globally
 
     def is_allowed_for_user(self, user: User) -> bool:
         """Is this command allowed for a particular user."""
@@ -1475,7 +1475,7 @@ class CliApp:
             if not command.is_allowed_for_cli:
                 continue
 
-            if not command.is_allowed_for_global_properties:
+            if not command.is_allowed_globally:
                 continue
 
             if (
