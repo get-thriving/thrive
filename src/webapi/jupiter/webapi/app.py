@@ -836,13 +836,11 @@ class WebServiceApp:
             )
 
             if use_case.is_allowed_globally:
-                scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-                if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                    self._use_case_commands[use_case_type] = LoggedInMutationCommand(
-                        realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case,
-                        root_module=root_module,
-                    )
+                self._use_case_commands[use_case_type] = LoggedInMutationCommand(
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
             use_case = use_case_type(  # type: ignore
                 global_properties=self._global_properties,
@@ -854,13 +852,11 @@ class WebServiceApp:
             )
 
             if use_case.is_allowed_globally:
-                scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-                if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                    self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
-                        realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case,
-                        root_module=root_module,
-                    )
+                self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
         elif issubclass(use_case_type, SysBackgroundMutationUseCase):
             self._use_case_commands[use_case_type] = CronCommand(
                 realm_codec_registry=self._realm_codec_registry,

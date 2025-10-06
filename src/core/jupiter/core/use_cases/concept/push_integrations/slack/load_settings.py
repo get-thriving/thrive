@@ -35,7 +35,7 @@ class SlackTaskLoadSettingsResult(UseCaseResultBase):
     generation_project: Project
 
 
-@readonly_use_case(WorkspaceFeature.SLACK_TASKS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.SLACK_TASKS, exclude_component=[AppCore.CLI])
 class SlackTaskLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         SlackTaskLoadSettingsArgs, SlackTaskLoadSettingsResult

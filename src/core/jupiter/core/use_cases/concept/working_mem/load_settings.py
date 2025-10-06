@@ -34,7 +34,7 @@ class WorkingMemLoadSettingsResult(UseCaseResultBase):
     cleanup_project: Project
 
 
-@readonly_use_case(WorkspaceFeature.WORKING_MEM, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.WORKING_MEM, exclude_component=[AppCore.CLI])
 class WorkingMemLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         WorkingMemLoadSettingsArgs, WorkingMemLoadSettingsResult

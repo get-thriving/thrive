@@ -26,7 +26,7 @@ class DocUpdateArgs(UseCaseArgsBase):
     name: UpdateAction[DocName]
 
 
-@mutation_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
+@mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocUpdateUseCase(AppTransactionalLoggedInMutationUseCase[DocUpdateArgs, None]):
     """Update a doc use case."""
 

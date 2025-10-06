@@ -24,7 +24,7 @@ class RemoveAllArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
 
-@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
+@mutation_use_case(exclude_globally=[Env.PRODUCTION])
 class RemoveAllUseCase(AppLoggedInMutationUseCase[RemoveAllArgs, None]):
     """The command for removeing all branch and leaf type entities."""
 

@@ -27,7 +27,7 @@ class DocArchiveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
+@mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocArchiveUseCase(AppTransactionalLoggedInMutationUseCase[DocArchiveArgs, None]):
     """Use case for archiving a doc."""
 

@@ -37,7 +37,7 @@ class DocLoadResult(UseCaseResultBase):
     subdocs: list[Doc]
 
 
-@readonly_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocLoadUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[DocLoadArgs, DocLoadResult]
 ):

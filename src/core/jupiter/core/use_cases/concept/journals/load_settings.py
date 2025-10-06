@@ -45,7 +45,7 @@ class JournalLoadSettingsResult(UseCaseResultBase):
     writing_tasks: list[InboxTask]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.JOURNALS, exclude_component=[AppCore.CLI])
 class JournalLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         JournalLoadSettingsArgs, JournalLoadSettingsResult

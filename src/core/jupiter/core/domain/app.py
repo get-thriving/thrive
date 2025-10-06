@@ -147,7 +147,7 @@ class JupiterComponentProperties(ComponentProperties):
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         if excluded is not None:
-            for filter_val in only_for:
+            for filter_val in excluded:
                 if isinstance(filter_val, AppComponent):
                     return self._component != filter_val
                 elif self._core is not None and isinstance(filter_val, AppCore):

@@ -47,7 +47,7 @@ class DocCreateResult(UseCaseResultBase):
     new_note: Note
 
 
-@mutation_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
+@mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocCreateUseCase(
     AppTransactionalLoggedInMutationUseCase[DocCreateArgs, DocCreateResult]
 ):

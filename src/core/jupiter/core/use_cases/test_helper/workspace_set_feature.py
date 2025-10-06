@@ -25,7 +25,7 @@ class WorkspaceSetFeatureArgs(UseCaseArgsBase):
     value: bool
 
 
-@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
+@mutation_use_case(exclude_globally=[Env.PRODUCTION])
 class WorkspaceSetFeatureUseCase(
     AppTransactionalLoggedInMutationUseCase[WorkspaceSetFeatureArgs, None]
 ):

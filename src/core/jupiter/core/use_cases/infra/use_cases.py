@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import (
-    AppCore,
     JupiterComponentProperties,
 )
 from jupiter.core.domain.concept.user.user import User
@@ -35,6 +34,9 @@ from jupiter.framework_new.auth.auth_token import (
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.component_properties import (
+    UnavailableForComponentError,
+)
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.global_properties import (
     GlobalProperties,
@@ -290,17 +292,12 @@ class AppLoggedInMutationUseCase(
         return None
 
     @staticmethod
-    def get_scoped_to_app() -> list[AppCore] | None:
-        """The apps the command is available in."""
-        return None
-
-    @staticmethod
-    def get_only_for_global_properties() -> list[EnumValue] | None:
+    def get_only_for_globally() -> list[EnumValue] | None:
         """The global properties the command is available in."""
         return None
 
     @staticmethod
-    def get_excluded_global_properties() -> list[EnumValue] | None:
+    def get_excluded_globally() -> list[EnumValue] | None:
         """The global properties the command is excluded from."""
         return None
 
@@ -308,7 +305,23 @@ class AppLoggedInMutationUseCase(
     def is_allowed_globally(self) -> bool:
         """Whether this command is allowed with the current global properties."""
         return self._global_properties.allows(
-            self.get_only_for_global_properties(), self.get_excluded_global_properties()
+            self.get_only_for_globally(), self.get_excluded_globally()
+        )
+
+    @staticmethod
+    def get_only_for_component() -> list[EnumValue] | None:
+        """The components the commandis available in."""
+        return None
+
+    @staticmethod
+    def get_excluded_component() -> list[EnumValue] | None:
+        """The component properties the command is excluded from."""
+        return None
+
+    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+        """Whather the command is allowed for this component."""
+        return session.component_properties.allows(
+            self.get_only_for_component(), self.get_excluded_component()
         )
 
     def __init__(
@@ -346,6 +359,11 @@ class AppLoggedInMutationUseCase(
         if not self.is_allowed_globally:
             raise UnavailableGloballyError(
                 "This action is not available in this environment"
+            )
+
+        if not self.is_allowed_for_component(session):
+            raise UnavailableForComponentError(
+                f"This action is not available in component {session.component_properties.as_event_source()}"
             )
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
@@ -495,17 +513,12 @@ class AppLoggedInReadonlyUseCase(
         return None
 
     @staticmethod
-    def get_scoped_to_app() -> list[AppCore] | None:
-        """The apps the command is available in."""
-        return None
-
-    @staticmethod
-    def get_only_for_global_properties() -> list[EnumValue] | None:
+    def get_only_for_globally() -> list[EnumValue] | None:
         """The global properties the command is available in."""
         return None
 
     @staticmethod
-    def get_excluded_global_properties() -> list[EnumValue] | None:
+    def get_excluded_globally() -> list[EnumValue] | None:
         """The global properties the command is excluded from."""
         return None
 
@@ -513,7 +526,23 @@ class AppLoggedInReadonlyUseCase(
     def is_allowed_globally(self) -> bool:
         """Whether this command is allowed with the current global properties."""
         return self._global_properties.allows(
-            self.get_only_for_global_properties(), self.get_excluded_global_properties()
+            self.get_only_for_globally(), self.get_excluded_globally()
+        )
+
+    @staticmethod
+    def get_only_for_component() -> list[EnumValue] | None:
+        """The components the commandis available in."""
+        return None
+
+    @staticmethod
+    def get_excluded_component() -> list[EnumValue] | None:
+        """The component properties the command is excluded from."""
+        return None
+
+    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+        """Whather the command is allowed for this component."""
+        return session.component_properties.allows(
+            self.get_only_for_component(), self.get_excluded_component()
         )
 
     def __init__(
@@ -539,6 +568,11 @@ class AppLoggedInReadonlyUseCase(
         if not self.is_allowed_globally:
             raise UnavailableGloballyError(
                 "This action is not available in this environment"
+            )
+
+        if not self.is_allowed_for_component(session):
+            raise UnavailableForComponentError(
+                f"This action is not available in component {session.component_properties.as_event_source()}"
             )
 
         auth_token = self._auth_token_stamper.verify_auth_token_general(
@@ -666,22 +700,19 @@ _MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCas
 
 def mutation_use_case(  # type: ignore
     feature_scope: FeatureScope = None,
-    exclude_app: list[AppCore] | None = None,
-    only_for_global_properties: list[EnumValue] | None = None,
-    excluded_global_properties: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
+    only_for_component: list[EnumValue] | None = None,
+    exclude_component: list[EnumValue] | None = None,
 ) -> Callable[[type[_MutationUseCaseT]], type[_MutationUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_MutationUseCaseT]) -> type[_MutationUseCaseT]:  # type: ignore
-        app_scope = [
-            s
-            for s in AppCore
-            if (True if exclude_app is None else s not in exclude_app)
-        ]
         cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
-        cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_only_for_global_properties = lambda *args: only_for_global_properties  # type: ignore
-        cls.get_excluded_global_properties = lambda *args: excluded_global_properties  # type: ignore
+        cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
+        cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
+        cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
+        cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
         return cls
 
     return decorator
@@ -692,22 +723,19 @@ _ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCas
 
 def readonly_use_case(  # type: ignore
     feature_scope: FeatureScope = None,
-    exclude_app: list[AppCore] | None = None,
-    only_for_global_properties: list[EnumValue] | None = None,
-    excluded_global_properties: list[EnumValue] | None = None,
+    only_for_globally: list[EnumValue] | None = None,
+    exclude_globally: list[EnumValue] | None = None,
+    only_for_component: list[EnumValue] | None = None,
+    exclude_component: list[EnumValue] | None = None,
 ) -> Callable[[type[_ReadonlyUseCaseT]], type[_ReadonlyUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
     def decorator(cls: type[_ReadonlyUseCaseT]) -> type[_ReadonlyUseCaseT]:  # type: ignore
-        app_scope = [
-            s
-            for s in AppCore
-            if (True if exclude_app is None else s not in exclude_app)
-        ]
         cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
-        cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_only_for_global_properties = lambda *args: only_for_global_properties  # type: ignore
-        cls.get_excluded_global_properties = lambda *args: excluded_global_properties  # type: ignore
+        cls.get_only_for_component = lambda *args: only_for_component  # type: ignore
+        cls.get_excluded_component = lambda *args: exclude_component  # type: ignore
+        cls.get_only_for_globally = lambda *args: only_for_globally  # type: ignore
+        cls.get_excluded_globally = lambda *args: exclude_globally  # type: ignore
         return cls
 
     return decorator

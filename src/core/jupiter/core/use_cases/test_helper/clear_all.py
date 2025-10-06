@@ -69,7 +69,7 @@ class ClearAllArgs(UseCaseArgsBase):
     workspace_feature_flags: set[WorkspaceFeature] | None
 
 
-@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
+@mutation_use_case(exclude_globally=[Env.PRODUCTION])
 class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
     """The command for clearing all branch and leaf type entities."""
 

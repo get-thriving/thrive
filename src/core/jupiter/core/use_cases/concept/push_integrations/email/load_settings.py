@@ -35,7 +35,7 @@ class EmailTaskLoadSettingsResult(UseCaseResultBase):
     generation_project: Project
 
 
-@readonly_use_case(WorkspaceFeature.EMAIL_TASKS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.EMAIL_TASKS, exclude_component=[AppCore.CLI])
 class EmailTaskLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         EmailTaskLoadSettingsArgs, EmailTaskLoadSettingsResult

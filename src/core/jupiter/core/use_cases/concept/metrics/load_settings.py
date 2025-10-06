@@ -30,7 +30,7 @@ class MetricLoadSettingsResult(UseCaseResultBase):
     collection_project: Project
 
 
-@readonly_use_case(WorkspaceFeature.METRICS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.METRICS, exclude_component=[AppCore.CLI])
 class MetricLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         MetricLoadSettingsArgs, MetricLoadSettingsResult

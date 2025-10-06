@@ -101,11 +101,6 @@ class Command(abc.ABC):
         """Callback to execute when the command is invoked."""
 
     @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        return True
-
-    @property
     def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return True
@@ -851,14 +846,6 @@ class LoggedInMutationCommand(
         """Render the result."""
 
     @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        scoped_to_app = self._use_case.get_scoped_to_app()
-        if scoped_to_app is None:
-            return True
-        return AppCore.CLI in scoped_to_app
-
-    @property
     def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return self._use_case.is_allowed_globally
@@ -947,14 +934,6 @@ class LoggedInReadonlyCommand(
         result: UseCaseResultT,
     ) -> None:
         """Render the result."""
-
-    @property
-    def is_allowed_for_cli(self) -> bool:
-        """Is this command allowed for the CLI."""
-        scoped_to_app = self._use_case.get_scoped_to_app()
-        if scoped_to_app is None:
-            return True
-        return AppCore.CLI in scoped_to_app
 
     @property
     def is_allowed_globally(self) -> bool:
@@ -1472,9 +1451,6 @@ class CliApp:
         for command in itertools.chain(
             self._commands.values(), self._use_case_commands.values()
         ):
-            if not command.is_allowed_for_cli:
-                continue
-
             if not command.is_allowed_globally:
                 continue
 

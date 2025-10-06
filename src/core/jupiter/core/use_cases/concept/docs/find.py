@@ -52,7 +52,7 @@ class DocFindResult(UseCaseResultBase):
     entries: list[DocFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.DOCS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocFindUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[DocFindArgs, DocFindResult]
 ):

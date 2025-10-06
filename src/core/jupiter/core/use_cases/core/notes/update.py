@@ -25,7 +25,7 @@ class NoteUpdateArgs(UseCaseArgsBase):
     content: UpdateAction[list[OneOfNoteContentBlock]]
 
 
-@mutation_use_case(exclude_app=[AppCore.CLI])
+@mutation_use_case(exclude_component=[AppCore.CLI])
 class NoteUpdateUseCase(AppTransactionalLoggedInMutationUseCase[NoteUpdateArgs, None]):
     """Update a note use case."""
 

@@ -26,7 +26,7 @@ class NoteArchiveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(exclude_app=[AppCore.CLI])
+@mutation_use_case(exclude_component=[AppCore.CLI])
 class NoteArchiveUseCase(
     AppTransactionalLoggedInMutationUseCase[NoteArchiveArgs, None]
 ):

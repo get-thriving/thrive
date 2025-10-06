@@ -39,7 +39,7 @@ class NoteCreateResult(UseCaseResultBase):
     new_note: Note
 
 
-@mutation_use_case(exclude_app=[AppCore.CLI])
+@mutation_use_case(exclude_component=[AppCore.CLI])
 class NoteCreateUseCase(
     AppTransactionalLoggedInMutationUseCase[NoteCreateArgs, NoteCreateResult]
 ):

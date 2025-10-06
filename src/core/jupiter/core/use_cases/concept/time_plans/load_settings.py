@@ -45,7 +45,7 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     planning_tasks: list[InboxTask]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, exclude_component=[AppCore.CLI])
 class TimePlanLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadSettingsArgs, TimePlanLoadSettingsResult

@@ -30,7 +30,7 @@ class PersonLoadSettingsResult(UseCaseResultBase):
     catch_up_project: Project
 
 
-@readonly_use_case(WorkspaceFeature.PERSONS, exclude_app=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.PERSONS, exclude_component=[AppCore.CLI])
 class PersonLoadSettingsUseCase(
     AppTransactionalLoggedInReadOnlyUseCase[
         PersonLoadSettingsArgs, PersonLoadSettingsResult

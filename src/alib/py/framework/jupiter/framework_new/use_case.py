@@ -172,8 +172,7 @@ class UseCase(
         """Wether this use case's invocation is permitted globally."""
         return True
 
-    @property
-    def is_allowed_for_component(self) -> bool:
+    def is_allowed_for_component(self, session: UseCaseSession) -> bool:
         """Whether this use case's invocation is permitted under in the component."""
         return True
 
