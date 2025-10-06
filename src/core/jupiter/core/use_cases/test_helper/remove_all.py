@@ -6,7 +6,7 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.framework_new.env import Env
+from jupiter.core.domain.env import Env
 from jupiter.core.domain.infra.generic_destroyer import generic_destroyer
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCase,
@@ -24,7 +24,7 @@ class RemoveAllArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
 
-@mutation_use_case(exclude_env=[Env.PRODUCTION])
+@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
 class RemoveAllUseCase(AppLoggedInMutationUseCase[RemoveAllArgs, None]):
     """The command for removeing all branch and leaf type entities."""
 

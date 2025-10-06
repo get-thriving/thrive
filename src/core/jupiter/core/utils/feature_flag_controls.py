@@ -8,11 +8,11 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.utils.global_properties import GlobalProperties
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 
 
 def infer_feature_flag_controls(
-    global_properties: GlobalProperties,
+    global_properties: JupiterGlobalProperties,
 ) -> tuple[UserFeatureFlagsControls, WorkspaceFeatureFlagsControls]:
     """Infer the feature flags controls to use, based on magick."""
     if global_properties.hosting == Hosting.LOCAL:

@@ -1,5 +1,7 @@
 """UseCase for initialising the workspace."""
 
+from typing import cast
+
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
@@ -76,6 +78,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCaseContext,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import (
@@ -126,10 +129,13 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
         args: InitArgs,
     ) -> InitResult:
         """Execute the command's action."""
+        # TODO(horia141): params
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,
-        ) = infer_feature_flag_controls(self._global_properties)
+        ) = infer_feature_flag_controls(
+            cast(JupiterGlobalProperties, self._global_properties)
+        )
 
         user_feature_flags = {}
         for user_feature in UserFeature:

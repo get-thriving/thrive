@@ -1,5 +1,7 @@
 """The command for clearing all branch and leaf type entities."""
 
+from typing import cast
+
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.concept.auth.auth import Auth
@@ -35,7 +37,7 @@ from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timezone import Timezone
-from jupiter.framework_new.env import Env
+from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
 from jupiter.core.use_cases.infra.use_cases import (
@@ -44,6 +46,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -66,7 +69,7 @@ class ClearAllArgs(UseCaseArgsBase):
     workspace_feature_flags: set[WorkspaceFeature] | None
 
 
-@mutation_use_case(exclude_env=[Env.PRODUCTION])
+@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
 class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
     """The command for clearing all branch and leaf type entities."""
 
@@ -82,10 +85,13 @@ class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
 
         try:
             async with self._domain_storage_engine.get_unit_of_work() as uow:
+                # TODO(horia141): params
                 (
                     user_feature_flags_controls,
                     workspace_feature_flags_controls,
-                ) = infer_feature_flag_controls(self._global_properties)
+                ) = infer_feature_flag_controls(
+                    cast(JupiterGlobalProperties, self._global_properties)
+                )
 
                 home_config = await uow.get_for(HomeConfig).load_by_parent(
                     workspace.ref_id,

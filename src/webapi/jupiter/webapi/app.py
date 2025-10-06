@@ -50,7 +50,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
-from jupiter.core.utils.global_properties import GlobalProperties
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.core.utils.progress_reporter import (
     EmptyProgressReporterFactory,
     NoOpProgressReporterFactory,
@@ -498,7 +498,7 @@ class WebExceptionHandler(Generic[_ExceptionT], abc.ABC):
 class WebServiceApp:
     """The app."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
@@ -529,7 +529,7 @@ class WebServiceApp:
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
@@ -569,7 +569,7 @@ class WebServiceApp:
 
     @staticmethod
     def build_from_module_root(
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         request_time_provider: PerRequestTimeProvider,
         cron_run_time_provider: CronRunTimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
@@ -822,47 +822,43 @@ class WebServiceApp:
                 root_module=root_module,
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
-            scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-            scoped_to_env = use_case_type.get_scoped_to_env()  # type: ignore
-            if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                if (
-                    scoped_to_env is None
-                    or self._global_properties.env in scoped_to_env
-                ):
+            use_case = use_case_type(  # type: ignore
+                global_properties=self._global_properties,
+                time_provider=self._request_time_provider,
+                realm_codec_registry=self._realm_codec_registry,
+                invocation_recorder=self._invocation_recorder,
+                progress_reporter_factory=self._progress_reporter_factory,
+                auth_token_stamper=self._auth_token_stamper,
+                domain_storage_engine=self._domain_storage_engine,
+                search_storage_engine=self._search_storage_engine,
+                use_case_storage_engine=self._use_case_storage_engine,
+                crm=self._crm,
+            )
+
+            if use_case.is_allowed_by_global_properties:
+                scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
+                if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
                     self._use_case_commands[use_case_type] = LoggedInMutationCommand(
                         realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case_type(  # type: ignore
-                            global_properties=self._global_properties,
-                            time_provider=self._request_time_provider,
-                            realm_codec_registry=self._realm_codec_registry,
-                            invocation_recorder=self._invocation_recorder,
-                            progress_reporter_factory=self._progress_reporter_factory,
-                            auth_token_stamper=self._auth_token_stamper,
-                            domain_storage_engine=self._domain_storage_engine,
-                            search_storage_engine=self._search_storage_engine,
-                            use_case_storage_engine=self._use_case_storage_engine,
-                            crm=self._crm,
-                        ),
+                        use_case=use_case,
                         root_module=root_module,
                     )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
-            scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
-            scoped_to_env = use_case_type.get_scoped_to_env()  # type: ignore
-            if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
-                if (
-                    scoped_to_env is None
-                    or self._global_properties.env in scoped_to_env
-                ):
+            use_case = use_case_type(  # type: ignore
+                global_properties=self._global_properties,
+                time_provider=self._request_time_provider,
+                realm_codec_registry=self._realm_codec_registry,
+                auth_token_stamper=self._auth_token_stamper,
+                domain_storage_engine=self._domain_storage_engine,
+                search_storage_engine=self._search_storage_engine,
+            )
+
+            if use_case.is_allowed_by_global_properties:
+                scoped_to_app = use_case_type.get_scoped_to_app()  # type: ignore
+                if scoped_to_app is None or AppCore.WEBUI in scoped_to_app:
                     self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
                         realm_codec_registry=self._realm_codec_registry,
-                        use_case=use_case_type(  # type: ignore
-                            global_properties=self._global_properties,
-                            time_provider=self._request_time_provider,
-                            realm_codec_registry=self._realm_codec_registry,
-                            auth_token_stamper=self._auth_token_stamper,
-                            domain_storage_engine=self._domain_storage_engine,
-                            search_storage_engine=self._search_storage_engine,
-                        ),
+                        use_case=use_case,
                         root_module=root_module,
                     )
         elif issubclass(use_case_type, SysBackgroundMutationUseCase):

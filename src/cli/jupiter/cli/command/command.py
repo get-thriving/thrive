@@ -25,7 +25,6 @@ from jupiter.core.domain.app import (
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
-from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
@@ -40,7 +39,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
     AppLoggedInUseCaseSession,
 )
-from jupiter.core.utils.global_properties import GlobalProperties
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.primitive import Primitive
@@ -106,7 +105,8 @@ class Command(abc.ABC):
         """Is this command allowed for the CLI."""
         return True
 
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    @property
+    def is_allowed_for_global_properties(self) -> bool:
         """Is this command allowed for a particular environment."""
         return True
 
@@ -147,14 +147,14 @@ UseCaseResultT = TypeVar("UseCaseResultT", bound=UseCaseResultBase | None)
 class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
     """Base class for commands based on use cases."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _args_type: Final[type[UseCaseArgsBase]]
     _use_case: UseCaseT
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         use_case: UseCaseT,
@@ -858,12 +858,10 @@ class LoggedInMutationCommand(
             return True
         return AppCore.CLI in scoped_to_app
 
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    @property
+    def is_allowed_for_global_properties(self) -> bool:
         """Is this command allowed for a particular environment."""
-        scoped_to_env = self._use_case.get_scoped_to_env()
-        if scoped_to_env is None:
-            return True
-        return env in scoped_to_env
+        return self._use_case.is_allowed_by_global_properties
 
     def is_allowed_for_user(self, user: User) -> bool:
         """Is this command allowed for a particular user."""
@@ -958,12 +956,10 @@ class LoggedInReadonlyCommand(
             return True
         return AppCore.CLI in scoped_to_app
 
-    def is_allowed_for_environment(self, env: Env) -> bool:
+    @property
+    def is_allowed_for_global_properties(self) -> bool:
         """Is this command allowed for a particular environment."""
-        scoped_to_env = self._use_case.get_scoped_to_env()
-        if scoped_to_env is None:
-            return True
-        return env in scoped_to_env
+        return self._use_case.is_allowed_for_global_properties
 
     def is_allowed_for_user(self, user: User) -> bool:
         """Is this command allowed for a particular user."""
@@ -1029,7 +1025,7 @@ class CliExceptionHandler(Generic[_ExceptionT], abc.ABC):
 class CliApp:
     """A CLI application."""
 
-    _global_properties: Final[GlobalProperties]
+    _global_properties: Final[JupiterGlobalProperties]
     _top_level_context: Final[TopLevelContext]
     _console: Final[Console]
     _time_provider: Final[TimeProvider]
@@ -1058,7 +1054,7 @@ class CliApp:
 
     def __init__(
         self,
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
@@ -1092,7 +1088,7 @@ class CliApp:
 
     @staticmethod
     def build_from_module_root(
-        global_properties: GlobalProperties,
+        global_properties: JupiterGlobalProperties,
         top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
@@ -1479,7 +1475,7 @@ class CliApp:
             if not command.is_allowed_for_cli:
                 continue
 
-            if not command.is_allowed_for_environment(self._global_properties.env):
+            if not command.is_allowed_for_global_properties:
                 continue
 
             if (
@@ -1542,6 +1538,6 @@ class CliApp:
             break
 
     @property
-    def global_properties(self) -> GlobalProperties:
+    def global_properties(self) -> JupiterGlobalProperties:
         """The global properties."""
         return self._global_properties

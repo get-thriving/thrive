@@ -1,5 +1,7 @@
 """The commnad for syncing a schedule once."""
 
+from typing import cast
+
 from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
@@ -8,6 +10,7 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import EmptyContext
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
@@ -30,10 +33,11 @@ class ScheduleExternalSyncDoAllUseCase(
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
+        # TODO(horia141): params
         ctx = DomainContext.from_app_particulars(
             JupiterAppParticulars.for_cron(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
-                version=self._global_properties.version,
+                version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
             self._time_provider.get_current_time(),
         )

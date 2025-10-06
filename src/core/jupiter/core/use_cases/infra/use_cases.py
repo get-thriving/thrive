@@ -15,7 +15,6 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
-from jupiter.framework_new.env import Env
 from jupiter.core.domain.features import (
     FeatureScope,
     FeatureUnavailableError,
@@ -27,7 +26,6 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
-from jupiter.core.utils.global_properties import GlobalProperties
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.auth.auth_token import (
     AuthToken,
@@ -38,6 +36,10 @@ from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.global_properties import (
+    GlobalProperties,
+    UnavailableDueToGlobalPropertiesError,
+)
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case import (
@@ -54,6 +56,7 @@ from jupiter.framework_new.use_case import (
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
+from jupiter.framework_new.value import EnumValue
 
 UseCaseSession = TypeVar("UseCaseSession", bound=UseCaseSessionBase)
 UseCaseContext = TypeVar("UseCaseContext", bound=UseCaseContextBase)
@@ -291,9 +294,21 @@ class AppLoggedInMutationUseCase(
         return None
 
     @staticmethod
-    def get_scoped_to_env() -> list[Env] | None:
-        """The apps the command is available in."""
+    def get_only_for_global_properties() -> list[EnumValue] | None:
+        """The global properties the command is available in."""
         return None
+
+    @staticmethod
+    def get_excluded_global_properties() -> list[EnumValue] | None:
+        """The global properties the command is excluded from."""
+        return None
+
+    @property
+    def is_allowed_by_global_properties(self) -> bool:
+        """Whether this command is allowed with the current global properties."""
+        return self._global_properties.allows(
+            self.get_only_for_global_properties(), self.get_excluded_global_properties()
+        )
 
     def __init__(
         self,
@@ -327,9 +342,15 @@ class AppLoggedInMutationUseCase(
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInMutationUseCaseContext:
+        if not self.is_allowed_by_global_properties:
+            raise UnavailableDueToGlobalPropertiesError(
+                "This action is not available in this environment"
+            )
+
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
         )
+
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
             user_workspace_link = await uow.get(
@@ -478,9 +499,21 @@ class AppLoggedInReadonlyUseCase(
         return None
 
     @staticmethod
-    def get_scoped_to_env() -> list[Env] | None:
-        """The apps the command is available in."""
+    def get_only_for_global_properties() -> list[EnumValue] | None:
+        """The global properties the command is available in."""
         return None
+
+    @staticmethod
+    def get_excluded_global_properties() -> list[EnumValue] | None:
+        """The global properties the command is excluded from."""
+        return None
+
+    @property
+    def is_allowed_by_global_properties(self) -> bool:
+        """Whether this command is allowed with the current global properties."""
+        return self._global_properties.allows(
+            self.get_only_for_global_properties(), self.get_excluded_global_properties()
+        )
 
     def __init__(
         self,
@@ -502,9 +535,15 @@ class AppLoggedInReadonlyUseCase(
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
     ) -> AppLoggedInReadonlyUseCaseContext:
+        if not self.is_allowed_by_global_properties:
+            raise UnavailableDueToGlobalPropertiesError(
+                "This action is not available in this environment"
+            )
+
         auth_token = self._auth_token_stamper.verify_auth_token_general(
             session.auth_token_ext
         )
+
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
             user_workspace_link = await uow.get(
@@ -627,7 +666,8 @@ _MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCas
 def mutation_use_case(  # type: ignore
     feature_scope: FeatureScope = None,
     exclude_app: list[AppCore] | None = None,
-    exclude_env: list[Env] | None = None,
+    only_for_global_properties: list[EnumValue] | None = None,
+    excluded_global_properties: list[EnumValue] | None = None,
 ) -> Callable[[type[_MutationUseCaseT]], type[_MutationUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
@@ -637,12 +677,10 @@ def mutation_use_case(  # type: ignore
             for s in AppCore
             if (True if exclude_app is None else s not in exclude_app)
         ]
-        env_scope = [
-            e for e in Env if (True if exclude_env is None else e not in exclude_env)
-        ]
         cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
         cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_scoped_to_env = lambda *args: env_scope  # type: ignore
+        cls.get_only_for_global_properties = lambda *args: only_for_global_properties  # type: ignore
+        cls.get_excluded_global_properties = lambda *args: excluded_global_properties  # type: ignore
         return cls
 
     return decorator
@@ -654,7 +692,8 @@ _ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCas
 def readonly_use_case(  # type: ignore
     feature_scope: FeatureScope = None,
     exclude_app: list[AppCore] | None = None,
-    exclude_env: list[Env] | None = None,
+    only_for_global_properties: list[EnumValue] | None = None,
+    excluded_global_properties: list[EnumValue] | None = None,
 ) -> Callable[[type[_ReadonlyUseCaseT]], type[_ReadonlyUseCaseT]]:
     """A decorator for use cases that scopes them to a feature."""
 
@@ -664,12 +703,10 @@ def readonly_use_case(  # type: ignore
             for s in AppCore
             if (True if exclude_app is None else s not in exclude_app)
         ]
-        env_scope = [
-            e for e in Env if (True if exclude_env is None else e not in exclude_env)
-        ]
         cls.get_scoped_to_feature = lambda *args: feature_scope  # type: ignore
         cls.get_scoped_to_app = lambda *args: app_scope  # type: ignore
-        cls.get_scoped_to_env = lambda *args: env_scope  # type: ignore
+        cls.get_only_for_global_properties = lambda *args: only_for_global_properties  # type: ignore
+        cls.get_excluded_global_properties = lambda *args: excluded_global_properties  # type: ignore
         return cls
 
     return decorator

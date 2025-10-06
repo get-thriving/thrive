@@ -1,5 +1,7 @@
 """The command for loading workspaces if they exist."""
 
+from typing import cast
+
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -24,7 +26,7 @@ from jupiter.core.domain.concept.workspaces.workspace import (
     WorkspaceNotFoundError,
 )
 from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
-from jupiter.framework_new.env import Env
+from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import (
     BASIC_USER_FEATURE_FLAGS,
     BASIC_WORKSPACE_FEATURE_FLAGS,
@@ -40,6 +42,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
 )
+from jupiter.core.utils import global_properties
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -90,10 +93,11 @@ class LoadTopLevelInfoUseCase(
         args: LoadTopLevelInfoArgs,
     ) -> LoadTopLevelInfoResult:
         """Execute the command's action."""
+        gp = cast(global_properties.JupiterGlobalProperties, self._global_properties)
         (
             user_feature_flags_controls,
             workspace_feature_flags_controls,
-        ) = infer_feature_flag_controls(self._global_properties)
+        ) = infer_feature_flag_controls(gp)
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             if context.auth_token is None:
@@ -123,8 +127,8 @@ class LoadTopLevelInfoUseCase(
                     user_score_overview = None
 
         return LoadTopLevelInfoResult(
-            env=self._global_properties.env,
-            hosting=self._global_properties.hosting,
+            env=gp.env,
+            hosting=gp.hosting,
             user_feature_flag_controls=user_feature_flags_controls,
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),

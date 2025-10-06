@@ -167,6 +167,11 @@ class UseCase(
 ):
     """A generic use case."""
 
+    @property
+    def is_allowed_for_global_properties(self) -> bool:
+        """Wether this use case's invocation is permitted under the global properties."""
+        return True
+
     @abc.abstractmethod
     async def execute(
         self,

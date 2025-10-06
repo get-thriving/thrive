@@ -1,7 +1,9 @@
 """Set a particular feature in the workspace."""
 
+from typing import cast
+
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.framework_new.env import Env
+from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
@@ -10,6 +12,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -22,7 +25,7 @@ class WorkspaceSetFeatureArgs(UseCaseArgsBase):
     value: bool
 
 
-@mutation_use_case(exclude_env=[Env.PRODUCTION])
+@mutation_use_case(excluded_global_properties=[Env.PRODUCTION])
 class WorkspaceSetFeatureUseCase(
     AppTransactionalLoggedInMutationUseCase[WorkspaceSetFeatureArgs, None]
 ):
@@ -39,7 +42,10 @@ class WorkspaceSetFeatureUseCase(
         workspace = context.workspace
         feature = args.feature
         value = args.value
-        _, feature_flag_controls = infer_feature_flag_controls(self._global_properties)
+        # TODO(horia141): param
+        _, feature_flag_controls = infer_feature_flag_controls(
+            cast(JupiterGlobalProperties, self._global_properties)
+        )
 
         workspace = workspace.change_feature_flags(
             context.domain_context,

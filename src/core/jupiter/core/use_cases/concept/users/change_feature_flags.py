@@ -1,5 +1,7 @@
 """Change the user feature flags."""
 
+from typing import cast
+
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.features import UserFeature
 from jupiter.core.domain.storage_engine import (
@@ -11,6 +13,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -39,7 +42,10 @@ class UserChangeFeatureFlagsUseCase(
     ) -> None:
         """Execute the command's action."""
         user = context.user
-        feature_flags_controls, _ = infer_feature_flag_controls(self._global_properties)
+        # TODO(horia141): params
+        feature_flags_controls, _ = infer_feature_flag_controls(
+            cast(JupiterGlobalProperties, self._global_properties)
+        )
         user_feature_flags = {}
         for feature_flag in UserFeature:
             user_feature_flags[feature_flag] = feature_flag in args.feature_flags

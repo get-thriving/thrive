@@ -7,13 +7,15 @@ from typing import Union, cast
 
 import dotenv
 from jupiter.core.domain.app import AppVersion
-from jupiter.framework_new.env import Env
+from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
+from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.secure import secure_fn
+from jupiter.framework_new.value import EnumValue
 
 
 @dataclass(frozen=True)
-class GlobalProperties:
+class JupiterGlobalProperties(GlobalProperties):
     """UseCase-level properties."""
 
     env: Env
@@ -38,9 +40,31 @@ class GlobalProperties:
         # Bit of implicit knowledge here.
         return self.sqlite_db_url.replace("sqlite+aiosqlite", "sqlite+pysqlite")
 
+    def allows(
+        self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
+    ) -> bool:
+        """Whether this global properties allows for a given filter."""
+        if only_for is not None:
+            for filter_val in only_for:
+                if isinstance(filter_val, Env):
+                    return self.env == filter_val
+                elif isinstance(filter_val, Hosting):
+                    return self.hosting == filter_val
+                else:
+                    raise Exception(f"Invalid filter type: {type(filter_val)}")
+        if excluded is not None:
+            for filter_val in excluded:
+                if isinstance(filter_val, Env):
+                    return self.env != filter_val
+                elif isinstance(filter_val, Hosting):
+                    return self.hosting != filter_val
+                else:
+                    raise Exception(f"Invalid filter type: {type(filter_val)}")
+        return True
+
 
 @secure_fn
-def build_global_properties() -> GlobalProperties:
+def build_global_properties() -> JupiterGlobalProperties:
     """Build the global properties from the environment."""
 
     def find_up_the_dir_tree(partial_path: Union[str, Path]) -> Path:
@@ -82,7 +106,7 @@ def build_global_properties() -> GlobalProperties:
     if not alembic_migrations_path.is_absolute():
         alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
 
-    return GlobalProperties(
+    return JupiterGlobalProperties(
         env=env,
         hosting=hosting,
         description=description,

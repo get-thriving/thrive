@@ -1,5 +1,7 @@
 """The command for doing garbage collection for all workspaces."""
 
+from typing import cast
+
 from jupiter.core.domain.app import AppComponent, JupiterAppParticulars
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.concept.user.user import User
@@ -13,6 +15,7 @@ from jupiter.core.domain.infer_sync_targets import (
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
+from jupiter.core.utils.global_properties import JupiterGlobalProperties
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import (
     EmptyContext,
@@ -45,10 +48,11 @@ class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
+        # TODO(horia141): params
         ctx = DomainContext.from_app_particulars(
             JupiterAppParticulars.for_cron(
                 component=AppComponent.GC_CRON,
-                version=self._global_properties.version,
+                version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
             self._time_provider.get_current_time(),
         )
