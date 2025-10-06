@@ -5,9 +5,6 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
-from jupiter.core.domain.app import (
-    JupiterComponentProperties,
-)
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
@@ -25,6 +22,7 @@ from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
     SearchStorageEngine,
 )
+from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.auth.auth_token import (
     AuthToken,
@@ -70,12 +68,12 @@ UseCaseResult = TypeVar("UseCaseResult", bound=Union[None, UseCaseResultBase])
 class AppGuestUseCaseSession(EmptySession):
     """The application use case session."""
 
-    component_properties: JupiterComponentProperties
+    component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt | None
 
     @staticmethod
     def build(
-        component_properties: JupiterComponentProperties,
+        component_properties: ComponentProperties,
         auth_token_ext: AuthTokenExt | None,
     ) -> "AppGuestUseCaseSession":
         """Create a session for a given app particulars."""
@@ -228,12 +226,12 @@ class AppGuestReadonlyUseCase(
 class AppLoggedInUseCaseSession(UseCaseSessionBase):
     """The application use case session for logged-in-OK interactions."""
 
-    component_properties: JupiterComponentProperties
+    component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt
 
     @staticmethod
     def build(
-        component_properties: JupiterComponentProperties, auth_token_ext: AuthTokenExt
+        component_properties: ComponentProperties, auth_token_ext: AuthTokenExt
     ) -> "AppLoggedInUseCaseSession":
         """Create a session for a given app particulars."""
         return AppLoggedInUseCaseSession(
