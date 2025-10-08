@@ -1,5 +1,6 @@
 """Use case for logging in as a particular user."""
 
+from jupiter.core.config import JupiterGuestReadonlyUseCase
 from jupiter.core.domain.concept.auth.auth import Auth
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.user.user import (
@@ -8,7 +9,6 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
 )
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
@@ -41,7 +41,7 @@ class LoginResult(UseCaseResultBase):
 
 
 @secure_class
-class LoginUseCase(AppGuestReadonlyUseCase[LoginArgs, LoginResult]):
+class LoginUseCase(JupiterGuestReadonlyUseCase[LoginArgs, LoginResult]):
     """Use case for logging in as a particular user."""
 
     async def _execute(

@@ -10,7 +10,6 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
 )
 from jupiter.framework_new.secure import secure_class

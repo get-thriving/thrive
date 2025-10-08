@@ -75,7 +75,6 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls

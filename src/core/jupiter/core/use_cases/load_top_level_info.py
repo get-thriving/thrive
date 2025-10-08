@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties, JupiterGuestReadonlyUseCase
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -40,7 +40,6 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
@@ -83,7 +82,7 @@ class LoadTopLevelInfoResult(UseCaseResultBase):
 
 
 class LoadTopLevelInfoUseCase(
-    AppGuestReadonlyUseCase[LoadTopLevelInfoArgs, LoadTopLevelInfoResult],
+    JupiterGuestReadonlyUseCase[LoadTopLevelInfoArgs, LoadTopLevelInfoResult],
 ):
     """The command for loading a user and workspace if they exist and other data too."""
 
