@@ -1,11 +1,11 @@
 """Use case for free form searching through jupiter."""
 
+from jupiter.core.config import JupiterLoggedInReadonlyUseCase
 from jupiter.core.domain.application.search.infra.search_repository import SearchMatch
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
     AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
@@ -44,7 +44,7 @@ class SearchResult(UseCaseResultBase):
 
 
 @readonly_use_case()
-class SearchUseCase(AppLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
+class SearchUseCase(JupiterLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
     """Use case for free form searching through jupiter."""
 
     async def _execute(

@@ -1,12 +1,12 @@
 """Load previous runs of Gen."""
 
+from jupiter.core.config import JupiterLoggedInReadonlyUseCase
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.gen.gen_log_entry import (
     GenLogEntry,
     GenLogEntryRepository,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
     AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
@@ -32,7 +32,7 @@ class GenLoadRunsResult(UseCaseResultBase):
 
 @readonly_use_case()
 class GenLoadRunsUseCase(
-    AppLoggedInReadonlyUseCase[GenLoadRunsArgs, GenLoadRunsResult]
+    JupiterLoggedInReadonlyUseCase[GenLoadRunsArgs, GenLoadRunsResult]
 ):
     """Load previous runs of task generation."""
 

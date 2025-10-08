@@ -1,12 +1,12 @@
 """Load previous runs of stats computation."""
 
+from jupiter.core.config import JupiterLoggedInReadonlyUseCase
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCase,
     AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
@@ -32,7 +32,7 @@ class StatsLoadRunsResult(UseCaseResultBase):
 
 @readonly_use_case()
 class StatsLoadRunsUseCase(
-    AppLoggedInReadonlyUseCase[StatsLoadRunsArgs, StatsLoadRunsResult]
+    JupiterLoggedInReadonlyUseCase[StatsLoadRunsArgs, StatsLoadRunsResult]
 ):
     """Load previous runs of stats computation."""
 
