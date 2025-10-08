@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties, JupiterGuestMutationUseCase
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
@@ -119,7 +119,7 @@ class InitResult(UseCaseResultBase):
 
 
 @secure_class
-class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
+class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
     """UseCase for initialising the workspace."""
 
     async def _execute(

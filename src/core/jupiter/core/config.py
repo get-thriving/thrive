@@ -1,9 +1,10 @@
 """Configuration for the Jupiter app."""
 
+import abc
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union, cast
+from typing import Generic, TypeVar, Union, cast
 
 import dotenv
 from jupiter.core.domain.app import (
@@ -18,11 +19,24 @@ from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
+from jupiter.core.use_cases.infra.use_cases import (
+    AppGuestMutationUseCase,
+    AppGuestReadonlyUseCase,
+    AppLoggedInMutationUseCase,
+    AppLoggedInReadonlyUseCase,
+    AppTransactionalLoggedInMutationUseCase,
+    AppTransactionalLoggedInReadOnlyUseCase,
+    SysBackgroundMutationUseCase,
+)
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.secure import secure_fn
+from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.value import EnumValue
+
+UseCaseArgs = TypeVar("UseCaseArgs", bound=UseCaseArgsBase)
+UseCaseResult = TypeVar("UseCaseResult", bound=Union[None, UseCaseResultBase])
 
 
 @dataclass(frozen=True)
@@ -235,3 +249,54 @@ class JupiterPorts(Ports):
     domain_storage_engine: DomainStorageEngine
     search_storage_engine: SearchStorageEngine
     crm: CRM
+
+
+class JupiterGuestMutationUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppGuestMutationUseCase[UseCaseArgs, UseCaseResult],
+    abc.ABC,
+):
+    """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
+
+
+class JupiterGuestReadonlyUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppGuestReadonlyUseCase[UseCaseArgs, UseCaseResult],
+    abc.ABC,
+):
+    """A Jupiter command that does not mutate anything, and does not assume a logged in user."""
+
+
+class JupiterLoggedInMutationUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppLoggedInMutationUseCase[UseCaseArgs, UseCaseResult],
+):
+    """A Jupiter command that does some sort of mutation, and assumes a logged-in user."""
+
+
+class JupiterTransactionalLoggedInMutationUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppTransactionalLoggedInMutationUseCase[UseCaseArgs, UseCaseResult],
+):
+    """A Jupiter command that does some sort of mutation transactionally, and assumes a logged-in user."""
+
+
+class JupiterLoggedInReadonlyUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppLoggedInReadonlyUseCase[UseCaseArgs, UseCaseResult],
+):
+    """A Jupiter command that does some sort of read in the app, and assumes a logged-in user."""
+
+
+class JupiterTransactionalLoggedInReadOnlyUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    AppTransactionalLoggedInReadOnlyUseCase[UseCaseArgs, UseCaseResult],
+):
+    """A Jupiter command that does some sort of read in the app transactionally, and assumes a logged-in user."""
+
+
+class JupiterSysBackgroundMutationUseCase(
+    Generic[UseCaseArgs, UseCaseResult],
+    SysBackgroundMutationUseCase[UseCaseArgs, UseCaseResult],
+):
+    """A Jupiter command which does some sort of mutation for the app in the background."""

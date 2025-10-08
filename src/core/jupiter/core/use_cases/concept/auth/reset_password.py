@@ -1,5 +1,6 @@
 """Use case for reseting a password."""
 
+from jupiter.core.config import JupiterGuestMutationUseCase
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectRecoveryTokenError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
@@ -47,7 +48,7 @@ class ResetPasswordResult(UseCaseResultBase):
 
 @secure_class
 class ResetPasswordUseCase(
-    AppGuestMutationUseCase[ResetPasswordArgs, ResetPasswordResult]
+    JupiterGuestMutationUseCase[ResetPasswordArgs, ResetPasswordResult]
 ):
     """Use case for reseting a password."""
 
