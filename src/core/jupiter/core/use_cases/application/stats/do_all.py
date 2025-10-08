@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.component import JupiterComponentProperties
+from jupiter.core.config import JupiterComponentProperties
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.concept.user.user import User
@@ -13,7 +13,7 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.global_properties import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
@@ -49,7 +49,6 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        # TODO(horia141): params
         ctx = DomainContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.STATS_CRON,

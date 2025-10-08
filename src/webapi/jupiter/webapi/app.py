@@ -19,6 +19,7 @@ from typing import (
 )
 
 import inflection
+from jupiter.core.config import JupiterComponentProperties
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import Depends, FastAPI, Request
@@ -33,14 +34,13 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
     AppVersion,
-    JupiterComponentProperties,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.global_properties import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,

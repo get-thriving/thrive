@@ -15,7 +15,7 @@ import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.component import JupiterComponentProperties
+from jupiter.core.config import JupiterComponentProperties
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -24,7 +24,7 @@ from jupiter.core.domain.app import (
 )
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.global_properties import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,

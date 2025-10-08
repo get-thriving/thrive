@@ -8,7 +8,7 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.global_properties import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties
 
 
 def infer_feature_flag_controls(

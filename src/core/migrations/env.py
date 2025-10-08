@@ -1,7 +1,7 @@
 from alembic import context
 from sqlalchemy import create_engine
 
-from jupiter.core.global_properties import build_global_properties
+from jupiter.core.config import build_global_properties
 
 
 def run_migrations_offline() -> None:
