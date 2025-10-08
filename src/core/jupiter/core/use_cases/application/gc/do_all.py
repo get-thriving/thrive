@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties
+from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties, JupiterSysBackgroundMutationUseCase
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.concept.user.user import User
@@ -12,9 +12,6 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
-)
-from jupiter.core.use_cases.infra.use_cases import (
-    SysBackgroundMutationUseCase,
 )
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import (
@@ -28,7 +25,7 @@ class GCDoAllArgs(UseCaseArgsBase):
     """GCDoAllArgs."""
 
 
-class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
+class GCDoAllUseCase(JupiterSysBackgroundMutationUseCase[GCDoAllArgs, None]):
     """The command for doing garbage collection for all workspaces."""
 
     async def _execute(

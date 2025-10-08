@@ -2,15 +2,12 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties
+from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties, JupiterSysBackgroundMutationUseCase
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.use_cases.infra.use_cases import (
-    SysBackgroundMutationUseCase,
-)
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.use_case import EmptyContext
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
@@ -22,7 +19,7 @@ class ScheduleExternalSyncDoAllArgs(UseCaseArgsBase):
 
 
 class ScheduleExternalSyncDoAllUseCase(
-    SysBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
+    JupiterSysBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
 ):
     """The command for doing a sync."""
 
