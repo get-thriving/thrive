@@ -1,11 +1,11 @@
 """Use case for syncing a schedule once."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -26,7 +26,7 @@ class ScheduleExternalSyncDoArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleExternalSyncDoUseCase(
-    AppLoggedInMutationUseCase[ScheduleExternalSyncDoArgs, None]
+    JupiterLoggedInMutationUseCase[ScheduleExternalSyncDoArgs, None]
 ):
     """The command for doing a sync."""
 

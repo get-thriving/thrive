@@ -1,10 +1,10 @@
 """A use case for refreshing stats for a big plan."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -22,7 +22,7 @@ class BigPlanRefreshStatsArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanRefreshStatsUseCase(
-    AppLoggedInMutationUseCase[BigPlanRefreshStatsArgs, None]
+    JupiterLoggedInMutationUseCase[BigPlanRefreshStatsArgs, None]
 ):
     """A use case for refreshing stats for a big plan."""
 

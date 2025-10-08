@@ -1,5 +1,6 @@
 """The command for computing stats."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
@@ -8,7 +9,6 @@ from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -32,7 +32,7 @@ class StatsDoArgs(UseCaseArgsBase):
 
 
 @mutation_use_case()
-class StatsDoUseCase(AppLoggedInMutationUseCase[StatsDoArgs, None]):
+class StatsDoUseCase(JupiterLoggedInMutationUseCase[StatsDoArgs, None]):
     """The command for computing stats."""
 
     async def _perform_mutation(

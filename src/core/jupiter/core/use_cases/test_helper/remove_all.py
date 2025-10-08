@@ -1,5 +1,6 @@
 """The command for removeing all branch and leaf type entities."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
@@ -9,7 +10,6 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.infra.generic_destroyer import generic_destroyer
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -25,7 +25,7 @@ class RemoveAllArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(exclude_globally=[Env.PRODUCTION])
-class RemoveAllUseCase(AppLoggedInMutationUseCase[RemoveAllArgs, None]):
+class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
     """The command for removeing all branch and leaf type entities."""
 
     async def _perform_mutation(

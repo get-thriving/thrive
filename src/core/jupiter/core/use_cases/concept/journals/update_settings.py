@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -25,7 +26,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -50,7 +50,7 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.JOURNALS)
 class JournalUpdateSettingsUseCase(
-    AppLoggedInMutationUseCase[JournalUpdateSettingsArgs, None]
+    JupiterLoggedInMutationUseCase[JournalUpdateSettingsArgs, None]
 ):
     """Command for updating the settings for journals in general."""
 

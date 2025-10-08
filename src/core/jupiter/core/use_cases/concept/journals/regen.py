@@ -1,10 +1,10 @@
 """A use case for regenerating journals."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -18,7 +18,7 @@ class JournalRegenArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.JOURNALS)
-class JournalRegenUseCase(AppLoggedInMutationUseCase[JournalRegenArgs, None]):
+class JournalRegenUseCase(JupiterLoggedInMutationUseCase[JournalRegenArgs, None]):
     """A use case for regenerating journals."""
 
     async def _perform_mutation(

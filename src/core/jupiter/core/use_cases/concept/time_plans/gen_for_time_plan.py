@@ -1,5 +1,6 @@
 """The command for generating new tasks in the context of a time plan."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
@@ -7,7 +8,6 @@ from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -28,7 +28,7 @@ class TimePlanGenForTimePlanArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanGenForTimePlanUseCase(
-    AppLoggedInMutationUseCase[TimePlanGenForTimePlanArgs, None]
+    JupiterLoggedInMutationUseCase[TimePlanGenForTimePlanArgs, None]
 ):
     """The command for generating new tasks for a time plan."""
 

@@ -1,10 +1,10 @@
 """A use case for regenerating tasks associated with habits."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -21,7 +21,7 @@ class HabitRegenArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.HABITS)
-class HabitRegenUseCase(AppLoggedInMutationUseCase[HabitRegenArgs, None]):
+class HabitRegenUseCase(JupiterLoggedInMutationUseCase[HabitRegenArgs, None]):
     """A use case for regenerating tasks associated with habits."""
 
     async def _perform_mutation(

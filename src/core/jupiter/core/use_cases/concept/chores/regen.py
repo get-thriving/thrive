@@ -1,10 +1,10 @@
 """A use case for regenerating tasks associated with chores."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -21,7 +21,7 @@ class ChoreRegenArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.CHORES)
-class ChoreRegenUseCase(AppLoggedInMutationUseCase[ChoreRegenArgs, None]):
+class ChoreRegenUseCase(JupiterLoggedInMutationUseCase[ChoreRegenArgs, None]):
     """A use case for regenerating tasks associated with chores."""
 
     async def _perform_mutation(

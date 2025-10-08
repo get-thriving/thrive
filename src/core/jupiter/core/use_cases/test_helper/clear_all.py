@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties
+from jupiter.core.config import JupiterGlobalProperties, JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.concept.auth.auth import Auth
@@ -42,7 +42,6 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -70,7 +69,7 @@ class ClearAllArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(exclude_globally=[Env.PRODUCTION])
-class ClearAllUseCase(AppLoggedInMutationUseCase[ClearAllArgs, None]):
+class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
     """The command for clearing all branch and leaf type entities."""
 
     async def _perform_mutation(

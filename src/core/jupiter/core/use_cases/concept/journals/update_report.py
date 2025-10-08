@@ -1,10 +1,10 @@
 """Use case for refreshing stats for a journal."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCase
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
@@ -24,7 +24,7 @@ class JournalRefreshStatsArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.JOURNALS)
 class JournalRefreshStatsUseCase(
-    AppLoggedInMutationUseCase[JournalRefreshStatsArgs, None]
+    JupiterLoggedInMutationUseCase[JournalRefreshStatsArgs, None]
 ):
     """Use case for refreshing stats for a journal."""
 
