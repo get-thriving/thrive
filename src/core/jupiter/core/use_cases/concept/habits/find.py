@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -20,7 +21,6 @@ from jupiter.core.domain.features import (
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -66,7 +66,7 @@ class HabitFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.HABITS)
 class HabitFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[HabitFindArgs, HabitFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[HabitFindArgs, HabitFindResult]
 ):
     """The command for finding a habit."""
 

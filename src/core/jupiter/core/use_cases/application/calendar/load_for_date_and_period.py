@@ -1,5 +1,6 @@
 """Load all the calendar specific entities for a given date and period."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -29,7 +30,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -145,7 +145,7 @@ class CalendarLoadForDateAndPeriodResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
 class CalendarLoadForDateAndPeriodUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         CalendarLoadForDateAndPeriodArgs, CalendarLoadForDateAndPeriodResult
     ]
 ):

@@ -1,10 +1,10 @@
 """The use case for loading a home small screen widget."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -33,7 +33,9 @@ class HomeWidgetLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class HomeWidgetLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[HomeWidgetLoadArgs, HomeWidgetLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        HomeWidgetLoadArgs, HomeWidgetLoadResult
+    ]
 ):
     """The use case for loading a home widget."""
 

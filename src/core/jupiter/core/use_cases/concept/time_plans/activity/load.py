@@ -1,5 +1,6 @@
 """Use case for loading a time plan activity activity."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
@@ -8,7 +9,6 @@ from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -39,7 +39,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanActivityLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityLoadArgs, TimePlanActivityLoadResult
     ]
 ):

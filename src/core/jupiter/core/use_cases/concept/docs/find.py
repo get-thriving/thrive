@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
@@ -12,7 +13,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -54,7 +54,7 @@ class DocFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
 class DocFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[DocFindArgs, DocFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[DocFindArgs, DocFindResult]
 ):
     """The use case for finding docs."""
 

@@ -1,5 +1,6 @@
 """The use case for loading a partcular inbox task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.habits.habit import Habit
@@ -24,7 +25,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -66,7 +66,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.INBOX_TASKS)
 class InboxTaskLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[InboxTaskLoadArgs, InboxTaskLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[InboxTaskLoadArgs, InboxTaskLoadResult]
 ):
     """The use case for loading a particular inbox task."""
 

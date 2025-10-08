@@ -1,5 +1,6 @@
 """Use case for loading a metric entry."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
@@ -7,7 +8,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -37,7 +37,9 @@ class MetricEntryLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.METRICS)
 class MetricEntryLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[MetricEntryLoadArgs, MetricEntryLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        MetricEntryLoadArgs, MetricEntryLoadResult
+    ]
 ):
     """Use case for loading a metric entry."""
 

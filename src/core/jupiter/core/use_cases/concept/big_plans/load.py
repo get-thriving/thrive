@@ -1,5 +1,6 @@
 """Use case for loading big plans."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
 from jupiter.core.domain.concept.big_plans.big_plan_stats import (
@@ -21,7 +22,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -55,7 +55,7 @@ class BigPlanLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[BigPlanLoadArgs, BigPlanLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[BigPlanLoadArgs, BigPlanLoadResult]
 ):
     """The use case for loading a particular big plan."""
 

@@ -1,5 +1,6 @@
 """Load an in day block with associated data."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
     ScheduleEventInDay,
@@ -11,7 +12,6 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -42,7 +42,7 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class TimeEventInDayBlockLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         TimeEventInDayBlockLoadArgs, TimeEventInDayBlockLoadResult
     ]
 ):

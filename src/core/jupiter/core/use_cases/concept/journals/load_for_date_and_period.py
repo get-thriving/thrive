@@ -1,5 +1,6 @@
 """Retrieve details about a journal."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.journals.journal_stats import (
@@ -12,7 +13,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -45,7 +45,7 @@ class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.JOURNALS)
 class JournalLoadForDateAndPeriodUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult
     ]
 ):

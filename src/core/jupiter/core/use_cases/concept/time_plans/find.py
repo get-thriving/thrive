@@ -1,5 +1,6 @@
 """Use case for finding time plans."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
     InboxTaskCollection,
@@ -14,7 +15,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -55,7 +55,7 @@ class TimePlanFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[TimePlanFindArgs, TimePlanFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanFindArgs, TimePlanFindResult]
 ):
     """The command for finding time plans."""
 

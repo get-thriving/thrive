@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.notes.note import Note
@@ -11,7 +12,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -50,7 +50,7 @@ class ProjectFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.PROJECTS)
 class ProjectFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[ProjectFindArgs, ProjectFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[ProjectFindArgs, ProjectFindResult]
 ):
     """The command for finding projects."""
 

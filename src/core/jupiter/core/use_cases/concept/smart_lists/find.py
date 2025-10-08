@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
 from jupiter.core.domain.concept.smart_lists.smart_list_collection import (
     SmartListCollection,
@@ -16,7 +17,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -66,7 +66,7 @@ class SmartListFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[SmartListFindArgs, SmartListFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[SmartListFindArgs, SmartListFindResult]
 ):
     """The command for finding smart lists."""
 

@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -20,7 +21,6 @@ from jupiter.core.domain.features import (
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -66,7 +66,7 @@ class ChoreFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.CHORES)
 class ChoreFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[ChoreFindArgs, ChoreFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[ChoreFindArgs, ChoreFindResult]
 ):
     """The command for finding a chore."""
 

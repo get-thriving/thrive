@@ -1,5 +1,6 @@
 """Use case for loading a particular chore."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
@@ -16,7 +17,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -52,7 +52,7 @@ class ChoreLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.CHORES)
 class ChoreLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[ChoreLoadArgs, ChoreLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[ChoreLoadArgs, ChoreLoadResult]
 ):
     """Use case for loading a particular chore."""
 

@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
 from jupiter.core.domain.core.notes.note import Note
@@ -16,7 +17,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -56,7 +56,7 @@ class VacationFindResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.VACATIONS)
 class VacationFindUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[VacationFindArgs, VacationFindResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[VacationFindArgs, VacationFindResult]
 ):
     """The command for finding vacations."""
 

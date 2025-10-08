@@ -1,5 +1,6 @@
 """Use case for loading a particular vacation."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
@@ -10,7 +11,6 @@ from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -41,7 +41,7 @@ class VacationLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.VACATIONS)
 class VacationLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[VacationLoadArgs, VacationLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[VacationLoadArgs, VacationLoadResult]
 ):
     """Use case for loading a particular vacation."""
 

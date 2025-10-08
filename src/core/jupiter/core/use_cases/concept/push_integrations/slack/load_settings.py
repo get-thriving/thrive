@@ -1,5 +1,6 @@
 """Load settings for email tasks use case."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
@@ -12,7 +13,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.use_case_io import (
@@ -37,7 +37,7 @@ class SlackTaskLoadSettingsResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SLACK_TASKS, exclude_component=[AppCore.CLI])
 class SlackTaskLoadSettingsUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         SlackTaskLoadSettingsArgs, SlackTaskLoadSettingsResult
     ],
 ):

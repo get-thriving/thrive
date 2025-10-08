@@ -1,5 +1,6 @@
 """The command for loading the current user."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.application.gamification.service.score_history_service import (
     ScoreHistoryService,
 )
@@ -17,7 +18,6 @@ from jupiter.core.domain.features import UserFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.use_case_io import (
@@ -44,7 +44,7 @@ class UserLoadResult(UseCaseResultBase):
 
 @readonly_use_case()
 class UserLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[UserLoadArgs, UserLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[UserLoadArgs, UserLoadResult]
 ):
     """The command for loading the current user."""
 

@@ -1,5 +1,6 @@
 """Use case for loading a particular slack task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
     InboxTaskRepository,
@@ -13,7 +14,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -43,7 +43,7 @@ class SlackTaskLoadResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskLoadUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[SlackTaskLoadArgs, SlackTaskLoadResult]
+    JupiterTransactionalLoggedInReadOnlyUseCase[SlackTaskLoadArgs, SlackTaskLoadResult]
 ):
     """Use case for loading a particular slack task."""
 

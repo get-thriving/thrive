@@ -1,5 +1,6 @@
 """Use case for loading the settings around time plans."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -17,7 +18,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.use_case_io import (
@@ -47,7 +47,7 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.TIME_PLANS, exclude_component=[AppCore.CLI])
 class TimePlanLoadSettingsUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadSettingsArgs, TimePlanLoadSettingsResult
     ],
 ):

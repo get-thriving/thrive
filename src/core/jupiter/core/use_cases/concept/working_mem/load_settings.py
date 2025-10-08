@@ -1,5 +1,6 @@
 """Load settings for working mems use case."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.working_mem.working_mem_collection import (
@@ -10,7 +11,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInReadonlyUseCaseContext,
-    AppTransactionalLoggedInReadOnlyUseCase,
     readonly_use_case,
 )
 from jupiter.framework_new.use_case_io import (
@@ -36,7 +36,7 @@ class WorkingMemLoadSettingsResult(UseCaseResultBase):
 
 @readonly_use_case(WorkspaceFeature.WORKING_MEM, exclude_component=[AppCore.CLI])
 class WorkingMemLoadSettingsUseCase(
-    AppTransactionalLoggedInReadOnlyUseCase[
+    JupiterTransactionalLoggedInReadOnlyUseCase[
         WorkingMemLoadSettingsArgs, WorkingMemLoadSettingsResult
     ],
 ):
