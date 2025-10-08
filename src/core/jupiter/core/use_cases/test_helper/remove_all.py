@@ -38,7 +38,7 @@ class RemoveAllUseCase(AppLoggedInMutationUseCase[RemoveAllArgs, None]):
         user = context.user
         workspace = context.workspace
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(user.ref_id)
@@ -54,5 +54,5 @@ class RemoveAllUseCase(AppLoggedInMutationUseCase[RemoveAllArgs, None]):
                 workspace.ref_id
             )
 
-        async with self._search_storage_engine.get_unit_of_work() as search_uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.drop(workspace.ref_id)

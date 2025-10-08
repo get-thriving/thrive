@@ -2,12 +2,12 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import (
     DomainUnitOfWork,
 )
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
     AppTransactionalLoggedInMutationUseCase,

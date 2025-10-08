@@ -1,18 +1,11 @@
 """Configuration for the Jupiter app."""
 
-
 import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Union, cast
 
 import dotenv
-from jupiter.core.domain.app import AppVersion
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.hosting import Hosting
-from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.secure import secure_fn
-from jupiter.framework_new.value import EnumValue
 from jupiter.core.domain.app import (
     AppComponent,
     AppCore,
@@ -21,7 +14,14 @@ from jupiter.core.domain.app import (
     AppShell,
     AppVersion,
 )
+from jupiter.core.domain.crm import CRM
+from jupiter.core.domain.env import Env
+from jupiter.core.domain.hosting import Hosting
+from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
 from jupiter.framework_new.component_properties import ComponentProperties
+from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.ports import Ports
+from jupiter.framework_new.secure import secure_fn
 from jupiter.framework_new.value import EnumValue
 
 
@@ -226,3 +226,12 @@ class JupiterComponentProperties(ComponentProperties):
             return f"{self._component}:{self._core}:{self._the_shell}:{self._platform}:{self._distribution}@{self._version}"
         else:
             return f"{self._component}@{self._version}"
+
+
+@dataclass(frozen=True)
+class JupiterPorts(Ports):
+    """The ports for the Jupiter app."""
+
+    domain_storage_engine: DomainStorageEngine
+    search_storage_engine: SearchStorageEngine
+    crm: CRM

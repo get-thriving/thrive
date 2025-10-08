@@ -61,7 +61,7 @@ class JournalUpdateSettingsUseCase(
         args: JournalUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspace = context.workspace
 
             journal_collection = await uow.get_for(JournalCollection).load_by_parent(
@@ -108,7 +108,7 @@ class JournalUpdateSettingsUseCase(
             await uow.get_for(JournalCollection).save(journal_collection)
 
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gen_service.do_it(
@@ -122,7 +122,7 @@ class JournalUpdateSettingsUseCase(
             period=None,
         )
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             for period in RecurringTaskPeriod:
                 schedule = schedules.get_schedule(
                     period=period,

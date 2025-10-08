@@ -58,7 +58,7 @@ class ResetPasswordUseCase(
         args: ResetPasswordArgs,
     ) -> ResetPasswordResult:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             try:
                 user = await uow.get(UserRepository).load_by_email_address(
                     args.email_address

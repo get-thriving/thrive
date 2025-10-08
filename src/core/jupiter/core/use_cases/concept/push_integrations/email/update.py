@@ -157,7 +157,7 @@ class EmailTaskUpdateUseCase(
         result: None,
     ) -> None:
         """Execute the command's post-mutation work."""
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

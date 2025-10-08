@@ -53,7 +53,7 @@ class StatsDoUseCase(AppLoggedInMutationUseCase[StatsDoArgs, None]):
         )
 
         stats_service = StatsService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await stats_service.do_it(

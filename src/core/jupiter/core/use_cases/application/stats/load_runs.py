@@ -42,7 +42,7 @@ class StatsLoadRunsUseCase(
         args: StatsLoadRunsArgs,
     ) -> StatsLoadRunsResult:
         """Execute the use case."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             stats_log = await uow.get_for(StatsLog).load_by_parent(
                 context.workspace.ref_id
             )

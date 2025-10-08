@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties
+from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.concept.user.user import User
@@ -13,7 +13,6 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
@@ -38,7 +37,7 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
         args: StatsDoAllArgs,
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
             users = await uow.get_for(User).find_all(allow_archived=False)
             users_by_id = {u.ref_id: u for u in users}
@@ -58,7 +57,7 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
         )
 
         stats_service = StatsService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         for workspace in workspaces:
@@ -80,7 +79,7 @@ class StatsDoAllUseCase(SysBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 filter_journal_ref_ids=None,
             )
 
-            async with self._search_storage_engine.get_unit_of_work() as search_uow:
+            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                 for updated_entity in progress_reporter.updated_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, updated_entity

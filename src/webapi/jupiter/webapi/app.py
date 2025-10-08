@@ -19,7 +19,6 @@ from typing import (
 )
 
 import inflection
-from jupiter.core.config import JupiterComponentProperties
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import Depends, FastAPI, Request
@@ -28,6 +27,11 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.types import DecoratedCallable
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterPorts,
+)
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -38,9 +42,6 @@ from jupiter.core.domain.app import (
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,
@@ -505,10 +506,8 @@ class WebServiceApp:
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
     _use_case_commands: Final[
         dict[
             type[
@@ -536,10 +535,8 @@ class WebServiceApp:
         progress_reporter_factory: WebsocketProgressReporterFactory,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
@@ -549,10 +546,8 @@ class WebServiceApp:
         self._progress_reporter_factory = progress_reporter_factory
         self._realm_codec_registry = realm_codec_registry
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
         self._use_case_commands = {}
         self._commands = {}
         self._exception_handlers = {}
@@ -576,10 +571,8 @@ class WebServiceApp:
         progress_reporter_factory: WebsocketProgressReporterFactory,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
         *module_root: types.ModuleType,
     ) -> "WebServiceApp":
         """Build the app from the module root."""
@@ -655,10 +648,8 @@ class WebServiceApp:
             progress_reporter_factory,
             realm_codec_registry,
             auth_token_stamper,
-            domain_storage_engine,
-            search_storage_engine,
+            ports,
             use_case_storage_engine,
-            crm=crm,
         )
 
         login_use_case = LoginUseCase(
@@ -666,8 +657,7 @@ class WebServiceApp:
             time_provider=request_time_provider,
             realm_codec_registry=realm_codec_registry,
             auth_token_stamper=auth_token_stamper,
-            domain_storage_engine=domain_storage_engine,
-            search_storage_engine=search_storage_engine,
+            ports=ports,
         )
 
         @app.fast_app.get("/healthz", status_code=status.HTTP_200_OK)
@@ -802,9 +792,7 @@ class WebServiceApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )
@@ -816,8 +804,7 @@ class WebServiceApp:
                     time_provider=self._request_time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )
@@ -829,10 +816,8 @@ class WebServiceApp:
                 invocation_recorder=self._invocation_recorder,
                 progress_reporter_factory=self._progress_reporter_factory,
                 auth_token_stamper=self._auth_token_stamper,
-                domain_storage_engine=self._domain_storage_engine,
-                search_storage_engine=self._search_storage_engine,
+                ports=self._ports,
                 use_case_storage_engine=self._use_case_storage_engine,
-                crm=self._crm,
             )
 
             if use_case.is_allowed_globally:
@@ -847,8 +832,7 @@ class WebServiceApp:
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
                 auth_token_stamper=self._auth_token_stamper,
-                domain_storage_engine=self._domain_storage_engine,
-                search_storage_engine=self._search_storage_engine,
+                ports=self._ports,
             )
 
             if use_case.is_allowed_globally:
@@ -865,9 +849,7 @@ class WebServiceApp:
                     time_provider=self._cron_time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     progress_reporter_factory=EmptyProgressReporterFactory(),
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
                 root_module=root_module,
             )

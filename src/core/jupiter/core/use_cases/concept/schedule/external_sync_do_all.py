@@ -2,13 +2,12 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties
+from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
@@ -31,7 +30,7 @@ class ScheduleExternalSyncDoAllUseCase(
         self, context: EmptyContext, args: ScheduleExternalSyncDoAllArgs
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
         # TODO(horia141): params
@@ -46,7 +45,7 @@ class ScheduleExternalSyncDoAllUseCase(
         sync_service = ScheduleExternalSyncService(
             time_provider=self._time_provider,
             realm_codec_registry=self._realm_codec_registry,
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         for workspace in workspaces:
@@ -60,7 +59,7 @@ class ScheduleExternalSyncDoAllUseCase(
                 filter_schedule_stream_ref_id=None,
             )
 
-            async with self._search_storage_engine.get_unit_of_work() as search_uow:
+            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, created_entity

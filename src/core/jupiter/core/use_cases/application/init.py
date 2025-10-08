@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
@@ -73,7 +74,6 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -157,7 +157,7 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
 
         for_app_review = False  # args.for_app_review
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if for_app_review:
                 new_user = User.new_app_store_review_user(
                     ctx=context.domain_context,
@@ -439,7 +439,7 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
                 new_user_workspace_link
             )
 
-        async with self._search_storage_engine.get_unit_of_work() as search_uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.upsert(
                 new_workspace.ref_id, new_root_project
             )
@@ -447,7 +447,7 @@ class InitUseCase(AppGuestMutationUseCase[InitArgs, InitResult]):
         auth_token = self._auth_token_stamper.stamp_for_general(new_user.ref_id)
 
         if new_user.should_go_through_onboarding_flow:
-            await self._crm.upsert_as_user(new_user)
+            await self._ports.crm.upsert_as_user(new_user)
 
         return InitResult(
             new_user=new_user,

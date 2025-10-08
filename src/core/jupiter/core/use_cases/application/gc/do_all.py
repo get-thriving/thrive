@@ -2,7 +2,7 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties
+from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.concept.user.user import User
@@ -13,7 +13,6 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
@@ -38,7 +37,7 @@ class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
         args: GCDoAllArgs,
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
             users = await uow.get_for(User).find_all(allow_archived=False)
             users_by_id = {u.ref_id: u for u in users}
@@ -60,7 +59,7 @@ class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
 
         gc_service = GCService(
             time_provider=self._time_provider,
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         for workspace in workspaces:
@@ -69,7 +68,7 @@ class GCDoAllUseCase(SysBackgroundMutationUseCase[GCDoAllArgs, None]):
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(ctx, progress_reporter, workspace, gc_targets)
 
-            async with self._search_storage_engine.get_unit_of_work() as search_uow:
+            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, created_entity

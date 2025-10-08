@@ -40,7 +40,7 @@ class CloseAccountUseCase(
         user = context.user
         workspace = context.workspace
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
             ).load_by_user(user.ref_id)

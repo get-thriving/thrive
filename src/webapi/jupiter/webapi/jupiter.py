@@ -8,10 +8,10 @@ import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
 import jupiter.core.use_cases
 import jupiter.webapi.exceptions
+from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.config import build_global_properties
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.crm.wix import WixCRM
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
@@ -116,6 +116,12 @@ async def main() -> None:
         storage_engine=usecase_storage_engine,
     )
 
+    ports = JupiterPorts(
+        domain_storage_engine=domain_storage_engine,
+        search_storage_engine=search_storage_engine,
+        crm=crm,
+    )
+
     web_app = WebServiceApp.build_from_module_root(
         global_properties,
         request_time_provider,
@@ -124,10 +130,8 @@ async def main() -> None:
         progress_reporter_factory,
         realm_codec_registry,
         auth_token_stamper,
-        domain_storage_engine,
-        search_storage_engine,
+        ports,
         usecase_storage_engine,
-        crm,
         jupiter.core.use_cases,
         jupiter.webapi.exceptions,
     )

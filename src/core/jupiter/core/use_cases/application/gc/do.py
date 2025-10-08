@@ -57,7 +57,7 @@ class GCDoUseCase(AppLoggedInMutationUseCase[GCDoArgs, None]):
 
         gc_service = GCService(
             time_provider=self._time_provider,
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gc_service.do_it(

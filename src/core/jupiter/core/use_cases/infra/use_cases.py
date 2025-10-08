@@ -5,20 +5,18 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Final, Generic, TypeVar, Union
 
+from jupiter.core.config import JupiterPorts
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
 from jupiter.core.domain.storage_engine import (
-    DomainStorageEngine,
     DomainUnitOfWork,
-    SearchStorageEngine,
 )
 from jupiter.framework_new import use_case as uc
 from jupiter.framework_new.auth.auth_token import (
@@ -110,9 +108,7 @@ class AppGuestMutationUseCase(
 
     _global_properties: Final[GlobalProperties]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
-    _crm: Final[CRM]
+    _ports: Final[JupiterPorts]
 
     def __init__(
         self,
@@ -124,9 +120,7 @@ class AppGuestMutationUseCase(
         ],
         global_properties: GlobalProperties,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
-        crm: CRM,
+        ports: JupiterPorts,
     ) -> None:
         """Constructor."""
         super().__init__(
@@ -137,9 +131,7 @@ class AppGuestMutationUseCase(
         )
         self._global_properties = global_properties
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
-        self._crm = crm
+        self._ports = ports
 
     async def _build_context(
         self, session: AppGuestUseCaseSession
@@ -184,8 +176,7 @@ class AppGuestReadonlyUseCase(
     _global_properties: Final[GlobalProperties]
     _time_provider: Final[TimeProvider]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
 
     def __init__(
         self,
@@ -193,16 +184,14 @@ class AppGuestReadonlyUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
     ) -> None:
         """Constructor."""
         super().__init__(realm_codec_registry)
         self._global_properties = global_properties
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
 
     async def _build_context(
         self, session: AppGuestUseCaseSession
@@ -305,10 +294,8 @@ class AppLoggedInMutationUseCase(
 
     _global_properties: Final[GlobalProperties]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
 
     @staticmethod
     def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
@@ -358,10 +345,8 @@ class AppLoggedInMutationUseCase(
         ],
         global_properties: GlobalProperties,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         super().__init__(
@@ -372,10 +357,8 @@ class AppLoggedInMutationUseCase(
         )
         self._global_properties = global_properties
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
 
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
@@ -394,7 +377,7 @@ class AppLoggedInMutationUseCase(
             session.auth_token_ext
         )
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
@@ -428,7 +411,7 @@ class AppLoggedInMutationUseCase(
         result = await self._perform_mutation(progress_reporter, context, args)
 
         # Register all entities that were created/changed/removed with the search index.
-        async with self._search_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
             for created_entity in progress_reporter.created_entities:
                 await uow.search_repository.upsert(
                     context.workspace_ref_id, created_entity
@@ -470,7 +453,7 @@ class AppTransactionalLoggedInMutationUseCase(
         args: UseCaseArgs,
     ) -> UseCaseResult:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             result = await self._perform_transactional_mutation(
                 uow, progress_reporter, context, args
             )
@@ -517,8 +500,7 @@ class AppLoggedInReadonlyUseCase(
     _global_properties: Final[GlobalProperties]
     _time_provider: Final[TimeProvider]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
 
     @staticmethod
     def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
@@ -564,16 +546,14 @@ class AppLoggedInReadonlyUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
     ) -> None:
         """Constructor."""
         super().__init__(realm_codec_registry)
         self._global_properties = global_properties
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
 
     async def _build_context(
         self, session: AppLoggedInUseCaseSession
@@ -592,7 +572,7 @@ class AppLoggedInReadonlyUseCase(
             session.auth_token_ext
         )
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
             user_workspace_link = await uow.get(
                 UserWorkspaceLinkRepository
@@ -622,7 +602,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
         args: UseCaseArgs,
     ) -> UseCaseResult:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             return await self._perform_transactional_read(uow, context, args)
 
     @abc.abstractmethod
@@ -646,9 +626,7 @@ class SysBackgroundMutationUseCase(
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _progress_reporter_factory: ProgressReporterFactory[EmptyContext]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
-    _crm: Final[CRM]
+    _ports: Final[JupiterPorts]
 
     def __init__(
         self,
@@ -656,18 +634,14 @@ class SysBackgroundMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         progress_reporter_factory: ProgressReporterFactory[EmptyContext],
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
-        crm: CRM,
+        ports: JupiterPorts,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._progress_reporter_factory = progress_reporter_factory
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
-        self._crm = crm
+        self._ports = ports
 
     async def _build_context(self, session: EmptySession) -> EmptyContext:
         """Construct the context for the use case."""

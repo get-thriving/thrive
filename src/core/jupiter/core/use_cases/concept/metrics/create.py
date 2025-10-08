@@ -114,7 +114,7 @@ class MetricCreateUseCase(
         """Execute the command's post-mutation work."""
         if args.collection_period is None:
             return
-        await GenService(self._domain_storage_engine).do_it(
+        await GenService(self._ports.domain_storage_engine).do_it(
             context.domain_context,
             progress_reporter=progress_reporter,
             user=context.user,

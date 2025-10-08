@@ -60,7 +60,7 @@ class GenDoUseCase(AppLoggedInMutationUseCase[GenDoArgs, None]):
         )
 
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gen_service.do_it(

@@ -15,16 +15,17 @@ import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.cli.top_level_context import TopLevelContext
-from jupiter.core.config import JupiterComponentProperties
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterPorts,
+)
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
     AppPlatform,
     AppShell,
 )
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.storage_engine import DomainStorageEngine, SearchStorageEngine
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -942,10 +943,8 @@ class CliApp:
     _realm_codec_registry: Final[RealmCodecRegistry]
     _session_storage: Final[SessionStorage]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _domain_storage_engine: Final[DomainStorageEngine]
-    _search_storage_engine: Final[SearchStorageEngine]
+    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
-    _crm: Final[CRM]
     _use_case_commands: dict[
         type[
             UseCase[
@@ -971,10 +970,8 @@ class CliApp:
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
@@ -986,10 +983,8 @@ class CliApp:
         self._realm_codec_registry = realm_codec_registry
         self._session_storage = session_storage
         self._auth_token_stamper = auth_token_stamper
-        self._domain_storage_engine = domain_storage_engine
-        self._search_storage_engine = search_storage_engine
+        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._crm = crm
         self._use_case_commands = {}
         self._commands = {}
         self._exception_handlers = {}
@@ -1005,10 +1000,8 @@ class CliApp:
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        domain_storage_engine: DomainStorageEngine,
-        search_storage_engine: SearchStorageEngine,
+        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
-        crm: CRM,
         *module_root: types.ModuleType,
     ) -> "CliApp":
         """Build a CLI app from the module root."""
@@ -1154,10 +1147,8 @@ class CliApp:
             realm_codec_registry=realm_codec_registry,
             session_storage=session_storage,
             auth_token_stamper=auth_token_stamper,
-            domain_storage_engine=domain_storage_engine,
-            search_storage_engine=search_storage_engine,
+            ports=ports,
             use_case_storage_engine=use_case_storage_engine,
-            crm=crm,
         )
 
         for m in find_all_modules(*module_root):
@@ -1203,9 +1194,7 @@ class CliApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    ports=self._ports,
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
@@ -1218,8 +1207,7 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -1234,10 +1222,8 @@ class CliApp:
                     progress_reporter_factory=self._progress_reporter_factory,
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                     use_case_storage_engine=self._use_case_storage_engine,
-                    crm=self._crm,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
@@ -1250,8 +1236,7 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    ports=self._ports,
                 ),
             )
         else:
@@ -1288,9 +1273,9 @@ class CliApp:
                     progress_reporter_factory=NoOpProgressReporterFactory(),
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
-                    crm=self._crm,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
+                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
@@ -1303,8 +1288,8 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -1319,10 +1304,10 @@ class CliApp:
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=self._progress_reporter_factory,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                     use_case_storage_engine=self._use_case_storage_engine,
-                    crm=self._crm,
+                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
@@ -1335,8 +1320,8 @@ class CliApp:
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._domain_storage_engine,
-                    search_storage_engine=self._search_storage_engine,
+                    domain_storage_engine=self._ports.domain_storage_engine,
+                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         else:

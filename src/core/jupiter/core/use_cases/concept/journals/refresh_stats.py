@@ -35,7 +35,7 @@ class JournalRefreshStatsUseCase(
         args: JournalRefreshStatsArgs,
     ) -> None:
         """Execute the command's action."""
-        stats_service = StatsService(self._domain_storage_engine)
+        stats_service = StatsService(self._ports.domain_storage_engine)
 
         await stats_service.do_it(
             ctx=context.domain_context,

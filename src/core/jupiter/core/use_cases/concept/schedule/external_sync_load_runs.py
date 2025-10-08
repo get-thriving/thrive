@@ -48,7 +48,7 @@ class ScheduleExternalSyncLoadRunsUseCase(
         args: ScheduleExternalSyncLoadRunsArgs,
     ) -> ScheduleExternalSyncLoadRunsResult:
         """Execute the use case."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
                 context.workspace.ref_id
             )

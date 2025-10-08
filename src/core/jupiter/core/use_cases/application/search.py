@@ -68,7 +68,7 @@ class SearchUseCase(AppLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
                 f"Entities {','.join(s.value for s in filter_entity_tags_diff)} are not supported in this workspace"
             )
 
-        async with self._search_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.search_storage_engine.get_unit_of_work() as uow:
             matches = await uow.search_repository.search(
                 workspace_ref_id=workspace.ref_id,
                 query=args.query,

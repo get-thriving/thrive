@@ -64,7 +64,7 @@ class TimePlanUpdateSettingsUseCase(
         args: TimePlanUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             workspace = context.workspace
 
             time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
@@ -113,7 +113,7 @@ class TimePlanUpdateSettingsUseCase(
             await uow.get_for(TimePlanDomain).save(time_plan_domain)
 
         gen_service = GenService(
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
 
         await gen_service.do_it(
@@ -127,7 +127,7 @@ class TimePlanUpdateSettingsUseCase(
             period=None,
         )
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             for period in RecurringTaskPeriod:
                 schedule = schedules.get_schedule(
                     period=period,

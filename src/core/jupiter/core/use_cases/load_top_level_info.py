@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -38,7 +39,6 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestReadonlyUseCase,
     AppGuestReadonlyUseCaseContext,
@@ -99,7 +99,7 @@ class LoadTopLevelInfoUseCase(
             workspace_feature_flags_controls,
         ) = infer_feature_flag_controls(gp)
 
-        async with self._domain_storage_engine.get_unit_of_work() as uow:
+        async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             if context.auth_token is None:
                 user = None
                 workspace = None

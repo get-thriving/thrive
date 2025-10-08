@@ -41,7 +41,7 @@ class ScheduleExternalSyncDoUseCase(
         sync_service = ScheduleExternalSyncService(
             time_provider=self._time_provider,
             realm_codec_registry=self._realm_codec_registry,
-            domain_storage_engine=self._domain_storage_engine,
+            domain_storage_engine=self._ports.domain_storage_engine,
         )
         today = args.today or self._time_provider.get_current_date()
         await sync_service.do_it(
