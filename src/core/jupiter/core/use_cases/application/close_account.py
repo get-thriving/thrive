@@ -1,5 +1,6 @@
 """Close an account and workspace."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
@@ -11,7 +12,6 @@ from jupiter.core.domain.infra.generic_full_archiver import generic_full_archive
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
 )
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import ProgressReporter
@@ -25,7 +25,7 @@ class CloseAccountArgs(UseCaseArgsBase):
 
 @secure_class
 class CloseAccountUseCase(
-    AppTransactionalLoggedInMutationUseCase[CloseAccountArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[CloseAccountArgs, None]
 ):
     """Close account use case."""
 

@@ -1,5 +1,6 @@
 """Use case for creating a schedule in day event."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
     ScheduleEventInDay,
@@ -16,7 +17,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -52,7 +52,7 @@ class ScheduleEventInDayCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         ScheduleEventInDayCreateArgs, ScheduleEventInDayCreateResult
     ]
 ):

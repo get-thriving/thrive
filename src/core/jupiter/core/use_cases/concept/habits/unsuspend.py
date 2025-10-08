@@ -1,11 +1,11 @@
 """The command for unsuspending a habit."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -24,7 +24,7 @@ class HabitUnsuspendArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.HABITS)
 class HabitUnsuspendUseCase(
-    AppTransactionalLoggedInMutationUseCase[HabitUnsuspendArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[HabitUnsuspendArgs, None]
 ):
     """The command for unsuspending a habit."""
 

@@ -1,5 +1,6 @@
 """The command for updating a inbox task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
@@ -43,7 +44,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -87,7 +87,9 @@ class InboxTaskUpdateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.INBOX_TASKS)
 class InboxTaskUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[InboxTaskUpdateArgs, InboxTaskUpdateResult]
+    JupiterTransactionalLoggedInMutationUseCase[
+        InboxTaskUpdateArgs, InboxTaskUpdateResult
+    ]
 ):
     """The command for updating a inbox task."""
 

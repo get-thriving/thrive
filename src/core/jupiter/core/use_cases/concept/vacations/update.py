@@ -1,5 +1,6 @@
 """The command for updating a vacation's properties."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
@@ -10,7 +11,6 @@ from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -34,7 +34,7 @@ class VacationUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
 class VacationUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[VacationUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[VacationUpdateArgs, None]
 ):
     """The command for updating a vacation's properties."""
 

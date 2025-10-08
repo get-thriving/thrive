@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -25,7 +26,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -62,7 +62,7 @@ class ChoreUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.CHORES)
 class ChoreUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChoreUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ChoreUpdateArgs, None]
 ):
     """The command for updating a chore."""
 

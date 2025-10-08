@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
     InboxTaskCollection,
@@ -14,7 +15,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -34,7 +34,7 @@ class PersonChangeCatchUpProjectArgs(UseCaseArgsBase):
 
 @mutation_use_case([WorkspaceFeature.PERSONS, WorkspaceFeature.PROJECTS])
 class PersonChangeCatchUpProjectUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonChangeCatchUpProjectArgs, None],
+    JupiterTransactionalLoggedInMutationUseCase[PersonChangeCatchUpProjectArgs, None],
 ):
     """The command for updating the catch up project for persons."""
 

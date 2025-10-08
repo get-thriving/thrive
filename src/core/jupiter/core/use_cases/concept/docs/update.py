@@ -1,5 +1,6 @@
 """Update a doc use case."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.doc_name import DocName
@@ -7,7 +8,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -27,7 +27,9 @@ class DocUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(WorkspaceFeature.DOCS, exclude_component=[AppCore.CLI])
-class DocUpdateUseCase(AppTransactionalLoggedInMutationUseCase[DocUpdateArgs, None]):
+class DocUpdateUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[DocUpdateArgs, None]
+):
     """Update a doc use case."""
 
     async def _perform_transactional_mutation(

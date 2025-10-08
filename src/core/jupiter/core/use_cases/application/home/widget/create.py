@@ -1,5 +1,6 @@
 """The use case for creating a home small screen widget."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.application.home.widget import (
@@ -15,7 +16,6 @@ from jupiter.core.domain.features import (
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -48,7 +48,7 @@ class HomeWidgetCreateResult(UseCaseResultBase):
 
 @mutation_use_case()
 class HomeWidgetCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         HomeWidgetCreateArgs, HomeWidgetCreateResult
     ]
 ):

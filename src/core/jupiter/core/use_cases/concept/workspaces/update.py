@@ -1,11 +1,11 @@
 """UseCase for updating a workspace."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.update_action import UpdateAction
@@ -24,7 +24,7 @@ class WorkspaceUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class WorkspaceUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[WorkspaceUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[WorkspaceUpdateArgs, None]
 ):
     """UseCase for updating a workspace."""
 

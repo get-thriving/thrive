@@ -1,5 +1,6 @@
 """Use case for archiving a schedule stream."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_source import (
     ScheduleSource,
@@ -11,7 +12,6 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -29,7 +29,7 @@ class ScheduleStreamArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[ScheduleStreamArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ScheduleStreamArchiveArgs, None]
 ):
     """Use case for archiving a schedule stream."""
 

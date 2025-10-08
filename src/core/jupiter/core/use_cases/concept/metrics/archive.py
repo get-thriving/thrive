@@ -1,5 +1,6 @@
 """The command for archiving a metric."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
     InboxTaskCollection,
@@ -19,7 +20,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -38,7 +38,7 @@ class MetricArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[MetricArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[MetricArchiveArgs, None]
 ):
     """The command for archiving a metric."""
 

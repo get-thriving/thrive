@@ -1,11 +1,11 @@
 """The command for updating a home small screen tab's properties."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,7 @@ class HomeTabUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeTabUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[HomeTabUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[HomeTabUpdateArgs, None]
 ):
     """The command for updating a home tab's properties."""
 

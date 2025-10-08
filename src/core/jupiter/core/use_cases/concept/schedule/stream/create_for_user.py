@@ -1,5 +1,6 @@
 """Use case for creating a schedule stream."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.schedule.schedule_stream_color import (
@@ -11,7 +12,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.use_case import ProgressReporter
@@ -40,7 +40,7 @@ class ScheduleStreamCreateForUserResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamCreateForUserUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         ScheduleStreamCreateForUserArgs, ScheduleStreamCreateForUserResult
     ]
 ):

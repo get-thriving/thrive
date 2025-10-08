@@ -1,5 +1,6 @@
 """The command for creating a smart list item."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
 from jupiter.core.domain.concept.smart_lists.smart_list_item import SmartListItem
 from jupiter.core.domain.concept.smart_lists.smart_list_item_name import (
@@ -13,7 +14,6 @@ from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -48,7 +48,7 @@ class SmartListItemCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListItemCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         SmartListItemCreateArgs, SmartListItemCreateResult
     ],
 ):

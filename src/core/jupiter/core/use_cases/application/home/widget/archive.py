@@ -1,5 +1,6 @@
 """The use case for archiving a home small screen widget."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.core.archival_reason import ArchivalReason
@@ -7,7 +8,6 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -24,7 +24,7 @@ class HomeWidgetArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeWidgetArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[HomeWidgetArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[HomeWidgetArchiveArgs, None]
 ):
     """The use case for archiving a home widget."""
 

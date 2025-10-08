@@ -1,12 +1,12 @@
 """Update a note use case."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,9 @@ class NoteUpdateArgs(UseCaseArgsBase):
 
 
 @mutation_use_case(exclude_component=[AppCore.CLI])
-class NoteUpdateUseCase(AppTransactionalLoggedInMutationUseCase[NoteUpdateArgs, None]):
+class NoteUpdateUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[NoteUpdateArgs, None]
+):
     """Update a note use case."""
 
     async def _perform_transactional_mutation(

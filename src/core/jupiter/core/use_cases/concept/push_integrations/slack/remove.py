@@ -1,5 +1,6 @@
 """The command for hard removing a slack task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.push_integrations.slack.service.remove_service import (
     SlackTaskRemoveService,
 )
@@ -8,7 +9,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -27,7 +27,7 @@ class SlackTaskRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskRemoveUseCase(
-    AppTransactionalLoggedInMutationUseCase[SlackTaskRemoveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[SlackTaskRemoveArgs, None]
 ):
     """The command for archiving a slack task."""
 

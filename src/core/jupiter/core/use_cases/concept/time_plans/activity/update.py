@@ -1,5 +1,6 @@
 """Update a time plan activity."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
 from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
@@ -11,7 +12,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -33,7 +33,7 @@ class TimePlanActivityUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanActivityUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[TimePlanActivityUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[TimePlanActivityUpdateArgs, None]
 ):
     """The command for updating a time plan activity."""
 

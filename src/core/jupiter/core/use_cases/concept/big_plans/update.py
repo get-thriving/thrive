@@ -1,5 +1,6 @@
 """The command for updating a big plan."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
@@ -22,7 +23,6 @@ from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -64,7 +64,7 @@ class BigPlanUpdateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[BigPlanUpdateArgs, BigPlanUpdateResult]
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanUpdateArgs, BigPlanUpdateResult]
 ):
     """The command for updating a big plan."""
 

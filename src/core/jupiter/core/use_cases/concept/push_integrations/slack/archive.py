@@ -1,5 +1,6 @@
 """The command for archiving a slack task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.push_integrations.slack.service.archive_service import (
     SlackTaskArchiveService,
 )
@@ -9,7 +10,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -28,7 +28,7 @@ class SlackTaskArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SLACK_TASKS)
 class SlackTaskArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[SlackTaskArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[SlackTaskArchiveArgs, None]
 ):
     """The command for archiving a slack task."""
 

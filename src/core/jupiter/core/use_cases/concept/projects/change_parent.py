@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.service.check_cycles_service import (
     ProjectCheckCyclesService,
@@ -11,7 +12,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -30,7 +30,7 @@ class ProjectChangeParentArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.PROJECTS)
 class ProjectChangeParentUseCase(
-    AppTransactionalLoggedInMutationUseCase[ProjectChangeParentArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ProjectChangeParentArgs, None]
 ):
     """The command for changing the parent project of a project."""
 

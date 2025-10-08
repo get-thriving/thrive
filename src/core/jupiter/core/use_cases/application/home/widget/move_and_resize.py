@@ -1,12 +1,12 @@
 """The use case for moving a home small screen widget."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.application.home.widget import WidgetDimension
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,7 @@ class HomeWidgetMoveAndResizeArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class HomeWidgetMoveAndResizeUseCase(
-    AppTransactionalLoggedInMutationUseCase[HomeWidgetMoveAndResizeArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[HomeWidgetMoveAndResizeArgs, None]
 ):
     """The use case for moving a home widget."""
 

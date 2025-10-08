@@ -1,5 +1,6 @@
 """The command for creating a chore."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
@@ -20,7 +21,6 @@ from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -66,7 +66,7 @@ class ChoreCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.CHORES)
 class ChoreCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChoreCreateArgs, ChoreCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[ChoreCreateArgs, ChoreCreateResult]
 ):
     """The command for creating a chore."""
 

@@ -1,5 +1,6 @@
 """Use case for creating a full day block in the schedule."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
@@ -15,7 +16,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -50,7 +50,7 @@ class ScheduleEventFullDaysCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventFullDaysCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         ScheduleEventFullDaysCreateArgs, ScheduleEventFullDaysCreateResult
     ]
 ):

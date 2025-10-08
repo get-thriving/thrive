@@ -1,5 +1,6 @@
 """The command for creating a habit."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
@@ -23,7 +24,6 @@ from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -67,7 +67,7 @@ class HabitCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.HABITS)
 class HabitCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[HabitCreateArgs, HabitCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[HabitCreateArgs, HabitCreateResult]
 ):
     """The command for creating a habit."""
 

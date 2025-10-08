@@ -1,5 +1,6 @@
 """Use case for creating time plan activities for inbox tasks."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
@@ -20,7 +21,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -55,7 +55,7 @@ class TimePlanAssociateInboxTaskWithPlanResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanAssociateInboxTaskWithPlanUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         TimePlanAssociateInboxTaskWithPlanArgs, TimePlanAssociateInboxTaskWithPlanResult
     ]
 ):

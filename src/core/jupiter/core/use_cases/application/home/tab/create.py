@@ -1,5 +1,6 @@
 """The use case for creating a home small screen tab."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
@@ -7,7 +8,6 @@ from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_name import EntityName
@@ -38,7 +38,7 @@ class HomeTabCreateResult(UseCaseResultBase):
 
 @mutation_use_case()
 class HomeTabCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[HomeTabCreateArgs, HomeTabCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[HomeTabCreateArgs, HomeTabCreateResult]
 ):
     """The use case for creating a home tab."""
 

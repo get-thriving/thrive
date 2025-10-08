@@ -1,5 +1,6 @@
 """Use case for changing the schedule stream of an event."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
 )
@@ -8,7 +9,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -27,7 +27,7 @@ class ScheduleEventFullDaysChangeScheduleStreamArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventFullDaysChangeScheduleStreamUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         ScheduleEventFullDaysChangeScheduleStreamArgs, None
     ]
 ):

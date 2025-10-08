@@ -2,7 +2,10 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import (
@@ -10,7 +13,6 @@ from jupiter.core.domain.storage_engine import (
 )
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
@@ -29,7 +31,7 @@ class WorkspaceChangeFeatureFlagsArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class WorkspaceChangeFeatureFlagsUseCase(
-    AppTransactionalLoggedInMutationUseCase[WorkspaceChangeFeatureFlagsArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[WorkspaceChangeFeatureFlagsArgs, None]
 ):
     """Usecase for changing the feature flags for the workspace."""
 

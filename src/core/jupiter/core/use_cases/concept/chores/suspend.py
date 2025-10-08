@@ -1,11 +1,11 @@
 """The command for suspend a chore."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -24,7 +24,7 @@ class ChoreSuspendArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.CHORES)
 class ChoreSuspendUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChoreSuspendArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ChoreSuspendArgs, None]
 ):
     """The command for suspending a chore."""
 

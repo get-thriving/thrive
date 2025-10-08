@@ -1,5 +1,6 @@
 """Create a person."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
@@ -17,7 +18,6 @@ from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.use_case import (
@@ -56,7 +56,7 @@ class PersonCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.PERSONS)
 class PersonCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonCreateArgs, PersonCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[PersonCreateArgs, PersonCreateResult]
 ):
     """The command for creating a person."""
 

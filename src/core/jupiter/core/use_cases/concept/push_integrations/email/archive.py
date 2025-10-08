@@ -1,5 +1,6 @@
 """The command for archiving a email task."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.email.service.archive_service import (
     EmailTaskArchiveService,
@@ -9,7 +10,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -28,7 +28,7 @@ class EmailTaskArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.EMAIL_TASKS)
 class EmailTaskArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[EmailTaskArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[EmailTaskArchiveArgs, None]
 ):
     """The command for archiving a email task."""
 

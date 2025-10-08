@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
     InboxTaskRepository,
@@ -24,7 +25,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -49,7 +49,7 @@ class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
 
 @mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.PROJECTS])
 class WorkingMemUpdateSettingsUseCase(
-    AppTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
+    JupiterTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
 ):
     """The command for updating the settings for working mem."""
 

@@ -1,12 +1,12 @@
 """The use case for reordering tabs in the home config."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -25,7 +25,7 @@ class ReorderTabsArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class ReorderTabsUseCase(
-    AppTransactionalLoggedInMutationUseCase[ReorderTabsArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ReorderTabsArgs, None]
 ):
     """The use case for reordering tabs in the home config."""
 

@@ -1,5 +1,6 @@
 """The command for creating a vacation."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
@@ -11,7 +12,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -45,7 +45,9 @@ class VacationCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
 class VacationCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[VacationCreateArgs, VacationCreateResult],
+    JupiterTransactionalLoggedInMutationUseCase[
+        VacationCreateArgs, VacationCreateResult
+    ],
 ):
     """The command for creating a vacation."""
 

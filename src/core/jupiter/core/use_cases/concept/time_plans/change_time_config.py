@@ -1,12 +1,12 @@
 """Command for updating the time configuration of a time_plan."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -29,7 +29,7 @@ class TimePlanChangeTimeConfigArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.TIME_PLANS)
 class TimePlanChangeTimeConfigUseCase(
-    AppTransactionalLoggedInMutationUseCase[TimePlanChangeTimeConfigArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[TimePlanChangeTimeConfigArgs, None]
 ):
     """Command for updating the time configuration of a time_plan."""
 

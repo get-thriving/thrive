@@ -1,5 +1,6 @@
 """Use case for removing a schedule stream."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_source import (
     ScheduleSource,
@@ -10,7 +11,6 @@ from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remove
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -28,7 +28,7 @@ class ScheduleStreamRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleStreamRemoveUseCase(
-    AppTransactionalLoggedInMutationUseCase[ScheduleStreamRemoveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ScheduleStreamRemoveArgs, None]
 ):
     """Use case for removing a schedule stream."""
 

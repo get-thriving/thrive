@@ -1,12 +1,12 @@
 """The command for creating a metric entry."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -40,7 +40,7 @@ class MetricEntryCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[
+    JupiterTransactionalLoggedInMutationUseCase[
         MetricEntryCreateArgs, MetricEntryCreateResult
     ],
 ):

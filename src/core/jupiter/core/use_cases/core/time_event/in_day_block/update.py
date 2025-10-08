@@ -1,5 +1,6 @@
 """Use case for updating a time event in day."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
@@ -7,7 +8,6 @@ from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -30,7 +30,7 @@ class TimeEventInDayBlockUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case()
 class TimeEventInDayBlockUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[TimeEventInDayBlockUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[TimeEventInDayBlockUpdateArgs, None]
 ):
     """Use case for updating a time event in day."""
 

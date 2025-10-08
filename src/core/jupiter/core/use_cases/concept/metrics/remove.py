@@ -1,5 +1,6 @@
 """The command for hard removing a metric."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.service.remove_service import (
     MetricRemoveService,
@@ -8,7 +9,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -27,7 +27,7 @@ class MetricRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricRemoveUseCase(
-    AppTransactionalLoggedInMutationUseCase[MetricRemoveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[MetricRemoveArgs, None]
 ):
     """The command for removing a metric."""
 

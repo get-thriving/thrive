@@ -1,12 +1,12 @@
 """Command for updating the time configuration of a journal."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -29,7 +29,7 @@ class JournalChangeTimeConfigArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.JOURNALS)
 class JournalChangeTimeConfigUseCase(
-    AppTransactionalLoggedInMutationUseCase[JournalChangeTimeConfigArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[JournalChangeTimeConfigArgs, None]
 ):
     """Command for updating the time configuration of a journal."""
 

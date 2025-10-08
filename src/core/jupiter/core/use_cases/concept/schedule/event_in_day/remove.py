@@ -1,5 +1,6 @@
 """Use case for removing a schedule in day event."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
     ScheduleEventInDay,
 )
@@ -8,7 +9,6 @@ from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remove
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,7 @@ class ScheduleEventInDayRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SCHEDULE)
 class ScheduleEventInDayRemoveUseCase(
-    AppTransactionalLoggedInMutationUseCase[ScheduleEventInDayRemoveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ScheduleEventInDayRemoveArgs, None]
 ):
     """Use case for removing a schedule in day event."""
 

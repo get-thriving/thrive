@@ -1,5 +1,6 @@
 """The command for creating a big plan."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
@@ -27,7 +28,6 @@ from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -71,7 +71,7 @@ class BigPlanCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[BigPlanCreateArgs, BigPlanCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanCreateArgs, BigPlanCreateResult]
 ):
     """The command for creating a big plan."""
 

@@ -1,5 +1,6 @@
 """Archive a person."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
@@ -7,7 +8,6 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,7 @@ class PersonArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.PERSONS)
 class PersonArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[PersonArchiveArgs, None]
 ):
     """The command for archiving a person."""
 

@@ -1,5 +1,6 @@
 """The command for archiving a vacation."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
@@ -7,7 +8,6 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -26,7 +26,7 @@ class VacationArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.VACATIONS)
 class VacationArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[VacationArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[VacationArchiveArgs, None]
 ):
     """The command for archiving a vacation."""
 

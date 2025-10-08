@@ -1,12 +1,12 @@
 """Remove a person."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remover
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -25,7 +25,7 @@ class PersonRemoveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.PERSONS)
 class PersonRemoveUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonRemoveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[PersonRemoveArgs, None]
 ):
     """The command for removing a person."""
 

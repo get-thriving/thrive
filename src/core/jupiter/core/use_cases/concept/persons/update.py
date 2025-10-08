@@ -2,6 +2,7 @@
 
 import typing
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
@@ -37,7 +38,6 @@ from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -68,7 +68,7 @@ class PersonUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.PERSONS)
 class PersonUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[PersonUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[PersonUpdateArgs, None]
 ):
     """The command for updating a person."""
 

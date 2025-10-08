@@ -1,5 +1,6 @@
 """The command for archiving a big plan milestone."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
@@ -7,7 +8,6 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -24,7 +24,7 @@ class BigPlanMilestoneArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
 class BigPlanMilestoneArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[BigPlanMilestoneArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanMilestoneArchiveArgs, None]
 ):
     """The command for archiving a big plan milestone."""
 

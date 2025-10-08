@@ -1,5 +1,6 @@
 """Use case for archiving a note."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.core.notes.note import Note
@@ -9,7 +10,6 @@ from jupiter.core.domain.core.notes.service.note_archive_service import (
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -28,7 +28,7 @@ class NoteArchiveArgs(UseCaseArgsBase):
 
 @mutation_use_case(exclude_component=[AppCore.CLI])
 class NoteArchiveUseCase(
-    AppTransactionalLoggedInMutationUseCase[NoteArchiveArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[NoteArchiveArgs, None]
 ):
     """Use case for archiving a note."""
 

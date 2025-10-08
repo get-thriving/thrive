@@ -1,5 +1,6 @@
 """The command for updating a smart list."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
 from jupiter.core.domain.concept.smart_lists.smart_list_name import SmartListName
 from jupiter.core.domain.core.entity_icon import EntityIcon
@@ -7,7 +8,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -29,7 +29,7 @@ class SmartListUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.SMART_LISTS)
 class SmartListUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[SmartListUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[SmartListUpdateArgs, None]
 ):
     """The command for updating a smart list."""
 

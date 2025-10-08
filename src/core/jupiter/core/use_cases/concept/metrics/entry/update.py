@@ -1,11 +1,11 @@
 """The command for updating a metric entry's properties."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -28,7 +28,7 @@ class MetricEntryUpdateArgs(UseCaseArgsBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricEntryUpdateUseCase(
-    AppTransactionalLoggedInMutationUseCase[MetricEntryUpdateArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[MetricEntryUpdateArgs, None]
 ):
     """The command for updating a metric entry's properties."""
 

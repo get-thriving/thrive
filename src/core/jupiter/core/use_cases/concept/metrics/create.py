@@ -1,5 +1,6 @@
 """The command for creating a metric."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
@@ -17,7 +18,6 @@ from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.use_case import (
@@ -57,7 +57,7 @@ class MetricCreateResult(UseCaseResultBase):
 
 @mutation_use_case(WorkspaceFeature.METRICS)
 class MetricCreateUseCase(
-    AppTransactionalLoggedInMutationUseCase[MetricCreateArgs, MetricCreateResult]
+    JupiterTransactionalLoggedInMutationUseCase[MetricCreateArgs, MetricCreateResult]
 ):
     """The command for creating a metric."""
 

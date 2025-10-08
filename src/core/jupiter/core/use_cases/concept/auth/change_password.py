@@ -1,12 +1,12 @@
 """Use case for changing a password."""
 
+from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectPasswordError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
     AppLoggedInMutationUseCaseContext,
-    AppTransactionalLoggedInMutationUseCase,
     mutation_use_case,
 )
 from jupiter.framework_new.secure import secure_class
@@ -32,7 +32,7 @@ class ChangePasswordArgs(UseCaseArgsBase):
 @secure_class
 @mutation_use_case()
 class ChangePasswordUseCase(
-    AppTransactionalLoggedInMutationUseCase[ChangePasswordArgs, None]
+    JupiterTransactionalLoggedInMutationUseCase[ChangePasswordArgs, None]
 ):
     """Use case for changing a password."""
 
