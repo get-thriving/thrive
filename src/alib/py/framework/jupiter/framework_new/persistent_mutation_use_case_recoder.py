@@ -5,7 +5,7 @@ from typing import Final
 from jupiter.framework_new.use_case import (
     MutationUseCaseInvocationRecord,
     MutationUseCaseInvocationRecorder,
-    UseCaseArgs,
+    UseCaseArgsT,
 )
 from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 
@@ -21,7 +21,7 @@ class PersistentMutationUseCaseInvocationRecorder(MutationUseCaseInvocationRecor
 
     async def record(
         self,
-        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgs],
+        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgsT],
     ) -> None:
         """Record the invocation of the use case."""
         async with self._storage_engine.get_unit_of_work() as uow:

@@ -2,7 +2,11 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties, JupiterSysBackgroundMutationUseCase
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterSysBackgroundMutationUseCase,
+)
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,

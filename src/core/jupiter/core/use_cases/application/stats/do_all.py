@@ -2,7 +2,11 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties, JupiterSysBackgroundMutationUseCase
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterSysBackgroundMutationUseCase,
+)
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.concept.user.user import User
