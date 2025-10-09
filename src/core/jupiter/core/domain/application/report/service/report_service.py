@@ -57,7 +57,7 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainStorageEngine
+from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName

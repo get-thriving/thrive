@@ -48,7 +48,7 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
-from jupiter.core.domain.storage_engine import DomainStorageEngine
+from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp

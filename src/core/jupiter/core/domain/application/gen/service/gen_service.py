@@ -74,7 +74,7 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.domain.storage_engine import DomainStorageEngine
+from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )

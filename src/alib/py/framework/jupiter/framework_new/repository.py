@@ -2,7 +2,8 @@
 
 import abc
 from collections.abc import Iterable
-from typing import Generic, TypeVar
+from contextlib import AbstractAsyncContextManager
+from typing import Generic, TypeVar, overload
 
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import (
@@ -221,3 +222,86 @@ class LeafEntityRepository(
     Generic[LeafEntityT], CrownEntityRepository[LeafEntityT], abc.ABC
 ):
     """A repository for leaf entities."""
+
+
+class UnitOfWork(abc.ABC):
+    """A unit of work from an engine."""
+
+
+UnitOfWorkT = TypeVar("UnitOfWorkT", bound=UnitOfWork)
+
+
+class StorageEngine(
+    Generic[UnitOfWorkT],
+    abc.ABC
+):
+    """A storage engine that can produce a unit of work."""
+
+    @abc.abstractmethod
+    def get_unit_of_work(self) -> AbstractAsyncContextManager[UnitOfWorkT]:
+        """Build a unit of work."""
+
+RepositoryT = TypeVar("RepositoryT", bound=Repository)
+
+
+class DomainUnitOfWork(UnitOfWork):
+    """A transactional unit of work for domain objects."""
+
+    @abc.abstractmethod
+    def get(self, repository: type[RepositoryT]) -> RepositoryT:
+        """Retrieve a repository."""
+
+    @overload
+    @abc.abstractmethod
+    def get_for(
+        self, entity_type: type[RootEntityT]
+    ) -> RootEntityRepository[RootEntityT]: ...
+
+    @overload
+    @abc.abstractmethod
+    def get_for(
+        self, entity_type: type[StubEntityT]
+    ) -> StubEntityRepository[StubEntityT]: ...
+
+    @overload
+    @abc.abstractmethod
+    def get_for(
+        self, entity_type: type[TrunkEntityT]
+    ) -> TrunkEntityRepository[TrunkEntityT]: ...
+
+    @overload
+    @abc.abstractmethod
+    def get_for(
+        self, entity_type: type[CrownEntityT]
+    ) -> CrownEntityRepository[CrownEntityT]: ...
+
+    @abc.abstractmethod
+    def get_for(
+        self,
+        entity_type: (
+            type[RootEntityT]
+            | type[StubEntityT]
+            | type[TrunkEntityT]
+            | type[CrownEntityT]
+        ),
+    ) -> (
+        RootEntityRepository[RootEntityT]
+        | StubEntityRepository[StubEntityT]
+        | TrunkEntityRepository[TrunkEntityT]
+        | CrownEntityRepository[CrownEntityT]
+    ):
+        """Retrieve a repository for a specific entity type."""
+
+    @abc.abstractmethod
+    def get_for_record(
+        self, record_type: type[RecordT]
+    ) -> RecordRepository[RecordT, object]:
+        """Retrieve a repository for a specific record type."""
+
+
+class DomainStorageEngine(StorageEngine[DomainUnitOfWork], abc.ABC):
+    """A storage engine for the domain form."""
+
+    @abc.abstractmethod
+    def get_unit_of_work(self) -> AbstractAsyncContextManager[DomainUnitOfWork]:
+        """Build a unit of work."""
