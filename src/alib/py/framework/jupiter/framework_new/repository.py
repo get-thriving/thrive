@@ -224,22 +224,20 @@ class LeafEntityRepository(
     """A repository for leaf entities."""
 
 
-class UnitOfWork(abc.ABC):
+class UnitOfWork:
     """A unit of work from an engine."""
 
 
 UnitOfWorkT = TypeVar("UnitOfWorkT", bound=UnitOfWork)
 
 
-class StorageEngine(
-    Generic[UnitOfWorkT],
-    abc.ABC
-):
+class StorageEngine(Generic[UnitOfWorkT], abc.ABC):
     """A storage engine that can produce a unit of work."""
 
     @abc.abstractmethod
     def get_unit_of_work(self) -> AbstractAsyncContextManager[UnitOfWorkT]:
         """Build a unit of work."""
+
 
 RepositoryT = TypeVar("RepositoryT", bound=Repository)
 

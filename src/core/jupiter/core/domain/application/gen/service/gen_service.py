@@ -74,7 +74,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
@@ -83,6 +82,7 @@ from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.use_case import ProgressReporter, UnavailableForContextError
 
 

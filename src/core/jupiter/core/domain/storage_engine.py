@@ -2,12 +2,12 @@
 
 import abc
 from contextlib import AbstractAsyncContextManager
-from typing import TypeVar, overload
 
-from jupiter.framework_new.repository import StorageEngine, UnitOfWork
 from jupiter.core.domain.application.search.infra.search_repository import (
     SearchRepository,
 )
+from jupiter.framework_new.repository import StorageEngine, UnitOfWork
+
 
 class SearchUnitOfWork(UnitOfWork):
     """A unit of work from a search engine."""

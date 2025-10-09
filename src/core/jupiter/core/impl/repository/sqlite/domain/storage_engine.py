@@ -20,7 +20,6 @@ from jupiter.core.domain.storage_engine import (
     SearchStorageEngine,
     SearchUnitOfWork,
 )
-from jupiter.framework_new.repository import DomainStorageEngine, DomainUnitOfWork
 from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
 from jupiter.core.impl.repository.sqlite.domain.application.search import (
     SqliteSearchRepository,
@@ -45,6 +44,8 @@ from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.record import Record
 from jupiter.framework_new.repository import (
     CrownEntityRepository,
+    DomainStorageEngine,
+    DomainUnitOfWork,
     EntityRepository,
     RecordRepository,
     Repository,

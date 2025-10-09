@@ -6,12 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Generic, TypeVar, Union, cast
 
-from jupiter.framework_new.ports import DomainPorts
 import dotenv
-from jupiter.framework_new.auth.auth_token import AuthToken
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.core.domain.app import (
     AppComponent,
     AppCore,
@@ -23,7 +18,6 @@ from jupiter.core.domain.app import (
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
-from jupiter.framework_new.repository import DomainStorageEngine, SearchStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -38,10 +32,15 @@ from jupiter.core.use_cases.infra.use_cases import (
     AppTransactionalLoggedInReadOnlyUseCase,
     SysBackgroundMutationUseCase,
 )
+from jupiter.framework_new.auth.auth_token import AuthToken
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import ComponentProperties
+from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.ports import Ports
+from jupiter.framework_new.ports import DomainPorts
+from jupiter.framework_new.repository import DomainStorageEngine, SearchStorageEngine
 from jupiter.framework_new.secure import secure_fn
+from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.value import EnumValue
 
@@ -437,7 +436,7 @@ class JupiterLoggedInMutationUseCase(
 
     async def _construct_context(
         self, auth_token: AuthToken, domain_context: DomainContext
-    ) -> JupiterLoggedInMutationCaseContext:
+    ) -> JupiterLoggedInMutationUseCaseContext:
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
@@ -448,7 +447,7 @@ class JupiterLoggedInMutationUseCase(
                 user_workspace_link.workspace_ref_id
             )
 
-            return AppLoggedInMutationUseCaseContext(
+            return JupiterLoggedInMutationUseCaseContext(
                 auth_token=auth_token,
                 domain_context=domain_context,
                 user=user,
@@ -458,7 +457,7 @@ class JupiterLoggedInMutationUseCase(
     async def _perform_post_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
     ) -> None:
         """Perform some work after the mutation is done."""
         # Register all entities that were created/changed/removed with the search index.
