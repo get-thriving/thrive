@@ -12,6 +12,7 @@ from datetime import date, datetime
 from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_origin
 
 import inflection
+from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.core.config import (
@@ -25,7 +26,6 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
 )
-from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
