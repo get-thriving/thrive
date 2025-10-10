@@ -1,7 +1,5 @@
 """ommand for loading previous runs of GC."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
@@ -9,11 +7,12 @@ from jupiter.cli.command.rendering import (
     event_source_to_rich_text,
     sync_target_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.use_cases.application.gc.load_runs import (
     GCLoadRunsResult,
     GCLoadRunsUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

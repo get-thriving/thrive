@@ -1,7 +1,5 @@
 """UseCase for showing the slack tasks."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
     difficulty_to_rich_text,
@@ -14,18 +12,21 @@ from jupiter.cli.command.rendering import (
     slack_task_message_to_rich_text,
     slack_user_name_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.push_integrations.slack.find import (
     SlackTaskFindResult,
     SlackTaskFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class SlackTaskShow(JupiterLoggedInReadonlyCommand[SlackTaskFindUseCase, SlackTaskFindResult]):
+class SlackTaskShow(
+    JupiterLoggedInReadonlyCommand[SlackTaskFindUseCase, SlackTaskFindResult]
+):
     """UseCase class for showing the slack tasks."""
 
     def _render_result(

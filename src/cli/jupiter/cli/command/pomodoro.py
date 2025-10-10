@@ -4,7 +4,6 @@ import asyncio
 from argparse import Namespace
 
 import beepy
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.session_storage import SessionInfo
 from jupiter.core.utils.noop_use_case import NoOpUseCase

@@ -1,24 +1,25 @@
 """Command for showing the time plans."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
     period_to_rich_text,
     time_plan_source_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.use_cases.concept.time_plans.find import (
     TimePlanFindResult,
     TimePlanFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class TimePlanShow(JupiterLoggedInReadonlyCommand[TimePlanFindUseCase, TimePlanFindResult]):
+class TimePlanShow(
+    JupiterLoggedInReadonlyCommand[TimePlanFindUseCase, TimePlanFindResult]
+):
     """Command for showing the time plans."""
 
     def _render_result(

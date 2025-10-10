@@ -2,12 +2,6 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     date_with_label_to_rich_text,
     entity_name_to_rich_text,
@@ -15,6 +9,8 @@ from jupiter.cli.command.rendering import (
     person_birthday_to_rich_text,
     time_in_day_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
 from jupiter.core.use_cases.application.calendar.load_for_date_and_period import (
     CalendarEventsEntries,
@@ -22,7 +18,6 @@ from jupiter.core.use_cases.application.calendar.load_for_date_and_period import
     CalendarLoadForDateAndPeriodResult,
     CalendarLoadForDateAndPeriodUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

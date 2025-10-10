@@ -4,7 +4,6 @@ import asyncio
 import logging
 import sys
 
-from jupiter.core.config import JupiterGuestUseCaseSession
 import jupiter.cli.command
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
@@ -14,6 +13,7 @@ from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionStorage
 from jupiter.core.config import (
     JupiterComponentProperties,
+    JupiterGuestUseCaseSession,
     JupiterPorts,
     build_global_properties,
 )
@@ -32,7 +32,6 @@ from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
 from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
-from jupiter.core.use_cases.infra.use_cases import AppGuestUseCaseSession
 from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,

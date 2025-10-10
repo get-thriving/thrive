@@ -1,13 +1,11 @@
 """UseCase for updating inbox tasks."""
 
-from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
 from jupiter.cli.config import JupiterLoggedInMutationCommand
-from jupiter.cli.command.command import LoggedInMutationCommand
+from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
 from jupiter.core.use_cases.concept.inbox_tasks.update import (
     InboxTaskUpdateResult,
     InboxTaskUpdateUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInMutationUseCaseContext
 from rich.console import Console
 from rich.text import Text
 

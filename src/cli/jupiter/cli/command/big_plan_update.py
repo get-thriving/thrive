@@ -1,18 +1,18 @@
 """UseCase for updating big plans."""
 
-from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
 from jupiter.cli.config import JupiterLoggedInMutationCommand
-from jupiter.cli.command.command import LoggedInMutationCommand
+from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
 from jupiter.core.use_cases.concept.big_plans.update import (
     BigPlanUpdateResult,
     BigPlanUpdateUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInMutationUseCaseContext
 from rich.console import Console
 from rich.text import Text
 
 
-class BigPlanUpdate(JupiterLoggedInMutationCommand[BigPlanUpdateUseCase, BigPlanUpdateResult]):
+class BigPlanUpdate(
+    JupiterLoggedInMutationCommand[BigPlanUpdateUseCase, BigPlanUpdateResult]
+):
     """UseCase class for updating big plans."""
 
     def _render_result(

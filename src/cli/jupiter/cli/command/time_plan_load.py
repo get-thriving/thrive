@@ -1,7 +1,5 @@
 """Command for loading the time plans."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     big_plan_status_to_rich_text,
     difficulty_to_rich_text,
@@ -15,6 +13,8 @@ from jupiter.cli.command.rendering import (
     time_plan_activity_kind_to_rich_text,
     time_plan_source_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
@@ -22,14 +22,15 @@ from jupiter.core.use_cases.concept.time_plans.load import (
     TimePlanLoadResult,
     TimePlanLoadUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from jupiter.framework_new.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class TimePlanLoad(JupiterLoggedInReadonlyCommand[TimePlanLoadUseCase, TimePlanLoadResult]):
+class TimePlanLoad(
+    JupiterLoggedInReadonlyCommand[TimePlanLoadUseCase, TimePlanLoadResult]
+):
     """Command for loading the time plans."""
 
     def _render_result(

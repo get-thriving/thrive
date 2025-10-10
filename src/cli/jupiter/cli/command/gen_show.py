@@ -1,7 +1,5 @@
 """ommand for loading previous runs of Gen."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     boolean_to_rich_text,
     date_with_label_to_rich_text,
@@ -12,11 +10,12 @@ from jupiter.cli.command.rendering import (
     period_to_rich_text,
     sync_target_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.use_cases.application.gen.load_runs import (
     GenLoadRunsResult,
     GenLoadRunsUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

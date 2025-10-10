@@ -2,25 +2,26 @@
 
 from collections import defaultdict
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
-from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
 from jupiter.core.use_cases.concept.projects.find import (
     ProjectFindResult,
     ProjectFindResultEntry,
     ProjectFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from jupiter.framework_new.base.entity_id import EntityId
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class ProjectShow(JupiterLoggedInReadonlyCommand[ProjectFindUseCase, ProjectFindResult]):
+class ProjectShow(
+    JupiterLoggedInReadonlyCommand[ProjectFindUseCase, ProjectFindResult]
+):
     """UseCase class for showing the projects."""
 
     def _render_result(

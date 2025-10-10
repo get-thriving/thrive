@@ -19,9 +19,6 @@ from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterPorts,
 )
-from jupiter.framework_new.ports import Ports, DomainPorts
-from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -42,6 +39,9 @@ from jupiter.core.use_cases.infra.use_cases import (
 )
 from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.component_properties import ComponentProperties
+from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.ports import DomainPorts, Ports
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing
@@ -685,7 +685,8 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
 
 
 GuestMutationCommandUseCase = TypeVar(
-    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
+    "GuestMutationCommandUseCase",
+    bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
@@ -740,7 +741,8 @@ class GuestMutationCommand(
 
 
 GuestReadonlyCommandUseCase = TypeVar(
-    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any]
+    "GuestReadonlyCommandUseCase",
+    bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
@@ -800,12 +802,15 @@ class GuestReadonlyCommand(
 
 
 LoggedInMutationCommandUseCase = TypeVar(
-    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
+    "LoggedInMutationCommandUseCase",
+    bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class LoggedInMutationCommand(
-    Generic[LoggedInMutationCommandUseCase, LoggedInMutationUseCaseContextT, UseCaseResultT],
+    Generic[
+        LoggedInMutationCommandUseCase, LoggedInMutationUseCaseContextT, UseCaseResultT
+    ],
     UseCaseCommand[LoggedInMutationCommandUseCase],
     abc.ABC,
 ):
@@ -860,12 +865,15 @@ class LoggedInMutationCommand(
 
 
 LoggedInReadonlyCommandUseCase = TypeVar(
-    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any]
+    "LoggedInReadonlyCommandUseCase",
+    bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class LoggedInReadonlyCommand(
-    Generic[LoggedInReadonlyCommandUseCase, LoggedInReadonlyUseCaseContextT, UseCaseResultT],
+    Generic[
+        LoggedInReadonlyCommandUseCase, LoggedInReadonlyUseCaseContextT, UseCaseResultT
+    ],
     UseCaseCommand[LoggedInReadonlyCommandUseCase],
     abc.ABC,
 ):
@@ -1200,7 +1208,15 @@ class CliApp:
         self,
         use_case_command_type: type[UseCaseCommand[UseCaseT]],
         use_case_type: type[
-            UseCase[PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[
+                PortsT,
+                GlobalPropertiesT,
+                ComponentPropertiesT,
+                UseCaseSessionT,
+                UseCaseContextT,
+                UseCaseArgsT,
+                UseCaseResultT,
+            ]
         ],
     ) -> "CliApp":
         if use_case_type in self._use_case_commands:
@@ -1281,7 +1297,15 @@ class CliApp:
     def _add_use_case_type(
         self,
         use_case_type: type[
-            UseCase[PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[
+                PortsT,
+                GlobalPropertiesT,
+                ComponentPropertiesT,
+                UseCaseSessionT,
+                UseCaseContextT,
+                UseCaseArgsT,
+                UseCaseResultT,
+            ]
         ],
     ) -> "CliApp":
         if use_case_type in self._use_case_commands:
