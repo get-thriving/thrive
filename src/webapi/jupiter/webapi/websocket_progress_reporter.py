@@ -10,7 +10,7 @@ from typing import (
 )
 
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     AppLoggedInMutationUseCaseContext,
     AppLoggedInUseCaseContext,
 )

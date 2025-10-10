@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.smart_lists.smart_list_item import SmartListItem
 from jupiter.core.domain.concept.smart_lists.smart_list_tag import SmartListTag
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

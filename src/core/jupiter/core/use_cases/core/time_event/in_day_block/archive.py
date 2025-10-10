@@ -9,7 +9,7 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

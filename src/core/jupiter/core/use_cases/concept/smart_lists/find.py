@@ -17,7 +17,7 @@ from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.tags.tag_name import TagName
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

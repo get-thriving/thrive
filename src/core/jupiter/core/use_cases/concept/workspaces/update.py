@@ -6,7 +6,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.repository import DomainUnitOfWork

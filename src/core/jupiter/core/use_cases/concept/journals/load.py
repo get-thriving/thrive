@@ -14,7 +14,7 @@ from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

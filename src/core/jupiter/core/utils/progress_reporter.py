@@ -3,7 +3,7 @@
 from collections.abc import AsyncIterator, Iterable
 from contextlib import asynccontextmanager
 
-from jupiter.core.use_cases.infra.use_cases import AppGuestMutationUseCaseContext
+from jupiter.framework_new.use_case import AppGuestMutationUseCaseContext
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.use_case import (
     EmptyContext,

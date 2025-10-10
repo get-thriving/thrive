@@ -25,7 +25,7 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.domain.storage_engine import SearchStorageEngine
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
     AppGuestReadonlyUseCase,

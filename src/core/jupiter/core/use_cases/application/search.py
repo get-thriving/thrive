@@ -8,7 +8,7 @@ from jupiter.core.domain.application.search.infra.search_repository import Searc
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate

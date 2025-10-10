@@ -18,7 +18,7 @@ from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.repository import DomainUnitOfWork

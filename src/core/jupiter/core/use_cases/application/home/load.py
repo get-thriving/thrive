@@ -12,7 +12,7 @@ from jupiter.core.domain.application.home.widget import (
     WidgetType,
     WidgetTypeConstraints,
 )
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.repository import DomainUnitOfWork

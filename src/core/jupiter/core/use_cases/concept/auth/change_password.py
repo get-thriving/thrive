@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectPasswordError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.repository import DomainUnitOfWork

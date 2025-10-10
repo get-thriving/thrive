@@ -14,7 +14,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

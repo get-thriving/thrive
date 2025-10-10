@@ -12,7 +12,7 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
 )
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

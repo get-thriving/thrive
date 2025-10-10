@@ -25,18 +25,6 @@ from jupiter.core.domain.app import (
     AppPlatform,
     AppShell,
 )
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
-    AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-    AppGuestUseCaseSession,
-    AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    AppLoggedInUseCaseSession,
-)
 from jupiter.core.utils.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
@@ -48,6 +36,16 @@ from jupiter.framework_new.thing import Thing
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
+    AppGuestMutationUseCase,
+    AppGuestMutationUseCaseContext,
+    AppGuestReadonlyUseCase,
+    AppGuestReadonlyUseCaseContext,
+    AppGuestUseCaseSession,
+    AppLoggedInMutationUseCase,
+    AppLoggedInMutationUseCaseContext,
+    AppLoggedInReadonlyUseCase,
+    AppLoggedInReadonlyUseCaseContext,
+    AppLoggedInUseCaseSession,
     MutationUseCaseInvocationRecorder,
     UseCase,
     UseCaseContextBase,

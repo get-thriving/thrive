@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.docs.service.doc_archive_service import (
 )
 from jupiter.core.domain.core.archival_reason import ArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

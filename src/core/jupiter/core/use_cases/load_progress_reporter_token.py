@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCaseContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt

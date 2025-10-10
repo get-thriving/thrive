@@ -10,7 +10,7 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId

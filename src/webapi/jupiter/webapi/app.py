@@ -42,7 +42,7 @@ from jupiter.core.domain.app import (
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework_new.use_case import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,
     AppGuestUseCaseSession,
