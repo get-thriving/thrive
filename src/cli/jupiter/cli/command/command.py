@@ -14,7 +14,6 @@ from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_orig
 import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
-from jupiter.cli.top_level_context import TopLevelContext
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -954,7 +953,6 @@ class CliApp:
     """A CLI application."""
 
     _global_properties: Final[JupiterGlobalProperties]
-    _top_level_context: Final[TopLevelContext]
     _console: Final[Console]
     _time_provider: Final[TimeProvider]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
@@ -984,7 +982,6 @@ class CliApp:
     def __init__(
         self,
         global_properties: JupiterGlobalProperties,
-        top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
@@ -997,7 +994,6 @@ class CliApp:
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
-        self._top_level_context = top_level_context
         self._console = console
         self._time_provider = time_provider
         self._invocation_recorder = invocation_recorder
@@ -1014,7 +1010,6 @@ class CliApp:
     @staticmethod
     def build_from_module_root(
         global_properties: JupiterGlobalProperties,
-        top_level_context: TopLevelContext,
         console: Console,
         time_provider: TimeProvider,
         invocation_recorder: MutationUseCaseInvocationRecorder,
@@ -1170,7 +1165,6 @@ class CliApp:
 
         cli_app = CliApp(
             global_properties=global_properties,
-            top_level_context=top_level_context,
             console=console,
             time_provider=time_provider,
             invocation_recorder=invocation_recorder,

@@ -12,7 +12,6 @@ import jupiter.core.use_cases
 from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionStorage
-from jupiter.cli.top_level_context import TopLevelContext
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterPorts,
@@ -135,16 +134,8 @@ async def main() -> None:
         guest_session, LoadTopLevelInfoArgs()
     )
 
-    top_level_context = TopLevelContext(
-        default_workspace_name=top_level_info.deafult_workspace_name,
-        default_first_project_name=top_level_info.default_root_project_name,
-        user=top_level_info.user,
-        workspace=top_level_info.workspace,
-    )
-
     cli_app = CliApp.build_from_module_root(
         global_properties,
-        top_level_context,
         console,
         time_provider,
         invocation_recorder,
