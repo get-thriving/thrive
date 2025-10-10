@@ -1,16 +1,18 @@
 """The command for creating a smart list tag."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
 from jupiter.core.domain.concept.smart_lists.smart_list_tag import SmartListTag
 from jupiter.core.domain.core.tags.tag_name import TagName
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -49,7 +51,7 @@ class SmartListTagCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: SmartListTagCreateArgs,
     ) -> SmartListTagCreateResult:
         """Execute the command's action."""

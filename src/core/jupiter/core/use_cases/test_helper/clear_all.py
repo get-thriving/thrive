@@ -2,7 +2,11 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties, JupiterLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.concept.auth.auth import Auth
@@ -42,7 +46,6 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
@@ -75,7 +78,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ClearAllArgs,
     ) -> None:
         """Execute the command's action."""

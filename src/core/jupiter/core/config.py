@@ -15,13 +15,21 @@ from jupiter.core.domain.app import (
     AppShell,
     AppVersion,
 )
+from jupiter.core.domain.concept.user.user import User
+from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
+    UserWorkspaceLinkRepository,
+)
+from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.crm import CRM
 from jupiter.core.domain.env import Env
+from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.hosting import Hosting
+from jupiter.core.domain.storage_engine import SearchStorageEngine
 from jupiter.core.use_cases.infra.use_cases import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
     AppGuestReadonlyUseCase,
+    AppGuestReadonlyUseCaseContext,
     AppGuestUseCaseSession,
     AppLoggedInMutationUseCase,
     AppLoggedInMutationUseCaseContext,
@@ -38,18 +46,11 @@ from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts
-from jupiter.framework_new.repository import DomainStorageEngine, SearchStorageEngine
+from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.secure import secure_fn
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.value import EnumValue
-
-from core.jupiter.core.domain.concept.user.user import User
-from core.jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
-    UserWorkspaceLinkRepository,
-)
-from core.jupiter.core.domain.concept.workspaces.workspace import Workspace
-from core.jupiter.core.domain.features import UserFeature, WorkspaceFeature
 
 UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
 UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
@@ -283,7 +284,7 @@ class JupiterGuestMutationUseCaseContext(AppGuestMutationUseCaseContext):
 
 
 @dataclass(frozen=True)
-class JupiterGuestReadonlyUseCaseContext(AppGuestReadonlyUseCase):
+class JupiterGuestReadonlyUseCaseContext(AppGuestReadonlyUseCaseContext):
     """A Jupiter specific guest readonly use case context."""
 
 
@@ -393,7 +394,7 @@ class JupiterGuestMutationUseCase(
     """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
 
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: DomainContext
+        self, auth_token: AuthToken | None, domain_context: DomainContext
     ) -> JupiterGuestMutationUseCaseContext:
         return JupiterGuestMutationUseCaseContext(auth_token, domain_context)
 
@@ -414,7 +415,7 @@ class JupiterGuestReadonlyUseCase(
     """A Jupiter command that does not mutate anything, and does not assume a logged in user."""
 
     async def _construct_context(
-        self, auth_token: AuthToken
+        self, auth_token: AuthToken | None
     ) -> JupiterGuestReadonlyUseCaseContext:
         return JupiterGuestReadonlyUseCaseContext(auth_token)
 
@@ -547,7 +548,13 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
 
 class JupiterSysBackgroundMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    SysBackgroundMutationUseCase[UseCaseArgsT, UseCaseResultT],
+    SysBackgroundMutationUseCase[
+        JupiterPorts,
+        JupiterGlobalProperties,
+        JupiterComponentProperties,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     abc.ABC,
 ):
     """A Jupiter command which does some sort of mutation for the app in the background."""

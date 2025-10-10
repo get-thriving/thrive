@@ -1,12 +1,14 @@
 """The command for loading a progress reporter specific token."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -40,7 +42,7 @@ class LoadProgressReporterTokenUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: LoadProgressReporterTokenArgs,
     ) -> LoadProgressReporterTokenResult:
         """Execute the command."""

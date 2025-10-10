@@ -1,6 +1,9 @@
 """The command for updating a big plan."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
@@ -20,14 +23,13 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -72,7 +74,7 @@ class BigPlanUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: BigPlanUpdateArgs,
     ) -> BigPlanUpdateResult:
         """Execute the command's action."""

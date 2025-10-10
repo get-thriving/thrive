@@ -1,6 +1,9 @@
 """The command for generating new tasks in the context of a time plan."""
 
-from jupiter.core.config import JupiterLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
@@ -8,7 +11,6 @@ from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -35,7 +37,7 @@ class TimePlanGenForTimePlanUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: TimePlanGenForTimePlanArgs,
     ) -> None:
         """Execute the command's action."""

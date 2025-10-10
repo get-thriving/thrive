@@ -2,7 +2,10 @@
 
 from collections import defaultdict
 
-from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
@@ -10,13 +13,12 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import NoFilter
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -61,7 +63,7 @@ class DocFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: DocFindArgs,
     ) -> DocFindResult:
         """Execute the command's action."""

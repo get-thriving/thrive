@@ -2,7 +2,10 @@
 
 from collections import defaultdict
 
-from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
 from jupiter.core.domain.core.notes.note import Note
@@ -14,12 +17,11 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -63,7 +65,7 @@ class VacationFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: VacationFindArgs,
     ) -> VacationFindResult:
         """Execute the command's action."""

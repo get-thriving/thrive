@@ -1,6 +1,9 @@
 """The command for creating a chore."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
@@ -17,14 +20,13 @@ from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipR
 from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
     UnavailableForContextError,
@@ -74,7 +76,7 @@ class ChoreCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ChoreCreateArgs,
     ) -> ChoreCreateResult:
         """Execute the command's action."""
@@ -128,10 +130,10 @@ class ChoreCreateUseCase(
 
         return ChoreCreateResult(new_chore=new_chore)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ChoreCreateArgs,
         result: ChoreCreateResult,
     ) -> None:

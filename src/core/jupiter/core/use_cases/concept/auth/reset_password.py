@@ -1,6 +1,9 @@
 """Use case for reseting a password."""
 
-from jupiter.core.config import JupiterGuestMutationUseCase
+from jupiter.core.config import (
+    JupiterGuestMutationUseCase,
+    JupiterGuestMutationUseCaseContext,
+)
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectRecoveryTokenError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
@@ -9,9 +12,6 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCaseContext,
-)
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -54,7 +54,7 @@ class ResetPasswordUseCase(
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationUseCaseContext,
         args: ResetPasswordArgs,
     ) -> ResetPasswordResult:
         """Execute the command's action."""

@@ -4,18 +4,18 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterGlobalProperties,
+    JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.features import UserFeature
-from jupiter.core.domain.storage_engine import (
-    DomainUnitOfWork,
-)
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework_new.repository import (
+    DomainUnitOfWork,
+)
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -39,7 +39,7 @@ class UserChangeFeatureFlagsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: UserChangeFeatureFlagsArgs,
     ) -> None:
         """Execute the command's action."""

@@ -1,6 +1,9 @@
 """Use case for creating time plan actitivities for big plans."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
@@ -13,13 +16,12 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
 )
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -61,7 +63,7 @@ class TimePlanAssociateWithBigPlansUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: TimePlanAssociateWithBigPlansArgs,
     ) -> TimePlanAssociateWithBigPlansResult:
         """Execute the command's actions."""

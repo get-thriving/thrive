@@ -1,6 +1,9 @@
 """The command for reporting on progress."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.application.report.report_period_result import (
     ReportPeriodResult,
@@ -9,7 +12,6 @@ from jupiter.core.domain.application.report.service.report_service import Report
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -54,7 +56,7 @@ class ReportUseCase(JupiterLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: ReportArgs,
     ) -> ReportResult:
         """Execute the command."""

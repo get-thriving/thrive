@@ -2,9 +2,9 @@
 
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.repository import DomainUnitOfWork
 
 
 class NoteRemoveService:

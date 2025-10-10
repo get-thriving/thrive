@@ -1,18 +1,20 @@
 """The command for removing a doc."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.concept.docs.service.doc_remove_service import (
     DocRemoveService,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -36,7 +38,7 @@ class DocRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: DocRemoveArgs,
     ) -> None:
         """Execute the command's action."""

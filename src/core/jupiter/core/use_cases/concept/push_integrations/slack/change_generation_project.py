@@ -1,6 +1,9 @@
 """Update the slack tasks generation project."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
     InboxTaskCollection,
@@ -15,12 +18,11 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
     SlackTaskCollection,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -46,7 +48,7 @@ class SlackTaskChangeGenerationProjectUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: SlackTaskChangeGenerationProjectArgs,
     ) -> None:
         """Execute the command's action."""

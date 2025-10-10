@@ -2,7 +2,11 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties, JupiterGuestMutationUseCase
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterGuestMutationUseCase,
+    JupiterGuestMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
@@ -74,9 +78,6 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestMutationUseCaseContext,
-)
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.secure import secure_class
@@ -124,7 +125,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationUseCaseContext,
         args: InitArgs,
     ) -> InitResult:
         """Execute the command's action."""

@@ -1,15 +1,17 @@
 """The command for archiving a home small screen tab."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remover
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -31,7 +33,7 @@ class HomeTabRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: HomeTabRemoveArgs,
     ) -> None:
         """Execute the command's action."""

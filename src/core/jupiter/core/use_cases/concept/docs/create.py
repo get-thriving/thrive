@@ -1,6 +1,9 @@
 """Use case for creating a doc."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.docs.doc import Doc, DocRepository
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
@@ -11,12 +14,11 @@ from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -57,7 +59,7 @@ class DocCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: DocCreateArgs,
     ) -> DocCreateResult:
         """Execute the command's action."""

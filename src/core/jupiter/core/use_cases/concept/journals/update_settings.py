@@ -2,7 +2,10 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -26,7 +29,6 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -57,7 +59,7 @@ class JournalUpdateSettingsUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: JournalUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""

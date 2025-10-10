@@ -1,7 +1,6 @@
 """A generic archiver service."""
 
 from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.entity import (
@@ -10,6 +9,7 @@ from jupiter.framework_new.entity import (
     LeafSupportEntity,
     OwnsLink,
 )
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
 

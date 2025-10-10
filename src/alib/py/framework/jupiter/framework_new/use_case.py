@@ -208,8 +208,8 @@ class UseCase(
 ):
     """A generic use case."""
 
-    _ports: Final[PortsT]
-    _global_properties: Final[GlobalPropertiesT]
+    _ports: PortsT
+    _global_properties: GlobalPropertiesT
 
     def __init__(self, ports: PortsT, global_properties: GlobalPropertiesT) -> None:
         """Create the use case."""

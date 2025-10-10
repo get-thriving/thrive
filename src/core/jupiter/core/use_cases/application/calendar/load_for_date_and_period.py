@@ -1,6 +1,9 @@
 """Load all the calendar specific entities for a given date and period."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -27,15 +30,14 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import NOT_USED_NAME
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -154,7 +156,7 @@ class CalendarLoadForDateAndPeriodUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: CalendarLoadForDateAndPeriodArgs,
     ) -> CalendarLoadForDateAndPeriodResult:
         """Execute the action."""

@@ -2,7 +2,10 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
     InboxTaskRepository,
@@ -22,16 +25,14 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.repository import EntityNotFoundError
+from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -57,7 +58,7 @@ class WorkingMemUpdateSettingsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: WorkingMemUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""

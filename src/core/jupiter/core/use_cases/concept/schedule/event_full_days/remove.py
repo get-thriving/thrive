@@ -1,18 +1,20 @@
 """Use case for removing a full day event."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
 )
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remover
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -34,7 +36,7 @@ class ScheduleEventFullDaysRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ScheduleEventFullDaysRemoveArgs,
     ) -> None:
         """Execute the command's action."""

@@ -1,6 +1,9 @@
 """Use case for creating a schedule stream."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.schedule.schedule_stream_color import (
@@ -9,11 +12,10 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -50,7 +52,7 @@ class ScheduleStreamCreateForUserUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: ScheduleStreamCreateForUserArgs,
     ) -> ScheduleStreamCreateForUserResult:
         """Perform the transactional mutation."""

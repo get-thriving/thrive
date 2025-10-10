@@ -10,10 +10,10 @@ from jupiter.core.domain.concept.habits.habit_streak_mark import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.repository import DomainUnitOfWork
 
 
 class HabitStreakRecorderService:

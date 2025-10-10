@@ -1,6 +1,9 @@
 """The command for updating a slack task."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
@@ -25,14 +28,13 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import 
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -66,7 +68,7 @@ class SlackTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: SlackTaskUpdateArgs,
     ) -> None:
         """Execute the command's action."""
@@ -145,10 +147,10 @@ class SlackTaskUpdateUseCase(
         await uow.get_for(SlackTask).save(slack_task)
         await progress_reporter.mark_updated(slack_task)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: SlackTaskUpdateArgs,
         result: None,
     ) -> None:

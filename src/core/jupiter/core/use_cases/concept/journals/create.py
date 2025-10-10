@@ -1,6 +1,9 @@
 """Use case for creating a journal."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.journals.journal_stats import (
@@ -13,12 +16,11 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
 )
@@ -56,7 +58,7 @@ class JournalCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: JournalCreateArgs,
     ) -> JournalCreateResult:
         """Execute the command's actions."""

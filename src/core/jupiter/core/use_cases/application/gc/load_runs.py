@@ -1,13 +1,15 @@
 """Load previous runs of GC."""
 
-from jupiter.core.config import JupiterLoggedInReadonlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+)
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gc.gc_log_entry import (
     GCLogEntry,
     GCLogEntryRepository,
 )
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
 from jupiter.framework_new.use_case_io import (
@@ -38,7 +40,7 @@ class GCLoadRunsUseCase(
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: GCLoadRunsArgs,
     ) -> GCLoadRunsResult:
         """Execute the use case."""

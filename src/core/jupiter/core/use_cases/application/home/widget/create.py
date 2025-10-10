@@ -1,6 +1,9 @@
 """The use case for creating a home small screen widget."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.application.home.widget import (
@@ -13,12 +16,11 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter, UnavailableForContextError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -58,7 +60,7 @@ class HomeWidgetCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: HomeWidgetCreateArgs,
     ) -> HomeWidgetCreateResult:
         """Execute the command's action."""

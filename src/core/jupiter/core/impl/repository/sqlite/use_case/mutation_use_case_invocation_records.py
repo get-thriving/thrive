@@ -8,7 +8,7 @@ from jupiter.framework_new.mutation_use_case_invocation_record_repository import
     MutationUseCaseInvocationRecordRepository,
 )
 from jupiter.framework_new.realm import EventStoreRealm, RealmCodecRegistry, RealmThing
-from jupiter.framework_new.use_case import MutationUseCaseInvocationRecord, UseCaseArgs
+from jupiter.framework_new.use_case import MutationUseCaseInvocationRecord, UseCaseArgsT
 from sqlalchemy import (
     JSON,
     Column,
@@ -60,7 +60,7 @@ class SqliteMutationUseCaseInvocationRecordRepository(
 
     async def create(
         self,
-        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgs],
+        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgsT],
     ) -> None:
         """Create a new invocation record."""
         await self._connection.execute(

@@ -2,7 +2,11 @@
 
 from typing import cast
 
-from jupiter.core.config import JupiterGlobalProperties, JupiterGuestReadonlyUseCase
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterGuestReadonlyUseCase,
+    JupiterGuestReadonlyUseCaseContext,
+)
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -39,9 +43,6 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlagsControls,
 )
 from jupiter.core.domain.hosting import Hosting
-from jupiter.core.use_cases.infra.use_cases import (
-    AppGuestReadonlyUseCaseContext,
-)
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -88,7 +89,7 @@ class LoadTopLevelInfoUseCase(
 
     async def _execute(
         self,
-        context: AppGuestReadonlyUseCaseContext,
+        context: JupiterGuestReadonlyUseCaseContext,
         args: LoadTopLevelInfoArgs,
     ) -> LoadTopLevelInfoResult:
         """Execute the command's action."""

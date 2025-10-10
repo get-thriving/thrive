@@ -2,7 +2,10 @@
 
 import typing
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
@@ -29,14 +32,13 @@ from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDu
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
@@ -71,7 +73,7 @@ class MetricUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: MetricUpdateArgs,
     ) -> None:
         """Execute the command's action."""
@@ -239,10 +241,10 @@ class MetricUpdateUseCase(
                 await uow.get_for(InboxTask).save(inbox_task)
                 await progress_reporter.mark_updated(inbox_task)
 
-    async def _perform_post_mutation_work(
+    async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: MetricUpdateArgs,
         result: None,
     ) -> None:

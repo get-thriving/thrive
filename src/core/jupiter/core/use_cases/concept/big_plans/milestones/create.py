@@ -1,19 +1,21 @@
 """The command for creating a big plan milestone."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInMutationUseCase
+from jupiter.core.config import (
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInMutationUseCaseContext,
     mutation_use_case,
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
@@ -51,7 +53,7 @@ class BigPlanMilestoneCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         args: BigPlanMilestoneCreateArgs,
     ) -> BigPlanMilestoneCreateResult:
         """Execute the command's action."""

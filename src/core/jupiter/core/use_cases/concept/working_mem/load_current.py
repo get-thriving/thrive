@@ -1,6 +1,9 @@
 """Use case for loading the current working memory file."""
 
-from jupiter.core.config import JupiterTransactionalLoggedInReadOnlyUseCase
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
     InboxTask,
     InboxTaskRepository,
@@ -19,12 +22,10 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.storage_engine import DomainUnitOfWork
 from jupiter.core.use_cases.infra.use_cases import (
-    AppLoggedInReadonlyUseCaseContext,
     readonly_use_case,
 )
-from jupiter.framework_new.repository import EntityNotFoundError
+from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
@@ -65,7 +66,7 @@ class WorkingMemLoadCurrentUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         args: WorkingMemLoadCurrentArgs,
     ) -> WorkingMemLoadCurrentResult:
         """Execute the command's action."""

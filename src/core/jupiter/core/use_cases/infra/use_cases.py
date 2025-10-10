@@ -24,7 +24,7 @@ from jupiter.framework_new.global_properties import (
 )
 from jupiter.framework_new.ports import DomainPorts, Ports
 from jupiter.framework_new.realm import RealmCodecRegistry
-from jupiter.framework_new.storage import (
+from jupiter.framework_new.repository import (
     DomainUnitOfWork,
 )
 from jupiter.framework_new.time_provider import TimeProvider
@@ -168,7 +168,7 @@ class AppGuestMutationUseCase(
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: DomainContext
+        self, auth_token: AuthToken | None, domain_context: DomainContext
     ) -> GuestMutationUseCaseContextT:
         """Build a context here."""
 
@@ -241,7 +241,7 @@ class AppGuestReadonlyUseCase(
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken
+        self, auth_token: AuthToken | None
     ) -> GuestReadonlyUseCaseContextT:
         """Build a context here."""
 
@@ -289,7 +289,15 @@ LoggedInMutationUseCaseContextT = TypeVar(
 
 
 class AppLoggedInMutationUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[
+        PortsT,
+        GlobalPropertiesT,
+        ComponentPropertiesT,
+        LoggedInUseCaseSessionT,
+        LoggedInMutationUseCaseContextT,
+        UseCaseArgsT,
+        UseCaseResultT,
+    ],
     MutationUseCase[
         PortsT,
         GlobalPropertiesT,
@@ -352,7 +360,7 @@ class AppLoggedInMutationUseCase(
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory[
-            AppLoggedInMutationUseCaseContext
+            LoggedInMutationUseCaseContextT
         ],
         auth_token_stamper: AuthTokenStamper,
         use_case_storage_engine: UseCaseStorageEngine,
@@ -419,7 +427,7 @@ class AppLoggedInMutationUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: AppLoggedInMutationUseCaseContext,
+        context: LoggedInMutationUseCaseContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -605,7 +613,7 @@ class AppLoggedInReadonlyUseCase(
     @abc.abstractmethod
     async def _construct_context(
         self, auth_token: AuthToken
-    ) -> GuestMutationUseCaseContextT:
+    ) -> LoggedInReadonlyUseCaseContextT:
         """Build a context here."""
 
 
@@ -634,7 +642,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
 
     async def _execute(
         self,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: LoggedInReadonlyUseCaseContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -645,7 +653,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: LoggedInReadonlyUseCaseContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
