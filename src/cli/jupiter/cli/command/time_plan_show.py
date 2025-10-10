@@ -1,6 +1,7 @@
 """Command for showing the time plans."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
@@ -17,13 +18,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class TimePlanShow(LoggedInReadonlyCommand[TimePlanFindUseCase, TimePlanFindResult]):
+class TimePlanShow(JupiterLoggedInReadonlyCommand[TimePlanFindUseCase, TimePlanFindResult]):
     """Command for showing the time plans."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: TimePlanFindResult,
     ) -> None:
         sorted_time_plans = sorted(

@@ -1,6 +1,7 @@
 """ommand for loading previous runs of GC."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
@@ -18,13 +19,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class GCShow(LoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]):
+class GCShow(JupiterLoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]):
     """Command for loading previous runs of GC."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: GCLoadRunsResult,
     ) -> None:
         rich_tree = Tree("🗑  GC", guide_style="bold bright_blue")

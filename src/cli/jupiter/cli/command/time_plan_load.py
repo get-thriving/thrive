@@ -1,6 +1,7 @@
 """Command for loading the time plans."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     big_plan_status_to_rich_text,
     difficulty_to_rich_text,
@@ -28,13 +29,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class TimePlanLoad(LoggedInReadonlyCommand[TimePlanLoadUseCase, TimePlanLoadResult]):
+class TimePlanLoad(JupiterLoggedInReadonlyCommand[TimePlanLoadUseCase, TimePlanLoadResult]):
     """Command for loading the time plans."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: TimePlanLoadResult,
     ) -> None:
         time_plan = result.time_plan

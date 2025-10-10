@@ -1,6 +1,7 @@
 """UseCase for showing the persons."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
@@ -20,13 +21,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class PersonShow(LoggedInReadonlyCommand[PersonFindUseCase, PersonFindResult]):
+class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindResult]):
     """UseCase for showing the persons."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: PersonFindResult,
     ) -> None:
         sorted_entries = sorted(

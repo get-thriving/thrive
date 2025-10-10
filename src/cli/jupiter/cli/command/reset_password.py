@@ -1,5 +1,7 @@
 """Command for resetting a password."""
 
+from jupiter.core.config import JupiterGuestMutationUseCaseContext
+from jupiter.cli.config import JupiterGuestMutationCommand
 from jupiter.cli.command.command import GuestMutationCommand
 from jupiter.core.use_cases.concept.auth.reset_password import (
     ResetPasswordResult,
@@ -12,13 +14,13 @@ from rich.text import Text
 
 
 @secure_class
-class ResetPassword(GuestMutationCommand[ResetPasswordUseCase, ResetPasswordResult]):
+class ResetPassword(JupiterGuestMutationCommand[ResetPasswordUseCase, ResetPasswordResult]):
     """Use case for resetting a password."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationUseCaseContext,
         result: ResetPasswordResult,
     ) -> None:
         rich_text = Text("Your recovery token is ")

@@ -9,7 +9,7 @@ import typing
 from argparse import ArgumentParser, Namespace
 from collections.abc import Iterator
 from datetime import date, datetime
-from typing import Any, Final, Generic, TypeVar, cast, get_args, get_origin
+from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_origin
 
 import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
@@ -20,6 +20,9 @@ from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterPorts,
 )
+from jupiter.framework_new.ports import Ports, DomainPorts
+from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.core.domain.app import (
     AppCore,
     AppDistribution,
@@ -122,11 +125,27 @@ class Command(abc.ABC):
         return self._postscript
 
 
-UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any])
+UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
+PortsT = TypeVar("PortsT", bound=Ports)
+DomainPortsT = TypeVar("DomainPortsT", bound=DomainPorts)
+GlobalPropertiesT = TypeVar("GlobalPropertiesT", bound=GlobalProperties)
+ComponentPropertiesT = TypeVar("ComponentPropertiesT", bound=ComponentProperties)
 UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
 UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
+GuestMutationUseCaseContextT = TypeVar(
+    "GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+)
+GuestReadonlyUseCaseContextT = TypeVar(
+    "GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+)
+LoggedInMutationUseCaseContextT = TypeVar(
+    "LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+)
+LoggedInReadonlyUseCaseContextT = TypeVar(
+    "LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+)
 UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
-UseCaseResultT = TypeVar("UseCaseResultT", bound=UseCaseResultBase | None)
+UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
 
 class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
@@ -667,12 +686,12 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
 
 
 GuestMutationCommandUseCase = TypeVar(
-    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any]
+    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
 )
 
 
 class GuestMutationCommand(
-    Generic[GuestMutationCommandUseCase, UseCaseResultT],
+    Generic[GuestMutationCommandUseCase, GuestMutationUseCaseContextT, UseCaseResultT],
     UseCaseCommand[GuestMutationCommandUseCase],
     abc.ABC,
 ):
@@ -715,19 +734,19 @@ class GuestMutationCommand(
     def _render_result(
         self,
         console: Console,
-        context: AppGuestMutationUseCaseContext,
+        context: GuestMutationUseCaseContextT,
         result: UseCaseResultT,
     ) -> None:
         """Render the result."""
 
 
 GuestReadonlyCommandUseCase = TypeVar(
-    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any, Any]
+    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any]
 )
 
 
 class GuestReadonlyCommand(
-    Generic[GuestReadonlyCommandUseCase, UseCaseResultT],
+    Generic[GuestReadonlyCommandUseCase, GuestReadonlyUseCaseContextT, UseCaseResultT],
     UseCaseCommand[GuestReadonlyCommandUseCase],
     abc.ABC,
 ):
@@ -770,7 +789,7 @@ class GuestReadonlyCommand(
     def _render_result(
         self,
         console: Console,
-        context: AppGuestReadonlyUseCaseContext,
+        context: GuestReadonlyUseCaseContextT,
         result: UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -782,12 +801,12 @@ class GuestReadonlyCommand(
 
 
 LoggedInMutationCommandUseCase = TypeVar(
-    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any, Any]
+    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
 )
 
 
 class LoggedInMutationCommand(
-    Generic[LoggedInMutationCommandUseCase, UseCaseResultT],
+    Generic[LoggedInMutationCommandUseCase, LoggedInMutationUseCaseContextT, UseCaseResultT],
     UseCaseCommand[LoggedInMutationCommandUseCase],
     abc.ABC,
 ):
@@ -830,7 +849,7 @@ class LoggedInMutationCommand(
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInMutationUseCaseContext,
+        context: LoggedInMutationUseCaseContextT,
         result: UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -842,12 +861,12 @@ class LoggedInMutationCommand(
 
 
 LoggedInReadonlyCommandUseCase = TypeVar(
-    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any, Any]
+    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any]
 )
 
 
 class LoggedInReadonlyCommand(
-    Generic[LoggedInReadonlyCommandUseCase, UseCaseResultT],
+    Generic[LoggedInReadonlyCommandUseCase, LoggedInReadonlyUseCaseContextT, UseCaseResultT],
     UseCaseCommand[LoggedInReadonlyCommandUseCase],
     abc.ABC,
 ):
@@ -890,7 +909,7 @@ class LoggedInReadonlyCommand(
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: LoggedInReadonlyUseCaseContextT,
         result: UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -948,6 +967,9 @@ class CliApp:
     _use_case_commands: dict[
         type[
             UseCase[
+                Ports,
+                GlobalProperties,
+                ComponentProperties,
                 UseCaseSessionBase,
                 UseCaseContextBase,
                 UseCaseArgsBase,
@@ -1013,6 +1035,9 @@ class CliApp:
                 type[
                     UseCaseCommand[
                         UseCase[
+                            Ports,
+                            GlobalProperties,
+                            ComponentProperties,
                             UseCaseSessionBase,
                             UseCaseContextBase,
                             UseCaseArgsBase,
@@ -1022,6 +1047,9 @@ class CliApp:
                 ],
                 type[
                     UseCase[
+                        Ports,
+                        GlobalProperties,
+                        ComponentProperties,
                         UseCaseSessionBase,
                         UseCaseContextBase,
                         UseCaseArgsBase,
@@ -1079,6 +1107,9 @@ class CliApp:
         ) -> Iterator[
             type[
                 UseCase[
+                    Ports,
+                    GlobalProperties,
+                    ComponentProperties,
                     UseCaseSessionBase,
                     UseCaseContextBase,
                     UseCaseArgsBase,
@@ -1175,7 +1206,7 @@ class CliApp:
         self,
         use_case_command_type: type[UseCaseCommand[UseCaseT]],
         use_case_type: type[
-            UseCase[UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
         ],
     ) -> "CliApp":
         if use_case_type in self._use_case_commands:
@@ -1256,7 +1287,7 @@ class CliApp:
     def _add_use_case_type(
         self,
         use_case_type: type[
-            UseCase[UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
         ],
     ) -> "CliApp":
         if use_case_type in self._use_case_commands:
@@ -1266,16 +1297,14 @@ class CliApp:
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
-                use_case=use_case_type(  # type: ignore
-                    time_provider=self._time_provider,
-                    invocation_recorder=self._invocation_recorder,
-                    realm_codec_registry=self._realm_codec_registry,
-                    progress_reporter_factory=NoOpProgressReporterFactory(),
+                use_case=use_case_type(
+                    ports=self._ports,
                     global_properties=self._global_properties,
+                    time_provider=self._time_provider,
+                    realm_codec_registry=self._realm_codec_registry,
+                    invocation_recorder=self._invocation_recorder,
+                    progress_reporter_factory=NoOpProgressReporterFactory(),
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._ports.domain_storage_engine,
-                    search_storage_engine=self._ports.search_storage_engine,
-                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
@@ -1283,13 +1312,12 @@ class CliApp:
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
-                use_case=use_case_type(  # type: ignore
+                use_case=use_case_type(
+                    ports=self._ports,
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._ports.domain_storage_engine,
-                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -1297,17 +1325,15 @@ class CliApp:
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
-                use_case=use_case_type(  # type: ignore
+                use_case=use_case_type(
+                    ports=self._ports,
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     invocation_recorder=self._invocation_recorder,
                     progress_reporter_factory=self._progress_reporter_factory,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._ports.domain_storage_engine,
-                    search_storage_engine=self._ports.search_storage_engine,
                     use_case_storage_engine=self._use_case_storage_engine,
-                    crm=self._ports.crm,
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
@@ -1315,13 +1341,12 @@ class CliApp:
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
-                use_case=use_case_type(  # type: ignore
+                use_case=use_case_type(
+                    ports=self._ports,
                     global_properties=self._global_properties,
                     time_provider=self._time_provider,
                     realm_codec_registry=self._realm_codec_registry,
                     auth_token_stamper=self._auth_token_stamper,
-                    domain_storage_engine=self._ports.domain_storage_engine,
-                    search_storage_engine=self._ports.search_storage_engine,
                 ),
             )
         else:

@@ -1,6 +1,7 @@
 """Command for showing the schedule streams."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import entity_id_to_rich_text
 from jupiter.core.use_cases.concept.schedule.stream.find import (
     ScheduleStreamFindResult,
@@ -13,14 +14,14 @@ from rich.tree import Tree
 
 
 class ScheduleStreamShow(
-    LoggedInReadonlyCommand[ScheduleStreamFindUseCase, ScheduleStreamFindResult]
+    JupiterLoggedInReadonlyCommand[ScheduleStreamFindUseCase, ScheduleStreamFindResult]
 ):
     """Command class for showing the schedule streams."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: ScheduleStreamFindResult,
     ) -> None:
         rich_tree = Tree("📅 Schedule Streams", guide_style="bold bright_blue")

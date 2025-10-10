@@ -2,7 +2,8 @@
 
 from typing import cast
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
@@ -16,13 +17,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class Search(LoggedInReadonlyCommand[SearchUseCase, SearchResult]):
+class Search(JupiterLoggedInReadonlyCommand[SearchUseCase, SearchResult]):
     """Command for free form searching across all of jupiter."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: SearchResult,
     ) -> None:
         result_page_text = Text(f"🚀 Showing {len(result.matches)} matches:")

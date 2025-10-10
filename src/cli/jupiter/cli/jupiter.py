@@ -4,6 +4,7 @@ import asyncio
 import logging
 import sys
 
+from jupiter.core.config import JupiterGuestUseCaseSession
 import jupiter.cli.command
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
@@ -120,7 +121,7 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = AppGuestUseCaseSession.build(
+    guest_session = JupiterGuestUseCaseSession.build(
         component_properties=JupiterComponentProperties.for_app(
             core=AppCore.CLI,
             the_shell=AppShell.CLI,

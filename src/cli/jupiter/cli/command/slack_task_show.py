@@ -1,6 +1,7 @@
 """UseCase for showing the slack tasks."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
     difficulty_to_rich_text,
@@ -24,13 +25,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class SlackTaskShow(LoggedInReadonlyCommand[SlackTaskFindUseCase, SlackTaskFindResult]):
+class SlackTaskShow(JupiterLoggedInReadonlyCommand[SlackTaskFindUseCase, SlackTaskFindResult]):
     """UseCase class for showing the slack tasks."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: SlackTaskFindResult,
     ) -> None:
         sorted_slack_tasks = sorted(

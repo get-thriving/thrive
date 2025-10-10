@@ -62,17 +62,6 @@ class AppGuestUseCaseSession(EmptySession):
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt | None
 
-    @staticmethod
-    def build(
-        component_properties: ComponentProperties,
-        auth_token_ext: AuthTokenExt | None,
-    ) -> "AppGuestUseCaseSession":
-        """Create a session for a given app particulars."""
-        return AppGuestUseCaseSession(
-            component_properties=component_properties,
-            auth_token_ext=auth_token_ext,
-        )
-
 
 GuestUseCaseSessionT = TypeVar("GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
 

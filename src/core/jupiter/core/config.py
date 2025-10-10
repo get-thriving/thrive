@@ -41,6 +41,7 @@ from jupiter.core.use_cases.infra.use_cases import (
     SysBackgroundMutationUseCase,
 )
 from jupiter.framework_new.auth.auth_token import AuthToken
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import DomainContext
@@ -272,6 +273,17 @@ class JupiterComponentProperties(ComponentProperties):
 class JupiterGuestUseCaseSession(AppGuestUseCaseSession):
     """A Jupiter specific guest use case session."""
 
+    @staticmethod
+    def build(
+        component_properties: JupiterComponentProperties,
+        auth_token_ext: AuthTokenExt | None,
+    ) -> "JupiterGuestUseCaseSession":
+        """Create a session for a given app particulars."""
+        return JupiterGuestUseCaseSession(
+            component_properties=component_properties,
+            auth_token_ext=auth_token_ext,
+        )
+
 
 @dataclass(frozen=True)
 class JupiterLoggedInUseCaseSession(AppLoggedInUseCaseSession):
@@ -481,6 +493,7 @@ class JupiterLoggedInMutationUseCase(
 
 class JupiterTransactionalLoggedInMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
+    JupiterLoggedInMutationUseCase[UseCaseArgsT, UseCaseResultT],
     AppTransactionalLoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -532,6 +545,7 @@ class JupiterLoggedInReadonlyUseCase(
 
 class JupiterTransactionalLoggedInReadOnlyUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
+    JupiterLoggedInReadonlyUseCase[UseCaseArgsT, UseCaseResultT],
     AppTransactionalLoggedInReadOnlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,

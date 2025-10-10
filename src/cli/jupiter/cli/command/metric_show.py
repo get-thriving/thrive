@@ -2,7 +2,8 @@
 
 from typing import cast
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_from_day_to_rich_text,
     actionable_from_month_to_rich_text,
@@ -28,13 +29,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class MetricShow(LoggedInReadonlyCommand[MetricFindUseCase, MetricFindResult]):
+class MetricShow(JupiterLoggedInReadonlyCommand[MetricFindUseCase, MetricFindResult]):
     """UseCase for showing metrics."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: MetricFindResult,
     ) -> None:
         sorted_metrics = sorted(

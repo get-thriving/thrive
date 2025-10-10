@@ -4,7 +4,8 @@ import asyncio
 from argparse import Namespace
 
 import beepy
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.session_storage import SessionInfo
 from jupiter.core.utils.noop_use_case import NoOpUseCase
 from rich.console import Console
@@ -13,7 +14,7 @@ from rich.progress import Progress
 _TIMER_SECONDS = 60 * 25
 
 
-class Pomodoro(LoggedInReadonlyCommand[NoOpUseCase, None]):
+class Pomodoro(JupiterLoggedInReadonlyCommand[NoOpUseCase, None]):
     """Command for running a pomodoro timer."""
 
     async def _run(

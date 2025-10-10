@@ -1,6 +1,7 @@
 """UseCase for showing the inbox tasks."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
     difficulty_to_rich_text,
@@ -24,13 +25,13 @@ from rich.text import Text
 from rich.tree import Tree
 
 
-class InboxTaskShow(LoggedInReadonlyCommand[InboxTaskFindUseCase, InboxTaskFindResult]):
+class InboxTaskShow(JupiterLoggedInReadonlyCommand[InboxTaskFindUseCase, InboxTaskFindResult]):
     """UseCase class for showing the inbox tasks."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyUseCaseContext,
         result: InboxTaskFindResult,
     ) -> None:
         sorted_inbox_tasks = sorted(

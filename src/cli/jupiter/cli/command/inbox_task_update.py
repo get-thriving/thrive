@@ -1,5 +1,7 @@
 """UseCase for updating inbox tasks."""
 
+from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
+from jupiter.cli.config import JupiterLoggedInMutationCommand
 from jupiter.cli.command.command import LoggedInMutationCommand
 from jupiter.core.use_cases.concept.inbox_tasks.update import (
     InboxTaskUpdateResult,
@@ -11,14 +13,14 @@ from rich.text import Text
 
 
 class InboxTaskUpdate(
-    LoggedInMutationCommand[InboxTaskUpdateUseCase, InboxTaskUpdateResult]
+    JupiterLoggedInMutationCommand[InboxTaskUpdateUseCase, InboxTaskUpdateResult]
 ):
     """UseCase class for updating inbox tasks."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationUseCaseContext,
         result: InboxTaskUpdateResult,
     ) -> None:
         if result.record_score_result is not None:
