@@ -40,6 +40,28 @@ from pendulum.datetime import DateTime
 from rich.console import Console
 from rich.text import Text
 
+_UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_AppGuestUseCaseSessionT = TypeVar(
+    "_AppGuestUseCaseSessionT", bound=AppGuestUseCaseSession
+)
+_AppLoggedInUseCaseSessionT = TypeVar(
+    "_AppLoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
+)
+_GuestMutationUseCaseContextT = TypeVar(
+    "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+)
+_GuestReadonlyUseCaseContextT = TypeVar(
+    "_GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+)
+_LoggedInMutationUseCaseContextT = TypeVar(
+    "_LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+)
+_LoggedInReadonlyUseCaseContextT = TypeVar(
+    "_LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+)
+_UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
+
 
 class Command(abc.ABC):
     """The base class for command."""
@@ -96,43 +118,20 @@ class Command(abc.ABC):
         return self._postscript
 
 
-UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
-GlobalPropertiesT = TypeVar("GlobalPropertiesT", bound=GlobalProperties)
-AppGuestUseCaseSessionT = TypeVar(
-    "AppGuestUseCaseSessionT", bound=AppGuestUseCaseSession
-)
-AppLoggedInUseCaseSessionT = TypeVar(
-    "AppLoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
-)
-GuestMutationUseCaseContextT = TypeVar(
-    "GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
-)
-GuestReadonlyUseCaseContextT = TypeVar(
-    "GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
-)
-LoggedInMutationUseCaseContextT = TypeVar(
-    "LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
-)
-LoggedInReadonlyUseCaseContextT = TypeVar(
-    "LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
-)
-UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
-
-
-class UseCaseCommand(Generic[GlobalPropertiesT, UseCaseT], Command, abc.ABC):
+class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
     """Base class for commands based on use cases."""
 
-    _global_properties: GlobalPropertiesT
+    _global_properties: _GlobalPropertiesT
     _realm_codec_registry: Final[RealmCodecRegistry]
     _args_type: Final[type[UseCaseArgsBase]]
-    _use_case: UseCaseT
+    _use_case: _UseCaseT
 
     def __init__(
         self,
-        global_properties: GlobalPropertiesT,
+        global_properties: _GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
-        use_case: UseCaseT,
+        use_case: _UseCaseT,
     ) -> None:
         """Constructor."""
         super().__init__(session_storage)
@@ -166,7 +165,7 @@ class UseCaseCommand(Generic[GlobalPropertiesT, UseCaseT], Command, abc.ABC):
         self._build_parser_for_use_case_args(self._args_type, parser)
 
     @staticmethod
-    def _infer_args_class(use_case: UseCaseT) -> type[UseCaseArgsBase]:
+    def _infer_args_class(use_case: _UseCaseT) -> type[UseCaseArgsBase]:
         use_case_type = use_case.__class__
         if not hasattr(use_case_type, "__orig_bases__"):
             raise Exception("No args class found")
@@ -656,21 +655,21 @@ class UseCaseCommand(Generic[GlobalPropertiesT, UseCaseT], Command, abc.ABC):
         process_one_concept(args_type)
 
 
-GuestMutationCommandUseCase = TypeVar(
-    "GuestMutationCommandUseCase",
+_GuestMutationCommandUseCaseT = TypeVar(
+    "_GuestMutationCommandUseCaseT",
     bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class GuestMutationCommand(
     Generic[
-        GuestMutationCommandUseCase,
-        GlobalPropertiesT,
-        AppGuestUseCaseSessionT,
-        GuestMutationUseCaseContextT,
-        UseCaseResultT,
+        _GuestMutationCommandUseCaseT,
+        _GlobalPropertiesT,
+        _AppGuestUseCaseSessionT,
+        _GuestMutationUseCaseContextT,
+        _UseCaseResultT,
     ],
-    UseCaseCommand[GlobalPropertiesT, GuestMutationCommandUseCase],
+    UseCaseCommand[_GlobalPropertiesT, _GuestMutationCommandUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which do not require authentication."""
@@ -701,33 +700,33 @@ class GuestMutationCommand(
     @abc.abstractmethod
     def _build_session(
         self, session_info: SessionInfo | None
-    ) -> AppGuestUseCaseSessionT:
+    ) -> _AppGuestUseCaseSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: GuestMutationUseCaseContextT,
-        result: UseCaseResultT,
+        context: _GuestMutationUseCaseContextT,
+        result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
 
 
-GuestReadonlyCommandUseCase = TypeVar(
-    "GuestReadonlyCommandUseCase",
+_GuestReadonlyCommandUseCaseT = TypeVar(
+    "_GuestReadonlyCommandUseCaseT",
     bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class GuestReadonlyCommand(
     Generic[
-        GuestReadonlyCommandUseCase,
-        GlobalPropertiesT,
-        AppGuestUseCaseSessionT,
-        GuestReadonlyUseCaseContextT,
-        UseCaseResultT,
+        _GuestReadonlyCommandUseCaseT,
+        _GlobalPropertiesT,
+        _AppGuestUseCaseSessionT,
+        _GuestReadonlyUseCaseContextT,
+        _UseCaseResultT,
     ],
-    UseCaseCommand[GlobalPropertiesT, GuestReadonlyCommandUseCase],
+    UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyCommandUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -758,14 +757,14 @@ class GuestReadonlyCommand(
     @abc.abstractmethod
     def _build_session(
         self, session_info: SessionInfo | None
-    ) -> AppGuestUseCaseSessionT:
+    ) -> _AppGuestUseCaseSessionT:
         """Build the context."""
 
     def _render_result(
         self,
         console: Console,
-        context: GuestReadonlyUseCaseContextT,
-        result: UseCaseResultT,
+        context: _GuestReadonlyUseCaseContextT,
+        result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
 
@@ -775,21 +774,21 @@ class GuestReadonlyCommand(
         return False
 
 
-LoggedInMutationCommandUseCase = TypeVar(
-    "LoggedInMutationCommandUseCase",
+_LoggedInMutationCommandUseCaseT = TypeVar(
+    "_LoggedInMutationCommandUseCaseT",
     bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class LoggedInMutationCommand(
     Generic[
-        LoggedInMutationCommandUseCase,
-        GlobalPropertiesT,
-        AppLoggedInUseCaseSessionT,
-        LoggedInMutationUseCaseContextT,
-        UseCaseResultT,
+        _LoggedInMutationCommandUseCaseT,
+        _GlobalPropertiesT,
+        _AppLoggedInUseCaseSessionT,
+        _LoggedInMutationUseCaseContextT,
+        _UseCaseResultT,
     ],
-    UseCaseCommand[GlobalPropertiesT, LoggedInMutationCommandUseCase],
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationCommandUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which require authentication."""
@@ -818,14 +817,14 @@ class LoggedInMutationCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo) -> AppLoggedInUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo) -> _AppLoggedInUseCaseSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: LoggedInMutationUseCaseContextT,
-        result: UseCaseResultT,
+        context: _LoggedInMutationUseCaseContextT,
+        result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
 
@@ -835,21 +834,21 @@ class LoggedInMutationCommand(
         return self._use_case.is_allowed_globally
 
 
-LoggedInReadonlyCommandUseCase = TypeVar(
-    "LoggedInReadonlyCommandUseCase",
+_LoggedInReadonlyCommandUseCaseT = TypeVar(
+    "_LoggedInReadonlyCommandUseCaseT",
     bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 
 
 class LoggedInReadonlyCommand(
     Generic[
-        LoggedInReadonlyCommandUseCase,
-        GlobalPropertiesT,
-        AppLoggedInUseCaseSessionT,
-        LoggedInReadonlyUseCaseContextT,
-        UseCaseResultT,
+        _LoggedInReadonlyCommandUseCaseT,
+        _GlobalPropertiesT,
+        _AppLoggedInUseCaseSessionT,
+        _LoggedInReadonlyUseCaseContextT,
+        _UseCaseResultT,
     ],
-    UseCaseCommand[GlobalPropertiesT, LoggedInReadonlyCommandUseCase],
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyCommandUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -878,14 +877,14 @@ class LoggedInReadonlyCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo) -> AppLoggedInUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo) -> _AppLoggedInUseCaseSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: LoggedInReadonlyUseCaseContextT,
-        result: UseCaseResultT,
+        context: _LoggedInReadonlyUseCaseContextT,
+        result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
 
@@ -901,8 +900,8 @@ class LoggedInReadonlyCommand(
 
 
 class TestHelperCommand(
-    Generic[GlobalPropertiesT, UseCaseT],
-    UseCaseCommand[GlobalPropertiesT, UseCaseT],
+    Generic[_GlobalPropertiesT, _UseCaseT],
+    UseCaseCommand[_GlobalPropertiesT, _UseCaseT],
     abc.ABC,
 ):
     """Base class for commands used in tests."""
