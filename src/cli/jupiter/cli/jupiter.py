@@ -6,6 +6,8 @@ import sys
 
 from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStorageEngine
 
+from jupiter.cli.config import JupiterCliApp
+import jupiter.cli.config
 import jupiter.cli.command
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite
@@ -134,7 +136,7 @@ async def main() -> None:
         guest_session, LoadTopLevelInfoArgs()
     )
 
-    cli_app = CliApp.build_from_module_root(
+    cli_app = JupiterCliApp.build_from_module_root(
         ports,
         global_properties,
         time_provider,
@@ -145,6 +147,7 @@ async def main() -> None:
         usecase_storage_engine,
         console,
         session_storage,
+        jupiter.cli.config,
         jupiter.core.use_cases,
         jupiter.cli.command,
     )

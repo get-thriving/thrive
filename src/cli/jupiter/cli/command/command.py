@@ -930,6 +930,8 @@ class CliExceptionHandler(Generic[GlobalPropertiesT, _ExceptionT], abc.ABC):
         """Handle an exception."""
 
 
+_CliAppT = TypeVar("_CliAppT", bound="CliApp[Any, Any, Any]")  # type: ignore
+
 class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
     """A CLI application."""
 
@@ -957,6 +959,10 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         ],
         Command,
     ]
+    _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
+    _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
+    _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
+    _logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand]  # type: ignore[type-arg]
     _commands: dict[str, Command]
     _exception_handlers: dict[type[Exception], CliExceptionHandler[GlobalProperties, Exception]]
 
@@ -972,6 +978,10 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         use_case_storage_engine: UseCaseStorageEngine,
         console: Console,
         session_storage: SessionStorage,
+        guest_mutation_command_ctor: type[GuestMutationCommand],  # type: ignore[type-arg]
+        guest_readonly_command_ctor: type[GuestReadonlyCommand],  # type: ignore[type-arg]
+        logged_in_mutation_command_ctor: type[LoggedInMutationCommand],  # type: ignore[type-arg]
+        logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand]  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
         self._ports = ports
@@ -985,11 +995,16 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         self._console = console
         self._session_storage = session_storage
         self._use_case_commands = {}
+        self._guest_mutation_command_ctor = guest_mutation_command_ctor
+        self._guest_readoly_command_ctor = guest_readonly_command_ctor
+        self._logged_in_mutation_command_ctor = logged_in_mutation_command_ctor
+        self._logged_in_readonly_command_ctor = logged_in_readonly_command_ctor
         self._commands = {}
         self._exception_handlers = {}
 
-    @staticmethod
+    @classmethod
     def build_from_module_root(
+        cls: type[_CliAppT],
         ports: PortsT,
         global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
@@ -1000,9 +1015,36 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         use_case_storage_engine: UseCaseStorageEngine,
         console: Console,
         session_storage: SessionStorage,
+        config_root: types.ModuleType,
         *module_root: types.ModuleType,
-    ) -> "CliApp[PortsT, GlobalPropertiesT, ComponentPropertiesT]":
+    ) -> "_CliAppT":
         """Build a CLI app from the module root."""
+
+        def extract_specific_command(the_module: types.ModuleType, clazz: type) -> type:  # type: ignore[type-arg]
+            for _name, obj in the_module.__dict__.items():
+                origin_obj = get_origin(obj)
+                if not (
+                    isinstance(obj, type)
+                    and issubclass(origin_obj or obj, clazz)
+                ):
+                    continue
+
+                if obj.__module__ != the_module.__name__:
+                    # This is an import, and not a definition!
+                    continue
+
+                if not hasattr(obj, "__parameters__") or not hasattr(
+                    obj.__parameters__, "__len__"
+                ):
+                    continue
+
+                if len(obj.__parameters__) == 0:  # type: ignore
+                    # This should still be a generic type
+                    continue
+
+                return obj
+
+            raise Exception(f"Could not find {clazz.__name__} in {the_module.__name__}")
 
         def extract_use_case_command(
             the_module: types.ModuleType,
@@ -1118,7 +1160,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
 
         def extract_exception_handler(
             the_module: types.ModuleType,
-        ) -> Iterator[tuple[type[Exception], type[CliExceptionHandler[GlobalPropertiesT, Exception]]]]:
+        ) -> Iterator[tuple[type[Exception], type[CliExceptionHandler[GlobalProperties, Exception]]]]:
             for _name, obj in the_module.__dict__.items():
                 origin_obj = get_origin(obj)
                 if not (
@@ -1145,7 +1187,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
 
                 yield exception_type, obj
 
-        cli_app = CliApp(
+        cli_app = cls(
             ports=ports,
             global_properties=global_properties,
             time_provider=time_provider,
@@ -1156,6 +1198,10 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
             use_case_storage_engine=use_case_storage_engine,
             console=console,
             session_storage=session_storage,
+            guest_mutation_command_ctor=extract_specific_command(config_root, GuestMutationCommand),
+            guest_readonly_command_ctor=extract_specific_command(config_root, GuestReadonlyCommand),
+            logged_in_mutation_command_ctor=extract_specific_command(config_root, LoggedInMutationCommand),
+            logged_in_readonly_command_ctor=extract_specific_command(config_root, LoggedInReadonlyCommand),
         )
 
         for m in find_all_modules(*module_root):
@@ -1192,7 +1238,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
                 UseCaseResultBase | None,
             ]
         ],
-    ) -> "CliApp":
+    ) -> None:
         if use_case_type in self._use_case_commands:
             raise Exception(
                 f"Use case command type {use_case_command_type} already added"
@@ -1257,16 +1303,13 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         else:
             pass
 
-        return self
-
-    def _add_command(self, command_type: type[Command]) -> "CliApp":
+    def _add_command(self, command_type: type[Command]) -> None:
         command = command_type(
             session_storage=self._session_storage,
         )
         if command.name() in self._commands:
             raise Exception(f"Command type {command} already added")
         self._commands[command.name()] = command
-        return self
 
     def _add_use_case_type(
         self,
@@ -1285,7 +1328,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
         if use_case_type in self._use_case_commands:
             raise Exception(f"Use case type {use_case_type} already added")
         if issubclass(use_case_type, AppGuestMutationUseCase):
-            self._use_case_commands[use_case_type] = GuestMutationCommand(
+            self._use_case_commands[use_case_type] = self._guest_mutation_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
@@ -1300,7 +1343,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
                 ),
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
-            self._use_case_commands[use_case_type] = GuestReadonlyCommand(
+            self._use_case_commands[use_case_type] = self._guest_readoly_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
@@ -1313,7 +1356,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
-            self._use_case_commands[use_case_type] = LoggedInMutationCommand(
+            self._use_case_commands[use_case_type] = self._logged_in_mutation_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
@@ -1329,7 +1372,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
                 ),
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
-            self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
+            self._use_case_commands[use_case_type] = self._logged_in_readonly_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
@@ -1348,7 +1391,7 @@ class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
     def _add_exception_handler(
         self,
         exception_type: type[Exception],
-        exception_handler: type[CliExceptionHandler[GlobalPropertiesT, Exception]],
+        exception_handler: type[CliExceptionHandler[GlobalProperties, Exception]],
     ) -> None:
         if exception_type in self._exception_handlers:
             raise Exception(

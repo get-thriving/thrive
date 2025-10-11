@@ -5,7 +5,7 @@ from typing import Any, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
 
-from cli.jupiter.cli.session_storage import SessionInfo
+from jupiter.cli.session_storage import SessionInfo
 from jupiter.cli.command.command import (
     CliApp,
     CliExceptionHandler,
@@ -50,7 +50,6 @@ _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 class JupiterGuestMutationCommand(
     Generic[JupiterGuestMutationUseCaseT, UseCaseResultT],
     GuestMutationCommand[JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestMutationUseCaseContext, UseCaseResultT],  # type: ignore
-    abc.ABC,
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -70,7 +69,6 @@ class JupiterGuestMutationCommand(
 class JupiterGuestReadonlyCommand(
     Generic[JupiterGuestReadonlyUseCaseT, UseCaseResultT],
     GuestReadonlyCommand[JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestReadonlyUseCaseContext, UseCaseResultT],  # type: ignore
-    abc.ABC,
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -90,7 +88,6 @@ class JupiterGuestReadonlyCommand(
 class JupiterLoggedInMutationCommand(
     Generic[JupiterLoggedInMutationUseCaseT, UseCaseResultT],
     LoggedInMutationCommand[JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInMutationUseCaseContext, UseCaseResultT],  # type: ignore
-    abc.ABC,
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
@@ -110,7 +107,6 @@ class JupiterLoggedInMutationCommand(
 class JupiterLoggedInReadonlyCommand(
     Generic[JupiterLoggedInReadonlyUseCaseT, UseCaseResultT],
     LoggedInReadonlyCommand[JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInReadonlyUseCaseContext, UseCaseResultT],  # type: ignore
-    abc.ABC,
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
