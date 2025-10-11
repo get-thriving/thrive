@@ -2,7 +2,7 @@
 
 import sys
 
-from jupiter.cli.command.command import CliApp, CliExceptionHandler
+from jupiter.cli.config import JupiterExceptionHandler
 from jupiter.cli.session_storage import SessionInfoNotFoundError
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
@@ -34,23 +34,23 @@ from jupiter.framework_new.use_case import UnavailableForContextError
 from rich.console import Console
 
 
-class SessionInfoNotFoundHandler(CliExceptionHandler[SessionInfoNotFoundError]):
+class SessionInfoNotFoundHandler(JupiterExceptionHandler[SessionInfoNotFoundError]):
     """Handle the session info not found error."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: SessionInfoNotFoundError
+        self, console: Console, exception: SessionInfoNotFoundError
     ) -> None:
         """Handle the session info not found error."""
         console.print("No session info found. Please log in or create a new account.")
-        console.print(f"Checkout '{app._global_properties.docs_init_workspace_url}'.")
+        console.print(f"Checkout '{self._global_properties.docs_init_workspace_url}'.")
         sys.exit(1)
 
 
-class InputValidationHandler(CliExceptionHandler[InputValidationError]):
+class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
     """Handle input validation errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: InputValidationError
+        self, console: Console, exception: InputValidationError
     ) -> None:
         """Handle input validation errors."""
         print("Looks like there's something wrong with the command's arguments:")
@@ -58,11 +58,11 @@ class InputValidationHandler(CliExceptionHandler[InputValidationError]):
         sys.exit(1)
 
 
-class MultiInputValidationHandler(CliExceptionHandler[MultiInputValidationError]):
+class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
     """Handle input validation errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: MultiInputValidationError
+        self, console: Console, exception: MultiInputValidationError
     ) -> None:
         """Handle input validation errors."""
         print("Looks like there's something wrong with the command's arguments:")
@@ -71,22 +71,22 @@ class MultiInputValidationHandler(CliExceptionHandler[MultiInputValidationError]
         sys.exit(1)
 
 
-class FeatureUnavailableHandler(CliExceptionHandler[UnavailableForContextError]):
+class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: UnavailableForContextError
+        self, console: Console, exception: UnavailableForContextError
     ) -> None:
         """Handle feature unavailable errors."""
         console.print(f"{exception}")
         sys.exit(1)
 
 
-class UserAlreadyExistsHandler(CliExceptionHandler[UserAlreadyExistsError]):
+class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: UserAlreadyExistsError
+        self, console: Console, exception: UserAlreadyExistsError
     ) -> None:
         """Handle user already exists errors."""
         print("A user with the same identity already seems to exist here!")
@@ -94,11 +94,11 @@ class UserAlreadyExistsHandler(CliExceptionHandler[UserAlreadyExistsError]):
         sys.exit(1)
 
 
-class ExpiredAuthTokenandler(CliExceptionHandler[ExpiredAuthTokenError]):
+class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
     """Handle expired auth token errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: ExpiredAuthTokenError
+        self, console: Console, exception: ExpiredAuthTokenError
     ) -> None:
         """Handle expired auth token errors."""
         print("Your authentication token has expired.")
@@ -106,11 +106,11 @@ class ExpiredAuthTokenandler(CliExceptionHandler[ExpiredAuthTokenError]):
         sys.exit(1)
 
 
-class InvalidLoginCredentialsHandler(CliExceptionHandler[InvalidLoginCredentialsError]):
+class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredentialsError]):
     """Handle invalid login credentials errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: InvalidLoginCredentialsError
+        self, console: Console, exception: InvalidLoginCredentialsError
     ) -> None:
         """Handle invalid login credentials errors."""
         print("The user and/or password are invalid!")
@@ -119,16 +119,16 @@ class InvalidLoginCredentialsHandler(CliExceptionHandler[InvalidLoginCredentials
         print(" * Run 'init' to create a user and workspace!")
         print(" * Run 'reset-password' to reset your password!")
         print(
-            f"For more information checkout: {app.global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
         )
         sys.exit(1)
 
 
-class ProjectInSignificantUseHandler(CliExceptionHandler[ProjectInSignificantUseError]):
+class ProjectInSignificantUseHandler(JupiterExceptionHandler[ProjectInSignificantUseError]):
     """Handle project in significant use errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: ProjectInSignificantUseError
+        self, console: Console, exception: ProjectInSignificantUseError
     ) -> None:
         """Handle project in significant use errors."""
         print(f"The selected project is still being used. Reason: {exception}")
@@ -137,13 +137,12 @@ class ProjectInSignificantUseHandler(CliExceptionHandler[ProjectInSignificantUse
 
 
 class TimePlanExistsForDatePeriodCombinationHandler(
-    CliExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
 ):
     """Handle time plans already existing."""
 
     def handle(
         self,
-        app: CliApp,
         console: Console,
         exception: TimePlanExistsForDatePeriodCombinationError,
     ) -> None:
@@ -153,13 +152,12 @@ class TimePlanExistsForDatePeriodCombinationHandler(
 
 
 class BigPlanMilestoneAlreadyExistsForDateHandler(
-    CliExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
 ):
     """Handle big plan milestone already exists for date errors."""
 
     def handle(
         self,
-        app: CliApp,
         console: Console,
         exception: BigPlanMilestoneAlreadyExistsForDateError,
     ) -> None:
@@ -169,13 +167,12 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
 
 
 class JournalExistsForDatePeriodCombinationHandler(
-    CliExceptionHandler[JournalExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[JournalExistsForDatePeriodCombinationError]
 ):
     """Handle journal already existing."""
 
     def handle(
         self,
-        app: CliApp,
         console: Console,
         exception: JournalExistsForDatePeriodCombinationError,
     ) -> None:
@@ -184,27 +181,27 @@ class JournalExistsForDatePeriodCombinationHandler(
         sys.exit(1)
 
 
-class InvalidAuthTokenHandler(CliExceptionHandler[InvalidAuthTokenError]):
+class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
     """Handle invalid auth token errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: InvalidAuthTokenError
+        self, console: Console, exception: InvalidAuthTokenError
     ) -> None:
         """Handle invalid auth token errors."""
         print(
             "Your session seems to be invalid! Please run 'init' or 'login' to fix this!"
         )
         print(
-            f"For more information checkout: {app.global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
 
 
-class ConnectionPrepareHandler(CliExceptionHandler[ConnectionPrepareError]):
+class ConnectionPrepareHandler(JupiterExceptionHandler[ConnectionPrepareError]):
     """Handle connection prepare errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: ConnectionPrepareError
+        self, console: Console, exception: ConnectionPrepareError
     ) -> None:
         """Handle connection prepare errors."""
         print("A connection to the database couldn't be established!")
@@ -213,43 +210,43 @@ class ConnectionPrepareHandler(CliExceptionHandler[ConnectionPrepareError]):
         sys.exit(2)
 
 
-class UserNotFoundHandler(CliExceptionHandler[UserNotFoundError]):
+class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: UserNotFoundError
+        self, console: Console, exception: UserNotFoundError
     ) -> None:
         """Handle user not found errors."""
         print(
             "The user you're trying to operate as does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {app.global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
 
 
-class WorkspaceNotFoundHandler(CliExceptionHandler[WorkspaceNotFoundError]):
+class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: WorkspaceNotFoundError
+        self, console: Console, exception: WorkspaceNotFoundError
     ) -> None:
         """Handle workspace not found errors."""
         print(
             "The workspace you're trying to operate in does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {app.global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
 
 
-class EntityNotFoundHandler(CliExceptionHandler[EntityNotFoundError]):
+class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
     """Handle entity not found errors."""
 
     def handle(
-        self, app: CliApp, console: Console, exception: EntityNotFoundError
+        self, console: Console, exception: EntityNotFoundError
     ) -> None:
         """Handle entity not found errors."""
         print(str(exception))

@@ -273,21 +273,11 @@ class JupiterComponentProperties(ComponentProperties):
 class JupiterGuestUseCaseSession(AppGuestUseCaseSession):
     """A Jupiter specific guest use case session."""
 
-    @staticmethod
-    def build(
-        component_properties: JupiterComponentProperties,
-        auth_token_ext: AuthTokenExt | None,
-    ) -> "JupiterGuestUseCaseSession":
-        """Create a session for a given app particulars."""
-        return JupiterGuestUseCaseSession(
-            component_properties=component_properties,
-            auth_token_ext=auth_token_ext,
-        )
-
 
 @dataclass(frozen=True)
 class JupiterLoggedInUseCaseSession(AppLoggedInUseCaseSession):
     """A Jupiter specific logged in use case session."""
+
 
 
 @dataclass(frozen=True)

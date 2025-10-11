@@ -14,17 +14,6 @@ from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_orig
 import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
-from jupiter.core.config import (
-    JupiterComponentProperties,
-    JupiterGlobalProperties,
-    JupiterPorts,
-)
-from jupiter.core.domain.app import (
-    AppCore,
-    AppDistribution,
-    AppPlatform,
-    AppShell,
-)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
@@ -128,6 +117,8 @@ DomainPortsT = TypeVar("DomainPortsT", bound=DomainPorts)
 GlobalPropertiesT = TypeVar("GlobalPropertiesT", bound=GlobalProperties)
 ComponentPropertiesT = TypeVar("ComponentPropertiesT", bound=ComponentProperties)
 UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
+AppGuestUseCaseSessionT = TypeVar("AppGuestUseCaseSessionT", bound=AppGuestUseCaseSession)
+AppLoggedInUseCaseSessionT = TypeVar("AppLoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession)
 UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
 GuestMutationUseCaseContextT = TypeVar(
     "GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
@@ -145,17 +136,17 @@ UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
 UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
 
-class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
+class UseCaseCommand(Generic[GlobalPropertiesT, UseCaseT], Command, abc.ABC):
     """Base class for commands based on use cases."""
 
-    _global_properties: Final[JupiterGlobalProperties]
+    _global_properties: GlobalPropertiesT
     _realm_codec_registry: Final[RealmCodecRegistry]
     _args_type: Final[type[UseCaseArgsBase]]
     _use_case: UseCaseT
 
     def __init__(
         self,
-        global_properties: JupiterGlobalProperties,
+        global_properties: GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
         session_storage: SessionStorage,
         use_case: UseCaseT,
@@ -689,8 +680,8 @@ GuestMutationCommandUseCase = TypeVar(
 
 
 class GuestMutationCommand(
-    Generic[GuestMutationCommandUseCase, GuestMutationUseCaseContextT, UseCaseResultT],
-    UseCaseCommand[GuestMutationCommandUseCase],
+    Generic[GuestMutationCommandUseCase, GlobalPropertiesT, AppGuestUseCaseSessionT, GuestMutationUseCaseContextT, UseCaseResultT],
+    UseCaseCommand[GlobalPropertiesT, GuestMutationCommandUseCase],
     abc.ABC,
 ):
     """Base class for commands which do not require authentication."""
@@ -714,20 +705,16 @@ class GuestMutationCommand(
         parsed_args = self._realm_codec_registry.get_decoder(
             self._args_type, CliRealm
         ).decode(vars(args))
-        context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.build(
-                JupiterComponentProperties.for_app(
-                    core=AppCore.CLI,
-                    the_shell=AppShell.CLI,
-                    platform=AppPlatform.DESKTOP_MACOS,
-                    distribution=AppDistribution.MAC_WEB,
-                    version=self._global_properties.version,
-                ),
-                session_info.auth_token_ext if session_info else None,
-            ),
-            parsed_args,
-        )
+        session = self._build_session(session_info)
+        context, result = await self._use_case.execute(session, parsed_args)
         self._render_result(console, context, result)
+
+    @abc.abstractmethod
+    def _build_session(
+        self,
+        session_info: SessionInfo | None
+    ) -> AppGuestUseCaseSessionT:
+        """Build a session."""
 
     def _render_result(
         self,
@@ -745,8 +732,8 @@ GuestReadonlyCommandUseCase = TypeVar(
 
 
 class GuestReadonlyCommand(
-    Generic[GuestReadonlyCommandUseCase, GuestReadonlyUseCaseContextT, UseCaseResultT],
-    UseCaseCommand[GuestReadonlyCommandUseCase],
+    Generic[GuestReadonlyCommandUseCase, GlobalPropertiesT, AppGuestUseCaseSessionT, GuestReadonlyUseCaseContextT, UseCaseResultT],
+    UseCaseCommand[GlobalPropertiesT, GuestReadonlyCommandUseCase],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -770,20 +757,16 @@ class GuestReadonlyCommand(
         parsed_args = self._realm_codec_registry.get_decoder(
             self._args_type, CliRealm
         ).decode(vars(args))
-        context, result = await self._use_case.execute(
-            AppGuestUseCaseSession.build(
-                JupiterComponentProperties.for_app(
-                    core=AppCore.CLI,
-                    the_shell=AppShell.CLI,
-                    platform=AppPlatform.DESKTOP_MACOS,
-                    distribution=AppDistribution.MAC_WEB,
-                    version=self._global_properties.version,
-                ),
-                session_info.auth_token_ext if session_info else None,
-            ),
-            parsed_args,
-        )
+        session = self._build_session(session_info)
+        context, result = await self._use_case.execute(session, parsed_args)
         self._render_result(console, context, result)
+
+    @abc.abstractmethod
+    def _build_session(
+        self,
+        session_info: SessionInfo | None
+    ) -> AppGuestUseCaseSessionT:
+        """Build the context."""
 
     def _render_result(
         self,
@@ -807,9 +790,9 @@ LoggedInMutationCommandUseCase = TypeVar(
 
 class LoggedInMutationCommand(
     Generic[
-        LoggedInMutationCommandUseCase, LoggedInMutationUseCaseContextT, UseCaseResultT
+        LoggedInMutationCommandUseCase, GlobalPropertiesT, AppLoggedInUseCaseSessionT, LoggedInMutationUseCaseContextT, UseCaseResultT
     ],
-    UseCaseCommand[LoggedInMutationCommandUseCase],
+    UseCaseCommand[GlobalPropertiesT, LoggedInMutationCommandUseCase],
     abc.ABC,
 ):
     """Base class for commands which require authentication."""
@@ -826,27 +809,20 @@ class LoggedInMutationCommand(
     async def _run(
         self,
         console: Console,
-        session: SessionInfo,
+        session_info: SessionInfo,
         args: Namespace,
     ) -> None:
         """Callback to execute when the command is invoked."""
         parsed_args = self._realm_codec_registry.get_decoder(
             self._args_type, CliRealm
         ).decode(vars(args))
-        context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.build(
-                JupiterComponentProperties.for_app(
-                    core=AppCore.CLI,
-                    the_shell=AppShell.CLI,
-                    platform=AppPlatform.DESKTOP_MACOS,
-                    distribution=AppDistribution.MAC_WEB,
-                    version=self._global_properties.version,
-                ),
-                session.auth_token_ext,
-            ),
-            parsed_args,
-        )
+        session = self._build_session(session_info)
+        context, result = await self._use_case.execute(session, parsed_args)
         self._render_result(console, context, result)
+
+    @abc.abstractmethod
+    def _build_session(self, session_info: SessionInfo) -> AppLoggedInUseCaseSessionT:
+        """Build a session."""
 
     def _render_result(
         self,
@@ -870,9 +846,9 @@ LoggedInReadonlyCommandUseCase = TypeVar(
 
 class LoggedInReadonlyCommand(
     Generic[
-        LoggedInReadonlyCommandUseCase, LoggedInReadonlyUseCaseContextT, UseCaseResultT
+        LoggedInReadonlyCommandUseCase, GlobalPropertiesT, AppLoggedInUseCaseSessionT, LoggedInReadonlyUseCaseContextT, UseCaseResultT
     ],
-    UseCaseCommand[LoggedInReadonlyCommandUseCase],
+    UseCaseCommand[GlobalPropertiesT, LoggedInReadonlyCommandUseCase],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -889,27 +865,20 @@ class LoggedInReadonlyCommand(
     async def _run(
         self,
         console: Console,
-        session: SessionInfo,
+        session_info: SessionInfo,
         args: Namespace,
     ) -> None:
         """Callback to execute when the command is invoked."""
         parsed_args = self._realm_codec_registry.get_decoder(
             self._args_type, CliRealm
         ).decode(vars(args))
-        context, result = await self._use_case.execute(
-            AppLoggedInUseCaseSession.build(
-                JupiterComponentProperties.for_app(
-                    core=AppCore.CLI,
-                    the_shell=AppShell.CLI,
-                    platform=AppPlatform.DESKTOP_MACOS,
-                    distribution=AppDistribution.MAC_WEB,
-                    version=self._global_properties.version,
-                ),
-                session.auth_token_ext,
-            ),
-            parsed_args,
-        )
+        session = self._build_session(session_info)
+        context, result = await self._use_case.execute(session, parsed_args)
         self._render_result(console, context, result)
+
+    @abc.abstractmethod
+    def _build_session(self, session_info: SessionInfo) -> AppLoggedInUseCaseSessionT:
+        """Build a session."""
 
     def _render_result(
         self,
@@ -930,7 +899,7 @@ class LoggedInReadonlyCommand(
         return False
 
 
-class TestHelperCommand(Generic[UseCaseT], UseCaseCommand[UseCaseT], abc.ABC):
+class TestHelperCommand(Generic[GlobalPropertiesT, UseCaseT], UseCaseCommand[GlobalPropertiesT, UseCaseT], abc.ABC):
     """Base class for commands used in tests."""
 
     @property
@@ -947,27 +916,33 @@ class TestHelperCommand(Generic[UseCaseT], UseCaseCommand[UseCaseT], abc.ABC):
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
-class CliExceptionHandler(Generic[_ExceptionT], abc.ABC):
+class CliExceptionHandler(Generic[GlobalPropertiesT, _ExceptionT], abc.ABC):
     """Base class for exception handlers."""
 
+    _global_properties: GlobalPropertiesT
+
+    def __init__(self, global_properties: GlobalPropertiesT) -> None:
+        """Constructor."""
+        self._global_properties = global_properties
+
     @abc.abstractmethod
-    def handle(self, app: "CliApp", console: Console, exception: _ExceptionT) -> None:
+    def handle(self, console: Console, exception: _ExceptionT) -> None:
         """Handle an exception."""
 
 
-class CliApp:
+class CliApp(Generic[PortsT, GlobalPropertiesT, ComponentPropertiesT]):
     """A CLI application."""
 
-    _global_properties: Final[JupiterGlobalProperties]
-    _console: Final[Console]
+    _ports: PortsT
+    _global_properties: GlobalPropertiesT
     _time_provider: Final[TimeProvider]
+    _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
     _progress_reporter_factory: Final[RichConsoleProgressReporterFactory]
-    _realm_codec_registry: Final[RealmCodecRegistry]
-    _session_storage: Final[SessionStorage]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
+    _console: Final[Console]
+    _session_storage: Final[SessionStorage]
     _use_case_commands: dict[
         type[
             UseCase[
@@ -983,50 +958,50 @@ class CliApp:
         Command,
     ]
     _commands: dict[str, Command]
-    _exception_handlers: dict[type[Exception], CliExceptionHandler[Exception]]
+    _exception_handlers: dict[type[Exception], CliExceptionHandler[GlobalProperties, Exception]]
 
     def __init__(
         self,
-        global_properties: JupiterGlobalProperties,
-        console: Console,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
+        realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: RichConsoleProgressReporterFactory,
-        realm_codec_registry: RealmCodecRegistry,
-        session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
+        console: Console,
+        session_storage: SessionStorage,
     ) -> None:
         """Constructor."""
+        self._ports = ports
         self._global_properties = global_properties
-        self._console = console
         self._time_provider = time_provider
+        self._realm_codec_registry = realm_codec_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
-        self._realm_codec_registry = realm_codec_registry
-        self._session_storage = session_storage
         self._auth_token_stamper = auth_token_stamper
-        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
+        self._console = console
+        self._session_storage = session_storage
         self._use_case_commands = {}
         self._commands = {}
         self._exception_handlers = {}
 
     @staticmethod
     def build_from_module_root(
-        global_properties: JupiterGlobalProperties,
-        console: Console,
+        ports: PortsT,
+        global_properties: GlobalPropertiesT,
         time_provider: TimeProvider,
+        realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: RichConsoleProgressReporterFactory,
-        realm_codec_registry: RealmCodecRegistry,
-        session_storage: SessionStorage,
         auth_token_stamper: AuthTokenStamper,
-        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
+        console: Console,
+        session_storage: SessionStorage,
         *module_root: types.ModuleType,
-    ) -> "CliApp":
+    ) -> "CliApp[PortsT, GlobalPropertiesT, ComponentPropertiesT]":
         """Build a CLI app from the module root."""
 
         def extract_use_case_command(
@@ -1035,6 +1010,7 @@ class CliApp:
             tuple[
                 type[
                     UseCaseCommand[
+                        GlobalProperties,
                         UseCase[
                             Ports,
                             GlobalProperties,
@@ -1142,7 +1118,7 @@ class CliApp:
 
         def extract_exception_handler(
             the_module: types.ModuleType,
-        ) -> Iterator[tuple[type[Exception], type[CliExceptionHandler[Exception]]]]:
+        ) -> Iterator[tuple[type[Exception], type[CliExceptionHandler[GlobalPropertiesT, Exception]]]]:
             for _name, obj in the_module.__dict__.items():
                 origin_obj = get_origin(obj)
                 if not (
@@ -1170,16 +1146,16 @@ class CliApp:
                 yield exception_type, obj
 
         cli_app = CliApp(
+            ports=ports,
             global_properties=global_properties,
-            console=console,
             time_provider=time_provider,
+            realm_codec_registry=realm_codec_registry,
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
-            realm_codec_registry=realm_codec_registry,
-            session_storage=session_storage,
             auth_token_stamper=auth_token_stamper,
-            ports=ports,
             use_case_storage_engine=use_case_storage_engine,
+            console=console,
+            session_storage=session_storage,
         )
 
         for m in find_all_modules(*module_root):
@@ -1204,16 +1180,16 @@ class CliApp:
 
     def _add_use_case_command(
         self,
-        use_case_command_type: type[UseCaseCommand[UseCaseT]],
+        use_case_command_type: type[UseCaseCommand[GlobalProperties, UseCaseT]],
         use_case_type: type[
             UseCase[
-                PortsT,
-                GlobalPropertiesT,
-                ComponentPropertiesT,
-                UseCaseSessionT,
-                UseCaseContextT,
-                UseCaseArgsT,
-                UseCaseResultT,
+                Ports,
+                GlobalProperties,
+                ComponentProperties,
+                UseCaseSessionBase,
+                UseCaseContextBase,
+                UseCaseArgsBase,
+                UseCaseResultBase | None,
             ]
         ],
     ) -> "CliApp":
@@ -1296,16 +1272,16 @@ class CliApp:
         self,
         use_case_type: type[
             UseCase[
-                PortsT,
-                GlobalPropertiesT,
-                ComponentPropertiesT,
-                UseCaseSessionT,
-                UseCaseContextT,
-                UseCaseArgsT,
-                UseCaseResultT,
+                Ports,
+                GlobalProperties,
+                ComponentProperties,
+                UseCaseSessionBase,
+                UseCaseContextBase,
+                UseCaseArgsBase,
+                UseCaseResultBase | None,
             ]
         ],
-    ) -> "CliApp":
+    ) -> None:
         if use_case_type in self._use_case_commands:
             raise Exception(f"Use case type {use_case_type} already added")
         if issubclass(use_case_type, AppGuestMutationUseCase):
@@ -1369,24 +1345,21 @@ class CliApp:
             pass
             # raise Exception(f"Unsupported use case type {use_case_type}")
 
-        return self
-
     def _add_exception_handler(
         self,
         exception_type: type[Exception],
-        exception_handler: type[CliExceptionHandler[Exception]],
-    ) -> "CliApp":
+        exception_handler: type[CliExceptionHandler[GlobalPropertiesT, Exception]],
+    ) -> None:
         if exception_type in self._exception_handlers:
             raise Exception(
                 f"Exception type {exception_type} already has an exception handler"
             )
-        self._exception_handlers[exception_type] = exception_handler()
-        return self
+        self._exception_handlers[exception_type] = exception_handler(self._global_properties)
 
     async def run(self, argv: list[str]) -> None:
         """Run the app."""
         parser = argparse.ArgumentParser(
-            description=self._global_properties.description
+            description=self.help_description
         )
         parser.add_argument(
             "--version",
@@ -1425,9 +1398,7 @@ class CliApp:
         args = parser.parse_args(argv[1:])
 
         if args.just_show_version:
-            print(
-                f"{self._global_properties.description} {self._global_properties.version}"
-            )
+            print(self.help_version)
             return
 
         for command in itertools.chain(
@@ -1445,7 +1416,7 @@ class CliApp:
                     if type(e) not in self._exception_handlers:
                         raise
 
-                    self._exception_handlers[type(e)].handle(self, self._console, e)
+                    self._exception_handlers[type(e)].handle(self._console, e)
 
             command_postscript = command.get_postscript()
             if command_postscript is not None:
@@ -1457,6 +1428,11 @@ class CliApp:
             break
 
     @property
-    def global_properties(self) -> JupiterGlobalProperties:
-        """The global properties."""
-        return self._global_properties
+    @abc.abstractmethod
+    def help_description(self) -> str:
+        """The description for the cli app."""
+
+    @property
+    @abc.abstractmethod
+    def help_version(self) -> str:
+        """The version of the cli app."""

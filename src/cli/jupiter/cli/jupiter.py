@@ -120,7 +120,7 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = JupiterGuestUseCaseSession.build(
+    guest_session = JupiterGuestUseCaseSession(
         component_properties=JupiterComponentProperties.for_app(
             core=AppCore.CLI,
             the_shell=AppShell.CLI,
@@ -135,16 +135,16 @@ async def main() -> None:
     )
 
     cli_app = CliApp.build_from_module_root(
+        ports,
         global_properties,
-        console,
         time_provider,
+        realm_codec_registry,
         invocation_recorder,
         progress_reporter_factory,
-        realm_codec_registry,
-        session_storage,
         auth_token_stamper,
-        ports,
         usecase_storage_engine,
+        console,
+        session_storage,
         jupiter.core.use_cases,
         jupiter.cli.command,
     )

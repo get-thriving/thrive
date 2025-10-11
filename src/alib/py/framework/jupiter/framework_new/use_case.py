@@ -636,16 +636,6 @@ class AppLoggedInUseCaseSession(UseCaseSessionBase):
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt
 
-    @staticmethod
-    def build(
-        component_properties: ComponentProperties, auth_token_ext: AuthTokenExt
-    ) -> "AppLoggedInUseCaseSession":
-        """Create a session for a given app particulars."""
-        return AppLoggedInUseCaseSession(
-            component_properties=component_properties,
-            auth_token_ext=auth_token_ext,
-        )
-
 
 LoggedInUseCaseSessionT = TypeVar(
     "LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
