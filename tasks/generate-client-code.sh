@@ -17,7 +17,7 @@ webui_port=$(get_free_port)
 
 log info "Starting Jupiter for API generation with port $webapi_port"
 
-run_jupiter apigen "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
+run_jupiter_webapi apigen "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
 
 log info "Extracting OpenAPI spec from WebAPI"
 
@@ -27,7 +27,7 @@ http --timeout 2 get "$webapi_url/openapi.json" > .build-cache/apigen/openapi.js
 
 log info "Stopping Jupiter for API generation"
 
-stop_jupiter apigen
+stop_jupiter_webapi apigen
 
 log info "Generating TypeScript client code"
 
