@@ -60,5 +60,9 @@ class CloseAccountUseCase(
                 JupiterArchivalReason.USER,
             )
             await generic_full_archiver(
-                context.domain_context, uow, User, user.ref_id, JupiterArchivalReason.USER
+                context.domain_context,
+                uow,
+                User,
+                user.ref_id,
+                JupiterArchivalReason.USER,
             )

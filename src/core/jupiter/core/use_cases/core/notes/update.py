@@ -7,14 +7,12 @@ from jupiter.core.config import (
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 

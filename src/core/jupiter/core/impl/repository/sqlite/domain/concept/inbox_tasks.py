@@ -10,11 +10,11 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
 from sqlalchemy import func, select
 
 
@@ -28,7 +28,9 @@ class SqliteInboxTaskRepository(
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> int:
         """Count all the inbox task for a source."""
         query_stmt = select(func.count()).where(
@@ -61,7 +63,9 @@ class SqliteInboxTaskRepository(
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
         retrieve_offset: int | None = None,
         retrieve_limit: int | None = None,
     ) -> list[InboxTask]:
@@ -106,7 +110,9 @@ class SqliteInboxTaskRepository(
     async def find_modified_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_sources: Iterable[InboxTaskSource] | None = None,
         filter_project_ref_ids: Iterable[EntityId] | None = None,

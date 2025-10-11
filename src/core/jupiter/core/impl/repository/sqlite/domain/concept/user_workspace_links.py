@@ -4,10 +4,10 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
 )
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import EntityNotFoundError
 from sqlalchemy import (
     select,

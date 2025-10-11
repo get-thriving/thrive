@@ -16,13 +16,11 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,

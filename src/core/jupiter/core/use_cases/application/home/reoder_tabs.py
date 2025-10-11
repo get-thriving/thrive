@@ -7,13 +7,13 @@ from jupiter.core.config import (
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    mutation_use_case,
+)
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 

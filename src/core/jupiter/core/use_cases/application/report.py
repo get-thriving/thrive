@@ -11,11 +11,11 @@ from jupiter.core.domain.application.report.report_period_result import (
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.framework_new.base.adate import ADate
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

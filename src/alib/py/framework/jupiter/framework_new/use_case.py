@@ -1091,7 +1091,7 @@ class SysBackgroundMutationUseCase(
         LOGGER.info(
             "Invoking background mutation command %s with args %s",
             self.__class__.__name__,
-            args
+            args,
         )
         context = await self._build_context(session)
         result = await self._execute(context, args)

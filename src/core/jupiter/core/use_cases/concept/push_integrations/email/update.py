@@ -27,15 +27,13 @@ from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 

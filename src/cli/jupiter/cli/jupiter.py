@@ -4,9 +4,7 @@ import asyncio
 import logging
 import sys
 
-from jupiter.core.impl.repository.sqlite.domain.storage_engine import SqliteDomainStorageEngine, SqliteSearchStorageEngine
-from jupiter.core.impl.repository.sqlite.use_case.storage_engine import SqliteUseCaseStorageEngine
-from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStorageEngine
 
 import jupiter.cli.command
 import jupiter.core.domain
@@ -28,11 +26,18 @@ from jupiter.core.domain.app import (
     AppShell,
 )
 from jupiter.core.impl.crm.noop import NoOpCRM
+from jupiter.core.impl.repository.sqlite.domain.application.search_storage_engine import (
+    SqliteSearchStorageEngine,
+)
 from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,
 )
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
+    SqliteDomainStorageEngine,
+)
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )

@@ -7,13 +7,11 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user.user_name import UserName
 from jupiter.core.domain.core.timezone import Timezone
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 

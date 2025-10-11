@@ -6,10 +6,10 @@ from jupiter.core.domain.core.notes.note import (
     NoteRepository,
 )
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import EntityNotFoundError
 from sqlalchemy import (
     select,
@@ -23,7 +23,9 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         self,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> Note:
         """Retrieve a note via its source entity."""
         query_stmt = (
@@ -59,7 +61,9 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         self,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> Note | None:
         """Retrieve a note via its source entity."""
         query_stmt = (

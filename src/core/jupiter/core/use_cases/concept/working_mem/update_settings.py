@@ -25,9 +25,6 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
@@ -36,6 +33,7 @@ from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundErr
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 

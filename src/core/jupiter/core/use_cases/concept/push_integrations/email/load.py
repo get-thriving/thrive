@@ -14,11 +14,11 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

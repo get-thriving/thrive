@@ -14,13 +14,11 @@ from jupiter.core.domain.core.tags.tag_name import TagName
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     ProgressReporter,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,

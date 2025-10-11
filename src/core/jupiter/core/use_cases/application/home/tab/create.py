@@ -8,12 +8,12 @@ from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.core.entity_icon import EntityIcon
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework_new.use_case import (
+    ProgressReporter,
+    mutation_use_case,
+)
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

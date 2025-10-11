@@ -7,11 +7,11 @@ from jupiter.core.config import (
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.use_case import (
+    ProgressReporter,
     mutation_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
 

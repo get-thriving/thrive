@@ -44,9 +44,6 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
@@ -55,6 +52,7 @@ from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     ProgressReporter,
     UnavailableForContextError,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,

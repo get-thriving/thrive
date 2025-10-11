@@ -1111,7 +1111,9 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> int:
         """Count all inbox tasks for a source."""
 
@@ -1121,7 +1123,9 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
         retrieve_offset: int | None = None,
         retrieve_limit: int | None = None,
     ) -> list[InboxTask]:
@@ -1131,7 +1135,9 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     async def find_modified_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_sources: Iterable[InboxTaskSource] | None = None,
         filter_project_ref_ids: Iterable[EntityId] | None = None,

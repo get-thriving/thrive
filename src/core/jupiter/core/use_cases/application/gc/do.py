@@ -12,11 +12,9 @@ from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
 from jupiter.framework_new.use_case import (
-    mutation_use_case,
-)
-from jupiter.framework_new.use_case import (
     ProgressReporter,
     UnavailableForContextError,
+    mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 

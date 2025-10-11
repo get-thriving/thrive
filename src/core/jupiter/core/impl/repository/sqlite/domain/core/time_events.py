@@ -16,11 +16,11 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlockStatsPerGroup,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.framework_new.base.adate import ADate, ADateDatabaseDecoder
+from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from jupiter.framework_new.base.adate import ADate, ADateDatabaseDecoder
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import EntityNotFoundError
 from sqlalchemy import func, select
 from sqlalchemy.sql import and_, or_
@@ -37,7 +37,9 @@ class SqliteTimeEventInDayBlockRepository(
         self,
         namespace: TimeEventNamespace,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> TimeEventInDayBlock:
         """Retrieve a time event in day block via its namespace."""
         query_stmt = (
@@ -124,7 +126,9 @@ class SqliteTimeEventFullDaysBlockRepository(
         self,
         namespace: TimeEventNamespace,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> TimeEventFullDaysBlock:
         """Retrieve a time event in full day block via its namespace."""
         query_stmt = (
@@ -160,7 +164,9 @@ class SqliteTimeEventFullDaysBlockRepository(
         self,
         namespace: TimeEventNamespace,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> list[TimeEventFullDaysBlock]:
         """Retrieve a time event in full day block via its namespace."""
         query_stmt = (

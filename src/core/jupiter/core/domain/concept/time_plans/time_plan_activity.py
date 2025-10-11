@@ -153,6 +153,8 @@ class TimePlanActivityRespository(LeafEntityRepository[TimePlanActivity], abc.AB
         self,
         target: TimePlanActivityTarget,
         target_ref_id: EntityId,
-        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> list[EntityId]:
         """Find all time plan ids with a certain entity in their activity set."""

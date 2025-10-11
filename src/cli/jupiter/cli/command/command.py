@@ -12,7 +12,6 @@ from datetime import date, datetime
 from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_origin
 
 import inflection
-from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
 from jupiter.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.core.config import (
@@ -31,6 +30,7 @@ from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts, Ports
 from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing
 from jupiter.framework_new.time_provider import TimeProvider
