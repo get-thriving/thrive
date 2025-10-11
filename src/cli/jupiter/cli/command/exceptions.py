@@ -3,7 +3,7 @@
 import sys
 
 from jupiter.cli.config import JupiterExceptionHandler
-from jupiter.cli.session_storage import SessionInfoNotFoundError
+from jupiter.framework_new.app.cli.session_storage import SessionInfoNotFoundError
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )

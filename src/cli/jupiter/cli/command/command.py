@@ -13,7 +13,7 @@ from typing import Any, Final, Generic, TypeVar, Union, cast, get_args, get_orig
 
 import inflection
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
-from jupiter.cli.session_storage import SessionInfo, SessionStorage
+from jupiter.framework_new.app.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties

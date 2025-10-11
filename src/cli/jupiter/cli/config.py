@@ -5,7 +5,7 @@ from typing import Any, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
 
-from jupiter.cli.session_storage import SessionInfo
+from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from jupiter.cli.command.command import (
     CliApp,
     CliExceptionHandler,

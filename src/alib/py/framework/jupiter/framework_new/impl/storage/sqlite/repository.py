@@ -144,9 +144,8 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
             raise Exception("Cannot create an entity with a ref_id already set")
         try:
             entity_for_db = self._entity_to_row(entity)
-            del entity_for_db["ref_id"]
             result = await self._connection.execute(
-                insert(self._table).values(**entity_for_db),
+                insert(self._table).values(**{r: v for r,v in entity_for_db._mapping.items() if r != "ref_id"}),
             )
         except IntegrityError as err:
             if isinstance(entity, CrownEntity):
@@ -157,6 +156,7 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
                 raise self._already_exists_err_cls(
                     f"Entity of type {self._entity_type.__name__} already exists",
                 ) from err
+        assert result.inserted_primary_key is not None
         entity = entity.assign_ref_id(EntityId(str(result.inserted_primary_key[0])))
         await upsert_events(
             self._realm_codec_registry,
@@ -172,7 +172,7 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
             result = await self._connection.execute(
                 update(self._table)
                 .where(self._table.c.ref_id == entity.ref_id.as_int())
-                .values(**self._entity_to_row(entity)),
+                .values(**self._entity_to_row(entity)._mapping),
             )
         except IntegrityError as err:
             if isinstance(entity, CrownEntity):
@@ -483,7 +483,7 @@ def _is_indirect_generic_subclass(
 ) -> TypeGuard[_IndirectGenericSubclass]:
     if not hasattr(obj, "__orig_bases__"):
         return False
-    bases = obj.__orig_bases__
+    bases = obj.__orig_bases__   # type: ignore
     return bases is not None and isinstance(bases, tuple)
 
 

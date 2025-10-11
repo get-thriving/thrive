@@ -1,7 +1,7 @@
 """UseCase for initialising a workspace."""
 
 from jupiter.cli.config import JupiterGuestMutationCommand
-from jupiter.cli.session_storage import SessionInfo
+from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from jupiter.core.config import JupiterGuestMutationUseCaseContext
 from jupiter.core.use_cases.application.init import InitResult, InitUseCase
 from jupiter.framework_new.secure import secure_class

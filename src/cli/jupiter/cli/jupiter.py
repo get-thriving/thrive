@@ -14,7 +14,7 @@ import jupiter.core.impl.repository.sqlite
 import jupiter.core.use_cases
 from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
-from jupiter.cli.session_storage import SessionStorage
+from jupiter.framework_new.app.cli.session_storage import SessionStorage
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGuestUseCaseSession,
