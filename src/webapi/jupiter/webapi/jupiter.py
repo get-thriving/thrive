@@ -26,7 +26,7 @@ from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
+from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.webapi.app import WebServiceApp
 from jupiter.webapi.time_provider import (
     CronRunTimeProvider,

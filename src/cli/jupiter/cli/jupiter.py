@@ -41,7 +41,7 @@ from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
+from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
 from rich.console import Console
 

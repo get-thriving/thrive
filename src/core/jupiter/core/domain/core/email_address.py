@@ -5,7 +5,7 @@ from typing import cast
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realms import (
+from jupiter.framework_new.impl.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )

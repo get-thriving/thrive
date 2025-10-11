@@ -65,7 +65,7 @@ from jupiter.framework_new.entity import Entity, ParentLink
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
-from jupiter.framework_new.realms import (
+from jupiter.framework_new.impl.realms import (
     _StandardEnumValueDatabaseDecoder,
 )
 from jupiter.framework_new.record import Record

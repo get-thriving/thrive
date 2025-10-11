@@ -5,7 +5,7 @@ from typing import cast
 import emoji
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import RealmDecodingError
-from jupiter.framework_new.realms import (
+from jupiter.framework_new.impl.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )

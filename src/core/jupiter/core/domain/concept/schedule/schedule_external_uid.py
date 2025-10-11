@@ -1,7 +1,7 @@
 """An external UID for a schedule."""
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realms import (
+from jupiter.framework_new.impl.realms import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )

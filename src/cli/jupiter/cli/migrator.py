@@ -5,7 +5,7 @@ import asyncio
 import jupiter.core.domain
 from jupiter.core.config import build_global_properties
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
-from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
+from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 
 
 async def main() -> None:
