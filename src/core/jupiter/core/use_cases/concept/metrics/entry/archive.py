@@ -5,7 +5,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -45,7 +45,7 @@ class MetricEntryArchiveUseCase(
         """Execute the command's action."""
         metric_entry = await uow.get_for(MetricEntry).load_by_id(args.ref_id)
         metric_entry = metric_entry.mark_archived(
-            context.domain_context, ArchivalReason.USER
+            context.domain_context, JupiterArchivalReason.USER
         )
         await uow.get_for(MetricEntry).save(metric_entry)
         await progress_reporter.mark_updated(metric_entry)
@@ -56,5 +56,5 @@ class MetricEntryArchiveUseCase(
             uow,
             NoteDomain.METRIC_ENTRY,
             metric_entry.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

@@ -6,7 +6,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -52,5 +52,5 @@ class HomeWidgetArchiveUseCase(
             progress_reporter,
             HomeWidget,
             args.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

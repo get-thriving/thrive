@@ -23,7 +23,7 @@ from jupiter.core.domain.concept.metrics.metric_collection import MetricCollecti
 from jupiter.core.domain.concept.metrics.metric_name import MetricName
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.entity_icon import EntityIcon
@@ -207,7 +207,7 @@ class MetricUpdateUseCase(
                     uow,
                     progress_reporter,
                     inbox_task,
-                    ArchivalReason.USER,
+                    JupiterArchivalReason.USER,
                 )
         else:
             # Situation 2: we need to update the existing metrics.

@@ -25,7 +25,6 @@ from typing_extensions import dataclass_transform
 
 FIRST_VERSION = 1
 
-
 _EntityT = TypeVar("_EntityT", bound="Entity")
 _ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
 

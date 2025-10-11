@@ -21,7 +21,7 @@ from jupiter.core.domain.concept.journals.journal_source import JournalSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -173,7 +173,7 @@ class JournalUpdateSettingsUseCase(
                             progress_reporter,
                             Journal,
                             journal.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )
                     if (
                         writing_task
@@ -185,5 +185,5 @@ class JournalUpdateSettingsUseCase(
                             progress_reporter,
                             InboxTask,
                             writing_task.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )

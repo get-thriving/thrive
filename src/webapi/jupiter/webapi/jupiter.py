@@ -5,7 +5,7 @@ import logging
 
 import aiohttp
 import jupiter.core.domain
-import jupiter.core.impl.repository.sqlite.domain
+import jupiter.framework_new.impl.storage.sqlite.domain
 import jupiter.core.use_cases
 import jupiter.webapi.exceptions
 from jupiter.core.config import JupiterPorts, build_global_properties
@@ -14,12 +14,12 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.crm.wix import WixCRM
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
+from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.impl.storage.sqlite.domain.storage_engine import (
     SqliteDomainStorageEngine,
     SqliteSearchStorageEngine,
 )
-from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
+from jupiter.framework_new.impl.storage.sqlite.use_case.storage_engine import (
     SqliteUseCaseStorageEngine,
 )
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
@@ -81,7 +81,7 @@ async def main() -> None:
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
         realm_codec_registry,
         sqlite_connection,
-        jupiter.core.impl.repository.sqlite.domain,
+        jupiter.framework_new.impl.storage.sqlite.domain,
         jupiter.core.domain,
     )
     search_storage_engine = SqliteSearchStorageEngine(

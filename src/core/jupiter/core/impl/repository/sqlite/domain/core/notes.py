@@ -1,12 +1,12 @@
 """Sqlite implementation of the notes repository."""
 
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import (
     Note,
     NoteRepository,
 )
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from jupiter.framework_new.base.entity_id import EntityId
@@ -23,7 +23,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         self,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
     ) -> Note:
         """Retrieve a note via its source entity."""
         query_stmt = (
@@ -34,7 +34,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -59,7 +59,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         self,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
     ) -> Note | None:
         """Retrieve a note via its source entity."""
         query_stmt = (
@@ -70,7 +70,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))

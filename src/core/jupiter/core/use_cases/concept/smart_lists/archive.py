@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
 from jupiter.core.domain.concept.smart_lists.smart_list_item import SmartListItem
 from jupiter.core.domain.concept.smart_lists.smart_list_tag import SmartListTag
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -56,14 +56,14 @@ class SmartListArchiveUseCase(
 
         for smart_list_tag in smart_list_tags:
             smart_list_tag = smart_list_tag.mark_archived(
-                context.domain_context, ArchivalReason.USER
+                context.domain_context, JupiterArchivalReason.USER
             )
             await uow.get_for(SmartListTag).save(smart_list_tag)
             await progress_reporter.mark_updated(smart_list_tag)
 
         for smart_list_item in smart_list_items:
             smart_list_item = smart_list_item.mark_archived(
-                context.domain_context, ArchivalReason.USER
+                context.domain_context, JupiterArchivalReason.USER
             )
             await uow.get_for(SmartListItem).save(smart_list_item)
             await progress_reporter.mark_updated(smart_list_item)
@@ -74,7 +74,7 @@ class SmartListArchiveUseCase(
                 uow,
                 NoteDomain.SMART_LIST_ITEM,
                 smart_list_item.ref_id,
-                ArchivalReason.USER,
+                JupiterArchivalReason.USER,
             )
 
         note_archive_service = NoteArchiveService()
@@ -83,11 +83,11 @@ class SmartListArchiveUseCase(
             uow,
             NoteDomain.SMART_LIST,
             smart_list.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )
 
         smart_list = smart_list.mark_archived(
-            context.domain_context, ArchivalReason.USER
+            context.domain_context, JupiterArchivalReason.USER
         )
         await uow.get_for(SmartList).save(smart_list)
         await progress_reporter.mark_updated(smart_list)

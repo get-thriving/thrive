@@ -4,7 +4,7 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
 )
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
 from jupiter.framework_new.base.entity_id import EntityId

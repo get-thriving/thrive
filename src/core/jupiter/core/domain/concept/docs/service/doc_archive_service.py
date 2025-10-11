@@ -1,7 +1,7 @@
 """Archive a doc."""
 
 from jupiter.core.domain.concept.docs.doc import Doc
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -20,7 +20,7 @@ class DocArchiveService:
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         doc: Doc,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
         """Execute the command's action."""
         if doc.archived:

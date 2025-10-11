@@ -10,7 +10,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
     InboxTaskArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -29,7 +29,7 @@ class ChoreArchiveService:
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         chore: Chore,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
         """Execute the service's action."""
         if chore.archived:

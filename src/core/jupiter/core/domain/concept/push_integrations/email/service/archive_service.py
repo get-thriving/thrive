@@ -18,7 +18,7 @@ from jupiter.core.domain.concept.push_integrations.email.email_task_collection i
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
@@ -41,7 +41,7 @@ class EmailTaskArchiveService:
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         email_task: EmailTask,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> EmailTaskArchiveServiceResult:
         """Execute the service's action."""
         if email_task.archived:

@@ -20,7 +20,7 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name impo
 from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
     SlackUserName,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress
@@ -1111,7 +1111,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
     ) -> int:
         """Count all inbox tasks for a source."""
 
@@ -1121,7 +1121,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         parent_ref_id: EntityId,
         source: InboxTaskSource,
         source_entity_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
         retrieve_offset: int | None = None,
         retrieve_limit: int | None = None,
     ) -> list[InboxTask]:
@@ -1131,7 +1131,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     async def find_modified_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_sources: Iterable[InboxTaskSource] | None = None,
         filter_project_ref_ids: Iterable[EntityId] | None = None,
@@ -1144,7 +1144,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
     async def find_completed_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_start_completed_date: ADate,
         filter_end_completed_date: ADate,
         filter_include_sources: Iterable[InboxTaskSource],

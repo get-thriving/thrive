@@ -5,10 +5,8 @@ from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Final
 
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.impl.repository.sqlite.use_case.mutation_use_case_invocation_records import (
-    SqliteMutationUseCaseInvocationRecordRepository,
-)
+from jupiter.core.impl.repository.sqlite.use_case.mutation_use_case_invocation_records import SqliteMutationUseCaseInvocationRecordRepository
+from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
 from jupiter.framework_new.mutation_use_case_invocation_record_repository import (
     MutationUseCaseInvocationRecordRepository,
 )

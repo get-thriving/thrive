@@ -8,7 +8,7 @@ from jupiter.core.domain.concept.push_integrations.email.email_task import Email
 from jupiter.core.domain.concept.push_integrations.email.service.archive_service import (
     EmailTaskArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -51,5 +51,5 @@ class EmailTaskArchiveUseCase(
             uow,
             progress_reporter,
             email_task,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

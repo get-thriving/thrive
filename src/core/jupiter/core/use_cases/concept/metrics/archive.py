@@ -14,7 +14,7 @@ from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
 )
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -78,12 +78,12 @@ class MetricArchiveUseCase(
                 uow,
                 progress_reporter,
                 inbox_task,
-                ArchivalReason.USER,
+                JupiterArchivalReason.USER,
             )
 
         for metric_entry in metric_entries_to_archive:
             metric_entry = metric_entry.mark_archived(
-                context.domain_context, ArchivalReason.USER
+                context.domain_context, JupiterArchivalReason.USER
             )
             await uow.get_for(MetricEntry).save(metric_entry)
             await progress_reporter.mark_updated(metric_entry)
@@ -94,7 +94,7 @@ class MetricArchiveUseCase(
                 uow,
                 NoteDomain.METRIC_ENTRY,
                 metric_entry.ref_id,
-                ArchivalReason.USER,
+                JupiterArchivalReason.USER,
             )
 
         note_archive_service = NoteArchiveService()
@@ -103,9 +103,9 @@ class MetricArchiveUseCase(
             uow,
             NoteDomain.METRIC,
             metric.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )
 
-        metric = metric.mark_archived(context.domain_context, ArchivalReason.USER)
+        metric = metric.mark_archived(context.domain_context, JupiterArchivalReason.USER)
         await uow.get_for(Metric).save(metric)
         await progress_reporter.mark_updated(metric)

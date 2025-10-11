@@ -29,7 +29,7 @@ from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDoma
 from jupiter.core.domain.concept.working_mem.working_mem_collection import (
     WorkingMemCollection,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -195,5 +195,5 @@ class ProjectArchiveUseCase(
             progress_reporter,
             workspace,
             project,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

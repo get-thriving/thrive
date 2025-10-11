@@ -18,12 +18,12 @@ from jupiter.core.domain.concept.big_plans.big_plan_stats import (
     BigPlanStatsRepository,
 )
 from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
-from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
     SqliteRecordRepository,
 )
-from jupiter.core.impl.repository.sqlite.infra.row import RowType
+from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
@@ -52,7 +52,7 @@ class SqliteBigPlanRepository(SqliteLeafEntityRepository[BigPlan], BigPlanReposi
     async def find_completed_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_start_completed_date: ADate,
         filter_end_completed_date: ADate,
         filter_exclude_ref_ids: Iterable[EntityId] | None = None,
@@ -64,7 +64,7 @@ class SqliteBigPlanRepository(SqliteLeafEntityRepository[BigPlan], BigPlanReposi
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))

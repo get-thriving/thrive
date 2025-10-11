@@ -4,7 +4,7 @@ from jupiter.framework_new.value import EnumValue, enum_value
 
 
 @enum_value
-class ArchivalReason(EnumValue):
+class JupiterArchivalReason(EnumValue):
     """The reason why an entity was archived."""
 
     USER = "user"

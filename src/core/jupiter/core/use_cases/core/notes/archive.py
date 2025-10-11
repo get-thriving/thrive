@@ -5,7 +5,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
@@ -44,5 +44,5 @@ class NoteArchiveUseCase(
         """Execute the command's action."""
         note = await uow.get_for(Note).load_by_id(args.ref_id)
         await NoteArchiveService().archive(
-            context.domain_context, uow, note, ArchivalReason.USER
+            context.domain_context, uow, note, JupiterArchivalReason.USER
         )

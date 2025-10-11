@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
     ScheduleEventInDay,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.framework_new.use_case import (
@@ -52,5 +52,5 @@ class ScheduleEventInDayArchiveUseCase(
             progress_reporter,
             ScheduleEventInDay,
             args.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

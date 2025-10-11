@@ -8,7 +8,7 @@ from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.service.archive_service import (
     ChoreArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -44,5 +44,5 @@ class ChoreArchiveUseCase(
         """Execute the command's action."""
         chore = await uow.get_for(Chore).load_by_id(args.ref_id)
         await ChoreArchiveService().do_it(
-            context.domain_context, uow, progress_reporter, chore, ArchivalReason.USER
+            context.domain_context, uow, progress_reporter, chore, JupiterArchivalReason.USER
         )

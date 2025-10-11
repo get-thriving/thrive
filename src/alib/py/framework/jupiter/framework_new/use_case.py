@@ -1089,7 +1089,9 @@ class SysBackgroundMutationUseCase(
         """Execute the command's action."""
         # A hacky hack!
         LOGGER.info(
-            f"Invoking background mutation command {self.__class__.__name__} with args {args}",
+            "Invoking background mutation command %s with args %s",
+            self.__class__.__name__,
+            args
         )
         context = await self._build_context(session)
         result = await self._execute(context, args)

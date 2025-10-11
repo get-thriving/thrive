@@ -24,7 +24,7 @@ from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import
 )
 from jupiter.core.domain.concept.time_plans.time_plan_source import TimePlanSource
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -178,7 +178,7 @@ class TimePlanUpdateSettingsUseCase(
                             progress_reporter,
                             TimePlan,
                             time_plan.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )
                     if (
                         planning_task
@@ -190,5 +190,5 @@ class TimePlanUpdateSettingsUseCase(
                             progress_reporter,
                             InboxTask,
                             planning_task.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )

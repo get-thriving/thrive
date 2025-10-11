@@ -37,7 +37,7 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
 )
 from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
@@ -226,7 +226,7 @@ class GCService:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await inbox_task_archive_service.do_it(
-                    ctx, uow, progress_reporter, inbox_task, ArchivalReason.GC
+                    ctx, uow, progress_reporter, inbox_task, JupiterArchivalReason.GC
                 )
             gc_log_entry = gc_log_entry.add_entity(
                 ctx,
@@ -254,7 +254,7 @@ class GCService:
                     progress_reporter,
                     WorkingMem,
                     working_mem.ref_id,
-                    ArchivalReason.GC,
+                    JupiterArchivalReason.GC,
                 )
             gc_log_entry = gc_log_entry.add_entity(ctx, working_mem)
         return gc_log_entry
@@ -275,7 +275,7 @@ class GCService:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 result = await big_plan_archive_service.do_it(
-                    ctx, uow, progress_reporter, big_plan, ArchivalReason.GC
+                    ctx, uow, progress_reporter, big_plan, JupiterArchivalReason.GC
                 )
 
             gc_log_entry = gc_log_entry.add_entity(
@@ -311,7 +311,7 @@ class GCService:
                     uow,
                     progress_reporter,
                     slack_tasks_by_ref_id[inbox_task.source_entity_ref_id_for_sure],
-                    ArchivalReason.GC,
+                    JupiterArchivalReason.GC,
                 )
 
             gc_log_entry = gc_log_entry.add_entity(
@@ -343,7 +343,7 @@ class GCService:
             email_task = email_tasks_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 result = await email_task_arhive_service.do_it(
-                    ctx, uow, progress_reporter, email_task, ArchivalReason.GC
+                    ctx, uow, progress_reporter, email_task, JupiterArchivalReason.GC
                 )
 
             gc_log_entry = gc_log_entry.add_entity(

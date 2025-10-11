@@ -18,7 +18,7 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task import Slack
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
@@ -41,7 +41,7 @@ class SlackTaskArchiveService:
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> SlackTaskArchiveServiceResult:
         """Execute the service's action."""
         if slack_task.archived:

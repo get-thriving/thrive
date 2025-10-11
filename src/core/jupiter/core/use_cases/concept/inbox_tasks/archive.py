@@ -8,7 +8,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
     InboxTaskArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -48,5 +48,5 @@ class InboxTaskArchiveUseCase(
             uow,
             progress_reporter,
             inbox_task,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

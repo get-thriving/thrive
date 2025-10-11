@@ -20,11 +20,9 @@ from jupiter.core.domain.storage_engine import (
     SearchStorageEngine,
     SearchUnitOfWork,
 )
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.impl.repository.sqlite.domain.application.search import (
-    SqliteSearchRepository,
-)
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.core.impl.repository.sqlite.domain.application.search import SqliteSearchRepository
+from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteCrownEntityRepository,
     SqliteEntityRepository,
     SqliteRecordRepository,

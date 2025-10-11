@@ -4,6 +4,10 @@ import asyncio
 import logging
 import sys
 
+from jupiter.core.impl.repository.sqlite.domain.storage_engine import SqliteDomainStorageEngine, SqliteSearchStorageEngine
+from jupiter.core.impl.repository.sqlite.use_case.storage_engine import SqliteUseCaseStorageEngine
+from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+
 import jupiter.cli.command
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite.domain
@@ -24,14 +28,6 @@ from jupiter.core.domain.app import (
     AppShell,
 )
 from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
-    SqliteDomainStorageEngine,
-    SqliteSearchStorageEngine,
-)
-from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
-    SqliteUseCaseStorageEngine,
-)
 from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,

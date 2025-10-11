@@ -9,7 +9,7 @@ from jupiter.core.domain.concept.schedule.schedule_source import (
     ScheduleSource,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.framework_new.use_case import (
@@ -64,5 +64,5 @@ class ScheduleStreamArchiveUseCase(
             progress_reporter,
             ScheduleStream,
             args.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

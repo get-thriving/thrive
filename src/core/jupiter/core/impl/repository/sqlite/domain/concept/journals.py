@@ -11,13 +11,13 @@ from jupiter.core.domain.concept.journals.journal_stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
     SqliteRecordRepository,
 )
-from jupiter.core.impl.repository.sqlite.infra.row import RowType
+from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
@@ -62,7 +62,7 @@ class SqliteJournalRepository(SqliteLeafEntityRepository[Journal], JournalReposi
     async def find_all_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_periods: list[RecurringTaskPeriod],
         filter_start_date: ADate,
         filter_end_date: ADate,
@@ -78,7 +78,7 @@ class SqliteJournalRepository(SqliteLeafEntityRepository[Journal], JournalReposi
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))

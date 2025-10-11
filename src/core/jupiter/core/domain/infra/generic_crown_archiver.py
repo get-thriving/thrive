@@ -1,6 +1,6 @@
 """A generic archiver service."""
 
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import DomainContext
 from jupiter.framework_new.entity import (
@@ -19,7 +19,7 @@ async def generic_crown_archiver(
     progress_reporter: ProgressReporter,
     entity_type: type[CrownEntity],
     ref_id: EntityId,
-    archival_reason: ArchivalReason,
+    archival_reason: JupiterArchivalReason,
 ) -> None:
     """Generic archiver for entities."""
 

@@ -1,6 +1,6 @@
 """Shared service for archiving a note."""
 
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.entity_id import EntityId
@@ -16,7 +16,7 @@ class NoteArchiveService:
         ctx: DomainContext,
         uow: DomainUnitOfWork,
         note: Note,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
         """Execute the command's action."""
         if note.archived:
@@ -34,7 +34,7 @@ class NoteArchiveService:
         uow: DomainUnitOfWork,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
         """Execute the command's action."""
         note = await uow.get(NoteRepository).load_optional_for_source(

@@ -20,14 +20,6 @@ from typing import (
 
 import inflection
 import pendulum
-from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.core.impl.repository.sqlite.infra.events import (
-    build_event_table,
-    remove_events,
-    upsert_events,
-)
-from jupiter.core.impl.repository.sqlite.infra.filters import compile_query_relative_to
-from jupiter.core.impl.repository.sqlite.infra.row import RowType
 from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
@@ -42,6 +34,13 @@ from jupiter.framework_new.entity import (
     StubEntity,
     TrunkEntity,
 )
+from jupiter.framework_new.impl.storage.sqlite.events import (
+    build_event_table,
+    remove_events,
+    upsert_events,
+)
+from jupiter.framework_new.impl.storage.sqlite.filters import compile_query_relative_to
+from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework_new.record import Record
@@ -508,7 +507,7 @@ class SqliteRootEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -549,7 +548,7 @@ class SqliteRootEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -604,7 +603,7 @@ class SqliteTrunkEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -703,7 +702,7 @@ class SqliteCrownEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -737,7 +736,7 @@ class SqliteCrownEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -775,7 +774,7 @@ class SqliteCrownEntityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, EnumValue):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))

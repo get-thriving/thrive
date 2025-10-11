@@ -8,7 +8,7 @@ from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.service.archive_service import (
     BigPlanArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -49,5 +49,5 @@ class BigPlanArchiveUseCase(
             uow,
             progress_reporter,
             big_plan,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

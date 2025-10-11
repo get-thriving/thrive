@@ -8,7 +8,7 @@ from jupiter.core.domain.concept.push_integrations.slack.service.archive_service
     SlackTaskArchiveService,
 )
 from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.use_case import (
     mutation_use_case,
@@ -51,5 +51,5 @@ class SlackTaskArchiveUseCase(
             uow,
             progress_reporter,
             slack_task,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

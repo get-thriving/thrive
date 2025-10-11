@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
@@ -51,5 +51,5 @@ class TimeEventInDayBlockArchiveUseCase(
             progress_reporter,
             TimeEventInDayBlock,
             args.ref_id,
-            ArchivalReason.USER,
+            JupiterArchivalReason.USER,
         )

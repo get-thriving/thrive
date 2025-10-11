@@ -14,9 +14,9 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.impl.repository.sqlite.infra.repository import (
+from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from jupiter.framework_new.base.adate import ADate
@@ -51,7 +51,7 @@ class SqliteTimePlanRepository(
     async def find_all_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_periods: list[RecurringTaskPeriod],
         filter_start_date: ADate,
         filter_end_date: ADate,
@@ -67,7 +67,7 @@ class SqliteTimePlanRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -98,7 +98,7 @@ class SqliteTimePlanRepository(
     async def find_higher(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         period: RecurringTaskPeriod,
         right_now: ADate,
     ) -> TimePlan | None:
@@ -111,7 +111,7 @@ class SqliteTimePlanRepository(
             if isinstance(allow_archived, bool):
                 if not allow_archived:
                     query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-            elif isinstance(allow_archived, ArchivalReason):
+            elif isinstance(allow_archived, JupiterArchivalReason):
                 query_stmt = query_stmt.where(
                     (self._table.c.archived.is_(False))
                     | (self._table.c.archival_reason == str(allow_archived.value))
@@ -150,7 +150,7 @@ class SqliteTimePlanRepository(
     async def find_previous(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         period: RecurringTaskPeriod,
         right_now: ADate,
     ) -> TimePlan | None:
@@ -162,7 +162,7 @@ class SqliteTimePlanRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
@@ -214,7 +214,7 @@ class SqliteTimePlanActivityRepository(
         self,
         target: TimePlanActivityTarget,
         target_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason] = False,
     ) -> list[EntityId]:
         """Find all time plan activities with a target."""
         query_stmt = (
@@ -230,7 +230,7 @@ class SqliteTimePlanActivityRepository(
         if isinstance(allow_archived, bool):
             if not allow_archived:
                 query_stmt = query_stmt.where(self._table.c.archived.is_(False))
-        elif isinstance(allow_archived, ArchivalReason):
+        elif isinstance(allow_archived, JupiterArchivalReason):
             query_stmt = query_stmt.where(
                 (self._table.c.archived.is_(False))
                 | (self._table.c.archival_reason == str(allow_archived.value))
