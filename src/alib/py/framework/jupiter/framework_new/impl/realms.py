@@ -1853,7 +1853,7 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         if isinstance(thing_type, typing._GenericAlias) and thing_type.__name__ == "Literal":  # type: ignore
             return cast(
                 RealmEncoder[_DomainThingT, _RealmT],
-                _LiteralEncoder(thing_type.__args__, realm),    # type: ignore
+                _LiteralEncoder(thing_type.__args__, realm),  # type: ignore
             )
         elif isinstance(thing_type, ForwardRef):
             if root_type is None:

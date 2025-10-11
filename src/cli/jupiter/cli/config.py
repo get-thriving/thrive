@@ -5,10 +5,10 @@ from typing import Any, Generic, TypeVar, Union
 
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
 
+from jupiter.framework_new.app.cli.app import CliApp
+from jupiter.framework_new.app.cli.exception import CliExceptionHandler
 from jupiter.framework_new.app.cli.session_storage import SessionInfo
-from jupiter.cli.command.command import (
-    CliApp,
-    CliExceptionHandler,
+from jupiter.framework_new.app.cli.commands import (
     GuestMutationCommand,
     GuestReadonlyCommand,
     LoggedInMutationCommand,

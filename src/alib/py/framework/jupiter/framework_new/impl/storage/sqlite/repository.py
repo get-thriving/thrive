@@ -145,7 +145,9 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
         try:
             entity_for_db = self._entity_to_row(entity)
             result = await self._connection.execute(
-                insert(self._table).values(**{r: v for r,v in entity_for_db._mapping.items() if r != "ref_id"}),
+                insert(self._table).values(
+                    **{r: v for r, v in entity_for_db._mapping.items() if r != "ref_id"}
+                ),
             )
         except IntegrityError as err:
             if isinstance(entity, CrownEntity):
@@ -483,7 +485,7 @@ def _is_indirect_generic_subclass(
 ) -> TypeGuard[_IndirectGenericSubclass]:
     if not hasattr(obj, "__orig_bases__"):
         return False
-    bases = obj.__orig_bases__   # type: ignore
+    bases = obj.__orig_bases__  # type: ignore
     return bases is not None and isinstance(bases, tuple)
 
 
