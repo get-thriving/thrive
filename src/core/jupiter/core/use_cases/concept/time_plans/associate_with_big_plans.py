@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
@@ -49,7 +50,7 @@ class TimePlanAssociateWithBigPlansResult(UseCaseResultBase):
     new_time_plan_activities: list[TimePlanActivity]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS)
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanAssociateWithBigPlansUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         TimePlanAssociateWithBigPlansArgs, TimePlanAssociateWithBigPlansResult

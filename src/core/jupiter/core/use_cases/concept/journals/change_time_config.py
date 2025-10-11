@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
@@ -27,7 +28,7 @@ class JournalChangeTimeConfigArgs(UseCaseArgsBase):
     period: UpdateAction[RecurringTaskPeriod]
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS)
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalChangeTimeConfigUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalChangeTimeConfigArgs, None]
 ):

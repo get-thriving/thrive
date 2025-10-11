@@ -100,11 +100,6 @@ class Command(abc.ABC):
         return True
 
     @property
-    def is_allowed_for_guest(self) -> bool:
-        """Is this command allowed while not logged in."""
-        return True
-
-    @property
     def is_allowed_for_component(self) -> bool:
         """Is this command allowed for a particular component."""
         return True
@@ -834,14 +829,11 @@ class LoggedInMutationCommand(
         return self._use_case.is_allowed_globally
 
     @property
-    def is_allowed_for_guest(self) -> bool:
-        """Is this command allowed while not logged in."""
-        return False
-
-    @property
     def is_allowed_for_component(self) -> bool:
         """Is this command allowed for a particular component."""
-        session_info = self._session_storage.load()
+        session_info = self._session_storage.load_optional()
+        if session_info is None:
+            return False
         session = self._build_session(session_info)
         return self._use_case.is_allowed_for_component(session)
 
@@ -906,14 +898,11 @@ class LoggedInReadonlyCommand(
         return self._use_case.is_allowed_globally
 
     @property
-    def is_allowed_for_guest(self) -> bool:
-        """Is this command allowed while not logged in."""
-        return False
-
-    @property
     def is_allowed_for_component(self) -> bool:
         """Is this command allowed for a particular component."""
-        session_info = self._session_storage.load()
+        session_info = self._session_storage.load_optional()
+        if session_info is None:
+            return False
         session = self._build_session(session_info)
         return self._use_case.is_allowed_for_component(session)
 

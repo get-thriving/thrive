@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remover
@@ -23,7 +24,7 @@ class JournalRemoveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS)
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalRemoveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalRemoveArgs, None]
 ):

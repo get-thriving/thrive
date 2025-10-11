@@ -5,8 +5,11 @@ import logging
 
 import aiohttp
 import jupiter.core.domain
+from jupiter.core.impl.repository.sqlite.application.search_storage_engine import SqliteSearchStorageEngine
 import jupiter.core.use_cases
-import jupiter.framework_new.impl.storage.sqlite.domain
+import jupiter.core.impl.repository.sqlite
+from jupiter.framework_new.impl.storage.sqlite.storage_engine import SqliteDomainStorageEngine
+from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStorageEngine
 import jupiter.webapi.exceptions
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.domain.crm import CRM
@@ -17,13 +20,6 @@ from jupiter.core.impl.crm.wix import WixCRM
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
-from jupiter.framework_new.impl.storage.sqlite.domain.storage_engine import (
-    SqliteDomainStorageEngine,
-    SqliteSearchStorageEngine,
-)
-from jupiter.framework_new.impl.storage.sqlite.use_case.storage_engine import (
-    SqliteUseCaseStorageEngine,
-)
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
@@ -81,7 +77,7 @@ async def main() -> None:
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
         realm_codec_registry,
         sqlite_connection,
-        jupiter.framework_new.impl.storage.sqlite.domain,
+        jupiter.core.impl.repository.sqlite,
         jupiter.core.domain,
     )
     search_storage_engine = SqliteSearchStorageEngine(

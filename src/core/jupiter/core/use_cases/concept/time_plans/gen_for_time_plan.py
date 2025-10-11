@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
     JupiterLoggedInMutationUseCaseContext,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
@@ -26,7 +27,7 @@ class TimePlanGenForTimePlanArgs(UseCaseArgsBase):
     period: list[RecurringTaskPeriod] | None
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS)
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanGenForTimePlanUseCase(
     JupiterLoggedInMutationUseCase[TimePlanGenForTimePlanArgs, None]
 ):

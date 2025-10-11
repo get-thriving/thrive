@@ -144,15 +144,6 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
             raise Exception("Cannot create an entity with a ref_id already set")
         try:
             entity_for_db = self._entity_to_row(entity)
-            from rich import print
-
-            print(
-                insert(self._table).values(
-                    **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
-                )
-            )
-            print(entity_for_db)
-            print(self._table)
             result = await self._connection.execute(
                 insert(self._table).values(
                     **{r: v for r, v in entity_for_db.items() if r != "ref_id"}

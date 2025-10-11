@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCaseContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
@@ -39,7 +40,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     target_big_plan: BigPlan | None
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS)
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanActivityLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityLoadArgs, TimePlanActivityLoadResult

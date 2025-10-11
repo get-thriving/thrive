@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCaseContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
@@ -48,7 +49,7 @@ class TimePlanActivityFindForTargetResult(UseCaseResultBase):
     entries: list[TimePlanActivityFindForTargetResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS)
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanActivityFindForTargetUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityFindForTargetArgs, TimePlanActivityFindForTargetResult

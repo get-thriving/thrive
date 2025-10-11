@@ -5,10 +5,7 @@ from re import Pattern
 from typing import Final
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.impl.realms import (
-    PrimitiveAtomicValueDatabaseDecoder,
-    PrimitiveAtomicValueDatabaseEncoder,
-)
+from jupiter.framework_new.realm import DatabaseRealm, RealmDecoder, RealmDecodingError, RealmEncoder, RealmThing
 from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.value import AtomicValue, value
 
@@ -25,19 +22,22 @@ class AuthTokenExt(AtomicValue[str]):
     auth_token_str: str
 
 
-class AutoTokenExtDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[AuthTokenExt]):
+class AuthTokenExtDatabaseEncoder(RealmEncoder[AuthTokenExt, DatabaseRealm]):
     """Encode to a database primitive."""
 
-    def to_primitive(self, value: AuthTokenExt) -> str:
-        """Encode to a database primitive."""
+    def encode(self, value: AuthTokenExt) -> RealmThing:
+        """Encode to a database realm."""
         return value.auth_token_str
 
 
-class AuthTokenExtDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[AuthTokenExt]):
+class AuthTokenExtDatabaseDecoder(RealmDecoder[AuthTokenExt, DatabaseRealm]):
     """Decode from a database primitive."""
 
-    def from_raw_str(self, primitive: str) -> AuthTokenExt:
-        """Decode from a raw string."""
-        if not _JWT_RE.match(primitive):
-            raise InputValidationError("Expected auth token to be a valid JWT")
-        return AuthTokenExt(primitive)
+    def decode(self, value: RealmThing) -> AuthTokenExt:
+        """Decode from a datanbase value."""
+        if not isinstance(value, str):
+            raise RealmDecodingError(
+                f"Expected value for {self.__class__} to be string but was {value.__class__}"
+            )
+
+        return AuthTokenExt(value)

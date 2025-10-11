@@ -17,6 +17,7 @@ from typing import (
     get_origin,
 )
 
+from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt, AuthTokenExtDatabaseDecoder, AuthTokenExtDatabaseEncoder
 from jupiter.framework_new.base.adate import (
     ADate,
     ADateCliDecoder,
@@ -1561,6 +1562,8 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         registry._add_decoder(ADate, CliRealm, ADateCliDecoder())
         registry._add_encoder(Timestamp, DatabaseRealm, TimestampDatabaseEncoder())
         registry._add_decoder(Timestamp, DatabaseRealm, TimestampDatabaseDecoder())
+        registry._add_encoder(AuthTokenExt, DatabaseRealm, AuthTokenExtDatabaseEncoder())
+        registry._add_decoder(AuthTokenExt, DatabaseRealm, AuthTokenExtDatabaseDecoder())
 
         # First look at all the concept encoders and decoders that are
         # explicitly defined.

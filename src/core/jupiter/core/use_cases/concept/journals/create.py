@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.journals.journal_stats import (
@@ -46,7 +47,7 @@ class JournalCreateResult(UseCaseResultBase):
     new_note: Note
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS)
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalCreateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalCreateArgs, JournalCreateResult]
 ):

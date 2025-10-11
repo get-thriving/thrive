@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
     JupiterLoggedInMutationUseCaseContext,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
@@ -19,7 +20,7 @@ class JournalRegenArgs(UseCaseArgsBase):
     """The arguments for the journal regen use case."""
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS)
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalRegenUseCase(JupiterLoggedInMutationUseCase[JournalRegenArgs, None]):
     """A use case for regenerating journals."""
 

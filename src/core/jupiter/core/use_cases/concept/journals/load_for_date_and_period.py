@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCaseContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.journals.journal_stats import (
@@ -45,7 +46,7 @@ class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
     sub_period_journals: list[Journal]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS)
+@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalLoadForDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult

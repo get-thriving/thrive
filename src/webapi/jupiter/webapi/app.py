@@ -19,6 +19,11 @@ from typing import (
 )
 
 import inflection
+from jupiter.framework_new.component_properties import ComponentProperties
+from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecorder
+from jupiter.framework_new.ports import Ports
+from jupiter.framework_new.progress_reporter import EmptyProgressReporterFactory, NoOpProgressReporterFactory
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import Depends, FastAPI, Request
@@ -43,10 +48,6 @@ from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
-from jupiter.core.utils.progress_reporter import (
-    EmptyProgressReporterFactory,
-    NoOpProgressReporterFactory,
-)
 from jupiter.framework_new.auth.auth_token_ext import (
     AuthTokenExt,
     AuthTokenExtDatabaseDecoder,
@@ -69,7 +70,6 @@ from jupiter.framework_new.use_case import (
     AppLoggedInReadonlyUseCase,
     AppLoggedInUseCaseSession,
     EmptySession,
-    MutationUseCaseInvocationRecorder,
     SysBackgroundMutationUseCase,
     UseCase,
     UseCaseContextBase,
@@ -213,7 +213,7 @@ class Command:
     """The base class for all commands."""
 
 
-UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any])
+UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
 UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
 UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
@@ -292,7 +292,7 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
 
 
 GuestMutationCommandUseCase = TypeVar(
-    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any]
+    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
 )
 
 
@@ -330,7 +330,7 @@ class GuestMutationCommand(
 
 
 GuestReadonlyCommandUseCase = TypeVar(
-    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any, Any]
+    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any,  Any, Any, Any, Any, Any,Any]
 )
 
 
@@ -368,7 +368,7 @@ class GuestReadonlyCommand(
 
 
 LoggedInMutationCommandUseCase = TypeVar(
-    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any, Any]
+    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any,  Any, Any, Any, Any, Any,Any]
 )
 
 
@@ -406,7 +406,7 @@ class LoggedInMutationCommand(
 
 
 LoggedInReadonlyCommandUseCase = TypeVar(
-    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any, Any]
+    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any,  Any, Any, Any, Any, Any,Any]
 )
 
 
@@ -444,7 +444,7 @@ class LoggedInReadonlyCommand(
 
 
 BackgroundMutationUseCase = TypeVar(
-    "BackgroundMutationUseCase", bound=SysBackgroundMutationUseCase[Any, Any]
+    "BackgroundMutationUseCase", bound=SysBackgroundMutationUseCase[Any,  Any, Any, Any, Any]
 )
 
 
@@ -510,6 +510,9 @@ class WebServiceApp:
         dict[
             type[
                 UseCase[
+                    Ports,
+                    GlobalProperties,
+                    ComponentProperties,
                     UseCaseSessionBase,
                     UseCaseContextBase,
                     UseCaseArgsBase,
@@ -580,6 +583,9 @@ class WebServiceApp:
         ) -> Iterator[
             type[
                 UseCase[
+                    Ports,
+                    GlobalProperties,
+                    ComponentProperties,
                     UseCaseSessionBase,
                     UseCaseContextBase,
                     UseCaseArgsBase,
@@ -774,7 +780,7 @@ class WebServiceApp:
     def _add_use_case_type(
         self,
         use_case_type: type[
-            UseCase[UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[Ports, GlobalProperties, ComponentProperties, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
         ],
         root_module: types.ModuleType,
     ) -> "WebServiceApp":

@@ -81,7 +81,7 @@ class TimestampDatabaseEncoder(RealmEncoder[Timestamp, DatabaseRealm]):
 
     def encode(self, value: Timestamp) -> RealmThing:
         """Encode to a database realm."""
-        return value.the_ts
+        return datetime.datetime.fromtimestamp(pendulum.now().timestamp(), pendulum.tz.UTC)
 
 
 class TimestampDatabaseDecoder(RealmDecoder[Timestamp, DatabaseRealm]):
@@ -91,7 +91,7 @@ class TimestampDatabaseDecoder(RealmDecoder[Timestamp, DatabaseRealm]):
         """Decode from a database realm."""
         if not isinstance(value, (str, datetime.date, datetime.datetime, DateTime)):
             raise RealmDecodingError(
-                f"Expected value for {self.__class__} to be datetime or DateTime but was {value.__class__}"
+                f"Expected value for {self.__class__} to be date or datetime or DateTime but was {value.__class__}"
             )
 
         if isinstance(value, str):

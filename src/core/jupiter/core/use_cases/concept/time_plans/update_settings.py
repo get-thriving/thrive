@@ -6,6 +6,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
     JupiterLoggedInMutationUseCaseContext,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -53,7 +54,7 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
     planning_task_difficulty: UpdateAction[Difficulty | None]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS)
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanUpdateSettingsUseCase(
     JupiterLoggedInMutationUseCase[TimePlanUpdateSettingsArgs, None]
 ):

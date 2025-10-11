@@ -561,9 +561,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             if not command.is_allowed_globally:
                 continue
 
-            if not command.is_allowed_for_guest:
-                continue
-
             if not command.is_allowed_for_component:
                 continue
 

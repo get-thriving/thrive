@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCaseContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
 from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
@@ -31,7 +32,7 @@ class TimePlanActivityUpdateArgs(UseCaseArgsBase):
     feasability: UpdateAction[TimePlanActivityFeasability]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS)
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanActivityUpdateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[TimePlanActivityUpdateArgs, None]
 ):

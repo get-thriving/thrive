@@ -4,6 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyUseCaseContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
     InboxTaskCollection,
@@ -55,7 +56,7 @@ class TimePlanFindResult(UseCaseResultBase):
     entries: list[TimePlanFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS)
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanFindArgs, TimePlanFindResult]
 ):
