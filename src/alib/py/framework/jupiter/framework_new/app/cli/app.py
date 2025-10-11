@@ -24,7 +24,9 @@ from jupiter.framework_new.app.cli.session_storage import SessionStorage
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecorder
+from jupiter.framework_new.mutation_invocation_result import (
+    MutationUseCaseInvocationRecorder,
+)
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.realm import RealmCodecRegistry
@@ -557,6 +559,12 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             self._commands.values(), self._use_case_commands.values()
         ):
             if not command.is_allowed_globally:
+                continue
+
+            if not command.is_allowed_for_guest:
+                continue
+
+            if not command.is_allowed_for_component:
                 continue
 
             if command.should_appear_in_global_help:

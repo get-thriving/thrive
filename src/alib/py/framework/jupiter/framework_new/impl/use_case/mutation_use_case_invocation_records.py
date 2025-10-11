@@ -4,7 +4,9 @@ from typing import Final
 
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.repository import SqliteRepository
-from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecord
+from jupiter.framework_new.mutation_invocation_result import (
+    MutationUseCaseInvocationRecord,
+)
 from jupiter.framework_new.mutation_use_case_invocation_record_repository import (
     MutationUseCaseInvocationRecordRepository,
 )

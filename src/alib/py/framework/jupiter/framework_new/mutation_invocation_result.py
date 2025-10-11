@@ -1,8 +1,8 @@
 """The results of a mutation."""
 
 import abc
-from dataclasses import dataclass
 import enum
+from dataclasses import dataclass
 from typing import Mapping
 
 from jupiter.framework_new.base.entity_id import EntityId

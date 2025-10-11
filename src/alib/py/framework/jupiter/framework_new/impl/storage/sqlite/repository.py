@@ -144,9 +144,18 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
             raise Exception("Cannot create an entity with a ref_id already set")
         try:
             entity_for_db = self._entity_to_row(entity)
+            from rich import print
+
+            print(
+                insert(self._table).values(
+                    **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
+                )
+            )
+            print(entity_for_db)
+            print(self._table)
             result = await self._connection.execute(
                 insert(self._table).values(
-                    **{r: v for r, v in entity_for_db._mapping.items() if r != "ref_id"}
+                    **{r: v for r, v in entity_for_db.items() if r != "ref_id"}
                 ),
             )
         except IntegrityError as err:
@@ -174,7 +183,7 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
             result = await self._connection.execute(
                 update(self._table)
                 .where(self._table.c.ref_id == entity.ref_id.as_int())
-                .values(**self._entity_to_row(entity)._mapping),
+                .values(**self._entity_to_row(entity)),
             )
         except IntegrityError as err:
             if isinstance(entity, CrownEntity):
@@ -215,11 +224,11 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
         await remove_events(self._connection, self._event_table, ref_id)
         return self._row_to_entity(result)
 
-    def _entity_to_row(self, entity: _EntityT) -> RowType:
+    def _entity_to_row(self, entity: _EntityT) -> dict[str, RealmThing]:
         encoder = self._realm_codec_registry.get_encoder(
             self._entity_type, DatabaseRealm
         )
-        return cast(RowType, encoder.encode(entity))
+        return cast(dict[str, RealmThing], encoder.encode(entity))
 
     def _row_to_entity(self, row: RowType) -> _EntityT:
         decoder = self._realm_codec_registry.get_decoder(

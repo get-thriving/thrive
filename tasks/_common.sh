@@ -278,12 +278,13 @@ get_logs() {
 
 run_jupiter_cli() {
     local namespace=$1
+    shift
     local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
 
     mkdir -p "$RUN_ROOT/$namespace"
 
-    log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl}"
+    log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl} with '$@'"
 
     export SQLITE_DB_URL=${sqliteDbUrl} 
-    (cd src/cli && python -m jupiter.cli.jupiter)
+    (cd src/cli && python -m jupiter.cli.jupiter $@)
 }

@@ -1,7 +1,6 @@
 """Framework level elements for use cases."""
 
 import abc
-import enum
 import logging
 from collections.abc import Callable, Iterable
 from contextlib import AbstractAsyncContextManager
@@ -24,7 +23,6 @@ from jupiter.framework_new.auth.auth_token import (
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
-from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
@@ -36,7 +34,10 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecord, MutationUseCaseInvocationRecorder
+from jupiter.framework_new.mutation_invocation_result import (
+    MutationUseCaseInvocationRecord,
+    MutationUseCaseInvocationRecorder,
+)
 from jupiter.framework_new.ports import DomainPorts, Ports
 from jupiter.framework_new.realm import EventStoreRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework_new.repository import (
@@ -279,7 +280,10 @@ class MutationUseCase(
         except InputValidationError:
             raise
         except Exception as err:
-            raw_args = cast(Mapping[str, RealmThing], self._realm_codec_registry.db_encode(args, EventStoreRealm))
+            raw_args = cast(
+                Mapping[str, RealmThing],
+                self._realm_codec_registry.db_encode(args, EventStoreRealm),
+            )
             invocation_record = MutationUseCaseInvocationRecord.build_failure(
                 user_ref_id=context.user_ref_id,
                 workspace_ref_id=context.workspace_ref_id,
@@ -303,7 +307,10 @@ class MutationUseCase(
             user_ref_id = result.new_user.ref_id  # type: ignore
             workspace_ref_id = result.new_workspace.ref_id  # type: ignore
 
-        raw_args = cast(Mapping[str, RealmThing], self._realm_codec_registry.db_encode(args, EventStoreRealm))
+        raw_args = cast(
+            Mapping[str, RealmThing],
+            self._realm_codec_registry.db_encode(args, EventStoreRealm),
+        )
         invocation_record = MutationUseCaseInvocationRecord.build_success(
             user_ref_id=user_ref_id,
             workspace_ref_id=workspace_ref_id,

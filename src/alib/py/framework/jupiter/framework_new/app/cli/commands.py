@@ -40,9 +40,7 @@ from pendulum.datetime import DateTime
 from rich.console import Console
 from rich.text import Text
 
-_UseCaseT = TypeVar(
-    "_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any]
-)
+_UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _AppGuestUseCaseSessionT = TypeVar(
     "_AppGuestUseCaseSessionT", bound=AppGuestUseCaseSession
@@ -99,6 +97,16 @@ class Command(abc.ABC):
     @property
     def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
+        return True
+
+    @property
+    def is_allowed_for_guest(self) -> bool:
+        """Is this command allowed while not logged in."""
+        return True
+
+    @property
+    def is_allowed_for_component(self) -> bool:
+        """Is this command allowed for a particular component."""
         return True
 
     @property
@@ -825,6 +833,18 @@ class LoggedInMutationCommand(
         """Is this command allowed for a particular environment."""
         return self._use_case.is_allowed_globally
 
+    @property
+    def is_allowed_for_guest(self) -> bool:
+        """Is this command allowed while not logged in."""
+        return False
+
+    @property
+    def is_allowed_for_component(self) -> bool:
+        """Is this command allowed for a particular component."""
+        session_info = self._session_storage.load()
+        session = self._build_session(session_info)
+        return self._use_case.is_allowed_for_component(session)
+
 
 _LoggedInReadonlyCommandUseCaseT = TypeVar(
     "_LoggedInReadonlyCommandUseCaseT",
@@ -884,6 +904,18 @@ class LoggedInReadonlyCommand(
     def is_allowed_globally(self) -> bool:
         """Is this command allowed for a particular environment."""
         return self._use_case.is_allowed_globally
+
+    @property
+    def is_allowed_for_guest(self) -> bool:
+        """Is this command allowed while not logged in."""
+        return False
+
+    @property
+    def is_allowed_for_component(self) -> bool:
+        """Is this command allowed for a particular component."""
+        session_info = self._session_storage.load()
+        session = self._build_session(session_info)
+        return self._use_case.is_allowed_for_component(session)
 
     @property
     def should_have_streaming_progress_report(self) -> bool:

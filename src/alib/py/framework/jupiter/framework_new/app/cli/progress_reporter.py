@@ -1,7 +1,6 @@
 """A CLI app progress reporter."""
 
 import argparse
-from ast import Str
 import asyncio
 from collections import defaultdict
 from collections.abc import AsyncIterator, Iterator
@@ -32,9 +31,7 @@ class RichConsoleProgressReporter(ProgressReporter):
     _status: Final[Status]
     _sections: Final[list[str]]
     _created_entities: Final[list[CrownEntity]]
-    _created_entities_stats: Final[
-        defaultdict[str, list[tuple[EntityName, EntityId]]]
-    ]
+    _created_entities_stats: Final[defaultdict[str, list[tuple[EntityName, EntityId]]]]
     _updated_entities: Final[list[CrownEntity]]
     _updated_entities_stats: Final[defaultdict[str, int]]
     _removed_entities: Final[list[CrownEntity]]
@@ -47,9 +44,7 @@ class RichConsoleProgressReporter(ProgressReporter):
         status: Status,
         sections: list[str],
         created_entities: list[CrownEntity],
-        created_entities_stats: defaultdict[
-            str, list[tuple[EntityName, EntityId]]
-        ],
+        created_entities_stats: defaultdict[str, list[tuple[EntityName, EntityId]]],
         updated_entities: list[CrownEntity],
         updated_entities_stats: defaultdict[str, int],
         removed_entities: list[CrownEntity],

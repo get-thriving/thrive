@@ -52,7 +52,7 @@ class JupiterGuestMutationCommand(
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
-    def _build_session(
+    def _build_session(  # type: ignore
         self, session_info: SessionInfo | None
     ) -> JupiterGuestUseCaseSession:
         return JupiterGuestUseCaseSession(
@@ -73,7 +73,7 @@ class JupiterGuestReadonlyCommand(
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
-    def _build_session(
+    def _build_session(  # type: ignore
         self, session_info: SessionInfo | None
     ) -> JupiterGuestUseCaseSession:
         return JupiterGuestUseCaseSession(
@@ -94,7 +94,7 @@ class JupiterLoggedInMutationCommand(
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
-    def _build_session(
+    def _build_session(  # type: ignore
         self, session_info: SessionInfo
     ) -> JupiterLoggedInUseCaseSession:
         return JupiterLoggedInUseCaseSession(
@@ -115,7 +115,7 @@ class JupiterLoggedInReadonlyCommand(
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
-    def _build_session(
+    def _build_session(  # type: ignore
         self, session_info: SessionInfo
     ) -> JupiterLoggedInUseCaseSession:
         return JupiterLoggedInUseCaseSession(

@@ -1,10 +1,7 @@
 """The CLI entry-point for jupiter."""
 
 import asyncio
-import logging
 import sys
-
-from rich.logging import RichHandler
 
 import jupiter.cli.command
 import jupiter.cli.config

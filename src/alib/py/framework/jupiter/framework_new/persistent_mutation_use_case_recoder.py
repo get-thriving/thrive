@@ -2,7 +2,10 @@
 
 from typing import Final
 
-from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecord, MutationUseCaseInvocationRecorder
+from jupiter.framework_new.mutation_invocation_result import (
+    MutationUseCaseInvocationRecord,
+    MutationUseCaseInvocationRecorder,
+)
 from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 
 
