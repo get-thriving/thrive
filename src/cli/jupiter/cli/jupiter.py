@@ -8,7 +8,7 @@ from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStor
 
 import jupiter.cli.command
 import jupiter.core.domain
-import jupiter.core.impl.repository.sqlite.domain
+import jupiter.core.impl.repository.sqlite
 import jupiter.core.use_cases
 from jupiter.cli.command.command import CliApp
 from jupiter.cli.command.rendering import RichConsoleProgressReporterFactory
@@ -26,7 +26,7 @@ from jupiter.core.domain.app import (
     AppShell,
 )
 from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.repository.sqlite.domain.application.search_storage_engine import (
+from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
     SqliteSearchStorageEngine,
 )
 from jupiter.core.use_cases.load_top_level_info import (
@@ -71,7 +71,7 @@ async def main() -> None:
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
         realm_codec_registry,
         sqlite_connection,
-        jupiter.core.impl.repository.sqlite.domain,
+        jupiter.core.impl.repository.sqlite,
         jupiter.core.domain,
     )
     search_storage_engine = SqliteSearchStorageEngine(
