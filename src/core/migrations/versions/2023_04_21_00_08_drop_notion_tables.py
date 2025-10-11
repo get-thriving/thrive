@@ -23,6 +23,7 @@ def upgrade():
     op.execute("drop table if exists notion_collection_link")
     op.execute("drop table if exists notion_collection_field_tag_link")
     op.execute("drop table if exists notion_collection_item_link")
+    op.execute("drop table if exists notion_collection_item_block_link")
 
 
 def downgrade():

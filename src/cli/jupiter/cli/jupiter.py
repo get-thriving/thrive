@@ -4,6 +4,8 @@ import asyncio
 import logging
 import sys
 
+from rich.logging import RichHandler
+
 import jupiter.cli.command
 import jupiter.cli.config
 import jupiter.core.domain
@@ -54,7 +56,7 @@ from rich.console import Console
 
 async def main() -> None:
     """Application main function."""
-    logging.disable()
+    # logging.disable()
 
     time_provider = TimeProvider()
 

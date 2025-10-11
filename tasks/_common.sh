@@ -284,5 +284,6 @@ run_jupiter_cli() {
 
     log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl}"
 
-    LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL=${sqliteDbUrl} cd src/cli && python -m jupiter.cli.jupiter
+    export SQLITE_DB_URL=${sqliteDbUrl} 
+    (cd src/cli && python -m jupiter.cli.jupiter)
 }

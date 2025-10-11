@@ -144,19 +144,9 @@ class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
 
     def name(self) -> str:
         """The name of the command."""
-        if self.__class__ in (
-            LoggedInMutationCommand,
-            LoggedInReadonlyCommand,
-            GuestMutationCommand,
-            GuestReadonlyCommand,
-        ):
-            return inflection.dasherize(
-                inflection.underscore(self._use_case.__class__.__name__)
-            ).replace("-use-case", "")
-        else:
-            return inflection.dasherize(
-                inflection.underscore(self.__class__.__name__)
-            ).replace("-use-case", "")
+        return inflection.dasherize(
+            inflection.underscore(self._use_case.__class__.__name__)
+        ).replace("-use-case", "")
 
     def description(self) -> str:
         """The description of the command."""
