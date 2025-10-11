@@ -1,13 +1,13 @@
 """A CLI app progress reporter."""
 
 import argparse
+from ast import Str
 import asyncio
 from collections import defaultdict
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from typing import Final
 
-from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
@@ -33,12 +33,12 @@ class RichConsoleProgressReporter(ProgressReporter):
     _sections: Final[list[str]]
     _created_entities: Final[list[CrownEntity]]
     _created_entities_stats: Final[
-        defaultdict[NamedEntityTag, list[tuple[EntityName, EntityId]]]
+        defaultdict[str, list[tuple[EntityName, EntityId]]]
     ]
     _updated_entities: Final[list[CrownEntity]]
-    _updated_entities_stats: Final[defaultdict[NamedEntityTag, int]]
+    _updated_entities_stats: Final[defaultdict[str, int]]
     _removed_entities: Final[list[CrownEntity]]
-    _removed_entities_stats: Final[defaultdict[NamedEntityTag, int]]
+    _removed_entities_stats: Final[defaultdict[str, int]]
     _print_indent: Final[int]
 
     def __init__(
@@ -48,12 +48,12 @@ class RichConsoleProgressReporter(ProgressReporter):
         sections: list[str],
         created_entities: list[CrownEntity],
         created_entities_stats: defaultdict[
-            NamedEntityTag, list[tuple[EntityName, EntityId]]
+            str, list[tuple[EntityName, EntityId]]
         ],
         updated_entities: list[CrownEntity],
-        updated_entities_stats: defaultdict[NamedEntityTag, int],
+        updated_entities_stats: defaultdict[str, int],
         removed_entities: list[CrownEntity],
-        removed_entities_stats: defaultdict[NamedEntityTag, int],
+        removed_entities_stats: defaultdict[str, int],
         print_indent: int,
     ) -> None:
         """Constructor."""
@@ -84,7 +84,7 @@ class RichConsoleProgressReporter(ProgressReporter):
     async def mark_created(self, entity: CrownEntity) -> None:
         """Mark an entity as created."""
         self._created_entities.append(entity)
-        self._created_entities_stats[NamedEntityTag.from_entity(entity)].append(
+        self._created_entities_stats[entity.__class__.__name__].append(
             (entity.name, entity.ref_id),
         )
         text = self._entity_to_str("creating", entity)
@@ -96,7 +96,7 @@ class RichConsoleProgressReporter(ProgressReporter):
     async def mark_updated(self, entity: CrownEntity) -> None:
         """Mark an entity as created."""
         self._updated_entities.append(entity)
-        self._updated_entities_stats[NamedEntityTag.from_entity(entity)] += 1
+        self._updated_entities_stats[entity.__class__.__name__] += 1
         text = self._entity_to_str("updating", entity)
         self._status.update(text)
         await asyncio.sleep(0.01)
@@ -106,7 +106,7 @@ class RichConsoleProgressReporter(ProgressReporter):
     async def mark_removed(self, entity: CrownEntity) -> None:
         """Mark an entity as created."""
         self._removed_entities.append(entity)
-        self._removed_entities_stats[NamedEntityTag.from_entity(entity)] += 1
+        self._removed_entities_stats[entity.__class__.__name__] += 1
         text = self._entity_to_str("removing", entity)
         self._status.update(text)
         await asyncio.sleep(0.01)
@@ -191,7 +191,7 @@ class RichConsoleProgressReporter(ProgressReporter):
         """Prepare the final string form for this one."""
         text = Text(
             self._print_indent * ".."
-            + f"✅ Done with {action_type} {NamedEntityTag.from_entity(entity)}",
+            + f"✅ Done with {action_type} {entity.__class__.__name__}",
         )
 
         text.append(" ")

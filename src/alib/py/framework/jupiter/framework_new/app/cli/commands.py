@@ -40,7 +40,9 @@ from pendulum.datetime import DateTime
 from rich.console import Console
 from rich.text import Text
 
-_UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
+_UseCaseT = TypeVar(
+    "_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any]
+)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _AppGuestUseCaseSessionT = TypeVar(
     "_AppGuestUseCaseSessionT", bound=AppGuestUseCaseSession

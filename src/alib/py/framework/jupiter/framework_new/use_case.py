@@ -10,8 +10,10 @@ from typing import (
     Any,
     Final,
     Generic,
+    Mapping,
     TypeVar,
     Union,
+    cast,
 )
 
 from jupiter.framework_new.auth.auth_token import (
@@ -34,8 +36,9 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
+from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecord, MutationUseCaseInvocationRecorder
 from jupiter.framework_new.ports import DomainPorts, Ports
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm import EventStoreRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework_new.repository import (
     DomainUnitOfWork,
 )
@@ -98,77 +101,6 @@ UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
 UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
 UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
 UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
-
-
-@enum.unique
-class MutationUseCaseInvocationResult(enum.Enum):
-    """The result of a mutation use case invocation."""
-
-    SUCCESS = "success"
-    FAILURE = "failure"
-
-
-@dataclass(frozen=True)
-class MutationUseCaseInvocationRecord(Generic[UseCaseArgsT]):
-    """The record of a mutation use case invocation."""
-
-    user_ref_id: EntityId
-    workspace_ref_id: EntityId
-    timestamp: Timestamp
-    name: str
-    args: UseCaseArgsT
-    result: MutationUseCaseInvocationResult
-    error_str: str | None
-
-    @staticmethod
-    def build_success(
-        user_ref_id: EntityId,
-        workspace_ref_id: EntityId,
-        timestamp: Timestamp,
-        name: str,
-        args: UseCaseArgsT,
-    ) -> "MutationUseCaseInvocationRecord[UseCaseArgsT]":
-        """Build a success case for an invocation."""
-        return MutationUseCaseInvocationRecord(
-            user_ref_id=user_ref_id,
-            workspace_ref_id=workspace_ref_id,
-            timestamp=timestamp,
-            name=name,
-            args=args,
-            result=MutationUseCaseInvocationResult.SUCCESS,
-            error_str=None,
-        )
-
-    @staticmethod
-    def build_failure(
-        user_ref_id: EntityId,
-        workspace_ref_id: EntityId,
-        timestamp: Timestamp,
-        name: str,
-        args: UseCaseArgsT,
-        error: Exception,
-    ) -> "MutationUseCaseInvocationRecord[UseCaseArgsT]":
-        """Build a success case for an invocation."""
-        return MutationUseCaseInvocationRecord(
-            user_ref_id=user_ref_id,
-            workspace_ref_id=workspace_ref_id,
-            timestamp=timestamp,
-            name=name,
-            args=args,
-            result=MutationUseCaseInvocationResult.FAILURE,
-            error_str=str(error),
-        )
-
-
-class MutationUseCaseInvocationRecorder(abc.ABC):
-    """A special type of recorder for mutation use cases which records the outcome of a particular use case."""
-
-    @abc.abstractmethod
-    async def record(
-        self,
-        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgsT],
-    ) -> None:
-        """Record the invocation of the use case."""
 
 
 class ProgressReporter(abc.ABC):
@@ -347,12 +279,13 @@ class MutationUseCase(
         except InputValidationError:
             raise
         except Exception as err:
+            raw_args = cast(Mapping[str, RealmThing], self._realm_codec_registry.db_encode(args, EventStoreRealm))
             invocation_record = MutationUseCaseInvocationRecord.build_failure(
                 user_ref_id=context.user_ref_id,
                 workspace_ref_id=context.workspace_ref_id,
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
-                args=args,
+                args=raw_args,
                 error=err,
             )
             try:
@@ -370,12 +303,13 @@ class MutationUseCase(
             user_ref_id = result.new_user.ref_id  # type: ignore
             workspace_ref_id = result.new_workspace.ref_id  # type: ignore
 
+        raw_args = cast(Mapping[str, RealmThing], self._realm_codec_registry.db_encode(args, EventStoreRealm))
         invocation_record = MutationUseCaseInvocationRecord.build_success(
             user_ref_id=user_ref_id,
             workspace_ref_id=workspace_ref_id,
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,
-            args=args,
+            args=raw_args,
         )
         await self._invocation_recorder.record(invocation_record)
         return context, result

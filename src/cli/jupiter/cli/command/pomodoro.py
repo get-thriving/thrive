@@ -5,8 +5,8 @@ from argparse import Namespace
 
 import beepy
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from jupiter.core.utils.noop_use_case import NoOpUseCase
+from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from rich.console import Console
 from rich.progress import Progress
 

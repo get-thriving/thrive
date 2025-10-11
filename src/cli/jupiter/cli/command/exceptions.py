@@ -3,7 +3,6 @@
 import sys
 
 from jupiter.cli.config import JupiterExceptionHandler
-from jupiter.framework_new.app.cli.session_storage import SessionInfoNotFoundError
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -20,6 +19,7 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
+from jupiter.framework_new.app.cli.session_storage import SessionInfoNotFoundError
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
@@ -37,9 +37,7 @@ from rich.console import Console
 class SessionInfoNotFoundHandler(JupiterExceptionHandler[SessionInfoNotFoundError]):
     """Handle the session info not found error."""
 
-    def handle(
-        self, console: Console, exception: SessionInfoNotFoundError
-    ) -> None:
+    def handle(self, console: Console, exception: SessionInfoNotFoundError) -> None:
         """Handle the session info not found error."""
         console.print("No session info found. Please log in or create a new account.")
         console.print(f"Checkout '{self._global_properties.docs_init_workspace_url}'.")
@@ -49,9 +47,7 @@ class SessionInfoNotFoundHandler(JupiterExceptionHandler[SessionInfoNotFoundErro
 class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
     """Handle input validation errors."""
 
-    def handle(
-        self, console: Console, exception: InputValidationError
-    ) -> None:
+    def handle(self, console: Console, exception: InputValidationError) -> None:
         """Handle input validation errors."""
         print("Looks like there's something wrong with the command's arguments:")
         print(f"  {exception}")
@@ -61,9 +57,7 @@ class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
 class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
     """Handle input validation errors."""
 
-    def handle(
-        self, console: Console, exception: MultiInputValidationError
-    ) -> None:
+    def handle(self, console: Console, exception: MultiInputValidationError) -> None:
         """Handle input validation errors."""
         print("Looks like there's something wrong with the command's arguments:")
         for k, v in exception.errors.items():
@@ -74,9 +68,7 @@ class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationEr
 class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
-    def handle(
-        self, console: Console, exception: UnavailableForContextError
-    ) -> None:
+    def handle(self, console: Console, exception: UnavailableForContextError) -> None:
         """Handle feature unavailable errors."""
         console.print(f"{exception}")
         sys.exit(1)
@@ -85,9 +77,7 @@ class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextErr
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
-    def handle(
-        self, console: Console, exception: UserAlreadyExistsError
-    ) -> None:
+    def handle(self, console: Console, exception: UserAlreadyExistsError) -> None:
         """Handle user already exists errors."""
         print("A user with the same identity already seems to exist here!")
         print("Please try creating another user.")
@@ -97,21 +87,19 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
 class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
     """Handle expired auth token errors."""
 
-    def handle(
-        self, console: Console, exception: ExpiredAuthTokenError
-    ) -> None:
+    def handle(self, console: Console, exception: ExpiredAuthTokenError) -> None:
         """Handle expired auth token errors."""
         print("Your authentication token has expired.")
         print("Please log in again.")
         sys.exit(1)
 
 
-class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredentialsError]):
+class InvalidLoginCredentialsHandler(
+    JupiterExceptionHandler[InvalidLoginCredentialsError]
+):
     """Handle invalid login credentials errors."""
 
-    def handle(
-        self, console: Console, exception: InvalidLoginCredentialsError
-    ) -> None:
+    def handle(self, console: Console, exception: InvalidLoginCredentialsError) -> None:
         """Handle invalid login credentials errors."""
         print("The user and/or password are invalid!")
         print("You can:")
@@ -124,12 +112,12 @@ class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredent
         sys.exit(1)
 
 
-class ProjectInSignificantUseHandler(JupiterExceptionHandler[ProjectInSignificantUseError]):
+class ProjectInSignificantUseHandler(
+    JupiterExceptionHandler[ProjectInSignificantUseError]
+):
     """Handle project in significant use errors."""
 
-    def handle(
-        self, console: Console, exception: ProjectInSignificantUseError
-    ) -> None:
+    def handle(self, console: Console, exception: ProjectInSignificantUseError) -> None:
         """Handle project in significant use errors."""
         print(f"The selected project is still being used. Reason: {exception}")
         print("Please select a backup project via --backup-project-id")
@@ -184,9 +172,7 @@ class JournalExistsForDatePeriodCombinationHandler(
 class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
     """Handle invalid auth token errors."""
 
-    def handle(
-        self, console: Console, exception: InvalidAuthTokenError
-    ) -> None:
+    def handle(self, console: Console, exception: InvalidAuthTokenError) -> None:
         """Handle invalid auth token errors."""
         print(
             "Your session seems to be invalid! Please run 'init' or 'login' to fix this!"
@@ -200,9 +186,7 @@ class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
 class ConnectionPrepareHandler(JupiterExceptionHandler[ConnectionPrepareError]):
     """Handle connection prepare errors."""
 
-    def handle(
-        self, console: Console, exception: ConnectionPrepareError
-    ) -> None:
+    def handle(self, console: Console, exception: ConnectionPrepareError) -> None:
         """Handle connection prepare errors."""
         print("A connection to the database couldn't be established!")
         print("Check if the database path exists")
@@ -213,9 +197,7 @@ class ConnectionPrepareHandler(JupiterExceptionHandler[ConnectionPrepareError]):
 class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
-    def handle(
-        self, console: Console, exception: UserNotFoundError
-    ) -> None:
+    def handle(self, console: Console, exception: UserNotFoundError) -> None:
         """Handle user not found errors."""
         print(
             "The user you're trying to operate as does't seem to exist! Please run `init` to create a user and workspace."
@@ -229,9 +211,7 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
 class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
-    def handle(
-        self, console: Console, exception: WorkspaceNotFoundError
-    ) -> None:
+    def handle(self, console: Console, exception: WorkspaceNotFoundError) -> None:
         """Handle workspace not found errors."""
         print(
             "The workspace you're trying to operate in does't seem to exist! Please run `init` to create a user and workspace."
@@ -245,9 +225,7 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
 class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
     """Handle entity not found errors."""
 
-    def handle(
-        self, console: Console, exception: EntityNotFoundError
-    ) -> None:
+    def handle(self, console: Console, exception: EntityNotFoundError) -> None:
         """Handle entity not found errors."""
         print(str(exception))
         sys.exit(1)

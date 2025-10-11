@@ -26,7 +26,6 @@ from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.domain.storage_engine import SearchStorageEngine
 from jupiter.framework_new.auth.auth_token import AuthToken
-from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import DomainContext
@@ -277,7 +276,6 @@ class JupiterGuestUseCaseSession(AppGuestUseCaseSession):
 @dataclass(frozen=True)
 class JupiterLoggedInUseCaseSession(AppLoggedInUseCaseSession):
     """A Jupiter specific logged in use case session."""
-
 
 
 @dataclass(frozen=True)

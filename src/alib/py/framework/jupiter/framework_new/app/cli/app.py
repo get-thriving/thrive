@@ -24,6 +24,7 @@ from jupiter.framework_new.app.cli.session_storage import SessionStorage
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecorder
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.realm import RealmCodecRegistry
@@ -33,7 +34,6 @@ from jupiter.framework_new.use_case import (
     AppGuestReadonlyUseCase,
     AppLoggedInMutationUseCase,
     AppLoggedInReadonlyUseCase,
-    MutationUseCaseInvocationRecorder,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,

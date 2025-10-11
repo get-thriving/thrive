@@ -3,17 +3,6 @@
 import abc
 from typing import Any, Generic, TypeVar, Union
 
-from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
-
-from jupiter.framework_new.app.cli.app import CliApp
-from jupiter.framework_new.app.cli.exception import CliExceptionHandler
-from jupiter.framework_new.app.cli.session_storage import SessionInfo
-from jupiter.framework_new.app.cli.commands import (
-    GuestMutationCommand,
-    GuestReadonlyCommand,
-    LoggedInMutationCommand,
-    LoggedInReadonlyCommand,
-)
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -29,6 +18,16 @@ from jupiter.core.config import (
     JupiterLoggedInUseCaseSession,
     JupiterPorts,
 )
+from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
+from jupiter.framework_new.app.cli.app import CliApp
+from jupiter.framework_new.app.cli.commands import (
+    GuestMutationCommand,
+    GuestReadonlyCommand,
+    LoggedInMutationCommand,
+    LoggedInReadonlyCommand,
+)
+from jupiter.framework_new.app.cli.exception import CliExceptionHandler
+from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from jupiter.framework_new.use_case_io import UseCaseResultBase
 
 JupiterGuestMutationUseCaseT = TypeVar(  # type: ignore
@@ -53,7 +52,9 @@ class JupiterGuestMutationCommand(
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
-    def _build_session(self, session_info: SessionInfo | None) -> JupiterGuestUseCaseSession:
+    def _build_session(
+        self, session_info: SessionInfo | None
+    ) -> JupiterGuestUseCaseSession:
         return JupiterGuestUseCaseSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
@@ -63,7 +64,7 @@ class JupiterGuestMutationCommand(
                 version=self._global_properties.version,
             ),
             session_info.auth_token_ext if session_info else None,
-        ) 
+        )
 
 
 class JupiterGuestReadonlyCommand(
@@ -72,7 +73,9 @@ class JupiterGuestReadonlyCommand(
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
-    def _build_session(self, session_info: SessionInfo | None) -> JupiterGuestUseCaseSession:
+    def _build_session(
+        self, session_info: SessionInfo | None
+    ) -> JupiterGuestUseCaseSession:
         return JupiterGuestUseCaseSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
@@ -91,7 +94,9 @@ class JupiterLoggedInMutationCommand(
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
-    def _build_session(self, session_info: SessionInfo) -> JupiterLoggedInUseCaseSession:
+    def _build_session(
+        self, session_info: SessionInfo
+    ) -> JupiterLoggedInUseCaseSession:
         return JupiterLoggedInUseCaseSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
@@ -110,7 +115,9 @@ class JupiterLoggedInReadonlyCommand(
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
-    def _build_session(self, session_info: SessionInfo) -> JupiterLoggedInUseCaseSession:
+    def _build_session(
+        self, session_info: SessionInfo
+    ) -> JupiterLoggedInUseCaseSession:
         return JupiterLoggedInUseCaseSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
@@ -126,7 +133,7 @@ class JupiterLoggedInReadonlyCommand(
 class JupiterExceptionHandler(
     Generic[_ExceptionT],
     CliExceptionHandler[JupiterGlobalProperties, _ExceptionT],
-    abc.ABC
+    abc.ABC,
 ):
     """A Jupiter exception handler."""
 
@@ -144,4 +151,6 @@ class JupiterCliApp(
     @property
     def help_version(self) -> str:
         """The version of the cli app."""
-        return f"{self._global_properties.description} {self._global_properties.version}"
+        return (
+            f"{self._global_properties.description} {self._global_properties.version}"
+        )

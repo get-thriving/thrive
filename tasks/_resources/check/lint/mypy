@@ -29,6 +29,9 @@ warn_untyped_fields = True
 disallow_untyped_defs = False
 disallow_incomplete_defs = False
 
+[mypy-jupiter.framework_new.app.cli.*]
+disallow_any_explicit = False
+
 [mypy-jupiter.framework_new.update_action.*]
 disallow_any_explicit = False
 
@@ -41,14 +44,8 @@ disallow_untyped_calls = False
 [mypy-jupiter.core.domain.core.timeline]
 disallow_untyped_calls = False
 
-[mypy-jupiter.cli.command.*]
-disallow_any_explicit = False
-
 [mypy-jupiter.webapi.app.*]
 disallow_any_explicit = False
-
-[mypy-tests.integration.infra.*]
-allow_untyped_calls = True
 
 [mypy-pendulum.*]
 implicit_reexport = True

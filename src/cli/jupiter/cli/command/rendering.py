@@ -1,12 +1,5 @@
 """Helpers for console rendering."""
 
-import argparse
-import asyncio
-from collections import defaultdict
-from collections.abc import AsyncIterator, Iterator
-from contextlib import asynccontextmanager, contextmanager
-from typing import Final
-
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
@@ -50,17 +43,6 @@ from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.progress_reporter import NoOpProgressReporter
-from jupiter.framework_new.use_case import (
-    AppLoggedInMutationUseCaseContext,
-    AppLoggedInUseCaseContext,
-    ProgressReporter,
-    ProgressReporterFactory,
-)
-from rich.console import Console
-from rich.panel import Panel
-from rich.status import Status
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree

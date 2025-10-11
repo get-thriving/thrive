@@ -4,7 +4,7 @@ import abc
 
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.repository import Repository
-from jupiter.framework_new.use_case import MutationUseCaseInvocationRecord, UseCaseArgsT
+from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecord
 
 
 class MutationUseCaseInvocationRecordRepository(Repository, abc.ABC):
@@ -13,7 +13,7 @@ class MutationUseCaseInvocationRecordRepository(Repository, abc.ABC):
     @abc.abstractmethod
     async def create(
         self,
-        invocation_record: MutationUseCaseInvocationRecord[UseCaseArgsT],
+        invocation_record: MutationUseCaseInvocationRecord,
     ) -> None:
         """Create a new invocation record."""
 

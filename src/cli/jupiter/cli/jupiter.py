@@ -4,16 +4,12 @@ import asyncio
 import logging
 import sys
 
-from jupiter.framework_new.app.cli.progress_reporter import RichConsoleProgressReporterFactory
-from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStorageEngine
-
-from jupiter.cli.config import JupiterCliApp
-import jupiter.cli.config
 import jupiter.cli.command
+import jupiter.cli.config
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite
 import jupiter.core.use_cases
-from jupiter.framework_new.app.cli.session_storage import SessionStorage
+from jupiter.cli.config import JupiterCliApp
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGuestUseCaseSession,
@@ -34,15 +30,22 @@ from jupiter.core.use_cases.load_top_level_info import (
     LoadTopLevelInfoArgs,
     LoadTopLevelInfoUseCase,
 )
+from jupiter.framework_new.app.cli.progress_reporter import (
+    RichConsoleProgressReporterFactory,
+)
+from jupiter.framework_new.app.cli.session_storage import SessionStorage
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
 from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
     SqliteDomainStorageEngine,
 )
+from jupiter.framework_new.impl.use_case.storage_engine import (
+    SqliteUseCaseStorageEngine,
+)
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
 from rich.console import Console
 
