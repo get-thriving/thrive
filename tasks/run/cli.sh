@@ -21,4 +21,6 @@ if [[ -z "${namespace}" ]]; then
     namespace=$STANDARD_NAMESPACE
 fi
 
+echo $usage_jupiter_args
+
 run_jupiter_cli "$namespace" "${usage_jupiter_args[*]}"

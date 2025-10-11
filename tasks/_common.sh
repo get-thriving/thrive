@@ -289,5 +289,6 @@ run_jupiter_cli() {
     export SESSION_INFO_PATH=${sessionInfoPath}
     export SQLITE_DB_URL=${sqliteDbUrl} 
 
-    (cd src/cli && python -m jupiter.cli.jupiter $@)
+    cd src/cli
+    python -m jupiter.cli.jupiter ${@}
 }
