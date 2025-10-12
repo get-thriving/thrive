@@ -7,7 +7,6 @@ import typing
 from collections.abc import Callable, Iterator, Mapping
 from datetime import date, datetime
 from typing import (
-    Annotated,
     Any,
     Final,
     ForwardRef,
@@ -19,46 +18,27 @@ from typing import (
 )
 
 import inflection
-from jupiter.framework_new.component_properties import ComponentProperties
-from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.mutation_invocation_result import MutationUseCaseInvocationRecorder
-from jupiter.framework_new.ports import Ports
-from jupiter.framework_new.progress_reporter import EmptyProgressReporterFactory, NoOpProgressReporterFactory
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.types import DecoratedCallable
-from jupiter.core.config import (
-    JupiterComponentProperties,
-    JupiterGlobalProperties,
-    JupiterPorts,
-)
-from jupiter.core.domain.app import (
-    AppCore,
-    AppDistribution,
-    AppPlatform,
-    AppShell,
-    AppVersion,
-)
-from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
-from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
-from jupiter.framework_new.auth.auth_token_ext import (
-    AuthTokenExt,
-    AuthTokenExtDatabaseDecoder,
-)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.entity import Entity, ParentLink
-from jupiter.framework_new.impl.realms import (
-    _StandardEnumValueDatabaseDecoder,
+from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.mutation_invocation_result import (
+    MutationUseCaseInvocationRecorder,
 )
 from jupiter.framework_new.optional import normalize_optional
+from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.progress_reporter import (
+    EmptyProgressReporterFactory,
+    NoOpProgressReporterFactory,
+)
 from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
 from jupiter.framework_new.record import Record
 from jupiter.framework_new.update_action import UpdateAction
@@ -74,7 +54,6 @@ from jupiter.framework_new.use_case import (
     AppLoggedInReadonlyUseCaseContext,
     AppLoggedInUseCaseSession,
     EmptySession,
-    PortsT,
     SysBackgroundMutationUseCase,
     UseCase,
     UseCaseContextBase,
@@ -122,10 +101,7 @@ _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _WebApiAppT = TypeVar("_WebApiAppT", bound="WebApiApp[Any, Any, Any]")
-_UseCaseSessionT = TypeVar("_UseCaseSessionT", bound=UseCaseSessionBase)
-_GuestUseCaseSessionT = TypeVar(
-    "_GuestUseCaseSessionT", bound=AppGuestUseCaseSession
-)
+_GuestUseCaseSessionT = TypeVar("_GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
 _GuestMutationUseCaseContextT = TypeVar(
     "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
 )
@@ -159,9 +135,8 @@ _LoggedInReadonlyUseCaseT = TypeVar(
 )
 _SysBackgroundMutationUseCaseT = TypeVar(
     "_SysBackgroundMutationUseCaseT",
-    bound=SysBackgroundMutationUseCase[Any,  Any, Any, Any, Any]
+    bound=SysBackgroundMutationUseCase[Any, Any, Any, Any, Any],
 )
-_UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase | None)
 
 
@@ -242,13 +217,15 @@ class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
     def attach_route(self, app: FastAPI) -> None:
         """Attach the route to the app."""
 
+
 class GuestMutationCommand(
     Generic[
-        _GuestMutationUseCaseT, 
+        _GuestMutationUseCaseT,
         _GlobalPropertiesT,
         _GuestUseCaseSessionT,
         _GuestMutationUseCaseContextT,
-        _UseCaseResultT],
+        _UseCaseResultT,
+    ],
     UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
     abc.ABC,
 ):
@@ -266,13 +243,14 @@ class GuestMutationCommand(
             **STANDARD_CONFIG,
         )
         async def do_it(request: Request):  # type: ignore[no-untyped-def]
-            session = self._build_session(request.state.session_info)
+            session = self._build_session(request)
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT,
+                (await self._use_case.execute(session, decoded_args))[1],
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -287,11 +265,12 @@ class GuestMutationCommand(
 
 class GuestReadonlyCommand(
     Generic[
-        _GuestReadonlyUseCaseT, 
-        _GlobalPropertiesT, 
+        _GuestReadonlyUseCaseT,
+        _GlobalPropertiesT,
         _GuestUseCaseSessionT,
         _GuestReadonlyUseCaseContextT,
-        _UseCaseResultT],
+        _UseCaseResultT,
+    ],
     UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
     abc.ABC,
 ):
@@ -315,7 +294,8 @@ class GuestReadonlyCommand(
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT,
+                (await self._use_case.execute(session, decoded_args))[1],
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -330,11 +310,12 @@ class GuestReadonlyCommand(
 
 class LoggedInMutationCommand(
     Generic[
-        _LoggedInMutationUseCaseT, 
-        _GlobalPropertiesT, 
+        _LoggedInMutationUseCaseT,
+        _GlobalPropertiesT,
         _LoggedInUseCaseSessionT,
         _LoggedInMutationUseCaseContextT,
-        _UseCaseResultT],
+        _UseCaseResultT,
+    ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
     abc.ABC,
 ):
@@ -358,7 +339,8 @@ class LoggedInMutationCommand(
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT,
+                (await self._use_case.execute(session, decoded_args))[1],
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -372,7 +354,13 @@ class LoggedInMutationCommand(
 
 
 class LoggedInReadonlyCommand(
-    Generic[_LoggedInReadonlyUseCaseT,  _GlobalPropertiesT, _LoggedInUseCaseSessionT, _LoggedInReadonlyUseCaseContextT,_UseCaseResultT],
+    Generic[
+        _LoggedInReadonlyUseCaseT,
+        _GlobalPropertiesT,
+        _LoggedInUseCaseSessionT,
+        _LoggedInReadonlyUseCaseContextT,
+        _UseCaseResultT,
+    ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
     abc.ABC,
 ):
@@ -396,7 +384,8 @@ class LoggedInReadonlyCommand(
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT,
+                (await self._use_case.execute(session, decoded_args))[1],
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -434,20 +423,18 @@ class WebApiExceptionHandler(Generic[_GlobalPropertiesT, _ExceptionT], abc.ABC):
     _global_properties: _GlobalPropertiesT
     _exception_type: type[_ExceptionT]
 
-    def __init__(self, global_properties: _GlobalPropertiesT, exception_type: type[_ExceptionT]) -> None:
+    def __init__(
+        self, global_properties: _GlobalPropertiesT, exception_type: type[_ExceptionT]
+    ) -> None:
         """Constructor."""
         self._global_properties = global_properties
         self._exception_type = exception_type
 
     @abc.abstractmethod
-    def handle(
-        self, exception: _ExceptionT
-    ) -> JSONResponse | PlainTextResponse:
+    def handle(self, exception: _ExceptionT) -> JSONResponse | PlainTextResponse:
         """Handle the exception."""
 
-    def attach_handler(
-        self, fast_api: FastAPI
-    ) -> None:
+    def attach_handler(self, fast_api: FastAPI) -> None:
         """Attach the route to the app."""
 
         @fast_api.exception_handler(self._exception_type)
@@ -492,7 +479,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             Command,
         ]
     ]
-    _exception_handlers: Final[dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Exception]]]
+    _exception_handlers: Final[
+        dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Exception]]
+    ]
 
     def __init__(
         self,
@@ -528,9 +517,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             title=self.api_description,
             version=self.api_version,
             generate_unique_id_function=self._custom_generate_unique_id,
-            openapi_url=(
-                "/openapi.json" if self.is_live else None
-            ),
+            openapi_url=("/openapi.json" if self.is_live else None),
             docs_url="/docs" if self.is_live else None,
             redoc_url="/redoc" if self.is_live else None,
         )
@@ -619,7 +606,12 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
         def extract_exception_handler(
             the_module: types.ModuleType,
-        ) -> Iterator[tuple[type[Exception], type[WebApiExceptionHandler[GlobalProperties, Exception]]]]:
+        ) -> Iterator[
+            tuple[
+                type[Exception],
+                type[WebApiExceptionHandler[GlobalProperties, Exception]],
+            ]
+        ]:
             for _name, obj in the_module.__dict__.items():
                 origin_obj = get_origin(obj)
                 if not (
@@ -815,7 +807,15 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     def _add_use_case_type(
         self,
         use_case_type: type[
-            UseCase[Ports, GlobalProperties, ComponentProperties, UseCaseSessionBase, UseCaseContextBase, UseCaseArgsBase, UseCaseResultBase | None]
+            UseCase[
+                Ports,
+                GlobalProperties,
+                ComponentProperties,
+                UseCaseSessionBase,
+                UseCaseContextBase,
+                UseCaseArgsBase,
+                UseCaseResultBase | None,
+            ]
         ],
         root_module: types.ModuleType,
     ) -> None:
@@ -872,11 +872,13 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             if not use_case.is_allowed_globally:
                 return
 
-            self._use_case_commands[use_case_type] = self._logged_in_mutation_command_ctor(
-                global_properties=self._global_properties,
-                realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case,
-                root_module=root_module,
+            self._use_case_commands[use_case_type] = (
+                self._logged_in_mutation_command_ctor(
+                    global_properties=self._global_properties,
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
             )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
             use_case = use_case_type(  # type: ignore
@@ -890,11 +892,13 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             if not use_case.is_allowed_globally:
                 return
 
-            self._use_case_commands[use_case_type] = self._logged_in_readonly_command_ctor(
-                global_properties=self._global_properties,
-                realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case,
-                root_module=root_module,
+            self._use_case_commands[use_case_type] = (
+                self._logged_in_readonly_command_ctor(
+                    global_properties=self._global_properties,
+                    realm_codec_registry=self._realm_codec_registry,
+                    use_case=use_case,
+                    root_module=root_module,
+                )
             )
         elif issubclass(use_case_type, SysBackgroundMutationUseCase):
             use_case = use_case_type(  # type: ignore
@@ -1100,7 +1104,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
         if self._fast_app.openapi_schema:
             return self._fast_app.openapi_schema
-        
+
         openapi_schema = get_openapi(
             title=self.api_description,
             version=self.api_version,

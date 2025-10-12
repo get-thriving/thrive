@@ -2,18 +2,48 @@
 
 import abc
 from typing import Any, Final, Generic, TypeVar, Union
+
 from fastapi import HTTPException, Request, Response
-from jupiter.core.config import JupiterComponentProperties, JupiterGlobalProperties, JupiterGuestMutationUseCase, JupiterGuestReadonlyUseCase, JupiterGuestUseCaseSession, JupiterLoggedInMutationUseCase, JupiterLoggedInReadonlyUseCase, JupiterLoggedInUseCaseSession, JupiterPorts
-from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell, AppVersion
+from jupiter.core.config import (
+    JupiterComponentProperties,
+    JupiterGlobalProperties,
+    JupiterGuestMutationUseCase,
+    JupiterGuestMutationUseCaseContext,
+    JupiterGuestReadonlyUseCase,
+    JupiterGuestReadonlyUseCaseContext,
+    JupiterGuestUseCaseSession,
+    JupiterLoggedInMutationUseCase,
+    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInReadonlyUseCase,
+    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInUseCaseSession,
+    JupiterPorts,
+)
+from jupiter.core.domain.app import (
+    AppCore,
+    AppDistribution,
+    AppPlatform,
+    AppShell,
+    AppVersion,
+)
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt, AuthTokenExtDatabaseDecoder
-from jupiter.framework_new.use_case_io import UseCaseResultBase
+from jupiter.framework_new.auth.auth_token_ext import (
+    AuthTokenExt,
+    AuthTokenExtDatabaseDecoder,
+)
 from jupiter.framework_new.impl.realms import (
     _StandardEnumValueDatabaseDecoder,
 )
+from jupiter.framework_new.use_case_io import UseCaseResultBase
+from jupiter.webapi.app import (
+    GuestMutationCommand,
+    GuestReadonlyCommand,
+    LoggedInMutationCommand,
+    LoggedInReadonlyCommand,
+    WebApiApp,
+    WebApiExceptionHandler,
+)
 from starlette.status import HTTP_401_UNAUTHORIZED
-
-from jupiter.webapi.app import WebApiApp, WebApiExceptionHandler
 
 ENV_HEADER: Final[str] = "X-Jupiter-Env"
 HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
@@ -43,7 +73,7 @@ class JupiterGuestMutationCommand(
 
     def _build_session(self, request: Request) -> JupiterGuestUseCaseSession:
         """Build the session."""
-        # extract auth token from the "Authorization" header, 
+        # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         app_component = _extract_component_from_frontdoor(request)
 
@@ -51,16 +81,17 @@ class JupiterGuestMutationCommand(
             app_component,
             auth_token_ext_str,
         )
+
 
 class JupiterGuestReadonlyCommand(
     Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
     GuestReadonlyCommand[_JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestReadonlyUseCaseContext, _UseCaseResultT],  # type: ignore
 ):
     """A guest readonly command tailore to Jupiter."""
-    
+
     def _build_session(self, request: Request) -> JupiterGuestUseCaseSession:
         """Build the session."""
-        # extract auth token from the "Authorization" header, 
+        # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         app_component = _extract_component_from_frontdoor(request)
 
@@ -69,15 +100,16 @@ class JupiterGuestReadonlyCommand(
             auth_token_ext_str,
         )
 
+
 class JupiterLoggedInMutationCommand(
     Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
     LoggedInMutationCommand[_JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInMutationUseCaseContext, _UseCaseResultT],  # type: ignore
 ):
     """A logged in mutation command tailore to Jupiter."""
-    
+
     def _build_session(self, request: Request) -> JupiterLoggedInUseCaseSession:
         """Build the session."""
-        # extract auth token from the "Authorization" header, 
+        # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         if auth_token_ext_str is None:
             raise HTTPException(
@@ -91,16 +123,17 @@ class JupiterLoggedInMutationCommand(
             app_component,
             auth_token_ext_str,
         )
+
 
 class JupiterLoggedInReadonlyCommand(
     Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
     LoggedInReadonlyCommand[_JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInReadonlyUseCaseContext, _UseCaseResultT],  # type: ignore
 ):
     """A logged in readonly command tailore to Jupiter."""
-    
+
     def _build_session(self, request: Request) -> JupiterLoggedInUseCaseSession:
         """Build the session."""
-        # extract auth token from the "Authorization" header, 
+        # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         if auth_token_ext_str is None:
             raise HTTPException(
@@ -114,6 +147,7 @@ class JupiterLoggedInReadonlyCommand(
             app_component,
             auth_token_ext_str,
         )
+
 
 class JupiterExceptionHandler(
     Generic[_ExceptionT],
@@ -169,6 +203,7 @@ def _extract_auth_token_ext(request: Request) -> AuthTokenExt | None:
     if scheme.lower() != "bearer":
         return None
     return _AUTH_TOKEN_EXT_DECODER.decode(param)
+
 
 def _extract_component_from_frontdoor(request: Request) -> JupiterComponentProperties:
     """Extract the app component from the frontdoor."""

@@ -42,9 +42,7 @@ from rich.text import Text
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
-_GuestUseCaseSessionT = TypeVar(
-    "_GuestUseCaseSessionT", bound=AppGuestUseCaseSession
-)
+_GuestUseCaseSessionT = TypeVar("_GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
 _GuestMutationUseCaseContextT = TypeVar(
     "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
 )
@@ -703,9 +701,7 @@ class GuestMutationCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(
-        self, session_info: SessionInfo | None
-    ) -> _GuestUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo | None) -> _GuestUseCaseSessionT:
         """Build a session."""
 
     def _render_result(
@@ -754,9 +750,7 @@ class GuestReadonlyCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(
-        self, session_info: SessionInfo | None
-    ) -> _GuestUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo | None) -> _GuestUseCaseSessionT:
         """Build the context."""
 
     def _render_result(

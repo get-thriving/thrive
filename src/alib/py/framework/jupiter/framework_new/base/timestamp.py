@@ -81,7 +81,9 @@ class TimestampDatabaseEncoder(RealmEncoder[Timestamp, DatabaseRealm]):
 
     def encode(self, value: Timestamp) -> RealmThing:
         """Encode to a database realm."""
-        return datetime.datetime.fromtimestamp(pendulum.now().timestamp(), pendulum.tz.UTC)
+        return datetime.datetime.fromtimestamp(
+            pendulum.now().timestamp(), pendulum.tz.UTC
+        )
 
 
 class TimestampDatabaseDecoder(RealmDecoder[Timestamp, DatabaseRealm]):

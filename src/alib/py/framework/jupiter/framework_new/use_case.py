@@ -1003,7 +1003,7 @@ class SysBackgroundMutationUseCase(
         progress_reporter_factory: ProgressReporterFactory[EmptyContext],
     ) -> None:
         """Constructor."""
-        super().__init__(self._ports, self._global_properties)
+        super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._progress_reporter_factory = progress_reporter_factory

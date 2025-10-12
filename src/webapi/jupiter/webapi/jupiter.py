@@ -5,11 +5,9 @@ import logging
 
 import aiohttp
 import jupiter.core.domain
-from jupiter.core.impl.repository.sqlite.application.search_storage_engine import SqliteSearchStorageEngine
-import jupiter.core.use_cases
 import jupiter.core.impl.repository.sqlite
-from jupiter.framework_new.impl.storage.sqlite.storage_engine import SqliteDomainStorageEngine
-from jupiter.framework_new.impl.use_case.storage_engine import SqliteUseCaseStorageEngine
+import jupiter.core.use_cases
+import jupiter.webapi.config
 import jupiter.webapi.exceptions
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.domain.crm import CRM
@@ -17,13 +15,22 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.crm.wix import WixCRM
+from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
+    SqliteSearchStorageEngine,
+)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
+    SqliteDomainStorageEngine,
+)
+from jupiter.framework_new.impl.use_case.storage_engine import (
+    SqliteUseCaseStorageEngine,
+)
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.webapi.app import WebApiApp
+from jupiter.webapi.config import JupiterWebApiApp
 from jupiter.webapi.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
@@ -32,10 +39,6 @@ from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporter
 from rich import print
 from rich.console import Console
 from rich.logging import RichHandler
-
-import jupiter.webapi.config
-
-from jupiter.webapi.config import JupiterWebApiApp
 
 
 async def main() -> None:

@@ -1,7 +1,6 @@
 """Exceptions handling for the webapi module."""
 
 from fastapi.responses import JSONResponse
-from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -28,18 +27,14 @@ from jupiter.framework_new.errors import (
 )
 from jupiter.framework_new.repository import EntityNotFoundError
 from jupiter.framework_new.use_case import UnavailableForContextError
-from jupiter.webapi.app import WebApiExceptionHandler, WebApiApp
-from starlette import status
-
 from jupiter.webapi.config import JupiterExceptionHandler
+from starlette import status
 
 
 class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
     """Handle input validation errors."""
 
-    def handle(
-        self, exception: InputValidationError
-    ) -> JSONResponse:
+    def handle(self, exception: InputValidationError) -> JSONResponse:
         """Handle input validation errors."""
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -60,9 +55,7 @@ class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
 class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
     """Handle input validation errors."""
 
-    def handle(
-        self, exception: MultiInputValidationError
-    ) -> JSONResponse:
+    def handle(self, exception: MultiInputValidationError) -> JSONResponse:
         """Handle input validation errors."""
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -85,9 +78,7 @@ class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationEr
 class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
-    def handle(
-        self, exception: UnavailableForContextError
-    ) -> JSONResponse:
+    def handle(self, exception: UnavailableForContextError) -> JSONResponse:
         """Handle feature unavailable errors."""
         return JSONResponse(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -98,9 +89,7 @@ class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextErr
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
-    def handle(
-        self, exception: UserAlreadyExistsError
-    ) -> JSONResponse:
+    def handle(self, exception: UserAlreadyExistsError) -> JSONResponse:
         """Handle user already exists errors."""
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -121,9 +110,7 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
 class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
     """Handle expired auth token errors."""
 
-    def handle(
-        self, exception: ExpiredAuthTokenError
-    ) -> JSONResponse:
+    def handle(self, exception: ExpiredAuthTokenError) -> JSONResponse:
         """Handle expired auth token errors."""
         return JSONResponse(
             status_code=status.HTTP_426_UPGRADE_REQUIRED,
@@ -131,12 +118,12 @@ class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
         )
 
 
-class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredentialsError]):
+class InvalidLoginCredentialsHandler(
+    JupiterExceptionHandler[InvalidLoginCredentialsError]
+):
     """Handle invalid login credentials errors."""
 
-    def handle(
-        self, exception: InvalidLoginCredentialsError
-    ) -> JSONResponse:
+    def handle(self, exception: InvalidLoginCredentialsError) -> JSONResponse:
         """Handle invalid login credentials errors."""
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -154,12 +141,12 @@ class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredent
         )
 
 
-class ProjectInSignificantUseHandler(JupiterExceptionHandler[ProjectInSignificantUseError]):
+class ProjectInSignificantUseHandler(
+    JupiterExceptionHandler[ProjectInSignificantUseError]
+):
     """Handle project in significant use errors."""
 
-    def handle(
-        self, exception: ProjectInSignificantUseError
-    ) -> JSONResponse:
+    def handle(self, exception: ProjectInSignificantUseError) -> JSONResponse:
         """Handle project in significant use errors."""
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -180,9 +167,7 @@ class ProjectInSignificantUseHandler(JupiterExceptionHandler[ProjectInSignifican
 class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
     """Handle entity not found errors."""
 
-    def handle(
-        self, exception: EntityNotFoundError
-    ) -> JSONResponse:
+    def handle(self, exception: EntityNotFoundError) -> JSONResponse:
         """Handle entity not found errors."""
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -193,9 +178,7 @@ class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
 class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
     """Handle invalid auth token errors."""
 
-    def handle(
-        self, exception: InvalidAuthTokenError
-    ) -> JSONResponse:
+    def handle(self, exception: InvalidAuthTokenError) -> JSONResponse:
         """Handle invalid auth token errors."""
         return JSONResponse(
             status_code=status.HTTP_426_UPGRADE_REQUIRED,
@@ -217,9 +200,7 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
 class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
-    def handle(
-        self, exception: WorkspaceNotFoundError
-    ) -> JSONResponse:
+    def handle(self, exception: WorkspaceNotFoundError) -> JSONResponse:
         """Handle workspace not found errors."""
         return JSONResponse(
             status_code=status.HTTP_410_GONE,

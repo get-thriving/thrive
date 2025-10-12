@@ -6,7 +6,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
     JupiterLoggedInMutationUseCaseContext,
 )
-from jupiter.core.domain.app import AppCore, AppShell
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
