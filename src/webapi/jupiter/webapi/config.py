@@ -1,7 +1,7 @@
 """Configuration for the WebAPI app."""
 
 import abc
-from typing import Any, Final, Generic, TypeVar, Union
+from typing import Final, Generic, TypeVar, Union
 
 from fastapi import HTTPException, Request, Response
 from jupiter.core.config import (
@@ -57,17 +57,23 @@ _APP_PLATFORM_DECODER = _StandardEnumValueDatabaseDecoder(AppPlatform)
 _APP_DISTRIBUTION_DECODER = _StandardEnumValueDatabaseDecoder(AppDistribution)
 
 
-_JupiterGuestMutationUseCaseT = TypeVar("_JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[Any, Any])  # type: ignore
-_JupiterGuestReadonlyUseCaseT = TypeVar("_JupiterGuestReadonlyUseCaseT", bound=JupiterGuestReadonlyUseCase[Any, Any])  # type: ignore
-_JupiterLoggedInMutationUseCaseT = TypeVar("_JupiterLoggedInMutationUseCaseT", bound=JupiterLoggedInMutationUseCase[Any, Any])  # type: ignore
-_JupiterLoggedInReadonlyUseCaseT = TypeVar("_JupiterLoggedInReadonlyUseCaseT", bound=JupiterLoggedInReadonlyUseCase[Any, Any])  # type: ignore
+_JupiterGuestMutationUseCaseT = TypeVar("_JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[object, object])  # type: ignore
+_JupiterGuestReadonlyUseCaseT = TypeVar("_JupiterGuestReadonlyUseCaseT", bound=JupiterGuestReadonlyUseCase[object, object])  # type: ignore
+_JupiterLoggedInMutationUseCaseT = TypeVar("_JupiterLoggedInMutationUseCaseT", bound=JupiterLoggedInMutationUseCase[object, object])  # type: ignore
+_JupiterLoggedInReadonlyUseCaseT = TypeVar("_JupiterLoggedInReadonlyUseCaseT", bound=JupiterLoggedInReadonlyUseCase[object, object])  # type: ignore
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
 class JupiterGuestMutationCommand(
     Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
-    GuestMutationCommand[_JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestMutationUseCaseContext, _UseCaseResultT],  # type: ignore
+    GuestMutationCommand[
+        _JupiterGuestMutationUseCaseT,
+        JupiterGlobalProperties,
+        JupiterGuestUseCaseSession,
+        JupiterGuestMutationUseCaseContext,
+        _UseCaseResultT,
+    ],
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -85,7 +91,13 @@ class JupiterGuestMutationCommand(
 
 class JupiterGuestReadonlyCommand(
     Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
-    GuestReadonlyCommand[_JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestReadonlyUseCaseContext, _UseCaseResultT],  # type: ignore
+    GuestReadonlyCommand[
+        _JupiterGuestReadonlyUseCaseT,
+        JupiterGlobalProperties,
+        JupiterGuestUseCaseSession,
+        JupiterGuestReadonlyUseCaseContext,
+        _UseCaseResultT,
+    ],
 ):
     """A guest readonly command tailore to Jupiter."""
 
@@ -103,7 +115,13 @@ class JupiterGuestReadonlyCommand(
 
 class JupiterLoggedInMutationCommand(
     Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
-    LoggedInMutationCommand[_JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInMutationUseCaseContext, _UseCaseResultT],  # type: ignore
+    LoggedInMutationCommand[
+        _JupiterLoggedInMutationUseCaseT,
+        JupiterGlobalProperties,
+        JupiterLoggedInUseCaseSession,
+        JupiterLoggedInMutationUseCaseContext,
+        _UseCaseResultT,
+    ],
 ):
     """A logged in mutation command tailore to Jupiter."""
 
@@ -127,7 +145,13 @@ class JupiterLoggedInMutationCommand(
 
 class JupiterLoggedInReadonlyCommand(
     Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
-    LoggedInReadonlyCommand[_JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInReadonlyUseCaseContext, _UseCaseResultT],  # type: ignore
+    LoggedInReadonlyCommand[
+        _JupiterLoggedInReadonlyUseCaseT,
+        JupiterGlobalProperties,
+        JupiterLoggedInUseCaseSession,
+        JupiterLoggedInReadonlyUseCaseContext,
+        _UseCaseResultT,
+    ],
 ):
     """A logged in readonly command tailore to Jupiter."""
 

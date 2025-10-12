@@ -4,7 +4,7 @@ import abc
 import dataclasses
 import types
 import typing
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Iterator, Mapping
 from datetime import date, datetime
 from typing import (
     Any,
@@ -24,7 +24,6 @@ from fastapi import FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
-from fastapi.types import DecoratedCallable
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.entity import Entity, ParentLink
@@ -80,7 +79,7 @@ from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporter
 from pendulum.date import Date
 from pendulum.datetime import DateTime
 from starlette import status
-from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 STANDARD_RESPONSES: dict[int | str, dict[str, Any]] = {
     410: {
@@ -793,16 +792,24 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         """Generate a OpenAPI unique id from just the route name."""
         return f"{route.name}"
 
-    async def _time_provider_middleware(self, request: Request, call_next: DecoratedCallable) -> Callable[[DecoratedCallable], DecoratedCallable]:  # type: ignore
+    async def _time_provider_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
         """Middleware to provide the time provider."""
         self._request_time_provider.set_request_time()
-        return await call_next(request)  # type: ignore
+        return await call_next(request)
 
-    async def _setting_middleware(self, request: Request, call_next: DecoratedCallable) -> Callable[[DecoratedCallable], DecoratedCallable]:  # type: ignore
+    async def _setting_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
         """Middleware to provide the version."""
-        response = await call_next(request)  # type: ignore
-        self.add_headers_to_response(response)
-        return response  # type: ignore
+        response: Response = await call_next(request)
+        self.add_headers_to_response(response)  # mutate in place
+        return response
 
     def _add_use_case_type(
         self,

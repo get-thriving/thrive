@@ -23,4 +23,4 @@ db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
 
 log info "Clearing database for ${namespace} in ${db_path}"
 
-rm ${db_path}
+rm "${db_path}"
