@@ -23,7 +23,7 @@ from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnectio
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.webapi.app import WebServiceApp
+from jupiter.webapi.app import WebApiApp
 from jupiter.webapi.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
@@ -32,6 +32,10 @@ from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporter
 from rich import print
 from rich.console import Console
 from rich.logging import RichHandler
+
+import jupiter.webapi.config
+
+from jupiter.webapi.config import JupiterWebApiApp
 
 
 async def main() -> None:
@@ -118,16 +122,17 @@ async def main() -> None:
         crm=crm,
     )
 
-    web_app = WebServiceApp.build_from_module_root(
+    web_app = JupiterWebApiApp.build_from_module_root(
+        ports,
         global_properties,
         request_time_provider,
         cron_run_time_provider,
+        realm_codec_registry,
         invocation_recorder,
         progress_reporter_factory,
-        realm_codec_registry,
         auth_token_stamper,
-        ports,
         usecase_storage_engine,
+        jupiter.webapi.config,
         jupiter.core.use_cases,
         jupiter.webapi.exceptions,
     )

@@ -66,6 +66,11 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     _use_case_storage_engine: Final[UseCaseStorageEngine]
     _console: Final[Console]
     _session_storage: Final[SessionStorage]
+    _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
+    _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
+    _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
+    _logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand]  # type: ignore[type-arg]
+    _commands: dict[str, Command]
     _use_case_commands: dict[
         type[
             UseCase[
@@ -80,11 +85,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         ],
         Command,
     ]
-    _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
-    _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
-    _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
-    _logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand]  # type: ignore[type-arg]
-    _commands: dict[str, Command]
     _exception_handlers: dict[
         type[Exception], CliExceptionHandler[GlobalProperties, Exception]
     ]
@@ -117,12 +117,12 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         self._use_case_storage_engine = use_case_storage_engine
         self._console = console
         self._session_storage = session_storage
-        self._use_case_commands = {}
         self._guest_mutation_command_ctor = guest_mutation_command_ctor
         self._guest_readoly_command_ctor = guest_readonly_command_ctor
         self._logged_in_mutation_command_ctor = logged_in_mutation_command_ctor
         self._logged_in_readonly_command_ctor = logged_in_readonly_command_ctor
         self._commands = {}
+        self._use_case_commands = {}
         self._exception_handlers = {}
 
     @classmethod

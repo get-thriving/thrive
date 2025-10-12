@@ -26,7 +26,7 @@ from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.progress_reporter import EmptyProgressReporterFactory, NoOpProgressReporterFactory
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.routing import APIRoute
@@ -64,12 +64,17 @@ from jupiter.framework_new.record import Record
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     AppGuestMutationUseCase,
+    AppGuestMutationUseCaseContext,
     AppGuestReadonlyUseCase,
+    AppGuestReadonlyUseCaseContext,
     AppGuestUseCaseSession,
     AppLoggedInMutationUseCase,
+    AppLoggedInMutationUseCaseContext,
     AppLoggedInReadonlyUseCase,
+    AppLoggedInReadonlyUseCaseContext,
     AppLoggedInUseCaseSession,
     EmptySession,
+    PortsT,
     SysBackgroundMutationUseCase,
     UseCase,
     UseCaseContextBase,
@@ -112,130 +117,77 @@ STANDARD_CONFIG: Mapping[str, Any] = {
     "response_model_exclude_defaults": True,
 }
 
-ENV_HEADER: Final[str] = "X-Jupiter-Env"
-HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
-VERSION_HEADER: Final[str] = "X-Jupiter-Version"
-FRONTDOOR_HEADER: Final[str] = "X-Jupiter-FrontDoor"
-
-AUTH_TOKEN_EXT_DECODER = AuthTokenExtDatabaseDecoder()
-APP_VERSION_DECODER = AppVersionDatabaseDecoder()
-APP_SHELL_DECODER = _StandardEnumValueDatabaseDecoder(AppShell)
-APP_PLATFORM_DECODER = _StandardEnumValueDatabaseDecoder(AppPlatform)
-APP_DISTRIBUTION_DECODER = _StandardEnumValueDatabaseDecoder(AppDistribution)
-OAUTH2_GUEST_SCHEMA = OAuth2PasswordBearer(tokenUrl="guest-login", auto_error=False)
-OAUTH2_LOGGED_IN_SCHEMA = OAuth2PasswordBearer(tokenUrl="old-skool-login")
-
-
-def construct_guest_auth_token_ext(
-    token_raw: Annotated[str | None, Depends(OAUTH2_GUEST_SCHEMA)],
-) -> AuthTokenExt | None:
-    """Construct a Token from the raw token string."""
-    return AUTH_TOKEN_EXT_DECODER.decode(token_raw) if token_raw else None
-
-
-def construct_logged_in_auth_token_ext(
-    token_raw: Annotated[str, Depends(OAUTH2_LOGGED_IN_SCHEMA)],
-) -> AuthTokenExt:
-    """Construct a Token from the raw token string."""
-    return AUTH_TOKEN_EXT_DECODER.decode(token_raw)
-
-
-def construct_guest_session(
-    request: Request,
-    auth_token_ext: Annotated[
-        AuthTokenExt | None, Depends(construct_guest_auth_token_ext)
-    ],
-) -> AppGuestUseCaseSession:
-    """Construct a GuestSession from the AuthTokenExt."""
-    frontdoor_raw = request.headers.get(FRONTDOOR_HEADER)
-    app_client_version = AppVersion("0.0.1")
-    app_shell = AppShell.BROWSER
-    app_platform = AppPlatform.DESKTOP_MACOS
-    app_distribution = AppDistribution.WEB
-    if frontdoor_raw is not None:
-        bits = frontdoor_raw.split(":")
-        if len(bits) == 4:
-            app_client_version = APP_VERSION_DECODER.decode(bits[0])
-            app_shell = APP_SHELL_DECODER.decode(bits[1])
-            app_platform = APP_PLATFORM_DECODER.decode(bits[2])
-            app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
-    return AppGuestUseCaseSession.build(
-        JupiterComponentProperties.for_app(
-            core=AppCore.WEBUI,
-            the_shell=app_shell,
-            platform=app_platform,
-            distribution=app_distribution,
-            version=app_client_version,
-        ),
-        auth_token_ext,
-    )
-
-
-def construct_logged_in_session(
-    request: Request,
-    auth_token_ext: Annotated[
-        AuthTokenExt, Depends(construct_logged_in_auth_token_ext)
-    ],
-) -> AppLoggedInUseCaseSession:
-    """Construct a LoggedInSession from the AuthTokenExt."""
-    frontdoor_raw = request.headers.get(FRONTDOOR_HEADER)
-    app_client_version = AppVersion("0.0.1")
-    app_shell = AppShell.BROWSER
-    app_platform = AppPlatform.DESKTOP_MACOS
-    app_distribution = AppDistribution.WEB
-    if frontdoor_raw is not None:
-        bits = frontdoor_raw.split(":")
-        if len(bits) == 4:
-            app_client_version = APP_VERSION_DECODER.decode(bits[0])
-            app_shell = APP_SHELL_DECODER.decode(bits[1])
-            app_platform = APP_PLATFORM_DECODER.decode(bits[2])
-            app_distribution = APP_DISTRIBUTION_DECODER.decode(bits[3])
-
-    return AppLoggedInUseCaseSession.build(
-        JupiterComponentProperties.for_app(
-            core=AppCore.WEBUI,
-            the_shell=app_shell,
-            platform=app_platform,
-            distribution=app_distribution,
-            version=app_client_version,
-        ),
-        auth_token_ext,
-    )
-
-
-GuestSession = Annotated[AppGuestUseCaseSession, Depends(construct_guest_session)]
-LoggedInSession = Annotated[
-    AppLoggedInUseCaseSession, Depends(construct_logged_in_session)
-]
+_UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
+_PortsT = TypeVar("_PortsT", bound=Ports)
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
+_WebApiAppT = TypeVar("_WebApiAppT", bound="WebApiApp[Any, Any, Any]")
+_UseCaseSessionT = TypeVar("_UseCaseSessionT", bound=UseCaseSessionBase)
+_GuestUseCaseSessionT = TypeVar(
+    "_GuestUseCaseSessionT", bound=AppGuestUseCaseSession
+)
+_GuestMutationUseCaseContextT = TypeVar(
+    "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+)
+_GuestMutationUseCaseT = TypeVar(
+    "_GuestMutationUseCaseT",
+    bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+)
+_GuestReadonlyUseCaseContextT = TypeVar(
+    "_GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+)
+_GuestReadonlyUseCaseT = TypeVar(
+    "_GuestReadonlyUseCaseT",
+    bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+)
+_LoggedInUseCaseSessionT = TypeVar(
+    "_LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
+)
+_LoggedInMutationUseCaseContextT = TypeVar(
+    "_LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+)
+_LoggedInMutationUseCaseT = TypeVar(
+    "_LoggedInMutationUseCaseT",
+    bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+)
+_LoggedInReadonlyUseCaseContextT = TypeVar(
+    "_LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+)
+_LoggedInReadonlyUseCaseT = TypeVar(
+    "_LoggedInReadonlyUseCaseT",
+    bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+)
+_SysBackgroundMutationUseCaseT = TypeVar(
+    "_SysBackgroundMutationUseCaseT",
+    bound=SysBackgroundMutationUseCase[Any,  Any, Any, Any, Any]
+)
+_UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
+_UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase | None)
 
 
 class Command:
     """The base class for all commands."""
 
 
-UseCaseT = TypeVar("UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
-UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
-UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
-UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
-UseCaseResultT = TypeVar("UseCaseResultT", bound=UseCaseResultBase | None)
-
-
-class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
+class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
     """A command that is a use case."""
 
+    _global_properties: _GlobalPropertiesT
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _args_type: type[UseCaseArgsBase]
-    _result_type: type[UseCaseResultBase | None]
-    _use_case: UseCaseT
+    _args_type: Final[type[UseCaseArgsBase]]
+    _result_type: Final[type[UseCaseResultBase | None]]
+    _use_case: _UseCaseT
     _root_module: Final[types.ModuleType]
 
     def __init__(
         self,
+        global_properties: _GlobalPropertiesT,
         realm_codec_registry: RealmCodecRegistry,
-        use_case: UseCaseT,
+        use_case: _UseCaseT,
         root_module: types.ModuleType,
     ) -> None:
         """Constructor."""
+        self._global_properties = global_properties
         self._realm_codec_registry = realm_codec_registry
         self._args_type = self._infer_args_class(use_case)
         self._result_type = self._infer_result_class(use_case)
@@ -243,7 +195,7 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
         self._root_module = root_module
 
     @staticmethod
-    def _infer_args_class(use_case: UseCaseT) -> type[UseCaseArgsBase]:
+    def _infer_args_class(use_case: _UseCaseT) -> type[UseCaseArgsBase]:
         use_case_type = use_case.__class__
         if not hasattr(use_case_type, "__orig_bases__"):
             raise Exception("No args class found")
@@ -254,7 +206,7 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
         raise Exception("No args class found")
 
     @staticmethod
-    def _infer_result_class(use_case: UseCaseT) -> type[UseCaseResultBase | None]:
+    def _infer_result_class(use_case: _UseCaseT) -> type[UseCaseResultBase | None]:
         use_case_type = use_case.__class__
         if not hasattr(use_case_type, "__orig_bases__"):
             raise Exception("No result class found")
@@ -290,15 +242,14 @@ class UseCaseCommand(Generic[UseCaseT], Command, abc.ABC):
     def attach_route(self, app: FastAPI) -> None:
         """Attach the route to the app."""
 
-
-GuestMutationCommandUseCase = TypeVar(
-    "GuestMutationCommandUseCase", bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any]
-)
-
-
 class GuestMutationCommand(
-    Generic[GuestMutationCommandUseCase, UseCaseResultT],
-    UseCaseCommand[GuestMutationCommandUseCase],
+    Generic[
+        _GuestMutationUseCaseT, 
+        _GlobalPropertiesT,
+        _GuestUseCaseSessionT,
+        _GuestMutationUseCaseContextT,
+        _UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which do not require authentication."""
@@ -314,13 +265,14 @@ class GuestMutationCommand(
             tags=[self._build_tag()],
             **STANDARD_CONFIG,
         )
-        async def do_it(request: Request, session: GuestSession):  # type: ignore[no-untyped-def]
+        async def do_it(request: Request):  # type: ignore[no-untyped-def]
+            session = self._build_session(request.state.session_info)
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -328,15 +280,19 @@ class GuestMutationCommand(
             encoded_result = result_encoder.encode(result)
             return encoded_result
 
-
-GuestReadonlyCommandUseCase = TypeVar(
-    "GuestReadonlyCommandUseCase", bound=AppGuestReadonlyUseCase[Any,  Any, Any, Any, Any, Any,Any]
-)
+    @abc.abstractmethod
+    def _build_session(self, request: Request) -> _GuestUseCaseSessionT:
+        """Build the session."""
 
 
 class GuestReadonlyCommand(
-    Generic[GuestReadonlyCommandUseCase, UseCaseResultT],
-    UseCaseCommand[GuestReadonlyCommandUseCase],
+    Generic[
+        _GuestReadonlyUseCaseT, 
+        _GlobalPropertiesT, 
+        _GuestUseCaseSessionT,
+        _GuestReadonlyUseCaseContextT,
+        _UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -352,13 +308,14 @@ class GuestReadonlyCommand(
             tags=[self._build_tag()],
             **STANDARD_CONFIG,
         )
-        async def do_it(request: Request, session: GuestSession):  # type: ignore[no-untyped-def]
+        async def do_it(request: Request):  # type: ignore[no-untyped-def]
+            session = self._build_session(request)
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -366,15 +323,19 @@ class GuestReadonlyCommand(
             encoded_result = result_encoder.encode(result)
             return encoded_result
 
-
-LoggedInMutationCommandUseCase = TypeVar(
-    "LoggedInMutationCommandUseCase", bound=AppLoggedInMutationUseCase[Any,  Any, Any, Any, Any, Any,Any]
-)
+    @abc.abstractmethod
+    def _build_session(self, request: Request) -> _GuestUseCaseSessionT:
+        """Build the session."""
 
 
 class LoggedInMutationCommand(
-    Generic[LoggedInMutationCommandUseCase, UseCaseResultT],
-    UseCaseCommand[LoggedInMutationCommandUseCase],
+    Generic[
+        _LoggedInMutationUseCaseT, 
+        _GlobalPropertiesT, 
+        _LoggedInUseCaseSessionT,
+        _LoggedInMutationUseCaseContextT,
+        _UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which require authentication."""
@@ -390,13 +351,14 @@ class LoggedInMutationCommand(
             tags=[self._build_tag()],
             **STANDARD_CONFIG,
         )
-        async def do_it(request: Request, session: LoggedInSession):  # type: ignore[no-untyped-def]
+        async def do_it(request: Request):  # type: ignore[no-untyped-def]
+            session = self._build_session(request)
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -404,15 +366,14 @@ class LoggedInMutationCommand(
             encoded_result = result_encoder.encode(result)
             return encoded_result
 
-
-LoggedInReadonlyCommandUseCase = TypeVar(
-    "LoggedInReadonlyCommandUseCase", bound=AppLoggedInReadonlyUseCase[Any,  Any, Any, Any, Any, Any,Any]
-)
+    @abc.abstractmethod
+    def _build_session(self, request: Request) -> _LoggedInUseCaseSessionT:
+        """Build the session."""
 
 
 class LoggedInReadonlyCommand(
-    Generic[LoggedInReadonlyCommandUseCase, UseCaseResultT],
-    UseCaseCommand[LoggedInReadonlyCommandUseCase],
+    Generic[_LoggedInReadonlyUseCaseT,  _GlobalPropertiesT, _LoggedInUseCaseSessionT, _LoggedInReadonlyUseCaseContextT,_UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -428,13 +389,14 @@ class LoggedInReadonlyCommand(
             tags=[self._build_tag()],
             **STANDARD_CONFIG,
         )
-        async def do_it(request: Request, session: LoggedInSession):  # type: ignore[no-untyped-def]
+        async def do_it(request: Request):  # type: ignore[no-untyped-def]
+            session = self._build_session(request)
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
             decoded_args = args_decoder.decode(await request.json())
             result = cast(
-                UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
+                _UseCaseResultT, (await self._use_case.execute(session, decoded_args))[1]
             )
             result_encoder = self._realm_codec_registry.get_encoder(
                 self._result_type, WebRealm
@@ -442,15 +404,14 @@ class LoggedInReadonlyCommand(
             encoded_result = result_encoder.encode(result)
             return encoded_result
 
-
-BackgroundMutationUseCase = TypeVar(
-    "BackgroundMutationUseCase", bound=SysBackgroundMutationUseCase[Any,  Any, Any, Any, Any]
-)
+    @abc.abstractmethod
+    def _build_session(self, request: Request) -> _LoggedInUseCaseSessionT:
+        """Build the session."""
 
 
 class CronCommand(
-    Generic[BackgroundMutationUseCase, UseCaseResultT],
-    UseCaseCommand[BackgroundMutationUseCase],
+    Generic[_SysBackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _SysBackgroundMutationUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
@@ -467,23 +428,25 @@ class CronCommand(
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
-class WebExceptionHandler(Generic[_ExceptionT], abc.ABC):
+class WebApiExceptionHandler(Generic[_GlobalPropertiesT, _ExceptionT], abc.ABC):
     """An exception handler for the web."""
 
+    _global_properties: _GlobalPropertiesT
     _exception_type: type[_ExceptionT]
 
-    def __init__(self, exception_type: type[_ExceptionT]) -> None:
+    def __init__(self, global_properties: _GlobalPropertiesT, exception_type: type[_ExceptionT]) -> None:
         """Constructor."""
+        self._global_properties = global_properties
         self._exception_type = exception_type
 
     @abc.abstractmethod
     def handle(
-        self, app: "WebServiceApp", exception: _ExceptionT
+        self, exception: _ExceptionT
     ) -> JSONResponse | PlainTextResponse:
         """Handle the exception."""
 
     def attach_handler(
-        self, web_service_app: "WebServiceApp", fast_api: FastAPI
+        self, fast_api: FastAPI
     ) -> None:
         """Attach the route to the app."""
 
@@ -491,21 +454,28 @@ class WebExceptionHandler(Generic[_ExceptionT], abc.ABC):
         async def handle_exception(
             request: Request, exc: _ExceptionT
         ) -> JSONResponse | PlainTextResponse:
-            return self.handle(web_service_app, exc)
+            return self.handle(exc)
 
 
-class WebServiceApp:
-    """The app."""
+class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
+    """A Web based API application."""
 
-    _global_properties: Final[JupiterGlobalProperties]
+    _ports: _PortsT
+    _global_properties: _GlobalPropertiesT
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
+    _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
-    _realm_codec_registry: Final[RealmCodecRegistry]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _ports: Final[JupiterPorts]
     _use_case_storage_engine: Final[UseCaseStorageEngine]
+    _fast_app: Final[FastAPI]
+    _scheduler: Final[AsyncIOScheduler]
+    _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
+    _guest_readoly_command_ctor: type[GuestReadonlyCommand]  # type: ignore[type-arg]
+    _logged_in_mutation_command_ctor: type[LoggedInMutationCommand]  # type: ignore[type-arg]
+    _logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand]  # type: ignore[type-arg]
+    _commands: Final[dict[str, Command]]
     _use_case_commands: Final[
         dict[
             type[
@@ -522,61 +492,93 @@ class WebServiceApp:
             Command,
         ]
     ]
-    _commands: Final[dict[str, Command]]
-    _exception_handlers: Final[dict[type[Exception], WebExceptionHandler[Exception]]]
-    _fast_app: Final[FastAPI]
-    _scheduler: Final[AsyncIOScheduler]
+    _exception_handlers: Final[dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Exception]]]
 
     def __init__(
         self,
-        global_properties: JupiterGlobalProperties,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
+        realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
-        realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
+        guest_mutation_command_ctor: type[GuestMutationCommand],  # type: ignore[type-arg]
+        guest_readonly_command_ctor: type[GuestReadonlyCommand],  # type: ignore[type-arg]
+        logged_in_mutation_command_ctor: type[LoggedInMutationCommand],  # type: ignore[type-arg]
+        logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand],  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
+        self._ports = ports
         self._global_properties = global_properties
         self._request_time_provider = request_time_provider
         self._cron_time_provider = cron_time_provider
+        self._realm_codec_registry = realm_codec_registry
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
-        self._realm_codec_registry = realm_codec_registry
         self._auth_token_stamper = auth_token_stamper
-        self._ports = ports
         self._use_case_storage_engine = use_case_storage_engine
-        self._use_case_commands = {}
-        self._commands = {}
-        self._exception_handlers = {}
+        self._guest_mutation_command_ctor = guest_mutation_command_ctor
+        self._guest_readonly_command_ctor = guest_readonly_command_ctor
+        self._logged_in_mutation_command_ctor = logged_in_mutation_command_ctor
+        self._logged_in_readonly_command_ctor = logged_in_readonly_command_ctor
         self._fast_app = FastAPI(
+            title=self.api_description,
+            version=self.api_version,
             generate_unique_id_function=self._custom_generate_unique_id,
             openapi_url=(
-                "/openapi.json" if global_properties.env.is_development else None
+                "/openapi.json" if self.is_live else None
             ),
-            docs_url="/docs" if global_properties.env.is_development else None,
-            redoc_url="/redoc" if global_properties.env.is_development else None,
+            docs_url="/docs" if self.is_live else None,
+            redoc_url="/redoc" if self.is_live else None,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
         self._scheduler = AsyncIOScheduler()
+        self._commands = {}
+        self._use_case_commands = {}
+        self._exception_handlers = {}
 
-    @staticmethod
+    @classmethod
     def build_from_module_root(
-        global_properties: JupiterGlobalProperties,
+        cls: type[_WebApiAppT],
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
         request_time_provider: PerRequestTimeProvider,
         cron_run_time_provider: CronRunTimeProvider,
+        realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
-        realm_codec_registry: RealmCodecRegistry,
         auth_token_stamper: AuthTokenStamper,
-        ports: JupiterPorts,
         use_case_storage_engine: UseCaseStorageEngine,
+        config_root: types.ModuleType,
         *module_root: types.ModuleType,
-    ) -> "WebServiceApp":
+    ) -> "_WebApiAppT":
         """Build the app from the module root."""
+
+        def extract_specific_command(the_module: types.ModuleType, clazz: type) -> type:  # type: ignore[type-arg]
+            for _name, obj in the_module.__dict__.items():
+                origin_obj = get_origin(obj)
+                if not (isinstance(obj, type) and issubclass(origin_obj or obj, clazz)):
+                    continue
+
+                if obj.__module__ != the_module.__name__:
+                    # This is an import, and not a definition!
+                    continue
+
+                if not hasattr(obj, "__parameters__") or not hasattr(
+                    obj.__parameters__, "__len__"
+                ):
+                    continue
+
+                if len(obj.__parameters__) == 0:  # type: ignore
+                    # This should still be a generic type
+                    continue
+
+                return obj
+
+            raise Exception(f"Could not find {clazz.__name__} in {the_module.__name__}")
 
         def extract_use_case(
             the_module: types.ModuleType,
@@ -617,13 +619,13 @@ class WebServiceApp:
 
         def extract_exception_handler(
             the_module: types.ModuleType,
-        ) -> Iterator[tuple[type[Exception], type[WebExceptionHandler[Exception]]]]:
+        ) -> Iterator[tuple[type[Exception], type[WebApiExceptionHandler[GlobalProperties, Exception]]]]:
             for _name, obj in the_module.__dict__.items():
                 origin_obj = get_origin(obj)
                 if not (
                     isinstance(obj, type)
-                    and issubclass(origin_obj or obj, WebExceptionHandler)
-                    and obj is not WebExceptionHandler
+                    and issubclass(origin_obj or obj, WebApiExceptionHandler)
+                    and obj is not WebApiExceptionHandler
                 ):
                     continue
 
@@ -644,61 +646,73 @@ class WebServiceApp:
 
                 yield exception_type, obj
 
-        app = WebServiceApp(
-            global_properties,
-            request_time_provider,
-            cron_run_time_provider,
-            invocation_recorder,
-            progress_reporter_factory,
-            realm_codec_registry,
-            auth_token_stamper,
-            ports,
-            use_case_storage_engine,
-        )
-
-        login_use_case = LoginUseCase(
-            global_properties=global_properties,
-            time_provider=request_time_provider,
-            realm_codec_registry=realm_codec_registry,
-            auth_token_stamper=auth_token_stamper,
+        app = cls(
             ports=ports,
+            global_properties=global_properties,
+            request_time_provider=request_time_provider,
+            cron_time_provider=cron_run_time_provider,
+            realm_codec_registry=realm_codec_registry,
+            invocation_recorder=invocation_recorder,
+            progress_reporter_factory=progress_reporter_factory,
+            auth_token_stamper=auth_token_stamper,
+            use_case_storage_engine=use_case_storage_engine,
+            guest_mutation_command_ctor=extract_specific_command(
+                config_root, GuestMutationCommand
+            ),
+            guest_readonly_command_ctor=extract_specific_command(
+                config_root, GuestReadonlyCommand
+            ),
+            logged_in_mutation_command_ctor=extract_specific_command(
+                config_root, LoggedInMutationCommand
+            ),
+            logged_in_readonly_command_ctor=extract_specific_command(
+                config_root, LoggedInReadonlyCommand
+            ),
         )
 
-        @app.fast_app.get("/healthz", status_code=status.HTTP_200_OK)
+        # login_use_case = LoginUseCase(
+        #     global_properties=global_properties,
+        #     time_provider=request_time_provider,
+        #     realm_codec_registry=realm_codec_registry,
+        #     auth_token_stamper=auth_token_stamper,
+        #     ports=ports,
+        # )
+
+        @app._fast_app.get("/healthz", status_code=status.HTTP_200_OK)
         async def healthz() -> None:
             """Health check endpoint."""
             return None
 
-        @app.fast_app.post("/old-skool-login", **STANDARD_CONFIG)
-        async def old_skool_login(
-            form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        ) -> dict[str, str]:
-            """Login via OAuth2 password flow and return an auth token."""
-            email_address = realm_codec_registry.db_decode(
-                EmailAddress, form_data.username, WebRealm
-            )
-            password = realm_codec_registry.db_decode(
-                PasswordPlain, form_data.password, WebRealm
-            )
+        # @app.fast_app.post("/old-skool-login", **STANDARD_CONFIG)
+        # async def old_skool_login(
+        #     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        # ) -> dict[str, str]:
+        #     """Login via OAuth2 password flow and return an auth token."""
+        #     email_address = realm_codec_registry.db_decode(
+        #         EmailAddress, form_data.username, WebRealm
+        #     )
+        #     password = realm_codec_registry.db_decode(
+        #         PasswordPlain, form_data.password, WebRealm
+        #     )
 
-            result = await login_use_case.execute(
-                AppGuestUseCaseSession.build(
-                    JupiterComponentProperties.for_app(
-                        core=AppCore.WEBUI,
-                        the_shell=AppShell.BROWSER,
-                        platform=AppPlatform.DESKTOP_MACOS,
-                        distribution=AppDistribution.WEB,
-                        version=global_properties.version,
-                    ),
-                    auth_token_ext=None,
-                ),
-                LoginArgs(email_address=email_address, password=password),
-            )
+        #     result = await login_use_case.execute(
+        #         AppGuestUseCaseSession.build(
+        #             JupiterComponentProperties.for_app(
+        #                 core=AppCore.WEBUI,
+        #                 the_shell=AppShell.BROWSER,
+        #                 platform=AppPlatform.DESKTOP_MACOS,
+        #                 distribution=AppDistribution.WEB,
+        #                 version=global_properties.version,
+        #             ),
+        #             auth_token_ext=None,
+        #         ),
+        #         LoginArgs(email_address=email_address, password=password),
+        #     )
 
-            return {
-                "access_token": result[1].auth_token_ext.auth_token_str,
-                "token_type": "bearer",
-            }
+        #     return {
+        #         "access_token": result[1].auth_token_ext.auth_token_str,
+        #         "token_type": "bearer",
+        #     }
 
         for mr in module_root:
             for m in find_all_modules(mr):
@@ -718,7 +732,7 @@ class WebServiceApp:
                     hour=str(min(23, idx)),
                 )
             elif isinstance(command, UseCaseCommand):
-                command.attach_route(app.fast_app)
+                command.attach_route(app._fast_app)
             else:
                 raise Exception(f"Unknown command type {command}")
 
@@ -730,7 +744,7 @@ class WebServiceApp:
                     handler = app._add_exception_handler(
                         exception_type, exception_handler
                     )
-                    handler.attach_handler(app, app.fast_app)
+                    handler.attach_handler(app._fast_app)
 
         return app
 
@@ -747,8 +761,8 @@ class WebServiceApp:
 
         config = uvicorn.Config(
             self._fast_app,
-            host=self._global_properties.host,
-            port=self._global_properties.port,
+            host=self.host,
+            port=self.port,
             log_config=None,
             log_level="info",
         )
@@ -756,9 +770,32 @@ class WebServiceApp:
         await server.serve()
 
     @property
-    def fast_app(self) -> FastAPI:
-        """Get the FastAPI app."""
-        return self._fast_app
+    @abc.abstractmethod
+    def api_description(self) -> str:
+        """The description of the app."""
+
+    @property
+    @abc.abstractmethod
+    def api_version(self) -> str:
+        """The version of the app."""
+
+    @property
+    @abc.abstractmethod
+    def host(self) -> str:
+        """The host of the app."""
+
+    @property
+    @abc.abstractmethod
+    def port(self) -> int:
+        """The port of the app."""
+
+    @property
+    @abc.abstractmethod
+    def is_live(self) -> bool:
+        """Whether the app is live."""
+
+    def add_headers_to_response(self, response: Response) -> None:
+        """Add the headers to the response."""
 
     def _custom_generate_unique_id(self, route: APIRoute) -> str:
         """Generate a OpenAPI unique id from just the route name."""
@@ -772,44 +809,52 @@ class WebServiceApp:
     async def _setting_middleware(self, request: Request, call_next: DecoratedCallable) -> Callable[[DecoratedCallable], DecoratedCallable]:  # type: ignore
         """Middleware to provide the version."""
         response = await call_next(request)  # type: ignore
-        response.headers[ENV_HEADER] = self._global_properties.env.value
-        response.headers[HOSTING_HEADER] = self._global_properties.hosting.value
-        response.headers[VERSION_HEADER] = str(self._global_properties.version)
+        self.add_headers_to_response(response)
         return response  # type: ignore
 
     def _add_use_case_type(
         self,
         use_case_type: type[
-            UseCase[Ports, GlobalProperties, ComponentProperties, UseCaseSessionT, UseCaseContextT, UseCaseArgsT, UseCaseResultT]
+            UseCase[Ports, GlobalProperties, ComponentProperties, UseCaseSessionBase, UseCaseContextBase, UseCaseArgsBase, UseCaseResultBase | None]
         ],
         root_module: types.ModuleType,
-    ) -> "WebServiceApp":
+    ) -> None:
         if use_case_type in self._use_case_commands:
             raise Exception(f"Use case type {use_case_type} already added")
         if issubclass(use_case_type, AppGuestMutationUseCase):
-            self._use_case_commands[use_case_type] = GuestMutationCommand(
+            use_case = use_case_type(  # type: ignore
+                time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case_type(  # type: ignore
-                    time_provider=self._request_time_provider,
-                    realm_codec_registry=self._realm_codec_registry,
-                    invocation_recorder=self._invocation_recorder,
-                    progress_reporter_factory=NoOpProgressReporterFactory(),
-                    global_properties=self._global_properties,
-                    auth_token_stamper=self._auth_token_stamper,
-                    ports=self._ports,
-                ),
+                invocation_recorder=self._invocation_recorder,
+                progress_reporter_factory=NoOpProgressReporterFactory(),
+                global_properties=self._global_properties,
+                auth_token_stamper=self._auth_token_stamper,
+                ports=self._ports,
+            )
+            if not use_case.is_allowed_globally:
+                return
+
+            self._use_case_commands[use_case_type] = self._guest_mutation_command_ctor(
+                global_properties=self._global_properties,
+                realm_codec_registry=self._realm_codec_registry,
+                use_case=use_case,
                 root_module=root_module,
             )
         elif issubclass(use_case_type, AppGuestReadonlyUseCase):
-            self._use_case_commands[use_case_type] = GuestReadonlyCommand(
+            use_case = use_case_type(  # type: ignore
+                global_properties=self._global_properties,
+                time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case_type(  # type: ignore
-                    global_properties=self._global_properties,
-                    time_provider=self._request_time_provider,
-                    realm_codec_registry=self._realm_codec_registry,
-                    auth_token_stamper=self._auth_token_stamper,
-                    ports=self._ports,
-                ),
+                auth_token_stamper=self._auth_token_stamper,
+                ports=self._ports,
+            )
+            if not use_case.is_allowed_globally:
+                return
+
+            self._use_case_commands[use_case_type] = self._guest_readonly_command_ctor(
+                global_properties=self._global_properties,
+                realm_codec_registry=self._realm_codec_registry,
+                use_case=use_case,
                 root_module=root_module,
             )
         elif issubclass(use_case_type, AppLoggedInMutationUseCase):
@@ -824,12 +869,15 @@ class WebServiceApp:
                 use_case_storage_engine=self._use_case_storage_engine,
             )
 
-            if use_case.is_allowed_globally:
-                self._use_case_commands[use_case_type] = LoggedInMutationCommand(
-                    realm_codec_registry=self._realm_codec_registry,
-                    use_case=use_case,
-                    root_module=root_module,
-                )
+            if not use_case.is_allowed_globally:
+                return
+
+            self._use_case_commands[use_case_type] = self._logged_in_mutation_command_ctor(
+                global_properties=self._global_properties,
+                realm_codec_registry=self._realm_codec_registry,
+                use_case=use_case,
+                root_module=root_module,
+            )
         elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
             use_case = use_case_type(  # type: ignore
                 global_properties=self._global_properties,
@@ -839,38 +887,45 @@ class WebServiceApp:
                 ports=self._ports,
             )
 
-            if use_case.is_allowed_globally:
-                self._use_case_commands[use_case_type] = LoggedInReadonlyCommand(
-                    realm_codec_registry=self._realm_codec_registry,
-                    use_case=use_case,
-                    root_module=root_module,
-                )
-        elif issubclass(use_case_type, SysBackgroundMutationUseCase):
-            self._use_case_commands[use_case_type] = CronCommand(
+            if not use_case.is_allowed_globally:
+                return
+
+            self._use_case_commands[use_case_type] = self._logged_in_readonly_command_ctor(
+                global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
-                use_case=use_case_type(  # type: ignore
-                    global_properties=self._global_properties,
-                    time_provider=self._cron_time_provider,
-                    realm_codec_registry=self._realm_codec_registry,
-                    progress_reporter_factory=EmptyProgressReporterFactory(),
-                    ports=self._ports,
-                ),
+                use_case=use_case,
+                root_module=root_module,
+            )
+        elif issubclass(use_case_type, SysBackgroundMutationUseCase):
+            use_case = use_case_type(  # type: ignore
+                ports=self._ports,
+                global_properties=self._global_properties,
+                time_provider=self._cron_time_provider,
+                realm_codec_registry=self._realm_codec_registry,
+                progress_reporter_factory=EmptyProgressReporterFactory(),
+            )
+
+            if not use_case.is_allowed_globally:
+                return
+
+            self._use_case_commands[use_case_type] = CronCommand(
+                global_properties=self._global_properties,
+                realm_codec_registry=self._realm_codec_registry,
+                use_case=use_case,
                 root_module=root_module,
             )
         else:
             pass
             # raise Exception(f"Unsupported use case type {use_case_type}")
 
-        return self
-
     def _add_exception_handler(
         self,
         exception_type: type[Exception],
-        exception_handler: type[WebExceptionHandler[Exception]],
-    ) -> WebExceptionHandler[Exception]:
+        exception_handler: type[WebApiExceptionHandler[GlobalProperties, Exception]],
+    ) -> WebApiExceptionHandler[GlobalProperties, Exception]:
         if exception_type in self._exception_handlers:
             raise Exception(f"Exception type {exception_type} already added")
-        handler = exception_handler(exception_type)
+        handler = exception_handler(self._global_properties, exception_type)
         self._exception_handlers[exception_type] = handler
         return handler
 
@@ -1045,10 +1100,11 @@ class WebServiceApp:
 
         if self._fast_app.openapi_schema:
             return self._fast_app.openapi_schema
+        
         openapi_schema = get_openapi(
-            title="Jupiter Webapi",
-            version=str(self._global_properties.version),
-            description="Jupiter Webapi",
+            title=self.api_description,
+            version=self.api_version,
+            description=self.api_description,
             routes=self._fast_app.routes,
         )
 

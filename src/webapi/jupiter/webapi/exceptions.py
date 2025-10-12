@@ -1,6 +1,7 @@
 """Exceptions handling for the webapi module."""
 
 from fastapi.responses import JSONResponse
+from jupiter.core.config import JupiterGlobalProperties
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -27,15 +28,17 @@ from jupiter.framework_new.errors import (
 )
 from jupiter.framework_new.repository import EntityNotFoundError
 from jupiter.framework_new.use_case import UnavailableForContextError
-from jupiter.webapi.app import WebExceptionHandler, WebServiceApp
+from jupiter.webapi.app import WebApiExceptionHandler, WebApiApp
 from starlette import status
 
+from jupiter.webapi.config import JupiterExceptionHandler
 
-class InputValidationHandler(WebExceptionHandler[InputValidationError]):
+
+class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
     """Handle input validation errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: InputValidationError
+        self, exception: InputValidationError
     ) -> JSONResponse:
         """Handle input validation errors."""
         return JSONResponse(
@@ -54,11 +57,11 @@ class InputValidationHandler(WebExceptionHandler[InputValidationError]):
         )
 
 
-class MultiInputValidationHandler(WebExceptionHandler[MultiInputValidationError]):
+class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
     """Handle input validation errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: MultiInputValidationError
+        self, exception: MultiInputValidationError
     ) -> JSONResponse:
         """Handle input validation errors."""
         return JSONResponse(
@@ -79,11 +82,11 @@ class MultiInputValidationHandler(WebExceptionHandler[MultiInputValidationError]
         )
 
 
-class FeatureUnavailableHandler(WebExceptionHandler[UnavailableForContextError]):
+class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
     """Handle feature unavailable errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: UnavailableForContextError
+        self, exception: UnavailableForContextError
     ) -> JSONResponse:
         """Handle feature unavailable errors."""
         return JSONResponse(
@@ -92,11 +95,11 @@ class FeatureUnavailableHandler(WebExceptionHandler[UnavailableForContextError])
         )
 
 
-class UserAlreadyExistsHandler(WebExceptionHandler[UserAlreadyExistsError]):
+class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: UserAlreadyExistsError
+        self, exception: UserAlreadyExistsError
     ) -> JSONResponse:
         """Handle user already exists errors."""
         return JSONResponse(
@@ -115,11 +118,11 @@ class UserAlreadyExistsHandler(WebExceptionHandler[UserAlreadyExistsError]):
         )
 
 
-class ExpiredAuthTokenandler(WebExceptionHandler[ExpiredAuthTokenError]):
+class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
     """Handle expired auth token errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: ExpiredAuthTokenError
+        self, exception: ExpiredAuthTokenError
     ) -> JSONResponse:
         """Handle expired auth token errors."""
         return JSONResponse(
@@ -128,11 +131,11 @@ class ExpiredAuthTokenandler(WebExceptionHandler[ExpiredAuthTokenError]):
         )
 
 
-class InvalidLoginCredentialsHandler(WebExceptionHandler[InvalidLoginCredentialsError]):
+class InvalidLoginCredentialsHandler(JupiterExceptionHandler[InvalidLoginCredentialsError]):
     """Handle invalid login credentials errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: InvalidLoginCredentialsError
+        self, exception: InvalidLoginCredentialsError
     ) -> JSONResponse:
         """Handle invalid login credentials errors."""
         return JSONResponse(
@@ -151,11 +154,11 @@ class InvalidLoginCredentialsHandler(WebExceptionHandler[InvalidLoginCredentials
         )
 
 
-class ProjectInSignificantUseHandler(WebExceptionHandler[ProjectInSignificantUseError]):
+class ProjectInSignificantUseHandler(JupiterExceptionHandler[ProjectInSignificantUseError]):
     """Handle project in significant use errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: ProjectInSignificantUseError
+        self, exception: ProjectInSignificantUseError
     ) -> JSONResponse:
         """Handle project in significant use errors."""
         return JSONResponse(
@@ -174,11 +177,11 @@ class ProjectInSignificantUseHandler(WebExceptionHandler[ProjectInSignificantUse
         )
 
 
-class EntityNotFoundHandler(WebExceptionHandler[EntityNotFoundError]):
+class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
     """Handle entity not found errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: EntityNotFoundError
+        self, exception: EntityNotFoundError
     ) -> JSONResponse:
         """Handle entity not found errors."""
         return JSONResponse(
@@ -187,11 +190,11 @@ class EntityNotFoundHandler(WebExceptionHandler[EntityNotFoundError]):
         )
 
 
-class InvalidAuthTokenHandler(WebExceptionHandler[InvalidAuthTokenError]):
+class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
     """Handle invalid auth token errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: InvalidAuthTokenError
+        self, exception: InvalidAuthTokenError
     ) -> JSONResponse:
         """Handle invalid auth token errors."""
         return JSONResponse(
@@ -200,10 +203,10 @@ class InvalidAuthTokenHandler(WebExceptionHandler[InvalidAuthTokenError]):
         )
 
 
-class UserNotFoundHandler(WebExceptionHandler[UserNotFoundError]):
+class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
-    def handle(self, app: WebServiceApp, exception: UserNotFoundError) -> JSONResponse:
+    def handle(self, exception: UserNotFoundError) -> JSONResponse:
         """Handle user not found errors."""
         return JSONResponse(
             status_code=status.HTTP_410_GONE,
@@ -211,11 +214,11 @@ class UserNotFoundHandler(WebExceptionHandler[UserNotFoundError]):
         )
 
 
-class WorkspaceNotFoundHandler(WebExceptionHandler[WorkspaceNotFoundError]):
+class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: WorkspaceNotFoundError
+        self, exception: WorkspaceNotFoundError
     ) -> JSONResponse:
         """Handle workspace not found errors."""
         return JSONResponse(
@@ -225,12 +228,12 @@ class WorkspaceNotFoundHandler(WebExceptionHandler[WorkspaceNotFoundError]):
 
 
 class TimePlanExistsForDatePeriodCombinationHandler(
-    WebExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
 ):
     """Handle time plan exists for date period combination errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: TimePlanExistsForDatePeriodCombinationError
+        self, exception: TimePlanExistsForDatePeriodCombinationError
     ) -> JSONResponse:
         """Handle time plan exists for date period combination errors."""
         return JSONResponse(
@@ -241,12 +244,12 @@ class TimePlanExistsForDatePeriodCombinationHandler(
 
 
 class BigPlanMilestoneAlreadyExistsForDateHandler(
-    WebExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
 ):
     """Handle big plan milestone already exists for date errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: BigPlanMilestoneAlreadyExistsForDateError
+        self, exception: BigPlanMilestoneAlreadyExistsForDateError
     ) -> JSONResponse:
         """Handle big plan milestone already exists for date errors."""
         return JSONResponse(
@@ -256,12 +259,12 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
 
 
 class JournalExistsForDatePeriodCombinationHandler(
-    WebExceptionHandler[JournalExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[JournalExistsForDatePeriodCombinationError]
 ):
     """Handle journal exists for date period combination errors."""
 
     def handle(
-        self, app: WebServiceApp, exception: JournalExistsForDatePeriodCombinationError
+        self, exception: JournalExistsForDatePeriodCombinationError
     ) -> JSONResponse:
         """Handle journal exists for date period combination errors."""
         return JSONResponse(
