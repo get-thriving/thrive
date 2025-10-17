@@ -1,1 +1,1 @@
-"""A CLI application."""
+"""A CLI app form."""

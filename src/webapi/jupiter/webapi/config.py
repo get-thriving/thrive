@@ -27,6 +27,9 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
+from jupiter.framework_new.app.webapi.app import WebApiApp
+from jupiter.framework_new.app.webapi.commands import GuestMutationCommand, GuestReadonlyCommand, LoggedInMutationCommand, LoggedInReadonlyCommand
+from jupiter.framework_new.app.webapi.exception import WebApiExceptionHandler
 from jupiter.framework_new.auth.auth_token_ext import (
     AuthTokenExt,
     AuthTokenExtDatabaseDecoder,
@@ -35,14 +38,6 @@ from jupiter.framework_new.impl.realms import (
     _StandardEnumValueDatabaseDecoder,
 )
 from jupiter.framework_new.use_case_io import UseCaseResultBase
-from jupiter.webapi.app import (
-    GuestMutationCommand,
-    GuestReadonlyCommand,
-    LoggedInMutationCommand,
-    LoggedInReadonlyCommand,
-    WebApiApp,
-    WebApiExceptionHandler,
-)
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 ENV_HEADER: Final[str] = "X-Jupiter-Env"

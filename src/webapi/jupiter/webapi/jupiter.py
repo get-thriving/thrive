@@ -18,6 +18,9 @@ from jupiter.core.impl.crm.wix import WixCRM
 from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
     SqliteSearchStorageEngine,
 )
+from jupiter.framework_new.app.webapi.progress_reporter import (
+    WebsocketProgressReporterFactory,
+)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.impl.realms import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
@@ -30,12 +33,11 @@ from jupiter.framework_new.impl.use_case.storage_engine import (
 from jupiter.framework_new.persistent_mutation_use_case_recoder import (
     PersistentMutationUseCaseInvocationRecorder,
 )
-from jupiter.webapi.config import JupiterWebApiApp
-from jupiter.webapi.time_provider import (
+from jupiter.framework_new.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
 )
-from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
+from jupiter.webapi.config import JupiterWebApiApp
 from rich import print
 from rich.console import Console
 from rich.logging import RichHandler
