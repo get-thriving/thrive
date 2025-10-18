@@ -7,13 +7,11 @@ from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from typing import Final
 
+from jupiter.framework_new.app.noop.progress_reporter import NoOpProgressReporter
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.progress_reporter import NoOpProgressReporter
-from jupiter.framework_new.use_case import (
-    LoggedInContext,
-    LoggedInMutationContext,
+from jupiter.framework_new.progress_reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -197,9 +195,7 @@ class RichConsoleProgressReporter(ProgressReporter):
         return text
 
 
-class RichConsoleProgressReporterFactory(
-    ProgressReporterFactory[LoggedInMutationContext]
-):
+class RichConsoleProgressReporterFactory(ProgressReporterFactory):
     """A progress reporter factory that builds Rich progress reporters."""
 
     _console: Final[Console]
@@ -225,7 +221,7 @@ class RichConsoleProgressReporterFactory(
         )
         self._should_have_streaming_progress_report = True
 
-    def new_reporter(self, context: LoggedInContext) -> ProgressReporter:
+    def new_reporter(self, dedup_key: str) -> ProgressReporter:
         """Create a new progress reporter."""
         if not self._should_have_streaming_progress_report:
             return NoOpProgressReporter()

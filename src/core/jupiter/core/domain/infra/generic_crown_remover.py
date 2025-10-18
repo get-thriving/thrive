@@ -3,8 +3,8 @@
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import CrownEntity, LeafSupportEntity, OwnsLink
+from jupiter.framework_new.progress_reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
 
 
 async def generic_crown_remover(

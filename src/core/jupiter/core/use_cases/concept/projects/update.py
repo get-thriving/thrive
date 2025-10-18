@@ -8,10 +8,10 @@ from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework_new.progress_reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
-    ProgressReporter,
     mutation_use_case,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args

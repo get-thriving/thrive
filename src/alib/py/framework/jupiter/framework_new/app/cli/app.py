@@ -38,6 +38,7 @@ from jupiter.framework_new.app.cli.session_storage import (
     SessionInfoNotFoundError,
     SessionStorage,
 )
+from jupiter.framework_new.app.noop.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
@@ -56,7 +57,6 @@ from jupiter.framework_new.mutation_invocation_result import (
     MutationUseCaseInvocationRecorder,
 )
 from jupiter.framework_new.ports import Ports
-from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
 from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,

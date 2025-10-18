@@ -2,8 +2,7 @@
 
 import abc
 import logging
-from collections.abc import Callable, Iterable
-from contextlib import AbstractAsyncContextManager
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import (
     Any,
@@ -28,7 +27,6 @@ from jupiter.framework_new.component_properties import (
     UnavailableForComponentError,
 )
 from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.global_properties import (
     GlobalProperties,
@@ -39,6 +37,10 @@ from jupiter.framework_new.mutation_invocation_result import (
     MutationUseCaseInvocationRecorder,
 )
 from jupiter.framework_new.ports import DomainPorts, Ports
+from jupiter.framework_new.progress_reporter import (
+    ProgressReporter,
+    ProgressReporterFactory,
+)
 from jupiter.framework_new.realm import EventStoreRealm, RealmCodecRegistry, RealmThing
 from jupiter.framework_new.repository import (
     DomainUnitOfWork,
@@ -87,6 +89,10 @@ class ContextBase(abc.ABC):
     """Info about a particular invocation of a use case."""
 
     @abc.abstractmethod
+    def as_str(self) -> str:
+        """The string representation of this context."""
+
+    @abc.abstractmethod
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
     ) -> EnumValue | None:
@@ -101,49 +107,6 @@ class ContextBase(abc.ABC):
     @abc.abstractmethod
     def workspace_ref_id(self) -> EntityId:
         """The owner workspace id."""
-
-
-class ProgressReporter(abc.ABC):
-    """A reporter to the user in real-time on modifications to entities."""
-
-    @abc.abstractmethod
-    def section(self, title: str) -> AbstractAsyncContextManager[None]:
-        """Start a section or subsection."""
-
-    @abc.abstractmethod
-    async def mark_created(self, entity: CrownEntity) -> None:
-        """Mark a particular entity as created."""
-
-    @abc.abstractmethod
-    async def mark_updated(self, entity: CrownEntity) -> None:
-        """Mark a particular entity as updated."""
-
-    @abc.abstractmethod
-    async def mark_removed(self, entity: CrownEntity) -> None:
-        """Mark a particular entity as removed."""
-
-    @property
-    @abc.abstractmethod
-    def created_entities(self) -> Iterable[CrownEntity]:
-        """The set of entities that were created while this progress reporter was active."""
-
-    @property
-    @abc.abstractmethod
-    def updated_entities(self) -> Iterable[CrownEntity]:
-        """The set of entities that were updated while this progress reporter was active."""
-
-    @property
-    @abc.abstractmethod
-    def removed_entities(self) -> Iterable[CrownEntity]:
-        """The set of entities that were removed while this progress reporter was active."""
-
-
-class ProgressReporterFactory(Generic[_ContextT], abc.ABC):
-    """A factory for progress reporters."""
-
-    @abc.abstractmethod
-    def new_reporter(self, context: _ContextT) -> ProgressReporter:
-        """Build a progress reporter for a given context."""
 
 
 class UseCase(
@@ -199,6 +162,10 @@ class EmptySession(SessionBase):
 class EmptyContext(ContextBase):
     """An empty context."""
 
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return "empty"
+
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
     ) -> EnumValue | None:
@@ -242,7 +209,7 @@ class MutationUseCase(
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
-    _progress_reporter_factory: ProgressReporterFactory[_ContextT]
+    _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
         self,
@@ -251,7 +218,7 @@ class MutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[_ContextT],
+        progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
@@ -272,7 +239,9 @@ class MutationUseCase(
             args,
         )
         context = await self._build_context(session)
-        progress_reporter = self._progress_reporter_factory.new_reporter(context)
+        progress_reporter = self._progress_reporter_factory.new_reporter(
+            context.as_str()
+        )
 
         try:
             result = await self._execute(progress_reporter, context, args)
@@ -449,7 +418,7 @@ class GuestMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[_GuestMutationContextT],
+        progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
@@ -660,7 +629,7 @@ class LoggedInMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[_LoggedInMutationContextT],
+        progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
         use_case_storage_engine: UseCaseStorageEngine,
     ) -> None:
@@ -981,7 +950,7 @@ class BackgroundMutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _progress_reporter_factory: ProgressReporterFactory[EmptyContext]
+    _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
         self,
@@ -989,7 +958,7 @@ class BackgroundMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        progress_reporter_factory: ProgressReporterFactory[EmptyContext],
+        progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)

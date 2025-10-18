@@ -20,8 +20,8 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
 )
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.context import MutationContext
+from jupiter.framework_new.progress_reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.value import CompositeValue, value
 
 

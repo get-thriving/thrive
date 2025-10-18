@@ -1,74 +1,50 @@
 """The helpers are helping."""
 
-from collections.abc import AsyncIterator, Iterable
-from contextlib import asynccontextmanager
+import abc
+from collections.abc import Iterable
+from contextlib import AbstractAsyncContextManager
 
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.use_case import (
-    EmptyContext,
-    GuestMutationContext,
-    ProgressReporter,
-    ProgressReporterFactory,
-)
 
 
-class NoOpProgressReporter(ProgressReporter):
-    """A progress reporter that does nothing."""
+class ProgressReporter(abc.ABC):
+    """A reporter to the user in real-time on modifications to entities."""
 
-    _created_entities: list[CrownEntity]
-    _updated_entities: list[CrownEntity]
-    _removed_entities: list[CrownEntity]
-
-    def __init__(self) -> None:
-        """Constructor."""
-        self._created_entities = []
-        self._updated_entities = []
-        self._removed_entities = []
-
-    @asynccontextmanager
-    async def section(self, title: str) -> AsyncIterator[None]:
+    @abc.abstractmethod
+    def section(self, title: str) -> AbstractAsyncContextManager[None]:
         """Start a section or subsection."""
-        yield None
 
+    @abc.abstractmethod
     async def mark_created(self, entity: CrownEntity) -> None:
-        """Mark the entity as created."""
-        self._created_entities.append(entity)
+        """Mark a particular entity as created."""
 
+    @abc.abstractmethod
     async def mark_updated(self, entity: CrownEntity) -> None:
-        """Mark the entity as updated."""
-        self._updated_entities.append(entity)
+        """Mark a particular entity as updated."""
 
+    @abc.abstractmethod
     async def mark_removed(self, entity: CrownEntity) -> None:
-        """Mark the entity as removed."""
-        self._removed_entities.append(entity)
+        """Mark a particular entity as removed."""
 
     @property
+    @abc.abstractmethod
     def created_entities(self) -> Iterable[CrownEntity]:
-        """Get all created entities."""
-        return self._created_entities
+        """The set of entities that were created while this progress reporter was active."""
 
     @property
+    @abc.abstractmethod
     def updated_entities(self) -> Iterable[CrownEntity]:
-        """Get all updated entities."""
-        return self._updated_entities
+        """The set of entities that were updated while this progress reporter was active."""
 
     @property
+    @abc.abstractmethod
     def removed_entities(self) -> Iterable[CrownEntity]:
-        """Get all removed entities."""
-        return self._removed_entities
+        """The set of entities that were removed while this progress reporter was active."""
 
 
-class NoOpProgressReporterFactory(ProgressReporterFactory[GuestMutationContext]):
-    """A noop progress reporter factory."""
+class ProgressReporterFactory(abc.ABC):
+    """A factory for progress reporters."""
 
-    def new_reporter(self, context: GuestMutationContext) -> ProgressReporter:
-        """Construct a new progress reporter that does nothing."""
-        return NoOpProgressReporter()
-
-
-class EmptyProgressReporterFactory(ProgressReporterFactory[EmptyContext]):
-    """A noop progress reporter factory."""
-
-    def new_reporter(self, context: EmptyContext) -> ProgressReporter:
-        """Construct a new progress reporter that does nothing."""
-        return NoOpProgressReporter()
+    @abc.abstractmethod
+    def new_reporter(self, dedup_key: str) -> ProgressReporter:
+        """Build a progress reporter for a given context."""

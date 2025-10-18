@@ -50,7 +50,7 @@ class ScheduleExternalSyncDoAllUseCase(
         )
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             await sync_service.do_it(
                 ctx=ctx,
                 progress_reporter=progress_reporter,

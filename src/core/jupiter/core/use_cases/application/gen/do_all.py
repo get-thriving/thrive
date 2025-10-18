@@ -61,7 +61,7 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
         today = self._time_provider.get_current_date()
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gen_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
 

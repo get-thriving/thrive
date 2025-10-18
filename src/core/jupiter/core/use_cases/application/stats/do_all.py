@@ -62,7 +62,7 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
         )
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             stats_targets = infer_sync_targets_for_enabled_features(
                 user, workspace, None

@@ -31,6 +31,7 @@ from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts
+from jupiter.framework_new.progress_reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.use_case import (
     BackgroundMutationUseCase,
@@ -44,7 +45,6 @@ from jupiter.framework_new.use_case import (
     LoggedInReadonlyContext,
     LoggedInReadonlyUseCase,
     LoggedInSession,
-    ProgressReporter,
     TransactionalLoggedInMutationUseCase,
     TransactionalLoggedInReadOnlyUseCase,
 )
@@ -280,10 +280,18 @@ class JupiterLoggedInSession(LoggedInSession):
 class JupiterGuestMutationContext(GuestMutationContext):
     """A Jupiter specific guest mutation use case context."""
 
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return "guest"
+
 
 @dataclass(frozen=True)
 class JupiterGuestReadonlyContext(GuestReadonlyContext):
     """A Jupiter specific guest readonly use case context."""
+
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return "guest"
 
 
 @dataclass(frozen=True)
@@ -292,6 +300,10 @@ class JupiterLoggedInMutationContext(LoggedInMutationContext):
 
     user: User
     workspace: Workspace
+
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
 
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None
@@ -337,6 +349,10 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
 
     user: User
     workspace: Workspace
+
+    def as_str(self) -> str:
+        """The string representation of the context."""
+        return f"user:{self.user.ref_id}+workspace:{self.workspace.ref_id}"
 
     def allows(
         self, only_for: list[EnumValue | list[EnumValue]] | None

@@ -3,8 +3,8 @@
 from typing import TypeVar
 
 from jupiter.framework_new.entity import CrownEntity, LeafSupportEntity
+from jupiter.framework_new.progress_reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
 
 _EntityT = TypeVar("_EntityT", bound=CrownEntity)
 

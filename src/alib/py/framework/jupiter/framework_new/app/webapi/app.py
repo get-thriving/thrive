@@ -23,6 +23,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
+from jupiter.framework_new.app.noop.progress_reporter import (
+    NoOpProgressReporterFactory,
+)
 from jupiter.framework_new.app.webapi.commands import (
     Command,
     CronCommand,
@@ -70,10 +73,6 @@ from jupiter.framework_new.mutation_invocation_result import (
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.progress_reporter import (
-    EmptyProgressReporterFactory,
-    NoOpProgressReporterFactory,
-)
 from jupiter.framework_new.realm import (
     DomainThing,
     RealmCodecRegistry,
@@ -650,7 +649,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 global_properties=self._global_properties,
                 time_provider=self._cron_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
-                progress_reporter_factory=EmptyProgressReporterFactory(),
+                progress_reporter_factory=NoOpProgressReporterFactory(),
             )
 
             if not use_case.is_allowed_globally:

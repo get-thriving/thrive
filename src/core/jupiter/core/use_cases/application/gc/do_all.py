@@ -64,7 +64,7 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
         )
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(ctx, progress_reporter, workspace, gc_targets)

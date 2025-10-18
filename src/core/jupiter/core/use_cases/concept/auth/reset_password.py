@@ -12,10 +12,10 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.framework_new.secure import secure_class
-from jupiter.framework_new.use_case import (
+from jupiter.framework_new.progress_reporter import (
     ProgressReporter,
 )
+from jupiter.framework_new.secure import secure_class
 from jupiter.framework_new.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,

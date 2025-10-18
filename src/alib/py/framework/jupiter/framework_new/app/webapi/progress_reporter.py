@@ -12,13 +12,11 @@ from typing import (
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.realm import RealmThing
-from jupiter.framework_new.use_case import (
-    LoggedInContext,
-    LoggedInMutationContext,
+from jupiter.framework_new.progress_reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
+from jupiter.framework_new.realm import RealmThing
 from starlette.websockets import WebSocket
 from websockets.exceptions import ConnectionClosedError
 
@@ -269,31 +267,29 @@ class WebsocketProgressReporter(ProgressReporter):
         )
 
 
-class WebsocketProgressReporterFactory(
-    ProgressReporterFactory[LoggedInMutationContext]
-):
+class WebsocketProgressReporterFactory(ProgressReporterFactory):
     """A progress reporter factory that builds websocket progress reporters."""
 
-    _web_sockets: Final[dict[EntityId, _WebsocketHandle]]
+    _web_sockets: Final[dict[str, _WebsocketHandle]]
 
     def __init__(self) -> None:
         """Constructor."""
         self._web_sockets = {}
 
-    async def register_socket(
-        self, websocket: WebSocket, user_ref_id: EntityId
-    ) -> None:
+    async def register_socket(self, websocket: WebSocket, auth_token_str: str) -> None:
         """Register a socket for this user."""
-        if user_ref_id in self._web_sockets:
-            await self._web_sockets[user_ref_id].replace_websocket(websocket)
+        if auth_token_str in self._web_sockets:
+            await self._web_sockets[auth_token_str].replace_websocket(websocket)
         else:
-            self._web_sockets[user_ref_id] = _WebsocketHandle.with_websocket(websocket)
+            self._web_sockets[auth_token_str] = _WebsocketHandle.with_websocket(
+                websocket
+            )
 
-    async def unregister_websocket(self, user_ref_id: EntityId) -> None:
+    async def unregister_websocket(self, auth_token_str: str) -> None:
         """Unregister a websocket for this user."""
-        if user_ref_id not in self._web_sockets:
+        if auth_token_str not in self._web_sockets:
             return
-        await self._web_sockets[user_ref_id].clear_websocket()
+        await self._web_sockets[auth_token_str].clear_websocket()
 
     async def unregister_all_websockets(self) -> None:
         """Unregidster all websockets for all users."""
@@ -301,14 +297,12 @@ class WebsocketProgressReporterFactory(
             await web_socket_handle.clear_websocket()
         self._web_sockets.clear()
 
-    def new_reporter(self, context: LoggedInContext) -> ProgressReporter:
+    def new_reporter(self, dedup_key: str) -> ProgressReporter:
         """Construct a new progress reporter based on web sockets."""
-        if context.user_ref_id not in self._web_sockets:
-            self._web_sockets[context.user_ref_id] = (
-                _WebsocketHandle.with_no_websocket()
-            )
+        if dedup_key not in self._web_sockets:
+            self._web_sockets[dedup_key] = _WebsocketHandle.with_no_websocket()
         return WebsocketProgressReporter(
-            websocket=self._web_sockets[context.user_ref_id],
+            websocket=self._web_sockets[dedup_key],
             sections=[],
             created_entities=[],
             created_entities_stats=defaultdict(list),
