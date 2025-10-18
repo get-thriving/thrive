@@ -17,7 +17,7 @@ webui_port=$(get_free_port)
 
 log info "Starting Jupiter for API generation with port $webapi_port"
 
-run_jupiter_webapi apigen "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
+run_jupiter_webapp apigen "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
 
 log info "Extracting OpenAPI spec from WebAPI"
 

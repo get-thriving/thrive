@@ -163,9 +163,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             title=self.api_description,
             version=self.api_version,
             generate_unique_id_function=self._custom_generate_unique_id,
-            openapi_url=("/openapi.json" if self.is_live else None),
-            docs_url="/docs" if self.is_live else None,
-            redoc_url="/redoc" if self.is_live else None,
+            openapi_url=self.openapi_json_route if not self.is_live else None,
+            docs_url=self.openapi_docs_route if not self.is_live else None,
+            redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
         self._scheduler = AsyncIOScheduler()
@@ -316,7 +316,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         #     ports=ports,
         # )
 
-        @app._fast_app.get("/healthz", status_code=status.HTTP_200_OK)
+        @app._fast_app.get(app.healthz_route, status_code=status.HTTP_200_OK)
         async def healthz() -> None:
             """Health check endpoint."""
             return None
@@ -431,6 +431,26 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     @abc.abstractmethod
     def is_live(self) -> bool:
         """Whether the app is live."""
+
+    @property
+    def healthz_route(self) -> str:
+        """The healthz route of the app."""
+        return "/healthz"
+
+    @property
+    def openapi_json_route(self) -> str:
+        """The openapi json route of the app."""
+        return "/openapi.json"
+
+    @property
+    def openapi_docs_route(self) -> str:
+        """The openapi docs route of the app."""
+        return "/docs"
+
+    @property
+    def openapi_redoc_route(self) -> str:
+        """The openapi redoc route of the app."""
+        return "/redoc"
 
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""
@@ -768,6 +788,8 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
         # Generate all components
 
+        openapi_schema["components"] = {}
+
         openapi_schema["components"]["schemas"] = {}
 
         for enum_value_type in self._realm_codec_registry.get_all_registered_types(
@@ -864,7 +886,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     }
 
         del openapi_schema["paths"]["/healthz"]
-        del openapi_schema["paths"]["/old-skool-login"]
+        # del openapi_schema["paths"]["/old-skool-login"]
 
         self._fast_app.openapi_schema = openapi_schema
         return self._fast_app.openapi_schema

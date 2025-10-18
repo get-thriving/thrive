@@ -24,4 +24,4 @@ export HOSTED_GLOBAL_WEBUI_URL="http://localhost:$webui_port"
 
 log info "Running web in the browser app with namespace $namespace"
 
-open $HOSTED_GLOBAL_WEBUI_URL
+open "$HOSTED_GLOBAL_WEBUI_URL"

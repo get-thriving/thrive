@@ -206,6 +206,26 @@ class JupiterWebApiApp(
         """Whether the app is live."""
         return self._global_properties.env.is_live
 
+    @property
+    def healthz_route(self) -> str:
+        """The healthz URL of the app."""
+        return "/healthz"
+
+    @property
+    def openapi_json_route(self) -> str:
+        """The openapi json route of the app."""
+        return "/openapi.json"
+
+    @property
+    def openapi_docs_route(self) -> str:
+        """The openapi docs route of the app."""
+        return "/docs"
+
+    @property
+    def openapi_redoc_route(self) -> str:
+        """The redoc route of the app."""
+        return "/redoc"
+
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""
         response.headers[ENV_HEADER] = self._global_properties.env.value

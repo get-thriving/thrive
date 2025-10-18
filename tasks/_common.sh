@@ -39,7 +39,7 @@ log() {
     fi
 }
 
-run_jupiter_webapi() {
+run_jupiter_webapp() {
     local NAMESPACE=$1
     local WEBAPI_PORT=$2
     local WEBUI_PORT=$3
@@ -62,13 +62,13 @@ run_jupiter_webapi() {
     log info "Running Jupiter WebApi with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, mode: $mode"
 
     if [[ "$mode" == "pm2" ]]; then
-        _run_jupiter_webapi_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
     else
-        _run_jupiter_webapi_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
     fi
 }
 
-_run_jupiter_webapi_with_pm2() {
+_run_jupiter_webapp_with_pm2() {
     local namespace=$1
     local webapiLogFile=../../$RUN_ROOT/$namespace/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
@@ -115,7 +115,7 @@ _run_jupiter_webapi_with_pm2() {
     fi
 }
 
-_run_jupiter_webapi_with_docker() {
+_run_jupiter_webapp_with_docker() {
     export NAMESPACE=$1
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3
@@ -172,7 +172,7 @@ _run_jupiter_webapi_with_docker() {
     fi
 }
 
-stop_jupiter_webapi() {
+stop_jupiter_webapp() {
     local service=$1
 
     log info "Stopping Jupiter with service: $service"
