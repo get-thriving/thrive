@@ -67,8 +67,8 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_invocation_result import (
-    MutationUseCaseInvocationRecorder,
+from jupiter.framework_new.mutation_inovcation.record import (
+    MutationInvocationRecorder,
 )
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.ports import Ports
@@ -101,7 +101,6 @@ from jupiter.framework_new.use_case import (
     UseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.utils import (
     find_all_modules,
     is_primitive_type,
@@ -133,10 +132,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
+    _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[WebsocketProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _use_case_storage_engine: Final[UseCaseStorageEngine]
     _fast_app: Final[FastAPI]
     _scheduler: Final[AsyncIOScheduler]
     _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
@@ -171,10 +169,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         request_time_provider: PerRequestTimeProvider,
         cron_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
-        use_case_storage_engine: UseCaseStorageEngine,
         guest_mutation_command_ctor: type[GuestMutationCommand],  # type: ignore[type-arg]
         guest_readonly_command_ctor: type[GuestReadonlyCommand],  # type: ignore[type-arg]
         logged_in_mutation_command_ctor: type[LoggedInMutationCommand],  # type: ignore[type-arg]
@@ -189,7 +186,6 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
-        self._use_case_storage_engine = use_case_storage_engine
         self._guest_mutation_command_ctor = guest_mutation_command_ctor
         self._guest_readonly_command_ctor = guest_readonly_command_ctor
         self._logged_in_mutation_command_ctor = logged_in_mutation_command_ctor
@@ -216,10 +212,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         request_time_provider: PerRequestTimeProvider,
         cron_run_time_provider: CronRunTimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: WebsocketProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
-        use_case_storage_engine: UseCaseStorageEngine,
         config_root: types.ModuleType,
         *module_root: types.ModuleType,
     ) -> "_WebApiAppT":
@@ -328,7 +323,6 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
-            use_case_storage_engine=use_case_storage_engine,
             guest_mutation_command_ctor=extract_specific_command(
                 config_root, GuestMutationCommand
             ),
@@ -609,7 +603,6 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 progress_reporter_factory=self._progress_reporter_factory,
                 auth_token_stamper=self._auth_token_stamper,
                 ports=self._ports,
-                use_case_storage_engine=self._use_case_storage_engine,
             )
 
             if not use_case.is_allowed_globally:

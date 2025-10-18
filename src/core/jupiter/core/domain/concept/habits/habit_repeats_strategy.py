@@ -40,3 +40,5 @@ class HabitRepeatsStrategy(EnumValue):
                     (result[-1][1].add_days(1), result[-1][1].add_days(durations[i]))
                 )
             return result
+
+        raise Exception(f"Unsupported repeat strategy: {self}")

@@ -10,7 +10,7 @@ from jupiter.framework_new.realm import RealmThing
 
 
 @enum.unique
-class MutationUseCaseInvocationResult(enum.Enum):
+class MutationInvocationResult(enum.Enum):
     """The result of a mutation use case invocation."""
 
     SUCCESS = "success"
@@ -18,14 +18,14 @@ class MutationUseCaseInvocationResult(enum.Enum):
 
 
 @dataclass(frozen=True)
-class MutationUseCaseInvocationRecord:
+class MutationInvocationRecord:
     """The record of a mutation use case invocation."""
 
     context_str: str
     timestamp: Timestamp
     name: str
     args: Mapping[str, RealmThing]
-    result: MutationUseCaseInvocationResult
+    result: MutationInvocationResult
     error_str: str | None
 
     @staticmethod
@@ -34,14 +34,14 @@ class MutationUseCaseInvocationRecord:
         timestamp: Timestamp,
         name: str,
         args: Mapping[str, RealmThing],
-    ) -> "MutationUseCaseInvocationRecord":
+    ) -> "MutationInvocationRecord":
         """Build a success case for an invocation."""
-        return MutationUseCaseInvocationRecord(
+        return MutationInvocationRecord(
             context_str=context_str,
             timestamp=timestamp,
             name=name,
             args=args,
-            result=MutationUseCaseInvocationResult.SUCCESS,
+            result=MutationInvocationResult.SUCCESS,
             error_str=None,
         )
 
@@ -52,24 +52,24 @@ class MutationUseCaseInvocationRecord:
         name: str,
         args: Mapping[str, RealmThing],
         error: Exception,
-    ) -> "MutationUseCaseInvocationRecord":
+    ) -> "MutationInvocationRecord":
         """Build a success case for an invocation."""
-        return MutationUseCaseInvocationRecord(
+        return MutationInvocationRecord(
             context_str=context_str,
             timestamp=timestamp,
             name=name,
             args=args,
-            result=MutationUseCaseInvocationResult.FAILURE,
+            result=MutationInvocationResult.FAILURE,
             error_str=str(error),
         )
 
 
-class MutationUseCaseInvocationRecorder(abc.ABC):
-    """A special type of recorder for mutation use cases which records the outcome of a particular use case."""
+class MutationInvocationRecorder(abc.ABC):
+    """A special type of recorder for mutations which records the outcome of a particular mutation."""
 
     @abc.abstractmethod
     async def record(
         self,
-        invocation_record: MutationUseCaseInvocationRecord,
+        invocation_record: MutationInvocationRecord,
     ) -> None:
-        """Record the invocation of the use case."""
+        """Record the invocation of the mutation."""

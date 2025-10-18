@@ -31,9 +31,9 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_invocation_result import (
-    MutationUseCaseInvocationRecord,
-    MutationUseCaseInvocationRecorder,
+from jupiter.framework_new.mutation_inovcation.record import (
+    MutationInvocationRecord,
+    MutationInvocationRecorder,
 )
 from jupiter.framework_new.ports import DomainPorts, Ports
 from jupiter.framework_new.progress_reporter import (
@@ -46,7 +46,6 @@ from jupiter.framework_new.repository import (
 )
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.value import EnumValue
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
@@ -187,7 +186,7 @@ class MutationUseCase(
 
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
+    _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: ProgressReporterFactory
 
     def __init__(
@@ -196,7 +195,7 @@ class MutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
     ) -> None:
         """Constructor."""
@@ -231,7 +230,7 @@ class MutationUseCase(
                 Mapping[str, RealmThing],
                 self._realm_codec_registry.db_encode(args, EventStoreRealm),
             )
-            invocation_record = MutationUseCaseInvocationRecord.build_failure(
+            invocation_record = MutationInvocationRecord.build_failure(
                 context_str=context.as_str(),
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
@@ -248,7 +247,7 @@ class MutationUseCase(
             Mapping[str, RealmThing],
             self._realm_codec_registry.db_encode(args, EventStoreRealm),
         )
-        invocation_record = MutationUseCaseInvocationRecord.build_success(
+        invocation_record = MutationInvocationRecord.build_success(
             context_str=context.as_str(),
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,
@@ -385,7 +384,7 @@ class GuestMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
@@ -550,7 +549,6 @@ class LoggedInMutationUseCase(
     """A command which does some sort of mutation for the app, and assumes a logged-in user."""
 
     _auth_token_stamper: Final[AuthTokenStamper]
-    _use_case_storage_engine: Final[UseCaseStorageEngine]
 
     @staticmethod
     def get_only_for_use_case_context() -> list[EnumValue | list[EnumValue]] | None:
@@ -596,10 +594,9 @@ class LoggedInMutationUseCase(
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
-        use_case_storage_engine: UseCaseStorageEngine,
     ) -> None:
         """Constructor."""
         super().__init__(
@@ -611,7 +608,6 @@ class LoggedInMutationUseCase(
             progress_reporter_factory,
         )
         self._auth_token_stamper = auth_token_stamper
-        self._use_case_storage_engine = use_case_storage_engine
 
     async def _build_context(
         self, session: _LoggedInSessionT

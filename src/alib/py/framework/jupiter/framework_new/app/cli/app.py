@@ -53,8 +53,8 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_invocation_result import (
-    MutationUseCaseInvocationRecorder,
+from jupiter.framework_new.mutation_inovcation.record import (
+    MutationInvocationRecorder,
 )
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
@@ -75,7 +75,6 @@ from jupiter.framework_new.use_case import (
     UseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
 from jupiter.framework_new.utils import find_all_modules
 from rich.console import Console
 from rich.panel import Panel
@@ -95,10 +94,9 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     _global_properties: _GlobalPropertiesT
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
-    _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
+    _invocation_recorder: Final[MutationInvocationRecorder]
     _progress_reporter_factory: Final[RichConsoleProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
-    _use_case_storage_engine: Final[UseCaseStorageEngine]
     _console: Final[Console]
     _session_storage: Final[SessionStorage]
     _guest_mutation_command_ctor: type[GuestMutationCommand]  # type: ignore[type-arg]
@@ -130,10 +128,9 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: RichConsoleProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
-        use_case_storage_engine: UseCaseStorageEngine,
         console: Console,
         session_storage: SessionStorage,
         guest_mutation_command_ctor: type[GuestMutationCommand],  # type: ignore[type-arg]
@@ -149,7 +146,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         self._invocation_recorder = invocation_recorder
         self._progress_reporter_factory = progress_reporter_factory
         self._auth_token_stamper = auth_token_stamper
-        self._use_case_storage_engine = use_case_storage_engine
         self._console = console
         self._session_storage = session_storage
         self._guest_mutation_command_ctor = guest_mutation_command_ctor
@@ -167,10 +163,9 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
-        invocation_recorder: MutationUseCaseInvocationRecorder,
+        invocation_recorder: MutationInvocationRecorder,
         progress_reporter_factory: RichConsoleProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
-        use_case_storage_engine: UseCaseStorageEngine,
         console: Console,
         session_storage: SessionStorage,
         config_root: types.ModuleType,
@@ -354,7 +349,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             invocation_recorder=invocation_recorder,
             progress_reporter_factory=progress_reporter_factory,
             auth_token_stamper=auth_token_stamper,
-            use_case_storage_engine=use_case_storage_engine,
             console=console,
             session_storage=session_storage,
             guest_mutation_command_ctor=extract_specific_command(
@@ -476,7 +470,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     global_properties=self._global_properties,
                     auth_token_stamper=self._auth_token_stamper,
                     ports=self._ports,
-                    use_case_storage_engine=self._use_case_storage_engine,
                 ),
             )
         elif issubclass(use_case_type, LoggedInReadonlyUseCase):
@@ -561,7 +554,6 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                         invocation_recorder=self._invocation_recorder,
                         progress_reporter_factory=self._progress_reporter_factory,
                         auth_token_stamper=self._auth_token_stamper,
-                        use_case_storage_engine=self._use_case_storage_engine,
                     ),
                 )
             )

@@ -13,6 +13,7 @@ python = "3.13.0"
 poetry = "latest"
 ruby = "2.7"
 rust = "latest"
+watchexec = "latest"
 
 [env]
 _.python.venv = { path = ".build-cache/venv", create = true }

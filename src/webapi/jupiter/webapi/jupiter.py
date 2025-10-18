@@ -27,11 +27,11 @@ from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnectio
 from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
     SqliteDomainStorageEngine,
 )
-from jupiter.framework_new.impl.use_case.storage_engine import (
-    SqliteUseCaseStorageEngine,
+from jupiter.framework_new.mutation_inovcation.recorders.impl.sqlite import (
+    SqliteMutationInvocationStorageEngine,
 )
-from jupiter.framework_new.persistent_mutation_use_case_recoder import (
-    PersistentMutationUseCaseInvocationRecorder,
+from jupiter.framework_new.mutation_inovcation.recorders.persistent import (
+    PersistentMutationInvocationRecorder,
 )
 from jupiter.framework_new.time_provider import (
     CronRunTimeProvider,
@@ -92,7 +92,7 @@ async def main() -> None:
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
     )
-    usecase_storage_engine = SqliteUseCaseStorageEngine(
+    mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
     )
 
@@ -117,8 +117,8 @@ async def main() -> None:
 
     progress_reporter_factory = WebsocketProgressReporterFactory()
 
-    invocation_recorder = PersistentMutationUseCaseInvocationRecorder(
-        storage_engine=usecase_storage_engine,
+    invocation_recorder = PersistentMutationInvocationRecorder(
+        storage_engine=mutation_invocation_storage_engine,
     )
 
     ports = JupiterPorts(
@@ -136,7 +136,6 @@ async def main() -> None:
         invocation_recorder,
         progress_reporter_factory,
         auth_token_stamper,
-        usecase_storage_engine,
         jupiter.webapi.config,
         jupiter.core.use_cases,
         jupiter.webapi.exceptions,

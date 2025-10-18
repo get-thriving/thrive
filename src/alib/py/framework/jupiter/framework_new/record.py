@@ -145,6 +145,8 @@ def _check_record_can_be_filterd_by(
         base_type = get_origin(cls)
         if base_type is Union:
             base_args = get_args(cls)
+            if len(base_args) == 0:
+                raise Exception(f"Type {cls} is not compatible with record types")
             if len(base_args) > 2:
                 raise Exception(f"Type {cls} is not compatible with record types")
             if type(None) in base_args:
@@ -173,7 +175,7 @@ def _check_record_can_be_filterd_by(
                 f"Cannot filter by {filter_name} because it's a virtual field"
             )
 
-        found_field_type, found_field_optional = _get_real_type(found_field.type)
+        found_field_type, found_field_optional = _get_real_type(found_field.type)  # type: ignore[arg-type]
 
         if found_field_optional:
             if filter_rule is None:
