@@ -19,59 +19,7 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
-from jupiter.framework_new.app.cli.session_storage import SessionInfoNotFoundError
-from jupiter.framework_new.auth.auth_token import (
-    ExpiredAuthTokenError,
-    InvalidAuthTokenError,
-)
-from jupiter.framework_new.errors import (
-    InputValidationError,
-    MultiInputValidationError,
-)
-from jupiter.framework_new.repository import EntityNotFoundError
-from jupiter.framework_new.storage import ConnectionPrepareError
-from jupiter.framework_new.use_case import UnavailableForContextError
 from rich.console import Console
-
-
-class SessionInfoNotFoundHandler(JupiterExceptionHandler[SessionInfoNotFoundError]):
-    """Handle the session info not found error."""
-
-    def handle(self, console: Console, exception: SessionInfoNotFoundError) -> None:
-        """Handle the session info not found error."""
-        console.print("No session info found. Please log in or create a new account.")
-        console.print(f"Checkout '{self._global_properties.docs_init_workspace_url}'.")
-        sys.exit(1)
-
-
-class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(self, console: Console, exception: InputValidationError) -> None:
-        """Handle input validation errors."""
-        print("Looks like there's something wrong with the command's arguments:")
-        print(f"  {exception}")
-        sys.exit(1)
-
-
-class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(self, console: Console, exception: MultiInputValidationError) -> None:
-        """Handle input validation errors."""
-        print("Looks like there's something wrong with the command's arguments:")
-        for k, v in exception.errors.items():
-            print(f"  {k}: {v}")
-        sys.exit(1)
-
-
-class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
-    """Handle feature unavailable errors."""
-
-    def handle(self, console: Console, exception: UnavailableForContextError) -> None:
-        """Handle feature unavailable errors."""
-        console.print(f"{exception}")
-        sys.exit(1)
 
 
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
@@ -81,16 +29,6 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
         """Handle user already exists errors."""
         print("A user with the same identity already seems to exist here!")
         print("Please try creating another user.")
-        sys.exit(1)
-
-
-class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
-    """Handle expired auth token errors."""
-
-    def handle(self, console: Console, exception: ExpiredAuthTokenError) -> None:
-        """Handle expired auth token errors."""
-        print("Your authentication token has expired.")
-        print("Please log in again.")
         sys.exit(1)
 
 
@@ -169,31 +107,6 @@ class JournalExistsForDatePeriodCombinationHandler(
         sys.exit(1)
 
 
-class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
-    """Handle invalid auth token errors."""
-
-    def handle(self, console: Console, exception: InvalidAuthTokenError) -> None:
-        """Handle invalid auth token errors."""
-        print(
-            "Your session seems to be invalid! Please run 'init' or 'login' to fix this!"
-        )
-        print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
-        )
-        sys.exit(2)
-
-
-class ConnectionPrepareHandler(JupiterExceptionHandler[ConnectionPrepareError]):
-    """Handle connection prepare errors."""
-
-    def handle(self, console: Console, exception: ConnectionPrepareError) -> None:
-        """Handle connection prepare errors."""
-        print("A connection to the database couldn't be established!")
-        print("Check if the database path exists")
-        print(exception.__traceback__)
-        sys.exit(2)
-
-
 class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
@@ -220,12 +133,3 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
             f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
-
-
-class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
-    """Handle entity not found errors."""
-
-    def handle(self, console: Console, exception: EntityNotFoundError) -> None:
-        """Handle entity not found errors."""
-        print(str(exception))
-        sys.exit(1)

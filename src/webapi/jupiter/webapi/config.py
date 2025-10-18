@@ -28,7 +28,12 @@ from jupiter.core.domain.app import (
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.framework_new.app.webapi.app import WebApiApp
-from jupiter.framework_new.app.webapi.commands import GuestMutationCommand, GuestReadonlyCommand, LoggedInMutationCommand, LoggedInReadonlyCommand
+from jupiter.framework_new.app.webapi.commands import (
+    GuestMutationCommand,
+    GuestReadonlyCommand,
+    LoggedInMutationCommand,
+    LoggedInReadonlyCommand,
+)
 from jupiter.framework_new.app.webapi.exception import WebApiExceptionHandler
 from jupiter.framework_new.auth.auth_token_ext import (
     AuthTokenExt,

@@ -6,6 +6,7 @@ import types
 import typing
 from collections.abc import Iterator
 from datetime import date, datetime
+from json import JSONDecodeError
 from typing import (
     Any,
     Final,
@@ -32,13 +33,37 @@ from jupiter.framework_new.app.webapi.commands import (
     UseCaseCommand,
 )
 from jupiter.framework_new.app.webapi.exception import WebApiExceptionHandler
+from jupiter.framework_new.app.webapi.exceptions import (
+    EntityAlreadyExistsHandler,
+    EntityNotFoundHandler,
+    ExpiredAuthTokenHandler,
+    InputValidationHandler,
+    InvalidAuthTokenHandler,
+    JSONDecodeHandler,
+    MultiInputValidationHandler,
+    RealmDecodingHandler,
+    UnavailableForComponentHandler,
+    UnavailableForContextHandler,
+    UnavailableGloballyHandler,
+)
 from jupiter.framework_new.app.webapi.progress_reporter import (
     WebsocketProgressReporterFactory,
 )
+from jupiter.framework_new.auth.auth_token import (
+    ExpiredAuthTokenError,
+    InvalidAuthTokenError,
+)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.framework_new.component_properties import ComponentProperties
+from jupiter.framework_new.component_properties import (
+    ComponentProperties,
+    UnavailableForComponentError,
+)
 from jupiter.framework_new.entity import Entity, ParentLink
-from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.errors import InputValidationError, MultiInputValidationError
+from jupiter.framework_new.global_properties import (
+    GlobalProperties,
+    UnavailableGloballyError,
+)
 from jupiter.framework_new.mutation_invocation_result import (
     MutationUseCaseInvocationRecorder,
 )
@@ -49,8 +74,17 @@ from jupiter.framework_new.progress_reporter import (
     EmptyProgressReporterFactory,
     NoOpProgressReporterFactory,
 )
-from jupiter.framework_new.realm import DomainThing, RealmCodecRegistry, WebRealm
+from jupiter.framework_new.realm import (
+    DomainThing,
+    RealmCodecRegistry,
+    RealmDecodingError,
+    WebRealm,
+)
 from jupiter.framework_new.record import Record
+from jupiter.framework_new.repository import (
+    EntityAlreadyExistsError,
+    EntityNotFoundError,
+)
 from jupiter.framework_new.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
@@ -62,6 +96,7 @@ from jupiter.framework_new.use_case import (
     AppLoggedInMutationUseCase,
     AppLoggedInReadonlyUseCase,
     SysBackgroundMutationUseCase,
+    UnavailableForContextError,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
@@ -87,6 +122,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
+_ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 _WebApiAppT = TypeVar("_WebApiAppT", bound="WebApiApp[Any, Any, Any]")
 
 
@@ -126,7 +162,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         ]
     ]
     _exception_handlers: Final[
-        dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Exception]]
+        dict[type[Exception], WebApiExceptionHandler[GlobalProperties, Any]]
     ]
 
     def __init__(
@@ -374,6 +410,40 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             else:
                 raise Exception(f"Unknown command type {command}")
 
+        app._add_exception_handler(
+            UnavailableGloballyError, UnavailableGloballyHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            UnavailableForComponentError, UnavailableForComponentHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            UnavailableForContextError, UnavailableForContextHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            EntityNotFoundError, EntityNotFoundHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            EntityAlreadyExistsError, EntityAlreadyExistsHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            ExpiredAuthTokenError, ExpiredAuthTokenHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            InvalidAuthTokenError, InvalidAuthTokenHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(JSONDecodeError, JSONDecodeHandler).attach_handler(
+            app._fast_app
+        )
+        app._add_exception_handler(
+            InputValidationError, InputValidationHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            MultiInputValidationError, MultiInputValidationHandler
+        ).attach_handler(app._fast_app)
+        app._add_exception_handler(
+            RealmDecodingError, RealmDecodingHandler
+        ).attach_handler(app._fast_app)
+
         for mr in module_root:
             for m in find_all_modules(mr):
                 for exception_type, exception_handler in extract_exception_handler(m):
@@ -598,9 +668,9 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
     def _add_exception_handler(
         self,
-        exception_type: type[Exception],
-        exception_handler: type[WebApiExceptionHandler[GlobalProperties, Exception]],
-    ) -> WebApiExceptionHandler[GlobalProperties, Exception]:
+        exception_type: type[_ExceptionT],
+        exception_handler: type[WebApiExceptionHandler[GlobalProperties, _ExceptionT]],
+    ) -> WebApiExceptionHandler[GlobalProperties, _ExceptionT]:
         if exception_type in self._exception_handlers:
             raise Exception(f"Exception type {exception_type} already added")
         handler = exception_handler(self._global_properties, exception_type)

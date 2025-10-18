@@ -17,25 +17,59 @@ from jupiter.framework_new.app.cli.commands import (
     UseCaseCommand,
 )
 from jupiter.framework_new.app.cli.exception import CliExceptionHandler
+from jupiter.framework_new.app.cli.exceptions import (
+    ConnectionPrepareHandler,
+    EntityAlreadyExistsHandler,
+    EntityNotFoundHandler,
+    ExpiredAuthTokenHandler,
+    InputValidationHandler,
+    InvalidAuthTokenHandler,
+    MultiInputValidationHandler,
+    RealmDecodingHandler,
+    SessionInfoNotFoundHandler,
+    UnavailableForComponentHandler,
+    UnavailableForContextHandler,
+    UnavailableGloballyHandler,
+)
 from jupiter.framework_new.app.cli.progress_reporter import (
     RichConsoleProgressReporterFactory,
 )
-from jupiter.framework_new.app.cli.session_storage import SessionStorage
+from jupiter.framework_new.app.cli.session_storage import (
+    SessionInfoNotFoundError,
+    SessionStorage,
+)
+from jupiter.framework_new.auth.auth_token import (
+    ExpiredAuthTokenError,
+    InvalidAuthTokenError,
+)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.framework_new.component_properties import ComponentProperties
-from jupiter.framework_new.global_properties import GlobalProperties
+from jupiter.framework_new.component_properties import (
+    ComponentProperties,
+    UnavailableForComponentError,
+)
+from jupiter.framework_new.errors import InputValidationError, MultiInputValidationError
+from jupiter.framework_new.global_properties import (
+    GlobalProperties,
+    UnavailableGloballyError,
+)
 from jupiter.framework_new.mutation_invocation_result import (
     MutationUseCaseInvocationRecorder,
 )
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.progress_reporter import NoOpProgressReporterFactory
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
+from jupiter.framework_new.repository import (
+    EntityAlreadyExistsError,
+    EntityNotFoundError,
+)
+from jupiter.framework_new.storage import ConnectionPrepareError
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case import (
     AppGuestMutationUseCase,
     AppGuestReadonlyUseCase,
     AppLoggedInMutationUseCase,
     AppLoggedInReadonlyUseCase,
+    UnavailableForContextError,
     UseCase,
     UseCaseContextBase,
     UseCaseSessionBase,
@@ -50,6 +84,7 @@ _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
+_ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 _CliAppT = TypeVar("_CliAppT", bound="CliApp[Any, Any, Any]")  # type: ignore
 
 
@@ -86,7 +121,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         Command,
     ]
     _exception_handlers: dict[
-        type[Exception], CliExceptionHandler[GlobalProperties, Exception]
+        type[Exception], CliExceptionHandler[GlobalProperties, Any]
     ]
 
     def __init__(
@@ -350,6 +385,31 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     continue
                 cli_app._add_use_case_type(use_case_type)
 
+        cli_app._add_exception_handler(
+            UnavailableGloballyError, UnavailableGloballyHandler
+        )
+        cli_app._add_exception_handler(
+            UnavailableForComponentError, UnavailableForComponentHandler
+        )
+        cli_app._add_exception_handler(
+            UnavailableForContextError, UnavailableForContextHandler
+        )
+        cli_app._add_exception_handler(EntityNotFoundError, EntityNotFoundHandler)
+        cli_app._add_exception_handler(
+            EntityAlreadyExistsError, EntityAlreadyExistsHandler
+        )
+        cli_app._add_exception_handler(ExpiredAuthTokenError, ExpiredAuthTokenHandler)
+        cli_app._add_exception_handler(InvalidAuthTokenError, InvalidAuthTokenHandler)
+        cli_app._add_exception_handler(RealmDecodingError, RealmDecodingHandler)
+        cli_app._add_exception_handler(InputValidationError, InputValidationHandler)
+        cli_app._add_exception_handler(
+            MultiInputValidationError, MultiInputValidationHandler
+        )
+        cli_app._add_exception_handler(
+            SessionInfoNotFoundError, SessionInfoNotFoundHandler
+        )
+        cli_app._add_exception_handler(ConnectionPrepareError, ConnectionPrepareHandler)
+
         for m in find_all_modules(*module_root):
             for exception_type, exception_handler in extract_exception_handler(m):
                 cli_app._add_exception_handler(exception_type, exception_handler)
@@ -526,9 +586,9 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
     def _add_exception_handler(
         self,
-        exception_type: type[Exception],
-        exception_handler: type[CliExceptionHandler[GlobalProperties, Exception]],
-    ) -> None:
+        exception_type: type[_ExceptionT],
+        exception_handler: type[CliExceptionHandler[GlobalProperties, _ExceptionT]],
+    ) -> CliExceptionHandler[GlobalProperties, _ExceptionT]:
         if exception_type in self._exception_handlers:
             raise Exception(
                 f"Exception type {exception_type} already has an exception handler"
@@ -536,6 +596,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         self._exception_handlers[exception_type] = exception_handler(
             self._global_properties
         )
+        return self._exception_handlers[exception_type]
 
     async def run(self, argv: list[str]) -> None:
         """Run the app."""

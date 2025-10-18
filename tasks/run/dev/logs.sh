@@ -3,9 +3,7 @@
 #MISE description="View the logs for the webapi and webui services"
 #USAGE flag "--namespace <namespace>" help="Jupiter namespace"
 #USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
-#USAGE flag "--service <service>" default="webapi" help="Type of service to view logs for" {
-#USAGE   choices "webapi" "webui"
-#USAGE }
+#USAGE arg "<service>" required help="The service to view logs for"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }

@@ -17,73 +17,8 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
-from jupiter.framework_new.auth.auth_token import (
-    ExpiredAuthTokenError,
-    InvalidAuthTokenError,
-)
-from jupiter.framework_new.errors import (
-    InputValidationError,
-    MultiInputValidationError,
-)
-from jupiter.framework_new.repository import EntityNotFoundError
-from jupiter.framework_new.use_case import UnavailableForContextError
 from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
-
-
-class InputValidationHandler(JupiterExceptionHandler[InputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(self, exception: InputValidationError) -> JSONResponse:
-        """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"{exception}",
-                        "type": "value_error.inputvalidationerror",
-                    },
-                ],
-            },
-        )
-
-
-class MultiInputValidationHandler(JupiterExceptionHandler[MultiInputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(self, exception: MultiInputValidationError) -> JSONResponse:
-        """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                            k,
-                        ],
-                        "msg": f"{v}",
-                        "type": "value_error.inputvalidationerror",
-                    }
-                    for k, v in exception.errors.items()
-                ]
-            },
-        )
-
-
-class FeatureUnavailableHandler(JupiterExceptionHandler[UnavailableForContextError]):
-    """Handle feature unavailable errors."""
-
-    def handle(self, exception: UnavailableForContextError) -> JSONResponse:
-        """Handle feature unavailable errors."""
-        return JSONResponse(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            content=f"{exception}",
-        )
 
 
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
@@ -104,17 +39,6 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
                     },
                 ],
             },
-        )
-
-
-class ExpiredAuthTokenandler(JupiterExceptionHandler[ExpiredAuthTokenError]):
-    """Handle expired auth token errors."""
-
-    def handle(self, exception: ExpiredAuthTokenError) -> JSONResponse:
-        """Handle expired auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_426_UPGRADE_REQUIRED,
-            content="Your session token seems to be busted",
         )
 
 
@@ -161,28 +85,6 @@ class ProjectInSignificantUseHandler(
                     },
                 ],
             },
-        )
-
-
-class EntityNotFoundHandler(JupiterExceptionHandler[EntityNotFoundError]):
-    """Handle entity not found errors."""
-
-    def handle(self, exception: EntityNotFoundError) -> JSONResponse:
-        """Handle entity not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content="Entity does not exist",
-        )
-
-
-class InvalidAuthTokenHandler(JupiterExceptionHandler[InvalidAuthTokenError]):
-    """Handle invalid auth token errors."""
-
-    def handle(self, exception: InvalidAuthTokenError) -> JSONResponse:
-        """Handle invalid auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_426_UPGRADE_REQUIRED,
-            content="Your session token seems to be busted",
         )
 
 

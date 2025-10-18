@@ -2,6 +2,7 @@
 
 import abc
 import types
+from json import JSONDecodeError
 from typing import (
     Any,
     Final,
@@ -13,9 +14,10 @@ from typing import (
 )
 
 import inflection
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
 from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.realm import RealmCodecRegistry, WebRealm
+from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError, WebRealm
 from jupiter.framework_new.use_case import (
     AppGuestMutationUseCase,
     AppGuestMutationUseCaseContext,
@@ -195,7 +197,9 @@ class GuestMutationCommand(
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
-            decoded_args = args_decoder.decode(await request.json())
+
+            decoded_args_json = await request.json()
+            decoded_args = args_decoder.decode(decoded_args_json)
             result = cast(
                 _UseCaseResultT,
                 (await self._use_case.execute(session, decoded_args))[1],
@@ -240,7 +244,8 @@ class GuestReadonlyCommand(
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
-            decoded_args = args_decoder.decode(await request.json())
+            decoded_args_json = await request.json()
+            decoded_args = args_decoder.decode(decoded_args_json)
             result = cast(
                 _UseCaseResultT,
                 (await self._use_case.execute(session, decoded_args))[1],
@@ -285,7 +290,9 @@ class LoggedInMutationCommand(
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
-            decoded_args = args_decoder.decode(await request.json())
+
+            decoded_args_json = await request.json()
+            decoded_args = args_decoder.decode(decoded_args_json)
             result = cast(
                 _UseCaseResultT,
                 (await self._use_case.execute(session, decoded_args))[1],
@@ -330,7 +337,9 @@ class LoggedInReadonlyCommand(
             args_decoder = self._realm_codec_registry.get_decoder(
                 self._args_type, WebRealm
             )
-            decoded_args = args_decoder.decode(await request.json())
+
+            decoded_args_json = await request.json()
+            decoded_args = args_decoder.decode(decoded_args_json)
             result = cast(
                 _UseCaseResultT,
                 (await self._use_case.execute(session, decoded_args))[1],
