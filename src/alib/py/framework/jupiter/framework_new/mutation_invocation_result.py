@@ -5,7 +5,6 @@ import enum
 from dataclasses import dataclass
 from typing import Mapping
 
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.realm import RealmThing
 
@@ -22,8 +21,7 @@ class MutationUseCaseInvocationResult(enum.Enum):
 class MutationUseCaseInvocationRecord:
     """The record of a mutation use case invocation."""
 
-    user_ref_id: EntityId
-    workspace_ref_id: EntityId
+    context_str: str
     timestamp: Timestamp
     name: str
     args: Mapping[str, RealmThing]
@@ -32,16 +30,14 @@ class MutationUseCaseInvocationRecord:
 
     @staticmethod
     def build_success(
-        user_ref_id: EntityId,
-        workspace_ref_id: EntityId,
+        context_str: str,
         timestamp: Timestamp,
         name: str,
         args: Mapping[str, RealmThing],
     ) -> "MutationUseCaseInvocationRecord":
         """Build a success case for an invocation."""
         return MutationUseCaseInvocationRecord(
-            user_ref_id=user_ref_id,
-            workspace_ref_id=workspace_ref_id,
+            context_str=context_str,
             timestamp=timestamp,
             name=name,
             args=args,
@@ -51,8 +47,7 @@ class MutationUseCaseInvocationRecord:
 
     @staticmethod
     def build_failure(
-        user_ref_id: EntityId,
-        workspace_ref_id: EntityId,
+        context_str: str,
         timestamp: Timestamp,
         name: str,
         args: Mapping[str, RealmThing],
@@ -60,8 +55,7 @@ class MutationUseCaseInvocationRecord:
     ) -> "MutationUseCaseInvocationRecord":
         """Build a success case for an invocation."""
         return MutationUseCaseInvocationRecord(
-            user_ref_id=user_ref_id,
-            workspace_ref_id=workspace_ref_id,
+            context_str=context_str,
             timestamp=timestamp,
             name=name,
             args=args,

@@ -26,7 +26,6 @@ from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.domain.storage_engine import SearchStorageEngine
 from jupiter.framework_new.auth.auth_token import AuthToken
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.global_properties import GlobalProperties
@@ -332,16 +331,6 @@ class JupiterLoggedInMutationContext(LoggedInMutationContext):
 
         return None
 
-    @property
-    def user_ref_id(self) -> EntityId:
-        """The user id."""
-        return self.user.ref_id
-
-    @property
-    def workspace_ref_id(self) -> EntityId:
-        """The workspace id."""
-        return self.workspace.ref_id
-
 
 @dataclass(frozen=True)
 class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
@@ -380,16 +369,6 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
 
         return None
-
-    @property
-    def user_ref_id(self) -> EntityId:
-        """The user id."""
-        return self.user.ref_id
-
-    @property
-    def workspace_ref_id(self) -> EntityId:
-        """The workspace id."""
-        return self.workspace.ref_id
 
 
 class JupiterGuestMutationUseCase(
@@ -479,17 +458,17 @@ class JupiterLoggedInMutationUseCase(
         async with self._ports.search_storage_engine.get_unit_of_work() as uow:
             for created_entity in progress_reporter.created_entities:
                 await uow.search_repository.upsert(
-                    context.workspace_ref_id, created_entity
+                    context.workspace.ref_id, created_entity
                 )
 
             for updated_entity in progress_reporter.updated_entities:
                 await uow.search_repository.upsert(
-                    context.workspace_ref_id, updated_entity
+                    context.workspace.ref_id, updated_entity
                 )
 
             for removed_entity in progress_reporter.removed_entities:
                 await uow.search_repository.remove(
-                    context.workspace_ref_id, removed_entity
+                    context.workspace.ref_id, removed_entity
                 )
 
 

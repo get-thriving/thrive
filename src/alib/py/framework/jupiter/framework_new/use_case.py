@@ -21,7 +21,6 @@ from jupiter.framework_new.auth.auth_token import (
 )
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.framework_new.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework_new.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
@@ -98,16 +97,6 @@ class ContextBase(abc.ABC):
     ) -> EnumValue | None:
         """Whether this particular context allows for a given filter."""
 
-    @property
-    @abc.abstractmethod
-    def user_ref_id(self) -> EntityId:
-        """The owner user id."""
-
-    @property
-    @abc.abstractmethod
-    def workspace_ref_id(self) -> EntityId:
-        """The owner workspace id."""
-
 
 class UseCase(
     Generic[
@@ -171,16 +160,6 @@ class EmptyContext(ContextBase):
     ) -> EnumValue | None:
         """Does the particular context allow an use case invocation."""
         return None
-
-    @property
-    def user_ref_id(self) -> EntityId:
-        """The user context."""
-        return BAD_REF_ID
-
-    @property
-    def workspace_ref_id(self) -> EntityId:
-        """The owner root entity id."""
-        return BAD_REF_ID
 
 
 class MutationUseCase(
@@ -253,8 +232,7 @@ class MutationUseCase(
                 self._realm_codec_registry.db_encode(args, EventStoreRealm),
             )
             invocation_record = MutationUseCaseInvocationRecord.build_failure(
-                user_ref_id=context.user_ref_id,
-                workspace_ref_id=context.workspace_ref_id,
+                context_str=context.as_str(),
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
                 args=raw_args,
@@ -266,22 +244,12 @@ class MutationUseCase(
                 LOGGER.critical("Error writing invocation record", exc_info=err)
             raise
 
-        user_ref_id = context.user_ref_id
-        workspace_ref_id = context.workspace_ref_id
-        if self.__class__.__name__ == "InitUseCase":
-            # HACK HACK HACK HACK!
-            # We're dealing with an init result, so we need to do some adjustments
-            # to the context owner
-            user_ref_id = result.new_user.ref_id  # type: ignore
-            workspace_ref_id = result.new_workspace.ref_id  # type: ignore
-
         raw_args = cast(
             Mapping[str, RealmThing],
             self._realm_codec_registry.db_encode(args, EventStoreRealm),
         )
         invocation_record = MutationUseCaseInvocationRecord.build_success(
-            user_ref_id=user_ref_id,
-            workspace_ref_id=workspace_ref_id,
+            context_str=context.as_str(),
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,
             args=raw_args,

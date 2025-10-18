@@ -15,8 +15,6 @@ from sqlalchemy import (
     JSON,
     Column,
     DateTime,
-    ForeignKey,
-    Integer,
     MetaData,
     String,
     Table,
@@ -45,13 +43,7 @@ class SqliteMutationUseCaseInvocationRecordRepository(
         self._mutation_use_case_invocation_record_table = Table(
             "use_case_mutation_use_case_invocation_record",
             metadata,
-            Column("user_ref_id", Integer, ForeignKey("user.ref_id"), primary_key=True),
-            Column(
-                "workspace_ref_id",
-                Integer,
-                ForeignKey("workspace.ref_id"),
-                primary_key=True,
-            ),
+            Column("context_str", String, primary_key=True),
             Column("timestamp", DateTime, primary_key=True),
             Column("name", String, primary_key=True),
             Column("args", JSON, nullable=False),
@@ -67,12 +59,7 @@ class SqliteMutationUseCaseInvocationRecordRepository(
         """Create a new invocation record."""
         await self._connection.execute(
             insert(self._mutation_use_case_invocation_record_table).values(
-                user_ref_id=self._realm_codec_registry.db_encode(
-                    invocation_record.user_ref_id
-                ),
-                workspace_ref_id=self._realm_codec_registry.db_encode(
-                    invocation_record.workspace_ref_id
-                ),
+                context_str=invocation_record.context_str,
                 timestamp=self._realm_codec_registry.db_encode(
                     invocation_record.timestamp
                 ),
