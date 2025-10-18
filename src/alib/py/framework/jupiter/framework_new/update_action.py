@@ -4,52 +4,52 @@ import typing
 from collections.abc import Callable
 from typing import Final, Generic, TypeVar
 
-UpdateActionT = TypeVar("UpdateActionT")
-NewT = TypeVar("NewT")
+_UpdateActionT = TypeVar("_UpdateActionT")
+_NewT = TypeVar("_NewT")
 
 
-class UpdateAction(Generic[UpdateActionT]):
+class UpdateAction(Generic[_UpdateActionT]):
     """The update action for a field."""
 
     _should_change: Final[bool]
-    _value: UpdateActionT | None
+    _value: _UpdateActionT | None
 
     def __init__(
         self,
         should_change: bool,
-        value: UpdateActionT | None = None,
+        value: _UpdateActionT | None = None,
     ) -> None:
         """Constructor."""
         self._should_change = should_change
         self._value = value
 
     @staticmethod
-    def do_nothing() -> "UpdateAction[UpdateActionT]":
+    def do_nothing() -> "UpdateAction[_UpdateActionT]":
         """An update action where nothing needs to happen."""
-        return UpdateAction[UpdateActionT](should_change=False)
+        return UpdateAction[_UpdateActionT](should_change=False)
 
     @staticmethod
-    def change_to(value: UpdateActionT) -> "UpdateAction[UpdateActionT]":
+    def change_to(value: _UpdateActionT) -> "UpdateAction[_UpdateActionT]":
         """An update action where the value needs to be changed to a new value."""
-        return UpdateAction[UpdateActionT](should_change=True, value=value)
+        return UpdateAction[_UpdateActionT](should_change=True, value=value)
 
-    def or_else(self, value_if_should_not_change: UpdateActionT) -> UpdateActionT:
+    def or_else(self, value_if_should_not_change: _UpdateActionT) -> _UpdateActionT:
         """Return the value of the action if it should change or the argument if it should not."""
         if self._should_change:
-            return typing.cast(UpdateActionT, self._value)
+            return typing.cast(_UpdateActionT, self._value)
         else:
             return value_if_should_not_change
 
-    def test(self, test: Callable[[UpdateActionT], bool]) -> bool:
+    def test(self, test: Callable[[_UpdateActionT], bool]) -> bool:
         """Test the value of an update action if it is present."""
         if self._should_change:
-            return test(typing.cast(UpdateActionT, self._value))
+            return test(typing.cast(_UpdateActionT, self._value))
         else:
             return False
 
     def transform(
-        self, transform: Callable[[UpdateActionT], NewT]
-    ) -> "UpdateAction[NewT]":
+        self, transform: Callable[[_UpdateActionT], _NewT]
+    ) -> "UpdateAction[_NewT]":
         """Transform the value of an update action if it is present."""
         if self._should_change:
             return UpdateAction.change_to(transform(self.just_the_value))
@@ -57,11 +57,11 @@ class UpdateAction(Generic[UpdateActionT]):
             return UpdateAction.do_nothing()
 
     @property
-    def just_the_value(self) -> UpdateActionT:
+    def just_the_value(self) -> _UpdateActionT:
         """Return the value if it exists."""
         if not self._should_change:
             raise Exception("Trying to get the value when it's not there")
-        return typing.cast(UpdateActionT, self._value)
+        return typing.cast(_UpdateActionT, self._value)
 
     @property
     def should_change(self) -> bool:

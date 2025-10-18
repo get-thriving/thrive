@@ -24,9 +24,8 @@ class Repository:
     """A repository."""
 
 
-RecordT = TypeVar("RecordT", bound=Record)
-RecordKeyT = TypeVar("RecordKeyT")
-RecordKeyPrefixT = TypeVar("RecordKeyPrefixT")
+_RecordT = TypeVar("_RecordT", bound=Record)
+_RecordKeyT = TypeVar("_RecordKeyT")
 
 
 class RecordAlreadyExistsError(Exception):
@@ -37,27 +36,29 @@ class RecordNotFoundError(Exception):
     """Error raised when a record is not found."""
 
 
-class RecordRepository(Generic[RecordT, RecordKeyT], Repository, abc.ABC):
+class RecordRepository(Generic[_RecordT, _RecordKeyT], Repository, abc.ABC):
     """A repository for records."""
 
     @abc.abstractmethod
-    async def create(self, record: RecordT) -> RecordT:
+    async def create(self, record: _RecordT) -> _RecordT:
         """Create a record."""
 
     @abc.abstractmethod
-    async def save(self, record: RecordT) -> RecordT:
+    async def save(self, record: _RecordT) -> _RecordT:
         """Save a record."""
 
     @abc.abstractmethod
-    async def remove(self, key: RecordKeyT) -> None:
+    async def remove(self, key: _RecordKeyT) -> None:
         """Hard remove a record - an irreversible operation."""
 
     @abc.abstractmethod
-    async def load_by_key_optional(self, key: RecordKeyT) -> RecordT | None:
+    async def load_by_key_optional(self, key: _RecordKeyT) -> _RecordT | None:
         """Load a record by it's unique key."""
 
     @abc.abstractmethod
-    async def find_all(self, parent_ref_id: EntityId | list[EntityId]) -> list[RecordT]:
+    async def find_all(
+        self, parent_ref_id: EntityId | list[EntityId]
+    ) -> list[_RecordT]:
         """Find all records matching some criteria."""
 
 
@@ -69,50 +70,50 @@ class EntityNotFoundError(Exception):
     """Error raised when an entity is not found."""
 
 
-EntityT = TypeVar("EntityT", bound=Entity)
-ArchivalReasonT = TypeVar("ArchivalReasonT", bound=EnumValue)
+_EntityT = TypeVar("_EntityT", bound=Entity)
+_ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
 
 
-class EntityRepository(Generic[EntityT], Repository, abc.ABC):
+class EntityRepository(Generic[_EntityT], Repository, abc.ABC):
     """A repository for entities."""
 
     @abc.abstractmethod
-    async def create(self, entity: EntityT) -> EntityT:
+    async def create(self, entity: _EntityT) -> _EntityT:
         """Create an entity."""
 
     @abc.abstractmethod
-    async def save(self, entity: EntityT) -> EntityT:
+    async def save(self, entity: _EntityT) -> _EntityT:
         """Save an entity."""
 
     @abc.abstractmethod
-    async def remove(self, ref_id: EntityId) -> EntityT:
+    async def remove(self, ref_id: EntityId) -> _EntityT:
         """Hard remove an entity - an irreversible operation."""
 
 
-RootEntityT = TypeVar("RootEntityT", bound=RootEntity)
+_RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)
 
 
-class RootEntityRepository(EntityRepository[RootEntityT], abc.ABC):
+class RootEntityRepository(EntityRepository[_RootEntityT], abc.ABC):
     """A repository for root entities."""
 
     @abc.abstractmethod
     async def load_by_id(
         self,
         entity_id: EntityId,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
-    ) -> RootEntityT:
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _RootEntityT:
         """Loads the root entity."""
 
     @abc.abstractmethod
-    async def load_optional(self, entity_id: EntityId) -> RootEntityT | None:
+    async def load_optional(self, entity_id: EntityId) -> _RootEntityT | None:
         """Loads the root entity but returns null if there isn't one."""
 
     @abc.abstractmethod
     async def find_all(
         self,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
-    ) -> list[RootEntityT]:
+    ) -> list[_RootEntityT]:
         """Find all root entities matching some criteria."""
 
 
@@ -124,26 +125,26 @@ class TrunkEntityNotFoundError(EntityNotFoundError):
     """Error raised when a trunk entity is not found."""
 
 
-TrunkEntityT = TypeVar("TrunkEntityT", bound=TrunkEntity)
+_TrunkEntityT = TypeVar("_TrunkEntityT", bound=TrunkEntity)
 
 
-class TrunkEntityRepository(EntityRepository[TrunkEntityT], abc.ABC):
+class TrunkEntityRepository(EntityRepository[_TrunkEntityT], abc.ABC):
     """A repository for trunk entities."""
 
     @abc.abstractmethod
-    async def load_by_parent(self, parent_ref_id: EntityId) -> TrunkEntityT:
+    async def load_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
         """Retrieve a trunk by its owning parent id."""
 
     @abc.abstractmethod
     async def load_by_id(
         self,
         ref_id: EntityId,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
-    ) -> TrunkEntityT:
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _TrunkEntityT:
         """Retrieve a trunk by its id."""
 
     @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> TrunkEntityT:
+    async def remove_by_parent(self, parent_ref_id: EntityId) -> _TrunkEntityT:
         """Remove a trunk by its owning parent id."""
 
 
@@ -155,42 +156,42 @@ class StubEntityNotFoundError(EntityNotFoundError):
     """Error raised when a stub entity is not found."""
 
 
-StubEntityT = TypeVar("StubEntityT", bound=StubEntity)
+_StubEntityT = TypeVar("_StubEntityT", bound=StubEntity)
 
 
-class StubEntityRepository(EntityRepository[StubEntityT], abc.ABC):
+class StubEntityRepository(EntityRepository[_StubEntityT], abc.ABC):
     """A repository for stub entities."""
 
     @abc.abstractmethod
-    async def load_by_parent(self, parent_ref_id: EntityId) -> StubEntityT:
+    async def load_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
         """Retrieve a stub by its owning parent id."""
 
     @abc.abstractmethod
-    async def remove_by_parent(self, parent_ref_id: EntityId) -> StubEntityT:
+    async def remove_by_parent(self, parent_ref_id: EntityId) -> _StubEntityT:
         """Remove a stub by its owning parent id."""
 
 
-CrownEntityT = TypeVar("CrownEntityT", bound=CrownEntity)
+_CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
 
-class CrownEntityRepository(EntityRepository[CrownEntityT], abc.ABC):
+class CrownEntityRepository(EntityRepository[_CrownEntityT], abc.ABC):
     """A repository for crown entities."""
 
     @abc.abstractmethod
     async def load_by_id(
         self,
         ref_id: EntityId,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
-    ) -> CrownEntityT:
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
+    ) -> _CrownEntityT:
         """Retrieve a crown by its id."""
 
     @abc.abstractmethod
     async def find_all(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
-    ) -> list[CrownEntityT]:
+    ) -> list[_CrownEntityT]:
         """Find all crowns matching some criteria."""
 
     @abc.abstractmethod
@@ -198,28 +199,28 @@ class CrownEntityRepository(EntityRepository[CrownEntityT], abc.ABC):
         self,
         *,
         parent_ref_id: EntityId | None = None,
-        allow_archived: bool | ArchivalReasonT | list[ArchivalReasonT] = False,
+        allow_archived: bool | _ArchivalReasonT | list[_ArchivalReasonT] = False,
         **kwargs: EntityLinkFilterCompiled,
-    ) -> list[CrownEntityT]:
+    ) -> list[_CrownEntityT]:
         """Find all crowns with generic filters."""
 
 
-BranchEntityT = TypeVar("BranchEntityT", bound=BranchEntity)
+_BranchEntityT = TypeVar("_BranchEntityT", bound=BranchEntity)
 
 
 class BranchEntityRepository(
-    Generic[BranchEntityT],
-    CrownEntityRepository[BranchEntityT],
+    Generic[_BranchEntityT],
+    CrownEntityRepository[_BranchEntityT],
     abc.ABC,
 ):
     """A repository for branch entities."""
 
 
-LeafEntityT = TypeVar("LeafEntityT", bound=LeafEntity)
+_LeafEntityT = TypeVar("_LeafEntityT", bound=LeafEntity)
 
 
 class LeafEntityRepository(
-    Generic[LeafEntityT], CrownEntityRepository[LeafEntityT], abc.ABC
+    Generic[_LeafEntityT], CrownEntityRepository[_LeafEntityT], abc.ABC
 ):
     """A repository for leaf entities."""
 
@@ -228,72 +229,72 @@ class UnitOfWork:
     """A unit of work from an engine."""
 
 
-UnitOfWorkT = TypeVar("UnitOfWorkT", bound=UnitOfWork)
+_UnitOfWorkT = TypeVar("_UnitOfWorkT", bound=UnitOfWork)
 
 
-class StorageEngine(Generic[UnitOfWorkT], abc.ABC):
+class StorageEngine(Generic[_UnitOfWorkT], abc.ABC):
     """A storage engine that can produce a unit of work."""
 
     @abc.abstractmethod
-    def get_unit_of_work(self) -> AbstractAsyncContextManager[UnitOfWorkT]:
+    def get_unit_of_work(self) -> AbstractAsyncContextManager[_UnitOfWorkT]:
         """Build a unit of work."""
 
 
-RepositoryT = TypeVar("RepositoryT", bound=Repository)
+_RepositoryT = TypeVar("_RepositoryT", bound=Repository)
 
 
 class DomainUnitOfWork(UnitOfWork):
     """A transactional unit of work for domain objects."""
 
     @abc.abstractmethod
-    def get(self, repository: type[RepositoryT]) -> RepositoryT:
+    def get(self, repository: type[_RepositoryT]) -> _RepositoryT:
         """Retrieve a repository."""
 
     @overload
     @abc.abstractmethod
     def get_for(
-        self, entity_type: type[RootEntityT]
-    ) -> RootEntityRepository[RootEntityT]: ...
+        self, entity_type: type[_RootEntityT]
+    ) -> RootEntityRepository[_RootEntityT]: ...
 
     @overload
     @abc.abstractmethod
     def get_for(
-        self, entity_type: type[StubEntityT]
-    ) -> StubEntityRepository[StubEntityT]: ...
+        self, entity_type: type[_StubEntityT]
+    ) -> StubEntityRepository[_StubEntityT]: ...
 
     @overload
     @abc.abstractmethod
     def get_for(
-        self, entity_type: type[TrunkEntityT]
-    ) -> TrunkEntityRepository[TrunkEntityT]: ...
+        self, entity_type: type[_TrunkEntityT]
+    ) -> TrunkEntityRepository[_TrunkEntityT]: ...
 
     @overload
     @abc.abstractmethod
     def get_for(
-        self, entity_type: type[CrownEntityT]
-    ) -> CrownEntityRepository[CrownEntityT]: ...
+        self, entity_type: type[_CrownEntityT]
+    ) -> CrownEntityRepository[_CrownEntityT]: ...
 
     @abc.abstractmethod
     def get_for(
         self,
         entity_type: (
-            type[RootEntityT]
-            | type[StubEntityT]
-            | type[TrunkEntityT]
-            | type[CrownEntityT]
+            type[_RootEntityT]
+            | type[_StubEntityT]
+            | type[_TrunkEntityT]
+            | type[_CrownEntityT]
         ),
     ) -> (
-        RootEntityRepository[RootEntityT]
-        | StubEntityRepository[StubEntityT]
-        | TrunkEntityRepository[TrunkEntityT]
-        | CrownEntityRepository[CrownEntityT]
+        RootEntityRepository[_RootEntityT]
+        | StubEntityRepository[_StubEntityT]
+        | TrunkEntityRepository[_TrunkEntityT]
+        | CrownEntityRepository[_CrownEntityT]
     ):
         """Retrieve a repository for a specific entity type."""
 
     @abc.abstractmethod
     def get_for_record(
-        self, record_type: type[RecordT]
-    ) -> RecordRepository[RecordT, object]:
+        self, record_type: type[_RecordT]
+    ) -> RecordRepository[_RecordT, object]:
         """Retrieve a repository for a specific record type."""
 
 

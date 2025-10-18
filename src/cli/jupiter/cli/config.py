@@ -30,25 +30,25 @@ from jupiter.framework_new.app.cli.exception import CliExceptionHandler
 from jupiter.framework_new.app.cli.session_storage import SessionInfo
 from jupiter.framework_new.use_case_io import UseCaseResultBase
 
-JupiterGuestMutationUseCaseT = TypeVar(  # type: ignore
-    "JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[Any, Any]
+_JupiterGuestMutationUseCaseT = TypeVar(  # type: ignore
+    "_JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[Any, Any]
 )
-JupiterGuestReadonlyUseCaseT = TypeVar(  # type: ignore
-    "JupiterGuestReadonlyUseCaseT", bound=JupiterGuestReadonlyUseCase[Any, Any]
+_JupiterGuestReadonlyUseCaseT = TypeVar(  # type: ignore
+    "_JupiterGuestReadonlyUseCaseT", bound=JupiterGuestReadonlyUseCase[Any, Any]
 )
-JupiterLoggedInMutationUseCaseT = TypeVar(  # type: ignore
-    "JupiterLoggedInMutationUseCaseT", bound=JupiterLoggedInMutationUseCase[Any, Any]
+_JupiterLoggedInMutationUseCaseT = TypeVar(  # type: ignore
+    "_JupiterLoggedInMutationUseCaseT", bound=JupiterLoggedInMutationUseCase[Any, Any]
 )
-JupiterLoggedInReadonlyUseCaseT = TypeVar(  # type: ignore
-    "JupiterLoggedInReadonlyUseCaseT", bound=JupiterLoggedInReadonlyUseCase[Any, Any]
+_JupiterLoggedInReadonlyUseCaseT = TypeVar(  # type: ignore
+    "_JupiterLoggedInReadonlyUseCaseT", bound=JupiterLoggedInReadonlyUseCase[Any, Any]
 )
-UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
+_UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
 class JupiterGuestMutationCommand(
-    Generic[JupiterGuestMutationUseCaseT, UseCaseResultT],
-    GuestMutationCommand[JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestMutationContext, UseCaseResultT],  # type: ignore
+    Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
+    GuestMutationCommand[_JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestMutationContext, _UseCaseResultT],  # type: ignore
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -68,8 +68,8 @@ class JupiterGuestMutationCommand(
 
 
 class JupiterGuestReadonlyCommand(
-    Generic[JupiterGuestReadonlyUseCaseT, UseCaseResultT],
-    GuestReadonlyCommand[JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestReadonlyContext, UseCaseResultT],  # type: ignore
+    Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
+    GuestReadonlyCommand[_JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestReadonlyContext, _UseCaseResultT],  # type: ignore
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -89,8 +89,8 @@ class JupiterGuestReadonlyCommand(
 
 
 class JupiterLoggedInMutationCommand(
-    Generic[JupiterLoggedInMutationUseCaseT, UseCaseResultT],
-    LoggedInMutationCommand[JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInMutationContext, UseCaseResultT],  # type: ignore
+    Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
+    LoggedInMutationCommand[_JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInMutationContext, _UseCaseResultT],  # type: ignore
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
@@ -110,8 +110,8 @@ class JupiterLoggedInMutationCommand(
 
 
 class JupiterLoggedInReadonlyCommand(
-    Generic[JupiterLoggedInReadonlyUseCaseT, UseCaseResultT],
-    LoggedInReadonlyCommand[JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInReadonlyContext, UseCaseResultT],  # type: ignore
+    Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
+    LoggedInReadonlyCommand[_JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInReadonlyContext, _UseCaseResultT],  # type: ignore
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 

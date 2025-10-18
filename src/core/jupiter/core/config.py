@@ -32,7 +32,6 @@ from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts
 from jupiter.framework_new.repository import DomainStorageEngine
-from jupiter.framework_new.secure import secure_fn
 from jupiter.framework_new.use_case import (
     BackgroundMutationUseCase,
     GuestMutationContext,
@@ -52,8 +51,8 @@ from jupiter.framework_new.use_case import (
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.value import EnumValue
 
-UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
-UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
+_UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
+_UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
 
 @dataclass(frozen=True)
@@ -114,7 +113,6 @@ class JupiterGlobalProperties(GlobalProperties):
         return True
 
 
-@secure_fn
 def build_global_properties() -> JupiterGlobalProperties:
     """Build the global properties from the environment."""
 
@@ -379,15 +377,15 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
 
 
 class JupiterGuestMutationUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
     GuestMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterGuestSession,
         JupiterGuestMutationContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -400,15 +398,15 @@ class JupiterGuestMutationUseCase(
 
 
 class JupiterGuestReadonlyUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
     GuestReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterGuestSession,
         JupiterGuestReadonlyContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -421,15 +419,15 @@ class JupiterGuestReadonlyUseCase(
 
 
 class JupiterLoggedInMutationUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
     LoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterLoggedInSession,
         JupiterLoggedInMutationContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -480,16 +478,16 @@ class JupiterLoggedInMutationUseCase(
 
 
 class JupiterTransactionalLoggedInMutationUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
-    JupiterLoggedInMutationUseCase[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
+    JupiterLoggedInMutationUseCase[_UseCaseArgsT, _UseCaseResultT],
     TransactionalLoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterLoggedInSession,
         JupiterLoggedInMutationContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -497,15 +495,15 @@ class JupiterTransactionalLoggedInMutationUseCase(
 
 
 class JupiterLoggedInReadonlyUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
     LoggedInReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterLoggedInSession,
         JupiterLoggedInReadonlyContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -532,16 +530,16 @@ class JupiterLoggedInReadonlyUseCase(
 
 
 class JupiterTransactionalLoggedInReadOnlyUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
-    JupiterLoggedInReadonlyUseCase[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
+    JupiterLoggedInReadonlyUseCase[_UseCaseArgsT, _UseCaseResultT],
     TransactionalLoggedInReadOnlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
         JupiterLoggedInSession,
         JupiterLoggedInReadonlyContext,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
@@ -549,13 +547,13 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
 
 
 class JupiterBackgroundMutationUseCase(
-    Generic[UseCaseArgsT, UseCaseResultT],
+    Generic[_UseCaseArgsT, _UseCaseResultT],
     BackgroundMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        UseCaseArgsT,
-        UseCaseResultT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
     ],
     abc.ABC,
 ):
