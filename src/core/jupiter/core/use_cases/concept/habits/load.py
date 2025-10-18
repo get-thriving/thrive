@@ -1,7 +1,7 @@
 """Use case for loading a particular habit."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.habits.habit import Habit
@@ -71,7 +71,7 @@ class HabitLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: HabitLoadArgs,
     ) -> HabitLoadResult:
         """Execute the command's action."""

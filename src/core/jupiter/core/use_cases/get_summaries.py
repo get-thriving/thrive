@@ -1,7 +1,7 @@
 """A use case for retrieving summaries about entities."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
@@ -98,7 +98,7 @@ class GetSummariesUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: GetSummariesArgs,
     ) -> GetSummariesResult:
         """Execute the command."""

@@ -1,7 +1,7 @@
 """The use case for reordering tabs in the home config."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
@@ -35,7 +35,7 @@ class ReorderTabsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ReorderTabsArgs,
     ) -> None:
         """Execute the use case."""

@@ -1,7 +1,7 @@
 """The command for unsuspending a chore."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.chores.chore import Chore
@@ -32,7 +32,7 @@ class ChoreUnsuspendUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ChoreUnsuspendArgs,
     ) -> None:
         """Execute the command's action."""

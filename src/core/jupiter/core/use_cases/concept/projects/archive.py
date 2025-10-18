@@ -1,7 +1,7 @@
 """Use case for archiving a project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
@@ -60,7 +60,7 @@ class ProjectArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ProjectArchiveArgs,
     ) -> None:
         """Execute the command's action."""

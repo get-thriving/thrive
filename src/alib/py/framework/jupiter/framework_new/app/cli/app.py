@@ -69,10 +69,10 @@ from jupiter.framework_new.use_case import (
     AppGuestReadonlyUseCase,
     AppLoggedInMutationUseCase,
     AppLoggedInReadonlyUseCase,
+    ContextBase,
+    SessionBase,
     UnavailableForContextError,
     UseCase,
-    UseCaseContextBase,
-    UseCaseSessionBase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
@@ -112,8 +112,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 Ports,
                 GlobalProperties,
                 ComponentProperties,
-                UseCaseSessionBase,
-                UseCaseContextBase,
+                SessionBase,
+                ContextBase,
                 UseCaseArgsBase,
                 UseCaseResultBase | None,
             ]
@@ -212,8 +212,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                             Ports,
                             GlobalProperties,
                             ComponentProperties,
-                            UseCaseSessionBase,
-                            UseCaseContextBase,
+                            SessionBase,
+                            ContextBase,
                             UseCaseArgsBase,
                             UseCaseResultBase | None,
                         ],
@@ -224,8 +224,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                         Ports,
                         GlobalProperties,
                         ComponentProperties,
-                        UseCaseSessionBase,
-                        UseCaseContextBase,
+                        SessionBase,
+                        ContextBase,
                         UseCaseArgsBase,
                         UseCaseResultBase | None,
                     ]
@@ -284,8 +284,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     Ports,
                     GlobalProperties,
                     ComponentProperties,
-                    UseCaseSessionBase,
-                    UseCaseContextBase,
+                    SessionBase,
+                    ContextBase,
                     UseCaseArgsBase,
                     UseCaseResultBase | None,
                 ]
@@ -424,8 +424,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 Ports,
                 GlobalProperties,
                 ComponentProperties,
-                UseCaseSessionBase,
-                UseCaseContextBase,
+                SessionBase,
+                ContextBase,
                 UseCaseArgsBase,
                 UseCaseResultBase | None,
             ]
@@ -510,8 +510,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 Ports,
                 GlobalProperties,
                 ComponentProperties,
-                UseCaseSessionBase,
-                UseCaseContextBase,
+                SessionBase,
+                ContextBase,
                 UseCaseArgsBase,
                 UseCaseResultBase | None,
             ]

@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskS
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     LeafEntity,
     ParentLink,
@@ -36,7 +36,7 @@ class ScoreLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_from_inbox_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         score_log_ref_id: EntityId,
         inbox_task: InboxTask,
     ) -> "ScoreLogEntry":
@@ -67,7 +67,7 @@ class ScoreLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_from_big_plan(
-        ctx: DomainContext,
+        ctx: MutationContext,
         score_log_ref_id: EntityId,
         big_plan: BigPlan,
     ) -> "ScoreLogEntry":

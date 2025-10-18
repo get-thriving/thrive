@@ -1,7 +1,7 @@
 """The use case for finding the time plan activities for a particular target."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -60,7 +60,7 @@ class TimePlanActivityFindForTargetUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimePlanActivityFindForTargetArgs,
     ) -> TimePlanActivityFindForTargetResult:
         workspace = context.workspace

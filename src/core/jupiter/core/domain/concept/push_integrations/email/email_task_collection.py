@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -26,7 +26,7 @@ class EmailTaskCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_email_task_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         push_integration_group_ref_id: EntityId,
         generation_project_ref_id: EntityId,
     ) -> "EmailTaskCollection":
@@ -40,7 +40,7 @@ class EmailTaskCollection(TrunkEntity):
     @update_entity_action
     def change_generation_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         generation_project_ref_id: EntityId,
     ) -> "EmailTaskCollection":
         """Change the generation project."""

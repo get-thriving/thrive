@@ -1,7 +1,7 @@
 """UseCase for showing the workspace."""
 
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.workspaces.load import (
     WorkspaceLoadResult,
     WorkspaceLoadUseCase,
@@ -19,7 +19,7 @@ class WorkspaceShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: WorkspaceLoadResult,
     ) -> None:
         rich_tree = Tree(f"⭐ {result.workspace.name}", guide_style="bold bright_blue")

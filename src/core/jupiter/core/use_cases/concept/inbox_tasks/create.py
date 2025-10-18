@@ -1,7 +1,7 @@
 """The command for creating a inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
@@ -85,7 +85,7 @@ class InboxTaskCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: InboxTaskCreateArgs,
     ) -> InboxTaskCreateResult:
         """Execute the command's action."""

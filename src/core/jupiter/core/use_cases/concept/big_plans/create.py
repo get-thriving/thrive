@@ -1,7 +1,7 @@
 """The command for creating a big plan."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
@@ -79,7 +79,7 @@ class BigPlanCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: BigPlanCreateArgs,
     ) -> BigPlanCreateResult:
         """Execute the command's action."""

@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class GenLog(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_gen_log(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "GenLog":
         """Create a new Gen log."""

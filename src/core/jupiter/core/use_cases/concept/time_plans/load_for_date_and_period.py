@@ -1,7 +1,7 @@
 """Retrieve details about a time plan."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -55,7 +55,7 @@ class TimePlanLoadForTimeDateAndPeriodUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimePlanLoadForDateAndPeriodArgs,
     ) -> TimePlanLoadForDateAndPeriodResult:
         """Execute the command's actions."""

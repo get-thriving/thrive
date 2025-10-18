@@ -3,7 +3,7 @@
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 
 
@@ -12,7 +12,7 @@ class NoteRemoveService:
 
     async def remove(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         note: Note,
     ) -> None:
@@ -24,7 +24,7 @@ class NoteRemoveService:
 
     async def remove_for_source(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,

@@ -51,7 +51,7 @@ from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archi
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.realm import RealmCodecRegistry
 from jupiter.framework_new.repository import DomainStorageEngine
@@ -80,7 +80,7 @@ class ScheduleExternalSyncService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         today: ADate,
@@ -198,7 +198,7 @@ class ScheduleExternalSyncService:
 
     async def _process_schedule_stream(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         today: ADate,
         start_of_window: ADate,
         end_of_window: ADate,

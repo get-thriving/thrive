@@ -7,7 +7,7 @@ from jupiter.cli.command.rendering import (
     user_score_overview_to_rich,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.users.load import UserLoadResult, UserLoadUseCase
 from rich.console import Console
 from rich.text import Text
@@ -20,7 +20,7 @@ class UserShow(JupiterLoggedInReadonlyCommand[UserLoadUseCase, UserLoadResult]):
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: UserLoadResult,
     ) -> None:
         rich_tree = Tree(f"⭐ {result.user.name}", guide_style="bold bright_blue")

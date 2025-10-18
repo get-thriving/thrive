@@ -1,7 +1,7 @@
 """The command for updating a home small screen tab's properties."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -36,7 +36,7 @@ class HomeTabUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HomeTabUpdateArgs,
     ) -> None:
         """Execute the command's action."""

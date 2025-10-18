@@ -1,7 +1,7 @@
 """The command for hard removing a email task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
@@ -35,7 +35,7 @@ class EmailTaskRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: EmailTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""

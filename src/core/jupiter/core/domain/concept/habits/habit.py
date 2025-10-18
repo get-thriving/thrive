@@ -12,7 +12,7 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -53,7 +53,7 @@ class Habit(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_habit(
-        ctx: DomainContext,
+        ctx: MutationContext,
         habit_collection_ref_id: EntityId,
         project_ref_id: EntityId,
         name: HabitName,
@@ -95,7 +95,7 @@ class Habit(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[HabitName],
         project_ref_id: UpdateAction[EntityId],
         is_key: UpdateAction[bool],
@@ -156,7 +156,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: DomainContext) -> "Habit":
+    def suspend(self, ctx: MutationContext) -> "Habit":
         """Suspend the habit."""
         if self.suspended:
             return self
@@ -166,7 +166,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: DomainContext) -> "Habit":
+    def unsuspend(self, ctx: MutationContext) -> "Habit":
         """Unsuspend the habit."""
         if not self.suspended:
             return self

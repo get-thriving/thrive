@@ -7,7 +7,7 @@ from jupiter.cli.command.rendering import (
     start_date_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.vacations.find import (
     VacationFindResult,
     VacationFindUseCase,
@@ -25,7 +25,7 @@ class VacationShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: VacationFindResult,
     ) -> None:
         sorted_vacations = sorted(

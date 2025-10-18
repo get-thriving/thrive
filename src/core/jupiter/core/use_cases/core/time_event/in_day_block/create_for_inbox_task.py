@@ -1,7 +1,7 @@
 """Use case for creating a time event associated with an inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -55,7 +55,7 @@ class TimeEventInDayBlockCreateForInboxTaskUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimeEventInDayBlockCreateForInboxTaskArgs,
     ) -> TimeEventInDayBlockCreateForInboxTaskResult:
         """Execute the command's action."""

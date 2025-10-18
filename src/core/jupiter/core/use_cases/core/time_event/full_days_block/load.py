@@ -1,7 +1,7 @@
 """Load a full day block and associated data."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.persons.person import Person
@@ -55,7 +55,7 @@ class TimeEventFullDaysBlockLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimeEventFullDaysBlockLoadArgs,
     ) -> TimeEventFullDaysBlockLoadResult:
         """Load a full day block and associated data."""

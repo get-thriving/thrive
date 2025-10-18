@@ -2,7 +2,7 @@
 
 from jupiter.cli.command.rendering import entity_id_to_rich_text
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.schedule.stream.find import (
     ScheduleStreamFindResult,
     ScheduleStreamFindUseCase,
@@ -20,7 +20,7 @@ class ScheduleStreamShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: ScheduleStreamFindResult,
     ) -> None:
         rich_tree = Tree("📅 Schedule Streams", guide_style="bold bright_blue")

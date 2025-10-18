@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -26,7 +26,7 @@ class PersonCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_person_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
         catch_up_project_ref_id: EntityId,
     ) -> "PersonCollection":
@@ -40,7 +40,7 @@ class PersonCollection(TrunkEntity):
     @update_entity_action
     def change_catch_up_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         catch_up_project_ref_id: EntityId,
     ) -> "PersonCollection":
         """Change the catch up project."""

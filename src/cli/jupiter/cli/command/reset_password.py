@@ -1,7 +1,7 @@
 """Command for resetting a password."""
 
 from jupiter.cli.config import JupiterGuestMutationCommand
-from jupiter.core.config import JupiterGuestMutationUseCaseContext
+from jupiter.core.config import JupiterGuestMutationContext
 from jupiter.core.use_cases.concept.auth.reset_password import (
     ResetPasswordResult,
     ResetPasswordUseCase,
@@ -20,7 +20,7 @@ class ResetPassword(
     def _render_result(
         self,
         console: Console,
-        context: JupiterGuestMutationUseCaseContext,
+        context: JupiterGuestMutationContext,
         result: ResetPasswordResult,
     ) -> None:
         rich_text = Text("Your recovery token is ")

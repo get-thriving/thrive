@@ -12,7 +12,7 @@ from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -46,7 +46,7 @@ class WorkingMem(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_working_mem(
-        ctx: DomainContext,
+        ctx: MutationContext,
         working_mem_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -65,7 +65,7 @@ class WorkingMem(LeafEntity):
 
     @update_entity_action
     def change_generation_period(
-        self, ctx: DomainContext, period: RecurringTaskPeriod
+        self, ctx: MutationContext, period: RecurringTaskPeriod
     ) -> "WorkingMem":
         """Change the generation period."""
         if period != RecurringTaskPeriod.DAILY and period != RecurringTaskPeriod.WEEKLY:

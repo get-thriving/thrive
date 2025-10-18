@@ -1,7 +1,7 @@
 """Use case for loading a particular slack task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -52,7 +52,7 @@ class SlackTaskLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: SlackTaskLoadArgs,
     ) -> SlackTaskLoadResult:
         """Execute the command's action."""

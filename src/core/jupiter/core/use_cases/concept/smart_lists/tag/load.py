@@ -1,7 +1,7 @@
 """Use case for loading a smart list tag."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.smart_lists.smart_list_tag import SmartListTag
@@ -45,7 +45,7 @@ class SmartListTagLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: SmartListTagLoadArgs,
     ) -> SmartListTagLoadResult:
         """Execute the command's action."""

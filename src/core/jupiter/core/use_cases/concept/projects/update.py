@@ -1,7 +1,7 @@
 """The command for updating a project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.projects.project import Project
@@ -35,7 +35,7 @@ class ProjectUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ProjectUpdateArgs,
     ) -> None:
         """Execute the command's action."""

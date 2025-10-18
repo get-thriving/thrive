@@ -1,7 +1,7 @@
 """The command for removing a smart list item."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.smart_lists.smart_list_item import SmartListItem
@@ -33,7 +33,7 @@ class SmartListItemRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: SmartListItemRemoveArgs,
     ) -> None:
         """Execute the command's action."""

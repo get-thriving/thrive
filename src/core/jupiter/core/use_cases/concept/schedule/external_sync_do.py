@@ -1,8 +1,8 @@
 """Use case for syncing a schedule once."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
@@ -35,7 +35,7 @@ class ScheduleExternalSyncDoUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleExternalSyncDoArgs,
     ) -> None:
         """Execute the command's action."""

@@ -19,7 +19,7 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 from jupiter.framework_new.value import CompositeValue, value
@@ -37,7 +37,7 @@ class BigPlanArchiveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         big_plan: BigPlan,

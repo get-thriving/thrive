@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class BigPlanCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_big_plan_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "BigPlanCollection":
         """Create a big plan collection."""

@@ -1,7 +1,7 @@
 """The command for suspend a habit."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.habits.habit import Habit
@@ -32,7 +32,7 @@ class HabitSuspendUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HabitSuspendArgs,
     ) -> None:
         """Execute the command's action."""

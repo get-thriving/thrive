@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.chores.chore import Chore
@@ -75,7 +75,7 @@ class ChoreFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ChoreFindArgs,
     ) -> ChoreFindResult:
         """Execute the command's action."""

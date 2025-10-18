@@ -41,7 +41,7 @@ from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import (
     DomainStorageEngine,
     DomainUnitOfWork,
@@ -67,7 +67,7 @@ class GCService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         gc_targets: list[SyncTarget],
@@ -214,7 +214,7 @@ class GCService:
 
     async def _archive_done_inbox_tasks(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         inbox_tasks: Iterable[InboxTask],
         gc_log_entry: GCLogEntry,
@@ -237,7 +237,7 @@ class GCService:
 
     async def _archive_working_mems_old_enough(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         working_mems: Iterable[WorkingMem],
         gc_log_entry: GCLogEntry,
@@ -261,7 +261,7 @@ class GCService:
 
     async def _archive_done_big_plans(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         big_plans: Iterable[BigPlan],
@@ -292,7 +292,7 @@ class GCService:
 
     async def _archive_slack_tasks_whose_inbox_tasks_are_completed_or_archived(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         slack_tasks: list[SlackTask],
         inbox_tasks: list[InboxTask],
@@ -328,7 +328,7 @@ class GCService:
 
     async def _archive_email_tasks_whose_inbox_tasks_are_completed_or_archived(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         email_tasks: list[EmailTask],
         inbox_tasks: list[InboxTask],

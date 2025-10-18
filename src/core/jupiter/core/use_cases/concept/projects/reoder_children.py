@@ -1,7 +1,7 @@
 """Reorder the children of a project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.projects.project import Project
@@ -34,7 +34,7 @@ class ProjectReorderChildrenUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ProjectReorderChildrenArgs,
     ) -> None:
         """Execute the command's action."""

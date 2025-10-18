@@ -3,7 +3,7 @@
 from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -31,7 +31,7 @@ class WorkingMemCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_working_mem_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
         generation_period: RecurringTaskPeriod,
         cleanup_project_ref_id: EntityId,
@@ -52,7 +52,7 @@ class WorkingMemCollection(TrunkEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         generation_period: UpdateAction[RecurringTaskPeriod],
         cleanup_project_ref_id: UpdateAction[EntityId],
     ) -> "WorkingMemCollection":

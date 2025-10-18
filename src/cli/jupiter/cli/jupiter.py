@@ -11,7 +11,7 @@ import jupiter.core.use_cases
 from jupiter.cli.config import JupiterCliApp
 from jupiter.core.config import (
     JupiterComponentProperties,
-    JupiterGuestUseCaseSession,
+    JupiterGuestSession,
     JupiterPorts,
     build_global_properties,
 )
@@ -123,7 +123,7 @@ async def main() -> None:
     await usecase_storage_engine.initialize()
 
     session_info = session_storage.load_optional()
-    guest_session = JupiterGuestUseCaseSession(
+    guest_session = JupiterGuestSession(
         component_properties=JupiterComponentProperties.for_app(
             core=AppCore.CLI,
             the_shell=AppShell.CLI,

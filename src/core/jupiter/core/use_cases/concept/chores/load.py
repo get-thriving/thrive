@@ -1,7 +1,7 @@
 """Use case for loading a particular chore."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.chores.chore import Chore
@@ -61,7 +61,7 @@ class ChoreLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ChoreLoadArgs,
     ) -> ChoreLoadResult:
         """Execute the command's action."""

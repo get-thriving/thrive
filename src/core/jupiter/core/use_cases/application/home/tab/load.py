@@ -1,7 +1,7 @@
 """The use case for loading a home tab and its widgets."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -45,7 +45,7 @@ class HomeTabLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: HomeTabLoadArgs,
     ) -> HomeTabLoadResult:
         """Execute the use case's action."""

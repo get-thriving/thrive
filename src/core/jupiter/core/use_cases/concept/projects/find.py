@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.projects.project import Project
@@ -59,7 +59,7 @@ class ProjectFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ProjectFindArgs,
     ) -> ProjectFindResult:
         """Execute the command's action."""

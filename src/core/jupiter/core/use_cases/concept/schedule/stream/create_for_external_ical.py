@@ -3,7 +3,7 @@
 import requests
 from icalendar import Calendar
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -57,7 +57,7 @@ class ScheduleStreamCreateForExternalIcalUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleStreamCreateForExternalIcalArgs,
     ) -> ScheduleStreamCreateForExternalIcalResult:
         """Perform the transactional mutation."""

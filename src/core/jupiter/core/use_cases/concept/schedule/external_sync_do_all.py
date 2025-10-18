@@ -12,7 +12,7 @@ from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.use_case import EmptyContext
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
 
@@ -35,7 +35,7 @@ class ScheduleExternalSyncDoAllUseCase(
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
         # TODO(horia141): params
-        ctx = DomainContext.build(
+        ctx = MutationContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,

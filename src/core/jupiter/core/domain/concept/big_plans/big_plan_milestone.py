@@ -5,7 +5,7 @@ import abc
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     LeafEntity,
     ParentLink,
@@ -35,7 +35,7 @@ class BigPlanMilestone(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_big_plan_milestone(
-        ctx: DomainContext,
+        ctx: MutationContext,
         big_plan_ref_id: EntityId,
         date: ADate,
         name: EntityName,
@@ -51,7 +51,7 @@ class BigPlanMilestone(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         date: UpdateAction[ADate],
         name: UpdateAction[EntityName],
     ) -> "BigPlanMilestone":

@@ -1,7 +1,7 @@
 """The command for removing a vacation entry."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.vacations.vacation import Vacation
@@ -33,7 +33,7 @@ class VacationRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: VacationRemoveArgs,
     ) -> None:
         """Execute the command's action."""

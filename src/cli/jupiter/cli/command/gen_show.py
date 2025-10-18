@@ -11,7 +11,7 @@ from jupiter.cli.command.rendering import (
     sync_target_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.application.gen.load_runs import (
     GenLoadRunsResult,
     GenLoadRunsUseCase,
@@ -27,7 +27,7 @@ class GenShow(JupiterLoggedInReadonlyCommand[GenLoadRunsUseCase, GenLoadRunsResu
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: GenLoadRunsResult,
     ) -> None:
         rich_tree = Tree("🗑  Task Generation", guide_style="bold bright_blue")

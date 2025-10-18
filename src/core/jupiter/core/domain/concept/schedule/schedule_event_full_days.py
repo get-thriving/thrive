@@ -12,7 +12,7 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -49,7 +49,7 @@ class ScheduleEventFullDays(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_full_days_block_for_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventName,
@@ -67,7 +67,7 @@ class ScheduleEventFullDays(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_full_days_block_from_external_ical(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventName,
@@ -86,7 +86,7 @@ class ScheduleEventFullDays(LeafEntity):
     @update_entity_action
     def change_schedule_stream(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleEventFullDays":
         """Change the schedule stream."""
@@ -100,7 +100,7 @@ class ScheduleEventFullDays(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[ScheduleEventName],
     ) -> "ScheduleEventFullDays":
         """Update the schedule event."""

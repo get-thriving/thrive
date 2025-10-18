@@ -1,7 +1,7 @@
 """Retrieve details about a journal."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -57,7 +57,7 @@ class JournalLoadForDateAndPeriodUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: JournalLoadForDateAndPeriodArgs,
     ) -> JournalLoadForDateAndPeriodResult:
         """Execute the command's actions."""

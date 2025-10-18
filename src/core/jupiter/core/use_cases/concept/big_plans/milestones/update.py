@@ -1,7 +1,7 @@
 """The command for updating a big plan milestone."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
@@ -42,7 +42,7 @@ class BigPlanMilestoneUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: BigPlanMilestoneUpdateArgs,
     ) -> None:
         """Execute the command's action."""

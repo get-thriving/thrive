@@ -12,7 +12,7 @@ from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 
 
@@ -21,7 +21,7 @@ class HabitStreakRecorderService:
 
     async def upsert(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         today: ADate,
         habit: Habit,
@@ -49,7 +49,7 @@ class HabitStreakRecorderService:
 
     async def update_with_status(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         inbox_task: InboxTask,
@@ -83,7 +83,7 @@ class HabitStreakRecorderService:
 
     async def remove_with_status(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         inbox_task: InboxTask,
@@ -112,7 +112,7 @@ class HabitStreakRecorderService:
 
     async def remove_all(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         habit: Habit,
         today: ADate,

@@ -2,7 +2,6 @@
 
 import abc
 import types
-from json import JSONDecodeError
 from typing import (
     Any,
     Final,
@@ -14,21 +13,20 @@ from typing import (
 )
 
 import inflection
-from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request
 from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError, WebRealm
+from jupiter.framework_new.realm import RealmCodecRegistry, WebRealm
 from jupiter.framework_new.use_case import (
+    AppGuestMutationContext,
     AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
+    AppGuestReadonlyContext,
     AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-    AppGuestUseCaseSession,
+    AppGuestSession,
+    AppLoggedInMutationContext,
     AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
+    AppLoggedInReadonlyContext,
     AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    AppLoggedInUseCaseSession,
+    AppLoggedInSession,
     EmptySession,
     SysBackgroundMutationUseCase,
     UseCase,
@@ -37,33 +35,31 @@ from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
-_GuestUseCaseSessionT = TypeVar("_GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
-_GuestMutationUseCaseContextT = TypeVar(
-    "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+_GuestSessionT = TypeVar("_GuestSessionT", bound=AppGuestSession)
+_GuestMutationContextT = TypeVar(
+    "_GuestMutationContextT", bound=AppGuestMutationContext
 )
 _GuestMutationUseCaseT = TypeVar(
     "_GuestMutationUseCaseT",
     bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_GuestReadonlyUseCaseContextT = TypeVar(
-    "_GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+_GuestReadonlyContextT = TypeVar(
+    "_GuestReadonlyContextT", bound=AppGuestReadonlyContext
 )
 _GuestReadonlyUseCaseT = TypeVar(
     "_GuestReadonlyUseCaseT",
     bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInUseCaseSessionT = TypeVar(
-    "_LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
-)
-_LoggedInMutationUseCaseContextT = TypeVar(
-    "_LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=AppLoggedInSession)
+_LoggedInMutationContextT = TypeVar(
+    "_LoggedInMutationContextT", bound=AppLoggedInMutationContext
 )
 _LoggedInMutationUseCaseT = TypeVar(
     "_LoggedInMutationUseCaseT",
     bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInReadonlyUseCaseContextT = TypeVar(
-    "_LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+_LoggedInReadonlyContextT = TypeVar(
+    "_LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
 )
 _LoggedInReadonlyUseCaseT = TypeVar(
     "_LoggedInReadonlyUseCaseT",
@@ -172,8 +168,8 @@ class GuestMutationCommand(
     Generic[
         _GuestMutationUseCaseT,
         _GlobalPropertiesT,
-        _GuestUseCaseSessionT,
-        _GuestMutationUseCaseContextT,
+        _GuestSessionT,
+        _GuestMutationContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
@@ -211,7 +207,7 @@ class GuestMutationCommand(
             return encoded_result
 
     @abc.abstractmethod
-    def _build_session(self, request: Request) -> _GuestUseCaseSessionT:
+    def _build_session(self, request: Request) -> _GuestSessionT:
         """Build the session."""
 
 
@@ -219,8 +215,8 @@ class GuestReadonlyCommand(
     Generic[
         _GuestReadonlyUseCaseT,
         _GlobalPropertiesT,
-        _GuestUseCaseSessionT,
-        _GuestReadonlyUseCaseContextT,
+        _GuestSessionT,
+        _GuestReadonlyContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
@@ -257,7 +253,7 @@ class GuestReadonlyCommand(
             return encoded_result
 
     @abc.abstractmethod
-    def _build_session(self, request: Request) -> _GuestUseCaseSessionT:
+    def _build_session(self, request: Request) -> _GuestSessionT:
         """Build the session."""
 
 
@@ -265,8 +261,8 @@ class LoggedInMutationCommand(
     Generic[
         _LoggedInMutationUseCaseT,
         _GlobalPropertiesT,
-        _LoggedInUseCaseSessionT,
-        _LoggedInMutationUseCaseContextT,
+        _LoggedInSessionT,
+        _LoggedInMutationContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
@@ -304,7 +300,7 @@ class LoggedInMutationCommand(
             return encoded_result
 
     @abc.abstractmethod
-    def _build_session(self, request: Request) -> _LoggedInUseCaseSessionT:
+    def _build_session(self, request: Request) -> _LoggedInSessionT:
         """Build the session."""
 
 
@@ -312,8 +308,8 @@ class LoggedInReadonlyCommand(
     Generic[
         _LoggedInReadonlyUseCaseT,
         _GlobalPropertiesT,
-        _LoggedInUseCaseSessionT,
-        _LoggedInReadonlyUseCaseContextT,
+        _LoggedInSessionT,
+        _LoggedInReadonlyContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
@@ -351,7 +347,7 @@ class LoggedInReadonlyCommand(
             return encoded_result
 
     @abc.abstractmethod
-    def _build_session(self, request: Request) -> _LoggedInUseCaseSessionT:
+    def _build_session(self, request: Request) -> _LoggedInSessionT:
         """Build the session."""
 
 

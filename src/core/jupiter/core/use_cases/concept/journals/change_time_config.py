@@ -1,7 +1,7 @@
 """Command for updating the time configuration of a journal."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -38,7 +38,7 @@ class JournalChangeTimeConfigUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: JournalChangeTimeConfigArgs,
     ) -> None:
         """Execute the command's action."""

@@ -1,7 +1,7 @@
 """Use case for updating a schedule in day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
@@ -47,7 +47,7 @@ class ScheduleEventInDayUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleEventInDayUpdateArgs,
     ) -> None:
         """Execute the command's action."""

@@ -1,7 +1,7 @@
 """The command for hard removing a slack task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.push_integrations.slack.service.remove_service import (
@@ -35,7 +35,7 @@ class SlackTaskRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: SlackTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""

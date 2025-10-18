@@ -1,7 +1,7 @@
 """The use case for creating a home small screen widget."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -61,7 +61,7 @@ class HomeWidgetCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HomeWidgetCreateArgs,
     ) -> HomeWidgetCreateResult:
         """Execute the command's action."""

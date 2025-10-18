@@ -1,7 +1,7 @@
 """The use case for loading the home."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
@@ -50,7 +50,7 @@ class HomeConfigLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: HomeConfigLoadArgs,
     ) -> HomeConfigLoadResult:
         """Execute the command's action."""

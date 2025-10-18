@@ -1,7 +1,7 @@
 """Use case for creating time plan actitivities for big plans."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -62,7 +62,7 @@ class TimePlanAssociateWithBigPlansUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimePlanAssociateWithBigPlansArgs,
     ) -> TimePlanAssociateWithBigPlansResult:
         """Execute the command's actions."""

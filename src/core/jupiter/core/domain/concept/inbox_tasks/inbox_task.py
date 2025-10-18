@@ -30,7 +30,7 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -94,7 +94,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         status: InboxTaskStatus,
@@ -143,7 +143,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_working_mem_cleanup(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate | None,
@@ -177,7 +177,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_time_plan(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         eisen: Eisen,
@@ -214,7 +214,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_habit(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         is_key: bool,
@@ -256,7 +256,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_chore(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         is_key: bool,
@@ -294,7 +294,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_journal(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         eisen: Eisen,
@@ -331,7 +331,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_metric_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         eisen: Eisen,
@@ -368,7 +368,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_person_catch_up(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         eisen: Eisen,
@@ -405,7 +405,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_person_birthday(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate,
@@ -440,7 +440,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_slack_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         project_ref_id: EntityId,
         slack_task_ref_id: EntityId,
@@ -478,7 +478,7 @@ class InboxTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_for_email_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         project_ref_id: EntityId,
         email_task_ref_id: EntityId,
@@ -525,7 +525,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_working_mem_cleanup(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate | None,
@@ -547,7 +547,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_big_plan(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         big_plan_ref_id: EntityId,
     ) -> "InboxTask":
@@ -569,7 +569,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_time_plan(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         eisen: Eisen,
         difficulty: Difficulty,
@@ -591,7 +591,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_habit(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         timeline: str,
@@ -626,7 +626,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_chore(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         timeline: str,
@@ -656,7 +656,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_journal(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         eisen: Eisen,
         difficulty: Difficulty,
@@ -678,7 +678,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_metric(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         recurring_timeline: str,
@@ -706,7 +706,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_person_catch_up(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         recurring_timeline: str,
@@ -734,7 +734,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_person_birthday(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
         recurring_timeline: str,
@@ -758,7 +758,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_slack_task(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
@@ -784,7 +784,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update_link_to_email_task(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_ref_id: EntityId,
         from_address: EmailAddress,
         from_name: EmailUserName,
@@ -823,7 +823,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[InboxTaskName],
         status: UpdateAction[InboxTaskStatus],
         project_ref_id: UpdateAction[EntityId],
@@ -954,7 +954,7 @@ class InboxTask(LeafEntity):
     @update_entity_action
     def change_due_date_via_time_plan(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         due_date: ADate,
     ) -> "InboxTask":
         """Update the inbox task."""

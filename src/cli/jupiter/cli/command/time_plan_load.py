@@ -14,7 +14,7 @@ from jupiter.cli.command.rendering import (
     time_plan_source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
@@ -36,7 +36,7 @@ class TimePlanLoad(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: TimePlanLoadResult,
     ) -> None:
         time_plan = result.time_plan

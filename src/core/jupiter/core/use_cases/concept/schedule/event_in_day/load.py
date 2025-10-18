@@ -1,7 +1,7 @@
 """Use case for loading a schedule in day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
@@ -54,7 +54,7 @@ class ScheduleEventInDayLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ScheduleEventInDayLoadArgs,
     ) -> ScheduleEventInDayLoadResult:
         """Execute the command's action."""

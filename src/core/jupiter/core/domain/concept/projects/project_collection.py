@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class ProjectCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_project_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "ProjectCollection":
         """Create a project collection."""

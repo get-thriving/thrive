@@ -6,16 +6,16 @@ from typing import Any, Generic, TypeVar, Union
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
+    JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
-    JupiterGuestMutationUseCaseContext,
+    JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
-    JupiterGuestReadonlyUseCaseContext,
-    JupiterGuestUseCaseSession,
+    JupiterGuestSession,
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
-    JupiterLoggedInUseCaseSession,
+    JupiterLoggedInSession,
     JupiterPorts,
 )
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
@@ -48,14 +48,14 @@ _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 class JupiterGuestMutationCommand(
     Generic[JupiterGuestMutationUseCaseT, UseCaseResultT],
-    GuestMutationCommand[JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestMutationUseCaseContext, UseCaseResultT],  # type: ignore
+    GuestMutationCommand[JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestMutationContext, UseCaseResultT],  # type: ignore
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
     def _build_session(  # type: ignore
         self, session_info: SessionInfo | None
-    ) -> JupiterGuestUseCaseSession:
-        return JupiterGuestUseCaseSession(
+    ) -> JupiterGuestSession:
+        return JupiterGuestSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
                 the_shell=AppShell.CLI,
@@ -69,14 +69,14 @@ class JupiterGuestMutationCommand(
 
 class JupiterGuestReadonlyCommand(
     Generic[JupiterGuestReadonlyUseCaseT, UseCaseResultT],
-    GuestReadonlyCommand[JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestUseCaseSession, JupiterGuestReadonlyUseCaseContext, UseCaseResultT],  # type: ignore
+    GuestReadonlyCommand[JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestReadonlyContext, UseCaseResultT],  # type: ignore
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
     def _build_session(  # type: ignore
         self, session_info: SessionInfo | None
-    ) -> JupiterGuestUseCaseSession:
-        return JupiterGuestUseCaseSession(
+    ) -> JupiterGuestSession:
+        return JupiterGuestSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
                 the_shell=AppShell.CLI,
@@ -90,14 +90,14 @@ class JupiterGuestReadonlyCommand(
 
 class JupiterLoggedInMutationCommand(
     Generic[JupiterLoggedInMutationUseCaseT, UseCaseResultT],
-    LoggedInMutationCommand[JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInMutationUseCaseContext, UseCaseResultT],  # type: ignore
+    LoggedInMutationCommand[JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInMutationContext, UseCaseResultT],  # type: ignore
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
     def _build_session(  # type: ignore
         self, session_info: SessionInfo
-    ) -> JupiterLoggedInUseCaseSession:
-        return JupiterLoggedInUseCaseSession(
+    ) -> JupiterLoggedInSession:
+        return JupiterLoggedInSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
                 the_shell=AppShell.CLI,
@@ -111,14 +111,14 @@ class JupiterLoggedInMutationCommand(
 
 class JupiterLoggedInReadonlyCommand(
     Generic[JupiterLoggedInReadonlyUseCaseT, UseCaseResultT],
-    LoggedInReadonlyCommand[JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInUseCaseSession, JupiterLoggedInReadonlyUseCaseContext, UseCaseResultT],  # type: ignore
+    LoggedInReadonlyCommand[JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInReadonlyContext, UseCaseResultT],  # type: ignore
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
     def _build_session(  # type: ignore
         self, session_info: SessionInfo
-    ) -> JupiterLoggedInUseCaseSession:
-        return JupiterLoggedInUseCaseSession(
+    ) -> JupiterLoggedInSession:
+        return JupiterLoggedInSession(
             JupiterComponentProperties.for_app(
                 core=AppCore.CLI,
                 the_shell=AppShell.CLI,

@@ -1,7 +1,7 @@
 """The use case for archiving a home small screen widget."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -34,7 +34,7 @@ class HomeWidgetArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HomeWidgetArchiveArgs,
     ) -> None:
         """Execute the command's action."""

@@ -4,8 +4,8 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterGlobalProperties,
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
@@ -76,7 +76,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ClearAllArgs,
     ) -> None:
         """Execute the command's action."""

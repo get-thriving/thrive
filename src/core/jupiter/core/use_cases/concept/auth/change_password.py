@@ -1,7 +1,7 @@
 """Use case for changing a password."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectPasswordError
@@ -40,7 +40,7 @@ class ChangePasswordUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ChangePasswordArgs,
     ) -> None:
         """Execute the command's action."""

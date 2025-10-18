@@ -15,7 +15,7 @@ from jupiter.core.domain.concept.push_integrations.email.email_task_collection i
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
@@ -25,7 +25,7 @@ class EmailTaskRemoveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         email_task: EmailTask,

@@ -6,7 +6,7 @@ from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.auth.recovery_token_hash import RecoveryTokenHash
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ParentLink,
     StubEntity,
@@ -39,7 +39,7 @@ class Auth(StubEntity):
 
     @staticmethod
     def new_auth(
-        ctx: DomainContext,
+        ctx: MutationContext,
         user_ref_id: EntityId,
         password: PasswordNewPlain,
         password_repeat: PasswordNewPlain,
@@ -64,7 +64,7 @@ class Auth(StubEntity):
     @staticmethod
     @create_entity_action
     def _new_auth_with_receovery_token(
-        ctx: DomainContext,
+        ctx: MutationContext,
         user_ref_id: EntityId,
         password_hash: PasswordHash,
         recovery_token_hash: RecoveryTokenHash,
@@ -80,7 +80,7 @@ class Auth(StubEntity):
     @update_entity_action
     def change_password(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         current_password: PasswordPlain,
         new_password: PasswordNewPlain,
         new_password_repeat: PasswordNewPlain,
@@ -100,7 +100,7 @@ class Auth(StubEntity):
 
     def reset_password(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         recovery_token: RecoveryTokenPlain,
         new_password: PasswordNewPlain,
         new_password_repeat: PasswordNewPlain,
@@ -126,7 +126,7 @@ class Auth(StubEntity):
     @update_entity_action
     def _reset_password_and_recovery_token(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         new_password_hash: PasswordHash,
         new_recovery_token_hash: RecoveryTokenHash,
     ) -> "Auth":

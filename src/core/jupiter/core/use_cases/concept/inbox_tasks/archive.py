@@ -1,7 +1,7 @@
 """The command for archiving a inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -36,7 +36,7 @@ class InboxTaskArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: InboxTaskArchiveArgs,
     ) -> None:
         """Execute the command's action."""

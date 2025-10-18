@@ -3,7 +3,7 @@
 from typing import cast
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -56,7 +56,7 @@ class WorkingMemUpdateSettingsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: WorkingMemUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""

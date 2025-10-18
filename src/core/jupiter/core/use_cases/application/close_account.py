@@ -1,7 +1,7 @@
 """Close an account and workspace."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.user.user import User
@@ -33,7 +33,7 @@ class CloseAccountUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: CloseAccountArgs,
     ) -> None:
         """Execute the command's action."""

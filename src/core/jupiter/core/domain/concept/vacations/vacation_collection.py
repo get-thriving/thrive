@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class VacationCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_vacation_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "VacationCollection":
         """Create a vacation collection."""

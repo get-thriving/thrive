@@ -1,7 +1,7 @@
 """Use case for loading big plan milestones."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
@@ -47,7 +47,7 @@ class BigPlanMilestoneLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: BigPlanMilestoneLoadArgs,
     ) -> BigPlanMilestoneLoadResult:
         """Execute the command's action."""

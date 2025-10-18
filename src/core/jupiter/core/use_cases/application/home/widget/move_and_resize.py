@@ -1,7 +1,7 @@
 """The use case for moving a home small screen widget."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -36,7 +36,7 @@ class HomeWidgetMoveAndResizeUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HomeWidgetMoveAndResizeArgs,
     ) -> None:
         """Execute the command's action."""

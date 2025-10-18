@@ -1,7 +1,7 @@
 """Use case for finding journals."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -71,7 +71,7 @@ class JournalFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: JournalFindArgs,
     ) -> JournalFindResult:
         """Execute the command's action."""

@@ -28,22 +28,22 @@ from jupiter.core.domain.storage_engine import SearchStorageEngine
 from jupiter.framework_new.auth.auth_token import AuthToken
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.component_properties import ComponentProperties
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts
 from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.secure import secure_fn
 from jupiter.framework_new.use_case import (
+    AppGuestMutationContext,
     AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
+    AppGuestReadonlyContext,
     AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-    AppGuestUseCaseSession,
+    AppGuestSession,
+    AppLoggedInMutationContext,
     AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
+    AppLoggedInReadonlyContext,
     AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    AppLoggedInUseCaseSession,
+    AppLoggedInSession,
     AppTransactionalLoggedInMutationUseCase,
     AppTransactionalLoggedInReadOnlyUseCase,
     ProgressReporter,
@@ -269,27 +269,27 @@ class JupiterComponentProperties(ComponentProperties):
 
 
 @dataclass(frozen=True)
-class JupiterGuestUseCaseSession(AppGuestUseCaseSession):
+class JupiterGuestSession(AppGuestSession):
     """A Jupiter specific guest use case session."""
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInUseCaseSession(AppLoggedInUseCaseSession):
+class JupiterLoggedInSession(AppLoggedInSession):
     """A Jupiter specific logged in use case session."""
 
 
 @dataclass(frozen=True)
-class JupiterGuestMutationUseCaseContext(AppGuestMutationUseCaseContext):
+class JupiterGuestMutationContext(AppGuestMutationContext):
     """A Jupiter specific guest mutation use case context."""
 
 
 @dataclass(frozen=True)
-class JupiterGuestReadonlyUseCaseContext(AppGuestReadonlyUseCaseContext):
+class JupiterGuestReadonlyContext(AppGuestReadonlyContext):
     """A Jupiter specific guest readonly use case context."""
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInMutationUseCaseContext(AppLoggedInMutationUseCaseContext):
+class JupiterLoggedInMutationContext(AppLoggedInMutationContext):
     """A Jupiter specigic logged in mutation use case context."""
 
     user: User
@@ -334,7 +334,7 @@ class JupiterLoggedInMutationUseCaseContext(AppLoggedInMutationUseCaseContext):
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInReadonlyUseCaseContext(AppLoggedInReadonlyUseCaseContext):
+class JupiterLoggedInReadonlyContext(AppLoggedInReadonlyContext):
     """A Jupiter specigic logged in readonly use case context."""
 
     user: User
@@ -384,8 +384,8 @@ class JupiterGuestMutationUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterGuestUseCaseSession,
-        JupiterGuestMutationUseCaseContext,
+        JupiterGuestSession,
+        JupiterGuestMutationContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -394,9 +394,9 @@ class JupiterGuestMutationUseCase(
     """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
 
     async def _construct_context(
-        self, auth_token: AuthToken | None, domain_context: DomainContext
-    ) -> JupiterGuestMutationUseCaseContext:
-        return JupiterGuestMutationUseCaseContext(auth_token, domain_context)
+        self, auth_token: AuthToken | None, domain_context: MutationContext
+    ) -> JupiterGuestMutationContext:
+        return JupiterGuestMutationContext(auth_token, domain_context)
 
 
 class JupiterGuestReadonlyUseCase(
@@ -405,8 +405,8 @@ class JupiterGuestReadonlyUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterGuestUseCaseSession,
-        JupiterGuestReadonlyUseCaseContext,
+        JupiterGuestSession,
+        JupiterGuestReadonlyContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -416,8 +416,8 @@ class JupiterGuestReadonlyUseCase(
 
     async def _construct_context(
         self, auth_token: AuthToken | None
-    ) -> JupiterGuestReadonlyUseCaseContext:
-        return JupiterGuestReadonlyUseCaseContext(auth_token)
+    ) -> JupiterGuestReadonlyContext:
+        return JupiterGuestReadonlyContext(auth_token)
 
 
 class JupiterLoggedInMutationUseCase(
@@ -426,8 +426,8 @@ class JupiterLoggedInMutationUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInMutationUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInMutationContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -436,8 +436,8 @@ class JupiterLoggedInMutationUseCase(
     """A Jupiter command that does some sort of mutation, and assumes a logged-in user."""
 
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: DomainContext
-    ) -> JupiterLoggedInMutationUseCaseContext:
+        self, auth_token: AuthToken, domain_context: MutationContext
+    ) -> JupiterLoggedInMutationContext:
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
@@ -448,7 +448,7 @@ class JupiterLoggedInMutationUseCase(
                 user_workspace_link.workspace_ref_id
             )
 
-            return JupiterLoggedInMutationUseCaseContext(
+            return JupiterLoggedInMutationContext(
                 auth_token=auth_token,
                 domain_context=domain_context,
                 user=user,
@@ -458,7 +458,7 @@ class JupiterLoggedInMutationUseCase(
     async def _perform_post_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
     ) -> None:
         """Perform some work after the mutation is done."""
         # Register all entities that were created/changed/removed with the search index.
@@ -486,8 +486,8 @@ class JupiterTransactionalLoggedInMutationUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInMutationUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInMutationContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -502,8 +502,8 @@ class JupiterLoggedInReadonlyUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInReadonlyUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInReadonlyContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -513,7 +513,7 @@ class JupiterLoggedInReadonlyUseCase(
 
     async def _construct_context(
         self, auth_token: AuthToken
-    ) -> JupiterLoggedInReadonlyUseCaseContext:
+    ) -> JupiterLoggedInReadonlyContext:
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
             user = await uow.get_for(User).load_by_id(auth_token.user_ref_id)
@@ -524,7 +524,7 @@ class JupiterLoggedInReadonlyUseCase(
                 user_workspace_link.workspace_ref_id
             )
 
-            return JupiterLoggedInReadonlyUseCaseContext(
+            return JupiterLoggedInReadonlyContext(
                 auth_token=auth_token,
                 user=user,
                 workspace=workspace,
@@ -538,8 +538,8 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInReadonlyUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInReadonlyContext,
         UseCaseArgsT,
         UseCaseResultT,
     ],

@@ -95,11 +95,11 @@ from jupiter.framework_new.use_case import (
     AppGuestReadonlyUseCase,
     AppLoggedInMutationUseCase,
     AppLoggedInReadonlyUseCase,
+    ContextBase,
+    SessionBase,
     SysBackgroundMutationUseCase,
     UnavailableForContextError,
     UseCase,
-    UseCaseContextBase,
-    UseCaseSessionBase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.use_case_storage_engine import UseCaseStorageEngine
@@ -152,8 +152,8 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     Ports,
                     GlobalProperties,
                     ComponentProperties,
-                    UseCaseSessionBase,
-                    UseCaseContextBase,
+                    SessionBase,
+                    ContextBase,
                     UseCaseArgsBase,
                     UseCaseResultBase | None,
                 ]
@@ -257,8 +257,8 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     Ports,
                     GlobalProperties,
                     ComponentProperties,
-                    UseCaseSessionBase,
-                    UseCaseContextBase,
+                    SessionBase,
+                    ContextBase,
                     UseCaseArgsBase,
                     UseCaseResultBase | None,
                 ]
@@ -370,7 +370,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         #     )
 
         #     result = await login_use_case.execute(
-        #         AppGuestUseCaseSession.build(
+        #         AppGuestSession.build(
         #             JupiterComponentProperties.for_app(
         #                 core=AppCore.WEBUI,
         #                 the_shell=AppShell.BROWSER,
@@ -555,8 +555,8 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 Ports,
                 GlobalProperties,
                 ComponentProperties,
-                UseCaseSessionBase,
-                UseCaseContextBase,
+                SessionBase,
+                ContextBase,
                 UseCaseArgsBase,
                 UseCaseResultBase | None,
             ]

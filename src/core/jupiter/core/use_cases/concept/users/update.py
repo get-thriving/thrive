@@ -1,7 +1,7 @@
 """The command for updating a user's properties."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.user.user import User
@@ -34,7 +34,7 @@ class UserUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: UserUpdateArgs,
     ) -> None:
         """Execute the command's action."""

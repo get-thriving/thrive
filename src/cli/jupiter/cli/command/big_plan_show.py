@@ -11,7 +11,7 @@ from jupiter.cli.command.rendering import (
     project_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.big_plans.find import (
@@ -32,7 +32,7 @@ class BigPlanShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: BigPlanFindResult,
     ) -> None:
         sorted_big_plans = sorted(

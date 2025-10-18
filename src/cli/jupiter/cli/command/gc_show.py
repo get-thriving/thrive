@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
     sync_target_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.application.gc.load_runs import (
     GCLoadRunsResult,
     GCLoadRunsUseCase,
@@ -24,7 +24,7 @@ class GCShow(JupiterLoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: GCLoadRunsResult,
     ) -> None:
         rich_tree = Tree("🗑  GC", guide_style="bold bright_blue")

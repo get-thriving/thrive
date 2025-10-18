@@ -1,7 +1,7 @@
 """The command for archiving a habit."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.habits.habit import Habit
@@ -36,7 +36,7 @@ class HabitArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HabitArchiveArgs,
     ) -> None:
         """Execute the command's action."""

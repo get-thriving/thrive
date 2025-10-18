@@ -1,7 +1,7 @@
 """The command for finding a email task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -66,7 +66,7 @@ class EmailTaskFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: EmailTaskFindArgs,
     ) -> EmailTaskFindResult:
         """Execute the command's action."""

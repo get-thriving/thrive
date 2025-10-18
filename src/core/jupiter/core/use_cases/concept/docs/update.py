@@ -1,7 +1,7 @@
 """Update a doc use case."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -36,7 +36,7 @@ class DocUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: DocUpdateArgs,
     ) -> None:
         """Execute the command's action."""

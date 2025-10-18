@@ -3,7 +3,7 @@
 from jupiter.core.domain.core.tags.tag_name import TagName
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -24,7 +24,7 @@ class SmartListTag(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_smart_list_tag(
-        ctx: DomainContext,
+        ctx: MutationContext,
         smart_list_ref_id: EntityId,
         tag_name: TagName,
     ) -> "SmartListTag":
@@ -39,7 +39,7 @@ class SmartListTag(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         tag_name: UpdateAction[TagName],
     ) -> "SmartListTag":
         """Change the smart list tag."""

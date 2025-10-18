@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.push_integrations.push_generation_extra_info im
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -45,7 +45,7 @@ class EmailTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_email_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         email_task_collection_ref_id: EntityId,
         from_address: EmailAddress,
         from_name: EmailUserName,
@@ -71,7 +71,7 @@ class EmailTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         from_address: UpdateAction[EmailAddress],
         from_name: UpdateAction[EmailUserName],
         to_address: UpdateAction[EmailAddress],
@@ -95,7 +95,7 @@ class EmailTask(LeafEntity):
     @update_entity_action
     def mark_as_used_for_generation(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
     ) -> "EmailTask":
         """Mark this task as used for generating an inbox task."""
         if self.has_generated_task:

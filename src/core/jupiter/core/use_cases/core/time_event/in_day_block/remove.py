@@ -1,7 +1,7 @@
 """Use case for removing the in day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.core.time_events.time_event_in_day_block import (
@@ -35,7 +35,7 @@ class TimeEventInDayBlockRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimeEventInDayBlockRemoveArgs,
     ) -> None:
         """Execute the command's action."""

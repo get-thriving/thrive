@@ -1,7 +1,7 @@
 """The use case for loading a partcular inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
@@ -75,7 +75,7 @@ class InboxTaskLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: InboxTaskLoadArgs,
     ) -> InboxTaskLoadResult:
         """Execute the command's action."""

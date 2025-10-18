@@ -14,7 +14,7 @@ from jupiter.core.domain.core.timeline import infer_timeline
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -63,7 +63,7 @@ class TimePlan(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_time_plan_for_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_plan_domain_ref_id: EntityId,
         today: ADate,
         period: RecurringTaskPeriod,
@@ -90,7 +90,7 @@ class TimePlan(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_time_plan_generated(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_plan_domain_ref_id: EntityId,
         today: ADate,
         period: RecurringTaskPeriod,
@@ -114,7 +114,7 @@ class TimePlan(LeafEntity):
     @update_entity_action
     def change_time_config(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         today: UpdateAction[ADate],
         period: UpdateAction[RecurringTaskPeriod],
     ) -> "TimePlan":
@@ -145,7 +145,7 @@ class TimePlan(LeafEntity):
     @update_entity_action
     def update_link_to_time_plan_domain(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         today: ADate,
     ) -> "TimePlan":
         """Update the link to the time plan domain."""

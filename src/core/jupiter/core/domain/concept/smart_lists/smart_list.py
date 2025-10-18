@@ -7,7 +7,7 @@ from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     BranchEntity,
     ContainsMany,
@@ -39,7 +39,7 @@ class SmartList(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_smart_list(
-        ctx: DomainContext,
+        ctx: MutationContext,
         smart_list_collection_ref_id: EntityId,
         name: SmartListName,
         icon: EntityIcon | None,
@@ -55,7 +55,7 @@ class SmartList(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[SmartListName],
         icon: UpdateAction[EntityIcon | None],
     ) -> "SmartList":

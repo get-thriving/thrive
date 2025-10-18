@@ -7,16 +7,16 @@ from fastapi import HTTPException, Request, Response
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
+    JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
-    JupiterGuestMutationUseCaseContext,
+    JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
-    JupiterGuestReadonlyUseCaseContext,
-    JupiterGuestUseCaseSession,
+    JupiterGuestSession,
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
-    JupiterLoggedInUseCaseSession,
+    JupiterLoggedInSession,
     JupiterPorts,
 )
 from jupiter.core.domain.app import (
@@ -70,20 +70,20 @@ class JupiterGuestMutationCommand(
     GuestMutationCommand[
         _JupiterGuestMutationUseCaseT,
         JupiterGlobalProperties,
-        JupiterGuestUseCaseSession,
-        JupiterGuestMutationUseCaseContext,
+        JupiterGuestSession,
+        JupiterGuestMutationContext,
         _UseCaseResultT,
     ],
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
-    def _build_session(self, request: Request) -> JupiterGuestUseCaseSession:
+    def _build_session(self, request: Request) -> JupiterGuestSession:
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         app_component = _extract_component_from_frontdoor(request)
 
-        return JupiterGuestUseCaseSession(
+        return JupiterGuestSession(
             app_component,
             auth_token_ext_str,
         )
@@ -94,20 +94,20 @@ class JupiterGuestReadonlyCommand(
     GuestReadonlyCommand[
         _JupiterGuestReadonlyUseCaseT,
         JupiterGlobalProperties,
-        JupiterGuestUseCaseSession,
-        JupiterGuestReadonlyUseCaseContext,
+        JupiterGuestSession,
+        JupiterGuestReadonlyContext,
         _UseCaseResultT,
     ],
 ):
     """A guest readonly command tailore to Jupiter."""
 
-    def _build_session(self, request: Request) -> JupiterGuestUseCaseSession:
+    def _build_session(self, request: Request) -> JupiterGuestSession:
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
         app_component = _extract_component_from_frontdoor(request)
 
-        return JupiterGuestUseCaseSession(
+        return JupiterGuestSession(
             app_component,
             auth_token_ext_str,
         )
@@ -118,14 +118,14 @@ class JupiterLoggedInMutationCommand(
     LoggedInMutationCommand[
         _JupiterLoggedInMutationUseCaseT,
         JupiterGlobalProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInMutationUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInMutationContext,
         _UseCaseResultT,
     ],
 ):
     """A logged in mutation command tailore to Jupiter."""
 
-    def _build_session(self, request: Request) -> JupiterLoggedInUseCaseSession:
+    def _build_session(self, request: Request) -> JupiterLoggedInSession:
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
@@ -137,7 +137,7 @@ class JupiterLoggedInMutationCommand(
             )
         app_component = _extract_component_from_frontdoor(request)
 
-        return JupiterLoggedInUseCaseSession(
+        return JupiterLoggedInSession(
             app_component,
             auth_token_ext_str,
         )
@@ -148,14 +148,14 @@ class JupiterLoggedInReadonlyCommand(
     LoggedInReadonlyCommand[
         _JupiterLoggedInReadonlyUseCaseT,
         JupiterGlobalProperties,
-        JupiterLoggedInUseCaseSession,
-        JupiterLoggedInReadonlyUseCaseContext,
+        JupiterLoggedInSession,
+        JupiterLoggedInReadonlyContext,
         _UseCaseResultT,
     ],
 ):
     """A logged in readonly command tailore to Jupiter."""
 
-    def _build_session(self, request: Request) -> JupiterLoggedInUseCaseSession:
+    def _build_session(self, request: Request) -> JupiterLoggedInSession:
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
@@ -167,7 +167,7 @@ class JupiterLoggedInReadonlyCommand(
             )
         app_component = _extract_component_from_frontdoor(request)
 
-        return JupiterLoggedInUseCaseSession(
+        return JupiterLoggedInSession(
             app_component,
             auth_token_ext_str,
         )

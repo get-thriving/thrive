@@ -4,7 +4,7 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterGlobalProperties,
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.user.user import User
@@ -37,7 +37,7 @@ class UserChangeFeatureFlagsUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: UserChangeFeatureFlagsArgs,
     ) -> None:
         """Execute the command's action."""

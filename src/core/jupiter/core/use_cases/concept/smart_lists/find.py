@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
@@ -75,7 +75,7 @@ class SmartListFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: SmartListFindArgs,
     ) -> SmartListFindResult:
         """Execute the command's action."""

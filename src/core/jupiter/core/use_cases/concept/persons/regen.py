@@ -1,8 +1,8 @@
 """A use case for regenerating tasks associated with persons."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
@@ -29,7 +29,7 @@ class PersonRegenUseCase(JupiterLoggedInMutationUseCase[PersonRegenArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: PersonRegenArgs,
     ) -> None:
         """Perform the mutation."""

@@ -1,7 +1,7 @@
 """Use case for removing a project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
@@ -59,7 +59,7 @@ class ProjectRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ProjectRemoveArgs,
     ) -> None:
         """Execute the command's action."""

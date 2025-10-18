@@ -1,7 +1,7 @@
 """The command for removing a inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -35,7 +35,7 @@ class InboxTaskRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: InboxTaskRemoveArgs,
     ) -> None:
         """Execute the command's action."""

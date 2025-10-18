@@ -7,7 +7,7 @@ from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -40,7 +40,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_schedule_event(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_event_domain_ref_id: EntityId,
         schedule_event_ref_id: EntityId,
         start_date: ADate,
@@ -70,7 +70,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_inbox_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_event_domain_ref_id: EntityId,
         inbox_task_ref_id: EntityId,
         start_date: ADate,
@@ -100,7 +100,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         start_date: UpdateAction[ADate],
         start_time_in_day: UpdateAction[TimeInDay],
         duration_mins: UpdateAction[int],

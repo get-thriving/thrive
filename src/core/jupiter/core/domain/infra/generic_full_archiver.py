@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsLink,
     CrownEntity,
@@ -15,7 +15,7 @@ from jupiter.framework_new.repository import DomainUnitOfWork
 
 
 async def generic_full_archiver(
-    ctx: DomainContext,
+    ctx: MutationContext,
     uow: DomainUnitOfWork,
     entity_type: type[RootEntity],
     ref_id: EntityId,

@@ -11,7 +11,7 @@ from jupiter.core.domain.application.gamification.user_score_overview import Use
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import ParentLink
 from jupiter.framework_new.record import Record, create_record_action, record
 from jupiter.framework_new.repository import RecordRepository
@@ -31,7 +31,7 @@ class ScoreStats(Record):
     @staticmethod
     @create_record_action
     def new_score_stats(
-        ctx: DomainContext,
+        ctx: MutationContext,
         score_log_ref_id: EntityId,
         period: RecurringTaskPeriod | None,
         timeline: str,
@@ -49,7 +49,7 @@ class ScoreStats(Record):
 
     def merge_score(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         score_log_entry: ScoreLogEntry,
     ) -> "ScoreStats":
         """Merge a score log entry into the score stats."""

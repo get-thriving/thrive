@@ -1,7 +1,7 @@
 """Archive a person."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.persons.person import Person
@@ -34,7 +34,7 @@ class PersonArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: PersonArchiveArgs,
     ) -> None:
         """Execute the command's action."""

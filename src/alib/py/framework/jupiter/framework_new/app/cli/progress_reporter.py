@@ -12,8 +12,8 @@ from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.progress_reporter import NoOpProgressReporter
 from jupiter.framework_new.use_case import (
-    AppLoggedInMutationUseCaseContext,
-    AppLoggedInUseCaseContext,
+    AppLoggedInContext,
+    AppLoggedInMutationContext,
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -198,7 +198,7 @@ class RichConsoleProgressReporter(ProgressReporter):
 
 
 class RichConsoleProgressReporterFactory(
-    ProgressReporterFactory[AppLoggedInMutationUseCaseContext]
+    ProgressReporterFactory[AppLoggedInMutationContext]
 ):
     """A progress reporter factory that builds Rich progress reporters."""
 
@@ -225,7 +225,7 @@ class RichConsoleProgressReporterFactory(
         )
         self._should_have_streaming_progress_report = True
 
-    def new_reporter(self, context: AppLoggedInUseCaseContext) -> ProgressReporter:
+    def new_reporter(self, context: AppLoggedInContext) -> ProgressReporter:
         """Create a new progress reporter."""
         if not self._should_have_streaming_progress_report:
             return NoOpProgressReporter()

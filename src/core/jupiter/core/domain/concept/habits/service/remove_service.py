@@ -16,7 +16,7 @@ from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
@@ -26,7 +26,7 @@ class HabitRemoveService:
 
     async def remove(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         ref_id: EntityId,

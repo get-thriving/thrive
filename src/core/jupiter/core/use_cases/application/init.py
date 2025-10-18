@@ -4,8 +4,8 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterGlobalProperties,
+    JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
-    JupiterGuestMutationUseCaseContext,
 )
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
 from jupiter.core.domain.application.gc.gc_log import GCLog
@@ -125,7 +125,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterGuestMutationUseCaseContext,
+        context: JupiterGuestMutationContext,
         args: InitArgs,
     ) -> InitResult:
         """Execute the command's action."""

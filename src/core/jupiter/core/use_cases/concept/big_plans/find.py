@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
@@ -86,7 +86,7 @@ class BigPlanFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: BigPlanFindArgs,
     ) -> BigPlanFindResult:
         """Execute the command's action."""

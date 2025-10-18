@@ -1,7 +1,7 @@
 """Load settings for working mems use case."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -47,7 +47,7 @@ class WorkingMemLoadSettingsUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: WorkingMemLoadSettingsArgs,
     ) -> WorkingMemLoadSettingsResult:
         """Execute the command's action."""

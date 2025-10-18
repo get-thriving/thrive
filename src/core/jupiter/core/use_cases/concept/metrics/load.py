@@ -1,7 +1,7 @@
 """Use case for loading a metric."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -62,7 +62,7 @@ class MetricLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: MetricLoadArgs,
     ) -> MetricLoadResult:
         """Execute the command's action."""

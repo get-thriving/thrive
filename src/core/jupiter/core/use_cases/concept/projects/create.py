@@ -1,7 +1,7 @@
 """The command for creating a project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.projects.project import Project
@@ -47,7 +47,7 @@ class ProjectCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ProjectCreateArgs,
     ) -> ProjectCreateResult:
         """Execute the command's action."""

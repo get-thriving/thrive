@@ -1,7 +1,7 @@
 """Use case for archiving a schedule stream."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -39,7 +39,7 @@ class ScheduleStreamArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleStreamArchiveArgs,
     ) -> None:
         """Execute the command's action."""

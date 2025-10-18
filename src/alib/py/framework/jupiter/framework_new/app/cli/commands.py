@@ -16,16 +16,16 @@ from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
+    AppGuestMutationContext,
     AppGuestMutationUseCase,
-    AppGuestMutationUseCaseContext,
+    AppGuestReadonlyContext,
     AppGuestReadonlyUseCase,
-    AppGuestReadonlyUseCaseContext,
-    AppGuestUseCaseSession,
+    AppGuestSession,
+    AppLoggedInMutationContext,
     AppLoggedInMutationUseCase,
-    AppLoggedInMutationUseCaseContext,
+    AppLoggedInReadonlyContext,
     AppLoggedInReadonlyUseCase,
-    AppLoggedInReadonlyUseCaseContext,
-    AppLoggedInUseCaseSession,
+    AppLoggedInSession,
     UseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
@@ -42,33 +42,31 @@ from rich.text import Text
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
-_GuestUseCaseSessionT = TypeVar("_GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
-_GuestMutationUseCaseContextT = TypeVar(
-    "_GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
+_GuestSessionT = TypeVar("_GuestSessionT", bound=AppGuestSession)
+_GuestMutationContextT = TypeVar(
+    "_GuestMutationContextT", bound=AppGuestMutationContext
 )
 _GuestMutationUseCaseT = TypeVar(
     "_GuestMutationUseCaseT",
     bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_GuestReadonlyUseCaseContextT = TypeVar(
-    "_GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
+_GuestReadonlyContextT = TypeVar(
+    "_GuestReadonlyContextT", bound=AppGuestReadonlyContext
 )
 _GuestReadonlyUseCaseT = TypeVar(
     "_GuestReadonlyUseCaseT",
     bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInUseCaseSessionT = TypeVar(
-    "_LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
-)
-_LoggedInMutationUseCaseContextT = TypeVar(
-    "_LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=AppLoggedInSession)
+_LoggedInMutationContextT = TypeVar(
+    "_LoggedInMutationContextT", bound=AppLoggedInMutationContext
 )
 _LoggedInMutationUseCaseT = TypeVar(
     "_LoggedInMutationUseCaseT",
     bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInReadonlyUseCaseContextT = TypeVar(
-    "_LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+_LoggedInReadonlyContextT = TypeVar(
+    "_LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
 )
 _LoggedInReadonlyUseCaseT = TypeVar(
     "_LoggedInReadonlyUseCaseT",
@@ -668,8 +666,8 @@ class GuestMutationCommand(
     Generic[
         _GuestMutationUseCaseT,
         _GlobalPropertiesT,
-        _GuestUseCaseSessionT,
-        _GuestMutationUseCaseContextT,
+        _GuestSessionT,
+        _GuestMutationContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
@@ -701,13 +699,13 @@ class GuestMutationCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo | None) -> _GuestUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo | None) -> _GuestSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: _GuestMutationUseCaseContextT,
+        context: _GuestMutationContextT,
         result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -717,8 +715,8 @@ class GuestReadonlyCommand(
     Generic[
         _GuestReadonlyUseCaseT,
         _GlobalPropertiesT,
-        _GuestUseCaseSessionT,
-        _GuestReadonlyUseCaseContextT,
+        _GuestSessionT,
+        _GuestReadonlyContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
@@ -750,13 +748,13 @@ class GuestReadonlyCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo | None) -> _GuestUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo | None) -> _GuestSessionT:
         """Build the context."""
 
     def _render_result(
         self,
         console: Console,
-        context: _GuestReadonlyUseCaseContextT,
+        context: _GuestReadonlyContextT,
         result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -771,8 +769,8 @@ class LoggedInMutationCommand(
     Generic[
         _LoggedInMutationUseCaseT,
         _GlobalPropertiesT,
-        _LoggedInUseCaseSessionT,
-        _LoggedInMutationUseCaseContextT,
+        _LoggedInSessionT,
+        _LoggedInMutationContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
@@ -804,13 +802,13 @@ class LoggedInMutationCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo) -> _LoggedInUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo) -> _LoggedInSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: _LoggedInMutationUseCaseContextT,
+        context: _LoggedInMutationContextT,
         result: _UseCaseResultT,
     ) -> None:
         """Render the result."""
@@ -834,8 +832,8 @@ class LoggedInReadonlyCommand(
     Generic[
         _LoggedInReadonlyUseCaseT,
         _GlobalPropertiesT,
-        _LoggedInUseCaseSessionT,
-        _LoggedInReadonlyUseCaseContextT,
+        _LoggedInSessionT,
+        _LoggedInReadonlyContextT,
         _UseCaseResultT,
     ],
     UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
@@ -867,13 +865,13 @@ class LoggedInReadonlyCommand(
         self._render_result(console, context, result)
 
     @abc.abstractmethod
-    def _build_session(self, session_info: SessionInfo) -> _LoggedInUseCaseSessionT:
+    def _build_session(self, session_info: SessionInfo) -> _LoggedInSessionT:
         """Build a session."""
 
     def _render_result(
         self,
         console: Console,
-        context: _LoggedInReadonlyUseCaseContextT,
+        context: _LoggedInReadonlyContextT,
         result: _UseCaseResultT,
     ) -> None:
         """Render the result."""

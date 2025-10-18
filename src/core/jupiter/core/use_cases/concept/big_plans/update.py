@@ -1,7 +1,7 @@
 """The command for updating a big plan."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gamification.service.record_score_service import (
@@ -72,7 +72,7 @@ class BigPlanUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: BigPlanUpdateArgs,
     ) -> BigPlanUpdateResult:
         """Execute the command's action."""

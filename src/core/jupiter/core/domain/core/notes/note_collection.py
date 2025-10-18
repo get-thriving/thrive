@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -22,7 +22,7 @@ class NoteCollection(TrunkEntity):
 
     @staticmethod
     def new_note_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "NoteCollection":
         """Create a inbox task collection."""

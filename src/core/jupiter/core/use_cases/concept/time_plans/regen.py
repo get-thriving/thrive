@@ -1,8 +1,8 @@
 """A use case for regenerating time plans."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -27,7 +27,7 @@ class TimePlanRegenUseCase(JupiterLoggedInMutationUseCase[TimePlanRegenArgs, Non
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimePlanRegenArgs,
     ) -> None:
         """Perform the mutation."""

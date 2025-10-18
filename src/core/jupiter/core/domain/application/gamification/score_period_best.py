@@ -6,7 +6,7 @@ from jupiter.core.domain.application.gamification.score_stats import ScoreStats
 from jupiter.core.domain.application.gamification.user_score_overview import UserScore
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import ParentLink
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.record import (
@@ -33,7 +33,7 @@ class ScorePeriodBest(Record):
     @staticmethod
     @create_record_action
     def new_score_period_best(
-        ctx: DomainContext,
+        ctx: MutationContext,
         score_log_ref_id: EntityId,
         period: RecurringTaskPeriod | None,
         timeline: str,
@@ -59,7 +59,7 @@ class ScorePeriodBest(Record):
 
     @update_record_action
     def update_to_max(
-        self, ctx: DomainContext, score_stats: ScoreStats
+        self, ctx: MutationContext, score_stats: ScoreStats
     ) -> "ScorePeriodBest":
         """Update the score period best to the maximum of the two."""
         return self._new_version(

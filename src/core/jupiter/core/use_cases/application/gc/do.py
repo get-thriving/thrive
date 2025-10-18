@@ -1,8 +1,8 @@
 """The command for doing a garbage collection run."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.gc.service.gc_service import GCService
 from jupiter.core.domain.infer_sync_targets import (
@@ -33,7 +33,7 @@ class GCDoUseCase(JupiterLoggedInMutationUseCase[GCDoArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: GCDoArgs,
     ) -> None:
         """Execute the command's action."""

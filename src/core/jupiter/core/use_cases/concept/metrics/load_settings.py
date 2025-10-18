@@ -1,7 +1,7 @@
 """Load settings for metrics use case."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -43,7 +43,7 @@ class MetricLoadSettingsUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: MetricLoadSettingsArgs,
     ) -> MetricLoadSettingsResult:
         """Execute the command's action."""

@@ -5,7 +5,7 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     BranchEntity,
     ContainsMany,
@@ -29,7 +29,7 @@ class ScheduleExternalSyncLog(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_external_sync_log(
-        ctx: DomainContext, schedule_domain_ref_id: EntityId
+        ctx: MutationContext, schedule_domain_ref_id: EntityId
     ) -> "ScheduleExternalSyncLog":
         """Create a new sync log."""
         return ScheduleExternalSyncLog._create(

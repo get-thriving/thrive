@@ -1,7 +1,7 @@
 """UseCase for updating a workspace."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
@@ -32,7 +32,7 @@ class WorkspaceUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: WorkspaceUpdateArgs,
     ) -> None:
         """Execute the command's action."""

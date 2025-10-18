@@ -1,8 +1,8 @@
 """The command for removeing all branch and leaf type entities."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -31,7 +31,7 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: RemoveAllArgs,
     ) -> None:
         """Execute the command's action."""

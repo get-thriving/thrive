@@ -3,7 +3,7 @@
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
@@ -13,7 +13,7 @@ class DocRemoveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         doc: Doc,

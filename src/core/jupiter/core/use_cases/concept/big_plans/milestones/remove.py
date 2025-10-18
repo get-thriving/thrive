@@ -1,7 +1,7 @@
 """The command for removing a big plan milestone."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
@@ -33,7 +33,7 @@ class BigPlanMilestoneRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: BigPlanMilestoneRemoveArgs,
     ) -> None:
         """Execute the command's action."""

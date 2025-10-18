@@ -1,7 +1,7 @@
 """Use case for loading a particular stream."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
@@ -48,7 +48,7 @@ class ScheduleStreamLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ScheduleStreamLoadArgs,
     ) -> ScheduleStreamLoadResult:
         """Execute the command's action."""

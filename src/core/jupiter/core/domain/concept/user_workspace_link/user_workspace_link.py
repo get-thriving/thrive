@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import RootEntity, create_entity_action, entity
 from jupiter.framework_new.repository import RootEntityRepository
 
@@ -18,7 +18,7 @@ class UserWorkspaceLink(RootEntity):
     @staticmethod
     @create_entity_action
     def new_user_workspace_link(
-        ctx: DomainContext,
+        ctx: MutationContext,
         user_ref_id: EntityId,
         workspace_ref_id: EntityId,
     ) -> "UserWorkspaceLink":

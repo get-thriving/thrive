@@ -11,7 +11,7 @@ from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -43,7 +43,7 @@ class JournalCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_journal_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
         periods: set[RecurringTaskPeriod],
         generation_approach: JournalGenerationApproach,
@@ -124,7 +124,7 @@ class JournalCollection(TrunkEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[JournalGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
@@ -223,7 +223,7 @@ class JournalCollection(TrunkEntity):
     @update_entity_action
     def change_writing_task_project_if_required(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         writing_task_project_ref_id: EntityId,
     ) -> "JournalCollection":
         """Change the writing task project."""

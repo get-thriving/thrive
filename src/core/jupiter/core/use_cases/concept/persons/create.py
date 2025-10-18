@@ -1,7 +1,7 @@
 """Create a person."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -64,7 +64,7 @@ class PersonCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: PersonCreateArgs,
     ) -> PersonCreateResult:
         """Execute the command's action."""
@@ -105,7 +105,7 @@ class PersonCreateUseCase(
     async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: PersonCreateArgs,
         result: PersonCreateResult,
     ) -> None:

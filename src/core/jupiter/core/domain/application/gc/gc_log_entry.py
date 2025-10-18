@@ -8,7 +8,7 @@ from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     CrownEntity,
     LeafEntity,
@@ -33,7 +33,7 @@ class GCLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         gc_log_ref_id: EntityId,
         gc_targets: list[SyncTarget],
     ) -> "GCLogEntry":
@@ -58,7 +58,7 @@ class GCLogEntry(LeafEntity):
     @update_entity_action
     def add_entity(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         entity: CrownEntity,
     ) -> "GCLogEntry":
         """Add an entity to the GC log entry."""
@@ -70,7 +70,7 @@ class GCLogEntry(LeafEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "GCLogEntry":
+    def close(self, ctx: MutationContext) -> "GCLogEntry":
         """Close the GC log entry."""
         return self._new_version(
             ctx,

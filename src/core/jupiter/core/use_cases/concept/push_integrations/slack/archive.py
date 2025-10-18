@@ -1,7 +1,7 @@
 """The command for archiving a slack task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.push_integrations.slack.service.archive_service import (
@@ -36,7 +36,7 @@ class SlackTaskArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: SlackTaskArchiveArgs,
     ) -> None:
         """Execute the command's action."""

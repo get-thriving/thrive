@@ -1,7 +1,7 @@
 """The command for archiving a smart list item."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.smart_lists.smart_list_item import SmartListItem
@@ -34,7 +34,7 @@ class SmartListItemArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: SmartListItemArchiveArgs,
     ) -> None:
         """Execute the command's action."""

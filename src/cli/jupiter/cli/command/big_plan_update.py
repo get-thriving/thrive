@@ -1,7 +1,7 @@
 """UseCase for updating big plans."""
 
 from jupiter.cli.config import JupiterLoggedInMutationCommand
-from jupiter.core.config import JupiterLoggedInMutationUseCaseContext
+from jupiter.core.config import JupiterLoggedInMutationContext
 from jupiter.core.use_cases.concept.big_plans.update import (
     BigPlanUpdateResult,
     BigPlanUpdateUseCase,
@@ -18,7 +18,7 @@ class BigPlanUpdate(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         result: BigPlanUpdateResult,
     ) -> None:
         if result.record_score_result is not None:

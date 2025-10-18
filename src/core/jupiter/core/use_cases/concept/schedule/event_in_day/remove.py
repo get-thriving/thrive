@@ -1,7 +1,7 @@
 """Use case for removing a schedule in day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
@@ -36,7 +36,7 @@ class ScheduleEventInDayRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleEventInDayRemoveArgs,
     ) -> None:
         """Execute the command's action."""

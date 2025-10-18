@@ -7,8 +7,8 @@ from jupiter.framework_new.component_properties import ComponentProperties
 
 
 @dataclass(frozen=True)
-class DomainContext:
-    """A domain-level context for calls that are made."""
+class MutationContext:
+    """A context for the series of mutations that are performed."""
 
     event_source: str
     action_timestamp: Timestamp
@@ -17,9 +17,9 @@ class DomainContext:
     def build(
         component_properties: ComponentProperties,
         action_timestamp: Timestamp,
-    ) -> "DomainContext":
-        """Create a domain context from an app."""
-        return DomainContext(
+    ) -> "MutationContext":
+        """Create a mutation context from an app."""
+        return MutationContext(
             event_source=component_properties.as_event_source(),
             action_timestamp=action_timestamp,
         )

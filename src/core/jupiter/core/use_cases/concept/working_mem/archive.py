@@ -1,7 +1,7 @@
 """The command for archiving a working mem."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
@@ -34,7 +34,7 @@ class WorkingMemArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: WorkingMemArchiveArgs,
     ) -> None:
         """Execute the command's action."""

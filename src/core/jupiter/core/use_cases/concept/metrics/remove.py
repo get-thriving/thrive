@@ -1,7 +1,7 @@
 """The command for hard removing a metric."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.metrics.metric import Metric
@@ -35,7 +35,7 @@ class MetricRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricRemoveArgs,
     ) -> None:
         """Execute the command's action."""

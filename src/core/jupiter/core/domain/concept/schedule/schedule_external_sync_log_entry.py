@@ -8,7 +8,7 @@ from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     CrownEntity,
     LeafEntity,
@@ -50,7 +50,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_external_sync_log_ref_id: EntityId,
         today: ADate,
         start_of_window: ADate,
@@ -82,7 +82,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def mark_stream_success(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleExternalSyncLogEntry":
         """Mark a stream as successfully synced."""
@@ -103,7 +103,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def mark_stream_error(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
         error_msg: str,
     ) -> "ScheduleExternalSyncLogEntry":
@@ -125,7 +125,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def add_entity(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         entity: CrownEntity,
     ) -> "ScheduleExternalSyncLogEntry":
         """Add an entity to the GC log entry."""
@@ -142,7 +142,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "ScheduleExternalSyncLogEntry":
+    def close(self, ctx: MutationContext) -> "ScheduleExternalSyncLogEntry":
         """Close the log entry."""
         return self._new_version(
             ctx,

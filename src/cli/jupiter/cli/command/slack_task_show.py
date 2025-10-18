@@ -13,7 +13,7 @@ from jupiter.cli.command.rendering import (
     slack_user_name_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.push_integrations.slack.find import (
     SlackTaskFindResult,
@@ -32,7 +32,7 @@ class SlackTaskShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: SlackTaskFindResult,
     ) -> None:
         sorted_slack_tasks = sorted(

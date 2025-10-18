@@ -18,7 +18,7 @@ from jupiter.cli.command.rendering import (
     start_date_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.chores.find import ChoreFindResult, ChoreFindUseCase
@@ -34,7 +34,7 @@ class ChoreShow(JupiterLoggedInReadonlyCommand[ChoreFindUseCase, ChoreFindResult
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: ChoreFindResult,
     ) -> None:
         rich_tree = Tree("♻️  Chores", guide_style="bold bright_blue")

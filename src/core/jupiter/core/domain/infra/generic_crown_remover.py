@@ -1,14 +1,14 @@
 """A generic archiver service."""
 
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import CrownEntity, LeafSupportEntity, OwnsLink
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
 
 async def generic_crown_remover(
-    ctx: DomainContext,
+    ctx: MutationContext,
     uow: DomainUnitOfWork,
     progress_reporter: ProgressReporter,
     entity_type: type[CrownEntity],

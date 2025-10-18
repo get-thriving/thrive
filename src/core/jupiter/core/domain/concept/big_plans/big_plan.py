@@ -17,7 +17,7 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -63,7 +63,7 @@ class BigPlan(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_big_plan(
-        ctx: DomainContext,
+        ctx: MutationContext,
         big_plan_collection_ref_id: EntityId,
         project_ref_id: EntityId,
         name: BigPlanName,
@@ -97,7 +97,7 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[BigPlanName],
         status: UpdateAction[BigPlanStatus],
         project_ref_id: UpdateAction[EntityId],
@@ -158,7 +158,7 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def change_dates_via_time_plan(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         actionable_date: ADate,
         due_date: ADate,
     ) -> "BigPlan":

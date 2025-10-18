@@ -10,7 +10,7 @@ from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     CrownEntity,
     LeafSupportEntity,
@@ -47,7 +47,7 @@ class GenLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         gen_log_ref_id: EntityId,
         gen_even_if_not_modified: bool,
         today: ADate,
@@ -95,7 +95,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_created(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an newly created entity to the task generation log entry."""
         if not self.opened:
@@ -112,7 +112,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_updated(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an updated entity to the task generation log entry."""
         if not self.opened:
@@ -129,7 +129,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_removed(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an removed entity to the task generation log entry."""
         if not self.opened:
@@ -145,7 +145,7 @@ class GenLogEntry(LeafSupportEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "GenLogEntry":
+    def close(self, ctx: MutationContext) -> "GenLogEntry":
         """Close the task generation log entry."""
         return self._new_version(
             ctx,

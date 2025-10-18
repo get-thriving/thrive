@@ -1,7 +1,7 @@
 """The command for creating a metric entry."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.metrics.metric import Metric
@@ -50,7 +50,7 @@ class MetricEntryCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricEntryCreateArgs,
     ) -> MetricEntryCreateResult:
         """Execute the command's action."""

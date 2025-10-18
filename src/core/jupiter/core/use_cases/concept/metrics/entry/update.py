@@ -1,7 +1,7 @@
 """The command for updating a metric entry's properties."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
@@ -36,7 +36,7 @@ class MetricEntryUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricEntryUpdateArgs,
     ) -> None:
         """Execute the command's action."""

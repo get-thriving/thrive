@@ -1,8 +1,8 @@
 """The command for reporting on progress."""
 
 from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
 )
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.application.report.report_period_result import (
@@ -56,7 +56,7 @@ class ReportUseCase(JupiterLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
 
     async def _execute(
         self,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ReportArgs,
     ) -> ReportResult:
         """Execute the command."""

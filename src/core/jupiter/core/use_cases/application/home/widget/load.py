@@ -1,7 +1,7 @@
 """The use case for loading a home small screen widget."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.application.home.home_widget import HomeWidget
@@ -44,7 +44,7 @@ class HomeWidgetLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: HomeWidgetLoadArgs,
     ) -> HomeWidgetLoadResult:
         """Execute the use case's action."""

@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
     user_score_overview_to_rich,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.application.report.report_period_result import (
     InboxTasksSummary,
@@ -35,7 +35,7 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: ReportResult,
     ) -> None:
         sources_to_present = result.period_result.sources

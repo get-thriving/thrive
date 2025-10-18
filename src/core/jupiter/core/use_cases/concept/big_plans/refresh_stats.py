@@ -1,8 +1,8 @@
 """A use case for refreshing stats for a big plan."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
 from jupiter.core.domain.features import WorkspaceFeature
@@ -31,7 +31,7 @@ class BigPlanRefreshStatsUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: BigPlanRefreshStatsArgs,
     ) -> None:
         """Perform the mutation."""

@@ -1,7 +1,7 @@
 """Use case for archiving the in day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
@@ -36,7 +36,7 @@ class TimeEventInDayBlockArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimeEventInDayBlockArchiveArgs,
     ) -> None:
         """Execute the command's action."""

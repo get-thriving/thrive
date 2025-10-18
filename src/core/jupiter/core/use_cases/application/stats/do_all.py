@@ -17,7 +17,7 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.use_case import (
     EmptyContext,
 )
@@ -49,7 +49,7 @@ class StatsDoAllUseCase(JupiterSysBackgroundMutationUseCase[StatsDoAllArgs, None
                 uwl.workspace_ref_id: uwl.user_ref_id for uwl in user_workspace_links
             }
 
-        ctx = DomainContext.build(
+        ctx = MutationContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.STATS_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,

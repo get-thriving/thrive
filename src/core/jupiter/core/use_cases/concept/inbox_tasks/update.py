@@ -1,7 +1,7 @@
 """The command for updating a inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gamification.service.record_score_service import (
@@ -97,7 +97,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: InboxTaskUpdateArgs,
     ) -> InboxTaskUpdateResult:
         """Execute the command's action."""
@@ -201,7 +201,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         workspace: Workspace,
         inbox_task_before_update: InboxTask,
         big_plan: BigPlan,
@@ -256,7 +256,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         inbox_task_before_update: InboxTask,
         inbox_task_after_update: InboxTask,
         previous_big_plan: BigPlan | None,
@@ -300,7 +300,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         inbox_task: InboxTask,
     ) -> None:
         if inbox_task.source != InboxTaskSource.HABIT:

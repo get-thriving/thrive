@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class InboxTaskCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_inbox_task_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "InboxTaskCollection":
         """Create a inbox task collection."""

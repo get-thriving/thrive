@@ -7,7 +7,7 @@ from jupiter.core.domain.concept.docs.doc_name import DocName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     IsRefId,
     LeafEntity,
@@ -35,7 +35,7 @@ class Doc(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_doc(
-        ctx: DomainContext,
+        ctx: MutationContext,
         doc_collection_ref_id: EntityId,
         parent_doc_ref_id: EntityId | None,
         idempotency_key: DocIdempotencyKey,
@@ -53,7 +53,7 @@ class Doc(LeafEntity):
     @update_entity_action
     def change_parent(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         parent_doc_ref_id: EntityId | None,
     ) -> "Doc":
         """Change the parent doc of the doc."""
@@ -65,7 +65,7 @@ class Doc(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[DocName],
     ) -> "Doc":
         """Update the doc name and content."""

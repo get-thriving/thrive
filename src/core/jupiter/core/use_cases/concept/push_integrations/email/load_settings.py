@@ -1,7 +1,7 @@
 """Load settings for email tasks use case."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -48,7 +48,7 @@ class EmailTaskLoadSettingsUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: EmailTaskLoadSettingsArgs,
     ) -> EmailTaskLoadSettingsResult:
         """Execute the command's action."""

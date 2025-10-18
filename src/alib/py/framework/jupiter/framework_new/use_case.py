@@ -27,7 +27,7 @@ from jupiter.framework_new.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
 )
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.global_properties import (
@@ -51,7 +51,7 @@ from jupiter.framework_new.value import EnumValue
 LOGGER = logging.getLogger(__name__)
 
 
-class UseCaseSessionBase:
+class SessionBase:
     """The base class for use case sessions."""
 
 
@@ -74,7 +74,7 @@ class UnavailableForContextError(Exception):
         return self._error_str
 
 
-class UseCaseContextBase(abc.ABC):
+class ContextBase(abc.ABC):
     """Info about a particular invocation of a use case."""
 
     @abc.abstractmethod
@@ -98,8 +98,8 @@ PortsT = TypeVar("PortsT", bound=Ports)
 DomainPortsT = TypeVar("DomainPortsT", bound=DomainPorts)
 GlobalPropertiesT = TypeVar("GlobalPropertiesT", bound=GlobalProperties)
 ComponentPropertiesT = TypeVar("ComponentPropertiesT", bound=ComponentProperties)
-UseCaseSessionT = TypeVar("UseCaseSessionT", bound=UseCaseSessionBase)
-UseCaseContextT = TypeVar("UseCaseContextT", bound=UseCaseContextBase)
+SessionT = TypeVar("SessionT", bound=SessionBase)
+ContextT = TypeVar("ContextT", bound=ContextBase)
 UseCaseArgsT = TypeVar("UseCaseArgsT", bound=UseCaseArgsBase)
 UseCaseResultT = TypeVar("UseCaseResultT", bound=Union[None, UseCaseResultBase])
 
@@ -139,11 +139,11 @@ class ProgressReporter(abc.ABC):
         """The set of entities that were removed while this progress reporter was active."""
 
 
-class ProgressReporterFactory(Generic[UseCaseContextT], abc.ABC):
+class ProgressReporterFactory(Generic[ContextT], abc.ABC):
     """A factory for progress reporters."""
 
     @abc.abstractmethod
-    def new_reporter(self, context: UseCaseContextT) -> ProgressReporter:
+    def new_reporter(self, context: ContextT) -> ProgressReporter:
         """Build a progress reporter for a given context."""
 
 
@@ -152,8 +152,8 @@ class UseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        UseCaseSessionT,
-        UseCaseContextT,
+        SessionT,
+        ContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -174,30 +174,30 @@ class UseCase(
         """Wether this use case's invocation is permitted globally."""
         return True
 
-    def is_allowed_for_component(self, session: UseCaseSessionT) -> bool:
+    def is_allowed_for_component(self, session: SessionT) -> bool:
         """Whether this use case's invocation is permitted under in the component."""
         return True
 
     @abc.abstractmethod
     async def execute(
         self,
-        session: UseCaseSessionT,
+        session: SessionT,
         args: UseCaseArgsT,
-    ) -> tuple[UseCaseContextT, UseCaseResultT]:
+    ) -> tuple[ContextT, UseCaseResultT]:
         """Execute the command's action."""
 
     @abc.abstractmethod
-    async def _build_context(self, session: UseCaseSessionT) -> UseCaseContextT:
+    async def _build_context(self, session: SessionT) -> ContextT:
         """Construct the context for the use case."""
 
 
 @dataclass(frozen=True)
-class EmptySession(UseCaseSessionBase):
+class EmptySession(SessionBase):
     """An empty session."""
 
 
 @dataclass(frozen=True)
-class EmptyContext(UseCaseContextBase):
+class EmptyContext(ContextBase):
     """An empty context."""
 
     def allows(
@@ -222,8 +222,8 @@ class MutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        UseCaseSessionT,
-        UseCaseContextT,
+        SessionT,
+        ContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -231,8 +231,8 @@ class MutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        UseCaseSessionT,
-        UseCaseContextT,
+        SessionT,
+        ContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -243,7 +243,7 @@ class MutationUseCase(
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationUseCaseInvocationRecorder]
-    _progress_reporter_factory: ProgressReporterFactory[UseCaseContextT]
+    _progress_reporter_factory: ProgressReporterFactory[ContextT]
 
     def __init__(
         self,
@@ -252,7 +252,7 @@ class MutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[UseCaseContextT],
+        progress_reporter_factory: ProgressReporterFactory[ContextT],
     ) -> None:
         """Constructor."""
         super().__init__(ports, global_properties)
@@ -263,9 +263,9 @@ class MutationUseCase(
 
     async def execute(
         self,
-        session: UseCaseSessionT,
+        session: SessionT,
         args: UseCaseArgsT,
-    ) -> tuple[UseCaseContextT, UseCaseResultT]:
+    ) -> tuple[ContextT, UseCaseResultT]:
         """Execute the command's action."""
         LOGGER.info(
             "Invoking mutation command %s with args %s",
@@ -325,7 +325,7 @@ class MutationUseCase(
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: UseCaseContextT,
+        context: ContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -336,8 +336,8 @@ class ReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        UseCaseSessionT,
-        UseCaseContextT,
+        SessionT,
+        ContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -345,8 +345,8 @@ class ReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        UseCaseSessionT,
-        UseCaseContextT,
+        SessionT,
+        ContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -368,9 +368,9 @@ class ReadonlyUseCase(
 
     async def execute(
         self,
-        session: UseCaseSessionT,
+        session: SessionT,
         args: UseCaseArgsT,
-    ) -> tuple[UseCaseContextT, UseCaseResultT]:
+    ) -> tuple[ContextT, UseCaseResultT]:
         """Execute the command's action."""
         LOGGER.info(
             "Invoking readonly command %s with args %s",
@@ -384,40 +384,38 @@ class ReadonlyUseCase(
     @abc.abstractmethod
     async def _execute(
         self,
-        context: UseCaseContextT,
+        context: ContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
 
 
 @dataclass(frozen=True)
-class AppGuestUseCaseSession(EmptySession):
+class AppGuestSession(EmptySession):
     """The application use case session."""
 
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt | None
 
 
-GuestUseCaseSessionT = TypeVar("GuestUseCaseSessionT", bound=AppGuestUseCaseSession)
+GuestSessionT = TypeVar("GuestSessionT", bound=AppGuestSession)
 
 
 @dataclass(frozen=True)
-class AppGuestUseCaseContext(EmptyContext):
+class AppGuestContext(EmptyContext):
     """The applicatin context to use for guest-OK interactions."""
 
     auth_token: AuthToken | None
 
 
 @dataclass(frozen=True)
-class AppGuestMutationUseCaseContext(AppGuestUseCaseContext):
+class AppGuestMutationContext(AppGuestContext):
     """The applicatin context to use for guest-OK interactions."""
 
-    domain_context: DomainContext
+    domain_context: MutationContext
 
 
-GuestMutationUseCaseContextT = TypeVar(
-    "GuestMutationUseCaseContextT", bound=AppGuestMutationUseCaseContext
-)
+GuestMutationContextT = TypeVar("GuestMutationContextT", bound=AppGuestMutationContext)
 
 
 class AppGuestMutationUseCase(
@@ -425,8 +423,8 @@ class AppGuestMutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        GuestUseCaseSessionT,
-        GuestMutationUseCaseContextT,
+        GuestSessionT,
+        GuestMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -434,8 +432,8 @@ class AppGuestMutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        GuestUseCaseSessionT,
-        GuestMutationUseCaseContextT,
+        GuestSessionT,
+        GuestMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -452,9 +450,7 @@ class AppGuestMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[
-            GuestMutationUseCaseContextT
-        ],
+        progress_reporter_factory: ProgressReporterFactory[GuestMutationContextT],
         auth_token_stamper: AuthTokenStamper,
     ) -> None:
         """Constructor."""
@@ -468,9 +464,7 @@ class AppGuestMutationUseCase(
         )
         self._auth_token_stamper = auth_token_stamper
 
-    async def _build_context(
-        self, session: GuestUseCaseSessionT
-    ) -> GuestMutationUseCaseContextT:
+    async def _build_context(self, session: GuestSessionT) -> GuestMutationContextT:
         """Construct the context for the use case."""
         try:
             auth_token = (
@@ -483,7 +477,7 @@ class AppGuestMutationUseCase(
         except (InvalidAuthTokenError, ExpiredAuthTokenError):
             auth_token = None
 
-        domain_context = DomainContext.build(
+        domain_context = MutationContext.build(
             session.component_properties,
             self._time_provider.get_current_time(),
         )
@@ -492,19 +486,17 @@ class AppGuestMutationUseCase(
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken | None, domain_context: DomainContext
-    ) -> GuestMutationUseCaseContextT:
+        self, auth_token: AuthToken | None, domain_context: MutationContext
+    ) -> GuestMutationContextT:
         """Build a context here."""
 
 
 @dataclass(frozen=True)
-class AppGuestReadonlyUseCaseContext(AppGuestUseCaseContext):
+class AppGuestReadonlyContext(AppGuestContext):
     """The applicatin context to use for guest-OK interactions."""
 
 
-GuestReadonlyUseCaseContextT = TypeVar(
-    "GuestReadonlyUseCaseContextT", bound=AppGuestReadonlyUseCaseContext
-)
+GuestReadonlyContextT = TypeVar("GuestReadonlyContextT", bound=AppGuestReadonlyContext)
 
 
 class AppGuestReadonlyUseCase(
@@ -512,8 +504,8 @@ class AppGuestReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        GuestUseCaseSessionT,
-        GuestReadonlyUseCaseContextT,
+        GuestSessionT,
+        GuestReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -521,8 +513,8 @@ class AppGuestReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        GuestUseCaseSessionT,
-        GuestReadonlyUseCaseContextT,
+        GuestSessionT,
+        GuestReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -546,9 +538,7 @@ class AppGuestReadonlyUseCase(
         self._time_provider = time_provider
         self._auth_token_stamper = auth_token_stamper
 
-    async def _build_context(
-        self, session: GuestUseCaseSessionT
-    ) -> GuestReadonlyUseCaseContextT:
+    async def _build_context(self, session: GuestSessionT) -> GuestReadonlyContextT:
         """Construct the context for the use case."""
         try:
             auth_token = (
@@ -566,39 +556,37 @@ class AppGuestReadonlyUseCase(
     @abc.abstractmethod
     async def _construct_context(
         self, auth_token: AuthToken | None
-    ) -> GuestReadonlyUseCaseContextT:
+    ) -> GuestReadonlyContextT:
         """Build a context here."""
 
 
 @dataclass(frozen=True)
-class AppLoggedInUseCaseSession(UseCaseSessionBase):
+class AppLoggedInSession(SessionBase):
     """The application use case session for logged-in-OK interactions."""
 
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt
 
 
-LoggedInUseCaseSessionT = TypeVar(
-    "LoggedInUseCaseSessionT", bound=AppLoggedInUseCaseSession
-)
+LoggedInSessionT = TypeVar("LoggedInSessionT", bound=AppLoggedInSession)
 
 
 @dataclass(frozen=True)
-class AppLoggedInUseCaseContext(UseCaseContextBase, abc.ABC):
+class AppLoggedInContext(ContextBase, abc.ABC):
     """The application use case context for logged-in-OK interactions."""
 
     auth_token: AuthToken
 
 
 @dataclass(frozen=True)
-class AppLoggedInMutationUseCaseContext(AppLoggedInUseCaseContext):
+class AppLoggedInMutationContext(AppLoggedInContext):
     """The application use case context for logged-in-OK interactions."""
 
-    domain_context: DomainContext
+    domain_context: MutationContext
 
 
-LoggedInMutationUseCaseContextT = TypeVar(
-    "LoggedInMutationUseCaseContextT", bound=AppLoggedInMutationUseCaseContext
+LoggedInMutationContextT = TypeVar(
+    "LoggedInMutationContextT", bound=AppLoggedInMutationContext
 )
 
 
@@ -607,8 +595,8 @@ class AppLoggedInMutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInMutationUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -616,8 +604,8 @@ class AppLoggedInMutationUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInMutationUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -643,7 +631,7 @@ class AppLoggedInMutationUseCase(
         """The component properties the command is excluded from."""
         return None
 
-    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+    def is_allowed_for_component(self, session: AppLoggedInSession) -> bool:
         """Whather the command is allowed for this component."""
         return session.component_properties.allows(
             self.get_only_for_component(), self.get_excluded_component()
@@ -673,9 +661,7 @@ class AppLoggedInMutationUseCase(
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationUseCaseInvocationRecorder,
-        progress_reporter_factory: ProgressReporterFactory[
-            LoggedInMutationUseCaseContextT
-        ],
+        progress_reporter_factory: ProgressReporterFactory[LoggedInMutationContextT],
         auth_token_stamper: AuthTokenStamper,
         use_case_storage_engine: UseCaseStorageEngine,
     ) -> None:
@@ -692,8 +678,8 @@ class AppLoggedInMutationUseCase(
         self._use_case_storage_engine = use_case_storage_engine
 
     async def _build_context(
-        self, session: LoggedInUseCaseSessionT
-    ) -> LoggedInMutationUseCaseContextT:
+        self, session: LoggedInSessionT
+    ) -> LoggedInMutationContextT:
         if not self.is_allowed_globally:
             raise UnavailableGloballyError(
                 "This action is not available in this environment"
@@ -708,7 +694,7 @@ class AppLoggedInMutationUseCase(
             session.auth_token_ext
         )
 
-        domain_context = DomainContext.build(
+        domain_context = MutationContext.build(
             session.component_properties,
             self._time_provider.get_current_time(),
         )
@@ -723,7 +709,7 @@ class AppLoggedInMutationUseCase(
     async def _execute(
         self,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -733,15 +719,15 @@ class AppLoggedInMutationUseCase(
 
     @abc.abstractmethod
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: DomainContext
-    ) -> LoggedInMutationUseCaseContextT:
+        self, auth_token: AuthToken, domain_context: MutationContext
+    ) -> LoggedInMutationContextT:
         """Build a context here."""
 
     @abc.abstractmethod
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -749,7 +735,7 @@ class AppLoggedInMutationUseCase(
     async def _perform_post_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
     ) -> None:
         """Perform some work after the mutation is done."""
 
@@ -759,8 +745,8 @@ class AppTransactionalLoggedInMutationUseCase(
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInMutationUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -768,8 +754,8 @@ class AppTransactionalLoggedInMutationUseCase(
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInMutationUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInMutationContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -780,7 +766,7 @@ class AppTransactionalLoggedInMutationUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -798,7 +784,7 @@ class AppTransactionalLoggedInMutationUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -806,7 +792,7 @@ class AppTransactionalLoggedInMutationUseCase(
     async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: LoggedInMutationUseCaseContextT,
+        context: LoggedInMutationContextT,
         args: UseCaseArgsT,
         results: UseCaseResultT,
     ) -> None:
@@ -814,12 +800,12 @@ class AppTransactionalLoggedInMutationUseCase(
 
 
 @dataclass(frozen=True)
-class AppLoggedInReadonlyUseCaseContext(AppLoggedInUseCaseContext):
+class AppLoggedInReadonlyContext(AppLoggedInContext):
     """The application use case context for logged-in-OK interactions."""
 
 
-LoggedInReadonlyUseCaseContextT = TypeVar(
-    "LoggedInReadonlyUseCaseContextT", bound=AppLoggedInReadonlyUseCaseContext
+LoggedInReadonlyContextT = TypeVar(
+    "LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
 )
 
 
@@ -828,8 +814,8 @@ class AppLoggedInReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInReadonlyUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -837,8 +823,8 @@ class AppLoggedInReadonlyUseCase(
         PortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInReadonlyUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -881,7 +867,7 @@ class AppLoggedInReadonlyUseCase(
         """The component properties the command is excluded from."""
         return None
 
-    def is_allowed_for_component(self, session: AppLoggedInUseCaseSession) -> bool:
+    def is_allowed_for_component(self, session: AppLoggedInSession) -> bool:
         """Whather the command is allowed for this component."""
         return session.component_properties.allows(
             self.get_only_for_component(), self.get_excluded_component()
@@ -901,8 +887,8 @@ class AppLoggedInReadonlyUseCase(
         self._auth_token_stamper = auth_token_stamper
 
     async def _build_context(
-        self, session: LoggedInUseCaseSessionT
-    ) -> LoggedInReadonlyUseCaseContextT:
+        self, session: LoggedInSessionT
+    ) -> LoggedInReadonlyContextT:
         if not self.is_allowed_globally:
             raise UnavailableGloballyError(
                 "This action is not available in this environment"
@@ -927,7 +913,7 @@ class AppLoggedInReadonlyUseCase(
     @abc.abstractmethod
     async def _construct_context(
         self, auth_token: AuthToken
-    ) -> LoggedInReadonlyUseCaseContextT:
+    ) -> LoggedInReadonlyContextT:
         """Build a context here."""
 
 
@@ -936,8 +922,8 @@ class AppTransactionalLoggedInReadOnlyUseCase(
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInReadonlyUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -945,8 +931,8 @@ class AppTransactionalLoggedInReadOnlyUseCase(
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
-        LoggedInUseCaseSessionT,
-        LoggedInReadonlyUseCaseContextT,
+        LoggedInSessionT,
+        LoggedInReadonlyContextT,
         UseCaseArgsT,
         UseCaseResultT,
     ],
@@ -956,7 +942,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
 
     async def _execute(
         self,
-        context: LoggedInReadonlyUseCaseContextT,
+        context: LoggedInReadonlyContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""
@@ -967,7 +953,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: LoggedInReadonlyUseCaseContextT,
+        context: LoggedInReadonlyContextT,
         args: UseCaseArgsT,
     ) -> UseCaseResultT:
         """Execute the command's action."""

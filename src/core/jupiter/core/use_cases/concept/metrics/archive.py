@@ -1,7 +1,7 @@
 """The command for archiving a metric."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
@@ -46,7 +46,7 @@ class MetricArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricArchiveArgs,
     ) -> None:
         """Execute the command's action."""

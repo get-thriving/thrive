@@ -1,7 +1,7 @@
 """The command for creating a smart list item."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.smart_lists.smart_list import SmartList
@@ -58,7 +58,7 @@ class SmartListItemCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: SmartListItemCreateArgs,
     ) -> SmartListItemCreateResult:
         """Execute the command's action."""

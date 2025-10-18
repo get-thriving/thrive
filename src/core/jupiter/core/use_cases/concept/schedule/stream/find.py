@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -62,7 +62,7 @@ class ScheduleStreamFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ScheduleStreamFindArgs,
     ) -> ScheduleStreamFindResult:
         """Perform the transactional read."""

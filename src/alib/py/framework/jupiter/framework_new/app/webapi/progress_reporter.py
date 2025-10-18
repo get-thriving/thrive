@@ -14,8 +14,8 @@ from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.realm import RealmThing
 from jupiter.framework_new.use_case import (
-    AppLoggedInMutationUseCaseContext,
-    AppLoggedInUseCaseContext,
+    AppLoggedInContext,
+    AppLoggedInMutationContext,
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -270,7 +270,7 @@ class WebsocketProgressReporter(ProgressReporter):
 
 
 class WebsocketProgressReporterFactory(
-    ProgressReporterFactory[AppLoggedInMutationUseCaseContext]
+    ProgressReporterFactory[AppLoggedInMutationContext]
 ):
     """A progress reporter factory that builds websocket progress reporters."""
 
@@ -301,7 +301,7 @@ class WebsocketProgressReporterFactory(
             await web_socket_handle.clear_websocket()
         self._web_sockets.clear()
 
-    def new_reporter(self, context: AppLoggedInUseCaseContext) -> ProgressReporter:
+    def new_reporter(self, context: AppLoggedInContext) -> ProgressReporter:
         """Construct a new progress reporter based on web sockets."""
         if context.user_ref_id not in self._web_sockets:
             self._web_sockets[context.user_ref_id] = (

@@ -1,7 +1,7 @@
 """Use case for loading a particular vacation."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.vacations.vacation import Vacation
@@ -50,7 +50,7 @@ class VacationLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: VacationLoadArgs,
     ) -> VacationLoadResult:
         """Execute the command's action."""

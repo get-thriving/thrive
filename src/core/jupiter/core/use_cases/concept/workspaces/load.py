@@ -1,7 +1,7 @@
 """The command for finding workspaces."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
@@ -38,7 +38,7 @@ class WorkspaceLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: WorkspaceLoadArgs,
     ) -> WorkspaceLoadResult:
         """Execute the command's action."""

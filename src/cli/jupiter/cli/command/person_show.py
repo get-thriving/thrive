@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
     person_relationship_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.persons.find import (
@@ -26,7 +26,7 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: PersonFindResult,
     ) -> None:
         sorted_entries = sorted(

@@ -5,7 +5,7 @@ from jupiter.cli.command.rendering import (
     entity_name_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.smart_lists.find import (
     SmartListFindResult,
     SmartListFindUseCase,
@@ -23,7 +23,7 @@ class SmartListShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: SmartListFindResult,
     ) -> None:
         sorted_smart_lists = sorted(

@@ -16,7 +16,7 @@ from jupiter.cli.command.rendering import (
     skip_rule_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.habits.find import HabitFindResult, HabitFindUseCase
@@ -32,7 +32,7 @@ class HabitShow(JupiterLoggedInReadonlyCommand[HabitFindUseCase, HabitFindResult
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: HabitFindResult,
     ) -> None:
         rich_tree = Tree("💪️ Habits", guide_style="bold bright_blue")

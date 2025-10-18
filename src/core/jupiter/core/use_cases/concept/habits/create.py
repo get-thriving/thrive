@@ -1,7 +1,7 @@
 """The command for creating a habit."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -75,7 +75,7 @@ class HabitCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HabitCreateArgs,
     ) -> HabitCreateResult:
         """Execute the command's action."""
@@ -131,7 +131,7 @@ class HabitCreateUseCase(
     async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HabitCreateArgs,
         result: HabitCreateResult,
     ) -> None:

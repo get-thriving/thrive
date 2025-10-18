@@ -10,7 +10,7 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     BranchEntity,
     ContainsMany,
@@ -45,7 +45,7 @@ class Metric(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_metric(
-        ctx: DomainContext,
+        ctx: MutationContext,
         metric_collection_ref_id: EntityId,
         name: MetricName,
         is_key: bool,
@@ -67,7 +67,7 @@ class Metric(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[MetricName],
         is_key: UpdateAction[bool],
         icon: UpdateAction[EntityIcon | None],

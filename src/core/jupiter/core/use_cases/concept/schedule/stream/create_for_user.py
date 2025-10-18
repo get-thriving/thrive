@@ -1,7 +1,7 @@
 """Use case for creating a schedule stream."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -52,7 +52,7 @@ class ScheduleStreamCreateForUserUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleStreamCreateForUserArgs,
     ) -> ScheduleStreamCreateForUserResult:
         """Perform the transactional mutation."""

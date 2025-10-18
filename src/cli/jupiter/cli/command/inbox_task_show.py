@@ -12,7 +12,7 @@ from jupiter.cli.command.rendering import (
     source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.inbox_tasks.find import (
     InboxTaskFindResult,
@@ -32,7 +32,7 @@ class InboxTaskShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: InboxTaskFindResult,
     ) -> None:
         sorted_inbox_tasks = sorted(

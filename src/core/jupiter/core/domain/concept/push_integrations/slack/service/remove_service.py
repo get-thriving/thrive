@@ -15,7 +15,7 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task import Slack
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import ProgressReporter
 
@@ -25,7 +25,7 @@ class SlackTaskRemoveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,

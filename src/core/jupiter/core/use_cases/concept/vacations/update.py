@@ -1,7 +1,7 @@
 """The command for updating a vacation's properties."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.vacations.vacation import Vacation
@@ -42,7 +42,7 @@ class VacationUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: VacationUpdateArgs,
     ) -> None:
         """Execute the command's action."""

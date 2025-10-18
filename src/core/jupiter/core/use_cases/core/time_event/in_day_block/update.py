@@ -1,7 +1,7 @@
 """Use case for updating a time event in day."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.core.time_events.time_event_in_day_block import (
@@ -40,7 +40,7 @@ class TimeEventInDayBlockUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimeEventInDayBlockUpdateArgs,
     ) -> None:
         """Execute the command's action."""

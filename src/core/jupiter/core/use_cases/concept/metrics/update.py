@@ -3,7 +3,7 @@
 import typing
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -71,7 +71,7 @@ class MetricUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricUpdateArgs,
     ) -> None:
         """Execute the command's action."""
@@ -242,7 +242,7 @@ class MetricUpdateUseCase(
     async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricUpdateArgs,
         result: None,
     ) -> None:

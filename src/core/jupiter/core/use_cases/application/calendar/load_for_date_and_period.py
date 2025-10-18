@@ -1,7 +1,7 @@
 """Load all the calendar specific entities for a given date and period."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -156,7 +156,7 @@ class CalendarLoadForDateAndPeriodUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: CalendarLoadForDateAndPeriodArgs,
     ) -> CalendarLoadForDateAndPeriodResult:
         """Execute the action."""

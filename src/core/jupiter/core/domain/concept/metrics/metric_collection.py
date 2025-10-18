@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import (
     ContainsMany,
     IsRefId,
@@ -26,7 +26,7 @@ class MetricCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_metric_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
         collection_project_ref_id: EntityId,
     ) -> "MetricCollection":
@@ -40,7 +40,7 @@ class MetricCollection(TrunkEntity):
     @update_entity_action
     def change_collection_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         collection_project_ref_id: EntityId,
     ) -> "MetricCollection":
         """Change the catch up project."""

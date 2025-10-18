@@ -1,7 +1,7 @@
 """The command for removing a chore."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.chores.service.remove_service import ChoreRemoveService
@@ -32,7 +32,7 @@ class ChoreRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ChoreRemoveArgs,
     ) -> None:
         """Execute the command's action."""

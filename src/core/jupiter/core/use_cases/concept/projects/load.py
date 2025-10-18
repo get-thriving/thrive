@@ -1,7 +1,7 @@
 """Use case for loading a particular project."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.projects.project import Project
@@ -46,7 +46,7 @@ class ProjectLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ProjectLoadArgs,
     ) -> ProjectLoadResult:
         """Execute the command's action."""

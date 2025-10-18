@@ -1,7 +1,7 @@
 """The command for archiving a email task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
@@ -36,7 +36,7 @@ class EmailTaskArchiveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: EmailTaskArchiveArgs,
     ) -> None:
         """Execute the command's action."""

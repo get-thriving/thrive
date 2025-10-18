@@ -1,7 +1,7 @@
 """Use case for loading the current working memory file."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
@@ -66,7 +66,7 @@ class WorkingMemLoadCurrentUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: WorkingMemLoadCurrentArgs,
     ) -> WorkingMemLoadCurrentResult:
         """Execute the command's action."""

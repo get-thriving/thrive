@@ -1,7 +1,7 @@
 """The command for removing a habit."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.habits.service.remove_service import HabitRemoveService
@@ -32,7 +32,7 @@ class HabitRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HabitRemoveArgs,
     ) -> None:
         """Execute the command's action."""

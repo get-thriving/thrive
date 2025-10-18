@@ -1,7 +1,7 @@
 """Use case for removing a full day event."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
@@ -36,7 +36,7 @@ class ScheduleEventFullDaysRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleEventFullDaysRemoveArgs,
     ) -> None:
         """Execute the command's action."""

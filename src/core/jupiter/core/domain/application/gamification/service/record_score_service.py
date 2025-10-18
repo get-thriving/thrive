@@ -20,7 +20,7 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.framework_new.context import DomainContext
+from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.repository import DomainUnitOfWork, EntityAlreadyExistsError
 from jupiter.framework_new.value import CompositeValue, value
 
@@ -39,7 +39,7 @@ class RecordScoreService:
 
     async def record_task(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         user: User,
         task: InboxTask | BigPlan,
@@ -249,7 +249,7 @@ class RecordScoreService:
 
     async def _update_current_stats(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         period: RecurringTaskPeriod | None,
         uow: DomainUnitOfWork,
         score_log: ScoreLog,
@@ -282,7 +282,7 @@ class RecordScoreService:
 
     async def _update_best(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         period: RecurringTaskPeriod | None,
         sub_period: RecurringTaskPeriod,
         score_stats: ScoreStats,

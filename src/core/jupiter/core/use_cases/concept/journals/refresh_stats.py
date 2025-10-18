@@ -1,8 +1,8 @@
 """Use case for refreshing stats for a journal."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
@@ -32,7 +32,7 @@ class JournalRefreshStatsUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: JournalRefreshStatsArgs,
     ) -> None:
         """Execute the command's action."""

@@ -1,7 +1,7 @@
 """Load an in day block with associated data."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -53,7 +53,7 @@ class TimeEventInDayBlockLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimeEventInDayBlockLoadArgs,
     ) -> TimeEventInDayBlockLoadResult:
         """Load a in day block and associated data."""

@@ -7,7 +7,7 @@ from jupiter.cli.command.rendering import (
     time_plan_source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
-from jupiter.core.config import JupiterLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.time_plans.find import (
     TimePlanFindResult,
     TimePlanFindUseCase,
@@ -25,7 +25,7 @@ class TimePlanShow(
     def _render_result(
         self,
         console: Console,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: TimePlanFindResult,
     ) -> None:
         sorted_time_plans = sorted(

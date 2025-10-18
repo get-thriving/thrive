@@ -1,8 +1,8 @@
 """Use case for logging in as a particular user."""
 
 from jupiter.core.config import (
+    JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
-    JupiterGuestReadonlyUseCaseContext,
 )
 from jupiter.core.domain.concept.auth.auth import Auth
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
@@ -46,7 +46,7 @@ class LoginUseCase(JupiterGuestReadonlyUseCase[LoginArgs, LoginResult]):
 
     async def _execute(
         self,
-        context: JupiterGuestReadonlyUseCaseContext,
+        context: JupiterGuestReadonlyContext,
         args: LoginArgs,
     ) -> LoginResult:
         """Execute the command."""

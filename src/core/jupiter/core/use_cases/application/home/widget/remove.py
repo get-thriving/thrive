@@ -1,7 +1,7 @@
 """The use case for removing a home small screen widget."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.home.home_tab import HomeTab
@@ -33,7 +33,7 @@ class HomeWidgetRemoveUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: HomeWidgetRemoveArgs,
     ) -> None:
         """Execute the command's action."""

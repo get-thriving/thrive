@@ -1,7 +1,7 @@
 """Use case for loading the settings around time plans."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -58,7 +58,7 @@ class TimePlanLoadSettingsUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimePlanLoadSettingsArgs,
     ) -> TimePlanLoadSettingsResult:
         """Execute the command's action."""
