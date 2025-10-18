@@ -65,11 +65,11 @@ from jupiter.framework_new.repository import (
 from jupiter.framework_new.storage import ConnectionPrepareError
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case import (
-    AppGuestMutationUseCase,
-    AppGuestReadonlyUseCase,
-    AppLoggedInMutationUseCase,
-    AppLoggedInReadonlyUseCase,
     ContextBase,
+    GuestMutationUseCase,
+    GuestReadonlyUseCase,
+    LoggedInMutationUseCase,
+    LoggedInReadonlyUseCase,
     SessionBase,
     UnavailableForContextError,
     UseCase,
@@ -435,7 +435,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
             raise Exception(
                 f"Use case command type {use_case_command_type} already added"
             )
-        if issubclass(use_case_type, AppGuestMutationUseCase):
+        if issubclass(use_case_type, GuestMutationUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -450,7 +450,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     ports=self._ports,
                 ),
             )
-        elif issubclass(use_case_type, AppGuestReadonlyUseCase):
+        elif issubclass(use_case_type, GuestReadonlyUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -463,7 +463,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     ports=self._ports,
                 ),
             )
-        elif issubclass(use_case_type, AppLoggedInMutationUseCase):
+        elif issubclass(use_case_type, LoggedInMutationUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -479,7 +479,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     use_case_storage_engine=self._use_case_storage_engine,
                 ),
             )
-        elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
+        elif issubclass(use_case_type, LoggedInReadonlyUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -519,7 +519,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     ) -> None:
         if use_case_type in self._use_case_commands:
             raise Exception(f"Use case type {use_case_type} already added")
-        if issubclass(use_case_type, AppGuestMutationUseCase):
+        if issubclass(use_case_type, GuestMutationUseCase):
             self._use_case_commands[use_case_type] = self._guest_mutation_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -534,7 +534,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     auth_token_stamper=self._auth_token_stamper,
                 ),
             )
-        elif issubclass(use_case_type, AppGuestReadonlyUseCase):
+        elif issubclass(use_case_type, GuestReadonlyUseCase):
             self._use_case_commands[use_case_type] = self._guest_readoly_command_ctor(
                 global_properties=self._global_properties,
                 realm_codec_registry=self._realm_codec_registry,
@@ -547,7 +547,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     auth_token_stamper=self._auth_token_stamper,
                 ),
             )
-        elif issubclass(use_case_type, AppLoggedInMutationUseCase):
+        elif issubclass(use_case_type, LoggedInMutationUseCase):
             self._use_case_commands[use_case_type] = (
                 self._logged_in_mutation_command_ctor(
                     global_properties=self._global_properties,
@@ -565,7 +565,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     ),
                 )
             )
-        elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
+        elif issubclass(use_case_type, LoggedInReadonlyUseCase):
             self._use_case_commands[use_case_type] = (
                 self._logged_in_readonly_command_ctor(
                     global_properties=self._global_properties,

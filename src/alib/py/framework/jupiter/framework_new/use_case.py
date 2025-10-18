@@ -391,34 +391,34 @@ class ReadonlyUseCase(
 
 
 @dataclass(frozen=True)
-class AppGuestSession(EmptySession):
+class GuestSession(EmptySession):
     """The application use case session."""
 
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt | None
 
 
-GuestSessionT = TypeVar("GuestSessionT", bound=AppGuestSession)
+GuestSessionT = TypeVar("GuestSessionT", bound=GuestSession)
 
 
 @dataclass(frozen=True)
-class AppGuestContext(EmptyContext):
+class GuestContext(EmptyContext):
     """The applicatin context to use for guest-OK interactions."""
 
     auth_token: AuthToken | None
 
 
 @dataclass(frozen=True)
-class AppGuestMutationContext(AppGuestContext):
+class GuestMutationContext(GuestContext):
     """The applicatin context to use for guest-OK interactions."""
 
     domain_context: MutationContext
 
 
-GuestMutationContextT = TypeVar("GuestMutationContextT", bound=AppGuestMutationContext)
+GuestMutationContextT = TypeVar("GuestMutationContextT", bound=GuestMutationContext)
 
 
-class AppGuestMutationUseCase(
+class GuestMutationUseCase(
     Generic[
         PortsT,
         GlobalPropertiesT,
@@ -492,14 +492,14 @@ class AppGuestMutationUseCase(
 
 
 @dataclass(frozen=True)
-class AppGuestReadonlyContext(AppGuestContext):
+class GuestReadonlyContext(GuestContext):
     """The applicatin context to use for guest-OK interactions."""
 
 
-GuestReadonlyContextT = TypeVar("GuestReadonlyContextT", bound=AppGuestReadonlyContext)
+GuestReadonlyContextT = TypeVar("GuestReadonlyContextT", bound=GuestReadonlyContext)
 
 
-class AppGuestReadonlyUseCase(
+class GuestReadonlyUseCase(
     Generic[
         PortsT,
         GlobalPropertiesT,
@@ -561,36 +561,36 @@ class AppGuestReadonlyUseCase(
 
 
 @dataclass(frozen=True)
-class AppLoggedInSession(SessionBase):
+class LoggedInSession(SessionBase):
     """The application use case session for logged-in-OK interactions."""
 
     component_properties: ComponentProperties
     auth_token_ext: AuthTokenExt
 
 
-LoggedInSessionT = TypeVar("LoggedInSessionT", bound=AppLoggedInSession)
+LoggedInSessionT = TypeVar("LoggedInSessionT", bound=LoggedInSession)
 
 
 @dataclass(frozen=True)
-class AppLoggedInContext(ContextBase, abc.ABC):
+class LoggedInContext(ContextBase, abc.ABC):
     """The application use case context for logged-in-OK interactions."""
 
     auth_token: AuthToken
 
 
 @dataclass(frozen=True)
-class AppLoggedInMutationContext(AppLoggedInContext):
+class LoggedInMutationContext(LoggedInContext):
     """The application use case context for logged-in-OK interactions."""
 
     domain_context: MutationContext
 
 
 LoggedInMutationContextT = TypeVar(
-    "LoggedInMutationContextT", bound=AppLoggedInMutationContext
+    "LoggedInMutationContextT", bound=LoggedInMutationContext
 )
 
 
-class AppLoggedInMutationUseCase(
+class LoggedInMutationUseCase(
     Generic[
         PortsT,
         GlobalPropertiesT,
@@ -631,7 +631,7 @@ class AppLoggedInMutationUseCase(
         """The component properties the command is excluded from."""
         return None
 
-    def is_allowed_for_component(self, session: AppLoggedInSession) -> bool:
+    def is_allowed_for_component(self, session: LoggedInSession) -> bool:
         """Whather the command is allowed for this component."""
         return session.component_properties.allows(
             self.get_only_for_component(), self.get_excluded_component()
@@ -740,7 +740,7 @@ class AppLoggedInMutationUseCase(
         """Perform some work after the mutation is done."""
 
 
-class AppTransactionalLoggedInMutationUseCase(
+class TransactionalLoggedInMutationUseCase(
     Generic[
         DomainPortsT,
         GlobalPropertiesT,
@@ -750,7 +750,7 @@ class AppTransactionalLoggedInMutationUseCase(
         UseCaseArgsT,
         UseCaseResultT,
     ],
-    AppLoggedInMutationUseCase[
+    LoggedInMutationUseCase[
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
@@ -800,16 +800,16 @@ class AppTransactionalLoggedInMutationUseCase(
 
 
 @dataclass(frozen=True)
-class AppLoggedInReadonlyContext(AppLoggedInContext):
+class LoggedInReadonlyContext(LoggedInContext):
     """The application use case context for logged-in-OK interactions."""
 
 
 LoggedInReadonlyContextT = TypeVar(
-    "LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
+    "LoggedInReadonlyContextT", bound=LoggedInReadonlyContext
 )
 
 
-class AppLoggedInReadonlyUseCase(
+class LoggedInReadonlyUseCase(
     Generic[
         PortsT,
         GlobalPropertiesT,
@@ -867,7 +867,7 @@ class AppLoggedInReadonlyUseCase(
         """The component properties the command is excluded from."""
         return None
 
-    def is_allowed_for_component(self, session: AppLoggedInSession) -> bool:
+    def is_allowed_for_component(self, session: LoggedInSession) -> bool:
         """Whather the command is allowed for this component."""
         return session.component_properties.allows(
             self.get_only_for_component(), self.get_excluded_component()
@@ -917,7 +917,7 @@ class AppLoggedInReadonlyUseCase(
         """Build a context here."""
 
 
-class AppTransactionalLoggedInReadOnlyUseCase(
+class TransactionalLoggedInReadOnlyUseCase(
     Generic[
         DomainPortsT,
         GlobalPropertiesT,
@@ -927,7 +927,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
         UseCaseArgsT,
         UseCaseResultT,
     ],
-    AppLoggedInReadonlyUseCase[
+    LoggedInReadonlyUseCase[
         DomainPortsT,
         GlobalPropertiesT,
         ComponentPropertiesT,
@@ -959,7 +959,7 @@ class AppTransactionalLoggedInReadOnlyUseCase(
         """Execute the command's action."""
 
 
-class SysBackgroundMutationUseCase(
+class BackgroundMutationUseCase(
     Generic[
         PortsT, GlobalPropertiesT, ComponentPropertiesT, UseCaseArgsT, UseCaseResultT
     ],
@@ -1023,7 +1023,7 @@ class SysBackgroundMutationUseCase(
         """Execute the command's action."""
 
 
-_MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
+_MutationUseCaseT = TypeVar("_MutationUseCaseT", bound=LoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
 
 
 def mutation_use_case(  # type: ignore
@@ -1046,7 +1046,7 @@ def mutation_use_case(  # type: ignore
     return decorator
 
 
-_ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
+_ReadonlyUseCaseT = TypeVar("_ReadonlyUseCaseT", bound=LoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any])  # type: ignore
 
 
 def readonly_use_case(  # type: ignore

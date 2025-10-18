@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gc.service.gc_service import GCService
@@ -29,7 +29,7 @@ class GCDoAllArgs(UseCaseArgsBase):
     """GCDoAllArgs."""
 
 
-class GCDoAllUseCase(JupiterSysBackgroundMutationUseCase[GCDoAllArgs, None]):
+class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
     """The command for doing garbage collection for all workspaces."""
 
     async def _execute(

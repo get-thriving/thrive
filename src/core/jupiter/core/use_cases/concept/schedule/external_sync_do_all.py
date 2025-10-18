@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
@@ -23,7 +23,7 @@ class ScheduleExternalSyncDoAllArgs(UseCaseArgsBase):
 
 
 class ScheduleExternalSyncDoAllUseCase(
-    JupiterSysBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
+    JupiterBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
 ):
     """The command for doing a sync."""
 

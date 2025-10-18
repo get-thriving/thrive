@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -29,7 +29,7 @@ class GenDoAllArgs(UseCaseArgsBase):
     """GenDoAllArgs."""
 
 
-class GenDoAllUseCase(JupiterSysBackgroundMutationUseCase[GenDoAllArgs, None]):
+class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
     """The command for doing task generation for all workspaces."""
 
     async def _execute(self, context: EmptyContext, args: GenDoAllArgs) -> None:

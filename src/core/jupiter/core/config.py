@@ -34,20 +34,20 @@ from jupiter.framework_new.ports import DomainPorts
 from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.secure import secure_fn
 from jupiter.framework_new.use_case import (
-    AppGuestMutationContext,
-    AppGuestMutationUseCase,
-    AppGuestReadonlyContext,
-    AppGuestReadonlyUseCase,
-    AppGuestSession,
-    AppLoggedInMutationContext,
-    AppLoggedInMutationUseCase,
-    AppLoggedInReadonlyContext,
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInSession,
-    AppTransactionalLoggedInMutationUseCase,
-    AppTransactionalLoggedInReadOnlyUseCase,
+    BackgroundMutationUseCase,
+    GuestMutationContext,
+    GuestMutationUseCase,
+    GuestReadonlyContext,
+    GuestReadonlyUseCase,
+    GuestSession,
+    LoggedInMutationContext,
+    LoggedInMutationUseCase,
+    LoggedInReadonlyContext,
+    LoggedInReadonlyUseCase,
+    LoggedInSession,
     ProgressReporter,
-    SysBackgroundMutationUseCase,
+    TransactionalLoggedInMutationUseCase,
+    TransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 from jupiter.framework_new.value import EnumValue
@@ -269,27 +269,27 @@ class JupiterComponentProperties(ComponentProperties):
 
 
 @dataclass(frozen=True)
-class JupiterGuestSession(AppGuestSession):
+class JupiterGuestSession(GuestSession):
     """A Jupiter specific guest use case session."""
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInSession(AppLoggedInSession):
+class JupiterLoggedInSession(LoggedInSession):
     """A Jupiter specific logged in use case session."""
 
 
 @dataclass(frozen=True)
-class JupiterGuestMutationContext(AppGuestMutationContext):
+class JupiterGuestMutationContext(GuestMutationContext):
     """A Jupiter specific guest mutation use case context."""
 
 
 @dataclass(frozen=True)
-class JupiterGuestReadonlyContext(AppGuestReadonlyContext):
+class JupiterGuestReadonlyContext(GuestReadonlyContext):
     """A Jupiter specific guest readonly use case context."""
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInMutationContext(AppLoggedInMutationContext):
+class JupiterLoggedInMutationContext(LoggedInMutationContext):
     """A Jupiter specigic logged in mutation use case context."""
 
     user: User
@@ -334,7 +334,7 @@ class JupiterLoggedInMutationContext(AppLoggedInMutationContext):
 
 
 @dataclass(frozen=True)
-class JupiterLoggedInReadonlyContext(AppLoggedInReadonlyContext):
+class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
     """A Jupiter specigic logged in readonly use case context."""
 
     user: User
@@ -380,7 +380,7 @@ class JupiterLoggedInReadonlyContext(AppLoggedInReadonlyContext):
 
 class JupiterGuestMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    AppGuestMutationUseCase[
+    GuestMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -401,7 +401,7 @@ class JupiterGuestMutationUseCase(
 
 class JupiterGuestReadonlyUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    AppGuestReadonlyUseCase[
+    GuestReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -422,7 +422,7 @@ class JupiterGuestReadonlyUseCase(
 
 class JupiterLoggedInMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    AppLoggedInMutationUseCase[
+    LoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -482,7 +482,7 @@ class JupiterLoggedInMutationUseCase(
 class JupiterTransactionalLoggedInMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
     JupiterLoggedInMutationUseCase[UseCaseArgsT, UseCaseResultT],
-    AppTransactionalLoggedInMutationUseCase[
+    TransactionalLoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -498,7 +498,7 @@ class JupiterTransactionalLoggedInMutationUseCase(
 
 class JupiterLoggedInReadonlyUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    AppLoggedInReadonlyUseCase[
+    LoggedInReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -534,7 +534,7 @@ class JupiterLoggedInReadonlyUseCase(
 class JupiterTransactionalLoggedInReadOnlyUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
     JupiterLoggedInReadonlyUseCase[UseCaseArgsT, UseCaseResultT],
-    AppTransactionalLoggedInReadOnlyUseCase[
+    TransactionalLoggedInReadOnlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,
@@ -548,9 +548,9 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
     """A Jupiter command that does some sort of read in the app transactionally, and assumes a logged-in user."""
 
 
-class JupiterSysBackgroundMutationUseCase(
+class JupiterBackgroundMutationUseCase(
     Generic[UseCaseArgsT, UseCaseResultT],
-    SysBackgroundMutationUseCase[
+    BackgroundMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
         JupiterComponentProperties,

@@ -16,16 +16,16 @@ from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
-    AppGuestMutationContext,
-    AppGuestMutationUseCase,
-    AppGuestReadonlyContext,
-    AppGuestReadonlyUseCase,
-    AppGuestSession,
-    AppLoggedInMutationContext,
-    AppLoggedInMutationUseCase,
-    AppLoggedInReadonlyContext,
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInSession,
+    GuestMutationContext,
+    GuestMutationUseCase,
+    GuestReadonlyContext,
+    GuestReadonlyUseCase,
+    GuestSession,
+    LoggedInMutationContext,
+    LoggedInMutationUseCase,
+    LoggedInReadonlyContext,
+    LoggedInReadonlyUseCase,
+    LoggedInSession,
     UseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
@@ -42,35 +42,31 @@ from rich.text import Text
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
-_GuestSessionT = TypeVar("_GuestSessionT", bound=AppGuestSession)
-_GuestMutationContextT = TypeVar(
-    "_GuestMutationContextT", bound=AppGuestMutationContext
-)
+_GuestSessionT = TypeVar("_GuestSessionT", bound=GuestSession)
+_GuestMutationContextT = TypeVar("_GuestMutationContextT", bound=GuestMutationContext)
 _GuestMutationUseCaseT = TypeVar(
     "_GuestMutationUseCaseT",
-    bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=GuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_GuestReadonlyContextT = TypeVar(
-    "_GuestReadonlyContextT", bound=AppGuestReadonlyContext
-)
+_GuestReadonlyContextT = TypeVar("_GuestReadonlyContextT", bound=GuestReadonlyContext)
 _GuestReadonlyUseCaseT = TypeVar(
     "_GuestReadonlyUseCaseT",
-    bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=GuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=AppLoggedInSession)
+_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=LoggedInSession)
 _LoggedInMutationContextT = TypeVar(
-    "_LoggedInMutationContextT", bound=AppLoggedInMutationContext
+    "_LoggedInMutationContextT", bound=LoggedInMutationContext
 )
 _LoggedInMutationUseCaseT = TypeVar(
     "_LoggedInMutationUseCaseT",
-    bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=LoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 _LoggedInReadonlyContextT = TypeVar(
-    "_LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
+    "_LoggedInReadonlyContextT", bound=LoggedInReadonlyContext
 )
 _LoggedInReadonlyUseCaseT = TypeVar(
     "_LoggedInReadonlyUseCaseT",
-    bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=LoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])
 

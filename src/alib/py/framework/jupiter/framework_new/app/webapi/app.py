@@ -91,13 +91,13 @@ from jupiter.framework_new.time_provider import (
 )
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
-    AppGuestMutationUseCase,
-    AppGuestReadonlyUseCase,
-    AppLoggedInMutationUseCase,
-    AppLoggedInReadonlyUseCase,
+    BackgroundMutationUseCase,
     ContextBase,
+    GuestMutationUseCase,
+    GuestReadonlyUseCase,
+    LoggedInMutationUseCase,
+    LoggedInReadonlyUseCase,
     SessionBase,
-    SysBackgroundMutationUseCase,
     UnavailableForContextError,
     UseCase,
 )
@@ -370,7 +370,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         #     )
 
         #     result = await login_use_case.execute(
-        #         AppGuestSession.build(
+        #         GuestSession.build(
         #             JupiterComponentProperties.for_app(
         #                 core=AppCore.WEBUI,
         #                 the_shell=AppShell.BROWSER,
@@ -565,7 +565,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     ) -> None:
         if use_case_type in self._use_case_commands:
             raise Exception(f"Use case type {use_case_type} already added")
-        if issubclass(use_case_type, AppGuestMutationUseCase):
+        if issubclass(use_case_type, GuestMutationUseCase):
             use_case = use_case_type(  # type: ignore
                 time_provider=self._request_time_provider,
                 realm_codec_registry=self._realm_codec_registry,
@@ -584,7 +584,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 use_case=use_case,
                 root_module=root_module,
             )
-        elif issubclass(use_case_type, AppGuestReadonlyUseCase):
+        elif issubclass(use_case_type, GuestReadonlyUseCase):
             use_case = use_case_type(  # type: ignore
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
@@ -601,7 +601,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 use_case=use_case,
                 root_module=root_module,
             )
-        elif issubclass(use_case_type, AppLoggedInMutationUseCase):
+        elif issubclass(use_case_type, LoggedInMutationUseCase):
             use_case = use_case_type(  # type: ignore
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
@@ -624,7 +624,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     root_module=root_module,
                 )
             )
-        elif issubclass(use_case_type, AppLoggedInReadonlyUseCase):
+        elif issubclass(use_case_type, LoggedInReadonlyUseCase):
             use_case = use_case_type(  # type: ignore
                 global_properties=self._global_properties,
                 time_provider=self._request_time_provider,
@@ -644,7 +644,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                     root_module=root_module,
                 )
             )
-        elif issubclass(use_case_type, SysBackgroundMutationUseCase):
+        elif issubclass(use_case_type, BackgroundMutationUseCase):
             use_case = use_case_type(  # type: ignore
                 ports=self._ports,
                 global_properties=self._global_properties,

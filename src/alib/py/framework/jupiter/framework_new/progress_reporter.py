@@ -5,8 +5,8 @@ from contextlib import asynccontextmanager
 
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.use_case import (
-    AppGuestMutationContext,
     EmptyContext,
+    GuestMutationContext,
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -58,10 +58,10 @@ class NoOpProgressReporter(ProgressReporter):
         return self._removed_entities
 
 
-class NoOpProgressReporterFactory(ProgressReporterFactory[AppGuestMutationContext]):
+class NoOpProgressReporterFactory(ProgressReporterFactory[GuestMutationContext]):
     """A noop progress reporter factory."""
 
-    def new_reporter(self, context: AppGuestMutationContext) -> ProgressReporter:
+    def new_reporter(self, context: GuestMutationContext) -> ProgressReporter:
         """Construct a new progress reporter that does nothing."""
         return NoOpProgressReporter()
 

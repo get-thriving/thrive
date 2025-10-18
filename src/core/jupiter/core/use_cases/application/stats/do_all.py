@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.stats.service.stats_service import StatsService
@@ -29,7 +29,7 @@ class StatsDoAllArgs(UseCaseArgsBase):
     """StatsDoAllArgs."""
 
 
-class StatsDoAllUseCase(JupiterSysBackgroundMutationUseCase[StatsDoAllArgs, None]):
+class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
     """The command for computing stats for all workspaces."""
 
     async def _execute(

@@ -17,57 +17,53 @@ from fastapi import FastAPI, Request
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.realm import RealmCodecRegistry, WebRealm
 from jupiter.framework_new.use_case import (
-    AppGuestMutationContext,
-    AppGuestMutationUseCase,
-    AppGuestReadonlyContext,
-    AppGuestReadonlyUseCase,
-    AppGuestSession,
-    AppLoggedInMutationContext,
-    AppLoggedInMutationUseCase,
-    AppLoggedInReadonlyContext,
-    AppLoggedInReadonlyUseCase,
-    AppLoggedInSession,
+    BackgroundMutationUseCase,
     EmptySession,
-    SysBackgroundMutationUseCase,
+    GuestMutationContext,
+    GuestMutationUseCase,
+    GuestReadonlyContext,
+    GuestReadonlyUseCase,
+    GuestSession,
+    LoggedInMutationContext,
+    LoggedInMutationUseCase,
+    LoggedInReadonlyContext,
+    LoggedInReadonlyUseCase,
+    LoggedInSession,
     UseCase,
 )
 from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
-_GuestSessionT = TypeVar("_GuestSessionT", bound=AppGuestSession)
-_GuestMutationContextT = TypeVar(
-    "_GuestMutationContextT", bound=AppGuestMutationContext
-)
+_GuestSessionT = TypeVar("_GuestSessionT", bound=GuestSession)
+_GuestMutationContextT = TypeVar("_GuestMutationContextT", bound=GuestMutationContext)
 _GuestMutationUseCaseT = TypeVar(
     "_GuestMutationUseCaseT",
-    bound=AppGuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=GuestMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_GuestReadonlyContextT = TypeVar(
-    "_GuestReadonlyContextT", bound=AppGuestReadonlyContext
-)
+_GuestReadonlyContextT = TypeVar("_GuestReadonlyContextT", bound=GuestReadonlyContext)
 _GuestReadonlyUseCaseT = TypeVar(
     "_GuestReadonlyUseCaseT",
-    bound=AppGuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=GuestReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=AppLoggedInSession)
+_LoggedInSessionT = TypeVar("_LoggedInSessionT", bound=LoggedInSession)
 _LoggedInMutationContextT = TypeVar(
-    "_LoggedInMutationContextT", bound=AppLoggedInMutationContext
+    "_LoggedInMutationContextT", bound=LoggedInMutationContext
 )
 _LoggedInMutationUseCaseT = TypeVar(
     "_LoggedInMutationUseCaseT",
-    bound=AppLoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=LoggedInMutationUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
 _LoggedInReadonlyContextT = TypeVar(
-    "_LoggedInReadonlyContextT", bound=AppLoggedInReadonlyContext
+    "_LoggedInReadonlyContextT", bound=LoggedInReadonlyContext
 )
 _LoggedInReadonlyUseCaseT = TypeVar(
     "_LoggedInReadonlyUseCaseT",
-    bound=AppLoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
+    bound=LoggedInReadonlyUseCase[Any, Any, Any, Any, Any, Any, Any],
 )
-_SysBackgroundMutationUseCaseT = TypeVar(
-    "_SysBackgroundMutationUseCaseT",
-    bound=SysBackgroundMutationUseCase[Any, Any, Any, Any, Any],
+_BackgroundMutationUseCaseT = TypeVar(
+    "_BackgroundMutationUseCaseT",
+    bound=BackgroundMutationUseCase[Any, Any, Any, Any, Any],
 )
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase | None)
 
@@ -352,8 +348,8 @@ class LoggedInReadonlyCommand(
 
 
 class CronCommand(
-    Generic[_SysBackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
-    UseCaseCommand[_GlobalPropertiesT, _SysBackgroundMutationUseCaseT],
+    Generic[_BackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
+    UseCaseCommand[_GlobalPropertiesT, _BackgroundMutationUseCaseT],
     abc.ABC,
 ):
     """Base class for commands which just read and present data."""
