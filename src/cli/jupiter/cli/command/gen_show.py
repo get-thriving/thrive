@@ -6,7 +6,6 @@ from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
     entity_tag_to_rich_text,
-    event_source_to_rich_text,
     period_to_rich_text,
     sync_target_to_rich_text,
 )

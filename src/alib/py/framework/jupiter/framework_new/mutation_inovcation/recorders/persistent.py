@@ -4,7 +4,6 @@ import abc
 from contextlib import AbstractAsyncContextManager
 from typing import Final
 
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.mutation_inovcation.record import (
     MutationInvocationRecord,
     MutationInvocationRecorder,

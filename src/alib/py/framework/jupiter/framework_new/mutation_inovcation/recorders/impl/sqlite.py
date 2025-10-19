@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from types import TracebackType
 from typing import Final
 
-from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
 from jupiter.framework_new.impl.storage.sqlite.repository import SqliteRepository
 from jupiter.framework_new.mutation_inovcation.record import (
