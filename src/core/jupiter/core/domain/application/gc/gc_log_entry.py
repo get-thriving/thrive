@@ -25,7 +25,7 @@ class GCLogEntry(LeafEntity):
     """A particular entry in the GC log."""
 
     gc_log: ParentLink
-    source: AppComponent
+    source: str
     gc_targets: list[SyncTarget]
     opened: bool
     entity_records: list[EntitySummary]

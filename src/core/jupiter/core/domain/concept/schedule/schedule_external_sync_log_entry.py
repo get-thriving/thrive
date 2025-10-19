@@ -36,7 +36,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     """An entry in a sync log."""
 
     schedule_external_sync_log: ParentLink
-    source: AppComponent
+    source: str
     today: ADate
     start_of_window: ADate
     end_of_window: ADate

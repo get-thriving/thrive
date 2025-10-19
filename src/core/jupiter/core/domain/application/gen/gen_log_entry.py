@@ -27,7 +27,7 @@ class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 
     gen_log: ParentLink
-    source: AppComponent
+    source: str
     gen_even_if_not_modified: bool
     today: ADate
     gen_targets: list[SyncTarget]

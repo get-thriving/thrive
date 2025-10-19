@@ -11,3 +11,7 @@ class NoopMutationInvocationRecorder(MutationInvocationRecorder):
 
     async def record(self, invocation_record: MutationInvocationRecord) -> None:
         """Record the invocation of the mutation."""
+
+    async def clear_all(self, context_str: str) -> None:
+        """Clear all invocation records for a given context."""
+        pass

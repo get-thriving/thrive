@@ -49,10 +49,7 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
             )
             await generic_destroyer(context.domain_context, uow, User, user.ref_id)
 
-        async with self._use_case_storage_engine.get_unit_of_work() as uc_uow:
-            await uc_uow.mutation_use_case_invocation_record_repository.clear_all(
-                workspace.ref_id
-            )
+        await self._invocation_recorder.clear_all(context.as_str())
 
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.drop(workspace.ref_id)

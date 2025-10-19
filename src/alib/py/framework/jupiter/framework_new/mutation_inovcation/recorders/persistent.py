@@ -23,7 +23,7 @@ class MutationInvocationRecordRepository(Repository, abc.ABC):
         """Create a new invocation record."""
 
     @abc.abstractmethod
-    async def clear_all(self, workspace_ref_id: EntityId) -> None:
+    async def clear_all(self, context_str: str) -> None:
         """Clear all invocation record entries."""
 
 
@@ -66,3 +66,8 @@ class PersistentMutationInvocationRecorder(MutationInvocationRecorder):
             await uow.mutation_invocation_record_repository.create(
                 invocation_record,
             )
+
+    async def clear_all(self, context_str: str) -> None:
+        """Clear all invocation records for a given context."""
+        async with self._storage_engine.get_unit_of_work() as uow:
+            await uow.mutation_invocation_record_repository.clear_all(context_str)

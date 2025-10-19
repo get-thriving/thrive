@@ -285,10 +285,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
             async with progress_reporter.section(
                 "Clearing use case invocation records"
             ):
-                async with self._use_case_storage_engine.get_unit_of_work() as uc_uow:
-                    await uc_uow.mutation_use_case_invocation_record_repository.clear_all(
-                        workspace.ref_id
-                    )
+                await self._invocation_recorder.clear_all(context.as_str())
 
             async with progress_reporter.section("Clearing the search index"):
                 async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:

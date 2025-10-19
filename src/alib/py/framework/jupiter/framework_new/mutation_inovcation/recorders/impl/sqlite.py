@@ -76,12 +76,11 @@ class SqliteMutationInvocationRecordRepository(
             ),
         )
 
-    async def clear_all(self, workspace_ref_id: EntityId) -> None:
+    async def clear_all(self, context_str: str) -> None:
         """Clear all entries in the invocation record."""
         await self._connection.execute(
             delete(self._mutation_invocation_record_table).where(
-                self._mutation_invocation_record_table.c.workspace_ref_id
-                == workspace_ref_id.as_int()
+                self._mutation_invocation_record_table.c.context_str == context_str
             ),
         )
 

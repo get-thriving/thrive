@@ -73,3 +73,7 @@ class MutationInvocationRecorder(abc.ABC):
         invocation_record: MutationInvocationRecord,
     ) -> None:
         """Record the invocation of the mutation."""
+
+    @abc.abstractmethod
+    async def clear_all(self, context_str: str) -> None:
+        """Clear all invocation records for a given context."""

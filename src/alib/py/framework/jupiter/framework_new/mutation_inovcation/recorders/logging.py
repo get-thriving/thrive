@@ -24,3 +24,7 @@ class LoggingMutationInvocationRecorder(MutationInvocationRecorder):
             invocation_record.result.value,
             invocation_record.error_str,
         )
+
+    async def clear_all(self, context_str: str) -> None:
+        """Clear all invocation records for a given context."""
+        pass

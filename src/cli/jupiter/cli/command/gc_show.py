@@ -31,7 +31,7 @@ class GCShow(JupiterLoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]
 
         for entry in result.entries:
             entry_text = Text("Run from ")
-            entry_text.append(event_source_to_rich_text(entry.source))
+            entry_text.append(entry.source)
             entry_text.append(
                 f" on {entry.created_time.as_date()} with {len(entry.entity_records)} entities archived"
             )
