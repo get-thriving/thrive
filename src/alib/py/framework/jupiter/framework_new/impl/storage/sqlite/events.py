@@ -3,7 +3,7 @@
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import Entity
 from jupiter.framework_new.event import Event
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     EncoderNotFoundError,
     EventStoreRealm,
     RealmCodecRegistry,

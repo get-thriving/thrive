@@ -9,7 +9,7 @@ from typing import (
 )
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,

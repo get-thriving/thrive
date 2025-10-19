@@ -5,7 +5,7 @@ from argon2 import PasswordHasher
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmEncoder,

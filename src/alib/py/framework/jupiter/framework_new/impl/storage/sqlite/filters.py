@@ -2,7 +2,7 @@
 
 from jupiter.framework_new.entity import EntityLinkFiltersCompiled, NoFilter
 from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry
+from jupiter.framework_new.realm.realm import DatabaseRealm, RealmCodecRegistry
 from jupiter.framework_new.utils import is_primitive_type
 from jupiter.framework_new.value import AtomicValue, EnumValue
 from sqlalchemy import Select, Table, false

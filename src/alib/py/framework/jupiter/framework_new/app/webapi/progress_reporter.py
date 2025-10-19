@@ -16,7 +16,7 @@ from jupiter.framework_new.progress_reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
-from jupiter.framework_new.realm import RealmThing
+from jupiter.framework_new.realm.realm import RealmThing
 from starlette.websockets import WebSocket
 from websockets.exceptions import ConnectionClosedError
 

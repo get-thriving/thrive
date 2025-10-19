@@ -3,7 +3,7 @@
 import re
 from functools import total_ordering
 
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,

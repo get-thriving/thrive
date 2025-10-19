@@ -22,7 +22,7 @@ from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from sqlalchemy import (
     MetaData,
 )

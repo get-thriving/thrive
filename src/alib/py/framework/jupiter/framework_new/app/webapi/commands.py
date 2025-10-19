@@ -15,7 +15,7 @@ from typing import (
 import inflection
 from fastapi import FastAPI, Request
 from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.realm import RealmCodecRegistry, WebRealm
+from jupiter.framework_new.realm.realm import RealmCodecRegistry, WebRealm
 from jupiter.framework_new.use_case import (
     BackgroundMutationUseCase,
     EmptySession,

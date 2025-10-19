@@ -15,7 +15,7 @@ from jupiter.framework_new.mutation_inovcation.recorders.persistent import (
     MutationInvocationStorageEngine,
     MutationInvocationUnitOfWork,
 )
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from sqlalchemy import (
     JSON,
     Column,

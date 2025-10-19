@@ -4,7 +4,7 @@ import argon2.profiles
 from argon2 import PasswordHasher
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmEncoder,

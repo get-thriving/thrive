@@ -14,7 +14,7 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.realm import RealmDecodingError
+from jupiter.framework_new.realm.realm import RealmDecodingError
 from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,

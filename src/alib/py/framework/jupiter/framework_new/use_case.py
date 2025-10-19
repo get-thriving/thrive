@@ -40,7 +40,11 @@ from jupiter.framework_new.progress_reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
-from jupiter.framework_new.realm import EventStoreRealm, RealmCodecRegistry, RealmThing
+from jupiter.framework_new.realm.realm import (
+    EventStoreRealm,
+    RealmCodecRegistry,
+    RealmThing,
+)
 from jupiter.framework_new.repository import (
     DomainUnitOfWork,
 )

@@ -3,7 +3,7 @@
 from functools import total_ordering
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.impl.realms import (
+from jupiter.framework_new.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )

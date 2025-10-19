@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Mapping
 
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.realm import RealmThing
+from jupiter.framework_new.realm.realm import RealmThing
 
 
 @enum.unique

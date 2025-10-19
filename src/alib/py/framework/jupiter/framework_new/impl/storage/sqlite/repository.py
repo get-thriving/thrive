@@ -42,7 +42,11 @@ from jupiter.framework_new.impl.storage.sqlite.events import (
 from jupiter.framework_new.impl.storage.sqlite.filters import compile_query_relative_to
 from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry, RealmThing
+from jupiter.framework_new.realm.realm import (
+    DatabaseRealm,
+    RealmCodecRegistry,
+    RealmThing,
+)
 from jupiter.framework_new.record import Record
 from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,

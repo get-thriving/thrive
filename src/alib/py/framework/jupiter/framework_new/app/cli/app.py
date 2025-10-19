@@ -57,7 +57,7 @@ from jupiter.framework_new.mutation_inovcation.record import (
     MutationInvocationRecorder,
 )
 from jupiter.framework_new.ports import Ports
-from jupiter.framework_new.realm import RealmCodecRegistry, RealmDecodingError
+from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmDecodingError
 from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,

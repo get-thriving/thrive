@@ -12,7 +12,7 @@ import inflection
 from jupiter.framework_new.app.cli.session_storage import SessionInfo, SessionStorage
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realm import CliRealm, RealmCodecRegistry
+from jupiter.framework_new.realm.realm import CliRealm, RealmCodecRegistry
 from jupiter.framework_new.thing import Thing
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (

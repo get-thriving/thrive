@@ -4,7 +4,7 @@ import re
 from re import Pattern
 from typing import Final
 
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,

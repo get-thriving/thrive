@@ -10,7 +10,7 @@ import pendulum.parsing
 import pendulum.tz
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     CliRealm,
     DatabaseRealm,
     RealmDecoder,

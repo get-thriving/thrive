@@ -20,7 +20,7 @@ from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteRecordRepository,
 )
 from jupiter.framework_new.impl.storage.sqlite.row import RowType
-from jupiter.framework_new.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmThing
 from jupiter.framework_new.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,

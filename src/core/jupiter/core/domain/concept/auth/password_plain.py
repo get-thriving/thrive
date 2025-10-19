@@ -1,7 +1,7 @@
 """A password in plain text, as received from a user."""
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     CliRealm,
     EventStoreRealm,
     RealmDecoder,

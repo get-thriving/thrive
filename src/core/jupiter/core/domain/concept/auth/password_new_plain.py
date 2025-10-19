@@ -5,7 +5,7 @@ from re import Pattern
 from typing import Final
 
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     CliRealm,
     EventStoreRealm,
     RealmDecoder,

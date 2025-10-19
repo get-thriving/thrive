@@ -6,11 +6,11 @@ from typing import Literal
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.impl.realms import (
+from jupiter.framework_new.realm.realm import RealmDecodingError
+from jupiter.framework_new.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.realm import RealmDecodingError
 from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,

@@ -54,7 +54,7 @@ from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.progress_reporter import ProgressReporter
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.update_action import UpdateAction

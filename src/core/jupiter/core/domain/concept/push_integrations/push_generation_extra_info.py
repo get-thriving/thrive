@@ -9,7 +9,7 @@ from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.timezone import UTC, Timezone
 from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     PROVIDE_VIA_REGISTRY,
     DatabaseRealm,
     RealmCodecRegistry,

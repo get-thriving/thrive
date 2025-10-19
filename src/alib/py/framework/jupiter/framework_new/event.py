@@ -4,7 +4,7 @@ import enum
 from dataclasses import dataclass
 
 from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.realm import DomainThing
+from jupiter.framework_new.realm.realm import DomainThing
 
 
 @enum.unique

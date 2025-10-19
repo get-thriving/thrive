@@ -39,7 +39,7 @@ from jupiter.framework_new.auth.auth_token_ext import (
     AuthTokenExt,
     AuthTokenExtDatabaseDecoder,
 )
-from jupiter.framework_new.impl.realms import (
+from jupiter.framework_new.realm.standard import (
     _StandardEnumValueDatabaseDecoder,
 )
 from jupiter.framework_new.use_case_io import UseCaseResultBase

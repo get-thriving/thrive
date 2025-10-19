@@ -17,7 +17,7 @@ from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.entity import CrownEntity
 from jupiter.framework_new.impl.storage.sqlite.repository import SqliteRepository
-from jupiter.framework_new.realm import DatabaseRealm, RealmCodecRegistry
+from jupiter.framework_new.realm.realm import DatabaseRealm, RealmCodecRegistry
 from jupiter.framework_new.repository import EntityNotFoundError
 from sqlalchemy import (
     Boolean,

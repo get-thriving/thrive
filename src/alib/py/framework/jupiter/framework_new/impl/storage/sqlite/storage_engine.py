@@ -30,7 +30,7 @@ from jupiter.framework_new.impl.storage.sqlite.repository import (
     SqliteStubEntityRepository,
     SqliteTrunkEntityRepository,
 )
-from jupiter.framework_new.realm import RealmCodecRegistry
+from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from jupiter.framework_new.record import Record
 from jupiter.framework_new.repository import (
     CrownEntityRepository,

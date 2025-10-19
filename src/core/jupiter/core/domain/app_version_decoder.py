@@ -2,11 +2,11 @@
 
 from jupiter.core.domain.app import AppVersion
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.impl.realms import (
+from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.primitive import Primitive
 
 
 class AppVersionDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[AppVersion]):

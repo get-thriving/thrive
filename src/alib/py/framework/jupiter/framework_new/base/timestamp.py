@@ -8,7 +8,7 @@ import pendulum
 import pendulum.parser
 import pendulum.parsing
 import pendulum.tz
-from jupiter.framework_new.realm import (
+from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmDecodingError,

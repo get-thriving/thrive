@@ -15,7 +15,7 @@ from jupiter.framework_new.entity import (
     update_entity_action,
 )
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import DatabaseRealm, only_in_realm
+from jupiter.framework_new.realm.realm import DatabaseRealm, only_in_realm
 from jupiter.framework_new.secure import secure_class
 
 
