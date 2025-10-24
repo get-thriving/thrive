@@ -6,6 +6,8 @@ from typing import Final
 
 from jupiter.framework_new.mutation_inovcation.record import (
     MutationInvocationRecord,
+)
+from jupiter.framework_new.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
 from jupiter.framework_new.repository import Repository

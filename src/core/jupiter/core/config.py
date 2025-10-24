@@ -30,7 +30,7 @@ from jupiter.framework_new.component_properties import ComponentProperties
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.global_properties import GlobalProperties
 from jupiter.framework_new.ports import DomainPorts
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainStorageEngine
 from jupiter.framework_new.use_case import (
     BackgroundMutationUseCase,

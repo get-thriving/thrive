@@ -3,6 +3,7 @@
 import abc
 from collections.abc import Iterable
 from contextlib import AbstractAsyncContextManager
+from typing import ContextManager
 
 from jupiter.framework_new.entity import CrownEntity
 
@@ -44,6 +45,12 @@ class ProgressReporter(abc.ABC):
 
 class ProgressReporterFactory(abc.ABC):
     """A factory for progress reporters."""
+
+    @abc.abstractmethod
+    def envelope(
+        self, name: str, add_prologue_and_epilogue: bool
+    ) -> ContextManager[None]:
+        """Envelope the execution of a command with a progress reporter."""
 
     @abc.abstractmethod
     def new_reporter(self, dedup_key: str) -> ProgressReporter:

@@ -42,7 +42,7 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import (
     DomainStorageEngine,
     DomainUnitOfWork,

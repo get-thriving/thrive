@@ -11,7 +11,7 @@ from jupiter.core.domain.infer_sync_targets import (
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.use_case import (
     UnavailableForContextError,
     mutation_use_case,

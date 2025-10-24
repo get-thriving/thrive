@@ -11,7 +11,7 @@ from jupiter.framework_new.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.record import ContainsRecordLink, Record
 from jupiter.framework_new.repository import DomainUnitOfWork
 

@@ -80,7 +80,7 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
-from jupiter.framework_new.progress_reporter import (
+from jupiter.framework_new.progress_reporter.reporter import (
     ProgressReporter,
 )
 from jupiter.framework_new.secure import secure_class

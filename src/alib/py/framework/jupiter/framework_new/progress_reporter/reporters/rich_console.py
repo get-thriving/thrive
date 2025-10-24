@@ -1,20 +1,19 @@
 """A CLI app progress reporter."""
 
-import argparse
 import asyncio
 from collections import defaultdict
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from typing import Final
 
-from jupiter.framework_new.app.noop.progress_reporter import NoOpProgressReporter
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.progress_reporter import (
+from jupiter.framework_new.progress_reporter.reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
+from jupiter.framework_new.progress_reporter.reporters.noop import NoOpProgressReporter
 from rich.console import Console
 from rich.panel import Panel
 from rich.status import Status
@@ -106,18 +105,9 @@ class RichConsoleProgressReporter(ProgressReporter):
         self._console.print(text)
         self._status.update("Working on it ...")
 
-    def print_prologue(self, command_name: str, args: argparse.Namespace) -> None:
+    def print_prologue(self, command_name: str) -> None:
         """Print a prologue section."""
         command_text = Text(f"{command_name}")
-        for arg, val in vars(args).items():
-            if (
-                arg == "subparser_name"
-                or arg == "verbose_logging"
-                or arg == "min_log_level"
-                or arg == "just_show_version"
-            ):
-                continue  # Ugly, but not the worst thing!
-            command_text.append(f" {arg}:{val}")
         command_text.stylize("green on blue bold underline")
 
         prologue_text = Text("Running command ").append(command_text)
@@ -230,20 +220,17 @@ class RichConsoleProgressReporterFactory(ProgressReporterFactory):
     @contextmanager
     def envelope(
         self,
-        should_have_streaming_progress_report: bool,
-        command_name: str,
-        args: argparse.Namespace,
-    ) -> Iterator["RichConsoleProgressReporterFactory"]:
-        """Evelope execution of this with nice graphics."""
-        self._should_have_streaming_progress_report = (
-            should_have_streaming_progress_report
-        )
+        name: str,
+        add_prologue_and_epilogue: bool,
+    ) -> Iterator[None]:
+        """Envelope execution of this with nice graphics."""
+        self._should_have_streaming_progress_report = add_prologue_and_epilogue
         try:
-            if should_have_streaming_progress_report:
+            if add_prologue_and_epilogue:
                 self._status.start()
-                self._stored_progress_reporter.print_prologue(command_name, args)
-            yield self
-            if should_have_streaming_progress_report:
+                self._stored_progress_reporter.print_prologue(name)
+            yield
+            if add_prologue_and_epilogue:
                 self._stored_progress_reporter.print_epilogue()
         finally:
             self._status.stop()

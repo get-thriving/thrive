@@ -14,7 +14,7 @@ from jupiter.core.domain.sync_target import (
 )
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.use_case import (
     mutation_use_case,
 )

@@ -1,6 +1,7 @@
 """The CLI entry-point for jupiter."""
 
 import asyncio
+import logging
 import sys
 
 import jupiter.cli.command
@@ -17,9 +18,6 @@ from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
     SqliteSearchStorageEngine,
 )
-from jupiter.framework_new.app.cli.progress_reporter import (
-    RichConsoleProgressReporterFactory,
-)
 from jupiter.framework_new.app.cli.session_storage import SessionStorage
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
@@ -32,6 +30,9 @@ from jupiter.framework_new.mutation_inovcation.recorders.impl.sqlite import (
 from jupiter.framework_new.mutation_inovcation.recorders.persistent import (
     PersistentMutationInvocationRecorder,
 )
+from jupiter.framework_new.progress_reporter.reporters.rich_console import (
+    RichConsoleProgressReporterFactory,
+)
 from jupiter.framework_new.realm.standard import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.time_provider import TimeProvider
 from rich.console import Console
@@ -41,7 +42,7 @@ from rich.console import Console
 
 async def main() -> None:
     """Application main function."""
-    # logging.disable()
+    logging.disable()
 
     time_provider = TimeProvider()
 

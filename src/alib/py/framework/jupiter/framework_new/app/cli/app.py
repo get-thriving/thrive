@@ -31,14 +31,10 @@ from jupiter.framework_new.app.cli.exceptions import (
     UnavailableForContextHandler,
     UnavailableGloballyHandler,
 )
-from jupiter.framework_new.app.cli.progress_reporter import (
-    RichConsoleProgressReporterFactory,
-)
 from jupiter.framework_new.app.cli.session_storage import (
     SessionInfoNotFoundError,
     SessionStorage,
 )
-from jupiter.framework_new.app.noop.progress_reporter import NoOpProgressReporterFactory
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
@@ -53,10 +49,14 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_inovcation.record import (
+from jupiter.framework_new.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
 from jupiter.framework_new.ports import Ports
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporterFactory
+from jupiter.framework_new.progress_reporter.reporters.noop import (
+    NoOpProgressReporterFactory,
+)
 from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmDecodingError
 from jupiter.framework_new.repository import (
     EntityAlreadyExistsError,
@@ -95,7 +95,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
-    _progress_reporter_factory: Final[RichConsoleProgressReporterFactory]
+    _progress_reporter_factory: Final[ProgressReporterFactory]
     _auth_token_stamper: Final[AuthTokenStamper]
     _console: Final[Console]
     _session_storage: Final[SessionStorage]
@@ -129,7 +129,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationInvocationRecorder,
-        progress_reporter_factory: RichConsoleProgressReporterFactory,
+        progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
         console: Console,
         session_storage: SessionStorage,
@@ -164,7 +164,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationInvocationRecorder,
-        progress_reporter_factory: RichConsoleProgressReporterFactory,
+        progress_reporter_factory: ProgressReporterFactory,
         auth_token_stamper: AuthTokenStamper,
         console: Console,
         session_storage: SessionStorage,
@@ -643,7 +643,8 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
                 continue
 
             with self._progress_reporter_factory.envelope(
-                command.should_have_streaming_progress_report, command.name(), args
+                name=command.name(),
+                add_prologue_and_epilogue=command.should_have_streaming_progress_report,
             ):
                 try:
                     await command.run(self._console, args)

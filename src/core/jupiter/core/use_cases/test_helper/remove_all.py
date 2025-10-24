@@ -12,7 +12,7 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.infra.generic_destroyer import generic_destroyer
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.use_case import (
     mutation_use_case,
 )

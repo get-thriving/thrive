@@ -4,15 +4,16 @@ import asyncio
 import logging
 from collections import defaultdict
 from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from typing import (
     Final,
+    Iterator,
 )
 
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.progress_reporter import (
+from jupiter.framework_new.progress_reporter.reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -296,6 +297,11 @@ class WebsocketProgressReporterFactory(ProgressReporterFactory):
         for web_socket_handle in self._web_sockets.values():
             await web_socket_handle.clear_websocket()
         self._web_sockets.clear()
+
+    @contextmanager
+    def envelope(self, name: str, add_prologue_and_epilogue: bool) -> Iterator[None]:
+        """Envelope the execution of a command with a progress reporter that uses websockets."""
+        yield None
 
     def new_reporter(self, dedup_key: str) -> ProgressReporter:
         """Construct a new progress reporter based on web sockets."""

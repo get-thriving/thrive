@@ -1,10 +1,10 @@
 """Noop progress reporter."""
 
-from contextlib import asynccontextmanager
-from typing import AsyncIterator, Iterable
+from contextlib import asynccontextmanager, contextmanager
+from typing import AsyncIterator, Iterable, Iterator
 
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.progress_reporter import (
+from jupiter.framework_new.progress_reporter.reporter import (
     ProgressReporter,
     ProgressReporterFactory,
 )
@@ -58,6 +58,11 @@ class NoOpProgressReporter(ProgressReporter):
 
 class NoOpProgressReporterFactory(ProgressReporterFactory):
     """A noop progress reporter factory."""
+
+    @contextmanager
+    def envelope(self, name: str, add_prologue_and_epilogue: bool) -> Iterator[None]:
+        """Envelope the execution of a command with a progress reporter that does nothing."""
+        yield None
 
     def new_reporter(self, dedup_key: str) -> ProgressReporter:
         """Construct a new progress reporter that does nothing."""

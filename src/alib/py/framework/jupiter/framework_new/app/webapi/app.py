@@ -23,9 +23,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
-from jupiter.framework_new.app.noop.progress_reporter import (
-    NoOpProgressReporterFactory,
-)
 from jupiter.framework_new.app.webapi.commands import (
     Command,
     CronCommand,
@@ -49,9 +46,6 @@ from jupiter.framework_new.app.webapi.exceptions import (
     UnavailableForContextHandler,
     UnavailableGloballyHandler,
 )
-from jupiter.framework_new.app.webapi.progress_reporter import (
-    WebsocketProgressReporterFactory,
-)
 from jupiter.framework_new.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
@@ -67,12 +61,18 @@ from jupiter.framework_new.global_properties import (
     GlobalProperties,
     UnavailableGloballyError,
 )
-from jupiter.framework_new.mutation_inovcation.record import (
+from jupiter.framework_new.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
 from jupiter.framework_new.optional import normalize_optional
 from jupiter.framework_new.ports import Ports
 from jupiter.framework_new.primitive import Primitive
+from jupiter.framework_new.progress_reporter.reporters.noop import (
+    NoOpProgressReporterFactory,
+)
+from jupiter.framework_new.progress_reporter.reporters.websocket import (
+    WebsocketProgressReporterFactory,
+)
 from jupiter.framework_new.realm.realm import (
     DomainThing,
     RealmCodecRegistry,

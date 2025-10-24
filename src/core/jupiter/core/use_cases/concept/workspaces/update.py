@@ -6,7 +6,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (

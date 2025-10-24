@@ -10,7 +10,7 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import (
     DomainUnitOfWork,
 )

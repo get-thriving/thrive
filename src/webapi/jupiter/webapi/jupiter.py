@@ -18,9 +18,6 @@ from jupiter.core.impl.crm.wix import WixCRM
 from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
     SqliteSearchStorageEngine,
 )
-from jupiter.framework_new.app.webapi.progress_reporter import (
-    WebsocketProgressReporterFactory,
-)
 from jupiter.framework_new.auth.auth_token_stamper import AuthTokenStamper
 from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
 from jupiter.framework_new.impl.storage.sqlite.storage_engine import (
@@ -31,6 +28,9 @@ from jupiter.framework_new.mutation_inovcation.recorders.impl.sqlite import (
 )
 from jupiter.framework_new.mutation_inovcation.recorders.persistent import (
     PersistentMutationInvocationRecorder,
+)
+from jupiter.framework_new.progress_reporter.reporters.websocket import (
+    WebsocketProgressReporterFactory,
 )
 from jupiter.framework_new.realm.standard import ModuleExplorerRealmCodecRegistry
 from jupiter.framework_new.time_provider import (

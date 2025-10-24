@@ -8,7 +8,7 @@ from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (

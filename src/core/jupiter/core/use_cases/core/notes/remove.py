@@ -10,7 +10,7 @@ from jupiter.core.domain.core.notes.service.note_remove_service import (
     NoteRemoveService,
 )
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     mutation_use_case,

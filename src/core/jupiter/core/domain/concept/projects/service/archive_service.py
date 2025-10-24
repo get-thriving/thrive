@@ -47,7 +47,7 @@ from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
 from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.progress_reporter import ProgressReporter
+from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.repository import DomainUnitOfWork
 
 
