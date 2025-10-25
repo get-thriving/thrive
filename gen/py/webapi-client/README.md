@@ -1,5 +1,5 @@
-# jupiter-webapi-client
-A client library for accessing Jupiter Webapi
+# jupiter_webapi_client
+A client library for accessing The Web RPC API client for Thrive
 
 ## Usage
 First, create a client:

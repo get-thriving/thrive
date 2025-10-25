@@ -27,7 +27,7 @@ http --timeout 2 get "$webapi_url/openapi.json" > .build-cache/apigen/openapi.js
 
 log info "Stopping Jupiter for API generation"
 
-stop_jupiter_webapi apigen
+stop_jupiter_webapp apigen
 
 log info "Generating TypeScript client code"
 
@@ -49,10 +49,18 @@ log info "Generating Python client code"
 
 mkdir -p gen/py
 
-trap "rm -rf jupiter-webapi-client" EXIT
+python_generation_config=$(cat <<'EOF'
+project_name_override: jupiter_webapi_client
+package_name_override: jupiter_webapi_client
+EOF
+)
+
+echo "$python_generation_config" > config.yaml
+
+trap "rm -rf jupiter_webapi_client config.yaml" EXIT
 rm -rf gen/py/$PACKAGE_NAME
-poetry run openapi-python-client generate --path .build-cache/apigen/openapi.json --meta poetry
-mv jupiter-webapi-client gen/py/$PACKAGE_NAME
+poetry run openapi-python-client generate --config config.yaml --path .build-cache/apigen/openapi.json --meta poetry
+mv jupiter_webapi_client gen/py/$PACKAGE_NAME
 
 py_package_json="$(jo packageName="$PACKAGE_NAME")"
 npx hbs-cli --stdout -D "$py_package_json" tasks/_resources/py-package.mise.toml.hbs > gen/py/$PACKAGE_NAME/package.mise.toml

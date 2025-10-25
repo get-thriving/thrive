@@ -5,7 +5,7 @@
 /**
  * The reason why an entity was archived.
  */
-export enum ArchivalReason {
+export enum JupiterArchivalReason {
     USER = 'user',
     GC = 'gc',
     SYNC = 'sync',

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EventSource(str, Enum):
+class AppComponent(str, Enum):
     APP = "app"
     CLI = "cli"
     GC_CRON = "gc-cron"

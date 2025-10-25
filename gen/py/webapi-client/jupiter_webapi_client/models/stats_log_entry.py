@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.event_source import EventSource
 from ..models.sync_target import SyncTarget
 from ..types import UNSET, Unset
 
@@ -27,7 +26,7 @@ class StatsLogEntry:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         stats_log_ref_id (str):
-        source (EventSource): The source of the modification which this event records.
+        source (str):
         stats_targets (list[SyncTarget]):
         today (str): A date or possibly a datetime for the application.
         opened (bool):
@@ -46,7 +45,7 @@ class StatsLogEntry:
     last_modified_time: str
     name: str
     stats_log_ref_id: str
-    source: EventSource
+    source: str
     stats_targets: list[SyncTarget]
     today: str
     opened: bool
@@ -73,7 +72,7 @@ class StatsLogEntry:
 
         stats_log_ref_id = self.stats_log_ref_id
 
-        source = self.source.value
+        source = self.source
 
         stats_targets = []
         for stats_targets_item_data in self.stats_targets:
@@ -178,7 +177,7 @@ class StatsLogEntry:
 
         stats_log_ref_id = d.pop("stats_log_ref_id")
 
-        source = EventSource(d.pop("source"))
+        source = d.pop("source")
 
         stats_targets = []
         _stats_targets = d.pop("stats_targets")

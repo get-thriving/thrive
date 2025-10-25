@@ -20,7 +20,7 @@ import { parseForm } from "zodix";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EventSourceTag } from "~/components/infra/event-source-tag";
+import { AppComponentTag } from "~/components/infra/app-component-tag";
 import { EntityCard } from "~/components/infra/entity-card";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
 import { FieldError, GlobalError } from "~/components/infra/errors";
@@ -54,7 +54,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.gc.gcLoadRuns({});
+  const response = await apiClient.gc.gCLoadRuns({});
   return json(response.entries);
 }
 
@@ -63,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, GCFormSchema);
 
   try {
-    await apiClient.gc.gcDo({
+    await apiClient.gc.gCDo({
       gc_targets: fixSelectOutputToEnum<SyncTarget>(form.gcTargets),
     });
 
@@ -132,7 +132,7 @@ export default function GC() {
           <Accordion key={entry.ref_id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <AccordionHeader>
-                Run from <EventSourceTag source={entry.source} />
+                Run from <AppComponentTag source={entry.source} />
                 with {entry.entity_records.length} entities archived
                 <TimeDiffTag
                   today={topLevelInfo.today}

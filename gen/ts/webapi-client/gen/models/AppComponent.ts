@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * The source of the modification which this event records.
+ * The component of the app.
  */
-export enum EventSource {
+export enum AppComponent {
     WEB = 'web',
     CLI = 'cli',
     APP = 'app',

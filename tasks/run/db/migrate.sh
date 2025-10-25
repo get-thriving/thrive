@@ -43,6 +43,6 @@ get_logs pm2 "$namespace" webapi
 log info "Migrations completed successfully!"
 log info "Stopping Jupiter..."
 
-stop_jupiter_webapi "$namespace"
+stop_jupiter_webapp "$namespace"
 
 log info "Database migrations finished for namespace: $namespace"

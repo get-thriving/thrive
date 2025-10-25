@@ -131,6 +131,11 @@ class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
     def _build_api_name(self) -> str:
         return self._use_case.__class__.__name__.replace("UseCase", "")
 
+    def _build_operation_id(self) -> str:
+        return inflection.camelize(
+            self._use_case.__class__.__name__.replace("UseCase", ""), False
+        )
+
     def _build_description(self) -> str:
         return self._use_case.__doc__ or ""
 
