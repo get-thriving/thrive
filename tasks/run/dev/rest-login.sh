@@ -30,6 +30,6 @@ webapi_url="http://0.0.0.0:${webapi_port}"
 
 access_token=$(http --form POST "$webapi_url/simple-login" username="$usage_user_email_address" password="$usage_password" | jq .access_token)
 
-echo "$access_token" > .build-cache/run/$namespace/rest_access_token
+echo "$access_token" > ".build-cache/run/$namespace/rest_access_token"
 
 restish api configure jupiter "$webapi_url"

@@ -840,11 +840,20 @@ class WebApiAppForm(
         openapi_schema["components"] = {}
 
         openapi_schema["components"]["securitySchemes"] = {
-            "Bearer": {
-                "type": "http",
-                "scheme": "bearer",
-                "bearerFormat": "JWT"
-            }
+            "OAuth2PasswordBearer": {
+                "type": "oauth2",
+                "flows": {
+                    "password": {
+                    "tokenUrl": self.simple_login_route,
+                    "scopes": {}
+                    },
+                },
+            },
+            # "Bearer": {
+            #     "type": "http",
+            #     "scheme": "bearer",
+            #     "bearerFormat": "JWT"
+            # }
         }
 
         schemas: dict[str, Any] = {}
@@ -915,7 +924,7 @@ class WebApiAppForm(
             elif isinstance(
                 command, (LoggedInMutationCommand, LoggedInReadonlyCommand)
             ):
-                paths_object["security"] = [{"Bearer": []}]
+                paths_object["security"] = [{"OAuth2PasswordBearer": []}]
             else:
                 raise Exception(f"Unsupported command type {type(command)}")
 

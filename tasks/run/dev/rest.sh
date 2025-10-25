@@ -19,6 +19,6 @@ if [[ -z "$namespace" ]]; then
     namespace=$STANDARD_NAMESPACE
 fi
 
-access_token=$(cat .build-cache/run/$namespace/rest_access_token)
+access_token=$(cat "${RUN_ROOT}/$namespace/rest_access_token")
 
 RSH_HEADER="Authorization:Bearer $access_token" restish jupiter "${usage_restish_args[@]}"

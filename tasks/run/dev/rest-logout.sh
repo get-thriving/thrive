@@ -19,6 +19,6 @@ if [[ -z "$namespace" ]]; then
     namespace=$STANDARD_NAMESPACE
 fi
 
-rm .build-cache/run/$namespace/rest_access_token
+rm "${RUN_ROOT}/$namespace/rest_access_token"
 
 log info "Logged out from $namespace webapi"
