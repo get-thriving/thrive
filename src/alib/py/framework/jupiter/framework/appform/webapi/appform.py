@@ -839,6 +839,16 @@ class WebApiAppForm(
 
         openapi_schema["components"] = {}
 
+        openapi_schema["components"]["securitySchemes"] = {
+            "Bearer": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "name": "Authorization",
+                "in": "header",
+            }
+        }
+
         openapi_schema["components"]["schemas"] = {}
 
         for enum_value_type in self._realm_codec_registry.get_all_registered_types(
@@ -901,6 +911,17 @@ class WebApiAppForm(
             if isinstance(command, UseCaseCommand) and not isinstance(
                 command, CronCommand
             ):
+                if isinstance(command, (GuestMutationCommand, GuestReadonlyCommand)):
+                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
+                        "security"
+                    ] = []
+                elif isinstance(command, (LoggedInMutationCommand, LoggedInReadonlyCommand)):
+                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
+                        "security"
+                    ] = [{"Bearer": []}]
+                else:
+                    raise Exception(f"Unsupported command type {type(command)}")
+
                 openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
                     "requestBody"
                 ] = {
