@@ -8,6 +8,7 @@ from collections.abc import Iterator
 from datetime import date, datetime
 from json import JSONDecodeError
 from typing import (
+    Annotated,
     Any,
     Final,
     ForwardRef,
@@ -20,9 +21,10 @@ from typing import (
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
+from fastapi.security import OAuth2PasswordRequestForm
 from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.webapi.commands import (
     Command,
@@ -338,49 +340,19 @@ class WebApiAppForm(
             ),
         )
 
-        # login_use_case = LoginUseCase(
-        #     global_properties=global_properties,
-        #     time_provider=request_time_provider,
-        #     realm_codec_registry=realm_codec_registry,
-        #     auth_token_stamper=auth_token_stamper,
-        #     ports=ports,
-        # )
-
         @app._fast_app.get(app.healthz_route, status_code=status.HTTP_200_OK)
         async def healthz() -> None:
             """Health check endpoint."""
             return None
 
-        # @app.fast_app.post("/old-skool-login", **STANDARD_CONFIG)
-        # async def old_skool_login(
-        #     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-        # ) -> dict[str, str]:
-        #     """Login via OAuth2 password flow and return an auth token."""
-        #     email_address = realm_codec_registry.db_decode(
-        #         EmailAddress, form_data.username, WebRealm
-        #     )
-        #     password = realm_codec_registry.db_decode(
-        #         PasswordPlain, form_data.password, WebRealm
-        #     )
-
-        #     result = await login_use_case.execute(
-        #         GuestSession.build(
-        #             JupiterComponentProperties.for_app(
-        #                 core=AppCore.WEBUI,
-        #                 the_shell=AppShell.BROWSER,
-        #                 platform=AppPlatform.DESKTOP_MACOS,
-        #                 distribution=AppDistribution.WEB,
-        #                 version=global_properties.version,
-        #             ),
-        #             auth_token_ext=None,
-        #         ),
-        #         LoginArgs(email_address=email_address, password=password),
-        #     )
-
-        #     return {
-        #         "access_token": result[1].auth_token_ext.auth_token_str,
-        #         "token_type": "bearer",
-        #     }
+        @app._fast_app.post(app.simple_login_route, status_code=status.HTTP_200_OK)
+        async def simple_login(
+            form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+        ) -> dict[str, str]:
+            """Simple login endpoint."""
+            email_address_raw = form_data.username
+            password_raw = form_data.password
+            return await app.simple_login(email_address_raw, password_raw)
 
         for mr in module_root:
             for m in find_all_modules(mr):
@@ -502,6 +474,11 @@ class WebApiAppForm(
         return "/healthz"
 
     @property
+    def simple_login_route(self) -> str:
+        """The healthz route of the app."""
+        return "/simple-login"
+
+    @property
     def openapi_json_route(self) -> str:
         """The openapi json route of the app."""
         return "/openapi.json"
@@ -518,6 +495,15 @@ class WebApiAppForm(
 
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""
+
+    async def simple_login(
+        self, email_address_raw: str, password_raw: str
+    ) -> dict[str, str]:
+        """Simple login endpoint."""
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Not implemented",
+        )
 
     def _custom_generate_unique_id(self, route: APIRoute) -> str:
         """Generate a OpenAPI unique id from just the route name."""
@@ -948,8 +934,8 @@ class WebApiAppForm(
                         "description": "Successful response / Empty body",
                     }
 
-        del openapi_schema["paths"]["/healthz"]
-        # del openapi_schema["paths"]["/old-skool-login"]
+        del openapi_schema["paths"][self.healthz_route]
+        del openapi_schema["paths"][self.simple_login_route]
 
         self._fast_app.openapi_schema = openapi_schema
         return self._fast_app.openapi_schema

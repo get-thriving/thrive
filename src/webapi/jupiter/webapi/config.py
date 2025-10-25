@@ -27,6 +27,9 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
+from jupiter.core.domain.concept.auth.password_plain import PasswordPlainWebDecoder
+from jupiter.core.domain.core.email_address import EmailAddressDatabaseDecoder
+from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (
     GuestMutationCommand,
@@ -217,6 +220,11 @@ class JupiterWebApiAppForm(
         return "/healthz"
 
     @property
+    def simple_login_route(self) -> str:
+        """The simple login route of the app."""
+        return "/simple-login"
+
+    @property
     def openapi_json_route(self) -> str:
         """The openapi json route of the app."""
         return "/openapi.json"
@@ -236,6 +244,40 @@ class JupiterWebApiAppForm(
         response.headers[ENV_HEADER] = self._global_properties.env.value
         response.headers[HOSTING_HEADER] = self._global_properties.hosting.value
         response.headers[VERSION_HEADER] = self.api_version
+
+    async def simple_login(
+        self, email_address_raw: str, password_raw: str
+    ) -> dict[str, str]:
+        """Simple login endpoint."""
+        email_address = EmailAddressDatabaseDecoder().decode(email_address_raw)
+        password = PasswordPlainWebDecoder().decode(password_raw)
+
+        login_use_case = LoginUseCase(
+            global_properties=self._global_properties,
+            time_provider=self._request_time_provider,
+            realm_codec_registry=self._realm_codec_registry,
+            auth_token_stamper=self._auth_token_stamper,
+            ports=self._ports,
+        )
+
+        result = await login_use_case.execute(
+            JupiterGuestSession(
+                component_properties=JupiterComponentProperties.for_app(
+                    core=AppCore.WEBUI,
+                    the_shell=AppShell.BROWSER,
+                    platform=AppPlatform.DESKTOP_MACOS,
+                    distribution=AppDistribution.WEB,
+                    version=self._global_properties.version,
+                ),
+                auth_token_ext=None,
+            ),
+            LoginArgs(email_address=email_address, password=password),
+        )
+
+        return {
+            "access_token": result[1].auth_token_ext.auth_token_str,
+            "token_type": "bearer",
+        }
 
 
 def _extract_auth_token_ext(request: Request) -> AuthTokenExt | None:
