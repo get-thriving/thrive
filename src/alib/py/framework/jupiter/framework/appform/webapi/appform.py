@@ -849,111 +849,108 @@ class WebApiAppForm(
             }
         }
 
-        openapi_schema["components"]["schemas"] = {}
+        schemas: dict[str, Any] = {}
 
         for enum_value_type in self._realm_codec_registry.get_all_registered_types(
             EnumValue, WebRealm
         ):
-            openapi_schema["components"]["schemas"][enum_value_type.__name__] = (
-                build_enum_value_schema(enum_value_type)
-            )
+            schemas[enum_value_type.__name__] = build_enum_value_schema(enum_value_type)
 
         for atomic_value_type in self._realm_codec_registry.get_all_registered_types(AtomicValue, WebRealm):  # type: ignore[type-abstract]
-            openapi_schema["components"]["schemas"][atomic_value_type.__name__] = (
-                build_atomic_value_schema(atomic_value_type)
+            schemas[atomic_value_type.__name__] = build_atomic_value_schema(
+                atomic_value_type
             )
 
         for composite_value_type in self._realm_codec_registry.get_all_registered_types(
             CompositeValue, WebRealm
         ):
-            openapi_schema["components"]["schemas"][composite_value_type.__name__] = (
-                build_composite_schema(composite_value_type)
+            schemas[composite_value_type.__name__] = build_composite_schema(
+                composite_value_type
             )
 
         for secret_value_type in self._realm_codec_registry.get_all_registered_types(
             SecretValue, WebRealm
         ):
-            openapi_schema["components"]["schemas"][secret_value_type.__name__] = (
-                build_secret_value_schema(secret_value_type)
+            schemas[secret_value_type.__name__] = build_secret_value_schema(
+                secret_value_type
             )
 
         for entity_type in self._realm_codec_registry.get_all_registered_types(
             Entity, WebRealm
         ):
-            openapi_schema["components"]["schemas"][entity_type.__name__] = (
-                build_composite_schema(entity_type)
-            )
+            schemas[entity_type.__name__] = build_composite_schema(entity_type)
 
         for record_type in self._realm_codec_registry.get_all_registered_types(
             Record, WebRealm
         ):
-            openapi_schema["components"]["schemas"][record_type.__name__] = (
-                build_composite_schema(record_type)
-            )
+            schemas[record_type.__name__] = build_composite_schema(record_type)
 
         for use_case_args_type in self._realm_codec_registry.get_all_registered_types(
             UseCaseArgsBase, WebRealm
         ):
-            openapi_schema["components"]["schemas"][use_case_args_type.__name__] = (
-                build_composite_schema(use_case_args_type)
+            schemas[use_case_args_type.__name__] = build_composite_schema(
+                use_case_args_type
             )
 
         for use_case_result_type in self._realm_codec_registry.get_all_registered_types(
             UseCaseResultBase, WebRealm
         ):
-            openapi_schema["components"]["schemas"][use_case_result_type.__name__] = (
-                build_composite_schema(use_case_result_type)
+            schemas[use_case_result_type.__name__] = build_composite_schema(
+                use_case_result_type
             )
+
+        openapi_schema["components"]["schemas"] = schemas
 
         # Link api with components
 
         for _use_case, command in self._use_case_commands.items():
-            if isinstance(command, UseCaseCommand) and not isinstance(
-                command, CronCommand
+            if not (
+                isinstance(command, UseCaseCommand)
+                and not isinstance(command, CronCommand)
             ):
-                if isinstance(command, (GuestMutationCommand, GuestReadonlyCommand)):
-                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
-                        "security"
-                    ] = []
-                elif isinstance(command, (LoggedInMutationCommand, LoggedInReadonlyCommand)):
-                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
-                        "security"
-                    ] = [{"Bearer": []}]
-                else:
-                    raise Exception(f"Unsupported command type {type(command)}")
+                continue
 
-                openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
-                    "requestBody"
-                ] = {
-                    "description": "The input data",
+            paths_object: dict[str, Any] = {}
+
+            if isinstance(command, (GuestMutationCommand, GuestReadonlyCommand)):
+                paths_object["security"] = []
+            elif isinstance(
+                command, (LoggedInMutationCommand, LoggedInReadonlyCommand)
+            ):
+                paths_object["security"] = [{"Bearer": []}]
+            else:
+                raise Exception(f"Unsupported command type {type(command)}")
+
+            paths_object["requestBody"] = {
+                "description": "The input data",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": f"#/components/schemas/{command._args_type.__name__}"
+                        }
+                    }
+                },
+            }
+
+            paths_object["responses"] = {}
+
+            if command._result_type is not type(None):
+                paths_object["responses"]["200"] = {
+                    "description": "Successful response",
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": f"#/components/schemas/{command._args_type.__name__}"
+                                "$ref": f"#/components/schemas/{command._result_type.__name__}"
                             }
                         }
                     },
                 }
+            else:
+                paths_object["responses"]["200"] = {
+                    "description": "Successful response / Empty body",
+                }
 
-                if command._result_type is not type(None):
-                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
-                        "responses"
-                    ]["200"] = {
-                        "description": "Successful response",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": f"#/components/schemas/{command._result_type.__name__}"
-                                }
-                            }
-                        },
-                    }
-                else:
-                    openapi_schema["paths"][f"/{command._build_http_name()}"]["post"][
-                        "responses"
-                    ]["200"] = {
-                        "description": "Successful response / Empty body",
-                    }
+            openapi_schema["paths"][f"/{command._build_http_name()}"] = paths_object
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]
