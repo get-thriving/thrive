@@ -8,12 +8,12 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsOne,
@@ -22,8 +22,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.storage.repository import LeafEntityRepository
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import LeafEntityRepository
 
 
 @entity

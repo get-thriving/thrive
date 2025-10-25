@@ -14,10 +14,10 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsFieldRefId,
     LeafEntity,
     ParentLink,
@@ -27,11 +27,11 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

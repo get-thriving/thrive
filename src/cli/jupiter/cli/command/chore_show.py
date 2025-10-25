@@ -22,7 +22,7 @@ from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.chores.find import ChoreFindResult, ChoreFindUseCase
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

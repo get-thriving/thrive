@@ -4,13 +4,13 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
-from jupiter.framework_new.secure import secure_class
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
+from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

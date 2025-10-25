@@ -7,12 +7,12 @@ from jupiter.core.config import (
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.infra.generic_loader import generic_loader
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

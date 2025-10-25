@@ -19,16 +19,16 @@ from jupiter.core.config import (
     JupiterPorts,
 )
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
-from jupiter.framework_new.app.cli.app import CliApp
-from jupiter.framework_new.app.cli.commands import (
+from jupiter.framework.appform.cli.app import CliApp
+from jupiter.framework.appform.cli.commands import (
     GuestMutationCommand,
     GuestReadonlyCommand,
     LoggedInMutationCommand,
     LoggedInReadonlyCommand,
 )
-from jupiter.framework_new.app.cli.exception import CliExceptionHandler
-from jupiter.framework_new.app.cli.session_storage import SessionInfo
-from jupiter.framework_new.use_case_io import UseCaseResultBase
+from jupiter.framework.appform.cli.exception import CliExceptionHandler
+from jupiter.framework.appform.cli.session_storage import SessionInfo
+from jupiter.framework.use_case_io import UseCaseResultBase
 
 _JupiterGuestMutationUseCaseT = TypeVar(  # type: ignore
     "_JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[Any, Any]

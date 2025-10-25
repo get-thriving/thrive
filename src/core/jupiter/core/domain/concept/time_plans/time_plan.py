@@ -11,11 +11,11 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     LeafEntity,
@@ -26,11 +26,11 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 class CannotModifyGeneratedTimePlanError(Exception):

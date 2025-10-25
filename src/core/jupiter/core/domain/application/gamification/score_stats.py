@@ -9,12 +9,12 @@ from jupiter.core.domain.application.gamification.user_score_history import (
 )
 from jupiter.core.domain.application.gamification.user_score_overview import UserScore
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import ParentLink
-from jupiter.framework_new.record import Record, create_record_action, record
-from jupiter.framework_new.storage.repository import RecordRepository
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import ParentLink
+from jupiter.framework.record import Record, create_record_action, record
+from jupiter.framework.storage.repository import RecordRepository
 
 
 @record

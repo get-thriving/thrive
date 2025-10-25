@@ -34,17 +34,17 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
     UnavailableForContextError,
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

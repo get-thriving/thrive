@@ -12,12 +12,12 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

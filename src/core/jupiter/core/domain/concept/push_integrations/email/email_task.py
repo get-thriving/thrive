@@ -9,10 +9,10 @@ from jupiter.core.domain.concept.push_integrations.push_generation_extra_info im
     PushGenerationExtraInfo,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -21,8 +21,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

@@ -5,17 +5,17 @@ import abc
 from jupiter.core.domain.application.gamification.score_stats import ScoreStats
 from jupiter.core.domain.application.gamification.user_score_overview import UserScore
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import ParentLink
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.record import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import ParentLink
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.record import (
     Record,
     create_record_action,
     record,
     update_record_action,
 )
-from jupiter.framework_new.storage.repository import RecordRepository
+from jupiter.framework.storage.repository import RecordRepository
 
 
 @record

@@ -2,12 +2,12 @@
 
 from functools import total_ordering
 
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm.standard import (
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.value import AtomicValue, hashable_value
+from jupiter.framework.value import AtomicValue, hashable_value
 
 
 @hashable_value

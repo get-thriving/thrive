@@ -16,10 +16,10 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlockStatsPerGroup,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.framework_new.base.adate import ADate, ADateDatabaseDecoder
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.storage.repository import EntityNotFoundError
-from jupiter.framework_new.storage.sqlite.repository import (
+from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.repository import EntityNotFoundError
+from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from sqlalchemy import func, select

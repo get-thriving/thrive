@@ -15,10 +15,10 @@ from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
 )
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class HabitRemoveService:

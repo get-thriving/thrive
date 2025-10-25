@@ -8,11 +8,11 @@ from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.use_case import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

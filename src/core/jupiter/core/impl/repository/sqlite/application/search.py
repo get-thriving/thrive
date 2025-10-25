@@ -11,14 +11,14 @@ from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.realm.realm import DatabaseRealm, RealmCodecRegistry
-from jupiter.framework_new.storage.repository import EntityNotFoundError
-from jupiter.framework_new.storage.sqlite.repository import SqliteRepository
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.entity import CrownEntity
+from jupiter.framework.realm.realm import DatabaseRealm, RealmCodecRegistry
+from jupiter.framework.storage.repository import EntityNotFoundError
+from jupiter.framework.storage.sqlite.repository import SqliteRepository
 from sqlalchemy import (
     Boolean,
     Column,

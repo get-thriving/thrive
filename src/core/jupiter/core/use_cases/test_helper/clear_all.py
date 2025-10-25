@@ -46,12 +46,12 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

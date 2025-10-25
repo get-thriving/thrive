@@ -32,10 +32,10 @@ from jupiter.core.domain.fast_info_repository import (
     SmartListSummary,
     VacationSummary,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId, EntityIdDatabaseDecoder
-from jupiter.framework_new.base.entity_name import EntityNameDatabaseDecoder
-from jupiter.framework_new.storage.sqlite.repository import SqliteRepository
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
+from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
+from jupiter.framework.storage.sqlite.repository import SqliteRepository
 from sqlalchemy import text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()

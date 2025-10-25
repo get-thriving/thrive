@@ -17,11 +17,11 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.use_case import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.use_case import (
     EmptyContext,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

@@ -6,7 +6,7 @@ from contextlib import AbstractAsyncContextManager
 from jupiter.core.domain.application.search.infra.search_repository import (
     SearchRepository,
 )
-from jupiter.framework_new.storage.repository import StorageEngine, UnitOfWork
+from jupiter.framework.storage.repository import StorageEngine, UnitOfWork
 
 
 class SearchUnitOfWork(UnitOfWork):

@@ -9,10 +9,10 @@ from jupiter.core.domain.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )
-from jupiter.framework_new.use_case import (
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

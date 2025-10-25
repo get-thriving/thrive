@@ -4,18 +4,18 @@ import abc
 
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import NOT_USED_NAME
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.storage.repository import LeafEntityRepository
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.storage.repository import LeafEntityRepository
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

@@ -11,12 +11,12 @@ from jupiter.core.domain.concept.smart_lists.smart_list_collection import (
 from jupiter.core.domain.concept.smart_lists.smart_list_name import SmartListName
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

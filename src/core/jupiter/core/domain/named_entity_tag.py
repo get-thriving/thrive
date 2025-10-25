@@ -1,7 +1,7 @@
 """A tag for all the known entities."""
 
-from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.value import EnumValue, enum_value
+from jupiter.framework.entity import CrownEntity
+from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value

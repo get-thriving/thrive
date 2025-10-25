@@ -3,9 +3,9 @@
 from jupiter.core.domain.concept.docs.doc import Doc
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class DocRemoveService:

@@ -6,7 +6,7 @@ from jupiter.core.use_cases.concept.auth.reset_password import (
     ResetPasswordResult,
     ResetPasswordUseCase,
 )
-from jupiter.framework_new.secure import secure_class
+from jupiter.framework.secure import secure_class
 from rich.console import Console
 from rich.text import Text
 

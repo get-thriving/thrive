@@ -3,9 +3,9 @@
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class NoteArchiveService:

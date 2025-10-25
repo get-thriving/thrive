@@ -3,21 +3,21 @@
 import abc
 
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import NOT_USED_NAME
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.storage.repository import LeafEntityRepository
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import LeafEntityRepository
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.value import CompositeValue, value
 
 
 @entity

@@ -22,7 +22,7 @@ from jupiter.core.use_cases.application.report import (
     ReportResult,
     ReportUseCase,
 )
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text

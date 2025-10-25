@@ -10,9 +10,9 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.storage.sqlite.repository import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from sqlalchemy import func, select

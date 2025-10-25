@@ -25,14 +25,14 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.domain.storage_engine import SearchStorageEngine
-from jupiter.framework_new.auth.auth_token import AuthToken
-from jupiter.framework_new.component_properties import ComponentProperties
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.global_properties import GlobalProperties
-from jupiter.framework_new.ports import DomainPorts
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import DomainStorageEngine
-from jupiter.framework_new.use_case import (
+from jupiter.framework.auth.auth_token import AuthToken
+from jupiter.framework.component_properties import ComponentProperties
+from jupiter.framework.context import MutationContext
+from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.ports import DomainPorts
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.use_case import (
     BackgroundMutationUseCase,
     GuestMutationContext,
     GuestMutationUseCase,
@@ -47,8 +47,8 @@ from jupiter.framework_new.use_case import (
     TransactionalLoggedInMutationUseCase,
     TransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework_new.value import EnumValue
+from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
+from jupiter.framework.value import EnumValue
 
 _UseCaseArgsT = TypeVar("_UseCaseArgsT", bound=UseCaseArgsBase)
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase])

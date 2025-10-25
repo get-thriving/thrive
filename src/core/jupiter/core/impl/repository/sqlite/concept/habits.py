@@ -7,15 +7,15 @@ from jupiter.core.domain.concept.habits.habit_streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
-from jupiter.framework_new.storage.sqlite.repository import SqliteRecordRepository
-from jupiter.framework_new.storage.sqlite.row import RowType
+from jupiter.framework.storage.sqlite.repository import SqliteRecordRepository
+from jupiter.framework.storage.sqlite.row import RowType
 from sqlalchemy import (
     JSON,
     Column,

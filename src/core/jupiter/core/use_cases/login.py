@@ -11,9 +11,9 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.framework_new.auth.auth_token_ext import AuthTokenExt
-from jupiter.framework_new.secure import secure_class
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.secure import secure_class
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

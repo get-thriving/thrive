@@ -8,7 +8,7 @@ from jupiter.core.domain.core.recurring_task_skip_rule import (
     RecurringTaskSkipRuleDatabaseDecoder,
     RecurringTaskSkipRuleDatabaseEncoder,
 )
-from jupiter.framework_new.errors import InputValidationError
+from jupiter.framework.errors import InputValidationError
 
 PERIOD_COMPATIBILITY = [
     (RecurringTaskPeriod.DAILY, RecurringTaskSkipRule.do_even(), True),

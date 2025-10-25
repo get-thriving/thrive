@@ -7,8 +7,8 @@ from jupiter.core.domain.concept.user.user import (
     UserRepository,
 )
 from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.framework_new.realm.realm import RealmCodecRegistry
-from jupiter.framework_new.storage.sqlite.repository import (
+from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
 from sqlalchemy import (

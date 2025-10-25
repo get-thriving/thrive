@@ -48,16 +48,16 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import NoFilter
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.realm.realm import RealmCodecRegistry
-from jupiter.framework_new.storage.repository import DomainStorageEngine
-from jupiter.framework_new.time_provider import TimeProvider
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import NoFilter
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.time_provider import TimeProvider
+from jupiter.framework.update_action import UpdateAction
 
 
 class ScheduleExternalSyncService:

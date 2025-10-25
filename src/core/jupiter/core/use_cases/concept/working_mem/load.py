@@ -19,16 +19,16 @@ from jupiter.core.domain.concept.working_mem.working_mem import (
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
     EntityNotFoundError,
 )
-from jupiter.framework_new.use_case import (
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,

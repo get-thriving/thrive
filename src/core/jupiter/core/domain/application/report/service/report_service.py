@@ -57,14 +57,14 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.entity import NoFilter
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.storage.repository import DomainStorageEngine
-from jupiter.framework_new.use_case import UnavailableForContextError
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.entity import NoFilter
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.use_case import UnavailableForContextError
 
 
 class ReportService:

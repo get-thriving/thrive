@@ -13,7 +13,7 @@ from jupiter.core.use_cases.concept.projects.find import (
     ProjectFindResultEntry,
     ProjectFindUseCase,
 )
-from jupiter.framework_new.base.entity_id import EntityId
+from jupiter.framework.base.entity_id import EntityId
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

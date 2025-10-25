@@ -40,9 +40,9 @@ from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree

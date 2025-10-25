@@ -9,9 +9,9 @@ from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
     IsRefId,
@@ -22,7 +22,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

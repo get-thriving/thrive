@@ -14,8 +14,8 @@ from jupiter.core.domain.features import (
     UserFeatureFlags,
     UserFeatureFlagsControls,
 )
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
     RootEntity,
@@ -23,12 +23,12 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
     RootEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

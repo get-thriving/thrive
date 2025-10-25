@@ -8,10 +8,10 @@ from jupiter.core.domain.application.home.home_tab_widget_placement import (
 from jupiter.core.domain.application.home.home_widget import HomeWidget
 from jupiter.core.domain.application.home.widget import WidgetGeometry
 from jupiter.core.domain.core.entity_icon import EntityIcon
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
     IsRefId,
@@ -20,7 +20,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity

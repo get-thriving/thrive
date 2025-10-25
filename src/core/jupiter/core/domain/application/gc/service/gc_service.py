@@ -41,13 +41,13 @@ from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.storage.repository import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import (
     DomainStorageEngine,
     DomainUnitOfWork,
 )
-from jupiter.framework_new.time_provider import TimeProvider
+from jupiter.framework.time_provider import TimeProvider
 
 
 class GCService:

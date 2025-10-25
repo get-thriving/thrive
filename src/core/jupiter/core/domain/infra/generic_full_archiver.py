@@ -1,17 +1,17 @@
 """A generic archiver service."""
 
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
     RootEntity,
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.record import ContainsRecordLink, Record
-from jupiter.framework_new.storage.repository import DomainUnitOfWork
+from jupiter.framework.record import ContainsRecordLink, Record
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 async def generic_full_archiver(

@@ -1,12 +1,12 @@
 """A search query parameter for searches."""
 
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realm.standard import (
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.primitive import Primitive
+from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.value import AtomicValue, value
+from jupiter.framework.value import AtomicValue, value
 
 
 @value

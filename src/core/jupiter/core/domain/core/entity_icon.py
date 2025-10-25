@@ -3,13 +3,13 @@
 from typing import cast
 
 import emoji
-from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realm.realm import RealmDecodingError
-from jupiter.framework_new.realm.standard import (
+from jupiter.framework.primitive import Primitive
+from jupiter.framework.realm.realm import RealmDecodingError
+from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.value import AtomicValue, hashable_value
+from jupiter.framework.value import AtomicValue, hashable_value
 
 
 @hashable_value

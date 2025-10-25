@@ -18,7 +18,7 @@ from jupiter.core.use_cases.concept.big_plans.find import (
     BigPlanFindResult,
     BigPlanFindUseCase,
 )
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

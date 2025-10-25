@@ -22,7 +22,7 @@ from jupiter.core.use_cases.concept.metrics.find import (
     MetricFindResult,
     MetricFindUseCase,
 )
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

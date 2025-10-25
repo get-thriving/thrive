@@ -11,12 +11,12 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.use_case import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args

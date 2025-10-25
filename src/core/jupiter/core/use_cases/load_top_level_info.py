@@ -44,7 +44,7 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
