@@ -6,6 +6,7 @@ import types
 import typing
 from collections.abc import Iterator
 from datetime import date, datetime
+from itertools import groupby
 from json import JSONDecodeError
 from typing import (
     Annotated,
@@ -843,10 +844,7 @@ class WebApiAppForm(
             "OAuth2PasswordBearer": {
                 "type": "oauth2",
                 "flows": {
-                    "password": {
-                    "tokenUrl": self.simple_login_route,
-                    "scopes": {}
-                    },
+                    "password": {"tokenUrl": self.simple_login_route, "scopes": {}},
                 },
             },
             # "Bearer": {
@@ -957,7 +955,26 @@ class WebApiAppForm(
                     "description": "Successful response / Empty body",
                 }
 
-            openapi_schema["paths"][f"/{command._build_http_name()}"]["post"] = paths_object
+            all_handlers_by_status_code = groupby(
+                sorted(
+                    self._exception_handlers.values(),
+                    key=lambda handler: handler.get_status_code(),
+                ),
+                key=lambda handler: handler.get_status_code(),
+            )
+
+            for status_code, handlers in all_handlers_by_status_code:
+                all_exceptions = ", ".join(
+                    [handler._exception_type.__name__ for handler in handlers]
+                )
+                paths_object["responses"][str(status_code)] = {
+                    "description": f"Error response for {all_exceptions}",
+                    "content": {"application/json": {"schema": {}}},
+                }
+
+            openapi_schema["paths"][f"/{command._build_http_name()}"][
+                "post"
+            ] = paths_object
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]

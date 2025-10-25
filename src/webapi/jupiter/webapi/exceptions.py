@@ -1,6 +1,5 @@
 """Exceptions handling for the webapi module."""
 
-from fastapi.responses import JSONResponse
 from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -17,6 +16,7 @@ from jupiter.core.domain.concept.user.user import (
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
+from jupiter.framework.appform.webapi.exception import ExceptionDetailT
 from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
 
@@ -24,22 +24,24 @@ from starlette import status
 class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
-    def handle(self, exception: UserAlreadyExistsError) -> JSONResponse:
-        """Handle user already exists errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"{exception}",
-                        "type": "value_error.useralreadyexistserror",
-                    },
-                ],
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: UserAlreadyExistsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"{exception}",
+                    "type": "value_error.useralreadyexistserror",
+                },
+            ],
+        }
 
 
 class InvalidLoginCredentialsHandler(
@@ -47,22 +49,24 @@ class InvalidLoginCredentialsHandler(
 ):
     """Handle invalid login credentials errors."""
 
-    def handle(self, exception: InvalidLoginCredentialsError) -> JSONResponse:
-        """Handle invalid login credentials errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": "User email or password invalid",
-                        "type": "value_error.invalidlogincredentialserror",
-                    },
-                ],
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: InvalidLoginCredentialsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "User email or password invalid",
+                    "type": "value_error.invalidlogincredentialserror",
+                },
+            ],
+        }
 
 
 class ProjectInSignificantUseHandler(
@@ -70,44 +74,70 @@ class ProjectInSignificantUseHandler(
 ):
     """Handle project in significant use errors."""
 
-    def handle(self, exception: ProjectInSignificantUseError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: ProjectInSignificantUseError) -> ExceptionDetailT:
         """Handle project in significant use errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"Cannot remove because: {exception}",
-                        "type": "value_error.projectinsignificantuserror",
-                    },
-                ],
-            },
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"Cannot remove because: {exception}",
+                    "type": "value_error.projectinsignificantuserror",
+                },
+            ],
+        }
 
 
 class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
-    def handle(self, exception: UserNotFoundError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_410_GONE
+
+    def get_detail(self, exception: UserNotFoundError) -> ExceptionDetailT:
         """Handle user not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_410_GONE,
-            content="User does not exist",
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "User does not exist",
+                    "type": "value_error.usernotfounderror",
+                },
+            ],
+        }
 
 
 class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
-    def handle(self, exception: WorkspaceNotFoundError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_410_GONE
+
+    def get_detail(self, exception: WorkspaceNotFoundError) -> ExceptionDetailT:
         """Handle workspace not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_410_GONE,
-            content="Workspace does not exist",
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Workspace does not exist",
+                    "type": "value_error.workspacenotfounderror",
+                },
+            ],
+        }
 
 
 class TimePlanExistsForDatePeriodCombinationHandler(
@@ -115,15 +145,26 @@ class TimePlanExistsForDatePeriodCombinationHandler(
 ):
     """Handle time plan exists for date period combination errors."""
 
-    def handle(
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
         self, exception: TimePlanExistsForDatePeriodCombinationError
-    ) -> JSONResponse:
-        """Handle time plan exists for date period combination errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Time plan already exists for this date and period combination"
-            + str(exception),
-        )
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Time plan already exists for this date and period combination",
+                    "type": "value_error.timeplanexistsfordateperiodcombinationerror",
+                },
+            ],
+        }
 
 
 class BigPlanMilestoneAlreadyExistsForDateHandler(
@@ -131,14 +172,26 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
 ):
     """Handle big plan milestone already exists for date errors."""
 
-    def handle(
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
         self, exception: BigPlanMilestoneAlreadyExistsForDateError
-    ) -> JSONResponse:
-        """Handle big plan milestone already exists for date errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Big plan milestone already exists for this date",
-        )
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Big plan milestone already exists for this date",
+                    "type": "value_error.bigplanmilestonealreadyexistsfordateerror",
+                },
+            ],
+        }
 
 
 class JournalExistsForDatePeriodCombinationHandler(
@@ -146,11 +199,23 @@ class JournalExistsForDatePeriodCombinationHandler(
 ):
     """Handle journal exists for date period combination errors."""
 
-    def handle(
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
         self, exception: JournalExistsForDatePeriodCombinationError
-    ) -> JSONResponse:
-        """Handle journal exists for date period combination errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Journal already exists for this date and period combination",
-        )
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Journal already exists for this date and period combination",
+                    "type": "value_error.journalexistsfordateperiodcombinationerror",
+                },
+            ],
+        }

@@ -2,8 +2,10 @@
 
 from json import JSONDecodeError
 
-from fastapi.responses import JSONResponse
-from jupiter.framework.appform.webapi.exception import WebApiExceptionHandler
+from jupiter.framework.appform.webapi.exception import (
+    ExceptionDetailT,
+    WebApiExceptionHandler,
+)
 from jupiter.framework.auth.auth_token import (
     ExpiredAuthTokenError,
     InvalidAuthTokenError,
@@ -28,15 +30,17 @@ class UnavailableGloballyHandler(
 ):
     """Handle unavailable globally errors."""
 
-    def handle(self, exception: UnavailableGloballyError) -> JSONResponse:
-        """Handle unavailable globally errors."""
-        return JSONResponse(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            content={
-                "reason": "This action is not available globally",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_406_NOT_ACCEPTABLE
+
+    def get_detail(self, exception: UnavailableGloballyError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "This action is not available globally",
+            "detail": f"{exception}",
+        }
 
 
 class UnavailableForComponentHandler(
@@ -44,15 +48,17 @@ class UnavailableForComponentHandler(
 ):
     """Handle unavailable for component errors."""
 
-    def handle(self, exception: UnavailableForComponentError) -> JSONResponse:
-        """Handle unavailable for component errors."""
-        return JSONResponse(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            content={
-                "reason": "This action is not available in component",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_406_NOT_ACCEPTABLE
+
+    def get_detail(self, exception: UnavailableForComponentError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "This action is not available in component",
+            "detail": f"{exception}",
+        }
 
 
 class UnavailableForContextHandler(
@@ -60,15 +66,17 @@ class UnavailableForContextHandler(
 ):
     """Handle unavailable for context errors."""
 
-    def handle(self, exception: UnavailableForContextError) -> JSONResponse:
-        """Handle unavailable for context errors."""
-        return JSONResponse(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            content={
-                "reason": "This action is not available in context",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_406_NOT_ACCEPTABLE
+
+    def get_detail(self, exception: UnavailableForContextError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "This action is not available in context",
+            "detail": f"{exception}",
+        }
 
 
 class EntityNotFoundHandler(
@@ -76,15 +84,17 @@ class EntityNotFoundHandler(
 ):
     """Handle entity not found errors."""
 
-    def handle(self, exception: EntityNotFoundError) -> JSONResponse:
-        """Handle entity not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content={
-                "reason": "Entity does not exist",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_404_NOT_FOUND
+
+    def get_detail(self, exception: EntityNotFoundError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Entity does not exist",
+            "detail": f"{exception}",
+        }
 
 
 class EntityAlreadyExistsHandler(
@@ -92,15 +102,17 @@ class EntityAlreadyExistsHandler(
 ):
     """Handle entity already exists errors."""
 
-    def handle(self, exception: EntityAlreadyExistsError) -> JSONResponse:
-        """Handle entity already exists errors."""
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content={
-                "reason": "Entity already exists",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_400_BAD_REQUEST
+
+    def get_detail(self, exception: EntityAlreadyExistsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Entity already exists",
+            "detail": f"{exception}",
+        }
 
 
 class ExpiredAuthTokenHandler(
@@ -108,15 +120,17 @@ class ExpiredAuthTokenHandler(
 ):
     """Handle expired auth token errors."""
 
-    def handle(self, exception: ExpiredAuthTokenError) -> JSONResponse:
-        """Handle expired auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            content={
-                "reason": "Your session token seems to be busted",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_401_UNAUTHORIZED
+
+    def get_detail(self, exception: ExpiredAuthTokenError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Your session token seems to be busted",
+            "detail": f"{exception}",
+        }
 
 
 class InvalidAuthTokenHandler(
@@ -124,15 +138,17 @@ class InvalidAuthTokenHandler(
 ):
     """Handle invalid auth token errors."""
 
-    def handle(self, exception: InvalidAuthTokenError) -> JSONResponse:
-        """Handle invalid auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_426_UPGRADE_REQUIRED,
-            content={
-                "reason": "Your session token seems to be invalid",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_426_UPGRADE_REQUIRED
+
+    def get_detail(self, exception: InvalidAuthTokenError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Your session token seems to be invalid",
+            "detail": f"{exception}",
+        }
 
 
 class RealmDecodingHandler(
@@ -140,15 +156,17 @@ class RealmDecodingHandler(
 ):
     """Handle realm decoding errors."""
 
-    def handle(self, exception: RealmDecodingError) -> JSONResponse:
-        """Handle realm decoding errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "reason": "Could not decode JSON body",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: RealmDecodingError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Could not decode JSON body",
+            "detail": f"{exception}",
+        }
 
 
 class InputValidationHandler(
@@ -156,22 +174,24 @@ class InputValidationHandler(
 ):
     """Handle input validation errors."""
 
-    def handle(self, exception: InputValidationError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: InputValidationError) -> ExceptionDetailT:
         """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"{exception}",
-                        "type": "value_error.inputvalidationerror",
-                    },
-                ],
-            },
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"{exception}",
+                    "type": "value_error.inputvalidationerror",
+                },
+            ],
+        }
 
 
 class MultiInputValidationHandler(
@@ -179,35 +199,39 @@ class MultiInputValidationHandler(
 ):
     """Handle input validation errors."""
 
-    def handle(self, exception: MultiInputValidationError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: MultiInputValidationError) -> ExceptionDetailT:
         """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                            k,
-                        ],
-                        "msg": f"{v}",
-                        "type": "value_error.inputvalidationerror",
-                    }
-                    for k, v in exception.errors.items()
-                ]
-            },
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                        k,
+                    ],
+                    "msg": f"{v}",
+                    "type": "value_error.inputvalidationerror",
+                }
+                for k, v in exception.errors.items()
+            ]
+        }
 
 
 class JSONDecodeHandler(WebApiExceptionHandler[GlobalProperties, JSONDecodeError]):
     """Handle JSON decode errors."""
 
-    def handle(self, exception: JSONDecodeError) -> JSONResponse:
-        """Handle JSON decode errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "reason": "Expected JSON body, but none was found",
-                "detail": f"{exception}",
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: JSONDecodeError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "reason": "Expected JSON body, but none was found",
+            "detail": f"{exception}",
+        }

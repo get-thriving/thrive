@@ -67,17 +67,7 @@ _BackgroundMutationUseCaseT = TypeVar(
 )
 _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase | None)
 
-_STANDARD_RESPONSES: dict[int | str, dict[str, Any]] = {
-    410: {
-        "description": "Workspace Or User Not Found",
-        "content": {"application/json": {}},
-    },
-    406: {"description": "Feature Not Available", "content": {"application/json": {}}},
-    422: {"description": "Validation Error", "content": {"application/json": {}}},
-}
-
 _STANDARD_CONFIG: Mapping[str, Any] = {
-    "responses": _STANDARD_RESPONSES,
     "response_model_exclude_defaults": True,
 }
 
