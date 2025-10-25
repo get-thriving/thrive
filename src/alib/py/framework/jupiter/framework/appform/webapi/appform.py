@@ -843,9 +843,7 @@ class WebApiAppForm(
             "Bearer": {
                 "type": "http",
                 "scheme": "bearer",
-                "bearerFormat": "JWT",
-                "name": "Authorization",
-                "in": "header",
+                "bearerFormat": "JWT"
             }
         }
 
@@ -950,7 +948,7 @@ class WebApiAppForm(
                     "description": "Successful response / Empty body",
                 }
 
-            openapi_schema["paths"][f"/{command._build_http_name()}"] = paths_object
+            openapi_schema["paths"][f"/{command._build_http_name()}"]["post"] = paths_object
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]
