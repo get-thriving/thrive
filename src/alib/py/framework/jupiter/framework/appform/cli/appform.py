@@ -7,6 +7,7 @@ import types
 from collections.abc import Iterator
 from typing import Any, Final, Generic, TypeVar, get_args, get_origin
 
+from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.cli.commands import (
     Command,
     GuestMutationCommand,
@@ -84,14 +85,15 @@ _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
-_CliAppT = TypeVar("_CliAppT", bound="CliApp[Any, Any, Any]")  # type: ignore
+_CliAppFormT = TypeVar("_CliAppFormT", bound="CliAppForm[Any, Any, Any]")  # type: ignore
 
 
-class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
-    """A CLI application."""
+class CliAppForm(
+    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+):
+    """A CLI application form."""
 
-    _ports: _PortsT
-    _global_properties: _GlobalPropertiesT
     _time_provider: Final[TimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
     _invocation_recorder: Final[MutationInvocationRecorder]
@@ -139,8 +141,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand],  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
-        self._ports = ports
-        self._global_properties = global_properties
+        super().__init__(ports, global_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._invocation_recorder = invocation_recorder
@@ -158,7 +159,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
     @classmethod
     def build_from_module_root(
-        cls: type[_CliAppT],
+        cls: type[_CliAppFormT],
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         time_provider: TimeProvider,
@@ -170,7 +171,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         session_storage: SessionStorage,
         config_root: types.ModuleType,
         *module_root: types.ModuleType,
-    ) -> "_CliAppT":
+    ) -> "_CliAppFormT":
         """Build a CLI app from the module root."""
 
         def extract_specific_command(the_module: types.ModuleType, clazz: type) -> type:  # type: ignore[type-arg]
@@ -591,7 +592,7 @@ class CliApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         return self._exception_handlers[exception_type]
 
     async def run(self, argv: list[str]) -> None:
-        """Run the app."""
+        """Run the CLI app form."""
         parser = argparse.ArgumentParser(description=self.help_description)
         parser.add_argument(
             "--version",

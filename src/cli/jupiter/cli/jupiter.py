@@ -9,7 +9,7 @@ import jupiter.cli.config
 import jupiter.core.domain
 import jupiter.core.impl.repository.sqlite
 import jupiter.core.use_cases
-from jupiter.cli.config import JupiterCliApp
+from jupiter.cli.config import JupiterCliAppForm
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
@@ -103,7 +103,7 @@ async def main() -> None:
     await search_storage_engine.initialize()
     await mutation_invocation_storage_engine.initialize()
 
-    cli_app = JupiterCliApp.build_from_module_root(
+    cli_app_form = JupiterCliAppForm.build_from_module_root(
         ports,
         global_properties,
         time_provider,
@@ -119,7 +119,7 @@ async def main() -> None:
     )
 
     try:
-        await cli_app.run(sys.argv)
+        await cli_app_form.run(sys.argv)
     finally:
         await sqlite_connection.dispose()
 

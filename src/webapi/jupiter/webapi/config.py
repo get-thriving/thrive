@@ -27,7 +27,7 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.framework.appform.webapi.app import WebApiApp
+from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (
     GuestMutationCommand,
     GuestReadonlyCommand,
@@ -181,10 +181,10 @@ class JupiterExceptionHandler(
     """A Jupiter exception handler."""
 
 
-class JupiterWebApiApp(
-    WebApiApp[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties],
+class JupiterWebApiAppForm(
+    WebApiAppForm[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties]
 ):
-    """A Jupiter web api app."""
+    """A Jupiter web api app form."""
 
     @property
     def api_description(self) -> str:

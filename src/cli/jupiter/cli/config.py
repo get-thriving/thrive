@@ -19,7 +19,7 @@ from jupiter.core.config import (
     JupiterPorts,
 )
 from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
-from jupiter.framework.appform.cli.app import CliApp
+from jupiter.framework.appform.cli.appform import CliAppForm
 from jupiter.framework.appform.cli.commands import (
     GuestMutationCommand,
     GuestReadonlyCommand,
@@ -138,19 +138,19 @@ class JupiterExceptionHandler(
     """A Jupiter exception handler."""
 
 
-class JupiterCliApp(
-    CliApp[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties]
+class JupiterCliAppForm(
+    CliAppForm[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties]
 ):
-    """A jupiter Cli."""
+    """A jupiter CLI app form."""
 
     @property
     def help_description(self) -> str:
-        """The help description for the cli app."""
+        """The help description for the CLI app."""
         return self._global_properties.description
 
     @property
     def help_version(self) -> str:
-        """The version of the cli app."""
+        """The version of the CLI app."""
         return (
             f"{self._global_properties.description} {self._global_properties.version}"
         )

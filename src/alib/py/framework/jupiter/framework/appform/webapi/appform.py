@@ -23,6 +23,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from fastapi import FastAPI, Request, Response
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
+from jupiter.framework.appform.appform import AppForm
 from jupiter.framework.appform.webapi.commands import (
     Command,
     CronCommand,
@@ -121,14 +122,15 @@ _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
-_WebApiAppT = TypeVar("_WebApiAppT", bound="WebApiApp[Any, Any, Any]")
+_WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any]")
 
 
-class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
+class WebApiAppForm(
+    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+):
     """A Web based API application."""
 
-    _ports: _PortsT
-    _global_properties: _GlobalPropertiesT
     _request_time_provider: Final[PerRequestTimeProvider]
     _cron_time_provider: Final[CronRunTimeProvider]
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -178,8 +180,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand],  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
-        self._ports = ports
-        self._global_properties = global_properties
+        super().__init__(ports, global_properties)
         self._request_time_provider = request_time_provider
         self._cron_time_provider = cron_time_provider
         self._realm_codec_registry = realm_codec_registry
@@ -206,7 +207,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
     @classmethod
     def build_from_module_root(
-        cls: type[_WebApiAppT],
+        cls: type[_WebApiAppFormT],
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         request_time_provider: PerRequestTimeProvider,
@@ -217,7 +218,7 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
         auth_token_stamper: AuthTokenStamper,
         config_root: types.ModuleType,
         *module_root: types.ModuleType,
-    ) -> "_WebApiAppT":
+    ) -> "_WebApiAppFormT":
         """Build the app from the module root."""
 
         def extract_specific_command(the_module: types.ModuleType, clazz: type) -> type:  # type: ignore[type-arg]
@@ -449,8 +450,8 @@ class WebApiApp(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
 
         return app
 
-    async def run(self) -> None:
-        """Run the app."""
+    async def run(self, argv: list[str]) -> None:
+        """Run the Web API app form."""
         self._scheduler.start()
 
         self._fast_app.add_middleware(

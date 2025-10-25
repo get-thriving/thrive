@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import sys
 
 import aiohttp
 import jupiter.core.domain
@@ -37,7 +38,7 @@ from jupiter.framework.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
 )
-from jupiter.webapi.config import JupiterWebApiApp
+from jupiter.webapi.config import JupiterWebApiAppForm
 from rich import print
 from rich.console import Console
 from rich.logging import RichHandler
@@ -127,7 +128,7 @@ async def main() -> None:
         crm=crm,
     )
 
-    web_app = JupiterWebApiApp.build_from_module_root(
+    web_app_form = JupiterWebApiAppForm.build_from_module_root(
         ports,
         global_properties,
         request_time_provider,
@@ -154,7 +155,7 @@ async def main() -> None:
     print("=" * 80)
 
     try:
-        await web_app.run()
+        await web_app_form.run(sys.argv)
     finally:
         try:
             await sqlite_connection.dispose()
