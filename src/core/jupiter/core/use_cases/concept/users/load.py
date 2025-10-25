@@ -18,7 +18,7 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.features import UserFeature
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

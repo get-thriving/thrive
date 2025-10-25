@@ -63,7 +63,7 @@ from jupiter.framework_new.base.entity_name import EntityName
 from jupiter.framework_new.base.timestamp import Timestamp
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import DomainStorageEngine
+from jupiter.framework_new.storage.repository import DomainStorageEngine
 from jupiter.framework_new.use_case import UnavailableForContextError
 
 

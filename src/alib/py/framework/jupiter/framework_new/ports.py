@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 
-from jupiter.framework_new.repository import DomainStorageEngine
+from jupiter.framework_new.storage.repository import DomainStorageEngine
 
 
 @dataclass(frozen=True)

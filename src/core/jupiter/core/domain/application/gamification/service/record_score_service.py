@@ -21,7 +21,10 @@ from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
 from jupiter.framework_new.context import MutationContext
-from jupiter.framework_new.repository import DomainUnitOfWork, EntityAlreadyExistsError
+from jupiter.framework_new.storage.repository import (
+    DomainUnitOfWork,
+    EntityAlreadyExistsError,
+)
 from jupiter.framework_new.value import CompositeValue, value
 
 

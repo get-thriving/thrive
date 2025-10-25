@@ -58,11 +58,11 @@ from jupiter.framework_new.progress_reporter.reporters.noop import (
     NoOpProgressReporterFactory,
 )
 from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmDecodingError
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.connection import ConnectionPrepareError
+from jupiter.framework_new.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
-from jupiter.framework_new.storage import ConnectionPrepareError
 from jupiter.framework_new.time_provider import TimeProvider
 from jupiter.framework_new.use_case import (
     ContextBase,

@@ -13,7 +13,7 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     TrunkEntityRepository,
 )
 

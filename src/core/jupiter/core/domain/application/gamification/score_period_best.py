@@ -15,7 +15,7 @@ from jupiter.framework_new.record import (
     record,
     update_record_action,
 )
-from jupiter.framework_new.repository import RecordRepository
+from jupiter.framework_new.storage.repository import RecordRepository
 
 
 @record

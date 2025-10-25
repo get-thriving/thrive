@@ -22,7 +22,10 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework_new.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

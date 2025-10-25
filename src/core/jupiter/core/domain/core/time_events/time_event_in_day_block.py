@@ -16,7 +16,7 @@ from jupiter.framework_new.entity import (
     update_entity_action,
 )
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework_new.storage.repository import LeafEntityRepository
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.value import CompositeValue, value
 

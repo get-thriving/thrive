@@ -10,7 +10,7 @@ from jupiter.framework_new.mutation_inovcation.record import (
 from jupiter.framework_new.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
-from jupiter.framework_new.repository import Repository
+from jupiter.framework_new.storage.repository import Repository
 
 
 class MutationInvocationRecordRepository(Repository, abc.ABC):

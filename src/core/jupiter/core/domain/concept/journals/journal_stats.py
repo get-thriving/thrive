@@ -12,7 +12,7 @@ from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import ParentLink
 from jupiter.framework_new.record import Record, create_record_action, record
-from jupiter.framework_new.repository import RecordRepository
+from jupiter.framework_new.storage.repository import RecordRepository
 
 
 @record

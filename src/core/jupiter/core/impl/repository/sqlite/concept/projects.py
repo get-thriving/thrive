@@ -2,7 +2,7 @@
 
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.impl.storage.sqlite.repository import (
+from jupiter.framework_new.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 

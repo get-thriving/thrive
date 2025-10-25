@@ -10,7 +10,7 @@ from jupiter.core.domain.concept.docs.doc_name import DocName
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.update_action import UpdateAction
 from jupiter.framework_new.use_case import (
     mutation_use_case,

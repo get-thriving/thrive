@@ -1,7 +1,7 @@
 """The SQLite repository for docs."""
 
 from jupiter.core.domain.concept.docs.doc import Doc, DocRepository
-from jupiter.framework_new.impl.storage.sqlite.repository import (
+from jupiter.framework_new.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from sqlalchemy import select

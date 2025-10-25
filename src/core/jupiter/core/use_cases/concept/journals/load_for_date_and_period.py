@@ -16,7 +16,7 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

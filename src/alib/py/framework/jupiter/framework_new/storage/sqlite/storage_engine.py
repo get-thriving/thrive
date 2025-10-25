@@ -20,19 +20,9 @@ from jupiter.framework_new.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
-from jupiter.framework_new.impl.storage.sqlite.repository import (
-    SqliteCrownEntityRepository,
-    SqliteEntityRepository,
-    SqliteRecordRepository,
-    SqliteRepository,
-    SqliteRootEntityRepository,
-    SqliteStubEntityRepository,
-    SqliteTrunkEntityRepository,
-)
 from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from jupiter.framework_new.record import Record
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     CrownEntityRepository,
     DomainStorageEngine,
     DomainUnitOfWork,
@@ -42,6 +32,16 @@ from jupiter.framework_new.repository import (
     RootEntityRepository,
     StubEntityRepository,
     TrunkEntityRepository,
+)
+from jupiter.framework_new.storage.sqlite.connection import SqliteConnection
+from jupiter.framework_new.storage.sqlite.repository import (
+    SqliteCrownEntityRepository,
+    SqliteEntityRepository,
+    SqliteRecordRepository,
+    SqliteRepository,
+    SqliteRootEntityRepository,
+    SqliteStubEntityRepository,
+    SqliteTrunkEntityRepository,
 )
 from jupiter.framework_new.utils import find_all_modules
 from sqlalchemy import MetaData

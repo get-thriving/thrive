@@ -7,10 +7,10 @@ from jupiter.core.domain.core.notes.note import (
 )
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.impl.storage.sqlite.repository import (
+from jupiter.framework_new.storage.repository import EntityNotFoundError
+from jupiter.framework_new.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from jupiter.framework_new.repository import EntityNotFoundError
 from sqlalchemy import (
     select,
 )

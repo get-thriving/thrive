@@ -13,7 +13,7 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
     PushIntegrationGroup,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

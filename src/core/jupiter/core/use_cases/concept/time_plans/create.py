@@ -15,7 +15,7 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     mutation_use_case,
 )

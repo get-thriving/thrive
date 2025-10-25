@@ -10,7 +10,7 @@ from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.repository import Repository
+from jupiter.framework_new.storage.repository import Repository
 from jupiter.framework_new.value import CompositeValue, value
 
 

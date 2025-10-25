@@ -47,7 +47,7 @@ from jupiter.framework_new.realm.realm import (
     RealmCodecRegistry,
     RealmThing,
 )
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     DomainUnitOfWork,
 )
 from jupiter.framework_new.time_provider import TimeProvider

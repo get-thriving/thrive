@@ -26,7 +26,7 @@ from jupiter.framework_new.entity import (
     update_entity_action,
 )
 from jupiter.framework_new.record import ContainsOneRecord
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
 )

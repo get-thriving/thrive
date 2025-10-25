@@ -13,7 +13,7 @@ from jupiter.framework_new.entity import (
 )
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
 from jupiter.framework_new.record import ContainsRecordLink, Record
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 
 
 async def generic_root_remover(

@@ -11,7 +11,7 @@ from jupiter.framework_new.entity import (
     TrunkEntity,
 )
 from jupiter.framework_new.record import ContainsRecordLink, Record
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 
 
 async def generic_full_archiver(

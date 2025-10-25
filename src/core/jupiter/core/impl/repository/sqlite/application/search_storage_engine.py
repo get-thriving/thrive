@@ -14,8 +14,8 @@ from jupiter.core.domain.storage_engine import SearchStorageEngine, SearchUnitOf
 from jupiter.core.impl.repository.sqlite.application.search import (
     SqliteSearchRepository,
 )
-from jupiter.framework_new.impl.storage.sqlite.connection import SqliteConnection
 from jupiter.framework_new.realm.realm import RealmCodecRegistry
+from jupiter.framework_new.storage.sqlite.connection import SqliteConnection
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncEngine
 

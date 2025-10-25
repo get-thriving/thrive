@@ -49,7 +49,10 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import EntityNotFoundError, RootEntityRepository
+from jupiter.framework_new.storage.repository import (
+    EntityNotFoundError,
+    RootEntityRepository,
+)
 from jupiter.framework_new.update_action import UpdateAction
 
 

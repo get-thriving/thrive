@@ -43,7 +43,7 @@ from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import NoFilter
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.repository import DomainStorageEngine
+from jupiter.framework_new.storage.repository import DomainStorageEngine
 
 
 class StatsService:

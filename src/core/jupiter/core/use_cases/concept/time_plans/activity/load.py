@@ -11,7 +11,7 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanAc
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     readonly_use_case,
 )

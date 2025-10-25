@@ -6,7 +6,7 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
 )
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.impl.storage.sqlite.repository import (
+from jupiter.framework_new.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 from sqlalchemy import (

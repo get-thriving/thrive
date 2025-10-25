@@ -12,7 +12,7 @@ from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.use_case import (
     mutation_use_case,
 )

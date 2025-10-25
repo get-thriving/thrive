@@ -15,11 +15,11 @@ from jupiter.framework_new.global_properties import (
     UnavailableGloballyError,
 )
 from jupiter.framework_new.realm.realm import RealmDecodingError
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.connection import ConnectionPrepareError
+from jupiter.framework_new.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )
-from jupiter.framework_new.storage import ConnectionPrepareError
 from jupiter.framework_new.use_case import UnavailableForContextError
 from rich.console import Console
 

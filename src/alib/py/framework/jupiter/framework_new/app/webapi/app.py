@@ -80,7 +80,7 @@ from jupiter.framework_new.realm.realm import (
     WebRealm,
 )
 from jupiter.framework_new.record import Record
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
 )

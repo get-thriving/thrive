@@ -5,10 +5,10 @@ from jupiter.core.domain.concept.workspaces.workspace import (
     WorkspaceNotFoundError,
     WorkspaceRepository,
 )
-from jupiter.framework_new.impl.storage.sqlite.repository import (
+from jupiter.framework_new.realm.realm import RealmCodecRegistry
+from jupiter.framework_new.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
-from jupiter.framework_new.realm.realm import RealmCodecRegistry
 from sqlalchemy import (
     MetaData,
 )

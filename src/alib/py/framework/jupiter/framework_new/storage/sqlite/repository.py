@@ -34,13 +34,6 @@ from jupiter.framework_new.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.impl.storage.sqlite.events import (
-    build_event_table,
-    remove_events,
-    upsert_events,
-)
-from jupiter.framework_new.impl.storage.sqlite.filters import compile_query_relative_to
-from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.primitive import Primitive
 from jupiter.framework_new.realm.realm import (
     DatabaseRealm,
@@ -48,11 +41,18 @@ from jupiter.framework_new.realm.realm import (
     RealmThing,
 )
 from jupiter.framework_new.record import Record
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
     RecordRepository,
 )
+from jupiter.framework_new.storage.sqlite.events import (
+    build_event_table,
+    remove_events,
+    upsert_events,
+)
+from jupiter.framework_new.storage.sqlite.filters import compile_query_relative_to
+from jupiter.framework_new.storage.sqlite.row import RowType
 from jupiter.framework_new.value import (
     AtomicValue,
     CompositeValue,

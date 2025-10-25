@@ -18,7 +18,7 @@ from jupiter.framework_new.entity import (
     create_entity_action,
     entity,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework_new.storage.repository import LeafEntityRepository
 
 
 @entity

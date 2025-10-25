@@ -18,7 +18,10 @@ from jupiter.framework_new.entity import (
     RefsMany,
     RefsOne,
 )
-from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework_new.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 
 _EntityT = TypeVar("_EntityT", bound=CrownEntity)
 _LinkedEntity1T = TypeVar("_LinkedEntity1T", bound=CrownEntity)

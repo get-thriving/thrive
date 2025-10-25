@@ -5,7 +5,7 @@ import abc
 from jupiter.framework_new.base.entity_id import EntityId
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.entity import RootEntity, create_entity_action, entity
-from jupiter.framework_new.repository import RootEntityRepository
+from jupiter.framework_new.storage.repository import RootEntityRepository
 
 
 @entity

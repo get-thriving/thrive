@@ -17,7 +17,7 @@ from jupiter.framework_new.entity import (
     entity,
 )
 from jupiter.framework_new.record import ContainsManyRecords
-from jupiter.framework_new.repository import TrunkEntityRepository
+from jupiter.framework_new.storage.repository import TrunkEntityRepository
 
 
 @entity

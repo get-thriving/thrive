@@ -21,16 +21,16 @@ from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework_new.base.adate import ADate
 from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.impl.storage.sqlite.repository import (
-    SqliteLeafEntityRepository,
-    SqliteRecordRepository,
-)
-from jupiter.framework_new.impl.storage.sqlite.row import RowType
 from jupiter.framework_new.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework_new.repository import (
+from jupiter.framework_new.storage.repository import (
     RecordAlreadyExistsError,
     RecordNotFoundError,
 )
+from jupiter.framework_new.storage.sqlite.repository import (
+    SqliteLeafEntityRepository,
+    SqliteRecordRepository,
+)
+from jupiter.framework_new.storage.sqlite.row import RowType
 from sqlalchemy import (
     Column,
     DateTime,

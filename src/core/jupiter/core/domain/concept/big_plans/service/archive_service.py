@@ -21,7 +21,7 @@ from jupiter.core.domain.core.notes.service.note_archive_service import (
 )
 from jupiter.framework_new.context import MutationContext
 from jupiter.framework_new.progress_reporter.reporter import ProgressReporter
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework_new.storage.repository import DomainUnitOfWork
 from jupiter.framework_new.value import CompositeValue, value
 
 

@@ -31,7 +31,7 @@ from jupiter.framework_new.entity import (
 )
 from jupiter.framework_new.errors import InputValidationError
 from jupiter.framework_new.record import ContainsOneRecord
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework_new.storage.repository import LeafEntityRepository
 from jupiter.framework_new.update_action import UpdateAction
 
 

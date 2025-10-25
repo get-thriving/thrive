@@ -21,7 +21,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework_new.storage.repository import LeafEntityRepository
 from jupiter.framework_new.update_action import UpdateAction
 
 
