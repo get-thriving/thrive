@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -17,11 +17,11 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.use_case import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.use_case import (
     EmptyContext,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -29,7 +29,7 @@ class GenDoAllArgs(UseCaseArgsBase):
     """GenDoAllArgs."""
 
 
-class GenDoAllUseCase(JupiterSysBackgroundMutationUseCase[GenDoAllArgs, None]):
+class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
     """The command for doing task generation for all workspaces."""
 
     async def _execute(self, context: EmptyContext, args: GenDoAllArgs) -> None:
@@ -46,7 +46,7 @@ class GenDoAllUseCase(JupiterSysBackgroundMutationUseCase[GenDoAllArgs, None]):
             }
 
         # TODO(horia141): params
-        ctx = DomainContext.build(
+        ctx = MutationContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.GEN_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
@@ -61,7 +61,7 @@ class GenDoAllUseCase(JupiterSysBackgroundMutationUseCase[GenDoAllArgs, None]):
         today = self._time_provider.get_current_date()
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gen_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
 

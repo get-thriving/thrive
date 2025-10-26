@@ -1,18 +1,18 @@
 """Load previous runs of Gen."""
 
 from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
 )
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.gen.gen_log_entry import (
     GenLogEntry,
     GenLogEntryRepository,
 )
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -40,7 +40,7 @@ class GenLoadRunsUseCase(
 
     async def _execute(
         self,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: GenLoadRunsArgs,
     ) -> GenLoadRunsResult:
         """Execute the use case."""

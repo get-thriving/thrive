@@ -1,7 +1,7 @@
 """The command for updating a inbox task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gamification.service.record_score_service import (
@@ -44,19 +44,17 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
+    UnavailableForContextError,
     mutation_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-    UnavailableForContextError,
-)
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -99,7 +97,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: InboxTaskUpdateArgs,
     ) -> InboxTaskUpdateResult:
         """Execute the command's action."""
@@ -203,7 +201,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         workspace: Workspace,
         inbox_task_before_update: InboxTask,
         big_plan: BigPlan,
@@ -258,7 +256,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         inbox_task_before_update: InboxTask,
         inbox_task_after_update: InboxTask,
         previous_big_plan: BigPlan | None,
@@ -302,7 +300,7 @@ class InboxTaskUpdateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         inbox_task: InboxTask,
     ) -> None:
         if inbox_task.source != InboxTaskSource.HABIT:

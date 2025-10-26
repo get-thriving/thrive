@@ -11,12 +11,11 @@ export class GcService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
      * The command for doing a garbage collection run.
-     * The command for doing a garbage collection run.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public gcDo(
+    public gCDo(
         requestBody?: GCDoArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
@@ -25,20 +24,24 @@ export class GcService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
      * Load previous runs of GC.
-     * Load previous runs of GC.
      * @param requestBody The input data
      * @returns GCLoadRunsResult Successful response
      * @throws ApiError
      */
-    public gcLoadRuns(
+    public gCLoadRuns(
         requestBody?: GCLoadRunsArgs,
     ): CancelablePromise<GCLoadRunsResult> {
         return this.httpRequest.request({
@@ -47,9 +50,14 @@ export class GcService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }

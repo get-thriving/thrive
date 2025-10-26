@@ -27,7 +27,7 @@ from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_content_block import (
@@ -48,16 +48,16 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import NoFilter
-from jupiter.framework_new.realm import RealmCodecRegistry
-from jupiter.framework_new.repository import DomainStorageEngine
-from jupiter.framework_new.time_provider import TimeProvider
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import NoFilter
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.storage.repository import DomainStorageEngine
+from jupiter.framework.time_provider import TimeProvider
+from jupiter.framework.update_action import UpdateAction
 
 
 class ScheduleExternalSyncService:
@@ -80,7 +80,7 @@ class ScheduleExternalSyncService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         today: ADate,
@@ -198,7 +198,7 @@ class ScheduleExternalSyncService:
 
     async def _process_schedule_stream(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         today: ADate,
         start_of_window: ADate,
         end_of_window: ADate,
@@ -749,7 +749,7 @@ class ScheduleExternalSyncService:
                             progress_reporter,
                             ScheduleEventFullDays,
                             schedule_event_full_days.ref_id,
-                            ArchivalReason.SYNC,
+                            JupiterArchivalReason.SYNC,
                         )
                         sync_log_entry = sync_log_entry.add_entity(
                             ctx, schedule_event_full_days
@@ -777,7 +777,7 @@ class ScheduleExternalSyncService:
                             progress_reporter,
                             ScheduleEventInDay,
                             schedule_event_in_day.ref_id,
-                            ArchivalReason.SYNC,
+                            JupiterArchivalReason.SYNC,
                         )
                         sync_log_entry = sync_log_entry.add_entity(
                             ctx, schedule_event_in_day

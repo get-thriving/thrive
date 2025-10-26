@@ -4,13 +4,13 @@ from typing import Literal, cast
 
 import pendulum
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realms import (
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.primitive import Primitive
+from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.value import AtomicValue, value
+from jupiter.framework.value import AtomicValue, value
 from pendulum.date import Date
 
 

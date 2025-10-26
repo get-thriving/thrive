@@ -32,11 +32,21 @@ def _get_kwargs(
 def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Any]:
     if response.status_code == 200:
         return None
-    if response.status_code == 410:
+    if response.status_code == 400:
+        return None
+    if response.status_code == 401:
+        return None
+    if response.status_code == 404:
         return None
     if response.status_code == 406:
         return None
+    if response.status_code == 409:
+        return None
+    if response.status_code == 410:
+        return None
     if response.status_code == 422:
+        return None
+    if response.status_code == 426:
         return None
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -59,8 +69,6 @@ def sync_detailed(
     body: NoteRemoveArgs,
 ) -> Response[Any]:
     """The command for removing a note.
-
-     The command for removing a note.
 
     Args:
         body (NoteRemoveArgs): NoteRemove arguments.
@@ -90,8 +98,6 @@ async def asyncio_detailed(
     body: NoteRemoveArgs,
 ) -> Response[Any]:
     """The command for removing a note.
-
-     The command for removing a note.
 
     Args:
         body (NoteRemoveArgs): NoteRemove arguments.

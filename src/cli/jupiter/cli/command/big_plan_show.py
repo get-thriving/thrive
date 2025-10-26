@@ -2,7 +2,6 @@
 
 from typing import cast
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
     big_plan_status_to_rich_text,
@@ -11,26 +10,29 @@ from jupiter.cli.command.rendering import (
     inbox_task_summary_to_rich_text,
     project_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.use_cases.concept.big_plans.find import (
     BigPlanFindResult,
     BigPlanFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class BigPlanShow(LoggedInReadonlyCommand[BigPlanFindUseCase, BigPlanFindResult]):
+class BigPlanShow(
+    JupiterLoggedInReadonlyCommand[BigPlanFindUseCase, BigPlanFindResult]
+):
     """UseCase class for showing the big plans."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: BigPlanFindResult,
     ) -> None:
         sorted_big_plans = sorted(

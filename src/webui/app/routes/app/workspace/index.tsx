@@ -111,7 +111,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const homeConfigResponse = await apiClient.home.homeConfigLoad({});
 
-  const motdResponse = await apiClient.motd.motdGetForToday({});
+  const motdResponse = await apiClient.motd.mOtdGetForToday({});
 
   let keyHabitResults: HabitLoadResult[] | undefined = undefined;
   let habitInboxTasksResponse: InboxTaskFindResult | undefined = undefined;

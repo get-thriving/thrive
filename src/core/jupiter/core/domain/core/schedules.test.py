@@ -8,9 +8,9 @@ from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDu
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.core.schedules import Schedule, get_schedule
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
 
 
 @pytest.fixture()

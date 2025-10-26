@@ -1,7 +1,7 @@
 """A timeline is a construct representing a particular neatly divided unit of time."""
 
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework.base.timestamp import Timestamp
 from pendulum import DateTime
 
 

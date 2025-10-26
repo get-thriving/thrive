@@ -4,14 +4,14 @@ from typing import ClassVar
 
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.primitive import Primitive
-from jupiter.framework_new.realms import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.primitive import Primitive
+from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,
     PrimitiveAtomicValueDatabaseEncoder,
 )
-from jupiter.framework_new.value import AtomicValue, hashable_value
+from jupiter.framework.value import AtomicValue, hashable_value
 
 
 @hashable_value

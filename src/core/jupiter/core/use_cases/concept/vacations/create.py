@@ -1,7 +1,7 @@
 """The command for creating a vacation."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.vacations.vacation import Vacation
@@ -12,15 +12,13 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -57,7 +55,7 @@ class VacationCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: VacationCreateArgs,
     ) -> VacationCreateResult:
         """Execute the command's actions."""

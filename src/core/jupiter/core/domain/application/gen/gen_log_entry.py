@@ -2,16 +2,15 @@
 
 import abc
 
-from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
     ParentLink,
@@ -19,7 +18,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework.storage.repository import LeafEntityRepository
 
 
 @entity
@@ -27,7 +26,7 @@ class GenLogEntry(LeafSupportEntity):
     """A particular entry in the task generation log."""
 
     gen_log: ParentLink
-    source: AppComponent
+    source: str
     gen_even_if_not_modified: bool
     today: ADate
     gen_targets: list[SyncTarget]
@@ -47,7 +46,7 @@ class GenLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         gen_log_ref_id: EntityId,
         gen_even_if_not_modified: bool,
         today: ADate,
@@ -95,7 +94,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_created(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an newly created entity to the task generation log entry."""
         if not self.opened:
@@ -112,7 +111,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_updated(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an updated entity to the task generation log entry."""
         if not self.opened:
@@ -129,7 +128,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_removed(
-        self, ctx: DomainContext, entity: CrownEntity
+        self, ctx: MutationContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an removed entity to the task generation log entry."""
         if not self.opened:
@@ -145,7 +144,7 @@ class GenLogEntry(LeafSupportEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "GenLogEntry":
+    def close(self, ctx: MutationContext) -> "GenLogEntry":
         """Close the task generation log entry."""
         return self._new_version(
             ctx,

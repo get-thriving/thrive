@@ -1,7 +1,7 @@
 """The command for creating a metric."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
@@ -18,14 +18,12 @@ from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenP
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -67,7 +65,7 @@ class MetricCreateUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricCreateArgs,
     ) -> MetricCreateResult:
         """Execute the command's action."""
@@ -109,7 +107,7 @@ class MetricCreateUseCase(
     async def _perform_post_transactional_mutation_work(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: MetricCreateArgs,
         result: MetricCreateResult,
     ) -> None:

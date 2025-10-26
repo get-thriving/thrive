@@ -1,20 +1,20 @@
 """A generic archiver service."""
 
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
     RootEntity,
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.record import ContainsRecordLink, Record
-from jupiter.framework_new.repository import DomainUnitOfWork
+from jupiter.framework.record import ContainsRecordLink, Record
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 async def generic_destroyer(
-    ctx: DomainContext,
+    ctx: MutationContext,
     uow: DomainUnitOfWork,
     entity_type: type[RootEntity],
     ref_id: EntityId,

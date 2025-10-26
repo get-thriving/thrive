@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #MISE description="Setup for development"
 #MISE hide=true

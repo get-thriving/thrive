@@ -1,6 +1,6 @@
 """The origin of an inbox task."""
 
-from jupiter.framework_new.value import EnumValue, enum_value
+from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value

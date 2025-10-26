@@ -1,8 +1,8 @@
 """The command for generating new tasks."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -12,15 +12,13 @@ from jupiter.core.domain.infer_sync_targets import (
 from jupiter.core.domain.sync_target import (
     SyncTarget,
 )
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -47,7 +45,7 @@ class GenDoUseCase(JupiterLoggedInMutationUseCase[GenDoArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: GenDoArgs,
     ) -> None:
         """Execute the command's action."""

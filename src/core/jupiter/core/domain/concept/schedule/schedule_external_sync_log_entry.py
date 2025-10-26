@@ -2,14 +2,13 @@
 
 import abc
 
-from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     CrownEntity,
     LeafEntity,
     ParentLink,
@@ -17,9 +16,9 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import LeafEntityRepository
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import LeafEntityRepository
+from jupiter.framework.value import CompositeValue, value
 
 
 @value
@@ -36,7 +35,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     """An entry in a sync log."""
 
     schedule_external_sync_log: ParentLink
-    source: AppComponent
+    source: str
     today: ADate
     start_of_window: ADate
     end_of_window: ADate
@@ -50,7 +49,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_external_sync_log_ref_id: EntityId,
         today: ADate,
         start_of_window: ADate,
@@ -82,7 +81,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def mark_stream_success(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleExternalSyncLogEntry":
         """Mark a stream as successfully synced."""
@@ -103,7 +102,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def mark_stream_error(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
         error_msg: str,
     ) -> "ScheduleExternalSyncLogEntry":
@@ -125,7 +124,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
     @update_entity_action
     def add_entity(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         entity: CrownEntity,
     ) -> "ScheduleExternalSyncLogEntry":
         """Add an entity to the GC log entry."""
@@ -142,7 +141,7 @@ class ScheduleExternalSyncLogEntry(LeafEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "ScheduleExternalSyncLogEntry":
+    def close(self, ctx: MutationContext) -> "ScheduleExternalSyncLogEntry":
         """Close the log entry."""
         return self._new_version(
             ctx,

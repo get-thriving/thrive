@@ -6,9 +6,9 @@ from jupiter.core.domain.concept.push_integrations.email.email_task_collection i
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
     ParentLink,
@@ -34,7 +34,7 @@ class PushIntegrationGroup(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_push_integration_group(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "PushIntegrationGroup":
         """Create a habit collection."""

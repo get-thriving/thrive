@@ -1,7 +1,7 @@
 """The repeat strategy for habits when there are more than one in a period."""
 
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.value import EnumValue, enum_value
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value
@@ -40,3 +40,5 @@ class HabitRepeatsStrategy(EnumValue):
                     (result[-1][1].add_days(1), result[-1][1].add_days(durations[i]))
                 )
             return result
+
+        raise Exception(f"Unsupported repeat strategy: {self}")

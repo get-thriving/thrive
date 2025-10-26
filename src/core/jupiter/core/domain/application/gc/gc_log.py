@@ -1,9 +1,9 @@
 """A GC log attched to a workspace."""
 
 from jupiter.core.domain.application.gc.gc_log_entry import GCLogEntry
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -24,7 +24,7 @@ class GCLog(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_gc_log(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "GCLog":
         """Create a new GC log."""

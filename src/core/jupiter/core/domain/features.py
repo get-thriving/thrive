@@ -2,8 +2,8 @@
 
 from collections.abc import Iterable
 
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.value import CompositeValue, EnumValue, enum_value, value
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.value import CompositeValue, EnumValue, enum_value, value
 
 
 @enum_value

@@ -1,11 +1,11 @@
 """The summary about an entity."""
 
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.base.timestamp import Timestamp
-from jupiter.framework_new.entity import CrownEntity
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.entity import CrownEntity
+from jupiter.framework.value import CompositeValue, value
 
 
 @value

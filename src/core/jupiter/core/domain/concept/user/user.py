@@ -14,8 +14,8 @@ from jupiter.core.domain.features import (
     UserFeatureFlags,
     UserFeatureFlagsControls,
 )
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
     RootEntity,
@@ -23,12 +23,12 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import (
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
     RootEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -48,7 +48,7 @@ class User(RootEntity):
     @staticmethod
     @create_entity_action
     def new_standard_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         email_address: EmailAddress,
         name: UserName,
         timezone: Timezone,
@@ -71,7 +71,7 @@ class User(RootEntity):
     @staticmethod
     @create_entity_action
     def new_app_store_review_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         email_address: EmailAddress,
         name: UserName,
         feature_flag_controls: UserFeatureFlagsControls,
@@ -92,7 +92,7 @@ class User(RootEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[UserName],
         timezone: UpdateAction[Timezone],
     ) -> "User":
@@ -109,7 +109,7 @@ class User(RootEntity):
     @update_entity_action
     def change_feature_flags(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         feature_flag_controls: UserFeatureFlagsControls,
         feature_flags: UserFeatureFlags,
     ) -> "User":

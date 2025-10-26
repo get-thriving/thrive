@@ -12,10 +12,10 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class ChoreRemoveService:
@@ -23,7 +23,7 @@ class ChoreRemoveService:
 
     async def remove(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         ref_id: EntityId,

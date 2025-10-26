@@ -1,8 +1,8 @@
 """The command for removeing all branch and leaf type entities."""
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
@@ -12,13 +12,11 @@ from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import 
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.infra.generic_destroyer import generic_destroyer
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -33,7 +31,7 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: RemoveAllArgs,
     ) -> None:
         """Execute the command's action."""
@@ -51,10 +49,7 @@ class RemoveAllUseCase(JupiterLoggedInMutationUseCase[RemoveAllArgs, None]):
             )
             await generic_destroyer(context.domain_context, uow, User, user.ref_id)
 
-        async with self._use_case_storage_engine.get_unit_of_work() as uc_uow:
-            await uc_uow.mutation_use_case_invocation_record_repository.clear_all(
-                workspace.ref_id
-            )
+        await self._invocation_recorder.clear_all(context.as_str())
 
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.drop(workspace.ref_id)

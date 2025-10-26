@@ -1,9 +1,9 @@
 """A task generation log attched to a workspace."""
 
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -24,7 +24,7 @@ class GenLog(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_gen_log(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "GenLog":
         """Create a new Gen log."""

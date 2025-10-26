@@ -3,8 +3,8 @@
 from collections.abc import Iterable
 from typing import TypeVar, overload
 
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.entity import (
     ContainsAtMostOne,
     ContainsMany,
     ContainsOne,
@@ -18,7 +18,10 @@ from jupiter.framework_new.entity import (
     RefsMany,
     RefsOne,
 )
-from jupiter.framework_new.repository import DomainUnitOfWork, EntityNotFoundError
+from jupiter.framework.storage.repository import (
+    DomainUnitOfWork,
+    EntityNotFoundError,
+)
 
 _EntityT = TypeVar("_EntityT", bound=CrownEntity)
 _LinkedEntity1T = TypeVar("_LinkedEntity1T", bound=CrownEntity)

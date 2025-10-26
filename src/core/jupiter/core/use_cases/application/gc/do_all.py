@@ -3,9 +3,9 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gc.service.gc_service import GCService
@@ -17,11 +17,11 @@ from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.use_case import (
+from jupiter.framework.context import MutationContext
+from jupiter.framework.use_case import (
     EmptyContext,
 )
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -29,7 +29,7 @@ class GCDoAllArgs(UseCaseArgsBase):
     """GCDoAllArgs."""
 
 
-class GCDoAllUseCase(JupiterSysBackgroundMutationUseCase[GCDoAllArgs, None]):
+class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
     """The command for doing garbage collection for all workspaces."""
 
     async def _execute(
@@ -50,7 +50,7 @@ class GCDoAllUseCase(JupiterSysBackgroundMutationUseCase[GCDoAllArgs, None]):
             }
 
         # TODO(horia141): params
-        ctx = DomainContext.build(
+        ctx = MutationContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.GC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
@@ -64,7 +64,7 @@ class GCDoAllUseCase(JupiterSysBackgroundMutationUseCase[GCDoAllArgs, None]):
         )
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             user = users_by_id[users_id_by_workspace_id[workspace.ref_id]]
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(ctx, progress_reporter, workspace, gc_targets)

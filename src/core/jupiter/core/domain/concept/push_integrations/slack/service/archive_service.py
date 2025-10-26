@@ -18,11 +18,11 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task import Slack
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.value import CompositeValue, value
 
 
 @value
@@ -37,11 +37,11 @@ class SlackTaskArchiveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> SlackTaskArchiveServiceResult:
         """Execute the service's action."""
         if slack_task.archived:

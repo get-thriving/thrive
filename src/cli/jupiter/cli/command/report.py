@@ -1,6 +1,5 @@
 """UseCase for generating reports of progress."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
@@ -8,6 +7,8 @@ from jupiter.cli.command.rendering import (
     period_to_rich_text,
     user_score_overview_to_rich,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domain.application.report.report_period_result import (
     InboxTasksSummary,
@@ -21,21 +22,20 @@ from jupiter.core.use_cases.application.report import (
     ReportResult,
     ReportUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
-from jupiter.framework_new.base.adate import ADate
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
 
-class Report(LoggedInReadonlyCommand[ReportUseCase, ReportResult]):
+class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
     """UseCase class for reporting progress."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: ReportResult,
     ) -> None:
         sources_to_present = result.period_result.sources

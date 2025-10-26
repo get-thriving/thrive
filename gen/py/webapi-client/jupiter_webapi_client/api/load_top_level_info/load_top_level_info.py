@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,15 +37,30 @@ def _parse_response(
         response_200 = LoadTopLevelInfoResult.from_dict(response.json())
 
         return response_200
-    if response.status_code == 410:
-        response_410 = cast(Any, None)
-        return response_410
+    if response.status_code == 400:
+        response_400 = response.json()
+        return response_400
+    if response.status_code == 401:
+        response_401 = response.json()
+        return response_401
+    if response.status_code == 404:
+        response_404 = response.json()
+        return response_404
     if response.status_code == 406:
-        response_406 = cast(Any, None)
+        response_406 = response.json()
         return response_406
+    if response.status_code == 409:
+        response_409 = response.json()
+        return response_409
+    if response.status_code == 410:
+        response_410 = response.json()
+        return response_410
     if response.status_code == 422:
-        response_422 = cast(Any, None)
+        response_422 = response.json()
         return response_422
+    if response.status_code == 426:
+        response_426 = response.json()
+        return response_426
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -65,12 +80,10 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
+    client: Union[AuthenticatedClient, Client],
     body: LoadTopLevelInfoArgs,
 ) -> Response[Union[Any, LoadTopLevelInfoResult]]:
     """The command for loading a user and workspace if they exist and other data too.
-
-     The command for loading a user and workspace if they exist and other data too.
 
     Args:
         body (LoadTopLevelInfoArgs): Load user and workspsace args.
@@ -96,12 +109,10 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient,
+    client: Union[AuthenticatedClient, Client],
     body: LoadTopLevelInfoArgs,
 ) -> Optional[Union[Any, LoadTopLevelInfoResult]]:
     """The command for loading a user and workspace if they exist and other data too.
-
-     The command for loading a user and workspace if they exist and other data too.
 
     Args:
         body (LoadTopLevelInfoArgs): Load user and workspsace args.
@@ -122,12 +133,10 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
+    client: Union[AuthenticatedClient, Client],
     body: LoadTopLevelInfoArgs,
 ) -> Response[Union[Any, LoadTopLevelInfoResult]]:
     """The command for loading a user and workspace if they exist and other data too.
-
-     The command for loading a user and workspace if they exist and other data too.
 
     Args:
         body (LoadTopLevelInfoArgs): Load user and workspsace args.
@@ -151,12 +160,10 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
+    client: Union[AuthenticatedClient, Client],
     body: LoadTopLevelInfoArgs,
 ) -> Optional[Union[Any, LoadTopLevelInfoResult]]:
     """The command for loading a user and workspace if they exist and other data too.
-
-     The command for loading a user and workspace if they exist and other data too.
 
     Args:
         body (LoadTopLevelInfoArgs): Load user and workspsace args.

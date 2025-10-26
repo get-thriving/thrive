@@ -4,8 +4,8 @@ import asyncio
 
 import jupiter.core.domain
 from jupiter.core.config import build_global_properties
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.framework_new.realms import ModuleExplorerRealmCodecRegistry
+from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
+from jupiter.framework.storage.sqlite.connection import SqliteConnection
 
 
 async def main() -> None:

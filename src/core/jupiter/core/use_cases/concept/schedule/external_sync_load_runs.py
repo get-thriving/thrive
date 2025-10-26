@@ -1,8 +1,8 @@
 """Use case for loading history of runs."""
 
 from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.concept.schedule.schedule_external_sync_log import (
@@ -13,10 +13,10 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log_entry impor
     ScheduleExternalSyncLogEntryRepository,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -46,7 +46,7 @@ class ScheduleExternalSyncLoadRunsUseCase(
 
     async def _execute(
         self,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: ScheduleExternalSyncLoadRunsArgs,
     ) -> ScheduleExternalSyncLoadRunsResult:
         """Execute the use case."""

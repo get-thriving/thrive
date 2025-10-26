@@ -1,21 +1,19 @@
 """Use case for changing a password."""
 
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.auth.auth import Auth, IncorrectPasswordError
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.secure import secure_class
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 class InvalidChangePasswordCredentialsError(Exception):
@@ -42,7 +40,7 @@ class ChangePasswordUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ChangePasswordArgs,
     ) -> None:
         """Execute the command's action."""

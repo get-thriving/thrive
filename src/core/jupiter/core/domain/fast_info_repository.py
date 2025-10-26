@@ -18,11 +18,11 @@ from jupiter.core.domain.concept.smart_lists.smart_list_name import SmartListNam
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.repository import Repository
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.storage.repository import Repository
+from jupiter.framework.value import CompositeValue, value
 
 
 @value

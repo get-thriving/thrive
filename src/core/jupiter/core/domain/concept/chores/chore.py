@@ -6,10 +6,10 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -19,8 +19,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -45,7 +45,7 @@ class Chore(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_chore(
-        ctx: DomainContext,
+        ctx: MutationContext,
         chore_collection_ref_id: EntityId,
         project_ref_id: EntityId,
         name: ChoreName,
@@ -86,7 +86,7 @@ class Chore(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[ChoreName],
         project_ref_id: UpdateAction[EntityId],
         is_key: UpdateAction[bool],
@@ -124,7 +124,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: DomainContext) -> "Chore":
+    def suspend(self, ctx: MutationContext) -> "Chore":
         """Suspend the chore."""
         if self.suspended:
             return self
@@ -134,7 +134,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: DomainContext) -> "Chore":
+    def unsuspend(self, ctx: MutationContext) -> "Chore":
         """Unsuspend the chore."""
         if not self.suspended:
             return self

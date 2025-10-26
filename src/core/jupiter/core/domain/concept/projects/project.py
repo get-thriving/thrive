@@ -9,9 +9,9 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -21,8 +21,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.storage.repository import LeafEntityRepository
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -46,7 +46,7 @@ class Project(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_root_project(
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_collection_ref_id: EntityId,
         name: ProjectName,
     ) -> "Project":
@@ -62,7 +62,7 @@ class Project(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_project(
-        ctx: DomainContext,
+        ctx: MutationContext,
         project_collection_ref_id: EntityId,
         parent_project_ref_id: EntityId,
         name: ProjectName,
@@ -79,7 +79,7 @@ class Project(LeafEntity):
     @update_entity_action
     def change_parent(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         parent_project_ref_id: EntityId,
     ) -> "Project":
         """Change the parent project of the project."""
@@ -93,7 +93,7 @@ class Project(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[ProjectName],
     ) -> "Project":
         """Change the project."""
@@ -105,7 +105,7 @@ class Project(LeafEntity):
     @update_entity_action
     def add_child_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         child_project_ref_id: EntityId,
     ) -> "Project":
         """Add a child project."""
@@ -120,7 +120,7 @@ class Project(LeafEntity):
     @update_entity_action
     def remove_child_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         child_project_ref_id: EntityId,
     ) -> "Project":
         """Remove a child project."""
@@ -136,7 +136,7 @@ class Project(LeafEntity):
     @update_entity_action
     def reorder_child_projects(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         new_order: list[EntityId],
     ) -> "Project":
         """Reorder child projects."""

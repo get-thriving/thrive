@@ -1,7 +1,7 @@
 """The command for finding a slack task."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -18,12 +18,12 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
     SlackTaskCollection,
 )
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -66,7 +66,7 @@ class SlackTaskFindUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: SlackTaskFindArgs,
     ) -> SlackTaskFindResult:
         """Execute the command's action."""

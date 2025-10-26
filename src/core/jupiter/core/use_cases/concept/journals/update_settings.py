@@ -3,9 +3,10 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -21,21 +22,21 @@ from jupiter.core.domain.concept.journals.journal_source import JournalSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -50,7 +51,7 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
     writing_task_difficulty: UpdateAction[Difficulty | None]
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS)
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
 class JournalUpdateSettingsUseCase(
     JupiterLoggedInMutationUseCase[JournalUpdateSettingsArgs, None]
 ):
@@ -59,7 +60,7 @@ class JournalUpdateSettingsUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: JournalUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""
@@ -173,7 +174,7 @@ class JournalUpdateSettingsUseCase(
                             progress_reporter,
                             Journal,
                             journal.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )
                     if (
                         writing_task
@@ -185,5 +186,5 @@ class JournalUpdateSettingsUseCase(
                             progress_reporter,
                             InboxTask,
                             writing_task.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )

@@ -1,20 +1,21 @@
 """Use case for loading a time plan activity activity."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -39,7 +40,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     target_big_plan: BigPlan | None
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS)
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanActivityLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityLoadArgs, TimePlanActivityLoadResult
@@ -50,7 +51,7 @@ class TimePlanActivityLoadUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimePlanActivityLoadArgs,
     ) -> TimePlanActivityLoadResult:
         """Execute the command's action."""

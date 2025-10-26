@@ -2,27 +2,27 @@
 
 from typing import cast
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
     entity_tag_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.application.search import SearchResult, SearchUseCase
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
-from jupiter.framework_new.base.timestamp import Timestamp
+from jupiter.framework.base.timestamp import Timestamp
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class Search(LoggedInReadonlyCommand[SearchUseCase, SearchResult]):
+class Search(JupiterLoggedInReadonlyCommand[SearchUseCase, SearchResult]):
     """Command for free form searching across all of jupiter."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: SearchResult,
     ) -> None:
         result_page_text = Text(f"🚀 Showing {len(result.matches)} matches:")

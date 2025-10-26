@@ -7,12 +7,12 @@ from jupiter.core.domain.application.report.report_period_result import (
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import ParentLink
-from jupiter.framework_new.record import Record, create_record_action, record
-from jupiter.framework_new.repository import RecordRepository
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import ParentLink
+from jupiter.framework.record import Record, create_record_action, record
+from jupiter.framework.storage.repository import RecordRepository
 
 
 @record
@@ -25,7 +25,7 @@ class JournalStats(Record):
     @staticmethod
     @create_record_action
     def new_stats(
-        ctx: DomainContext,
+        ctx: MutationContext,
         journal_ref_id: EntityId,
         today: ADate,
         period: RecurringTaskPeriod,
@@ -41,7 +41,7 @@ class JournalStats(Record):
     @staticmethod
     @create_record_action
     def new_stats_for_journal(
-        ctx: DomainContext,
+        ctx: MutationContext,
         journal_ref_id: EntityId,
         report: ReportPeriodResult,
     ) -> "JournalStats":

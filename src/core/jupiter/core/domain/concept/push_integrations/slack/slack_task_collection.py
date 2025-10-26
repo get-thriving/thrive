@@ -1,9 +1,9 @@
 """A collection of slack tasks."""
 
 from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -26,7 +26,7 @@ class SlackTaskCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_slack_task_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         push_integration_group_ref_id: EntityId,
         generation_project_ref_id: EntityId,
     ) -> "SlackTaskCollection":
@@ -40,7 +40,7 @@ class SlackTaskCollection(TrunkEntity):
     @update_entity_action
     def change_generation_project(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         generation_project_ref_id: EntityId,
     ) -> "SlackTaskCollection":
         """Change the catch up project."""

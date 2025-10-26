@@ -1,9 +1,9 @@
 """A chore collection."""
 
 from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -24,7 +24,7 @@ class ChoreCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_chore_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "ChoreCollection":
         """Create a chore collection."""

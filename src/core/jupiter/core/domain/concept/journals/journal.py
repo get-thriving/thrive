@@ -6,16 +6,16 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.journals.journal_source import JournalSource
 from jupiter.core.domain.concept.journals.journal_stats import JournalStats
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -25,12 +25,12 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.record import ContainsOneRecord
-from jupiter.framework_new.repository import (
+from jupiter.framework.record import ContainsOneRecord
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 class CannotModifyGeneratedJournalError(Exception):
@@ -61,7 +61,7 @@ class Journal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_journal_for_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -80,7 +80,7 @@ class Journal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_journal_generated(
-        ctx: DomainContext,
+        ctx: MutationContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -100,7 +100,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def change_time_config(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         right_now: UpdateAction[ADate],
         period: UpdateAction[RecurringTaskPeriod],
     ) -> "Journal":
@@ -121,7 +121,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def update_link_to_journal_collection(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         right_now: ADate,
     ) -> "Journal":
         """Update the link to the journal collection."""
@@ -142,7 +142,7 @@ class JournalRepository(LeafEntityRepository[Journal], abc.ABC):
     async def find_all_in_range(
         self,
         parent_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason],
+        allow_archived: bool | JupiterArchivalReason | list[JupiterArchivalReason],
         filter_periods: list[RecurringTaskPeriod],
         filter_start_date: ADate,
         filter_end_date: ADate,

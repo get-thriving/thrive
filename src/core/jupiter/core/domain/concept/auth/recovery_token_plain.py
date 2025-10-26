@@ -2,14 +2,14 @@
 
 import uuid
 
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.realm import (
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.realm.realm import (
     DatabaseRealm,
     RealmDecoder,
     RealmEncoder,
     RealmThing,
 )
-from jupiter.framework_new.value import SecretValue, secret_value
+from jupiter.framework.value import SecretValue, secret_value
 
 
 @secret_value
