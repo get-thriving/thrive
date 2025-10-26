@@ -19,6 +19,10 @@ ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 COPY LICENSE LICENSE
 COPY src/Config.global src/Config.global
+COPY src/alib/py/framework src/alib/py/framework
+COPY src/alib/py/framework/pyproject.toml src/alib/py/framework/pyproject.toml
+COPY src/alib/py/framework/poetry.lock src/alib/py/framework/poetry.lock
+COPY src/alib/py/framework/jupiter src/alib/py/framework/jupiter
 COPY src/core/README.md src/core/README.md
 COPY src/core/pyproject.toml src/core/pyproject.toml
 COPY src/core/poetry.lock src/core/poetry.lock
@@ -32,6 +36,7 @@ COPY src/cli/jupiter src/cli/jupiter
 
 WORKDIR /jupiter/src/cli
 
+RUN cd ../alib/py/framework && poetry install --only main --no-interaction --no-ansi
 RUN cd ../core && poetry install --only main --no-interaction --no-ansi
 RUN poetry install --only main --no-interaction --no-ansi
 
