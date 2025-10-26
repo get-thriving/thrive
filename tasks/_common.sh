@@ -39,7 +39,7 @@ log() {
     fi
 }
 
-run_jupiter() {
+run_jupiter_webapp() {
     local NAMESPACE=$1
     local WEBAPI_PORT=$2
     local WEBUI_PORT=$3
@@ -59,16 +59,16 @@ run_jupiter() {
 
     mkdir -p "$RUN_ROOT/$NAMESPACE"
 
-    log info "Running Jupiter with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, mode: $mode"
+    log info "Running Jupiter WebApi with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, mode: $mode"
 
     if [[ "$mode" == "pm2" ]]; then
-        _run_jupiter_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
     else
-        _run_jupiter_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
     fi
 }
 
-_run_jupiter_with_pm2() {
+_run_jupiter_webapp_with_pm2() {
     local namespace=$1
     local webapiLogFile=../../$RUN_ROOT/$namespace/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
@@ -115,7 +115,7 @@ _run_jupiter_with_pm2() {
     fi
 }
 
-_run_jupiter_with_docker() {
+_run_jupiter_webapp_with_docker() {
     export NAMESPACE=$1
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3
@@ -172,7 +172,7 @@ _run_jupiter_with_docker() {
     fi
 }
 
-stop_jupiter() {
+stop_jupiter_webapp() {
     local service=$1
 
     log info "Stopping Jupiter with service: $service"
@@ -274,4 +274,22 @@ get_logs() {
         log info "Unknown mode: $mode"
         exit 1
     fi
+}
+
+run_jupiter_cli() {
+    local namespace=$1
+    local args_string=$2
+    local sessionInfoPath=../../$RUN_ROOT/$namespace/session-info
+    local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
+
+    mkdir -p "$RUN_ROOT/$namespace"
+
+    log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl} with '${args_string}'"
+
+    export SESSION_INFO_PATH=${sessionInfoPath}
+    export SQLITE_DB_URL=${sqliteDbUrl} 
+
+    cd src/cli
+    # MISE passes all jupiter args as a single string, so we need to eval it to properly parse quotes
+    eval "python -m jupiter.cli.jupiter ${args_string}"
 }

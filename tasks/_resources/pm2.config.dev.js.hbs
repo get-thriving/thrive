@@ -4,7 +4,7 @@ module.exports = {
       cwd: "src/webapi",
       interpreter: "none",
       script: "python",
-      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../core",
+      args: "-m watchfiles jupiter.webapi.jupiter.sync_main . ../core ../alib/py/framework",
       log_file: "{{webapiLogFile}}",
       env: {
         PY_COLORS: "1",

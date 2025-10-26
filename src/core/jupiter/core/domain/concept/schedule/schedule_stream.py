@@ -16,9 +16,9 @@ from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleSt
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.url import URL
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -28,7 +28,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 class CannotModifyScheduleStreamError(Exception):
@@ -55,7 +55,7 @@ class ScheduleStream(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_stream_for_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -73,7 +73,7 @@ class ScheduleStream(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_stream_from_external_ical(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -92,7 +92,7 @@ class ScheduleStream(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[ScheduleStreamName],
         color: UpdateAction[ScheduleStreamColor],
     ) -> "ScheduleStream":

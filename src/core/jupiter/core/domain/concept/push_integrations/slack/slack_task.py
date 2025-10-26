@@ -11,10 +11,10 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name impo
 from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
     SlackUserName,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -23,8 +23,8 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -45,7 +45,7 @@ class SlackTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_slack_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         slack_task_collection_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
@@ -67,7 +67,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         user: UpdateAction[SlackUserName],
         channel: UpdateAction[SlackChannelName | None],
         message: UpdateAction[str],
@@ -87,7 +87,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def mark_as_used_for_generation(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
     ) -> "SlackTask":
         """Mark this task as used for generating an inbox task."""
         if self.has_generated_task:

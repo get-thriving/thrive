@@ -1,9 +1,9 @@
 """A habit collection."""
 
 from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -24,7 +24,7 @@ class HabitCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_habit_collection(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "HabitCollection":
         """Create a habit collection."""

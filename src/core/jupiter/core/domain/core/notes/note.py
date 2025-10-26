@@ -4,18 +4,18 @@ import abc
 
 from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import NOT_USED_NAME
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
     create_entity_action,
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.storage.repository import LeafEntityRepository
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -30,7 +30,7 @@ class Note(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_note(
-        ctx: DomainContext,
+        ctx: MutationContext,
         note_collection_ref_id: EntityId,
         domain: NoteDomain,
         source_entity_ref_id: EntityId,
@@ -49,7 +49,7 @@ class Note(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         content: UpdateAction[list[OneOfNoteContentBlock]],
     ) -> "Note":
         """Update the note name and content."""

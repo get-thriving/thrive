@@ -10,9 +10,9 @@ from jupiter.core.domain.concept.schedule.schedule_external_sync_log import (
     ScheduleExternalSyncLog,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     ContainsOne,
     IsRefId,
@@ -42,7 +42,7 @@ class ScheduleDomain(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_domain(
-        ctx: DomainContext, workspace_ref_id: EntityId
+        ctx: MutationContext, workspace_ref_id: EntityId
     ) -> "ScheduleDomain":
         """Create a new schedule domain."""
         return ScheduleDomain._create(ctx, workspace=ParentLink(workspace_ref_id))

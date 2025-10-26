@@ -3,7 +3,7 @@
 import requests
 from icalendar import Calendar
 from jupiter.core.config import (
-    JupiterLoggedInMutationUseCaseContext,
+    JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
@@ -15,13 +15,13 @@ from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleSt
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -57,7 +57,7 @@ class ScheduleStreamCreateForExternalIcalUseCase(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ScheduleStreamCreateForExternalIcalArgs,
     ) -> ScheduleStreamCreateForExternalIcalResult:
         """Perform the transactional mutation."""

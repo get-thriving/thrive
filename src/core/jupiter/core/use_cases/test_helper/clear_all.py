@@ -4,8 +4,8 @@ from typing import cast
 
 from jupiter.core.config import (
     JupiterGlobalProperties,
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
@@ -45,15 +45,13 @@ from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import (
-    ProgressReporter,
-)
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -78,7 +76,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: ClearAllArgs,
     ) -> None:
         """Execute the command's action."""
@@ -287,10 +285,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
             async with progress_reporter.section(
                 "Clearing use case invocation records"
             ):
-                async with self._use_case_storage_engine.get_unit_of_work() as uc_uow:
-                    await uc_uow.mutation_use_case_invocation_record_repository.clear_all(
-                        workspace.ref_id
-                    )
+                await self._invocation_recorder.clear_all(context.as_str())
 
             async with progress_reporter.section("Clearing the search index"):
                 async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:

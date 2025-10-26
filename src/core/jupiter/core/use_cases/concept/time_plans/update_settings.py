@@ -3,9 +3,10 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
-    JupiterLoggedInMutationUseCaseContext,
 )
+from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
@@ -24,21 +25,21 @@ from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import
 )
 from jupiter.core.domain.concept.time_plans.time_plan_source import TimePlanSource
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.use_case import (
     mutation_use_case,
 )
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.update_action import UpdateAction
-from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -53,7 +54,7 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
     planning_task_difficulty: UpdateAction[Difficulty | None]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS)
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanUpdateSettingsUseCase(
     JupiterLoggedInMutationUseCase[TimePlanUpdateSettingsArgs, None]
 ):
@@ -62,7 +63,7 @@ class TimePlanUpdateSettingsUseCase(
     async def _perform_mutation(
         self,
         progress_reporter: ProgressReporter,
-        context: JupiterLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         args: TimePlanUpdateSettingsArgs,
     ) -> None:
         """Execute the command's action."""
@@ -178,7 +179,7 @@ class TimePlanUpdateSettingsUseCase(
                             progress_reporter,
                             TimePlan,
                             time_plan.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )
                     if (
                         planning_task
@@ -190,5 +191,5 @@ class TimePlanUpdateSettingsUseCase(
                             progress_reporter,
                             InboxTask,
                             planning_task.ref_id,
-                            ArchivalReason.USER,
+                            JupiterArchivalReason.USER,
                         )

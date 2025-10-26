@@ -1,7 +1,7 @@
 """A suggested date for an inbox task."""
 
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.value import CompositeValue, value
 
 
 @value

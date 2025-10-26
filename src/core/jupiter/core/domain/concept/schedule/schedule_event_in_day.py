@@ -11,9 +11,9 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -23,7 +23,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -49,7 +49,7 @@ class ScheduleEventInDay(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_event_in_day_for_user(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventName,
@@ -67,7 +67,7 @@ class ScheduleEventInDay(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_event_in_day_from_external_ical(
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventName,
@@ -86,7 +86,7 @@ class ScheduleEventInDay(LeafEntity):
     @update_entity_action
     def change_schedule_stream(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleEventInDay":
         """Change the schedule stream."""
@@ -102,7 +102,7 @@ class ScheduleEventInDay(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         name: UpdateAction[ScheduleEventName],
     ) -> "ScheduleEventInDay":
         """Update the schedule event."""

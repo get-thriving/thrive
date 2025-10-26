@@ -12,9 +12,9 @@ from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class PersonRemoveService:
@@ -22,7 +22,7 @@ class PersonRemoveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         person_collection: PersonCollection,

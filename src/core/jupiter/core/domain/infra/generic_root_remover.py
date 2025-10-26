@@ -1,8 +1,8 @@
 """A generic archiver service."""
 
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
     Entity,
@@ -11,13 +11,13 @@ from jupiter.framework_new.entity import (
     StubEntity,
     TrunkEntity,
 )
-from jupiter.framework_new.record import ContainsRecordLink, Record
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.record import ContainsRecordLink, Record
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 async def generic_root_remover(
-    ctx: DomainContext,
+    ctx: MutationContext,
     uow: DomainUnitOfWork,
     progress_reporter: ProgressReporter,
     entity_type: type[RootEntity],

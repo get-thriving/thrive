@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.event_source import EventSource
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,7 +26,7 @@ class ScheduleExternalSyncLogEntry:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         schedule_external_sync_log_ref_id (str):
-        source (EventSource): The source of the modification which this event records.
+        source (str):
         today (str): A date or possibly a datetime for the application.
         start_of_window (str): A date or possibly a datetime for the application.
         end_of_window (str): A date or possibly a datetime for the application.
@@ -48,7 +47,7 @@ class ScheduleExternalSyncLogEntry:
     last_modified_time: str
     name: str
     schedule_external_sync_log_ref_id: str
-    source: EventSource
+    source: str
     today: str
     start_of_window: str
     end_of_window: str
@@ -77,7 +76,7 @@ class ScheduleExternalSyncLogEntry:
 
         schedule_external_sync_log_ref_id = self.schedule_external_sync_log_ref_id
 
-        source = self.source.value
+        source = self.source
 
         today = self.today
 
@@ -173,7 +172,7 @@ class ScheduleExternalSyncLogEntry:
 
         schedule_external_sync_log_ref_id = d.pop("schedule_external_sync_log_ref_id")
 
-        source = EventSource(d.pop("source"))
+        source = d.pop("source")
 
         today = d.pop("today")
 

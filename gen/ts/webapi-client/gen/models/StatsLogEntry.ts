@@ -6,7 +6,6 @@ import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { EntitySummary } from './EntitySummary';
-import type { EventSource } from './EventSource';
 import type { SyncTarget } from './SyncTarget';
 import type { Timestamp } from './Timestamp';
 /**
@@ -22,7 +21,7 @@ export type StatsLogEntry = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     stats_log_ref_id: string;
-    source: EventSource;
+    source: string;
     stats_targets: Array<SyncTarget>;
     today: ADate;
     filter_big_plan_ref_ids?: (Array<EntityId> | null);

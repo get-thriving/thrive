@@ -2,8 +2,8 @@
 
 from argparse import ArgumentParser, Namespace
 
-from jupiter.cli.command.command import Command
-from jupiter.framework_new.secure import secure_class
+from jupiter.framework.appform.cli.commands import Command
+from jupiter.framework.secure import secure_class
 from rich.console import Console
 
 

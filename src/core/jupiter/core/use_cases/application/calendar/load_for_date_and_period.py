@@ -1,7 +1,7 @@
 """Load all the calendar specific entities for a given date and period."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
@@ -17,7 +17,7 @@ from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
@@ -30,15 +30,15 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import NOT_USED_NAME
+from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import NOT_USED_NAME
-from jupiter.framework_new.errors import InputValidationError
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -156,7 +156,7 @@ class CalendarLoadForDateAndPeriodUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: CalendarLoadForDateAndPeriodArgs,
     ) -> CalendarLoadForDateAndPeriodResult:
         """Execute the action."""
@@ -332,7 +332,7 @@ class CalendarLoadForDateAndPeriodUseCase(
         if len(time_events_in_day_for_inbox_tasks) > 0:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=workspace.ref_id,
-                allow_archived=ArchivalReason.GC,
+                allow_archived=JupiterArchivalReason.GC,
                 ref_id=list(time_events_in_day_for_inbox_tasks.keys()),
             )
         inbox_task_entries = [

@@ -8,8 +8,8 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskS
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.timezone import UTC, Timezone
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.realm import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.realm.realm import (
     PROVIDE_VIA_REGISTRY,
     DatabaseRealm,
     RealmCodecRegistry,
@@ -18,7 +18,7 @@ from jupiter.framework_new.realm import (
     RealmEncoder,
     RealmThing,
 )
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.value import CompositeValue, value
 
 
 @value

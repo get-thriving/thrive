@@ -1,19 +1,19 @@
 """Use case for free form searching through jupiter."""
 
 from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
-    JupiterLoggedInReadonlyUseCaseContext,
 )
 from jupiter.core.domain.application.search.infra.search_repository import SearchMatch
 from jupiter.core.domain.application.search.search_limit import SearchLimit
 from jupiter.core.domain.application.search.search_query import SearchQuery
 from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.use_case import (
+    UnavailableForContextError,
     readonly_use_case,
 )
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.use_case import UnavailableForContextError
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -50,7 +50,7 @@ class SearchUseCase(JupiterLoggedInReadonlyUseCase[SearchArgs, SearchResult]):
     """Use case for free form searching through jupiter."""
 
     async def _execute(
-        self, context: JupiterLoggedInReadonlyUseCaseContext, args: SearchArgs
+        self, context: JupiterLoggedInReadonlyContext, args: SearchArgs
     ) -> SearchResult:
         """Execute the command's action."""
         workspace = context.workspace

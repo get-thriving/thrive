@@ -14,15 +14,15 @@ from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskS
 from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
     InboxTaskArchiveService,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
-from jupiter.framework_new.value import CompositeValue, value
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.value import CompositeValue, value
 
 
 @value
@@ -37,11 +37,11 @@ class BigPlanArchiveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         big_plan: BigPlan,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> BigPlanArchiveServiceResult:
         """Execute the service's action."""
         if big_plan.archived:

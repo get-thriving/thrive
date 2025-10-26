@@ -13,11 +13,11 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.domain.core.archival_reason import ArchivalReason
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     IsFieldRefId,
     LeafEntity,
     ParentLink,
@@ -27,11 +27,11 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import (
+from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     LeafEntityRepository,
 )
-from jupiter.framework_new.update_action import UpdateAction
+from jupiter.framework.update_action import UpdateAction
 
 
 @entity
@@ -59,7 +59,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_from_existing(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_plan_ref_id: EntityId,
         existing_activity_name: EntityName,
         existing_activity_target: TimePlanActivityTarget,
@@ -81,7 +81,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_for_inbox_task(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_plan_ref_id: EntityId,
         inbox_task_ref_id: EntityId,
         kind: TimePlanActivityKind,
@@ -103,7 +103,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_for_big_plan(
-        ctx: DomainContext,
+        ctx: MutationContext,
         time_plan_ref_id: EntityId,
         big_plan_ref_id: EntityId,
         kind: TimePlanActivityKind,
@@ -125,7 +125,7 @@ class TimePlanActivity(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         kind: UpdateAction[TimePlanActivityKind],
         feasability: UpdateAction[TimePlanActivityFeasability],
     ) -> "TimePlanActivity":
@@ -153,6 +153,8 @@ class TimePlanActivityRespository(LeafEntityRepository[TimePlanActivity], abc.AB
         self,
         target: TimePlanActivityTarget,
         target_ref_id: EntityId,
-        allow_archived: bool | ArchivalReason | list[ArchivalReason] = False,
+        allow_archived: (
+            bool | JupiterArchivalReason | list[JupiterArchivalReason]
+        ) = False,
     ) -> list[EntityId]:
         """Find all time plan ids with a certain entity in their activity set."""

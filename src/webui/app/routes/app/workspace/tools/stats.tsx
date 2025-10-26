@@ -23,7 +23,7 @@ import { parseForm } from "zodix";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EventSourceTag } from "~/components/infra/event-source-tag";
+import { AppComponentTag } from "~/components/infra/app-component-tag";
 import { EntityCard } from "~/components/infra/entity-card";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
 import { FieldError, GlobalError } from "~/components/infra/errors";
@@ -309,7 +309,7 @@ export default function Stats() {
           <Accordion key={entry.ref_id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <AccordionHeader>
-                Run from <EventSourceTag source={entry.source} />
+                Run from <AppComponentTag source={entry.source} />
                 with {entry.entity_records.length} entities updated
                 <TimeDiffTag
                   today={topLevelInfo.today}

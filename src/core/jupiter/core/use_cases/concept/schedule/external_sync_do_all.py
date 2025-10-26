@@ -3,18 +3,18 @@
 from typing import cast
 
 from jupiter.core.config import (
+    JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
-    JupiterSysBackgroundMutationUseCase,
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.use_case import EmptyContext
-from jupiter.framework_new.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.context import MutationContext
+from jupiter.framework.use_case import EmptyContext
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
@@ -23,7 +23,7 @@ class ScheduleExternalSyncDoAllArgs(UseCaseArgsBase):
 
 
 class ScheduleExternalSyncDoAllUseCase(
-    JupiterSysBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
+    JupiterBackgroundMutationUseCase[ScheduleExternalSyncDoAllArgs, None]
 ):
     """The command for doing a sync."""
 
@@ -35,7 +35,7 @@ class ScheduleExternalSyncDoAllUseCase(
             workspaces = await uow.get_for(Workspace).find_all(allow_archived=False)
 
         # TODO(horia141): params
-        ctx = DomainContext.build(
+        ctx = MutationContext.build(
             JupiterComponentProperties.for_cron(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
@@ -50,7 +50,7 @@ class ScheduleExternalSyncDoAllUseCase(
         )
 
         for workspace in workspaces:
-            progress_reporter = self._progress_reporter_factory.new_reporter(context)
+            progress_reporter = self._progress_reporter_factory.new_reporter("nothing")
             await sync_service.do_it(
                 ctx=ctx,
                 progress_reporter=progress_reporter,

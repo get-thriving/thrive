@@ -1,14 +1,14 @@
 """Archive a doc."""
 
 from jupiter.core.domain.concept.docs.doc import Doc
-from jupiter.core.domain.core.archival_reason import ArchivalReason
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case import ProgressReporter
+from jupiter.framework.context import MutationContext
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 class DocArchiveService:
@@ -16,11 +16,11 @@ class DocArchiveService:
 
     async def do_it(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         doc: Doc,
-        archival_reason: ArchivalReason,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
         """Execute the command's action."""
         if doc.archived:

@@ -1,7 +1,7 @@
 """Use case for loading the settings around time plans."""
 
 from jupiter.core.config import (
-    JupiterLoggedInReadonlyUseCaseContext,
+    JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
@@ -18,11 +18,11 @@ from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.infra.use_cases import (
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
     readonly_use_case,
 )
-from jupiter.framework_new.repository import DomainUnitOfWork
-from jupiter.framework_new.use_case_io import (
+from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
     use_case_args,
@@ -47,7 +47,7 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     planning_tasks: list[InboxTask]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, exclude_component=[AppCore.CLI])
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
 class TimePlanLoadSettingsUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadSettingsArgs, TimePlanLoadSettingsResult
@@ -58,7 +58,7 @@ class TimePlanLoadSettingsUseCase(
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
-        context: JupiterLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         args: TimePlanLoadSettingsArgs,
     ) -> TimePlanLoadSettingsResult:
         """Execute the command's action."""

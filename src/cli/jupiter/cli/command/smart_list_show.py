@@ -1,27 +1,29 @@
 """UseCase for showing a smart list."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.concept.smart_lists.find import (
     SmartListFindResult,
     SmartListFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class SmartListShow(LoggedInReadonlyCommand[SmartListFindUseCase, SmartListFindResult]):
+class SmartListShow(
+    JupiterLoggedInReadonlyCommand[SmartListFindUseCase, SmartListFindResult]
+):
     """UseCase for showing the smart list."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: SmartListFindResult,
     ) -> None:
         sorted_smart_lists = sorted(

@@ -1,37 +1,36 @@
 """ommand for loading previous runs of GC."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
     entity_tag_to_rich_text,
-    event_source_to_rich_text,
     sync_target_to_rich_text,
 )
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.use_cases.application.gc.load_runs import (
     GCLoadRunsResult,
     GCLoadRunsUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class GCShow(LoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]):
+class GCShow(JupiterLoggedInReadonlyCommand[GCLoadRunsUseCase, GCLoadRunsResult]):
     """Command for loading previous runs of GC."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: GCLoadRunsResult,
     ) -> None:
         rich_tree = Tree("🗑  GC", guide_style="bold bright_blue")
 
         for entry in result.entries:
             entry_text = Text("Run from ")
-            entry_text.append(event_source_to_rich_text(entry.source))
+            entry_text.append(entry.source)
             entry_text.append(
                 f" on {entry.created_time.as_date()} with {len(entry.entity_records)} entities archived"
             )

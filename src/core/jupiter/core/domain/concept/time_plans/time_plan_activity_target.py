@@ -1,6 +1,6 @@
 """The target of an activity."""
 
-from jupiter.framework_new.value import EnumValue, enum_value
+from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value

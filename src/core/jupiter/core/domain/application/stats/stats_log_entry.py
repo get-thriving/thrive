@@ -2,14 +2,13 @@
 
 import abc
 
-from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.entity_summary import EntitySummary
 from jupiter.core.domain.sync_target import SyncTarget
-from jupiter.framework_new.base.adate import ADate
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.base.entity_name import EntityName
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
     ParentLink,
@@ -17,7 +16,7 @@ from jupiter.framework_new.entity import (
     entity,
     update_entity_action,
 )
-from jupiter.framework_new.repository import LeafEntityRepository
+from jupiter.framework.storage.repository import LeafEntityRepository
 
 
 @entity
@@ -25,7 +24,7 @@ class StatsLogEntry(LeafSupportEntity):
     """A particular entry in the stats log."""
 
     stats_log: ParentLink
-    source: AppComponent
+    source: str
     stats_targets: list[SyncTarget]
     today: ADate
     filter_big_plan_ref_ids: list[EntityId] | None
@@ -37,7 +36,7 @@ class StatsLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: DomainContext,
+        ctx: MutationContext,
         stats_log_ref_id: EntityId,
         stats_targets: list[SyncTarget],
         today: ADate,
@@ -70,7 +69,7 @@ class StatsLogEntry(LeafSupportEntity):
     @update_entity_action
     def add_entity_updated(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         entity: CrownEntity,
     ) -> "StatsLogEntry":
         """Add an entity to the stats log entry."""
@@ -82,7 +81,7 @@ class StatsLogEntry(LeafSupportEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: DomainContext) -> "StatsLogEntry":
+    def close(self, ctx: MutationContext) -> "StatsLogEntry":
         """Close the stats log entry."""
         return self._new_version(
             ctx,

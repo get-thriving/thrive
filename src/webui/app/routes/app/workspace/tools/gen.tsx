@@ -34,7 +34,7 @@ import { CheckboxAsString, parseForm } from "zodix";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";
 import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EventSourceTag } from "~/components/infra/event-source-tag";
+import { AppComponentTag } from "~/components/infra/app-component-tag";
 import { SlimChip } from "~/components/infra/chips";
 import { EntityCard } from "~/components/infra/entity-card";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
@@ -483,7 +483,7 @@ export default function Gen() {
           <Accordion key={entry.ref_id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <AccordionHeader>
-                Run from <EventSourceTag source={entry.source} />
+                Run from <AppComponentTag source={entry.source} />
                 with {entry.entity_created_records.length} entities created,{" "}
                 {entry.entity_updated_records.length} entities updated, and{" "}
                 {entry.entity_removed_records.length} entities removed

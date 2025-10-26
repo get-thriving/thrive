@@ -6,7 +6,6 @@ import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { EntitySummary } from './EntitySummary';
-import type { EventSource } from './EventSource';
 import type { ScheduleExternalSyncLogPerStreamResult } from './ScheduleExternalSyncLogPerStreamResult';
 import type { Timestamp } from './Timestamp';
 /**
@@ -22,7 +21,7 @@ export type ScheduleExternalSyncLogEntry = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     schedule_external_sync_log_ref_id: string;
-    source: EventSource;
+    source: string;
     today: ADate;
     start_of_window: ADate;
     end_of_window: ADate;

@@ -2,9 +2,9 @@
 
 from jupiter.core.domain.application.home.home_tab import HomeTab
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.framework_new.base.entity_id import EntityId
-from jupiter.framework_new.context import DomainContext
-from jupiter.framework_new.entity import (
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
     ParentLink,
@@ -28,7 +28,7 @@ class HomeConfig(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_home_config(
-        ctx: DomainContext,
+        ctx: MutationContext,
         workspace_ref_id: EntityId,
     ) -> "HomeConfig":
         """Create a new home config."""
@@ -44,7 +44,7 @@ class HomeConfig(TrunkEntity):
     @update_entity_action
     def add_tab(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         target: HomeTabTarget,
         tab_ref_id: EntityId,
     ) -> "HomeConfig":
@@ -60,7 +60,7 @@ class HomeConfig(TrunkEntity):
     @update_entity_action
     def remove_tab(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         target: HomeTabTarget,
         tab_ref_id: EntityId,
     ) -> "HomeConfig":
@@ -78,7 +78,7 @@ class HomeConfig(TrunkEntity):
     @update_entity_action
     def reoder_tabs(
         self,
-        ctx: DomainContext,
+        ctx: MutationContext,
         target: HomeTabTarget,
         order_of_tabs: list[EntityId],
     ) -> "HomeConfig":
