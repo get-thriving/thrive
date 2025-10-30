@@ -2,32 +2,30 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { InboxTaskArchiveArgs } from '../models/InboxTaskArchiveArgs';
-import type { InboxTaskCreateArgs } from '../models/InboxTaskCreateArgs';
-import type { InboxTaskCreateResult } from '../models/InboxTaskCreateResult';
-import type { InboxTaskFindArgs } from '../models/InboxTaskFindArgs';
-import type { InboxTaskFindResult } from '../models/InboxTaskFindResult';
-import type { InboxTaskLoadArgs } from '../models/InboxTaskLoadArgs';
-import type { InboxTaskLoadResult } from '../models/InboxTaskLoadResult';
-import type { InboxTaskRemoveArgs } from '../models/InboxTaskRemoveArgs';
-import type { InboxTaskUpdateArgs } from '../models/InboxTaskUpdateArgs';
-import type { InboxTaskUpdateResult } from '../models/InboxTaskUpdateResult';
+import type { GetSummariesArgs } from '../models/GetSummariesArgs';
+import type { GetSummariesResult } from '../models/GetSummariesResult';
+import type { LoadProgressReporterTokenArgs } from '../models/LoadProgressReporterTokenArgs';
+import type { LoadProgressReporterTokenResult } from '../models/LoadProgressReporterTokenResult';
+import type { LoadTopLevelInfoArgs } from '../models/LoadTopLevelInfoArgs';
+import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
+import type { LoginArgs } from '../models/LoginArgs';
+import type { LoginResult } from '../models/LoginResult';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class InboxTasksService {
+export class UseCasesService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * The command for archiving a inbox task.
+     * The use case for retrieving summaries about entities.
      * @param requestBody The input data
-     * @returns any Successful response / Empty body
+     * @returns GetSummariesResult Successful response
      * @throws ApiError
      */
-    public inboxTaskArchive(
-        requestBody?: InboxTaskArchiveArgs,
-    ): CancelablePromise<any> {
+    public getSummaries(
+        requestBody?: GetSummariesArgs,
+    ): CancelablePromise<GetSummariesResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/inbox-task-archive',
+            url: '/get-summaries',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -43,17 +41,17 @@ export class InboxTasksService {
         });
     }
     /**
-     * The command for creating a inbox task.
+     * The use case for retrieving summaries about entities.
      * @param requestBody The input data
-     * @returns InboxTaskCreateResult Successful response
+     * @returns LoadProgressReporterTokenResult Successful response
      * @throws ApiError
      */
-    public inboxTaskCreate(
-        requestBody?: InboxTaskCreateArgs,
-    ): CancelablePromise<InboxTaskCreateResult> {
+    public loadProgressReporterToken(
+        requestBody?: LoadProgressReporterTokenArgs,
+    ): CancelablePromise<LoadProgressReporterTokenResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/inbox-task-create',
+            url: '/load-progress-reporter-token',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -69,17 +67,17 @@ export class InboxTasksService {
         });
     }
     /**
-     * The command for finding a inbox task.
+     * The command for loading a user and workspace if they exist and other data too.
      * @param requestBody The input data
-     * @returns InboxTaskFindResult Successful response
+     * @returns LoadTopLevelInfoResult Successful response
      * @throws ApiError
      */
-    public inboxTaskFind(
-        requestBody?: InboxTaskFindArgs,
-    ): CancelablePromise<InboxTaskFindResult> {
+    public loadTopLevelInfo(
+        requestBody?: LoadTopLevelInfoArgs,
+    ): CancelablePromise<LoadTopLevelInfoResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/inbox-task-find',
+            url: '/load-top-level-info',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -95,69 +93,17 @@ export class InboxTasksService {
         });
     }
     /**
-     * The use case for loading a particular inbox task.
+     * Use case for logging in as a particular user.
      * @param requestBody The input data
-     * @returns InboxTaskLoadResult Successful response
+     * @returns LoginResult Successful response
      * @throws ApiError
      */
-    public inboxTaskLoad(
-        requestBody?: InboxTaskLoadArgs,
-    ): CancelablePromise<InboxTaskLoadResult> {
+    public login(
+        requestBody?: LoginArgs,
+    ): CancelablePromise<LoginResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/inbox-task-load',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for removing a inbox task.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public inboxTaskRemove(
-        requestBody?: InboxTaskRemoveArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/inbox-task-remove',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating a inbox task.
-     * @param requestBody The input data
-     * @returns InboxTaskUpdateResult Successful response
-     * @throws ApiError
-     */
-    public inboxTaskUpdate(
-        requestBody?: InboxTaskUpdateArgs,
-    ): CancelablePromise<InboxTaskUpdateResult> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/inbox-task-update',
+            url: '/login',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

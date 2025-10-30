@@ -10,13 +10,6 @@ from jupiter.core.domain.concept.chores.service.remove_service import ChoreRemov
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.remove_service import HabitRemoveService
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
-    InboxTaskRemoveService,
-)
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
@@ -39,6 +32,13 @@ from jupiter.core.domain.concept.working_mem.working_mem_collection import (
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

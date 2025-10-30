@@ -5,16 +5,16 @@ from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.habit_streak_mark import (
     HabitStreakMarkRepository,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
-    InboxTaskRemoveService,
-)
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

@@ -7,8 +7,6 @@ from jupiter.core.config import (
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.persons.person import Person
@@ -25,6 +23,8 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

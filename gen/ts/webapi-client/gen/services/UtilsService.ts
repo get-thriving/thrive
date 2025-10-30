@@ -2,24 +2,23 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { GetSummariesArgs } from '../models/GetSummariesArgs';
-import type { GetSummariesResult } from '../models/GetSummariesResult';
+import type { NoOpArgs } from '../models/NoOpArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class GetSummariesService {
+export class UtilsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * The use case for retrieving summaries about entities.
+     * A use case that doesn't do anything.
      * @param requestBody The input data
-     * @returns GetSummariesResult Successful response
+     * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public getSummaries(
-        requestBody?: GetSummariesArgs,
-    ): CancelablePromise<GetSummariesResult> {
+    public noOp(
+        requestBody?: NoOpArgs,
+    ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/get-summaries',
+            url: '/no-op',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

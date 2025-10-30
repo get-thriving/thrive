@@ -9,18 +9,18 @@ from jupiter.core.domain.concept.habits.habit_streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

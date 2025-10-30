@@ -1,6 +1,6 @@
 """A inbox task collection."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
+from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

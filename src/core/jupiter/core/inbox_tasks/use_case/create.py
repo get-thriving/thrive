@@ -6,12 +6,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_name import InboxTaskName
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
@@ -31,6 +25,12 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

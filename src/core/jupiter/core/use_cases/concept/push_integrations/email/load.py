@@ -4,16 +4,16 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
+from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
+from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

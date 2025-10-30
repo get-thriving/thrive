@@ -1,13 +1,5 @@
 """Service for hard removing a Slack task and associated inbox task."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
-    InboxTaskRemoveService,
-)
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
@@ -15,6 +7,14 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task import Slack
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

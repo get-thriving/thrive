@@ -1,7 +1,5 @@
 """A journal attached to a workspace."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.journals.journal import Journal
 from jupiter.core.domain.concept.journals.journal_generation_approach import (
     JournalGenerationApproach,
@@ -10,6 +8,8 @@ from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

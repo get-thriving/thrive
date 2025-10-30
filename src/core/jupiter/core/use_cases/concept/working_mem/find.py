@@ -7,11 +7,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
 from jupiter.core.domain.concept.working_mem.working_mem_collection import (
     WorkingMemCollection,
@@ -20,6 +15,11 @@ from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork

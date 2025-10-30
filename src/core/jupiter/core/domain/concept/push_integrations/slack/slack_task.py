@@ -1,7 +1,5 @@
 """A Slack task which needs to be converted into an inbox task."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.push_integrations.push_generation_extra_info import (
     PushGenerationExtraInfo,
 )
@@ -11,6 +9,8 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name impo
 from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
     SlackUserName,
 )
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext

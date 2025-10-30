@@ -6,10 +6,10 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

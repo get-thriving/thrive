@@ -336,6 +336,7 @@ from .motd_get_for_today_result import MOTDGetForTodayResult
 from .named_entity_tag import NamedEntityTag
 from .nested_result import NestedResult
 from .nested_result_per_source import NestedResultPerSource
+from .no_op_args import NoOpArgs
 from .note import Note
 from .note_archive_args import NoteArchiveArgs
 from .note_collection import NoteCollection
@@ -1032,6 +1033,7 @@ __all__ = (
     "NamedEntityTag",
     "NestedResult",
     "NestedResultPerSource",
+    "NoOpArgs",
     "Note",
     "NoteArchiveArgs",
     "NoteCollection",

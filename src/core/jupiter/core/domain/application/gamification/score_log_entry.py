@@ -6,9 +6,9 @@ import random
 from jupiter.core.domain.application.gamification.score_source import ScoreSource
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.core.difficulty import Difficulty
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext

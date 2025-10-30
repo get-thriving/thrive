@@ -8,11 +8,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.notes.note import Note
@@ -21,6 +16,11 @@ from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork

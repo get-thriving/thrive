@@ -5,10 +5,10 @@ import abc
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

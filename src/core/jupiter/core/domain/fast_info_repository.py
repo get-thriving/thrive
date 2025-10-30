@@ -5,7 +5,6 @@ import abc
 from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
 from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.habits.habit_name import HabitName
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_name import InboxTaskName
 from jupiter.core.domain.concept.metrics.metric_name import MetricName
 from jupiter.core.domain.concept.persons.person_name import PersonName
 from jupiter.core.domain.concept.projects.project_name import ProjectName
@@ -18,6 +17,7 @@ from jupiter.core.domain.concept.smart_lists.smart_list_name import SmartListNam
 from jupiter.core.domain.concept.vacations.vacation_name import VacationName
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

@@ -555,7 +555,9 @@ class SqliteDomainStorageEngine(DomainStorageEngine):
         record_repository_factories = {}
         repository_factories: dict[type[Repository], type[SqliteRepository]] = {}
 
-        for m in find_all_modules(*module_roots):
+        all_modules = find_all_modules(*module_roots)
+
+        for m in all_modules:
             # extract all entity repositories
             for (
                 entity_type,
@@ -609,6 +611,7 @@ class SqliteDomainStorageEngine(DomainStorageEngine):
                     concrete_repository_type
                 )
 
+        for m in all_modules:
             # look at all entities and build repositories for them
             for entity_type in extract_entities(m):
                 if entity_type in entity_repository_factories:

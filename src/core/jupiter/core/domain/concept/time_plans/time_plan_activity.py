@@ -3,7 +3,6 @@
 import abc
 
 from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
 from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
@@ -14,6 +13,7 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext

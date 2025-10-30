@@ -5,9 +5,6 @@ import textwrap
 from collections.abc import Iterable
 from typing import ClassVar
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_name import InboxTaskName
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.concept.push_integrations.email.email_user_name import (
     EmailUserName,
 )
@@ -27,6 +24,9 @@ from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

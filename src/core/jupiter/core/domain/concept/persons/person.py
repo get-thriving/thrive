@@ -1,7 +1,5 @@
 """A person."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
 from jupiter.core.domain.concept.persons.person_name import PersonName
 from jupiter.core.domain.concept.persons.person_relationship import PersonRelationship
@@ -12,6 +10,8 @@ from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

@@ -14,13 +14,6 @@ from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
     HabitStreakRecorderService,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
-    CannotModifyGeneratedTaskError,
-    InboxTask,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_name import InboxTaskName
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.concept.time_plans.time_plan_activity import (
     TimePlanActivity,
@@ -44,6 +37,13 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.inbox_tasks.root import (
+    CannotModifyGeneratedTaskError,
+    InboxTask,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

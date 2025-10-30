@@ -5,10 +5,7 @@ import logging
 import sys
 
 import jupiter.cli.command
-import jupiter.cli.config
-import jupiter.core.domain
-import jupiter.core.impl.repository.sqlite
-import jupiter.core.use_cases
+import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm
 from jupiter.core.config import (
     JupiterPorts,
@@ -49,7 +46,7 @@ async def main() -> None:
     global_properties = build_global_properties()
 
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
-        jupiter.core.domain, jupiter.core.use_cases
+        jupiter.core
     )
 
     sqlite_connection = SqliteConnection(
@@ -61,10 +58,7 @@ async def main() -> None:
     )
 
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
-        realm_codec_registry,
-        sqlite_connection,
-        jupiter.core.impl.repository.sqlite,
-        jupiter.core.domain,
+        realm_codec_registry, sqlite_connection, jupiter.core
     )
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
@@ -114,7 +108,7 @@ async def main() -> None:
         console,
         session_storage,
         jupiter.cli.config,
-        jupiter.core.use_cases,
+        jupiter.core,
         jupiter.cli.command,
     )
 

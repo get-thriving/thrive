@@ -3,13 +3,13 @@
 from collections.abc import Iterable
 from typing import cast
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.sqlite.repository import (

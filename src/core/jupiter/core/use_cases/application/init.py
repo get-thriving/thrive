@@ -19,9 +19,6 @@ from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCol
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.journals.journal_generation_approach import (
     JournalGenerationApproach,
@@ -77,6 +74,9 @@ from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
+)
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt

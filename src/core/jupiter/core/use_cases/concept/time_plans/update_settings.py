@@ -8,11 +8,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.time_plans.time_plan import (
@@ -32,6 +27,11 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

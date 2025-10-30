@@ -2,16 +2,16 @@
 
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
+from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

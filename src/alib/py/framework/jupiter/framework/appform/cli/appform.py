@@ -366,15 +366,17 @@ class CliAppForm(
             ),
         )
 
-        for m in find_all_modules(*module_root):
+        all_modules = find_all_modules(*module_root)
+
+        for m in all_modules:
             for use_case_command_type, use_case_type in extract_use_case_command(m):
                 cli_app._add_use_case_command(use_case_command_type, use_case_type)
 
-        for m in find_all_modules(*module_root):
+        for m in all_modules:
             for command_type in extract_command(m):
                 cli_app._add_command(command_type)
 
-        for m in find_all_modules(*module_root):
+        for m in all_modules:
             for use_case_type in extract_use_case(m):
                 if use_case_type in cli_app._use_case_commands:
                     continue

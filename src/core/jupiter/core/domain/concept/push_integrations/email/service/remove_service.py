@@ -1,13 +1,5 @@
 """Service for hard removing a email task and associated inbox task."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.remove_service import (
-    InboxTaskRemoveService,
-)
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,
@@ -15,6 +7,14 @@ from jupiter.core.domain.concept.push_integrations.email.email_task_collection i
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

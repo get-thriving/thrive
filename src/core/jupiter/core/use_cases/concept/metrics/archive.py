@@ -4,14 +4,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTaskRepository
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
-    InboxTaskArchiveService,
-)
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
@@ -20,6 +12,14 @@ from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

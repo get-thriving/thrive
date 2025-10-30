@@ -1,16 +1,5 @@
 """Service for archiving a Slack task and associated entities."""
 
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
-    InboxTaskArchiveService,
-)
 from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
     PushIntegrationGroup,
 )
@@ -19,6 +8,17 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
     SlackTaskCollection,
 )
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

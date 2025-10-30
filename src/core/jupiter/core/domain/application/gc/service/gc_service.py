@@ -10,14 +10,6 @@ from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCol
 from jupiter.core.domain.concept.big_plans.service.archive_service import (
     BigPlanArchiveService,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.service.archive_service import (
-    InboxTaskArchiveService,
-)
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,
@@ -41,6 +33,14 @@ from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import (
