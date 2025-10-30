@@ -19,9 +19,6 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
     PushIntegrationGroup,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.smart_lists.smart_list_collection import (
-    SmartListCollection,
-)
 from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
 from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
 from jupiter.core.domain.concept.working_mem.working_mem_collection import (
@@ -40,6 +37,9 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.smart_lists.collection import (
+    SmartListCollection,
+)
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     ContainsOne,

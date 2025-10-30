@@ -13,9 +13,6 @@ from jupiter.core.domain.concept.persons.person_collection import PersonCollecti
 from jupiter.core.domain.concept.projects.project import ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.smart_lists.smart_list_collection import (
-    SmartListCollection,
-)
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
@@ -36,6 +33,9 @@ from jupiter.core.domain.fast_info_repository import (
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
+)
+from jupiter.core.smart_lists.collection import (
+    SmartListCollection,
 )
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

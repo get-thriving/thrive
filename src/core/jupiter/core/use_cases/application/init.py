@@ -46,9 +46,6 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
     ScheduleStreamColor,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
-from jupiter.core.domain.concept.smart_lists.smart_list_collection import (
-    SmartListCollection,
-)
 from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
 from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import (
     TimePlanGenerationApproach,
@@ -77,6 +74,9 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
+)
+from jupiter.core.smart_lists.collection import (
+    SmartListCollection,
 )
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt

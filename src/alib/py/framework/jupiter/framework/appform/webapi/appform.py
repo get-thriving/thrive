@@ -919,7 +919,7 @@ class WebApiAppForm(
 
             paths_object["summary"] = command._build_description()
             paths_object["operationId"] = command._build_operation_id()
-            paths_object["tags"] = [command._build_tag()]
+            paths_object["tags"] = [command._build_tag]
 
             if isinstance(command, (GuestMutationCommand, GuestReadonlyCommand)):
                 paths_object["security"] = []

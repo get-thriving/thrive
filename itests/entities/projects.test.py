@@ -3,14 +3,14 @@
 from typing import cast
 
 import pytest
-from jupiter_webapi_client.api.get_summaries.get_summaries import (
-    sync_detailed as get_summaries_sync,
-)
 from jupiter_webapi_client.api.projects.project_create import (
     sync_detailed as project_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
+)
+from jupiter_webapi_client.api.use_cases.get_summaries import (
+    sync_detailed as get_summaries_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs

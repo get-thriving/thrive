@@ -6,7 +6,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.concept.smart_lists.find import (
+from jupiter.core.smart_lists.use_case.find import (
     SmartListFindResult,
     SmartListFindUseCase,
 )
