@@ -10,7 +10,6 @@ from jupiter.core.domain.concept.chores.service.remove_service import ChoreRemov
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.remove_service import HabitRemoveService
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
@@ -39,6 +38,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
+from jupiter.core.journals.collection import JournalCollection
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

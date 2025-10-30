@@ -12,10 +12,6 @@ from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domain.concept.auth.auth import Auth
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_generation_approach import (
-    JournalGenerationApproach,
-)
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
@@ -45,6 +41,10 @@ from jupiter.core.domain.core.timezone import Timezone
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.generation_approach import (
+    JournalGenerationApproach,
+)
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction

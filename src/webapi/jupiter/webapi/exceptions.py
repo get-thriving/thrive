@@ -3,9 +3,6 @@
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.domain.concept.journals.journal import (
-    JournalExistsForDatePeriodCombinationError,
-)
 from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
 from jupiter.core.domain.concept.time_plans.time_plan import (
     TimePlanExistsForDatePeriodCombinationError,
@@ -15,6 +12,9 @@ from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
 )
 from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
+from jupiter.core.journals.root import (
+    JournalExistsForDatePeriodCombinationError,
+)
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.framework.appform.webapi.exception import ExceptionDetailT
 from jupiter.webapi.config import JupiterExceptionHandler

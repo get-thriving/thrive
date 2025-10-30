@@ -2,17 +2,17 @@
 
 from typing import Final, Mapping, cast
 
-from jupiter.core.domain.concept.journals.journal import (
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.journals.root import (
     Journal,
     JournalExistsForDatePeriodCombinationError,
     JournalRepository,
 )
-from jupiter.core.domain.concept.journals.journal_stats import (
+from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing

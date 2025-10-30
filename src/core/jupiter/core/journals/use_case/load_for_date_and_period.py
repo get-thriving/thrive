@@ -5,15 +5,15 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal, JournalRepository
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.storage.repository import DomainUnitOfWork

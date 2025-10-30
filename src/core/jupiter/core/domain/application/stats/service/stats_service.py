@@ -16,12 +16,6 @@ from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
     HabitStreakRecorderService,
 )
-from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -35,6 +29,12 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal, JournalRepository
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

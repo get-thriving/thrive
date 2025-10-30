@@ -5,16 +5,16 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
-from jupiter.core.domain.concept.journals.journal_stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_loader import generic_loader
 from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.journals.root import Journal, JournalRepository
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

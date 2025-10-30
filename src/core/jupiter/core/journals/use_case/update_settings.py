@@ -8,12 +8,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.journals.journal import Journal, JournalRepository
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_generation_approach import (
-    JournalGenerationApproach,
-)
-from jupiter.core.domain.concept.journals.journal_source import JournalSource
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core import schedules
@@ -29,6 +23,12 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.generation_approach import (
+    JournalGenerationApproach,
+)
+from jupiter.core.journals.root import Journal, JournalRepository
+from jupiter.core.journals.source import JournalSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

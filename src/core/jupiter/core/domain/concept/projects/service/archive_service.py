@@ -14,7 +14,6 @@ from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.archive_service import (
     HabitArchiveService,
 )
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
@@ -46,6 +45,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
+from jupiter.core.journals.collection import JournalCollection
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

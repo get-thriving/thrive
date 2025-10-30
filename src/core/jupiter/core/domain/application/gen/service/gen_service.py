@@ -13,13 +13,6 @@ from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
     HabitStreakRecorderService,
 )
-from jupiter.core.domain.concept.journals.journal import Journal
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_source import JournalSource
-from jupiter.core.domain.concept.journals.journal_stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person import Person
@@ -77,6 +70,13 @@ from jupiter.core.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal
+from jupiter.core.journals.source import JournalSource
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

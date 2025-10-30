@@ -5,18 +5,18 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.journals.journal import Journal
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
-from jupiter.core.domain.concept.journals.journal_stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

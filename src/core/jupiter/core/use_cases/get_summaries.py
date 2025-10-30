@@ -7,7 +7,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.journals.journal_collection import JournalCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import ProjectRepository
@@ -34,6 +33,7 @@ from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
+from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
