@@ -1,17 +1,14 @@
 """The command for creating a big plan."""
 
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
-from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
-from jupiter.core.domain.concept.big_plans.big_plan_stats import (
-    BigPlanStats,
-    BigPlanStatsRepository,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan

@@ -1,8 +1,8 @@
 """Shared logic for archiving a big plan."""
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (

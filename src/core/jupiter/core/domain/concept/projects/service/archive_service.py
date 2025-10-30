@@ -1,7 +1,7 @@
 """Shared logic for archiving a project."""
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.service.archive_service import (
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.service.archive import (
     BigPlanArchiveService,
 )
 from jupiter.core.domain.concept.chores.chore import Chore

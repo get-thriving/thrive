@@ -2,18 +2,15 @@
 
 from collections import defaultdict
 
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
-from jupiter.core.domain.concept.big_plans.big_plan_stats import (
-    BigPlanStats,
-    BigPlanStatsRepository,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.notes.note import Note

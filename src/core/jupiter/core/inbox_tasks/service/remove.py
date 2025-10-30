@@ -1,6 +1,6 @@
 """Shared service for removing an inbox task."""
 
-from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
+from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.domain.concept.time_plans.time_plan_activity import (
     TimePlanActivityRespository,
 )

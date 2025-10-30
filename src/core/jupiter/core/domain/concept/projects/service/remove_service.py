@@ -1,7 +1,7 @@
 """Shared logic for removing a project."""
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.service.remove_service import (
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.service.remove import (
     BigPlanRemoveService,
 )
 from jupiter.core.domain.concept.chores.chore import Chore

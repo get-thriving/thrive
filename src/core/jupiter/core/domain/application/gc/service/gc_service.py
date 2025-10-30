@@ -3,13 +3,13 @@
 from collections.abc import Iterable
 from typing import Final
 
-from jupiter.core.domain.application.gc.gc_log import GCLog
-from jupiter.core.domain.application.gc.gc_log_entry import GCLogEntry
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
-from jupiter.core.domain.concept.big_plans.service.archive_service import (
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.service.archive import (
     BigPlanArchiveService,
 )
+from jupiter.core.domain.application.gc.gc_log import GCLog
+from jupiter.core.domain.application.gc.gc_log_entry import GCLogEntry
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,

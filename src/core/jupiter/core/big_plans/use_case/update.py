@@ -1,5 +1,9 @@
 """The command for updating a big plan."""
 
+from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -8,10 +12,6 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
-from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature

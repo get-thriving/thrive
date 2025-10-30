@@ -3,13 +3,13 @@
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan, BigPlanRepository
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.time_plans.time_plan import (
     TimePlan,
     TimePlanRepository,

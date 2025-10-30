@@ -2,6 +2,7 @@
 
 from typing import cast
 
+from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterGuestMutationContext,
@@ -15,7 +16,6 @@ from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.concept.auth.auth import Auth
 from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
 from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection

@@ -1,11 +1,11 @@
 """The command for updating a big plan milestone."""
 
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

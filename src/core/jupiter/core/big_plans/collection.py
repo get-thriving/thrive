@@ -1,6 +1,6 @@
 """A big plan collection."""
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

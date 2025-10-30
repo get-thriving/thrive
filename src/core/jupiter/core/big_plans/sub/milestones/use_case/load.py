@@ -1,11 +1,11 @@
 """Use case for loading big plan milestones."""
 
+from jupiter.core.big_plans.sub.milestones.root import (
+    BigPlanMilestone,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
-    BigPlanMilestone,
 )
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId

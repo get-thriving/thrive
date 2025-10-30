@@ -2,18 +2,15 @@
 
 from typing import Final
 
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
+from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.domain.application.gamification.service.record_score_service import (
     RecordScoreService,
 )
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.application.stats.stats_log_entry import StatsLogEntry
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan, BigPlanRepository
-from jupiter.core.domain.concept.big_plans.big_plan_collection import BigPlanCollection
-from jupiter.core.domain.concept.big_plans.big_plan_stats import (
-    BigPlanStats,
-    BigPlanStatsRepository,
-)
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.streak_recorder_service import (

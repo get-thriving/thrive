@@ -3,7 +3,7 @@
 import sys
 
 from jupiter.cli.config import JupiterExceptionHandler
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
+from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
 from jupiter.core.domain.concept.journals.journal import (

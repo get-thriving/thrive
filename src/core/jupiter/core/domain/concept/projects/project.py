@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.projects.project_name import ProjectName

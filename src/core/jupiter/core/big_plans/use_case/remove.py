@@ -1,13 +1,13 @@
-"""The command for archiving a big plan milestone."""
+"""The command for removing a big plan."""
 
+from jupiter.core.big_plans.service.remove import (
+    BigPlanRemoveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -18,31 +18,30 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class BigPlanMilestoneArchiveArgs(UseCaseArgsBase):
-    """Big plan milestone archive args."""
+class BigPlanRemoveArgs(UseCaseArgsBase):
+    """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
-class BigPlanMilestoneArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[BigPlanMilestoneArchiveArgs, None]
+class BigPlanRemoveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanRemoveArgs, None]
 ):
-    """The command for archiving a big plan milestone."""
+    """The command for removing a big plan."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: BigPlanMilestoneArchiveArgs,
+        args: BigPlanRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        await generic_crown_archiver(
+        await BigPlanRemoveService().remove(
             context.domain_context,
             uow,
             progress_reporter,
-            BigPlanMilestone,
+            context.workspace,
             args.ref_id,
-            JupiterArchivalReason.USER,
         )

@@ -1,11 +1,11 @@
 """Helpers for console rendering."""
 
+from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.concept.metrics.metric_unit import MetricUnit
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
 from jupiter.core.domain.concept.persons.person_relationship import PersonRelationship

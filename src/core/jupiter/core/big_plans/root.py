@@ -3,10 +3,10 @@
 import abc
 from typing import Iterable
 
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
-from jupiter.core.domain.concept.big_plans.big_plan_name import BigPlanName
-from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStats
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
+from jupiter.core.big_plans.name import BigPlanName
+from jupiter.core.big_plans.stats import BigPlanStats
+from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen

@@ -1,15 +1,13 @@
-"""The command for archiving a big plan."""
+"""The command for archiving a big plan milestone."""
 
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.service.archive_service import (
-    BigPlanArchiveService,
-)
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -20,32 +18,31 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class BigPlanArchiveArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+class BigPlanMilestoneArchiveArgs(UseCaseArgsBase):
+    """Big plan milestone archive args."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.BIG_PLANS)
-class BigPlanArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[BigPlanArchiveArgs, None]
+class BigPlanMilestoneArchiveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[BigPlanMilestoneArchiveArgs, None]
 ):
-    """The command for archiving a big plan."""
+    """The command for archiving a big plan milestone."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: BigPlanArchiveArgs,
+        args: BigPlanMilestoneArchiveArgs,
     ) -> None:
         """Execute the command's action."""
-        big_plan = await uow.get_for(BigPlan).load_by_id(args.ref_id)
-
-        await BigPlanArchiveService().do_it(
+        await generic_crown_archiver(
             context.domain_context,
             uow,
             progress_reporter,
-            big_plan,
+            BigPlanMilestone,
+            args.ref_id,
             JupiterArchivalReason.USER,
         )

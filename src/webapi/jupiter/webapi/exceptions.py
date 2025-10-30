@@ -1,6 +1,6 @@
 """Exceptions handling for the webapi module."""
 
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
+from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
 from jupiter.core.domain.concept.journals.journal import (

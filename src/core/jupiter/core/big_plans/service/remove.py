@@ -1,8 +1,8 @@
 """Shared module for removing a big plan."""
 
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import BigPlanMilestone
-from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.domain.concept.time_plans.time_plan_activity import (
     TimePlanActivityRespository,
 )

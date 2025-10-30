@@ -1,11 +1,11 @@
 """The command for creating a inbox task."""
 
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan

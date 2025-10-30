@@ -3,9 +3,9 @@
 import abc
 import random
 
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.domain.application.gamification.score_source import ScoreSource
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus

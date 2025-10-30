@@ -1,5 +1,7 @@
 """The command for updating a inbox task."""
 
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -8,8 +10,6 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.domain.concept.big_plans.big_plan import BigPlan
-from jupiter.core.domain.concept.big_plans.big_plan_stats import BigPlanStatsRepository
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
     HabitStreakRecorderService,

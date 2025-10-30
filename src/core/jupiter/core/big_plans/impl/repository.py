@@ -4,20 +4,14 @@ from collections.abc import Iterable
 from sqlite3 import IntegrityError
 from typing import Final, Mapping, cast
 
-from jupiter.core.domain.concept.big_plans.big_plan import (
-    BigPlan,
-    BigPlanRepository,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
+from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
+from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
+from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestone,
     BigPlanMilestoneAlreadyExistsForDateError,
     BigPlanMilestoneRepository,
 )
-from jupiter.core.domain.concept.big_plans.big_plan_stats import (
-    BigPlanStats,
-    BigPlanStatsRepository,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
