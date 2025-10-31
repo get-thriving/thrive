@@ -6,8 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.projects.project import Project
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
@@ -21,6 +19,8 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork

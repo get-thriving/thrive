@@ -9,7 +9,6 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity import (
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.inbox_tasks.collection import (
@@ -20,6 +19,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

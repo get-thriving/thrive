@@ -27,8 +27,6 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task import Slack
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
@@ -41,6 +39,8 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.working_mem.root import WorkingMem
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import (

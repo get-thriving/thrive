@@ -8,11 +8,6 @@ from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.domain.concept.persons.person import Person
-from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
-from jupiter.core.domain.concept.persons.person_collection import PersonCollection
-from jupiter.core.domain.concept.projects.project import Project
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,
@@ -27,14 +22,6 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection i
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
 from jupiter.core.domain.concept.time_plans.time_plan_source import TimePlanSource
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.vacations.vacation import Vacation
-from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
-from jupiter.core.domain.concept.working_mem.working_mem import WorkingMem
-from jupiter.core.domain.concept.working_mem.working_mem_collection import (
-    WorkingMemCollection,
-)
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
@@ -77,6 +64,19 @@ from jupiter.core.journals.stats import (
 )
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
+from jupiter.core.persons.birthday import PersonBirthday
+from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.persons.root import Person
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
+from jupiter.core.users.root import User
+from jupiter.core.vacations.collection import VacationCollection
+from jupiter.core.vacations.root import Vacation
+from jupiter.core.working_mem.collection import (
+    WorkingMemCollection,
+)
+from jupiter.core.working_mem.root import WorkingMem
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

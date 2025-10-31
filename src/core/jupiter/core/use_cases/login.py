@@ -6,11 +6,11 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
-from jupiter.core.domain.concept.user.user import (
+from jupiter.core.domain.core.email_address import EmailAddress
+from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,
 )
-from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework.secure import secure_class
 from jupiter.framework.use_case_io import (

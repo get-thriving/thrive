@@ -11,7 +11,7 @@ from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.concept.persons.find import (
+from jupiter.core.persons.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
 )

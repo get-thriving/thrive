@@ -13,9 +13,9 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.timeline import infer_timeline
+from jupiter.core.users.root import User
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.storage.repository import DomainUnitOfWork
 

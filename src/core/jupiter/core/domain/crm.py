@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from jupiter.core.domain.concept.user.user import User
+from jupiter.core.users.root import User
 
 
 class CRM(ABC):

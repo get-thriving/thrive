@@ -30,13 +30,6 @@ from jupiter.core.domain.application.report.report_period_result import (
     WorkableBigPlan,
     WorkableSummary,
 )
-from jupiter.core.domain.concept.persons.person import Person
-from jupiter.core.domain.concept.persons.person_collection import PersonCollection
-from jupiter.core.domain.concept.projects.project import Project
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
-from jupiter.core.domain.concept.projects.project_name import ProjectName
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.schedules import Schedule
@@ -57,6 +50,13 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
+from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.persons.root import Person
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.name import ProjectName
+from jupiter.core.projects.root import Project
+from jupiter.core.users.root import User
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

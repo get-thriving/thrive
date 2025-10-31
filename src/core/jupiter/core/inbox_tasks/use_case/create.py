@@ -6,8 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.concept.time_plans.time_plan_activity import (
     TimePlanActivity,
@@ -31,6 +29,8 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project, ProjectRepository
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

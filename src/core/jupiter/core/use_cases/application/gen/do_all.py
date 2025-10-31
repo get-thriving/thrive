@@ -9,14 +9,14 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
-    UserWorkspaceLink,
-)
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
+from jupiter.core.user_workspace_link.user_workspace_link import (
+    UserWorkspaceLink,
+)
+from jupiter.core.users.root import User
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
 from jupiter.framework.use_case import (
     EmptyContext,

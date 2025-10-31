@@ -26,7 +26,6 @@ from jupiter.core.domain.concept.schedule.schedule_external_uid import (
 from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
 from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
@@ -48,6 +47,7 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.core.time_in_day import TimeInDay
 from jupiter.core.domain.core.url import URL
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

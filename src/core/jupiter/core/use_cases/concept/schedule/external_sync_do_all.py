@@ -11,7 +11,7 @@ from jupiter.core.domain.app import AppComponent
 from jupiter.core.domain.concept.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
 from jupiter.framework.use_case import EmptyContext
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args

@@ -7,7 +7,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
@@ -34,6 +33,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.projects.root import Project
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

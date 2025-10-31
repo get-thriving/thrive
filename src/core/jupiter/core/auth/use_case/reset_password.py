@@ -7,11 +7,11 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.domain.concept.user.user import (
+from jupiter.core.domain.core.email_address import EmailAddress
+from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,
 )
-from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )

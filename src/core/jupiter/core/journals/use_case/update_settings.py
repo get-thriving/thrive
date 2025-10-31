@@ -8,8 +8,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.projects.project import Project
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
@@ -29,6 +27,8 @@ from jupiter.core.journals.generation_approach import (
 )
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.source import JournalSource
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import Project
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

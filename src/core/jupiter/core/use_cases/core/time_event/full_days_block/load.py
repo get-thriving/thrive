@@ -4,15 +4,15 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
     ScheduleEventFullDays,
 )
-from jupiter.core.domain.concept.vacations.vacation import Vacation
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.core.persons.root import Person
+from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

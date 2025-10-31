@@ -11,8 +11,6 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.application.stats.stats_log_entry import StatsLogEntry
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
@@ -35,6 +33,8 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.users.root import User
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

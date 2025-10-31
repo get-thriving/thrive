@@ -2,7 +2,7 @@
 
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.concept.workspaces.load import (
+from jupiter.core.workspaces.use_case.load import (
     WorkspaceLoadResult,
     WorkspaceLoadUseCase,
 )

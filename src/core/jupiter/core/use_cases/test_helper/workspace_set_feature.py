@@ -7,10 +7,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

@@ -2,10 +2,10 @@
 
 from collections.abc import Iterable
 
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.users.root import User
+from jupiter.core.workspaces.root import Workspace
 
 
 def infer_sync_targets_for_enabled_features(

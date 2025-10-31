@@ -12,10 +12,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domain.concept.persons.person_collection import PersonCollection
-from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
-from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,
 )
@@ -29,10 +25,6 @@ from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDoma
 from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import (
     TimePlanGenerationApproach,
 )
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.user.user_name import UserName
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.concept.workspaces.workspace_name import WorkspaceName
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -45,7 +37,15 @@ from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.name import ProjectName
+from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.users.name import UserName
+from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
+from jupiter.core.workspaces.name import WorkspaceName
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (

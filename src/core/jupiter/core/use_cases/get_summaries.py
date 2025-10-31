@@ -6,13 +6,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.persons.person_collection import PersonCollection
-from jupiter.core.domain.concept.projects.project import ProjectRepository
-from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.vacations.vacation_collection import VacationCollection
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.fast_info_repository import (
     BigPlanSummary,
     ChoreSummary,
@@ -34,9 +28,15 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.projects.root import ProjectRepository
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
+from jupiter.core.users.root import User
+from jupiter.core.vacations.collection import VacationCollection
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,

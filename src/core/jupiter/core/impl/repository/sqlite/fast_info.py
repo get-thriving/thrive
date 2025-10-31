@@ -4,14 +4,11 @@ import json
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domain.concept.persons.person_name import PersonName
-from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
 from jupiter.core.domain.concept.schedule.schedule_stream_color import (
     ScheduleStreamColor,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
-from jupiter.core.domain.concept.vacations.vacation_name import VacationName
 from jupiter.core.domain.core.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.fast_info_repository import (
@@ -31,7 +28,10 @@ from jupiter.core.domain.fast_info_repository import (
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.metrics.name import MetricName
+from jupiter.core.persons.name import PersonName
+from jupiter.core.projects.name import ProjectName
 from jupiter.core.smart_lists.name import SmartListName
+from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder

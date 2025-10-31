@@ -11,7 +11,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
+from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.use_cases.application.calendar.load_for_date_and_period import (
     CalendarEventsEntries,
     CalendarEventsStats,

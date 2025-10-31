@@ -25,7 +25,6 @@ from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
 from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
@@ -44,6 +43,7 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

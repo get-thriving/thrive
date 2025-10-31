@@ -5,7 +5,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
     EmailTaskCollection,
 )
@@ -13,6 +12,7 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
     PushIntegrationGroup,
 )
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.projects.root import Project
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
