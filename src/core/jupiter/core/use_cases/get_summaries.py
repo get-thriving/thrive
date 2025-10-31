@@ -1,11 +1,11 @@
 """A use case for retrieving summaries about entities."""
 
 from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection

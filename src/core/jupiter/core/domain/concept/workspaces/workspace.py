@@ -4,11 +4,11 @@ import abc
 from collections.abc import Iterable
 
 from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection

@@ -4,9 +4,9 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.service.archive import (
     BigPlanArchiveService,
 )
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
-from jupiter.core.domain.concept.chores.service.archive_service import (
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
+from jupiter.core.chores.service.archive import (
     ChoreArchiveService,
 )
 from jupiter.core.domain.concept.habits.habit import Habit

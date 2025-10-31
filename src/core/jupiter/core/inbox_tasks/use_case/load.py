@@ -1,11 +1,11 @@
 """The use case for loading a partcular inbox task."""
 
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.chores.chore import Chore
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.persons.person import Person

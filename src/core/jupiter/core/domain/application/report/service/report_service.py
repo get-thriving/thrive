@@ -9,6 +9,8 @@ from typing import Final, cast
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
 from jupiter.core.domain.application.gamification.service.score_overview_service import (
     ScoreOverviewService,
 )
@@ -28,8 +30,6 @@ from jupiter.core.domain.application.report.report_period_result import (
     WorkableBigPlan,
     WorkableSummary,
 )
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.metrics.metric import Metric

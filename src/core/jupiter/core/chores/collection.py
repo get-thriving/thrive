@@ -1,6 +1,6 @@
 """A chore collection."""
 
-from jupiter.core.domain.concept.chores.chore import Chore
+from jupiter.core.chores.root import Chore
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

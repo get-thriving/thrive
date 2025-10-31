@@ -3,7 +3,7 @@
 import json
 
 from jupiter.core.big_plans.name import BigPlanName
-from jupiter.core.domain.concept.chores.chore_name import ChoreName
+from jupiter.core.chores.name import ChoreName
 from jupiter.core.domain.concept.habits.habit_name import HabitName
 from jupiter.core.domain.concept.metrics.metric_name import MetricName
 from jupiter.core.domain.concept.persons.person_name import PersonName

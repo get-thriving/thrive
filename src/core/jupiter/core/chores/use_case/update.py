@@ -2,12 +2,12 @@
 
 from typing import cast
 
+from jupiter.core.chores.name import ChoreName
+from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.difficulty import Difficulty

@@ -1,7 +1,7 @@
 """Shared service for removing a chore."""
 
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.inbox_tasks.collection import (

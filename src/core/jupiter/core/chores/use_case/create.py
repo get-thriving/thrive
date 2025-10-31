@@ -1,13 +1,13 @@
 """The command for creating a chore."""
 
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.name import ChoreName
+from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
-from jupiter.core.domain.concept.chores.chore_name import ChoreName
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.difficulty import Difficulty

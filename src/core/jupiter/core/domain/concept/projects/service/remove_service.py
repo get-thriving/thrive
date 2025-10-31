@@ -4,9 +4,9 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.service.remove import (
     BigPlanRemoveService,
 )
-from jupiter.core.domain.concept.chores.chore import Chore
-from jupiter.core.domain.concept.chores.chore_collection import ChoreCollection
-from jupiter.core.domain.concept.chores.service.remove_service import ChoreRemoveService
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
+from jupiter.core.chores.service.remove import ChoreRemoveService
 from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.habits.service.remove_service import HabitRemoveService

@@ -1,6 +1,6 @@
 """A chore."""
 
-from jupiter.core.domain.concept.chores.chore_name import ChoreName
+from jupiter.core.chores.name import ChoreName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
