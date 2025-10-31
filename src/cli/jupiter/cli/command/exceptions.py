@@ -6,7 +6,7 @@ from jupiter.cli.config import JupiterExceptionHandler
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.domain.concept.time_plans.time_plan import (
+from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
 from jupiter.core.journals.root import (

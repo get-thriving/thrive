@@ -14,7 +14,7 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
     PushIntegrationGroup,
 )
 from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
 from jupiter.core.domain.features import (

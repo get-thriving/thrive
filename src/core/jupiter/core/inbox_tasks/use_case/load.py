@@ -8,7 +8,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
 from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
+from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain

@@ -15,10 +15,10 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domain.concept.time_plans.time_plan_activity_target import (
+from jupiter.core.time_plans.sub.activity.target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.use_cases.concept.time_plans.load import (
+from jupiter.core.time_plans.use_case.load import (
     TimePlanLoadResult,
     TimePlanLoadUseCase,
 )

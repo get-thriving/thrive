@@ -18,7 +18,7 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (

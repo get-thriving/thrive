@@ -15,13 +15,13 @@ from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name impo
 from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
     SlackUserName,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
+from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
+from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_source import TimePlanSource
+from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress

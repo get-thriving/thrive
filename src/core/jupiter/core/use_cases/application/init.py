@@ -36,8 +36,8 @@ from jupiter.core.domain.concept.schedule.schedule_stream_color import (
     ScheduleStreamColor,
 )
 from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
-from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
-from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import (
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
 from jupiter.core.domain.core.difficulty import Difficulty

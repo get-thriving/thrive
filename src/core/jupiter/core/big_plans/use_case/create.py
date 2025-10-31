@@ -9,12 +9,12 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
-from jupiter.core.domain.concept.time_plans.time_plan_activity import TimePlanActivity
-from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
+from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
 from jupiter.core.domain.core.difficulty import Difficulty

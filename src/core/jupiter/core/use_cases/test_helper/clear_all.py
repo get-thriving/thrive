@@ -21,8 +21,8 @@ from jupiter.core.domain.concept.push_integrations.group.push_integration_group 
 from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_domain import TimePlanDomain
-from jupiter.core.domain.concept.time_plans.time_plan_generation_approach import (
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
 from jupiter.core.domain.core.difficulty import Difficulty
