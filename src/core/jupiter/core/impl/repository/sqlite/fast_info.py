@@ -4,7 +4,6 @@ import json
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domain.concept.metrics.metric_name import MetricName
 from jupiter.core.domain.concept.persons.person_name import PersonName
 from jupiter.core.domain.concept.projects.project_name import ProjectName
 from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
@@ -31,6 +30,7 @@ from jupiter.core.domain.fast_info_repository import (
 )
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.metrics.name import MetricName
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder

@@ -6,7 +6,6 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.metrics.metric_unit import MetricUnit
 from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
 from jupiter.core.domain.concept.persons.person_relationship import PersonRelationship
 from jupiter.core.domain.concept.projects.project_name import ProjectName
@@ -40,6 +39,7 @@ from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.metrics.unit import MetricUnit
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

@@ -6,7 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
@@ -34,6 +33,7 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )

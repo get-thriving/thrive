@@ -7,9 +7,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.metrics.metric import Metric
-from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
-from jupiter.core.domain.concept.metrics.metric_name import MetricName
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
@@ -33,6 +30,9 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.name import MetricName
+from jupiter.core.metrics.root import Metric
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

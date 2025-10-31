@@ -8,9 +8,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.metrics.metric import Metric
-from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
-from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
@@ -21,6 +18,9 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.root import Metric
+from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

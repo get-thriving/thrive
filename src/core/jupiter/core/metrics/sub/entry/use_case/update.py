@@ -1,19 +1,16 @@
-"""The command for archiving a metric entry."""
+"""The command for updating a metric entry's properties."""
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_archive_service import (
-    NoteArchiveService,
-)
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.metrics.sub.entry.root import MetricEntry
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
@@ -21,38 +18,35 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class MetricEntryArchiveArgs(UseCaseArgsBase):
+class MetricEntryUpdateArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     ref_id: EntityId
+    collection_time: UpdateAction[ADate]
+    value: UpdateAction[float]
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricEntryArchiveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricEntryArchiveArgs, None]
+class MetricEntryUpdateUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[MetricEntryUpdateArgs, None]
 ):
-    """The command for archiving a metric entry."""
+    """The command for updating a metric entry's properties."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: MetricEntryArchiveArgs,
+        args: MetricEntryUpdateArgs,
     ) -> None:
         """Execute the command's action."""
         metric_entry = await uow.get_for(MetricEntry).load_by_id(args.ref_id)
-        metric_entry = metric_entry.mark_archived(
-            context.domain_context, JupiterArchivalReason.USER
+
+        metric_entry = metric_entry.update(
+            ctx=context.domain_context,
+            collection_time=args.collection_time,
+            value=args.value,
         )
+
         await uow.get_for(MetricEntry).save(metric_entry)
         await progress_reporter.mark_updated(metric_entry)
-
-        note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            context.domain_context,
-            uow,
-            NoteDomain.METRIC_ENTRY,
-            metric_entry.ref_id,
-            JupiterArchivalReason.USER,
-        )

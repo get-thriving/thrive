@@ -1,14 +1,13 @@
-"""The command for hard removing a metric."""
+"""The command for removing a metric entry."""
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.metrics.metric import Metric
-from jupiter.core.domain.concept.metrics.service.remove_service import (
-    MetricRemoveService,
-)
+from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -19,29 +18,29 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class MetricRemoveArgs(UseCaseArgsBase):
+class MetricEntryRemoveArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     ref_id: EntityId
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
-class MetricRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[MetricRemoveArgs, None]
+class MetricEntryRemoveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[MetricEntryRemoveArgs, None]
 ):
-    """The command for removing a metric."""
+    """The command for removing a metric entry."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: MetricRemoveArgs,
+        args: MetricEntryRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        workspace = context.workspace
-        metric = await uow.get_for(Metric).load_by_id(args.ref_id, allow_archived=True)
-
-        await MetricRemoveService().execute(
-            context.domain_context, uow, progress_reporter, workspace, metric
+        metric_entry = await uow.get_for(MetricEntry).remove(args.ref_id)
+        await progress_reporter.mark_removed(metric_entry)
+        note_remove_service = NoteRemoveService()
+        await note_remove_service.remove_for_source(
+            context.domain_context, uow, NoteDomain.METRIC_ENTRY, metric_entry.ref_id
         )

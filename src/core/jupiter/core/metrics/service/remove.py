@@ -1,7 +1,5 @@
 """Shared service for removing a metric."""
 
-from jupiter.core.domain.concept.metrics.metric import Metric
-from jupiter.core.domain.concept.metrics.metric_entry import MetricEntry
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
@@ -13,6 +11,8 @@ from jupiter.core.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.metrics.root import Metric
+from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

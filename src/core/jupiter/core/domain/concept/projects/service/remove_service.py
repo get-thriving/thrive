@@ -7,7 +7,6 @@ from jupiter.core.big_plans.service.remove import (
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.remove import ChoreRemoveService
-from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
 from jupiter.core.domain.concept.projects.project import Project
@@ -39,6 +38,7 @@ from jupiter.core.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.metrics.collection import MetricCollection
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

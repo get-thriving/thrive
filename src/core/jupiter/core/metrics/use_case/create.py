@@ -5,10 +5,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.metrics.metric import Metric
-from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
-from jupiter.core.domain.concept.metrics.metric_name import MetricName
-from jupiter.core.domain.concept.metrics.metric_unit import MetricUnit
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.entity_icon import EntityIcon
@@ -18,6 +14,10 @@ from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenP
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.name import MetricName
+from jupiter.core.metrics.root import Metric
+from jupiter.core.metrics.unit import MetricUnit
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
