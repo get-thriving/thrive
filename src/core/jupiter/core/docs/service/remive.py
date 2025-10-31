@@ -1,6 +1,6 @@
 """Remove a doc."""
 
-from jupiter.core.domain.concept.docs.doc import Doc
+from jupiter.core.docs.root import Doc
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.framework.context import MutationContext

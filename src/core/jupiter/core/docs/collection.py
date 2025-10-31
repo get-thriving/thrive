@@ -1,6 +1,8 @@
 """The doc collection."""
 
-from jupiter.core.domain.concept.docs.doc import Doc
+import abc
+
+from jupiter.core.docs.root import Doc
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -11,6 +13,7 @@ from jupiter.framework.entity import (
     create_entity_action,
     entity,
 )
+from jupiter.framework.storage.repository import TrunkEntityRepository
 
 
 @entity
@@ -29,3 +32,7 @@ class DocCollection(TrunkEntity):
     ) -> "DocCollection":
         """Create a inbox task collection."""
         return DocCollection._create(ctx, workspace=ParentLink(workspace_ref_id))
+
+
+class DocCollectionRepository(TrunkEntityRepository[DocCollection], abc.ABC):
+    """A repository of doc collections."""

@@ -2,8 +2,8 @@
 
 import abc
 
-from jupiter.core.domain.concept.docs.doc_idempotency_key import DocIdempotencyKey
-from jupiter.core.domain.concept.docs.doc_name import DocName
+from jupiter.core.docs.idempotency_key import DocIdempotencyKey
+from jupiter.core.docs.name import DocName
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.framework.base.entity_id import EntityId

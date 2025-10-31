@@ -1,6 +1,6 @@
 """The SQLite repository for docs."""
 
-from jupiter.core.domain.concept.docs.doc import Doc, DocRepository
+from jupiter.core.docs.root import Doc, DocRepository
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )

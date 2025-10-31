@@ -1,6 +1,6 @@
 """Archive a doc."""
 
-from jupiter.core.domain.concept.docs.doc import Doc
+from jupiter.core.docs.root import Doc
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
