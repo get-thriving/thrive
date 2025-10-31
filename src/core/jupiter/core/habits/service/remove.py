@@ -1,12 +1,12 @@
 """Shared service for removing a habit."""
 
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.habits.habit_streak_mark import (
-    HabitStreakMarkRepository,
-)
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.streak_mark import (
+    HabitStreakMarkRepository,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

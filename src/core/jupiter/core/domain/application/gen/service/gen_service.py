@@ -8,11 +8,6 @@ from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person import Person
@@ -61,6 +56,11 @@ from jupiter.core.domain.infer_sync_targets import (
 )
 from jupiter.core.domain.sync_target import (
     SyncTarget,
+)
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
 )
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

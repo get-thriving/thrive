@@ -10,10 +10,6 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.domain.concept.time_plans.time_plan import TimePlan
 from jupiter.core.domain.concept.time_plans.time_plan_activity import (
     TimePlanActivity,
@@ -37,6 +33,10 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.root import (
     CannotModifyGeneratedTaskError,

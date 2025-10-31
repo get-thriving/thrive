@@ -6,7 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.habits.habit import Habit
 from jupiter.core.domain.concept.metrics.metric import Metric
 from jupiter.core.domain.concept.persons.person import Person
 from jupiter.core.domain.concept.projects.project import Project
@@ -22,6 +21,7 @@ from jupiter.core.domain.core.time_events.time_event_in_day_block import (
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.root import Journal

@@ -11,16 +11,16 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
 from jupiter.core.domain.application.report.service.report_service import ReportService
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.application.stats.stats_log_entry import StatsLogEntry
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.domain.concept.user.user import User
 from jupiter.core.domain.concept.workspaces.workspace import Workspace
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import UserFeature, WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

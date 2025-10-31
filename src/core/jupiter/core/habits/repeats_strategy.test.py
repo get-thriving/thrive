@@ -1,7 +1,7 @@
 """Tests for the habit repeats strategy."""
 
 import pytest
-from jupiter.core.domain.concept.habits.habit_repeats_strategy import (
+from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )
 from jupiter.framework.base.adate import ADate

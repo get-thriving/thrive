@@ -18,7 +18,6 @@ from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
 from jupiter.core.domain.concept.docs.doc_collection import DocCollection
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import Project
@@ -68,6 +67,7 @@ from jupiter.core.domain.features import (
     UserFeature,
     WorkspaceFeature,
 )
+from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

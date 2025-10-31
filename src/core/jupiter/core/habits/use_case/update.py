@@ -7,14 +7,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_name import HabitName
-from jupiter.core.domain.concept.habits.habit_repeats_strategy import (
-    HabitRepeatsStrategy,
-)
-from jupiter.core.domain.concept.habits.service.streak_recorder_service import (
-    HabitStreakRecorderService,
-)
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.difficulty import Difficulty
@@ -26,6 +18,14 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.habits.name import HabitName
+from jupiter.core.habits.repeats_strategy import (
+    HabitRepeatsStrategy,
+)
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.streak_recorder import (
+    HabitStreakRecorderService,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

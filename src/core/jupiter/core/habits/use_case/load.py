@@ -4,15 +4,15 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_streak_mark import (
-    HabitStreakMark,
-    HabitStreakMarkRepository,
-)
 from jupiter.core.domain.concept.projects.project import Project
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.streak_mark import (
+    HabitStreakMark,
+    HabitStreakMarkRepository,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

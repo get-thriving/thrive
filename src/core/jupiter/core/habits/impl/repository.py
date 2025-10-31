@@ -3,7 +3,7 @@
 from sqlite3 import IntegrityError
 from typing import Final, Mapping, cast
 
-from jupiter.core.domain.concept.habits.habit_streak_mark import (
+from jupiter.core.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )

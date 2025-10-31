@@ -6,7 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import ProjectRepository
@@ -30,6 +29,7 @@ from jupiter.core.domain.fast_info_repository import (
     VacationSummary,
 )
 from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

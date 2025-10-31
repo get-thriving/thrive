@@ -9,11 +9,6 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.archive import (
     ChoreArchiveService,
 )
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.habits.service.archive_service import (
-    HabitArchiveService,
-)
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
@@ -37,6 +32,11 @@ from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_archive_service import (
     NoteArchiveService,
+)
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
+from jupiter.core.habits.service.archive import (
+    HabitArchiveService,
 )
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

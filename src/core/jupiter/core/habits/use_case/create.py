@@ -5,12 +5,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.concept.habits.habit import Habit
-from jupiter.core.domain.concept.habits.habit_collection import HabitCollection
-from jupiter.core.domain.concept.habits.habit_name import HabitName
-from jupiter.core.domain.concept.habits.habit_repeats_strategy import (
-    HabitRepeatsStrategy,
-)
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository
 from jupiter.core.domain.concept.projects.project_collection import ProjectCollection
 from jupiter.core.domain.core.difficulty import Difficulty
@@ -24,6 +18,12 @@ from jupiter.core.domain.features import (
     WorkspaceFeature,
 )
 from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.name import HabitName
+from jupiter.core.habits.repeats_strategy import (
+    HabitRepeatsStrategy,
+)
+from jupiter.core.habits.root import Habit
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

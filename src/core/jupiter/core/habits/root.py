@@ -1,14 +1,14 @@
 """A habit."""
 
-from jupiter.core.domain.concept.habits.habit_name import HabitName
-from jupiter.core.domain.concept.habits.habit_repeats_strategy import (
-    HabitRepeatsStrategy,
-)
-from jupiter.core.domain.concept.habits.habit_streak_mark import HabitStreakMark
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.habits.name import HabitName
+from jupiter.core.habits.repeats_strategy import (
+    HabitRepeatsStrategy,
+)
+from jupiter.core.habits.streak_mark import HabitStreakMark
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
