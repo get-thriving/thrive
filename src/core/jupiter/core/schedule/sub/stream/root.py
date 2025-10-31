@@ -1,8 +1,8 @@
 """A specific schedule group or stream of events."""
 
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.url import URL
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.url import URL
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )

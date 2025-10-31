@@ -6,7 +6,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.projects.root import Project
 from jupiter.core.projects.service.check_cycles import (
     ProjectCheckCyclesService,

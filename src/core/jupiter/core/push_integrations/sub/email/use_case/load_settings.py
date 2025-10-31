@@ -1,11 +1,11 @@
 """Load settings for email tasks use case."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,

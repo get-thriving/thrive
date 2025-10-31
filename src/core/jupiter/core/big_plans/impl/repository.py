@@ -12,7 +12,7 @@ from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
     BigPlanMilestoneRepository,
 )
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing

@@ -4,11 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.name import VacationName
 from jupiter.core.vacations.root import Vacation
 from jupiter.framework.base.adate import ADate
@@ -20,6 +19,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args

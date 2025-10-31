@@ -2,7 +2,7 @@
 
 import logging
 
-from jupiter.core.domain.crm import CRM
+from jupiter.core.crm import CRM
 from jupiter.core.users.root import User
 
 LOGGER = logging.getLogger(__name__)

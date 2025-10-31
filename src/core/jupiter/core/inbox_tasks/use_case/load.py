@@ -6,14 +6,16 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.core.notes.note import Note, NoteRepository
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.time_events.time_event_in_day_block import (
+from jupiter.core.domainx.core.notes.note import Note, NoteRepository
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource

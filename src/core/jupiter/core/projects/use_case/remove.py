@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection

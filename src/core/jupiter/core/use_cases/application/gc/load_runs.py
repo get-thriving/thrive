@@ -4,8 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.domain.application.gc.gc_log import GCLog
-from jupiter.core.domain.application.gc.gc_log_entry import (
+from jupiter.core.domainx.application.gc.gc_log import GCLog
+from jupiter.core.domainx.application.gc.gc_log_entry import (
     GCLogEntry,
     GCLogEntryRepository,
 )

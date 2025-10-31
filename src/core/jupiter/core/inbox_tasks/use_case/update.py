@@ -6,17 +6,16 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.gamification.service.record_score_service import (
+from jupiter.core.domainx.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.features import (
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
 )
-from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
@@ -60,6 +59,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args

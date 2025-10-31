@@ -4,8 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.domain.application.gen.gen_log import GenLog
-from jupiter.core.domain.application.gen.gen_log_entry import (
+from jupiter.core.domainx.application.gen.gen_log import GenLog
+from jupiter.core.domainx.application.gen.gen_log_entry import (
     GenLogEntry,
     GenLogEntryRepository,
 )

@@ -6,27 +6,28 @@ import recurring_ical_events
 import requests
 from icalendar import Calendar
 from icalendar.cal import Component
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.notes.note_content_block import (
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.notes.note_content_block import (
     CorrelationId,
     OneOfNoteContentBlock,
     ParagraphBlock,
 )
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_in_day_block import (
+from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     MAX_DURATION_MINS,
     TimeEventInDayBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.domain.core.time_in_day import TimeInDay
-from jupiter.core.domain.core.url import URL
-from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.domainx.core.time_in_day import TimeInDay
+from jupiter.core.domainx.core.url import URL
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -59,6 +60,7 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.repository import DomainStorageEngine
 from jupiter.framework.time_provider import TimeProvider
 from jupiter.framework.update_action import UpdateAction
+from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 class ScheduleExternalSyncService:

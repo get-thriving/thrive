@@ -2,14 +2,14 @@
 
 from typing import cast
 
+from jupiter.core.app import AppComponent
 from jupiter.core.config import (
     JupiterBackgroundMutationUseCase,
     JupiterComponentProperties,
     JupiterGlobalProperties,
 )
-from jupiter.core.domain.app import AppComponent
-from jupiter.core.domain.application.stats.service.stats_service import StatsService
-from jupiter.core.domain.infer_sync_targets import (
+from jupiter.core.domainx.application.stats.service.stats_service import StatsService
+from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
 from jupiter.core.user_workspace_link.user_workspace_link import (

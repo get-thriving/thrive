@@ -4,11 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.domainx.application.gen.service.gen_service import GenService
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -29,6 +28,7 @@ from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.push_integrations.sub.slack.user_name import (
     SlackUserName,
 )
+from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

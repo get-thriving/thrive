@@ -1,9 +1,9 @@
 """A habit."""
 
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,

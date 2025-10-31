@@ -1,13 +1,12 @@
 """Use case for loading a time plan activity activity."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.entity_id import EntityId
@@ -21,6 +20,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args

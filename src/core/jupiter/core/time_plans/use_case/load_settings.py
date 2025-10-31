@@ -1,13 +1,13 @@
 """Use case for loading the settings around time plans."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

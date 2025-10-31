@@ -16,8 +16,8 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domain.core.notes.note_content_block import ParagraphBlock
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.notes.note_content_block import ParagraphBlock
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.use_case.find import (
     MetricFindResult,
     MetricFindUseCase,

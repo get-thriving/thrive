@@ -4,11 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.tags.tag_name import TagName
-from jupiter.core.domain.core.url import URL
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_creator import generic_creator
-from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.domainx.core.tags.tag_name import TagName
+from jupiter.core.domainx.core.url import URL
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
@@ -22,6 +20,8 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_creator import generic_creator
+from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args

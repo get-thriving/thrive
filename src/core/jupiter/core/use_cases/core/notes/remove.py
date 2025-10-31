@@ -1,12 +1,12 @@
 """The command for removing a note."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.service.note_remove_service import (
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.service.note_remove_service import (
     NoteRemoveService,
 )
 from jupiter.framework.base.entity_id import EntityId

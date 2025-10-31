@@ -3,7 +3,7 @@
 import abc
 
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,

@@ -3,10 +3,10 @@
 import abc
 
 from jupiter.core.auth.root import Auth
-from jupiter.core.domain.application.gamification.score_log import ScoreLog
-from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.domain.core.timezone import UTC, Timezone
-from jupiter.core.domain.features import (
+from jupiter.core.domainx.application.gamification.score_log import ScoreLog
+from jupiter.core.domainx.core.email_address import EmailAddress
+from jupiter.core.domainx.core.timezone import UTC, Timezone
+from jupiter.core.features import (
     UserFeature,
     UserFeatureFlags,
     UserFeatureFlagsControls,

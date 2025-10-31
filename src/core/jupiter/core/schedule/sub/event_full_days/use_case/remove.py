@@ -4,8 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_crown_remover import generic_crown_remover
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
@@ -17,6 +16,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args

@@ -7,7 +7,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.features import UserFeature
+from jupiter.core.features import UserFeature
 from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

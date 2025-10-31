@@ -75,7 +75,7 @@ from jupiter.framework.record import Record
 from jupiter.framework.thing import Thing
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework.utils import (
+from jupiter.framework.utils.utils import (
     find_all_modules,
     is_thing_ish_type,
 )

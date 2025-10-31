@@ -1,16 +1,15 @@
 """Use case for creating a time plan."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
@@ -25,6 +24,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args

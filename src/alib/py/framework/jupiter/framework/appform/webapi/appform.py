@@ -105,7 +105,7 @@ from jupiter.framework.use_case import (
     UseCase,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework.utils import (
+from jupiter.framework.utils.utils import (
     find_all_modules,
     is_primitive_type,
     is_thing_ish_type,

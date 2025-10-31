@@ -4,12 +4,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_creator import generic_creator
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -30,6 +29,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args

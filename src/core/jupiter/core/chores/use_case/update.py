@@ -8,15 +8,17 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
-from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.domainx.core.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.domainx.core.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

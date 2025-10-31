@@ -1,11 +1,11 @@
 """The use case for finding the time plan activities for a particular target."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity

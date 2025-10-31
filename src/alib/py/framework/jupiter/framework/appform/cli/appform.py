@@ -76,7 +76,7 @@ from jupiter.framework.use_case import (
     UseCase,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework.utils import find_all_modules
+from jupiter.framework.utils.utils import find_all_modules
 from rich.console import Console
 from rich.panel import Panel
 

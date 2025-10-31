@@ -4,8 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.infra.generic_full_archiver import generic_full_archiver
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
@@ -16,6 +15,7 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_full_archiver import generic_full_archiver
 
 
 @use_case_args

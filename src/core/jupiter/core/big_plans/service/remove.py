@@ -3,8 +3,10 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.service.note_remove_service import (
+    NoteRemoveService,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

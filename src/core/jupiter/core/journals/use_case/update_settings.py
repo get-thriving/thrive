@@ -2,20 +2,18 @@
 
 from typing import cast
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
-from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.domainx.application.gen.service.gen_service import GenService
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -29,6 +27,7 @@ from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.source import JournalSource
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project
+from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -37,6 +36,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args

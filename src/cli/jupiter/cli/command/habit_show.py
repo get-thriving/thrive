@@ -17,7 +17,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.use_case.find import HabitFindResult, HabitFindUseCase
 from jupiter.core.projects.root import Project
 from jupiter.framework.base.adate import ADate

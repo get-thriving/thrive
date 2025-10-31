@@ -4,10 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.domain.application.search.infra.search_repository import SearchMatch
-from jupiter.core.domain.application.search.search_limit import SearchLimit
-from jupiter.core.domain.application.search.search_query import SearchQuery
-from jupiter.core.domain.named_entity_tag import NamedEntityTag
+from jupiter.core.domainx.application.search.infra.search_repository import SearchMatch
+from jupiter.core.domainx.application.search.search_limit import SearchLimit
+from jupiter.core.domainx.application.search.search_query import SearchQuery
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.use_case import (
     UnavailableForContextError,

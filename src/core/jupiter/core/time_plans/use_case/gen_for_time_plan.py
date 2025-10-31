@@ -1,14 +1,14 @@
 """The command for generating new tasks in the context of a time plan."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infer_sync_targets import (
+from jupiter.core.domainx.application.gen.service.gen_service import GenService
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
 from jupiter.framework.base.adate import ADate

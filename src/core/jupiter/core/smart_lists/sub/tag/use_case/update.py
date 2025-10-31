@@ -4,8 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.tags.tag_name import TagName
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.tags.tag_name import TagName
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

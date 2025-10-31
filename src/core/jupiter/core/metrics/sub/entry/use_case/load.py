@@ -4,9 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.core.notes.note import Note, NoteRepository
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.notes.note import Note, NoteRepository
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork

@@ -2,8 +2,8 @@
 
 from typing import Iterable, cast
 
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMark,

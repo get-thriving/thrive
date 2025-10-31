@@ -2,8 +2,8 @@
 
 from typing import Final, Mapping, cast
 
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.journals.root import (
     Journal,
     JournalExistsForDatePeriodCombinationError,

@@ -1,14 +1,13 @@
 """Retrieve details about a journal."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
@@ -26,6 +25,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args

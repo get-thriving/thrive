@@ -43,7 +43,7 @@ from jupiter.framework.storage.sqlite.repository import (
     SqliteStubEntityRepository,
     SqliteTrunkEntityRepository,
 )
-from jupiter.framework.utils import find_all_modules
+from jupiter.framework.utils.utils import find_all_modules
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine
 

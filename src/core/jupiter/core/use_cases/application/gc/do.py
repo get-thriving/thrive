@@ -4,11 +4,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.gc.service.gc_service import GCService
-from jupiter.core.domain.infer_sync_targets import (
+from jupiter.core.domainx.application.gc.service.gc_service import GCService
+from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.domain.sync_target import (
+from jupiter.core.sync_target import (
     SyncTarget,
 )
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

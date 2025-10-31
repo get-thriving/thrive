@@ -1,11 +1,11 @@
 """Load settings for metrics use case."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.projects.root import Project
 from jupiter.framework.storage.repository import DomainUnitOfWork

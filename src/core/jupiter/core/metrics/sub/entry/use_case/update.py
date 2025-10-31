@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

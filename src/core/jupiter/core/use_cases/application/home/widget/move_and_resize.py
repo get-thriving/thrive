@@ -4,9 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.application.home.home_widget import HomeWidget
-from jupiter.core.domain.application.home.widget import WidgetDimension
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.application.home.home_widget import HomeWidget
+from jupiter.core.domainx.application.home.widget import WidgetDimension
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

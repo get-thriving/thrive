@@ -1,14 +1,14 @@
 """Use case for creating a note."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.notes.note_content_block import OneOfNoteContentBlock
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

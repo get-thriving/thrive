@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Generic, TypeVar, Union, cast
 
 import dotenv
-from jupiter.core.domain.app import (
+from jupiter.core.app import (
     AppComponent,
     AppCore,
     AppDistribution,
@@ -15,11 +15,11 @@ from jupiter.core.domain.app import (
     AppShell,
     AppVersion,
 )
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
-from jupiter.core.domain.hosting import Hosting
-from jupiter.core.domain.storage_engine import SearchStorageEngine
+from jupiter.core.crm import CRM
+from jupiter.core.env import Env
+from jupiter.core.features import UserFeature, WorkspaceFeature
+from jupiter.core.hosting import Hosting
+from jupiter.core.storage_engine import SearchStorageEngine
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )

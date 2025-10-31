@@ -1,8 +1,10 @@
 """Shared service for removing an inbox task."""
 
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.service.note_remove_service import (
+    NoteRemoveService,
+)
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.sub.activity.root import (

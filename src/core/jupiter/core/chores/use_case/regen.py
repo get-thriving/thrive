@@ -4,9 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.sync_target import SyncTarget
+from jupiter.core.domainx.application.gen.service.gen_service import GenService
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case import (

@@ -7,11 +7,11 @@ from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.big_plans.stats import BigPlanStats
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.adate import ADate

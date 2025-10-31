@@ -4,9 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.domain.infra.generic_loader import generic_loader
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId
@@ -20,6 +19,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_loader import generic_loader
 
 
 @use_case_args

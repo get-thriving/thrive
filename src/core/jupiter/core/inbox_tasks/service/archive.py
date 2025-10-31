@@ -1,8 +1,8 @@
 """Shared service for archiving an inbox task."""
 
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_archive_service import (
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
 from jupiter.core.inbox_tasks.root import InboxTask

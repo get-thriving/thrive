@@ -4,11 +4,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.name import VacationName
 from jupiter.core.vacations.root import Vacation

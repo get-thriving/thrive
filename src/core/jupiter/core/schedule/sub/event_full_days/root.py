@@ -1,11 +1,13 @@
 """A full day block in a schedule."""
 
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.external_sync_log.external_uid import (
     ScheduleExternalUid,

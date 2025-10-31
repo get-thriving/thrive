@@ -1,7 +1,9 @@
 """Remove a person."""
 
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.service.note_remove_service import (
+    NoteRemoveService,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

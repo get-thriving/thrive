@@ -1,11 +1,11 @@
 """Update a time plan activity."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )

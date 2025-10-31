@@ -13,19 +13,19 @@ from jupiter.core.config import (
     JupiterGuestMutationUseCase,
 )
 from jupiter.core.docs.collection import DocCollection
-from jupiter.core.domain.application.gamification.score_log import ScoreLog
-from jupiter.core.domain.application.gc.gc_log import GCLog
-from jupiter.core.domain.application.gen.gen_log import GenLog
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.stats.stats_log import StatsLog
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.timezone import Timezone
-from jupiter.core.domain.features import (
+from jupiter.core.domainx.application.gamification.score_log import ScoreLog
+from jupiter.core.domainx.application.gc.gc_log import GCLog
+from jupiter.core.domainx.application.gen.gen_log import GenLog
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.stats.stats_log import StatsLog
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.domainx.core.email_address import EmailAddress
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.timezone import Timezone
+from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
 )

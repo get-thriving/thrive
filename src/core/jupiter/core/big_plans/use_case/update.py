@@ -8,13 +8,13 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.gamification.service.record_score_service import (
+from jupiter.core.domainx.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

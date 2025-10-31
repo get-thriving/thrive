@@ -2,26 +2,26 @@
 
 from typing import cast
 
-from jupiter.core.config import (
-    JupiterGlobalProperties,
-    JupiterGuestReadonlyContext,
-    JupiterGuestReadonlyUseCase,
-)
-from jupiter.core.domain.app import (
+from jupiter.core.app import (
     AppCore,
     AppDistribution,
     AppDistributionState,
     AppPlatform,
     AppShell,
 )
-from jupiter.core.domain.application.gamification.service.score_overview_service import (
+from jupiter.core.config import (
+    JupiterGlobalProperties,
+    JupiterGuestReadonlyContext,
+    JupiterGuestReadonlyUseCase,
+)
+from jupiter.core.domainx.application.gamification.service.score_overview_service import (
     ScoreOverviewService,
 )
-from jupiter.core.domain.application.gamification.user_score_overview import (
+from jupiter.core.domainx.application.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import (
+from jupiter.core.env import Env
+from jupiter.core.features import (
     BASIC_USER_FEATURE_FLAGS,
     BASIC_WORKSPACE_FEATURE_FLAGS,
     UserFeature,
@@ -31,7 +31,7 @@ from jupiter.core.domain.features import (
     WorkspaceFeatureFlags,
     WorkspaceFeatureFlagsControls,
 )
-from jupiter.core.domain.hosting import Hosting
+from jupiter.core.hosting import Hosting
 from jupiter.core.projects.name import ProjectName
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (

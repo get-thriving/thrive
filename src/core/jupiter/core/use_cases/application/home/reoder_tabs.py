@@ -4,9 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.application.home.home_tab_target import HomeTabTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

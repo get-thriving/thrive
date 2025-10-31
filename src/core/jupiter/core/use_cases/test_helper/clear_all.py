@@ -10,15 +10,14 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.core.timezone import Timezone
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
-from jupiter.core.domain.infra.generic_root_remover import generic_root_remover
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.home.home_tab_target import HomeTabTarget
+from jupiter.core.domainx.core.difficulty import Difficulty
+from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.timezone import Timezone
+from jupiter.core.env import Env
+from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
@@ -52,6 +51,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_root_remover import generic_root_remover
 
 
 @use_case_args

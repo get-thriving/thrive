@@ -6,18 +6,17 @@ from collections.abc import Iterable
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.docs.collection import DocCollection
-from jupiter.core.domain.application.gc.gc_log import GCLog
-from jupiter.core.domain.application.gen.gen_log import GenLog
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.stats.stats_log import StatsLog
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.features import (
+from jupiter.core.domainx.application.gc.gc_log import GCLog
+from jupiter.core.domainx.application.gen.gen_log import GenLog
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.stats.stats_log import StatsLog
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,
     WorkspaceFeatureFlagsControls,
 )
-from jupiter.core.domain.named_entity_tag import NamedEntityTag
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -25,6 +24,7 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.push_integrations.group import (

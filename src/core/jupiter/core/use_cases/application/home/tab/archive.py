@@ -4,10 +4,9 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -15,6 +14,7 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 @use_case_args

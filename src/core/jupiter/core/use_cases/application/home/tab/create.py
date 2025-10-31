@@ -4,10 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domain.core.entity_icon import EntityIcon
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.application.home.home_tab_target import HomeTabTarget
+from jupiter.core.domainx.core.entity_icon import EntityIcon
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

@@ -1,13 +1,13 @@
 """Use case for archiving a note."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.service.note_archive_service import (
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.service.note_archive_service import (
     NoteArchiveService,
 )
 from jupiter.framework.base.entity_id import EntityId

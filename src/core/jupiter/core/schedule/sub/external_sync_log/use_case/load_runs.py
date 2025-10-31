@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.external_sync_log.entry import (
     ScheduleExternalSyncLogEntry,

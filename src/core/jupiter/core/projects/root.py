@@ -4,8 +4,8 @@ import abc
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.projects.name import ProjectName

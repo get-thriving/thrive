@@ -4,9 +4,9 @@ import json
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domain.core.entity_icon import EntityIconDatabaseDecoder
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.fast_info_repository import (
+from jupiter.core.domainx.core.entity_icon import EntityIconDatabaseDecoder
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.fast_info_repository import (
     BigPlanSummary,
     ChoreSummary,
     FastInfoRepository,

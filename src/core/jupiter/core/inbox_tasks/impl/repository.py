@@ -3,7 +3,7 @@
 from collections.abc import Iterable
 from typing import cast
 
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,

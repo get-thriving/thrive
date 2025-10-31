@@ -7,13 +7,13 @@ from typing import (
     Final,
 )
 
-from jupiter.core.domain.application.search.infra.search_repository import (
+from jupiter.core.domainx.application.search.infra.search_repository import (
     SearchRepository,
 )
-from jupiter.core.domain.storage_engine import SearchStorageEngine, SearchUnitOfWork
 from jupiter.core.impl.repository.sqlite.application.search import (
     SqliteSearchRepository,
 )
+from jupiter.core.storage_engine import SearchStorageEngine, SearchUnitOfWork
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
 from sqlalchemy import MetaData

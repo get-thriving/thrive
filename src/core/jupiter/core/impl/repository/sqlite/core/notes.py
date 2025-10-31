@@ -1,11 +1,11 @@
 """Sqlite implementation of the notes repository."""
 
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.notes.note import (
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.notes.note import (
     Note,
     NoteRepository,
 )
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (

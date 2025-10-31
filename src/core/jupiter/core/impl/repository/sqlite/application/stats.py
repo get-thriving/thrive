@@ -1,6 +1,6 @@
 """SQLite implementation of stats infra classes."""
 
-from jupiter.core.domain.application.stats.stats_log_entry import (
+from jupiter.core.domainx.application.stats.stats_log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )

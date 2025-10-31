@@ -4,12 +4,14 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.time_events.time_event_in_day_block import (
+from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlockRepository,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.domain.core.time_in_day import TimeInDay
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.domainx.core.time_in_day import TimeInDay
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,

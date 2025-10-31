@@ -4,8 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.archive import (
     HabitArchiveService,

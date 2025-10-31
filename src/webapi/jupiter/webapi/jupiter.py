@@ -9,9 +9,9 @@ import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
 from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.hosting import Hosting
+from jupiter.core.crm import CRM
+from jupiter.core.env import Env
+from jupiter.core.hosting import Hosting
 from jupiter.core.impl.crm.noop import NoOpCRM
 from jupiter.core.impl.crm.wix import WixCRM
 from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (

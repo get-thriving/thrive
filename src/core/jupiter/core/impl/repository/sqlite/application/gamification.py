@@ -2,23 +2,23 @@
 
 from typing import Final, Mapping, cast
 
-from jupiter.core.domain.application.gamification.score_log import (
+from jupiter.core.domainx.application.gamification.score_log import (
     ScoreLog,
     ScoreLogRepository,
 )
-from jupiter.core.domain.application.gamification.score_log_entry import (
+from jupiter.core.domainx.application.gamification.score_log_entry import (
     ScoreLogEntry,
     ScoreLogEntryRepository,
 )
-from jupiter.core.domain.application.gamification.score_period_best import (
+from jupiter.core.domainx.application.gamification.score_period_best import (
     ScorePeriodBest,
     ScorePeriodBestRepository,
 )
-from jupiter.core.domain.application.gamification.score_stats import (
+from jupiter.core.domainx.application.gamification.score_stats import (
     ScoreStats,
     ScoreStatsRepository,
 )
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing

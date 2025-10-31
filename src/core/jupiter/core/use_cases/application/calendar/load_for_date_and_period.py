@@ -4,20 +4,22 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )
-from jupiter.core.domain.core.time_events.time_event_in_day_block import (
+from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
     TimeEventInDayBlockRepository,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.persons.root import Person
 from jupiter.core.schedule.domain import ScheduleDomain

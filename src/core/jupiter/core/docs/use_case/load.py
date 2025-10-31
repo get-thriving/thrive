@@ -1,14 +1,14 @@
 """Load a particulr doc."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.docs.root import Doc
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.notes.note import Note, NoteRepository
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.notes.note import Note, NoteRepository
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

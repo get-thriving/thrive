@@ -1,6 +1,6 @@
 """Service for archiving an email task and associated entities."""
 
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

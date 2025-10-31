@@ -1,5 +1,6 @@
 """Use case for creating a doc."""
 
+from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -8,12 +9,11 @@ from jupiter.core.docs.collection import DocCollection
 from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
 from jupiter.core.docs.root import Doc, DocRepository
-from jupiter.core.domain.app import AppCore
-from jupiter.core.domain.core.notes.note import Note, NoteRepository
-from jupiter.core.domain.core.notes.note_collection import NoteCollection
-from jupiter.core.domain.core.notes.note_content_block import OneOfNoteContentBlock
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.domainx.core.notes.note import Note, NoteRepository
+from jupiter.core.domainx.core.notes.note_collection import NoteCollection
+from jupiter.core.domainx.core.notes.note_content_block import OneOfNoteContentBlock
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

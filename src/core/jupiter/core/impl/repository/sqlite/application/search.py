@@ -3,14 +3,14 @@
 from collections.abc import Iterable
 from typing import Final
 
-from jupiter.core.domain.application.search.infra.search_repository import (
+from jupiter.core.domainx.application.search.infra.search_repository import (
     SearchMatch,
     SearchRepository,
 )
-from jupiter.core.domain.application.search.search_limit import SearchLimit
-from jupiter.core.domain.application.search.search_query import SearchQuery
-from jupiter.core.domain.entity_summary import EntitySummary
-from jupiter.core.domain.named_entity_tag import NamedEntityTag
+from jupiter.core.domainx.application.search.search_limit import SearchLimit
+from jupiter.core.domainx.application.search.search_query import SearchQuery
+from jupiter.core.entity_summary import EntitySummary
+from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

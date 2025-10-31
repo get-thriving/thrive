@@ -6,7 +6,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.fast_info_repository import (
+from jupiter.core.fast_info_repository import (
     BigPlanSummary,
     ChoreSummary,
     FastInfoRepository,
@@ -20,7 +20,7 @@ from jupiter.core.domain.fast_info_repository import (
     SmartListSummary,
     VacationSummary,
 )
-from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

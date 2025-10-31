@@ -4,10 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.application.home.home_config import HomeConfig
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.application.home.home_widget import HomeWidget
-from jupiter.core.domain.application.home.widget import (
+from jupiter.core.domainx.application.home.home_config import HomeConfig
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.application.home.home_widget import HomeWidget
+from jupiter.core.domainx.application.home.widget import (
     WIDGET_CONSTRAINTS,
     WidgetType,
     WidgetTypeConstraints,

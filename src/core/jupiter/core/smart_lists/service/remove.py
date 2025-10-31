@@ -1,7 +1,9 @@
 """Shared service for removing a metric."""
 
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.notes.service.note_remove_service import (
+    NoteRemoveService,
+)
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag

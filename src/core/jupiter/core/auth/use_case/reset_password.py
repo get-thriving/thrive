@@ -7,7 +7,7 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.domain.core.email_address import EmailAddress
+from jupiter.core.domainx.core.email_address import EmailAddress
 from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,

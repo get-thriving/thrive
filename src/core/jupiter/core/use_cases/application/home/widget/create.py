@@ -4,15 +4,15 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.application.home.home_tab import HomeTab
-from jupiter.core.domain.application.home.home_widget import HomeWidget
-from jupiter.core.domain.application.home.widget import (
+from jupiter.core.domainx.application.home.home_tab import HomeTab
+from jupiter.core.domainx.application.home.home_widget import HomeWidget
+from jupiter.core.domainx.application.home.widget import (
     WIDGET_CONSTRAINTS,
     WidgetDimension,
     WidgetGeometry,
     WidgetType,
 )
-from jupiter.core.domain.features import (
+from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
 )

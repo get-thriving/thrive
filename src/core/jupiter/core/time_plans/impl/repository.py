@@ -1,8 +1,8 @@
 """The SQLite based time plans repository."""
 
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.domainx.core import schedules
+from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.root import (
     TimePlan,
     TimePlanExistsForDatePeriodCombinationError,

@@ -4,10 +4,12 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
 from jupiter.core.persons.root import Person
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,

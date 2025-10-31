@@ -2,12 +2,14 @@
 
 import typing
 
-from jupiter.core.domain.core.notes.note import Note
-from jupiter.core.domain.core.notes.note_domain import NoteDomain
-from jupiter.core.domain.core.time_events.time_event_full_days_block import (
+from jupiter.core.domainx.core.notes.note import Note
+from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
+from jupiter.core.domainx.core.time_events.time_event_namespace import (
+    TimeEventNamespace,
+)
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
