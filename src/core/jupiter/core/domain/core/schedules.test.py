@@ -2,7 +2,6 @@
 
 import pendulum
 import pytest
-
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod

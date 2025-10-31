@@ -3,8 +3,6 @@
 from collections.abc import Iterable
 from typing import cast
 
-from sqlalchemy import func, select
-
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.root import (
     InboxTask,
@@ -17,6 +15,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
+from sqlalchemy import func, select
 
 
 class SqliteInboxTaskRepository(

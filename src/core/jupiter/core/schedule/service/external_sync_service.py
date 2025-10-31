@@ -6,7 +6,6 @@ import recurring_ical_events
 import requests
 from icalendar import Calendar
 from icalendar.cal import Component
-
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection

@@ -3,7 +3,6 @@
 from typing import cast
 
 import emoji
-
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.realm import RealmDecodingError
 from jupiter.framework.realm.standard import (

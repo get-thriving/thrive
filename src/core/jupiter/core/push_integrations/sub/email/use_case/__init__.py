@@ -1,0 +1,1 @@
+"""The email use cases."""

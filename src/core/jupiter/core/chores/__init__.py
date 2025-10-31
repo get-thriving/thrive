@@ -1,1 +1,3 @@
-"""Cores domain."""
+"""Chores domain."""
+
+SLICE_TAG = "Chores"

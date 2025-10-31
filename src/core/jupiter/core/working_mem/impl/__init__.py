@@ -1,0 +1,1 @@
+"""Working mem domain implementation."""

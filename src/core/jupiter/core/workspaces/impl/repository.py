@@ -1,10 +1,5 @@
 """The SQLite based Workspace repository."""
 
-from sqlalchemy import (
-    MetaData,
-)
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from jupiter.core.workspaces.root import (
     Workspace,
     WorkspaceNotFoundError,
@@ -14,6 +9,10 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
+from sqlalchemy import (
+    MetaData,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteWorkspaceRepository(

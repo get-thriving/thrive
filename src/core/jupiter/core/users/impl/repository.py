@@ -1,11 +1,5 @@
 """The SQLIte based user repository."""
 
-from sqlalchemy import (
-    MetaData,
-    select,
-)
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from jupiter.core.domain.core.email_address import EmailAddress
 from jupiter.core.users.root import (
     User,
@@ -17,6 +11,11 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteRootEntityRepository,
 )
+from sqlalchemy import (
+    MetaData,
+    select,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteUserRepository(SqliteRootEntityRepository[User], UserRepository):

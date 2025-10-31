@@ -1,10 +1,5 @@
 """The SQLite based time plans repository."""
 
-from sqlalchemy import (
-    MetaData,
-)
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -28,6 +23,10 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
+from sqlalchemy import (
+    MetaData,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteTimePlanRepository(

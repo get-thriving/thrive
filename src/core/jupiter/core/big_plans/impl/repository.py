@@ -4,20 +4,6 @@ from collections.abc import Iterable
 from sqlite3 import IntegrityError
 from typing import Final, Mapping, cast
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    MetaData,
-    Table,
-    delete,
-    insert,
-    select,
-    update,
-)
-from sqlalchemy.ext.asyncio import AsyncConnection
-
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
@@ -39,6 +25,19 @@ from jupiter.framework.storage.sqlite.repository import (
     SqliteRecordRepository,
 )
 from jupiter.framework.storage.sqlite.row import RowType
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Table,
+    delete,
+    insert,
+    select,
+    update,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteBigPlanRepository(SqliteLeafEntityRepository[BigPlan], BigPlanRepository):

@@ -2,8 +2,6 @@
 
 import json
 
-from sqlalchemy import text
-
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.domain.core.entity_icon import EntityIconDatabaseDecoder
@@ -38,6 +36,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
+from sqlalchemy import text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)

@@ -1,7 +1,6 @@
 """Tests for the habit repeats strategy."""
 
 import pytest
-
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )

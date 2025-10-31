@@ -3,10 +3,6 @@
 import abc
 from typing import cast
 
-from pendulum.date import Date
-from pendulum.datetime import DateTime
-from pendulum.tz.timezone import UTC
-
 from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -16,6 +12,9 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
+from pendulum.date import Date
+from pendulum.datetime import DateTime
+from pendulum.tz.timezone import UTC
 
 
 class Schedule(abc.ABC):
