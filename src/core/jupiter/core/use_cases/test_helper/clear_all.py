@@ -2,6 +2,9 @@
 
 from typing import cast
 
+from jupiter.core.auth.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.password_plain import PasswordPlain
+from jupiter.core.auth.root import Auth
 from jupiter.core.config import (
     JupiterGlobalProperties,
     JupiterLoggedInMutationContext,
@@ -9,9 +12,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.metrics.metric_collection import MetricCollection
 from jupiter.core.domain.concept.persons.person_collection import PersonCollection
 from jupiter.core.domain.concept.projects.project import Project, ProjectRepository

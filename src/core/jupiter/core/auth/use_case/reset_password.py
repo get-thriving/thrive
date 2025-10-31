@@ -1,12 +1,12 @@
 """Use case for reseting a password."""
 
+from jupiter.core.auth.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
+from jupiter.core.auth.root import Auth, IncorrectRecoveryTokenError
 from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.domain.concept.auth.auth import Auth, IncorrectRecoveryTokenError
-from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
     UserRepository,

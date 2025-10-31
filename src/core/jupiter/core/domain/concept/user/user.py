@@ -2,8 +2,8 @@
 
 import abc
 
+from jupiter.core.auth.root import Auth
 from jupiter.core.domain.application.gamification.score_log import ScoreLog
-from jupiter.core.domain.concept.auth.auth import Auth
 from jupiter.core.domain.concept.user.avatar import Avatar
 from jupiter.core.domain.concept.user.user_category import UserCategory
 from jupiter.core.domain.concept.user.user_name import UserName

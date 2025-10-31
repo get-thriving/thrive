@@ -1,10 +1,10 @@
 """Authentication information associated with a user."""
 
-from jupiter.core.domain.concept.auth.password_hash import PasswordHash
-from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
-from jupiter.core.domain.concept.auth.recovery_token_hash import RecoveryTokenHash
-from jupiter.core.domain.concept.auth.recovery_token_plain import RecoveryTokenPlain
+from jupiter.core.auth.password_hash import PasswordHash
+from jupiter.core.auth.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.password_plain import PasswordPlain
+from jupiter.core.auth.recovery_token_hash import RecoveryTokenHash
+from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

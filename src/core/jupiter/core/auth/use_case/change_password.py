@@ -1,12 +1,12 @@
 """Use case for changing a password."""
 
+from jupiter.core.auth.password_new_plain import PasswordNewPlain
+from jupiter.core.auth.password_plain import PasswordPlain
+from jupiter.core.auth.root import Auth, IncorrectPasswordError
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.auth.auth import Auth, IncorrectPasswordError
-from jupiter.core.domain.concept.auth.password_new_plain import PasswordNewPlain
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.secure import secure_class
 from jupiter.framework.storage.repository import DomainUnitOfWork

@@ -1,11 +1,11 @@
 """Use case for logging in as a particular user."""
 
+from jupiter.core.auth.password_plain import PasswordPlain
+from jupiter.core.auth.root import Auth
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
-from jupiter.core.domain.concept.auth.auth import Auth
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlain
 from jupiter.core.domain.concept.user.user import (
     UserNotFoundError,
     UserRepository,

@@ -4,6 +4,7 @@ import abc
 from typing import Final, Generic, TypeVar, Union
 
 from fastapi import HTTPException, Request, Response
+from jupiter.core.auth.password_plain import PasswordPlainWebDecoder
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -27,7 +28,6 @@ from jupiter.core.domain.app import (
     AppVersion,
 )
 from jupiter.core.domain.app_version_decoder import AppVersionDatabaseDecoder
-from jupiter.core.domain.concept.auth.password_plain import PasswordPlainWebDecoder
 from jupiter.core.domain.core.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
