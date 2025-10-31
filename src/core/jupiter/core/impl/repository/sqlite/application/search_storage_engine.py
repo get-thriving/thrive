@@ -7,6 +7,9 @@ from typing import (
     Final,
 )
 
+from sqlalchemy import MetaData
+from sqlalchemy.ext.asyncio import AsyncEngine
+
 from jupiter.core.domain.application.search.infra.search_repository import (
     SearchRepository,
 )
@@ -16,8 +19,6 @@ from jupiter.core.impl.repository.sqlite.application.search import (
 )
 from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
-from sqlalchemy import MetaData
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 
 class SqliteSearchUnitOfWork(SearchUnitOfWork):

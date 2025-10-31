@@ -1,5 +1,9 @@
 """Sqlite implementation of the notes repository."""
 
+from sqlalchemy import (
+    select,
+)
+
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.notes.note import (
     Note,
@@ -10,9 +14,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
-)
-from sqlalchemy import (
-    select,
 )
 
 

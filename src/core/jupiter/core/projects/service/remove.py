@@ -7,16 +7,6 @@ from jupiter.core.big_plans.service.remove import (
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.remove import ChoreRemoveService
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.habits.collection import HabitCollection
@@ -35,6 +25,16 @@ from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.errors import ProjectInSignificantUseError
 from jupiter.core.projects.root import Project
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )

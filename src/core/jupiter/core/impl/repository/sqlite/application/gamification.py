@@ -2,6 +2,22 @@
 
 from typing import Final, Mapping, cast
 
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    delete,
+    insert,
+    select,
+    update,
+)
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncConnection
+
 from jupiter.core.domain.application.gamification.score_log import (
     ScoreLog,
     ScoreLogRepository,
@@ -32,21 +48,6 @@ from jupiter.framework.storage.sqlite.repository import (
     SqliteTrunkEntityRepository,
 )
 from jupiter.framework.storage.sqlite.row import RowType
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    MetaData,
-    String,
-    Table,
-    delete,
-    insert,
-    select,
-    update,
-)
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteScoreLogRepository(

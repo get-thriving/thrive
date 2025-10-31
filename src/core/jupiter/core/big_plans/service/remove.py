@@ -3,12 +3,6 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.time_plans.sub.activity.root import (
-    TimePlanActivityRespository,
-)
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.notes.service.note_remove_service import NoteRemoveService
 from jupiter.core.inbox_tasks.collection import (
@@ -19,6 +13,12 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.time_plans.sub.activity.root import (
+    TimePlanActivityRespository,
+)
+from jupiter.core.time_plans.sub.activity.target import (
+    TimePlanActivityTarget,
+)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

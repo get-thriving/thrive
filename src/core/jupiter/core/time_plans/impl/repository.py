@@ -1,5 +1,13 @@
 """The SQLite based time plans repository."""
 
+from sqlalchemy import (
+    MetaData,
+)
+from sqlalchemy.ext.asyncio import AsyncConnection
+
+from jupiter.core.domain.core import schedules
+from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
+from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.root import (
     TimePlan,
     TimePlanExistsForDatePeriodCombinationError,
@@ -13,9 +21,6 @@ from jupiter.core.time_plans.sub.activity.root import (
 from jupiter.core.time_plans.sub.activity.target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.domain.core import schedules
-from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
@@ -23,10 +28,6 @@ from jupiter.framework.realm.realm import RealmCodecRegistry
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from sqlalchemy import (
-    MetaData,
-)
-from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteTimePlanRepository(

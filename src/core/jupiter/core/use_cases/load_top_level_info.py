@@ -20,7 +20,6 @@ from jupiter.core.domain.application.gamification.service.score_overview_service
 from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.env import Env
 from jupiter.core.domain.features import (
     BASIC_USER_FEATURE_FLAGS,
@@ -34,6 +33,7 @@ from jupiter.core.domain.features import (
 )
 from jupiter.core.domain.hosting import Hosting
 from jupiter.core.projects.name import ProjectName
+from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )

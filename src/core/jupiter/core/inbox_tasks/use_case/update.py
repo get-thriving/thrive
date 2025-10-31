@@ -10,21 +10,6 @@ from jupiter.core.domain.application.gamification.service.record_score_service i
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.sub.activity.root import (
-    TimePlanActivity,
-    TimePlanActivityRespository,
-    TimePlanAlreadyAssociatedWithTargetError,
-)
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
@@ -43,6 +28,21 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import (
+    TimePlanActivity,
+    TimePlanActivityRespository,
+    TimePlanAlreadyAssociatedWithTargetError,
+)
+from jupiter.core.time_plans.sub.activity.target import (
+    TimePlanActivityTarget,
+)
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

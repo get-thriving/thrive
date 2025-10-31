@@ -8,15 +8,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.app import AppCore
 from jupiter.core.domain.application.gen.service.gen_service import GenService
-from jupiter.core.time_plans.root import (
-    TimePlan,
-    TimePlanRepository,
-)
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
-from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
@@ -32,6 +23,15 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
+)
+from jupiter.core.time_plans.root import (
+    TimePlan,
+    TimePlanRepository,
+)
+from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

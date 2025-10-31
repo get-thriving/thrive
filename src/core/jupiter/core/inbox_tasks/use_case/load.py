@@ -6,9 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
-from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.domain.core.notes.note import Note, NoteRepository
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
 from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
@@ -24,6 +21,9 @@ from jupiter.core.journals.root import Journal
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.root import Person
 from jupiter.core.projects.root import Project
+from jupiter.core.push_integrations.sub.email.task import EmailTask
+from jupiter.core.push_integrations.sub.slack.task import SlackTask
+from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork

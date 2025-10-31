@@ -5,13 +5,13 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
+from jupiter.core.domain.features import WorkspaceFeature
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.time_plans.sub.activity.target import (
     TimePlanActivityTarget,
 )
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

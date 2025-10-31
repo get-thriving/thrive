@@ -6,22 +6,6 @@ from jupiter.core.domain.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.push_integrations.email.email_user_name import (
-    EmailUserName,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name import (
-    SlackChannelName,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
-    SlackUserName,
-)
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
-from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress
@@ -40,6 +24,22 @@ from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.core.projects.name import ProjectName
+from jupiter.core.push_integrations.sub.email.user_name import (
+    EmailUserName,
+)
+from jupiter.core.push_integrations.sub.slack.channel_name import (
+    SlackChannelName,
+)
+from jupiter.core.push_integrations.sub.slack.user_name import (
+    SlackUserName,
+)
+from jupiter.core.time_plans.source import TimePlanSource
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

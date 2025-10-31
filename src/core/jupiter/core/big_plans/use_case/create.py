@@ -9,14 +9,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
@@ -25,6 +17,14 @@ from jupiter.core.domain.features import (
 from jupiter.core.domain.infra.generic_creator import generic_creator
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

@@ -10,11 +10,6 @@ from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.time_events.time_event_domain import TimeEventDomain
 from jupiter.core.domain.features import (
@@ -32,9 +27,14 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,

@@ -1,10 +1,11 @@
 """The SQLite repository for docs."""
 
+from sqlalchemy import select
+
 from jupiter.core.docs.root import Doc, DocRepository
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from sqlalchemy import select
 
 
 class SqliteDocRepository(SqliteLeafEntityRepository[Doc], DocRepository):

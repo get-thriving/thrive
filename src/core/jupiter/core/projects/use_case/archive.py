@@ -4,16 +4,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
@@ -28,6 +18,16 @@ from jupiter.core.projects.service.check_cycles import (
     ProjectCheckCyclesService,
     ProjectTreeHasCyclesError,
 )
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )

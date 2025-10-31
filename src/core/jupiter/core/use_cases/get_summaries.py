@@ -6,7 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
 from jupiter.core.domain.fast_info_repository import (
     BigPlanSummary,
     ChoreSummary,
@@ -31,6 +30,7 @@ from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import ProjectRepository
+from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )

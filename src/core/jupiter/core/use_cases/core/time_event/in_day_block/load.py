@@ -4,14 +4,14 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
-    ScheduleEventInDay,
-)
 from jupiter.core.domain.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
 from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventNamespace
 from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.schedule.sub.event_in_day.root import (
+    ScheduleEventInDay,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

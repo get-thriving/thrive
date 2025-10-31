@@ -5,18 +5,6 @@ import textwrap
 from collections.abc import Iterable
 from typing import ClassVar
 
-from jupiter.core.domain.concept.push_integrations.email.email_user_name import (
-    EmailUserName,
-)
-from jupiter.core.domain.concept.push_integrations.push_generation_extra_info import (
-    PushGenerationExtraInfo,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name import (
-    SlackChannelName,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
-    SlackUserName,
-)
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
@@ -27,6 +15,18 @@ from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.push_integrations.extra_info import (
+    PushGenerationExtraInfo,
+)
+from jupiter.core.push_integrations.sub.email.user_name import (
+    EmailUserName,
+)
+from jupiter.core.push_integrations.sub.slack.channel_name import (
+    SlackChannelName,
+)
+from jupiter.core.push_integrations.sub.slack.user_name import (
+    SlackUserName,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

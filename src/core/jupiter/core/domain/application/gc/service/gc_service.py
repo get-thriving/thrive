@@ -10,23 +10,6 @@ from jupiter.core.big_plans.service.archive import (
 )
 from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gc.gc_log_entry import GCLogEntry
-from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.email.service.archive_service import (
-    EmailTaskArchiveService,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.service.archive_service import (
-    SlackTaskArchiveService,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.domain.infra.generic_crown_archiver import generic_crown_archiver
@@ -39,6 +22,23 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.service.archive import (
+    EmailTaskArchiveService,
+)
+from jupiter.core.push_integrations.sub.email.task import EmailTask
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.service.archive import (
+    SlackTaskArchiveService,
+)
+from jupiter.core.push_integrations.sub.slack.task import SlackTask
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext

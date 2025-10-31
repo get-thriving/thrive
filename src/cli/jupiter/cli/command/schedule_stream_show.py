@@ -3,7 +3,7 @@
 from jupiter.cli.command.rendering import entity_id_to_rich_text
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.concept.schedule.stream.find import (
+from jupiter.core.schedule.sub.stream.use_case.find import (
     ScheduleStreamFindResult,
     ScheduleStreamFindUseCase,
 )

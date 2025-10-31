@@ -10,20 +10,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.time_plans.root import (
-    TimePlan,
-    TimePlanRepository,
-)
-from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.time_plans.sub.activity.doneness import (
-    TimePlanActivityDoneness,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
-from jupiter.core.time_plans.sub.activity.target import (
-    TimePlanActivityTarget,
-)
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.features import WorkspaceFeature
@@ -36,6 +22,20 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.time_plans.root import (
+    TimePlan,
+    TimePlanRepository,
+)
+from jupiter.core.time_plans.sub.activity.doneness import (
+    TimePlanActivityDoneness,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.time_plans.sub.activity.target import (
+    TimePlanActivityTarget,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

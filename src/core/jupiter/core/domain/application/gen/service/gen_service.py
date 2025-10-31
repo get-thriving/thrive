@@ -8,20 +8,6 @@ from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
@@ -69,6 +55,20 @@ from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task import EmailTask
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task import SlackTask
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.users.root import User
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation

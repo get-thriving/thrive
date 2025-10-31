@@ -12,19 +12,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -41,6 +28,19 @@ from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.name import ProjectName
 from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
+)
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls

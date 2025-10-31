@@ -6,17 +6,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.sub.activity.root import (
-    TimePlanActivity,
-    TimePlanAlreadyAssociatedWithTargetError,
-)
-from jupiter.core.time_plans.sub.activity.feasability import (
-    TimePlanActivityFeasability,
-)
-from jupiter.core.time_plans.sub.activity.kind import (
-    TimePlanActivityKind,
-)
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.features import (
@@ -31,6 +20,17 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import (
+    TimePlanActivity,
+    TimePlanAlreadyAssociatedWithTargetError,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

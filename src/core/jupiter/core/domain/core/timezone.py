@@ -4,6 +4,7 @@ from functools import total_ordering
 from typing import cast
 
 import pendulum
+
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.standard import (

@@ -3,6 +3,7 @@
 from functools import total_ordering
 
 import validators
+
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.standard import (

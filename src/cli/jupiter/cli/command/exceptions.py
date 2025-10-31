@@ -6,13 +6,13 @@ from jupiter.cli.config import JupiterExceptionHandler
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.time_plans.root import (
-    TimePlanExistsForDatePeriodCombinationError,
-)
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
 from jupiter.core.projects.errors import ProjectInSignificantUseError
+from jupiter.core.time_plans.root import (
+    TimePlanExistsForDatePeriodCombinationError,
+)
 from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.core.users.root import (
     UserAlreadyExistsError,

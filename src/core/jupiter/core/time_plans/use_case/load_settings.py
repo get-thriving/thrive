@@ -5,10 +5,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.domain.app import AppCore
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
 from jupiter.core.domain.core.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.features import WorkspaceFeature
@@ -18,6 +14,10 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.projects.root import Project
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
+)
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,

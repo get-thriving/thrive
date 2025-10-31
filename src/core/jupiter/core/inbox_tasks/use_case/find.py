@@ -10,19 +10,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.push_integrations.email.email_task import EmailTask
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task import SlackTask
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.domain.core.notes.note import Note
 from jupiter.core.domain.core.notes.note_collection import NoteCollection
 from jupiter.core.domain.core.notes.note_domain import NoteDomain
@@ -50,6 +37,19 @@ from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task import EmailTask
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task import SlackTask
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )

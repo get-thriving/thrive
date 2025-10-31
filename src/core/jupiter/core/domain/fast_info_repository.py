@@ -4,11 +4,6 @@ import abc
 
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
-from jupiter.core.domain.concept.schedule.schedule_stream_color import (
-    ScheduleStreamColor,
-)
-from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.core.entity_icon import EntityIcon
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
@@ -16,6 +11,11 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
 from jupiter.core.projects.name import ProjectName
+from jupiter.core.schedule.sub.stream.color import (
+    ScheduleStreamColor,
+)
+from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
@@ -38,7 +38,7 @@ class ScheduleStreamSummary(CompositeValue):
     """Summary information about a schedule stream."""
 
     ref_id: EntityId
-    source: ScheduleSource
+    source: ScheduleStreamSource
     name: ScheduleStreamName
     color: ScheduleStreamColor
 

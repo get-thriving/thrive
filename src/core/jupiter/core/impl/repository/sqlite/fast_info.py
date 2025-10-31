@@ -2,13 +2,10 @@
 
 import json
 
+from sqlalchemy import text
+
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domain.concept.schedule.schedule_source import ScheduleSource
-from jupiter.core.domain.concept.schedule.schedule_stream_color import (
-    ScheduleStreamColor,
-)
-from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
 from jupiter.core.domain.core.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domain.fast_info_repository import (
@@ -30,13 +27,17 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
 from jupiter.core.projects.name import ProjectName
+from jupiter.core.schedule.sub.stream.color import (
+    ScheduleStreamColor,
+)
+from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
-from sqlalchemy import text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)
@@ -103,7 +104,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             ScheduleStreamSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 source=self._realm_codec_registry.db_decode(
-                    ScheduleSource, row["source"]
+                    ScheduleStreamSource, row["source"]
                 ),
                 name=_SCHEDULE_STREAM_NAME_DECODER.decode(row["name"]),
                 color=self._realm_codec_registry.db_decode(

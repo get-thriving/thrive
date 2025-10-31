@@ -3,6 +3,8 @@
 from typing import Literal, cast
 
 import pendulum
+from pendulum.date import Date
+
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
@@ -11,7 +13,6 @@ from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseEncoder,
 )
 from jupiter.framework.value import AtomicValue, value
-from pendulum.date import Date
 
 
 @value

@@ -2,6 +2,9 @@
 
 from typing import cast
 
+from sqlalchemy import func, select
+from sqlalchemy.sql import and_, or_
+
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
@@ -22,8 +25,6 @@ from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
-from sqlalchemy import func, select
-from sqlalchemy.sql import and_, or_
 
 _ADATE_DECODER = ADateDatabaseDecoder()
 

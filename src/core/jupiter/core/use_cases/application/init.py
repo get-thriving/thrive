@@ -18,28 +18,6 @@ from jupiter.core.domain.application.gc.gc_log import GCLog
 from jupiter.core.domain.application.gen.gen_log import GenLog
 from jupiter.core.domain.application.home.home_config import HomeConfig
 from jupiter.core.domain.application.stats.stats_log import StatsLog
-from jupiter.core.domain.concept.push_integrations.email.email_task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.domain.concept.push_integrations.group.push_integration_group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.domain.concept.push_integrations.slack.slack_task_collection import (
-    SlackTaskCollection,
-)
-from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.schedule.schedule_external_sync_log import (
-    ScheduleExternalSyncLog,
-)
-from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
-from jupiter.core.domain.concept.schedule.schedule_stream_color import (
-    ScheduleStreamColor,
-)
-from jupiter.core.domain.concept.schedule.schedule_stream_name import ScheduleStreamName
-from jupiter.core.time_plans.domain import TimePlanDomain
-from jupiter.core.time_plans.generation_approach import (
-    TimePlanGenerationApproach,
-)
 from jupiter.core.domain.core.difficulty import Difficulty
 from jupiter.core.domain.core.eisen import Eisen
 from jupiter.core.domain.core.email_address import EmailAddress
@@ -64,8 +42,30 @@ from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.name import ProjectName
 from jupiter.core.projects.root import Project
+from jupiter.core.push_integrations.group import (
+    PushIntegrationGroup,
+)
+from jupiter.core.push_integrations.sub.email.task_collection import (
+    EmailTaskCollection,
+)
+from jupiter.core.push_integrations.sub.slack.task_collection import (
+    SlackTaskCollection,
+)
+from jupiter.core.schedule.domain import ScheduleDomain
+from jupiter.core.schedule.sub.external_sync_log.root import (
+    ScheduleExternalSyncLog,
+)
+from jupiter.core.schedule.sub.stream.color import (
+    ScheduleStreamColor,
+)
+from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
+from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
+)
+from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.generation_approach import (
+    TimePlanGenerationApproach,
 )
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,

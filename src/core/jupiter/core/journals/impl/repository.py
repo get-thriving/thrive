@@ -2,6 +2,22 @@
 
 from typing import Final, Mapping, cast
 
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Table,
+    delete,
+    insert,
+    select,
+    update,
+)
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncConnection
+
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.journals.root import (
@@ -25,21 +41,6 @@ from jupiter.framework.storage.sqlite.repository import (
     SqliteRecordRepository,
 )
 from jupiter.framework.storage.sqlite.row import RowType
-from sqlalchemy import (
-    JSON,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    MetaData,
-    Table,
-    delete,
-    insert,
-    select,
-    update,
-)
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncConnection
 
 
 class SqliteJournalRepository(SqliteLeafEntityRepository[Journal], JournalRepository):

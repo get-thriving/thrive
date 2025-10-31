@@ -4,14 +4,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domain.concept.schedule.schedule_domain import ScheduleDomain
-from jupiter.core.domain.concept.schedule.schedule_event_full_days import (
-    ScheduleEventFullDays,
-)
-from jupiter.core.domain.concept.schedule.schedule_event_in_day import (
-    ScheduleEventInDay,
-)
-from jupiter.core.domain.concept.schedule.schedule_stream import ScheduleStream
 from jupiter.core.domain.core import schedules
 from jupiter.core.domain.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
@@ -28,6 +20,14 @@ from jupiter.core.domain.core.time_events.time_event_namespace import TimeEventN
 from jupiter.core.domain.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.persons.root import Person
+from jupiter.core.schedule.domain import ScheduleDomain
+from jupiter.core.schedule.sub.event_full_days.root import (
+    ScheduleEventFullDays,
+)
+from jupiter.core.schedule.sub.event_in_day.root import (
+    ScheduleEventInDay,
+)
+from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
