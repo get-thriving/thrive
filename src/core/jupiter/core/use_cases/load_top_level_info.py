@@ -14,10 +14,10 @@ from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
-from jupiter.core.domainx.application.gamification.service.score_overview_service import (
+from jupiter.core.gamification.service.score_overview_service import (
     ScoreOverviewService,
 )
-from jupiter.core.domainx.application.gamification.user_score_overview import (
+from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.env import Env

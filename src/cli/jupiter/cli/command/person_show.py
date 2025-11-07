@@ -8,13 +8,13 @@ from jupiter.cli.command.rendering import (
     person_relationship_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.persons.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

@@ -2,12 +2,12 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.difficulty import Difficulty
-from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import (
     WorkspaceFeature,
 )

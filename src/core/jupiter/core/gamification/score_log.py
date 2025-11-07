@@ -2,8 +2,8 @@
 
 import abc
 
-from jupiter.core.domainx.application.gamification.score_log_entry import ScoreLogEntry
-from jupiter.core.domainx.application.gamification.score_period_best import (
+from jupiter.core.gamification.score_log_entry import ScoreLogEntry
+from jupiter.core.gamification.score_period_best import (
     ScorePeriodBest,
 )
 from jupiter.framework.base.entity_id import EntityId

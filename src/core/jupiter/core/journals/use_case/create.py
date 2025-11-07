@@ -4,6 +4,7 @@ from jupiter.core.app import AppCore
 from jupiter.core.common.notes.collection import NoteCollection
 from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -15,7 +16,6 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

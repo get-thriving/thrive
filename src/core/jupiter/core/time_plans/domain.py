@@ -2,10 +2,10 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )

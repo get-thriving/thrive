@@ -2,6 +2,7 @@
 
 from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
+from jupiter.core.common.url import URL
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
@@ -15,7 +16,6 @@ from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
 )
-from jupiter.core.common.url import URL
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

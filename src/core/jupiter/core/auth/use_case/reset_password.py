@@ -3,11 +3,11 @@
 from jupiter.core.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.auth.root import Auth, IncorrectRecoveryTokenError
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,

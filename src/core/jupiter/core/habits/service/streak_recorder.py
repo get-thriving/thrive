@@ -3,13 +3,13 @@
 from typing import Iterable, cast
 
 from jupiter.core.common import schedules
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import MutationContext

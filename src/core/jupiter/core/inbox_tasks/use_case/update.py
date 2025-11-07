@@ -2,16 +2,16 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.difficulty import Difficulty
-from jupiter.core.domainx.application.gamification.service.record_score_service import (
+from jupiter.core.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,

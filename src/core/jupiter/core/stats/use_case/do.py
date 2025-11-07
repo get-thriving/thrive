@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.application.stats.service.stats_service import StatsService
+from jupiter.core.stats.service.stats import StatsService
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )

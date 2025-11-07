@@ -2,8 +2,16 @@
 
 import typing
 
-from jupiter.core.common import schedules
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common import schedules
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -14,9 +22,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -35,12 +41,6 @@ from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.core.persons.root import Person
 from jupiter.core.projects.root import Project
-from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.common.recurring_task_due_at_month import (
-    RecurringTaskDueAtMonth,
-)
-from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

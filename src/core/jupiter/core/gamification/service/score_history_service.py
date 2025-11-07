@@ -1,13 +1,13 @@
 """The service for getting the scores history for a user."""
 
-from jupiter.core.domainx.application.gamification.score_log import ScoreLog
-from jupiter.core.domainx.application.gamification.score_stats import (
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.score_log import ScoreLog
+from jupiter.core.gamification.score_stats import (
     ScoreStatsRepository,
 )
-from jupiter.core.domainx.application.gamification.user_score_history import (
+from jupiter.core.gamification.user_score_history import (
     UserScoreHistory,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.users.root import User
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp

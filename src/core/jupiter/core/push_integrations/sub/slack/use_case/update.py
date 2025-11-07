@@ -1,12 +1,12 @@
 """The command for updating a slack task."""
 
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

@@ -1,10 +1,10 @@
 """The command for updating a smart list."""
 
+from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.root import SmartList

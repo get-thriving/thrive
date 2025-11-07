@@ -4,7 +4,7 @@ from sqlalchemy import (
     select,
 )
 
-from jupiter.core.domainx.application.stats.stats_log_entry import (
+from jupiter.core.stats.log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )

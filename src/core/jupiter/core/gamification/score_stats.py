@@ -2,13 +2,13 @@
 
 import abc
 
-from jupiter.core.domainx.application.gamification.score_log_entry import ScoreLogEntry
-from jupiter.core.domainx.application.gamification.score_source import ScoreSource
-from jupiter.core.domainx.application.gamification.user_score_history import (
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.score_log_entry import ScoreLogEntry
+from jupiter.core.gamification.score_source import ScoreSource
+from jupiter.core.gamification.user_score_history import (
     UserScoreAtDate,
 )
-from jupiter.core.domainx.application.gamification.user_score_overview import UserScore
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.user_score_overview import UserScore
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

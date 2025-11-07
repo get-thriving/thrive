@@ -3,12 +3,12 @@
 from dataclasses import field
 
 from jupiter.core.big_plans.name import BigPlanName
-from jupiter.core.domainx.application.gamification.user_score_overview import (
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.domainx.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

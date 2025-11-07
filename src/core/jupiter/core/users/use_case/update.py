@@ -1,10 +1,10 @@
 """The command for updating a user's properties."""
 
+from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.timezone import Timezone
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

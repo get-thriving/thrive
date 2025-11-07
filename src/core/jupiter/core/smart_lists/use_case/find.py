@@ -5,11 +5,11 @@ from collections import defaultdict
 from jupiter.core.common.notes.collection import NoteCollection
 from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
+from jupiter.core.common.tags.name import TagName
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.common.tags.name import TagName
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,

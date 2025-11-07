@@ -8,6 +8,7 @@ from jupiter.cli.command.rendering import (
     user_score_overview_to_rich,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.domainx.application.report.report_breakdown import ReportBreakdown
 from jupiter.core.domainx.application.report.report_period_result import (
@@ -17,7 +18,6 @@ from jupiter.core.domainx.application.report.report_period_result import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.use_cases.application.report import (
     ReportResult,
     ReportUseCase,

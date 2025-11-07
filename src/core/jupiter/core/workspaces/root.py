@@ -11,7 +11,7 @@ from jupiter.core.docs.collection import DocCollection
 from jupiter.core.domainx.application.gc.gc_log import GCLog
 from jupiter.core.domainx.application.gen.gen_log import GenLog
 from jupiter.core.domainx.application.home.home_config import HomeConfig
-from jupiter.core.domainx.application.stats.stats_log import StatsLog
+from jupiter.core.stats.log import StatsLog
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,

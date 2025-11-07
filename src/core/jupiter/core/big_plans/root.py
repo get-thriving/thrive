@@ -8,10 +8,10 @@ from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.big_plans.stats import BigPlanStats
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.adate import ADate

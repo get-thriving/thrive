@@ -4,8 +4,8 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.domainx.application.stats.stats_log import StatsLog
-from jupiter.core.domainx.application.stats.stats_log_entry import (
+from jupiter.core.stats.log import StatsLog
+from jupiter.core.stats.log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
 )

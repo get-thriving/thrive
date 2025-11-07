@@ -1,14 +1,14 @@
 """A metric."""
 
+from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
-from jupiter.core.common.entity_icon import EntityIcon
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.metrics.unit import MetricUnit
-from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

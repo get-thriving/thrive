@@ -6,13 +6,15 @@ from itertools import groupby
 from operator import itemgetter
 from typing import Final, cast
 
-from jupiter.core.common import schedules
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.domainx.application.gamification.service.score_overview_service import (
+from jupiter.core.common import schedules
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.schedules import Schedule
+from jupiter.core.gamification.service.score_overview_service import (
     ScoreOverviewService,
 )
 from jupiter.core.domainx.application.report.report_breakdown import ReportBreakdown
@@ -53,8 +55,6 @@ from jupiter.core.persons.root import Person
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.name import ProjectName
 from jupiter.core.projects.root import Project
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.schedules import Schedule
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate

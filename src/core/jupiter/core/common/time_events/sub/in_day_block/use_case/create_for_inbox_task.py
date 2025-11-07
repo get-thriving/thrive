@@ -4,12 +4,12 @@ from jupiter.core.common.time_events.domain import TimeEventDomain
 from jupiter.core.common.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

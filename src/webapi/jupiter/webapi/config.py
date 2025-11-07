@@ -13,6 +13,7 @@ from jupiter.core.app import (
 )
 from jupiter.core.app_version_decoder import AppVersionDatabaseDecoder
 from jupiter.core.auth.password_plain import PasswordPlainWebDecoder
+from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -28,7 +29,6 @@ from jupiter.core.config import (
     JupiterLoggedInSession,
     JupiterPorts,
 )
-from jupiter.core.common.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (

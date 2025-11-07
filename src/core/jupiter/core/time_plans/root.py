@@ -5,12 +5,12 @@ import abc
 from jupiter.core.common import schedules
 from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
-from jupiter.core.common.timeline import infer_timeline
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

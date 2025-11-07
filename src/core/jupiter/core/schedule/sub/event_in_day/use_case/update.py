@@ -6,6 +6,7 @@ from jupiter.core.common.time_events.namespace import (
 from jupiter.core.common.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockRepository,
 )
+from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -15,7 +16,6 @@ from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
-from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

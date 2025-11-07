@@ -19,6 +19,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.journals.root import (
     Journal,
     JournalExistsForDatePeriodCombinationError,
@@ -28,7 +29,6 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing

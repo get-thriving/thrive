@@ -1,10 +1,10 @@
 """The command for updating a smart list tag."""
 
+from jupiter.core.common.tags.name import TagName
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.tags.name import TagName
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId

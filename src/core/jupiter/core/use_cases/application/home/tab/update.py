@@ -1,11 +1,11 @@
 """The command for updating a home small screen tab's properties."""
 
+from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domainx.application.home.home_tab import HomeTab
-from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

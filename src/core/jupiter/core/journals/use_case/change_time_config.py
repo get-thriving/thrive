@@ -1,13 +1,13 @@
 """Command for updating the time configuration of a journal."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.root import Journal
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

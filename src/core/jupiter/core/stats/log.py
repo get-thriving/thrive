@@ -1,6 +1,6 @@
 """A log of stats computation actions a user has performed."""
 
-from jupiter.core.domainx.application.stats.stats_log_entry import StatsLogEntry
+from jupiter.core.stats.log_entry import StatsLogEntry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

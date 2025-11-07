@@ -2,11 +2,11 @@
 
 from jupiter.core.auth.password_plain import PasswordPlain
 from jupiter.core.auth.root import Auth
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
 )
-from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.root import (
     UserNotFoundError,
     UserRepository,

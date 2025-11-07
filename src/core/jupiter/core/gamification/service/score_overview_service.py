@@ -2,19 +2,19 @@
 
 import asyncio
 
-from jupiter.core.domainx.application.gamification.score_log import ScoreLog
-from jupiter.core.domainx.application.gamification.score_period_best import (
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_timeline
+from jupiter.core.gamification.score_log import ScoreLog
+from jupiter.core.gamification.score_period_best import (
     ScorePeriodBestRepository,
 )
-from jupiter.core.domainx.application.gamification.score_stats import (
+from jupiter.core.gamification.score_stats import (
     ScoreStatsRepository,
 )
-from jupiter.core.domainx.application.gamification.user_score_overview import (
+from jupiter.core.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.users.root import User
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.storage.repository import DomainUnitOfWork

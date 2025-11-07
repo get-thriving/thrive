@@ -1,5 +1,6 @@
 """A tab on the home page."""
 
+from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.domainx.application.home.home_tab_target import HomeTabTarget
 from jupiter.core.domainx.application.home.home_tab_widget_placement import (
     OneOfHomeTabWidgetPlacement,
@@ -7,7 +8,6 @@ from jupiter.core.domainx.application.home.home_tab_widget_placement import (
 )
 from jupiter.core.domainx.application.home.home_widget import HomeWidget
 from jupiter.core.domainx.application.home.widget import WidgetGeometry
-from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext

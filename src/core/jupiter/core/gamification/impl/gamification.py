@@ -18,23 +18,23 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from jupiter.core.domainx.application.gamification.score_log import (
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.gamification.score_log import (
     ScoreLog,
     ScoreLogRepository,
 )
-from jupiter.core.domainx.application.gamification.score_log_entry import (
+from jupiter.core.gamification.score_log_entry import (
     ScoreLogEntry,
     ScoreLogEntryRepository,
 )
-from jupiter.core.domainx.application.gamification.score_period_best import (
+from jupiter.core.gamification.score_period_best import (
     ScorePeriodBest,
     ScorePeriodBestRepository,
 )
-from jupiter.core.domainx.application.gamification.score_stats import (
+from jupiter.core.gamification.score_stats import (
     ScoreStats,
     ScoreStatsRepository,
 )
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing

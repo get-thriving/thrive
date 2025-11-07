@@ -1,5 +1,6 @@
 """The command for reporting on progress."""
 
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
@@ -10,7 +11,6 @@ from jupiter.core.domainx.application.report.report_period_result import (
 )
 from jupiter.core.domainx.application.report.service.report_service import ReportService
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.use_case import (

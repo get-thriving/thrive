@@ -1,17 +1,17 @@
 """The command for updating a smart list item."""
 
+from jupiter.core.common.tags.name import TagName
+from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.common.tags.name import TagName
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
-from jupiter.core.common.url import URL
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
