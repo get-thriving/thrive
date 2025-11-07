@@ -2,15 +2,15 @@
 
 from typing import cast
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -21,13 +21,13 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.projects.root import Project
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_due_at_month import (
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

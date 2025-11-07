@@ -4,13 +4,13 @@ import pendulum
 import pytest
 
 from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_due_at_month import (
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.schedules import Schedule, get_schedule
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.schedules import Schedule, get_schedule
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp

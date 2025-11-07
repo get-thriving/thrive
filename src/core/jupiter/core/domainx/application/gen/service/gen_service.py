@@ -4,7 +4,7 @@ import typing
 from collections import defaultdict
 from typing import Final, Sequence, cast
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.notes.collection import NoteCollection
@@ -61,12 +61,12 @@ from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_due_at_month import (
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import (
     SyncTarget,
 )

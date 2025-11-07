@@ -13,7 +13,7 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

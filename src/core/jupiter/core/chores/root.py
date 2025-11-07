@@ -5,7 +5,7 @@ from jupiter.core.common.notes.domain import NoteDomain
 from jupiter.core.common.notes.root import Note
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

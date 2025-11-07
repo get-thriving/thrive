@@ -4,10 +4,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.eisen import Eisen
-from jupiter.core.email_address import EmailAddress
+from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

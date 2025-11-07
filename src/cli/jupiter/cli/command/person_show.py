@@ -14,7 +14,7 @@ from jupiter.core.persons.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
 )
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

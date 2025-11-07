@@ -5,9 +5,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.root import (
     TimePlan,
     TimePlanExistsForDatePeriodCombinationError,

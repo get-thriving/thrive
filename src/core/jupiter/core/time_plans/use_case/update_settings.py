@@ -2,16 +2,16 @@
 
 from typing import cast
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -20,7 +20,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (

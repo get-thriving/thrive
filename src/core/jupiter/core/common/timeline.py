@@ -2,7 +2,7 @@
 
 from pendulum import DateTime
 
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.timestamp import Timestamp
 
 

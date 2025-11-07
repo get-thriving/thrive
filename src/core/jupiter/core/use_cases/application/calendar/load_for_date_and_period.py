@@ -1,6 +1,6 @@
 """Load all the calendar specific entities for a given date and period."""
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.time_events.domain import TimeEventDomain
 from jupiter.core.common.time_events.namespace import (
@@ -21,7 +21,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.persons.root import Person
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,

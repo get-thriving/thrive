@@ -4,21 +4,21 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.core.persons.root import Person
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_due_at_month import (
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

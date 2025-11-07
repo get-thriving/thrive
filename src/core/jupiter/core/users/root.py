@@ -4,13 +4,13 @@ import abc
 
 from jupiter.core.auth.root import Auth
 from jupiter.core.domainx.application.gamification.score_log import ScoreLog
-from jupiter.core.email_address import EmailAddress
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.features import (
     UserFeature,
     UserFeatureFlags,
     UserFeatureFlagsControls,
 )
-from jupiter.core.timezone import UTC, Timezone
+from jupiter.core.common.timezone import UTC, Timezone
 from jupiter.core.users.avatar import Avatar
 from jupiter.core.users.category import UserCategory
 from jupiter.core.users.name import UserName

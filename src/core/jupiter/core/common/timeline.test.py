@@ -2,8 +2,8 @@
 
 import pytest
 
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.timeline import infer_timeline
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_timeline
 from jupiter.framework.base.timestamp import Timestamp
 
 

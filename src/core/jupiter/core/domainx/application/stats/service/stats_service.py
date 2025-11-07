@@ -31,7 +31,7 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace

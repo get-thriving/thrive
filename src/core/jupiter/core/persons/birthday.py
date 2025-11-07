@@ -2,8 +2,8 @@
 
 from typing import ClassVar
 
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive

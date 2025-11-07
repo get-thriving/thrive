@@ -14,7 +14,7 @@ from jupiter.core.schedule.sub.stream.color import (
 )
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
-from jupiter.core.url import URL
+from jupiter.core.common.url import URL
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

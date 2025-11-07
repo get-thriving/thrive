@@ -14,15 +14,15 @@ from jupiter.core.config import (
     JupiterGuestMutationContext,
     JupiterGuestMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.docs.collection import DocCollection
 from jupiter.core.domainx.application.gamification.score_log import ScoreLog
 from jupiter.core.domainx.application.gc.gc_log import GCLog
 from jupiter.core.domainx.application.gen.gen_log import GenLog
 from jupiter.core.domainx.application.home.home_config import HomeConfig
 from jupiter.core.domainx.application.stats.stats_log import StatsLog
-from jupiter.core.eisen import Eisen
-from jupiter.core.email_address import EmailAddress
+from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -49,7 +49,7 @@ from jupiter.core.push_integrations.sub.email.task_collection import (
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.external_sync_log.root import (
     ScheduleExternalSyncLog,
@@ -66,7 +66,7 @@ from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
-from jupiter.core.timezone import Timezone
+from jupiter.core.common.timezone import Timezone
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
 )

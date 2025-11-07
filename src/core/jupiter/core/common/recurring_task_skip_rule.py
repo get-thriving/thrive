@@ -5,7 +5,7 @@ from typing import Literal, cast
 import pendulum
 from pendulum.date import Date
 
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.standard import (

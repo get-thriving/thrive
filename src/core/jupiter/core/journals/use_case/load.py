@@ -1,6 +1,6 @@
 """Retrieve details about a journal."""
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.app import AppCore
 from jupiter.core.common.notes.root import Note
 from jupiter.core.config import (

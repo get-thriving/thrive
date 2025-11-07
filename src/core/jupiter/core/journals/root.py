@@ -9,8 +9,8 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.source import JournalSource
 from jupiter.core.journals.stats import JournalStats
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.timeline import infer_timeline
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_timeline
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

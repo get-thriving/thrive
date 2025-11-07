@@ -8,7 +8,7 @@ from jupiter.core.domainx.application.gen.service.gen_service import GenService
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import (
     SyncTarget,
 )

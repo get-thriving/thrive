@@ -17,8 +17,8 @@ from jupiter.core.domainx.application.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.timeline import infer_timeline
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.users.root import User
 from jupiter.framework.context import MutationContext
 from jupiter.framework.storage.repository import (

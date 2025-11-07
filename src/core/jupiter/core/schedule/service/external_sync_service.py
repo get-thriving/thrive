@@ -48,8 +48,8 @@ from jupiter.core.schedule.sub.external_sync_log.root import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
-from jupiter.core.time_in_day import TimeInDay
-from jupiter.core.url import URL
+from jupiter.core.common.time_in_day import TimeInDay
+from jupiter.core.common.url import URL
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

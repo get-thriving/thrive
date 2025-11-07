@@ -3,11 +3,11 @@
 import argparse
 import shlex
 
-from jupiter.core.difficulty import Difficulty
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.timezone import UTC, Timezone
+from jupiter.core.common.timezone import UTC, Timezone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.realm.realm import (
     PROVIDE_VIA_REGISTRY,

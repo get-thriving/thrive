@@ -1,13 +1,13 @@
 """Retrieve details about a time plan."""
 
-from jupiter.core import schedules
+from jupiter.core.common import schedules
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import (
     TimePlan,

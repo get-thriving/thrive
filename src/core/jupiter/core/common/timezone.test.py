@@ -1,6 +1,6 @@
 """Tests for the timezone."""
 
-from jupiter.core.timezone import UTC, Timezone
+from jupiter.core.common.timezone import UTC, Timezone
 
 
 def test_creation() -> None:

@@ -6,7 +6,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from jupiter.core.email_address import EmailAddress
+from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.users.root import (
     User,
     UserAlreadyExistsError,

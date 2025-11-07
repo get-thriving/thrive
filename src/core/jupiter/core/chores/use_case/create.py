@@ -7,21 +7,21 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import (
     WorkspaceFeature,
 )
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project, ProjectRepository
-from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.recurring_task_due_at_month import (
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

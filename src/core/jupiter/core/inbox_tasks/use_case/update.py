@@ -6,12 +6,12 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.difficulty import Difficulty
+from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.domainx.application.gamification.service.record_score_service import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.eisen import Eisen
+from jupiter.core.common.eisen import Eisen
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,

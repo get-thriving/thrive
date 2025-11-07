@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.entity_summary import EntitySummary
+from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

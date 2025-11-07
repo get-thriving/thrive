@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 from jupiter.core.domainx.application.search.search_limit import SearchLimit
 from jupiter.core.domainx.application.search.search_query import SearchQuery
-from jupiter.core.entity_summary import EntitySummary
+from jupiter.core.common.entity_summary import EntitySummary
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
