@@ -2,6 +2,7 @@
 
 import argon2.profiles
 from argon2 import PasswordHasher
+
 from jupiter.core.auth.password_new_plain import PasswordNewPlain
 from jupiter.core.auth.password_plain import PasswordPlain
 from jupiter.framework.errors import InputValidationError

@@ -2,6 +2,7 @@
 
 import argon2.profiles
 from argon2 import PasswordHasher
+
 from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (

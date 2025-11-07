@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 from typing import Final
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.service.archive import (
@@ -10,7 +11,6 @@ from jupiter.core.big_plans.service.archive import (
 )
 from jupiter.core.domainx.application.gc.gc_log import GCLog
 from jupiter.core.domainx.application.gc.gc_log_entry import GCLogEntry
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

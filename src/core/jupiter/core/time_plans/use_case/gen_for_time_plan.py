@@ -6,11 +6,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationUseCase,
 )
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.use_case import (

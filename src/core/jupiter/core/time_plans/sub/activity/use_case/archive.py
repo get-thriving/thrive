@@ -1,11 +1,11 @@
 """Use case for archiving a time plan activity."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,

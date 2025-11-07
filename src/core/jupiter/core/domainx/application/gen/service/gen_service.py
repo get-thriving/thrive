@@ -4,20 +4,14 @@ import typing
 from collections import defaultdict
 from typing import Final, Sequence, cast
 
+from jupiter.core import schedules
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.domainx.application.gen.gen_log import GenLog
 from jupiter.core.domainx.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.domainx.core import schedules
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_collection import NoteCollection
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domainx.core.recurring_task_due_at_month import (
-    RecurringTaskDueAtMonth,
-)
-from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
 from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
     TimeEventFullDaysBlock,
@@ -67,6 +61,12 @@ from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
+from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import (
     SyncTarget,
 )

@@ -1,10 +1,10 @@
 """The command for archiving a working mem."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId

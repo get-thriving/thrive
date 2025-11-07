@@ -2,11 +2,11 @@
 
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.url import URL
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
+from jupiter.core.url import URL
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (

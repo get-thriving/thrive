@@ -1,6 +1,6 @@
 """The working memory log."""
 
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext

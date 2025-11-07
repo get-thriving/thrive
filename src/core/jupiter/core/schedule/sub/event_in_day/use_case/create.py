@@ -8,7 +8,6 @@ from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDom
 from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
-from jupiter.core.domainx.core.time_in_day import TimeInDay
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
@@ -16,6 +15,7 @@ from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError

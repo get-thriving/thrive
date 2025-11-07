@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Generic, TypeVar, Union, cast
 
 import dotenv
+
 from jupiter.core.app import (
     AppComponent,
     AppCore,

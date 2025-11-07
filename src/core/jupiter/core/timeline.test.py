@@ -1,8 +1,9 @@
 """Tests for the timeline module."""
 
 import pytest
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.timeline import infer_timeline
+
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.timeline import infer_timeline
 from jupiter.framework.base.timestamp import Timestamp
 
 

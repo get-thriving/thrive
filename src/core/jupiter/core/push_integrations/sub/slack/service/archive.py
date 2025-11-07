@@ -1,6 +1,6 @@
 """Service for archiving a Slack task and associated entities."""
 
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )

@@ -1,8 +1,8 @@
 """Shared service for archiving a chore."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.domainx.core.notes.service.note_archive_service import (
     NoteArchiveService,

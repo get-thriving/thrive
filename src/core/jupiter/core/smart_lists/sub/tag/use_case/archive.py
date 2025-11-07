@@ -1,10 +1,10 @@
 """The command for archiving a smart list tag."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag

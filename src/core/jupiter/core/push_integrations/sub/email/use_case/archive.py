@@ -1,10 +1,10 @@
 """The command for archiving a email task."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.email.service.archive import (
     EmailTaskArchiveService,

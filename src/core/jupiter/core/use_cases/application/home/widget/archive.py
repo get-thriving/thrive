@@ -1,12 +1,12 @@
 """The use case for archiving a home small screen widget."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domainx.application.home.home_tab import HomeTab
 from jupiter.core.domainx.application.home.home_widget import HomeWidget
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

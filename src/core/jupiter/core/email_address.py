@@ -4,6 +4,7 @@ from functools import total_ordering
 from typing import cast
 
 from email_validator import EmailNotValidError, ValidatedEmail, validate_email
+
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.standard import (
     PrimitiveAtomicValueDatabaseDecoder,

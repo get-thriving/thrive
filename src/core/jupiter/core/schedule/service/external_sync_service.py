@@ -6,7 +6,8 @@ import recurring_ical_events
 import requests
 from icalendar import Calendar
 from icalendar.cal import Component
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_collection import NoteCollection
 from jupiter.core.domainx.core.notes.note_content_block import (
@@ -26,8 +27,6 @@ from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
 from jupiter.core.domainx.core.time_events.time_event_namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.domainx.core.time_in_day import TimeInDay
-from jupiter.core.domainx.core.url import URL
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -49,6 +48,8 @@ from jupiter.core.schedule.sub.external_sync_log.root import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
+from jupiter.core.time_in_day import TimeInDay
+from jupiter.core.url import URL
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId

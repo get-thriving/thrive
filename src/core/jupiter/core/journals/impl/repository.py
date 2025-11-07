@@ -2,29 +2,6 @@
 
 from typing import Final, Mapping, cast
 
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.journals.root import (
-    Journal,
-    JournalExistsForDatePeriodCombinationError,
-    JournalRepository,
-)
-from jupiter.core.journals.stats import (
-    JournalStats,
-    JournalStatsRepository,
-)
-from jupiter.framework.base.adate import ADate
-from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
-from jupiter.framework.storage.repository import (
-    RecordAlreadyExistsError,
-    RecordNotFoundError,
-)
-from jupiter.framework.storage.sqlite.repository import (
-    SqliteLeafEntityRepository,
-    SqliteRecordRepository,
-)
-from jupiter.framework.storage.sqlite.row import RowType
 from sqlalchemy import (
     JSON,
     Column,
@@ -40,6 +17,30 @@ from sqlalchemy import (
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncConnection
+
+from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.journals.root import (
+    Journal,
+    JournalExistsForDatePeriodCombinationError,
+    JournalRepository,
+)
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
+from jupiter.framework.storage.sqlite.repository import (
+    SqliteLeafEntityRepository,
+    SqliteRecordRepository,
+)
+from jupiter.framework.storage.sqlite.row import RowType
 
 
 class SqliteJournalRepository(SqliteLeafEntityRepository[Journal], JournalRepository):

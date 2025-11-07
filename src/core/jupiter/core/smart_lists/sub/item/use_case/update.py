@@ -5,13 +5,13 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.domainx.core.tags.tag_name import TagName
-from jupiter.core.domainx.core.url import URL
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag
+from jupiter.core.url import URL
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

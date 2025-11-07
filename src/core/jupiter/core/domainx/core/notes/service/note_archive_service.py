@@ -1,6 +1,6 @@
 """Shared service for archiving a note."""
 
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domainx.core.notes.note import Note, NoteRepository
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.framework.base.entity_id import EntityId

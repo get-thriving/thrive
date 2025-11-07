@@ -28,7 +28,7 @@ from jupiter.core.config import (
     JupiterLoggedInSession,
     JupiterPorts,
 )
-from jupiter.core.domainx.core.email_address import EmailAddressDatabaseDecoder
+from jupiter.core.email_address import EmailAddressDatabaseDecoder
 from jupiter.core.use_cases.login import LoginArgs, LoginUseCase
 from jupiter.framework.appform.webapi.appform import WebApiAppForm
 from jupiter.framework.appform.webapi.commands import (

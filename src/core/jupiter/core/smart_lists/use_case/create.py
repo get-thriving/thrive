@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.entity_icon import EntityIcon
+from jupiter.core.entity_icon import EntityIcon
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,

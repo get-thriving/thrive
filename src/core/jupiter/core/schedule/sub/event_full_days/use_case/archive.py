@@ -1,10 +1,10 @@
 """Use case for archiving a schedule full day event."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,

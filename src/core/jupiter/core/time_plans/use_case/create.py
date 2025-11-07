@@ -8,8 +8,8 @@ from jupiter.core.config import (
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_collection import NoteCollection
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate

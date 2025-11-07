@@ -1,5 +1,9 @@
 """The SQLIte based user workspace links repository."""
 
+from sqlalchemy import (
+    select,
+)
+
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,
@@ -8,9 +12,6 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteRootEntityRepository,
-)
-from sqlalchemy import (
-    select,
 )
 
 

@@ -1,11 +1,11 @@
 """The time plan trunk domain object."""
 
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
-from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.difficulty import Difficulty
+from jupiter.core.eisen import Eisen
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )

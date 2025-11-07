@@ -3,6 +3,7 @@
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core import schedules
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
@@ -10,7 +11,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domainx.core import schedules
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (

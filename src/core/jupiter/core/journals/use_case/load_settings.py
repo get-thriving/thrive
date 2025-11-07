@@ -5,8 +5,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domainx.core.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -18,6 +16,8 @@ from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.projects.root import Project
+from jupiter.core.recurring_task_gen_params import RecurringTaskGenParams
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,

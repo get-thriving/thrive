@@ -8,8 +8,8 @@ from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDom
 from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
     TimeEventInDayBlock,
 )
-from jupiter.core.domainx.core.time_in_day import TimeInDay
 from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

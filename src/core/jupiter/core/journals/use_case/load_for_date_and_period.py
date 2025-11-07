@@ -1,12 +1,11 @@
 """Retrieve details about a journal."""
 
+from jupiter.core import schedules
 from jupiter.core.app import AppCore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domainx.core import schedules
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal, JournalRepository
@@ -14,6 +13,7 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.storage.repository import DomainUnitOfWork

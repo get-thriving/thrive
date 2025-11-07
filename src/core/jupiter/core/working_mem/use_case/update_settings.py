@@ -2,12 +2,11 @@
 
 from typing import cast
 
+from jupiter.core import schedules
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core import schedules
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
@@ -18,6 +17,7 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.projects.root import Project
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )

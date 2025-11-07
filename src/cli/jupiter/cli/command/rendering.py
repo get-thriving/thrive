@@ -2,21 +2,13 @@
 
 from jupiter.core.app import AppComponent
 from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.difficulty import Difficulty
 from jupiter.core.domainx.application.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
-from jupiter.core.domainx.core.email_address import EmailAddress
-from jupiter.core.domainx.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domainx.core.recurring_task_due_at_month import (
-    RecurringTaskDueAtMonth,
-)
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.domainx.core.time_in_day import TimeInDay
-from jupiter.core.domainx.core.timezone import Timezone
+from jupiter.core.eisen import Eisen
+from jupiter.core.email_address import EmailAddress
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
@@ -34,7 +26,14 @@ from jupiter.core.push_integrations.sub.slack.channel_name import (
 from jupiter.core.push_integrations.sub.slack.user_name import (
     SlackUserName,
 )
+from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.core.sync_target import SyncTarget
+from jupiter.core.time_in_day import TimeInDay
 from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -42,6 +41,7 @@ from jupiter.core.time_plans.sub.activity.feasability import (
 from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
+from jupiter.core.timezone import Timezone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

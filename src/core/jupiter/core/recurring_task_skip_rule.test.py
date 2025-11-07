@@ -2,8 +2,9 @@
 
 import pendulum
 import pytest
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.recurring_task_skip_rule import (
+
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_skip_rule import (
     RecurringTaskSkipRule,
     RecurringTaskSkipRuleDatabaseDecoder,
     RecurringTaskSkipRuleDatabaseEncoder,

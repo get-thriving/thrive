@@ -8,7 +8,6 @@ from jupiter.core.config import (
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_collection import NoteCollection
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
@@ -16,6 +15,7 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork

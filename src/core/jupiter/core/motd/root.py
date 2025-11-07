@@ -1,6 +1,6 @@
 """A Message of the Day."""
 
-from jupiter.core.domainx.core.url import URL
+from jupiter.core.url import URL
 from jupiter.framework.value import CompositeValue, value
 
 

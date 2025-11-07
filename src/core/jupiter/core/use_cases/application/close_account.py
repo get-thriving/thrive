@@ -1,10 +1,10 @@
 """Close an account and workspace."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
     UserWorkspaceLinkRepository,

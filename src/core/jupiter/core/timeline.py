@@ -1,8 +1,9 @@
 """A timeline is a construct representing a particular neatly divided unit of time."""
 
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.framework.base.timestamp import Timestamp
 from pendulum import DateTime
+
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.framework.base.timestamp import Timestamp
 
 
 def infer_timeline(period: RecurringTaskPeriod | None, right_now: Timestamp) -> str:

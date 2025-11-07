@@ -2,10 +2,11 @@
 
 import json
 
+from sqlalchemy import text
+
 from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
-from jupiter.core.domainx.core.entity_icon import EntityIconDatabaseDecoder
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.fast_info_repository import (
     BigPlanSummary,
     ChoreSummary,
@@ -25,6 +26,7 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
 from jupiter.core.projects.name import ProjectName
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -36,7 +38,6 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
-from sqlalchemy import text
 
 _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)

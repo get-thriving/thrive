@@ -6,6 +6,7 @@ from itertools import groupby
 from operator import itemgetter
 from typing import Final, cast
 
+from jupiter.core import schedules
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
@@ -30,9 +31,6 @@ from jupiter.core.domainx.application.report.report_period_result import (
     WorkableBigPlan,
     WorkableSummary,
 )
-from jupiter.core.domainx.core import schedules
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.schedules import Schedule
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -55,6 +53,8 @@ from jupiter.core.persons.root import Person
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.name import ProjectName
 from jupiter.core.projects.root import Project
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.schedules import Schedule
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate

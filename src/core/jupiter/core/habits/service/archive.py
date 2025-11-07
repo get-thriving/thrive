@@ -1,6 +1,6 @@
 """Shared service for archiving a habit."""
 
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.domainx.core.notes.service.note_archive_service import (
     NoteArchiveService,

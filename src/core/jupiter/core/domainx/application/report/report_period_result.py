@@ -7,8 +7,8 @@ from jupiter.core.domainx.application.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.domainx.application.report.report_breakdown import ReportBreakdown
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

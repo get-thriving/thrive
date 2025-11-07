@@ -5,13 +5,12 @@ import textwrap
 from collections.abc import Iterable
 from typing import ClassVar
 
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
-from jupiter.core.domainx.core.email_address import EmailAddress
+from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.difficulty import Difficulty
 from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.eisen import Eisen
+from jupiter.core.email_address import EmailAddress
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
@@ -27,6 +26,7 @@ from jupiter.core.push_integrations.sub.slack.channel_name import (
 from jupiter.core.push_integrations.sub.slack.user_name import (
     SlackUserName,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

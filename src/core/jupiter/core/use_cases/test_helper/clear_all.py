@@ -10,12 +10,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
+from jupiter.core.difficulty import Difficulty
 from jupiter.core.domainx.application.home.home_config import HomeConfig
 from jupiter.core.domainx.application.home.home_tab_target import HomeTabTarget
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.timezone import Timezone
+from jupiter.core.eisen import Eisen
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
@@ -36,10 +34,12 @@ from jupiter.core.push_integrations.sub.email.task_collection import (
 from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
+from jupiter.core.timezone import Timezone
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls

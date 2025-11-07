@@ -1,5 +1,6 @@
 """The command for archiving a chore."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.archive import (
     ChoreArchiveService,
@@ -8,7 +9,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.archival_reason import JupiterArchivalReason
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

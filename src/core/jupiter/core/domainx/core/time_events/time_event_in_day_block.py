@@ -5,7 +5,7 @@ import abc
 from jupiter.core.domainx.core.time_events.time_event_namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.domainx.core.time_in_day import TimeInDay
+from jupiter.core.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME

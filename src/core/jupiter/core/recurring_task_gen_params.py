@@ -1,13 +1,13 @@
 """Shared domain objects."""
 
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
-from jupiter.core.domainx.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domainx.core.recurring_task_due_at_month import (
+from jupiter.core.difficulty import Difficulty
+from jupiter.core.eisen import Eisen
+from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.value import CompositeValue, value
 

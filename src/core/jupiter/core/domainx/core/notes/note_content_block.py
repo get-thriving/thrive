@@ -3,8 +3,8 @@
 import abc
 from typing import Literal
 
-from jupiter.core.domainx.core.url import URL
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.url import URL
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmDecodingError
 from jupiter.framework.realm.standard import (

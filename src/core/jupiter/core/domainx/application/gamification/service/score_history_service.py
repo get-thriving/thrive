@@ -7,7 +7,7 @@ from jupiter.core.domainx.application.gamification.score_stats import (
 from jupiter.core.domainx.application.gamification.user_score_history import (
     UserScoreHistory,
 )
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.users.root import User
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp

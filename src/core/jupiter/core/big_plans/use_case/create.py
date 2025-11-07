@@ -9,8 +9,8 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.difficulty import Difficulty
-from jupiter.core.domainx.core.eisen import Eisen
+from jupiter.core.difficulty import Difficulty
+from jupiter.core.eisen import Eisen
 from jupiter.core.features import (
     WorkspaceFeature,
 )

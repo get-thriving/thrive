@@ -11,7 +11,6 @@ from jupiter.core.domainx.application.gamification.service.record_score_service 
 from jupiter.core.domainx.application.report.service.report_service import ReportService
 from jupiter.core.domainx.application.stats.stats_log import StatsLog
 from jupiter.core.domainx.application.stats.stats_log_entry import StatsLogEntry
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
@@ -32,6 +31,7 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace

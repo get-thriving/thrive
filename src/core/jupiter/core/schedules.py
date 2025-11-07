@@ -3,20 +3,21 @@
 import abc
 from typing import cast
 
-from jupiter.core.domainx.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domainx.core.recurring_task_due_at_month import (
-    RecurringTaskDueAtMonth,
-)
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domainx.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.domainx.core.timeline import infer_timeline
-from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.framework.base.adate import ADate
-from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.base.timestamp import Timestamp
 from pendulum.date import Date
 from pendulum.datetime import DateTime
 from pendulum.tz.timezone import UTC
+
+from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.timeline import infer_timeline
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.base.timestamp import Timestamp
 
 
 class Schedule(abc.ABC):

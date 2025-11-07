@@ -9,8 +9,8 @@ from jupiter.core.domainx.application.report.report_period_result import (
     ReportPeriodResult,
 )
 from jupiter.core.domainx.application.report.service.report_service import ReportService
-from jupiter.core.domainx.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.use_case import (
