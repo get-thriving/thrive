@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.tags.tag_name import TagName
+from jupiter.core.common.tags.name import TagName
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag

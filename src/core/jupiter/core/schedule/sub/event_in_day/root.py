@@ -1,12 +1,12 @@
 """An event in a schedule."""
 
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
-    TimeEventInDayBlock,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
+from jupiter.core.common.time_events.namespace import (
     TimeEventNamespace,
+)
+from jupiter.core.common.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
 )
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName
 from jupiter.core.schedule.sub.external_sync_log.external_uid import (

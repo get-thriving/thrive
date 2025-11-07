@@ -1,13 +1,13 @@
 """The command for archiving a metric."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.service.archive import (
+    NoteArchiveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
-)
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.notes.service.note_archive_service import (
-    NoteArchiveService,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (

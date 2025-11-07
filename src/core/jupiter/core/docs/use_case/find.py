@@ -3,15 +3,15 @@
 from collections import defaultdict
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.docs.collection import DocCollection
 from jupiter.core.docs.root import Doc
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.features import WorkspaceFeature
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter

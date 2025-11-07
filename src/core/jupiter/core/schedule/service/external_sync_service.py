@@ -8,24 +8,24 @@ from icalendar import Calendar
 from icalendar.cal import Component
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.notes.note_content_block import (
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.notes.content_block import (
     CorrelationId,
     OneOfNoteContentBlock,
     ParagraphBlock,
 )
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
+from jupiter.core.common.time_events.domain import TimeEventDomain
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.common.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
+from jupiter.core.common.time_events.sub.in_day_block.root import (
     MAX_DURATION_MINS,
     TimeEventInDayBlock,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
 )
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName

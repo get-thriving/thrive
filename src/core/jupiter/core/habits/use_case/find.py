@@ -2,13 +2,13 @@
 
 from collections import defaultdict
 
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.features import (
     WorkspaceFeature,
 )

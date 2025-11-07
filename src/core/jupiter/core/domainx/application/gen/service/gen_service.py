@@ -7,18 +7,18 @@ from typing import Final, Sequence, cast
 from jupiter.core import schedules
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.domainx.application.gen.gen_log import GenLog
-from jupiter.core.domainx.application.gen.gen_log_entry import GenLogEntry
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
-    TimeEventFullDaysBlock,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
+from jupiter.core.common.time_events.domain import TimeEventDomain
+from jupiter.core.common.time_events.namespace import (
     TimeEventNamespace,
 )
+from jupiter.core.common.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
+from jupiter.core.domainx.application.gen.gen_log import GenLog
+from jupiter.core.domainx.application.gen.gen_log_entry import GenLogEntry
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit

@@ -2,21 +2,21 @@
 
 from jupiter.core import schedules
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.config import (
-    JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+from jupiter.core.common.time_events.domain import TimeEventDomain
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
 )
-from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
+from jupiter.core.common.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )
-from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
+from jupiter.core.common.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
     TimeEventInDayBlockRepository,
 )
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask

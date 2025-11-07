@@ -2,11 +2,11 @@
 
 from jupiter.core import schedules
 from jupiter.core.app import AppCore
+from jupiter.core.common.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.domainx.core.notes.note import Note
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.journals.root import Journal, JournalRepository

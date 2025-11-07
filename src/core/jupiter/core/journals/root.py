@@ -3,8 +3,8 @@
 import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.source import JournalSource

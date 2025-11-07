@@ -2,18 +2,18 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note, NoteRepository
+from jupiter.core.common.time_events.domain import TimeEventDomain
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.common.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
-)
-from jupiter.core.domainx.core.notes.note import Note, NoteRepository
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
-from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
-    TimeEventInDayBlock,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit

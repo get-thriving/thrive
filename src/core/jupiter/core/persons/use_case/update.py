@@ -4,18 +4,18 @@ import typing
 
 from jupiter.core import schedules
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.common.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlockRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.difficulty import Difficulty
 from jupiter.core.domainx.application.gen.service.gen_service import GenService
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
-    TimeEventFullDaysBlockRepository,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
-)
 from jupiter.core.eisen import Eisen
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (

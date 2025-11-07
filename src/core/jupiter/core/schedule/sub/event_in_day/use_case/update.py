@@ -1,14 +1,14 @@
 """Use case for updating a schedule in day event."""
 
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
+)
+from jupiter.core.common.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlockRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
-)
-from jupiter.core.domainx.core.time_events.time_event_in_day_block import (
-    TimeEventInDayBlockRepository,
-)
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_in_day.name import ScheduleEventInDayName

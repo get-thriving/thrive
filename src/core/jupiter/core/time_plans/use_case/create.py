@@ -1,13 +1,13 @@
 """Use case for creating a time plan."""
 
 from jupiter.core.app import AppCore
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.domain import TimePlanDomain

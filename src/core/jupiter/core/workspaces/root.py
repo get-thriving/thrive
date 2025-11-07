@@ -5,13 +5,13 @@ from collections.abc import Iterable
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.notes.collection import NoteCollection
+from jupiter.core.common.time_events.domain import TimeEventDomain
 from jupiter.core.docs.collection import DocCollection
 from jupiter.core.domainx.application.gc.gc_log import GCLog
 from jupiter.core.domainx.application.gen.gen_log import GenLog
 from jupiter.core.domainx.application.home.home_config import HomeConfig
 from jupiter.core.domainx.application.stats.stats_log import StatsLog
-from jupiter.core.domainx.core.notes.note_collection import NoteCollection
-from jupiter.core.domainx.core.time_events.time_event_domain import TimeEventDomain
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,

@@ -1,12 +1,12 @@
 """Use case for loading a particular vacation."""
 
+from jupiter.core.common.notes.root import Note
+from jupiter.core.common.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
-)
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
-    TimeEventFullDaysBlock,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.root import Vacation

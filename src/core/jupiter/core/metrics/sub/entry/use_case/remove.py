@@ -1,12 +1,12 @@
 """The command for removing a metric entry."""
 
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.service.remove import (
+    NoteRemoveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
-)
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.notes.service.note_remove_service import (
-    NoteRemoveService,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.sub.entry.root import MetricEntry

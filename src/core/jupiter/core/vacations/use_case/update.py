@@ -1,11 +1,11 @@
 """The command for updating a vacation's properties."""
 
+from jupiter.core.common.time_events.sub.full_days_block.root import (
+    TimeEventFullDaysBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
-)
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
-    TimeEventFullDaysBlock,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.vacations.name import VacationName

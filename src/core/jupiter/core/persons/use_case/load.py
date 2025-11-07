@@ -1,17 +1,17 @@
 """Use case for loading a person."""
 
-from jupiter.core.config import (
-    JupiterLoggedInReadonlyContext,
-    JupiterTransactionalLoggedInReadOnlyUseCase,
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note, NoteRepository
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
 )
-from jupiter.core.domainx.core.notes.note import Note, NoteRepository
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
+from jupiter.core.common.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (

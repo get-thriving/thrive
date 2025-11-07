@@ -6,9 +6,9 @@ from collections.abc import Iterable
 from typing import ClassVar
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.difficulty import Difficulty
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
 from jupiter.core.eisen import Eisen
 from jupiter.core.email_address import EmailAddress
 from jupiter.core.inbox_tasks.name import InboxTaskName

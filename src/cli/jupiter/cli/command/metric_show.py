@@ -15,8 +15,8 @@ from jupiter.cli.command.rendering import (
     period_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.common.notes.content_block import ParagraphBlock
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domainx.core.notes.note_content_block import ParagraphBlock
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.use_case.find import (
     MetricFindResult,

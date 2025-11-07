@@ -1,7 +1,7 @@
 """A habit."""
 
-from jupiter.core.domainx.core.notes.note import Note
-from jupiter.core.domainx.core.notes.note_domain import NoteDomain
+from jupiter.core.common.notes.domain import NoteDomain
+from jupiter.core.common.notes.root import Note
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,

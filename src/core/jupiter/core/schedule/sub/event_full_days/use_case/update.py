@@ -1,15 +1,15 @@
 """Use case for updateing a full day block in the schedule."""
 
-from jupiter.core.config import (
-    JupiterLoggedInMutationContext,
-    JupiterTransactionalLoggedInMutationUseCase,
+from jupiter.core.common.time_events.namespace import (
+    TimeEventNamespace,
 )
-from jupiter.core.domainx.core.time_events.time_event_full_days_block import (
+from jupiter.core.common.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )
-from jupiter.core.domainx.core.time_events.time_event_namespace import (
-    TimeEventNamespace,
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+    JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.sub.event_full_days.name import ScheduleEventFullDaysName
