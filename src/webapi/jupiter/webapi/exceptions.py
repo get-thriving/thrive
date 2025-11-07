@@ -1,5 +1,6 @@
 """Exceptions handling for the webapi module."""
 
+from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
@@ -10,7 +11,6 @@ from jupiter.core.projects.errors import ProjectInSignificantUseError
 from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
-from jupiter.core.use_cases.login import InvalidLoginCredentialsError
 from jupiter.core.users.root import (
     UserAlreadyExistsError,
     UserNotFoundError,

@@ -13,10 +13,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.application.gen.service.gen_service import GenService
 from jupiter.core.features import (
     WorkspaceFeature,
 )
+from jupiter.core.gen.service.gen import GenService
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (

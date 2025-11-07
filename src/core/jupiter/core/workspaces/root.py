@@ -8,16 +8,15 @@ from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.notes.collection import NoteCollection
 from jupiter.core.common.time_events.domain import TimeEventDomain
 from jupiter.core.docs.collection import DocCollection
-from jupiter.core.domainx.application.gc.gc_log import GCLog
-from jupiter.core.domainx.application.gen.gen_log import GenLog
-from jupiter.core.domainx.application.home.home_config import HomeConfig
-from jupiter.core.stats.log import StatsLog
 from jupiter.core.features import (
     WorkspaceFeature,
     WorkspaceFeatureFlags,
     WorkspaceFeatureFlagsControls,
 )
+from jupiter.core.gc.log import GCLog
+from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.home.config import HomeConfig
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -34,6 +33,7 @@ from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
+from jupiter.core.stats.log import StatsLog
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (

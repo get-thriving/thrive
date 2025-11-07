@@ -5,8 +5,8 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
-from jupiter.core.stats.service.stats import StatsService
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.stats.service.stats import StatsService
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

@@ -4,10 +4,11 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.gamification.service.score_history_service import (
+from jupiter.core.features import UserFeature
+from jupiter.core.gamification.service.score_history import (
     ScoreHistoryService,
 )
-from jupiter.core.gamification.service.score_overview_service import (
+from jupiter.core.gamification.service.score_overview import (
     ScoreOverviewService,
 )
 from jupiter.core.gamification.user_score_history import (
@@ -16,7 +17,6 @@ from jupiter.core.gamification.user_score_history import (
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.features import UserFeature
 from jupiter.core.users.root import User
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (

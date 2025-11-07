@@ -10,15 +10,15 @@ from jupiter.cli.command.rendering import (
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.domainx.application.report.report_breakdown import ReportBreakdown
-from jupiter.core.domainx.application.report.report_period_result import (
-    InboxTasksSummary,
-    WorkableSummary,
-)
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.use_cases.application.report import (
+from jupiter.core.report.breakdown import ReportBreakdown
+from jupiter.core.report.period_result import (
+    InboxTasksSummary,
+    WorkableSummary,
+)
+from jupiter.core.report.use_case.report import (
     ReportResult,
     ReportUseCase,
 )

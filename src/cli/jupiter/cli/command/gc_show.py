@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.application.gc.load_runs import (
+from jupiter.core.gc.use_case.load_runs import (
     GCLoadRunsResult,
     GCLoadRunsUseCase,
 )

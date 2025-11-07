@@ -7,12 +7,12 @@ import sys
 import jupiter.cli.command
 import jupiter.core
 from jupiter.cli.config import JupiterCliAppForm
+from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.config import (
     JupiterPorts,
     build_global_properties,
 )
-from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
+from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
 from jupiter.framework.appform.cli.session_storage import SessionStorage

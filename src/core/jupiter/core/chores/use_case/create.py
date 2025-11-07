@@ -16,10 +16,10 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.application.gen.service.gen_service import GenService
 from jupiter.core.features import (
     WorkspaceFeature,
 )
+from jupiter.core.gen.service.gen import GenService
 from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.projects.root import Project, ProjectRepository
 from jupiter.core.sync_target import SyncTarget

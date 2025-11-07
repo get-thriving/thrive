@@ -8,13 +8,13 @@ import aiohttp
 import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
+from jupiter.core.application.crm import CRM
+from jupiter.core.application.impl.crm.noop import NoOpCRM
+from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.crm import CRM
 from jupiter.core.env import Env
 from jupiter.core.hosting import Hosting
-from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.crm.wix import WixCRM
-from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
+from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper

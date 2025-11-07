@@ -12,8 +12,8 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.domainx.application.gen.service.gen_service import GenService
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.gen.service.gen import GenService
 from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.name import PersonName

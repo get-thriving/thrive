@@ -9,7 +9,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.application.search import SearchResult, SearchUseCase
+from jupiter.core.search.use_case.search import SearchResult, SearchUseCase
 from jupiter.framework.base.timestamp import Timestamp
 from rich.console import Console
 from rich.text import Text

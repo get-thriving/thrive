@@ -8,10 +8,10 @@ from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
 )
-from jupiter.core.stats.service.stats import StatsService
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
+from jupiter.core.stats.service.stats import StatsService
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
 )

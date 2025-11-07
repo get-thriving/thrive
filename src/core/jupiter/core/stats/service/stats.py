@@ -6,13 +6,10 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.gamification.service.record_score_service import (
+from jupiter.core.features import UserFeature, WorkspaceFeature
+from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
 )
-from jupiter.core.domainx.application.report.service.report_service import ReportService
-from jupiter.core.stats.log import StatsLog
-from jupiter.core.stats.log_entry import StatsLogEntry
-from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
@@ -32,6 +29,9 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.report.service.report import ReportService
+from jupiter.core.stats.log import StatsLog
+from jupiter.core.stats.log_entry import StatsLogEntry
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace

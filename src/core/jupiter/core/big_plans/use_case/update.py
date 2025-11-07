@@ -10,11 +10,11 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.gamification.service.record_score_service import (
+from jupiter.core.features import UserFeature, WorkspaceFeature
+from jupiter.core.gamification.service.record_score import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
