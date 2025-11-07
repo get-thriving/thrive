@@ -1,7 +1,6 @@
 """A user avatar image."""
 
 import avinit
-
 from jupiter.core.users.name import UserName
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive

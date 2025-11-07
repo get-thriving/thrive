@@ -1,0 +1,1 @@
+"""Garbage Collector use case."""

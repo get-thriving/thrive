@@ -1,9 +1,5 @@
 """SQLite implementation of stats infra classes."""
 
-from sqlalchemy import (
-    select,
-)
-
 from jupiter.core.stats.log_entry import (
     StatsLogEntry,
     StatsLogEntryRepository,
@@ -12,6 +8,9 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
+)
+from sqlalchemy import (
+    select,
 )
 
 

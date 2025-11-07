@@ -2,9 +2,6 @@
 
 from typing import cast
 
-from sqlalchemy import func, select
-from sqlalchemy.sql import and_, or_
-
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.time_events.namespace import (
     TimeEventNamespace,
@@ -27,6 +24,8 @@ from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
+from sqlalchemy import func, select
+from sqlalchemy.sql import and_, or_
 
 _ADATE_DECODER = ADateDatabaseDecoder()
 

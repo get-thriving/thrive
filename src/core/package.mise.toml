@@ -89,8 +89,6 @@ pytest src/core --html-report=.build-cache/test/test-report.html --title="Jupite
 ["package:src:core:audit:pip-audit"]
 hide = true
 run = '''
-#!/usr/bin/env bash
-set -e -o pipefail
 cd src/core
 poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
 '''

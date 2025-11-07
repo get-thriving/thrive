@@ -1,9 +1,5 @@
 """SQLite implementation of task generation infra classes."""
 
-from sqlalchemy import (
-    select,
-)
-
 from jupiter.core.gen.log_entry import (
     GenLogEntry,
     GenLogEntryRepository,
@@ -12,6 +8,9 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
+)
+from sqlalchemy import (
+    select,
 )
 
 

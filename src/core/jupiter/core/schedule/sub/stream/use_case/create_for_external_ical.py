@@ -2,7 +2,6 @@
 
 import requests
 from icalendar import Calendar
-
 from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,

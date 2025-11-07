@@ -3,7 +3,6 @@
 from typing import Final
 
 import aiohttp
-
 from jupiter.core.application.crm import CRM
 from jupiter.core.users.root import User
 
