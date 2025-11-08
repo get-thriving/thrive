@@ -1,4 +1,4 @@
-import { SlimChip } from "~/components/infra/chips";
+import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 
 interface Props {
   milestonesLeft: number;

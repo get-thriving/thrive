@@ -30,12 +30,12 @@ import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
+import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";
 import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
 import { AppComponentTag } from "~/components/infra/app-component-tag";
-import { SlimChip } from "~/components/infra/chips";
 import { EntityCard } from "~/components/infra/entity-card";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
 import { FieldError, GlobalError } from "~/components/infra/errors";

@@ -29,6 +29,7 @@
     "@emotion/styled": "^11.14.0",
     "@hello-pangea/dnd": "^18.0.1",
     "@jupiter/webapi-client": "file:../../gen/ts/webapi-client",
+    "@jupiter/core": "file:../../src/core",
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
     "@nivo/calendar": "=0.80.0",

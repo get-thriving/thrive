@@ -12,6 +12,9 @@ const config = {
     // uses the v1 convention, works in v1.15+ and v2
     return createRoutesFromFolders(defineRoutes);
   },
+  serverDependenciesToBundle: [
+    /^@jupiter\/core(\/.*)?$/
+  ]
 };
 
 module.exports = config;

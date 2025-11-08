@@ -1,6 +1,5 @@
 import type { SmartListTag } from "@jupiter/webapi-client";
-
-import { SlimChip } from "~/components/infra/chips";
+import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 
 interface Props {
   tag: SmartListTag;
