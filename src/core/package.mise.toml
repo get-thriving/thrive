@@ -2,25 +2,12 @@
 hide = true
 run = "true"
 
-["package:src:core:install:python"]
+["package:src:core:install"]
 hide = true
 sources = ["src/core/pyproject.toml"]
 outputs = { auto = true }
 run = "cd src/core && poetry install --no-interaction --no-ansi"
 wait_for = ["package:src:alib:py:framework:install"]
-
-["package:src:core:install:node"]
-hide = true
-sources = ["src/core/package.json"]
-outputs = { auto = true }
-run = "true"
-# run = "cd src/core && npm install --no-save" # bundling issues
-
-["package:src:core:install"]
-hide = true
-depends = ["package:src:core:install:*"]
-outputs = { auto = true }
-run = "true"
 
 ["package:src:core:fix:prettier"]
 hide = true
@@ -129,9 +116,9 @@ mkdir -p .build-cache/test
 pytest src/core --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
 '''
 
-["package:src:core:audit:npm-audit"]
+["package:src:core:audit:pnpm-audit"]
 hide = true
-run = "cd src/core && npm audit --audit-level=high"
+run = "cd src/core && pnpm audit"
 
 ["package:src:core:audit:pip-audit"]
 hide = true
@@ -145,7 +132,7 @@ description = "Audit src/core module"
 depends = ["package:src:core:audit:*"]
 run = "true"
 
-["package:src:core:libyear:npm-libyear"]
+["package:src:core:libyear:pnpm-libyear"]
 hide = true
 run = "cd src/core && npx libyear"
 

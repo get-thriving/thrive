@@ -63,8 +63,11 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   // to be relative to the viewport, not this element. So we use this function to
   // not emit a translateX in case of 0px. So whenever any leaf element appears
   // it'll work relative to the whole viewport.
-  function template({ x }: { x: string }, _generatedTransform: string): string {
-    if (x === "0px" || x === "0vw" || x === "0%" || x === "0") {
+  function template(
+    { x }: { x?: string | number },
+    _generatedTransform: string,
+  ): string {
+    if (x === 0 || x === "0px" || x === "0vw" || x === "0%" || x === "0") {
       if (isHydrated) {
         return "";
       } else {

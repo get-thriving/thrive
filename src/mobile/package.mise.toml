@@ -2,12 +2,6 @@
 hide = true
 run = "true"
 
-["package:src:mobile:install"]
-hide = true
-sources = ["src/mobile/package.json"]
-outputs = { auto = true }
-run = "cd src/mobile && npm install --no-save"
-
 ["package:src:mobile:fix:prettier"]
 hide = true
 sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]
@@ -42,16 +36,16 @@ description = "Check src/mobile module"
 depends = ["package:src:mobile:lint:*"]
 run = "true"
 
-["package:src:mobile:audit:npm-audit"]
+["package:src:mobile:audit:pnpm-audit"]
 hide = true
-run = "cd src/mobile && npm audit --audit-level=high"
+run = "cd src/mobile && pnpm audit"
 
 ["package:src:mobile:audit"]
 description = "Audit src/mobile module"
 depends = ["package:src:mobile:audit:*"]
 run = "true"
 
-["package:src:mobile:libyear:npm-libyear"]
+["package:src:mobile:libyear:pnpm-libyear"]
 hide = true
 run = "cd src/mobile && npx libyear"
 

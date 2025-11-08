@@ -1,5 +1,6 @@
 tap "rest-sh/tap"
 
+brew "pnpm"
 brew "shellcheck"
 brew "tree"
 brew "cloc"

@@ -12,9 +12,13 @@ WORKDIR /jupiter
 
 COPY LICENSE LICENSE
 COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY pnpm-workspace.yaml pnpm-workspace.yaml
+COPY pnpm-lock.yaml pnpm-lock.yaml
 COPY gen gen
 COPY src/Config.global src/Config.global
+COPY src/core/README.md src/core/README.md
+COPY src/core/package.json src/core/package.json
+COPY src/core/tsconfig.json src/core/tsconfig.json
 COPY src/webui/README.md src/webui/README.md
 COPY src/webui/Config.project.live src/webui/Config.project
 COPY src/webui/package.json src/webui/package.json
@@ -23,12 +27,12 @@ COPY src/webui/remix.config.js src/webui/remix.config.js
 COPY src/webui/remix.env.d.ts src/webui/remix.env.d.ts
 COPY src/webui/from-electron.d.ts src/webui/from-electron.d.ts
 
-RUN npm install
-RUN cd src/webui && npm install
+RUN npm install -g pnpm@latest && pnpm install
 
 # hadolint ignore=DL3003
 RUN cd gen/ts/webapi-client && npx tsc
 
+COPY src/core/jupiter/core src/core/jupiter/core
 COPY src/webui/app src/webui/app
 COPY src/webui/public/favicon.ico src/webui/public/favicon.ico
 COPY src/webui/public/logo.png src/webui/public/logo.png

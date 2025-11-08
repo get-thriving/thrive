@@ -8,6 +8,7 @@ services:
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting.html}
     restart: always
+    # image: jupiter/webapi:${VERSION:-latest}
     image: horia141/jupiter-webapi:${VERSION:-latest}
     ports:
     - "${WEBAPI_PORT:-0}:2000"
@@ -28,6 +29,7 @@ services:
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting.html}
     restart: always
+    # image: horia141/jupiter-webui:${VERSION:-latest}
     image: horia141/jupiter-webui:${VERSION:-latest}
     depends_on:
       - webapi

@@ -2,12 +2,6 @@
 hide = true
 run = "true"
 
-["package:src:webui:install"]
-hide = true
-sources = ["src/webui/package.json"]
-outputs = { auto = true }
-run = "cd src/webui && npm install --no-save"
-
 ["package:src:webui:fix:prettier"]
 hide = true
 sources = ["src/webui/**/*.{ts,tsx,js,jsx,json,md}"]
@@ -76,16 +70,16 @@ description = "Check src/webui module"
 depends = ["package:src:webui:lint:*"]
 run = "true"
 
-["package:src:webui:audit:npm-audit"]
+["package:src:webui:audit:pnpm-audit"]
 hide = true
-run = "cd src/webui && npm audit --audit-level=high"
+run = "cd src/webui && pnpm audit"
 
 ["package:src:webui:audit"]
 description = "Audit src/webui module"
 depends = ["package:src:webui:audit:*"]
 run = "true"
 
-["package:src:webui:libyear:npm-libyear"]
+["package:src:webui:libyear:pnpm-libyear"]
 hide = true
 run = "cd src/webui && npx libyear"
 
