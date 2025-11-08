@@ -70,7 +70,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { itemId } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.item.smartListItemLoad({
+    const result = await apiClient.smartLists.smartListItemLoad({
       ref_id: itemId,
       allow_archived: true,
     });
@@ -103,7 +103,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.item.smartListItemUpdate({
+        await apiClient.smartLists.smartListItemUpdate({
           ref_id: itemId,
           name: {
             should_change: true,
@@ -137,7 +137,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.item.smartListItemArchive({
+        await apiClient.smartLists.smartListItemArchive({
           ref_id: itemId,
         });
 
@@ -145,7 +145,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.item.smartListItemRemove({
+        await apiClient.smartLists.smartListItemRemove({
           ref_id: itemId,
         });
 

@@ -33,7 +33,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.email.emailTaskFind({
+  const response = await apiClient.pushIntegrations.emailTaskFind({
     allow_archived: false,
     include_inbox_task: false,
   });

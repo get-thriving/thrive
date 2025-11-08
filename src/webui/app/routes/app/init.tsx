@@ -72,7 +72,7 @@ const WorkspaceInitFormSchema = z.object({
 // @secureFn
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getGuestApiClient(request);
-  const result = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+  const result = await apiClient.application.loadTopLevelInfo({});
   if (result.user || result.workspace) {
     return redirect("/app/workspace");
   }

@@ -58,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.entry.metricEntryLoad({
+    const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
       allow_archived: true,
     });
@@ -87,7 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.entry.metricEntryUpdate({
+        await apiClient.metrics.metricEntryUpdate({
           ref_id: entryId,
           collection_time: {
             should_change: true,
@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.entry.metricEntryArchive({
+        await apiClient.metrics.metricEntryArchive({
           ref_id: entryId,
         });
 
@@ -121,7 +121,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.entry.metricEntryRemove({
+        await apiClient.metrics.metricEntryRemove({
           ref_id: entryId,
         });
 

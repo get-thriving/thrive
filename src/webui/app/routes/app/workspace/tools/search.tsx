@@ -71,7 +71,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   try {
     let searchResponse = undefined;
     if (query.query !== undefined) {
-      searchResponse = await apiClient.application.search({
+      searchResponse = await apiClient.search.search({
         query: query.query,
         limit: query.limit ? parseInt(query.limit) : DEFAULT_LIMIT,
         include_archived: query.includeArchived,

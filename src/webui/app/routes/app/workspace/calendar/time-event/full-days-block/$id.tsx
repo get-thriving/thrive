@@ -52,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.fullDaysBlock.timeEventFullDaysBlockLoad({
+    const response = await apiClient.timeEvents.timeEventFullDaysBlockLoad({
       ref_id: id,
       allow_archived: true,
     });

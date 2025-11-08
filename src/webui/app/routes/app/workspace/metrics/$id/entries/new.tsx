@@ -59,7 +59,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const response = await apiClient.entry.metricEntryCreate({
+    const response = await apiClient.metrics.metricEntryCreate({
       metric_ref_id: id,
       collection_time: form.collectionTime,
       value: form.value,

@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (session.has(AUTH_TOKEN_NAME)) {
     const apiClient = await getGuestApiClient(request, params);
-    const result = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+    const result = await apiClient.application.loadTopLevelInfo({});
 
     if (result.user || result.workspace) {
       const cookie = await saveFrontDoorInfo(params);

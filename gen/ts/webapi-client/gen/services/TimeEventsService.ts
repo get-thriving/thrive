@@ -2,29 +2,57 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { MetricEntryArchiveArgs } from '../models/MetricEntryArchiveArgs';
-import type { MetricEntryCreateArgs } from '../models/MetricEntryCreateArgs';
-import type { MetricEntryCreateResult } from '../models/MetricEntryCreateResult';
-import type { MetricEntryLoadArgs } from '../models/MetricEntryLoadArgs';
-import type { MetricEntryLoadResult } from '../models/MetricEntryLoadResult';
-import type { MetricEntryRemoveArgs } from '../models/MetricEntryRemoveArgs';
-import type { MetricEntryUpdateArgs } from '../models/MetricEntryUpdateArgs';
+import type { TimeEventFullDaysBlockLoadArgs } from '../models/TimeEventFullDaysBlockLoadArgs';
+import type { TimeEventFullDaysBlockLoadResult } from '../models/TimeEventFullDaysBlockLoadResult';
+import type { TimeEventInDayBlockArchiveArgs } from '../models/TimeEventInDayBlockArchiveArgs';
+import type { TimeEventInDayBlockCreateForInboxTaskArgs } from '../models/TimeEventInDayBlockCreateForInboxTaskArgs';
+import type { TimeEventInDayBlockCreateForInboxTaskResult } from '../models/TimeEventInDayBlockCreateForInboxTaskResult';
+import type { TimeEventInDayBlockLoadArgs } from '../models/TimeEventInDayBlockLoadArgs';
+import type { TimeEventInDayBlockLoadResult } from '../models/TimeEventInDayBlockLoadResult';
+import type { TimeEventInDayBlockRemoveArgs } from '../models/TimeEventInDayBlockRemoveArgs';
+import type { TimeEventInDayBlockUpdateArgs } from '../models/TimeEventInDayBlockUpdateArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class EntryService {
+export class TimeEventsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * The command for archiving a metric entry.
+     * Load a full day block and associated data.
+     * @param requestBody The input data
+     * @returns TimeEventFullDaysBlockLoadResult Successful response
+     * @throws ApiError
+     */
+    public timeEventFullDaysBlockLoad(
+        requestBody?: TimeEventFullDaysBlockLoadArgs,
+    ): CancelablePromise<TimeEventFullDaysBlockLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-event-full-days-block-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for archiving the in day event.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public metricEntryArchive(
-        requestBody?: MetricEntryArchiveArgs,
+    public timeEventInDayBlockArchive(
+        requestBody?: TimeEventInDayBlockArchiveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-entry-archive',
+            url: '/time-event-in-day-block-archive',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -40,17 +68,17 @@ export class EntryService {
         });
     }
     /**
-     * The command for creating a metric entry.
+     * Use case for creating a time event associated with an inbox task.
      * @param requestBody The input data
-     * @returns MetricEntryCreateResult Successful response
+     * @returns TimeEventInDayBlockCreateForInboxTaskResult Successful response
      * @throws ApiError
      */
-    public metricEntryCreate(
-        requestBody?: MetricEntryCreateArgs,
-    ): CancelablePromise<MetricEntryCreateResult> {
+    public timeEventInDayBlockCreateForInboxTask(
+        requestBody?: TimeEventInDayBlockCreateForInboxTaskArgs,
+    ): CancelablePromise<TimeEventInDayBlockCreateForInboxTaskResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-entry-create',
+            url: '/time-event-in-day-block-create-for-inbox-task',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -66,17 +94,17 @@ export class EntryService {
         });
     }
     /**
-     * Use case for loading a metric entry.
+     * Load a in day block and associated data.
      * @param requestBody The input data
-     * @returns MetricEntryLoadResult Successful response
+     * @returns TimeEventInDayBlockLoadResult Successful response
      * @throws ApiError
      */
-    public metricEntryLoad(
-        requestBody?: MetricEntryLoadArgs,
-    ): CancelablePromise<MetricEntryLoadResult> {
+    public timeEventInDayBlockLoad(
+        requestBody?: TimeEventInDayBlockLoadArgs,
+    ): CancelablePromise<TimeEventInDayBlockLoadResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-entry-load',
+            url: '/time-event-in-day-block-load',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -92,17 +120,17 @@ export class EntryService {
         });
     }
     /**
-     * The command for removing a metric entry.
+     * Use case for removing the in day event.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public metricEntryRemove(
-        requestBody?: MetricEntryRemoveArgs,
+    public timeEventInDayBlockRemove(
+        requestBody?: TimeEventInDayBlockRemoveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-entry-remove',
+            url: '/time-event-in-day-block-remove',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -118,17 +146,17 @@ export class EntryService {
         });
     }
     /**
-     * The command for updating a metric entry's properties.
+     * Use case for updating a time event in day.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public metricEntryUpdate(
-        requestBody?: MetricEntryUpdateArgs,
+    public timeEventInDayBlockUpdate(
+        requestBody?: TimeEventInDayBlockUpdateArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/metric-entry-update',
+            url: '/time-event-in-day-block-update',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

@@ -45,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
 
   try {
-    const response = await apiClient.stream.scheduleStreamCreateForUser({
+    const response = await apiClient.schedule.scheduleStreamCreateForUser({
       name: form.name,
       color: form.color,
     });

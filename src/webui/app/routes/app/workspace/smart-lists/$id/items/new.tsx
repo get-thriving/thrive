@@ -74,7 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const response = await apiClient.item.smartListItemCreate({
+    const response = await apiClient.smartLists.smartListItemCreate({
       smart_list_ref_id: id,
       name: form.name,
       is_done: form.isDone,

@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const result = await apiClient.tab.homeTabCreate({
+    const result = await apiClient.home.homeTabCreate({
       target: form.target,
       name: form.name,
       icon: form.icon,

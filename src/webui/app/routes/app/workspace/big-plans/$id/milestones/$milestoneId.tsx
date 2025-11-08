@@ -58,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { milestoneId } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.milestones.bigPlanMilestoneLoad({
+    const result = await apiClient.bigPlans.bigPlanMilestoneLoad({
       ref_id: milestoneId,
       allow_archived: true,
     });
@@ -85,7 +85,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.milestones.bigPlanMilestoneUpdate({
+        await apiClient.bigPlans.bigPlanMilestoneUpdate({
           ref_id: milestoneId,
           name: {
             should_change: true,
@@ -101,14 +101,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.milestones.bigPlanMilestoneArchive({
+        await apiClient.bigPlans.bigPlanMilestoneArchive({
           ref_id: milestoneId,
         });
         return redirect(`/app/workspace/big-plans/${bigPlanId}`);
       }
 
       case "remove": {
-        await apiClient.milestones.bigPlanMilestoneRemove({
+        await apiClient.bigPlans.bigPlanMilestoneRemove({
           ref_id: milestoneId,
         });
         return redirect(`/app/workspace/big-plans/${bigPlanId}`);

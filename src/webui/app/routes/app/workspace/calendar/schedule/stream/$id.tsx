@@ -1,7 +1,7 @@
 import {
   ApiError,
   NoteDomain,
-  ScheduleSource,
+  ScheduleStreamSource,
   ScheduleStreamColor,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
@@ -69,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.stream.scheduleStreamLoad({
+    const response = await apiClient.schedule.scheduleStreamLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -99,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.stream.scheduleStreamUpdate({
+        await apiClient.schedule.scheduleStreamUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -140,7 +140,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.stream.scheduleStreamArchive({
+        await apiClient.schedule.scheduleStreamArchive({
           ref_id: id,
         });
 
@@ -150,7 +150,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.stream.scheduleStreamRemove({
+        await apiClient.schedule.scheduleStreamRemove({
           ref_id: id,
         });
 
@@ -219,13 +219,14 @@ export default function ScheduleStreamViewOne() {
                 value: "sync",
                 disabled:
                   loaderData.scheduleStream.source !==
-                  ScheduleSource.EXTERNAL_ICAL,
+                  ScheduleStreamSource.EXTERNAL_ICAL,
               }),
             ]}
           />
         }
       >
-        {loaderData.scheduleStream.source === ScheduleSource.EXTERNAL_ICAL && (
+        {loaderData.scheduleStream.source ===
+          ScheduleStreamSource.EXTERNAL_ICAL && (
           <FormControl fullWidth>
             <InputLabel id="sourceIcalUrl">Source iCal URL</InputLabel>
             <OutlinedInput

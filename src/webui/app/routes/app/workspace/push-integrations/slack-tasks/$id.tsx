@@ -76,7 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.slack.slackTaskLoad({
+    const response = await apiClient.pushIntegrations.slackTaskLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -105,7 +105,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.slack.slackTaskUpdate({
+        await apiClient.pushIntegrations.slackTaskUpdate({
           ref_id: id,
           user: {
             should_change: true,
@@ -157,7 +157,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.slack.slackTaskArchive({
+        await apiClient.pushIntegrations.slackTaskArchive({
           ref_id: id,
         });
 
@@ -165,7 +165,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.slack.slackTaskRemove({
+        await apiClient.pushIntegrations.slackTaskRemove({
           ref_id: id,
         });
 

@@ -1,11 +1,11 @@
 """Tests about metrics."""
 
 import pytest
-from jupiter_webapi_client.api.entry.metric_entry_create import (
-    sync_detailed as metric_entry_create_sync,
-)
 from jupiter_webapi_client.api.metrics.metric_create import (
     sync_detailed as metric_create_sync,
+)
+from jupiter_webapi_client.api.metrics.metric_entry_create import (
+    sync_detailed as metric_entry_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,

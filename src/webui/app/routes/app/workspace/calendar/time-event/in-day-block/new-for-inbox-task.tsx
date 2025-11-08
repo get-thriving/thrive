@@ -113,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
       form.userTimezone,
     );
 
-    await apiClient.inDayBlock.timeEventInDayBlockCreateForInboxTask({
+    await apiClient.timeEvents.timeEventInDayBlockCreateForInboxTask({
       inbox_task_ref_id: query.inboxTaskRefId,
       start_date: startDate,
       start_time_in_day: startTimeInDay ?? "",

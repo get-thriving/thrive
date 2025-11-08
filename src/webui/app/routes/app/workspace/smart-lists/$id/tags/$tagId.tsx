@@ -51,7 +51,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { tagId } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.tag.smartListTagLoad({
+    const result = await apiClient.smartLists.smartListTagLoad({
       ref_id: tagId,
       allow_archived: true,
     });
@@ -79,7 +79,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.tag.smartListTagUpdate({
+        await apiClient.smartLists.smartListTagUpdate({
           ref_id: tagId,
           tag_name: {
             should_change: true,
@@ -91,7 +91,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.tag.smartListTagArchive({
+        await apiClient.smartLists.smartListTagArchive({
           ref_id: id,
         });
 
@@ -99,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.tag.smartListTagRemove({
+        await apiClient.smartLists.smartListTagRemove({
           ref_id: id,
         });
 

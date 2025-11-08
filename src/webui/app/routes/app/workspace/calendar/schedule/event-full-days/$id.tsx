@@ -74,12 +74,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
 
   try {
-    const response = await apiClient.eventFullDays.scheduleEventFullDaysLoad({
+    const response = await apiClient.schedule.scheduleEventFullDaysLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -112,7 +112,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.eventFullDays.scheduleEventFullDaysUpdate({
+        await apiClient.schedule.scheduleEventFullDaysUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -131,12 +131,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "change-schedule-stream": {
-        await apiClient.eventFullDays.scheduleEventFullDaysChangeScheduleStream(
-          {
-            ref_id: id,
-            schedule_stream_ref_id: form.scheduleStreamRefId,
-          },
-        );
+        await apiClient.schedule.scheduleEventFullDaysChangeScheduleStream({
+          ref_id: id,
+          schedule_stream_ref_id: form.scheduleStreamRefId,
+        });
         return redirect(
           `/app/workspace/calendar/schedule/event-full-days/${id}?${url.searchParams}`,
         );
@@ -154,14 +152,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.eventFullDays.scheduleEventFullDaysArchive({
+        await apiClient.schedule.scheduleEventFullDaysArchive({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
       case "remove": {
-        await apiClient.eventFullDays.scheduleEventFullDaysRemove({
+        await apiClient.schedule.scheduleEventFullDaysRemove({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);

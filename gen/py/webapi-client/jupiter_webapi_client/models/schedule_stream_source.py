@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class ScheduleSource(str, Enum):
+class ScheduleStreamSource(str, Enum):
     EXTERNAL_ICAL = "external-ical"
     USER = "user"
 

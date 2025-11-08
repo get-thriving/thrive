@@ -67,12 +67,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const homeConfig = await apiClient.home.homeConfigLoad({});
 
-  const tab = await apiClient.tab.homeTabLoad({
+  const tab = await apiClient.home.homeTabLoad({
     ref_id: id,
     allow_archived: false,
   });
 
-  const widget = await apiClient.widget.homeWidgetLoad({
+  const widget = await apiClient.home.homeWidgetLoad({
     ref_id: widgetId,
     allow_archived: true,
   });
@@ -93,7 +93,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.widget.homeWidgetMoveAndResize({
+        await apiClient.home.homeWidgetMoveAndResize({
           ref_id: widgetId,
           row: form.widgetRow,
           col: form.widgetCol,
@@ -104,13 +104,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive":
-        await apiClient.widget.homeWidgetArchive({
+        await apiClient.home.homeWidgetArchive({
           ref_id: widgetId,
         });
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
 
       case "remove":
-        await apiClient.widget.homeWidgetRemove({
+        await apiClient.home.homeWidgetRemove({
           ref_id: widgetId,
         });
         return redirect(`/app/workspace/home/settings/tabs/${id}`);

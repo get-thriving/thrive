@@ -76,7 +76,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         include_notes: false,
         include_planning_tasks: false,
       }),
-      apiClient.activity.timePlanActivityFindForTarget({
+      apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,
         target: TimePlanActivityTarget.INBOX_TASK,
         target_ref_id: query.inboxTaskRefId,

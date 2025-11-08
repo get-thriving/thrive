@@ -130,7 +130,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
     include_projects: true,
@@ -138,7 +138,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
-    const response = await apiClient.inDayBlock.timeEventInDayBlockLoad({
+    const response = await apiClient.timeEvents.timeEventInDayBlockLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -185,7 +185,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           form,
           form.userTimezone,
         );
-        await apiClient.inDayBlock.timeEventInDayBlockUpdate({
+        await apiClient.timeEvents.timeEventInDayBlockUpdate({
           ref_id: id,
           start_date: {
             should_change: true,
@@ -204,14 +204,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.inDayBlock.timeEventInDayBlockArchive({
+        await apiClient.timeEvents.timeEventInDayBlockArchive({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
       case "remove": {
-        await apiClient.inDayBlock.timeEventInDayBlockRemove({
+        await apiClient.timeEvents.timeEventInDayBlockRemove({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);

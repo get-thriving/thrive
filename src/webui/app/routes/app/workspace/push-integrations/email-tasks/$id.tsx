@@ -78,7 +78,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.email.emailTaskLoad({
+    const response = await apiClient.pushIntegrations.emailTaskLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -107,7 +107,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.email.emailTaskUpdate({
+        await apiClient.pushIntegrations.emailTaskUpdate({
           ref_id: id,
           from_address: {
             should_change: true,
@@ -167,7 +167,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.email.emailTaskArchive({
+        await apiClient.pushIntegrations.emailTaskArchive({
           ref_id: id,
         });
 
@@ -175,7 +175,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.email.emailTaskRemove({
+        await apiClient.pushIntegrations.emailTaskRemove({
           ref_id: id,
         });
 

@@ -148,7 +148,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_projects: true,
   });
@@ -163,7 +163,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
       const timePlanActivitiesResult =
-        await apiClient.activity.timePlanActivityFindForTarget({
+        await apiClient.timePlans.timePlanActivityFindForTarget({
           allow_archived: true,
           target: TimePlanActivityTarget.BIG_PLAN,
           target_ref_id: id,

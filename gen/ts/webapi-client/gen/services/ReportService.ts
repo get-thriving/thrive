@@ -2,23 +2,24 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { NoOpArgs } from '../models/NoOpArgs';
+import type { ReportArgs } from '../models/ReportArgs';
+import type { ReportResult } from '../models/ReportResult';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class UtilsService {
+export class ReportService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * A use case that doesn't do anything.
+     * The command for reporting on progress.
      * @param requestBody The input data
-     * @returns any Successful response / Empty body
+     * @returns ReportResult Successful response
      * @throws ApiError
      */
-    public noOp(
-        requestBody?: NoOpArgs,
-    ): CancelablePromise<any> {
+    public report(
+        requestBody?: ReportArgs,
+    ): CancelablePromise<ReportResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/no-op',
+            url: '/report',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

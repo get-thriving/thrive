@@ -39,13 +39,12 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 
-  const slackTaskSettingsResponse = await apiClient.slack.slackTaskLoadSettings(
-    {},
-  );
+  const slackTaskSettingsResponse =
+    await apiClient.pushIntegrations.slackTaskLoadSettings({});
 
   return json({
     generationProject: slackTaskSettingsResponse.generation_project,
@@ -62,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
       throw new Error("Invalid application state");
     }
 
-    await apiClient.slack.slackTaskChangeGenerationProject({
+    await apiClient.pushIntegrations.slackTaskChangeGenerationProject({
       generation_project_ref_id: form.project,
     });
 

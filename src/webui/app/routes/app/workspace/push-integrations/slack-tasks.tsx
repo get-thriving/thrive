@@ -33,7 +33,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.slack.slackTaskFind({
+  const response = await apiClient.pushIntegrations.slackTaskFind({
     allow_archived: false,
     include_inbox_tasks: false,
   });

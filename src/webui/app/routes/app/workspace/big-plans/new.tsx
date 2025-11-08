@@ -98,7 +98,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     associatedTimePlan = timePlanResult.time_plan;
   }
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 

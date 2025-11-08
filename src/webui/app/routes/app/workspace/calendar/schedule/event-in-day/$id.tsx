@@ -81,12 +81,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
 
   try {
-    const response = await apiClient.eventInDay.scheduleEventInDayLoad({
+    const response = await apiClient.schedule.scheduleEventInDayLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           form,
           form.userTimezone,
         );
-        await apiClient.eventInDay.scheduleEventInDayUpdate({
+        await apiClient.schedule.scheduleEventInDayUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -146,7 +146,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "change-schedule-stream": {
-        await apiClient.eventInDay.scheduleEventInDayChangeScheduleStream({
+        await apiClient.schedule.scheduleEventInDayChangeScheduleStream({
           ref_id: id,
           schedule_stream_ref_id: form.scheduleStreamRefId,
         });
@@ -167,14 +167,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.eventInDay.scheduleEventInDayArchive({
+        await apiClient.schedule.scheduleEventInDayArchive({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
       case "remove": {
-        await apiClient.eventInDay.scheduleEventInDayRemove({
+        await apiClient.schedule.scheduleEventInDayRemove({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);

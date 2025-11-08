@@ -49,7 +49,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getGuestApiClient(request);
 
   if (session.has(AUTH_TOKEN_NAME)) {
-    const result = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+    const result = await apiClient.application.loadTopLevelInfo({});
     if (result.user || result.workspace) {
       return redirect("/app/workspace");
     }
@@ -65,7 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, LoginFormSchema);
 
   try {
-    const result = await apiClient.login.login({
+    const result = await apiClient.application.login({
       email_address: form.emailAddress,
       password: form.password,
     });

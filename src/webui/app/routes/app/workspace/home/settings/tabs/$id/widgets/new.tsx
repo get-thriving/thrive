@@ -56,7 +56,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const tab = await apiClient.tab.homeTabLoad({
+  const tab = await apiClient.home.homeTabLoad({
     ref_id: id,
     allow_archived: false,
   });
@@ -75,7 +75,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const result = await apiClient.widget.homeWidgetCreate({
+    const result = await apiClient.home.homeWidgetCreate({
       home_tab_ref_id: id,
       the_type: form.type,
       row: form.widgetRow,

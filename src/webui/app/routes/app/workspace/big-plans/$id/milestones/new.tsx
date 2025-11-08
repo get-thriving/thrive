@@ -48,7 +48,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const result = await apiClient.milestones.bigPlanMilestoneCreate({
+    const result = await apiClient.bigPlans.bigPlanMilestoneCreate({
       big_plan_ref_id: bigPlanId,
       date: form.date,
       name: form.name,

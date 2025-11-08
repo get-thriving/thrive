@@ -113,7 +113,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 

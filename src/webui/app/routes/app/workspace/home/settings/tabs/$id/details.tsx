@@ -51,7 +51,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const result = await apiClient.tab.homeTabLoad({
+  const result = await apiClient.home.homeTabLoad({
     ref_id: id,
     allow_archived: true,
   });
@@ -67,7 +67,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update":
-        await apiClient.tab.homeTabUpdate({
+        await apiClient.home.homeTabUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -82,14 +82,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
 
       case "archive":
-        await apiClient.tab.homeTabArchive({
+        await apiClient.home.homeTabArchive({
           ref_id: id,
         });
 
         return redirect(`/app/workspace/home/settings/tabs/${id}`);
 
       case "remove":
-        await apiClient.tab.homeTabRemove({
+        await apiClient.home.homeTabRemove({
           ref_id: id,
         });
 

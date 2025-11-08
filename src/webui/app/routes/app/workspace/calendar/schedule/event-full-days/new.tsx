@@ -61,7 +61,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
 
@@ -78,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
 
   try {
-    const response = await apiClient.eventFullDays.scheduleEventFullDaysCreate({
+    const response = await apiClient.schedule.scheduleEventFullDaysCreate({
       schedule_stream_ref_id: form.scheduleStreamRefId,
       name: form.name,
       start_date: form.startDate,

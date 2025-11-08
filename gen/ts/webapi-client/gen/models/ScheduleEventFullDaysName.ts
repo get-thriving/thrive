@@ -3,9 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * The source of a schedule.
+ * The name of a schedule event.
  */
-export enum ScheduleSource {
-    USER = 'user',
-    EXTERNAL_ICAL = 'external-ical',
-}
+export type ScheduleEventFullDaysName = string;

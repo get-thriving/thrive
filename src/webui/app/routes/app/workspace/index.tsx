@@ -98,7 +98,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_user: true,
     include_workspace: true,
     include_habits: true,

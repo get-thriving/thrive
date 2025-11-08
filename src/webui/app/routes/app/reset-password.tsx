@@ -51,7 +51,7 @@ export async function action({ request }: LoaderFunctionArgs) {
       new_password_repeat: form.newPasswordRepeat,
     });
 
-    const loginResult = await apiClient.login.login({
+    const loginResult = await apiClient.application.login({
       email_address: form.emailAddress,
       password: form.newPassword,
     });

@@ -1,4 +1,4 @@
-import { ApiError, ScheduleSource } from "@jupiter/webapi-client";
+import { ApiError, ScheduleStreamSource } from "@jupiter/webapi-client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -63,7 +63,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
   const response = await apiClient.schedule.scheduleExternalSyncLoadRuns({});
@@ -147,7 +147,7 @@ export default function CalendarSettings() {
             name="scheduleStreamRefIds"
             readOnly={!inputsEnabled}
             allScheduleStreams={loaderData.scheduleStreams.filter(
-              (ss) => ss.source === ScheduleSource.EXTERNAL_ICAL,
+              (ss) => ss.source === ScheduleStreamSource.EXTERNAL_ICAL,
             )}
           />
           <FieldError

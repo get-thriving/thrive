@@ -120,7 +120,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const bigPlanReason = query.bigPlanReason || "standard";
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
     include_big_plans: bigPlanReason === "standard",
   });

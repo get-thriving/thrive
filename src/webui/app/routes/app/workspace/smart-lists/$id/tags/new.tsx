@@ -57,7 +57,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const response = await apiClient.tag.smartListTagCreate({
+    const response = await apiClient.smartLists.smartListTagCreate({
       smart_list_ref_id: id,
       tag_name: form.name,
     });

@@ -81,7 +81,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summariesResponse = await apiClient.getSummaries.getSummaries({
+  const summariesResponse = await apiClient.application.getSummaries({
     include_big_plans: true,
     include_habits: true,
     include_journals_last_year: true,

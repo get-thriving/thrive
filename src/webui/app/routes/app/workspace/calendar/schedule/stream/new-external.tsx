@@ -51,12 +51,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
 
   try {
-    const response = await apiClient.stream.scheduleStreamCreateForExternalIcal(
-      {
+    const response =
+      await apiClient.schedule.scheduleStreamCreateForExternalIcal({
         source_ical_url: form.sourceIcalUrl,
         color: form.color,
-      },
-    );
+      });
 
     return redirect(
       `/app/workspace/calendar/schedule/stream/${response.new_schedule_stream.ref_id}?${url.searchParams}`,

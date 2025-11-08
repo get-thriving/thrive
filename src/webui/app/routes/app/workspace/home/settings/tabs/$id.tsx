@@ -91,7 +91,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect(url.pathname + url.search);
   }
 
-  const result = await apiClient.tab.homeTabLoad({
+  const result = await apiClient.home.homeTabLoad({
     ref_id: id,
     allow_archived: true,
   });
@@ -107,7 +107,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "archive": {
-        await apiClient.tab.homeTabArchive({
+        await apiClient.home.homeTabArchive({
           ref_id: id,
         });
 
@@ -115,7 +115,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.tab.homeTabRemove({
+        await apiClient.home.homeTabRemove({
           ref_id: id,
         });
 

@@ -134,7 +134,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { activityId } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
     include_projects: true,
@@ -142,7 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
-    const result = await apiClient.activity.timePlanActivityLoad({
+    const result = await apiClient.timePlans.timePlanActivityLoad({
       ref_id: activityId,
       allow_archived: true,
     });
@@ -188,7 +188,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.activity.timePlanActivityUpdate({
+        await apiClient.timePlans.timePlanActivityUpdate({
           ref_id: activityId,
           kind: {
             should_change: true,
@@ -204,7 +204,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.activity.timePlanActivityArchive({
+        await apiClient.timePlans.timePlanActivityArchive({
           ref_id: activityId,
         });
 
@@ -212,7 +212,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.activity.timePlanActivityRemove({
+        await apiClient.timePlans.timePlanActivityRemove({
           ref_id: activityId,
         });
 

@@ -31,7 +31,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.stream.scheduleStreamFind({
+  const response = await apiClient.schedule.scheduleStreamFind({
     allow_archived: false,
     include_notes: false,
   });

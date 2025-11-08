@@ -51,14 +51,14 @@ export const links: LinksFunction = () => [
 // @secureFn
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+  const response = await apiClient.application.loadTopLevelInfo({});
 
   if (!response.user || !response.workspace) {
     return redirect("/app/init");
   }
 
   const progressReporterTokenResponse =
-    await apiClient.loadProgressReporterToken.loadProgressReporterToken({});
+    await apiClient.application.loadProgressReporterToken({});
 
   return json({
     userFeatureFlagControls: response.user_feature_flag_controls,

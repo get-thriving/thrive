@@ -5,4 +5,4 @@
 /**
  * The name of a schedule event.
  */
-export type ScheduleEventName = string;
+export type ScheduleEventInDayName = string;

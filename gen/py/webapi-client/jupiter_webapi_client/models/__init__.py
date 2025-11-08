@@ -452,7 +452,6 @@ from .schedule_external_sync_log_entry import ScheduleExternalSyncLogEntry
 from .schedule_external_sync_log_per_stream_result import ScheduleExternalSyncLogPerStreamResult
 from .schedule_full_days_event_entry import ScheduleFullDaysEventEntry
 from .schedule_in_day_event_entry import ScheduleInDayEventEntry
-from .schedule_source import ScheduleSource
 from .schedule_stream import ScheduleStream
 from .schedule_stream_archive_args import ScheduleStreamArchiveArgs
 from .schedule_stream_color import ScheduleStreamColor
@@ -466,6 +465,7 @@ from .schedule_stream_find_result_entry import ScheduleStreamFindResultEntry
 from .schedule_stream_load_args import ScheduleStreamLoadArgs
 from .schedule_stream_load_result import ScheduleStreamLoadResult
 from .schedule_stream_remove_args import ScheduleStreamRemoveArgs
+from .schedule_stream_source import ScheduleStreamSource
 from .schedule_stream_summary import ScheduleStreamSummary
 from .schedule_stream_update_args import ScheduleStreamUpdateArgs
 from .schedule_stream_update_args_color import ScheduleStreamUpdateArgsColor
@@ -1149,7 +1149,6 @@ __all__ = (
     "ScheduleExternalSyncLogPerStreamResult",
     "ScheduleFullDaysEventEntry",
     "ScheduleInDayEventEntry",
-    "ScheduleSource",
     "ScheduleStream",
     "ScheduleStreamArchiveArgs",
     "ScheduleStreamColor",
@@ -1163,6 +1162,7 @@ __all__ = (
     "ScheduleStreamLoadArgs",
     "ScheduleStreamLoadResult",
     "ScheduleStreamRemoveArgs",
+    "ScheduleStreamSource",
     "ScheduleStreamSummary",
     "ScheduleStreamUpdateArgs",
     "ScheduleStreamUpdateArgsColor",

@@ -68,12 +68,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json(noErrorSomeData({ report: undefined }));
   }
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 
   try {
-    const reportResponse = await apiClient.application.report({
+    const reportResponse = await apiClient.report.report({
       today: today,
       period: period,
       breakdown_period:
