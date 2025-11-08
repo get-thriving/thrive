@@ -3,7 +3,7 @@ import { FatChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 
 import { ClientOnly } from "~/components/infra/client-only";
 import { timestampToDate } from "~/logic/domain/timestamp";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 interface TimeDiffTagProps {
   today: ADate;

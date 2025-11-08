@@ -74,3 +74,5 @@ export function comparePeriods(
 ): number {
   return PERIOD_MAP[period1] - PERIOD_MAP[period2];
 }
+
+

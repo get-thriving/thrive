@@ -32,7 +32,7 @@ import { FieldError, GlobalError } from "~/components/infra/errors";
 import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { StandardDivider } from "~/components/infra/standard-divider";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { periodName } from "~/logic/domain/period";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { IsKeySelect } from "~/components/domain/core/is-key-select";

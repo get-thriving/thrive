@@ -1,6 +1,6 @@
 import type { WorkingMem } from "@jupiter/webapi-client";
 
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 export function sortWorkingMemsNaturally(workingMems: WorkingMem[]) {
   return [...workingMems].sort((v1, v2) => {

@@ -44,7 +44,7 @@ import { StandardDivider } from "~/components/infra/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 import type { BigPlanParent } from "~/logic/domain/big-plan";
 import {
   bigPlanFindEntryToParent,

@@ -18,7 +18,7 @@ import {
 import { DateTime } from "luxon";
 
 import { measureText } from "~/utils";
-import { aDateToDate, compareADate } from "~/logic/domain/adate";
+import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
 
 export function birthdayTimeEventName(
   block: TimeEventFullDaysBlock,

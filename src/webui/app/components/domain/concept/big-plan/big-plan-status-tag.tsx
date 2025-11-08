@@ -4,7 +4,7 @@ import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 import {
   bigPlanStatusIcon,
   bigPlanStatusName,
-} from "~/logic/domain/big-plan-status";
+} from "@jupiter/core/jupiter/core/big_plans/status";
 
 interface Props {
   status: BigPlanStatus;

@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 
 import type { SomeErrorNoData } from "~/logic/action-result";
-import { periodName } from "~/logic/domain/period";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
 import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";

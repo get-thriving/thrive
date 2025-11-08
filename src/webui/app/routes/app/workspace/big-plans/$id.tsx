@@ -76,7 +76,7 @@ import { BigPlanMilestoneStack } from "~/components/domain/concept/big-plan/big-
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { bigPlanDonePct } from "~/logic/domain/big-plan";
 import { BigPlanDonePctBigTag } from "~/components/domain/concept/big-plan/big-plan-done-pct-big-tag";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 const ParamsSchema = z.object({
   id: z.string(),

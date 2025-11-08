@@ -17,7 +17,7 @@ import {
   workspaceFeatureName,
   workspaceFeatureToDocsHelpSubject,
 } from "~/logic/domain/feature";
-import { hostingName } from "~/logic/domain/hosting";
+import { hostingName } from "@jupiter/core/jupiter/core/hosting";
 import { DocsHelp } from "~/components/infra/docs-help";
 
 interface UserFeatureFlagsEditorProps {

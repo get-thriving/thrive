@@ -1,7 +1,7 @@
 import { Eisen } from "@jupiter/webapi-client";
 import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
 
-import { eisenName } from "~/logic/domain/eisen";
+import { eisenName } from "@jupiter/core/jupiter/core/common/eisen";
 
 interface Props {
   eisen: Eisen;

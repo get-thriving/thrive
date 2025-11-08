@@ -53,7 +53,7 @@ import {
   inboxTaskFindEntryToParent,
   sortInboxTasksByEisenAndDifficulty,
 } from "~/logic/domain/inbox-task";
-import { allHigherPeriods } from "~/logic/domain/period";
+import { allHigherPeriods } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,

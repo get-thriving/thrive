@@ -48,8 +48,8 @@ import { StandardDivider } from "~/components/infra/standard-divider";
 import { TabPanel } from "~/components/infra/tab-panel";
 import { GlobalPropertiesContext } from "~/global-properties-client";
 import type { SomeErrorNoData } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { eisenIcon, eisenName } from "~/logic/domain/eisen";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { eisenIcon, eisenName } from "@jupiter/core/jupiter/core/common/eisen";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,

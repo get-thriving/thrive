@@ -30,8 +30,8 @@ import {
   aGlobalError,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { periodName } from "~/logic/domain/period";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

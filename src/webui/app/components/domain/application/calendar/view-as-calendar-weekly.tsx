@@ -10,7 +10,7 @@ import {
   combinedTimeEventInDayEntryPartionByDay,
 } from "~/logic/domain/time-event";
 import { useBigScreen } from "~/rendering/use-big-screen";
-import { allDaysBetween } from "~/logic/domain/adate";
+import { allDaysBetween } from "@jupiter/core/jupiter/core/adate";
 import {
   MAX_VISIBLE_TIME_EVENT_FULL_DAYS,
   ViewAsCalendarDateHeader,

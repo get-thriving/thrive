@@ -15,7 +15,7 @@ import {
   getDeterministicRandomElement,
   WidgetProps,
 } from "~/components/domain/application/home/common";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 export function HabitRandomWidget(props: WidgetProps) {
   const habitTasks = props.habitTasks!;

@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 
-import { strToADate } from "~/logic/domain/adate";
+import { strToADate } from "@jupiter/core/jupiter/core/adate";
 import { SuggestedDate } from "~/logic/domain/suggested-date";
 
 interface DateInputWithSuggestionsProps {

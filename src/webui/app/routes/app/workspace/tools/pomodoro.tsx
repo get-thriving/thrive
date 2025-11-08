@@ -13,7 +13,7 @@ import {
 import { SectionCard } from "~/components/infra/section-card";
 import { GlobalPropertiesContext } from "~/global-properties-client";
 import { TopLevelInfoContext } from "~/top-level-context";
-import { isDevelopment } from "~/logic/domain/env";
+import { isDevelopment } from "@jupiter/core/jupiter/core/env";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { DisplayType } from "~/rendering/use-nested-entities";
 

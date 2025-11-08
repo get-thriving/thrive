@@ -5,7 +5,7 @@
     "**/*.ts",
     "**/*.tsx",
     "vite.config.mts"
-  ],
+, "../core/jupiter/core/infra/components/chips.tsx"  ],
   "compilerOptions": {
     "types": ["@remix-run/node", "vite/client"],
     "skipLibCheck": true,

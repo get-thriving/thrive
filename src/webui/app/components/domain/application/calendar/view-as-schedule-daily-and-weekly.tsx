@@ -25,7 +25,7 @@ import {
   combinedTimeEventInDayEntryPartionByDay,
   timeEventInDayBlockToTimezone,
 } from "~/logic/domain/time-event";
-import { allDaysBetween } from "~/logic/domain/adate";
+import { allDaysBetween } from "@jupiter/core/jupiter/core/adate";
 
 export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
   const isBigScreen = useBigScreen();

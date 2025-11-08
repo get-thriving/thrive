@@ -29,7 +29,7 @@ import {
   SectionActions,
 } from "~/components/infra/section-actions";
 import { newURLParams } from "~/logic/domain/navigation";
-import { periodName } from "~/logic/domain/period";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { statsSubperiodForPeriod } from "~/logic/domain/time-event";
 import { inferPlatformAndDistribution } from "~/logic/frontdoor.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";

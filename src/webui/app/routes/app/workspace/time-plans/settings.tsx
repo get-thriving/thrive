@@ -48,7 +48,7 @@ import { DifficultySelect } from "~/components/domain/core/difficulty-select";
 import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { TimePlanGenerationApproachSelect } from "~/components/domain/concept/time-plan/time-plan-generation-approach-select";
-import { periodName } from "~/logic/domain/period";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { SectionCard } from "~/components/infra/section-card";
 import {
   ActionSingle,

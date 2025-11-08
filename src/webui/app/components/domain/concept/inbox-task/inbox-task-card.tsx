@@ -30,7 +30,7 @@ import { useContext, useState } from "react";
 
 import { ClientOnly } from "~/components/infra/client-only";
 import { GlobalPropertiesContext } from "~/global-properties-client";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,

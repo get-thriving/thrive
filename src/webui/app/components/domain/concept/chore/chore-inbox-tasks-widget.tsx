@@ -15,7 +15,7 @@ import {
 } from "~/rendering/actionable-time";
 import { InboxTasksNoTasksCard } from "~/components/domain/concept/inbox-task/inbox-tasks-no-tasks-card";
 import { WidgetProps } from "~/components/domain/application/home/common";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 export function ChoreInboxTasksWidget(props: WidgetProps) {
   const choreTasks = props.choreTasks!;

@@ -11,6 +11,9 @@
   "documentation": "https://docs.get-thriving.com",
   "license": "MIT",
   "readme": "README.md",
+  "dependencies": {
+    "luxon": "^3.5.0"
+  },
   "peerDependencies": {
     "@jupiter/webapi-client": "workspace:*",
     "@mui/material": "^6.4.8",
@@ -20,6 +23,7 @@
     "@emotion/styled": "^11.14.0"
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.2",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8"
   },

@@ -32,9 +32,9 @@ import { Fragment, useState } from "react";
 import { EntityNameOneLineComponent } from "~/components/infra/entity-name";
 import { ScoreOverview } from "~/components/domain/application/gamification/score-overview";
 import { EntityLink } from "~/components/infra/entity-card";
-import { aDateToDate } from "~/logic/domain/adate";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 import { inboxTaskSourceName } from "~/logic/domain/inbox-task-source";
-import { periodName } from "~/logic/domain/period";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,

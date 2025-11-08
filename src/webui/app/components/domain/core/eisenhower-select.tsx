@@ -2,7 +2,7 @@ import { Eisen } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { eisenName } from "~/logic/domain/eisen";
+import { eisenName } from "@jupiter/core/jupiter/core/common/eisen";
 import { useBigScreen } from "~/rendering/use-big-screen";
 
 interface EisenhowerSelectProps {
