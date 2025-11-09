@@ -6,7 +6,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
-import { emailTaskNiceName } from "@jupiter/core/jupiter/core/push_integrations/sub/email/task";
+import { emailTaskNiceName } from "@jupiter/core/push_integrations/sub/email/task";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";

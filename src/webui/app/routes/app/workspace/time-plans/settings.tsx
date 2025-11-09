@@ -30,7 +30,7 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
 
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { getLoggedInApiClient } from "~/api-clients.server";

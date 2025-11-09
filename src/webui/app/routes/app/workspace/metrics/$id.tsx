@@ -12,8 +12,8 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
-import { metricEntryName } from "@jupiter/core/jupiter/core/metrics/sub/entry/root";
+import { aDateToDate, compareADate } from "@jupiter/core/adate";
+import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DocsHelpSubject } from "~/components/infra/docs-help";

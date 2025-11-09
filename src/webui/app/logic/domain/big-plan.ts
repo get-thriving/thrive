@@ -6,10 +6,10 @@ import {
   type Project,
   type BigPlanMilestone,
 } from "@jupiter/webapi-client";
-import { compareADate } from "@jupiter/core/jupiter/core/adate";
-import { compareBigPlanStatus } from "@jupiter/core/jupiter/core/big_plans/status";
-import { compareDifficulty } from "@jupiter/core/jupiter/core/common/difficulty";
-import { compareEisen } from "@jupiter/core/jupiter/core/common/eisen";
+import { compareADate } from "@jupiter/core/adate";
+import { compareBigPlanStatus } from "@jupiter/core/big_plans/status";
+import { compareDifficulty } from "@jupiter/core/common/difficulty";
+import { compareEisen } from "@jupiter/core/common/eisen";
 
 import { compareIsKey } from "~/logic/domain/is-key";
 export interface BigPlanParent {

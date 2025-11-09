@@ -2,7 +2,7 @@ import { Button, CardContent, Typography, styled } from "@mui/material";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Duration } from "luxon";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { isDevelopment } from "@jupiter/core/jupiter/core/env";
+import { isDevelopment } from "@jupiter/core/env";
 
 import { ClientOnly } from "~/components/infra/client-only";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";

@@ -9,7 +9,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
-import { isDevelopment } from "@jupiter/core/jupiter/core/env";
+import { isDevelopment } from "@jupiter/core/env";
 
 import { GlobalPropertiesContext } from "~/global-properties-client";
 import { BranchPanel } from "~/components/infra/layout/branch-panel";

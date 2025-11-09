@@ -19,7 +19,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Link } from "@remix-run/react";
 import { DateTime } from "luxon";
-import { aDateToDate, dateToAdate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate, dateToAdate } from "@jupiter/core/adate";
 
 const CELL_SIZE = (theme: Theme) => theme.typography.htmlFontSize - 2;
 export const CELL_FULL_SIZE = (theme: Theme) => CELL_SIZE(theme) + 2;

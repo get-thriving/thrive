@@ -9,7 +9,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, FormControlLabel, Switch, Tooltip } from "@mui/material";
-import { hostingName } from "@jupiter/core/jupiter/core/hosting";
+import { hostingName } from "@jupiter/core/hosting";
 
 import {
   featureControlImpliesReadonly,

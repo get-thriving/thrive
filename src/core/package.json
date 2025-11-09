@@ -11,7 +11,12 @@
   "license": "MIT",
   "readme": "README.md",
   "exports": {
-    "./*": "./dist/*.js"
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js",
+      "default": "./dist/*.js"
+    },
+    "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {

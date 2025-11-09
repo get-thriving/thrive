@@ -1,6 +1,6 @@
 import type { ADate, TimePlan } from "@jupiter/webapi-client";
-import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
-import { comparePeriods } from "@jupiter/core/jupiter/core/common/recurring-task-period";
+import { aDateToDate, compareADate } from "@jupiter/core/adate";
+import { comparePeriods } from "@jupiter/core/common/recurring-task-period";
 
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,

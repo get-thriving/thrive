@@ -10,7 +10,7 @@ import {
 import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Fragment } from "react";
-import { allDaysBetween } from "@jupiter/core/jupiter/core/adate";
+import { allDaysBetween } from "@jupiter/core/adate";
 
 import { useBigScreen } from "~/rendering/use-big-screen";
 import type { ViewAsProps } from "~/components/domain/application/calendar/shared";

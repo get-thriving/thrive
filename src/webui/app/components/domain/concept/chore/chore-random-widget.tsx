@@ -3,7 +3,7 @@ import {
   InboxTaskStatus,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { filterInboxTasksForDisplay } from "~/logic/domain/inbox-task";
 import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";

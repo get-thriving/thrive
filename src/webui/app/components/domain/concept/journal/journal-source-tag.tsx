@@ -1,5 +1,5 @@
 import { JournalSource } from "@jupiter/webapi-client";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 
 import { journalSourceName } from "~/logic/domain/journal-source";
 

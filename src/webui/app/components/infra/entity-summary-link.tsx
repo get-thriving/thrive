@@ -1,6 +1,6 @@
 import type { ADate, EntitySummary } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 
 import { EntityFakeLink, EntityLink } from "~/components/infra/entity-card";
 import { TimeDiffTag } from "~/components/domain/core/time-diff-tag";

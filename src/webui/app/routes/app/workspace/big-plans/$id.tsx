@@ -37,7 +37,7 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStatusBigTag } from "~/components/domain/concept/big-plan/big-plan-status-big-tag";

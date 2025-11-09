@@ -17,9 +17,9 @@ import {
   InboxTaskStatus,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
-import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
-import { compareDifficulty } from "@jupiter/core/jupiter/core/common/difficulty";
-import { compareEisen } from "@jupiter/core/jupiter/core/common/eisen";
+import { aDateToDate, compareADate } from "@jupiter/core/adate";
+import { compareDifficulty } from "@jupiter/core/common/difficulty";
+import { compareEisen } from "@jupiter/core/common/eisen";
 
 import { compareIsKey } from "~/logic/domain/is-key";
 

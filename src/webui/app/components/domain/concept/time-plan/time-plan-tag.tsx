@@ -1,5 +1,5 @@
 import type { TimePlan } from "@jupiter/webapi-client";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 
 interface TimePlanTagProps {
   timePlan: TimePlan;

@@ -14,7 +14,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useEffect, useMemo, useState } from "react";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";

@@ -3,7 +3,7 @@ import { Box, useTheme } from "@mui/material";
 import {
   bigPlanStatusIcon,
   bigPlanStatusName,
-} from "@jupiter/core/jupiter/core/big_plans/status";
+} from "@jupiter/core/big_plans/status";
 
 import { useBigScreen } from "~/rendering/use-big-screen";
 

@@ -18,7 +18,7 @@ import {
   useTheme,
 } from "@mui/material";
 import type { DateTime } from "luxon";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { bigPlanDonePct } from "~/logic/domain/big-plan";
 import { BigPlanStatusTag } from "~/components/domain/concept/big-plan/big-plan-status-tag";

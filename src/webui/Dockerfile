@@ -19,6 +19,7 @@ COPY src/Config.global src/Config.global
 COPY src/core/README.md src/core/README.md
 COPY src/core/package.json src/core/package.json
 COPY src/core/tsconfig.json src/core/tsconfig.json
+COPY src/core/tsconfig.build.json src/core/tsconfig.build.json
 COPY src/core/jupiter/core src/core/jupiter/core
 COPY src/webui/README.md src/webui/README.md
 COPY src/webui/Config.project.live src/webui/Config.project

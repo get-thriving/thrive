@@ -16,7 +16,7 @@ import { DateTime } from "luxon";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-import { oneLessThanPeriod } from "@jupiter/core/jupiter/core/common/recurring-task-period";
+import { oneLessThanPeriod } from "@jupiter/core/common/recurring-task-period";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";

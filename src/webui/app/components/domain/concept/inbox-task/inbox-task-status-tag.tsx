@@ -1,5 +1,5 @@
 import { InboxTaskStatus } from "@jupiter/webapi-client";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 
 import { inboxTaskStatusName } from "~/logic/domain/inbox-task-status";
 

@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { allDaysBetween } from "@jupiter/core/jupiter/core/adate";
+import { allDaysBetween } from "@jupiter/core/adate";
 
 import {
   combinedTimeEventFullDayEntryPartionByDay,

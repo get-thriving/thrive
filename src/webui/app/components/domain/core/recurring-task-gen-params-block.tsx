@@ -14,7 +14,7 @@ import {
   ToggleButtonGroup,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
 
 import type { SomeErrorNoData } from "~/logic/action-result";
 import { useBigScreen } from "~/rendering/use-big-screen";

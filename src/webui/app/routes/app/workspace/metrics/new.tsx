@@ -22,7 +22,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";

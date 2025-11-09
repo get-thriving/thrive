@@ -1,9 +1,9 @@
 import { BigPlanStatus } from "@jupiter/webapi-client";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 import {
   bigPlanStatusIcon,
   bigPlanStatusName,
-} from "@jupiter/core/jupiter/core/big_plans/status";
+} from "@jupiter/core/big_plans/status";
 
 interface Props {
   status: BigPlanStatus;

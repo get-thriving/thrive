@@ -6,7 +6,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { Divider } from "@mui/material";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { bigPlanDonePct, type BigPlanParent } from "~/logic/domain/big-plan";
 import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";

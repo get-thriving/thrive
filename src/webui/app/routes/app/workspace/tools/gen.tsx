@@ -30,7 +30,7 @@ import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
-import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/components/chips";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";

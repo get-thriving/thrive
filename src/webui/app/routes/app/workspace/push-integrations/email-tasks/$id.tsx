@@ -21,7 +21,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/adate";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
