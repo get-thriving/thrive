@@ -32,6 +32,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from "@mui/material";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -49,7 +50,6 @@ import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
 import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useBigScreen } from "~/rendering/use-big-screen";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { SectionCard } from "~/components/infra/section-card";
 import {
   ActionSingle,

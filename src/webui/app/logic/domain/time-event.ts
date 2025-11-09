@@ -16,9 +16,9 @@ import {
   TimeEventNamespace,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
+import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
 
 import { measureText } from "~/utils";
-import { aDateToDate, compareADate } from "@jupiter/core/jupiter/core/adate";
 
 export function birthdayTimeEventName(
   block: TimeEventFullDaysBlock,

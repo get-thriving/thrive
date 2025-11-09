@@ -1,6 +1,5 @@
 import { BigPlanStatus } from "@jupiter/webapi-client";
 import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
-
 import {
   bigPlanStatusIcon,
   bigPlanStatusName,

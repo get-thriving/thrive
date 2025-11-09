@@ -1,6 +1,5 @@
 import type { ADate } from "@jupiter/webapi-client";
 import { SlimChip } from "@jupiter/core/jupiter/core/infra/components/chips";
-
 import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 interface Props {

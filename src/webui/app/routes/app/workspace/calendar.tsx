@@ -17,6 +17,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
@@ -29,7 +30,6 @@ import {
   SectionActions,
 } from "~/components/infra/section-actions";
 import { newURLParams } from "~/logic/domain/navigation";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { statsSubperiodForPeriod } from "~/logic/domain/time-event";
 import { inferPlatformAndDistribution } from "~/logic/frontdoor.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";

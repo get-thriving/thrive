@@ -1,5 +1,4 @@
 import type { Journal } from "@jupiter/webapi-client";
-
 import { compareADate } from "@jupiter/core/jupiter/core/adate";
 import { comparePeriods } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 

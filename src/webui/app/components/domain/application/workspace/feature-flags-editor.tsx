@@ -9,6 +9,7 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, FormControlLabel, Switch, Tooltip } from "@mui/material";
+import { hostingName } from "@jupiter/core/jupiter/core/hosting";
 
 import {
   featureControlImpliesReadonly,
@@ -17,7 +18,6 @@ import {
   workspaceFeatureName,
   workspaceFeatureToDocsHelpSubject,
 } from "~/logic/domain/feature";
-import { hostingName } from "@jupiter/core/jupiter/core/hosting";
 import { DocsHelp } from "~/components/infra/docs-help";
 
 interface UserFeatureFlagsEditorProps {

@@ -30,6 +30,7 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
+import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -48,7 +49,6 @@ import { DifficultySelect } from "~/components/domain/core/difficulty-select";
 import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { TimePlanGenerationApproachSelect } from "~/components/domain/concept/time-plan/time-plan-generation-approach-select";
-import { periodName } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import { SectionCard } from "~/components/infra/section-card";
 import {
   ActionSingle,

@@ -6,6 +6,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
+import { emailTaskNiceName } from "@jupiter/core/jupiter/core/push_integrations/sub/email/task";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";
@@ -17,7 +18,6 @@ import { EntityStack } from "~/components/infra/entity-stack";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { emailTaskNiceName } from "~/logic/domain/email-task";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {

@@ -2,6 +2,7 @@ import { Button, CardContent, Typography, styled } from "@mui/material";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Duration } from "luxon";
 import { useCallback, useContext, useEffect, useState } from "react";
+import { isDevelopment } from "@jupiter/core/jupiter/core/env";
 
 import { ClientOnly } from "~/components/infra/client-only";
 import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
@@ -13,7 +14,6 @@ import {
 import { SectionCard } from "~/components/infra/section-card";
 import { GlobalPropertiesContext } from "~/global-properties-client";
 import { TopLevelInfoContext } from "~/top-level-context";
-import { isDevelopment } from "@jupiter/core/jupiter/core/env";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { DisplayType } from "~/rendering/use-nested-entities";
 

@@ -7,5 +7,3 @@ export function isDevelopment(env: Env) {
 export function isLocal(env: Env) {
   return env === Env.LOCAL;
 }
-
-

@@ -16,6 +16,7 @@
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
       "~/*": ["./jupiter/core/*"]
     },

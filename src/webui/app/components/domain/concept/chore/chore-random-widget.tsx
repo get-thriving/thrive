@@ -3,6 +3,7 @@ import {
   InboxTaskStatus,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 import { filterInboxTasksForDisplay } from "~/logic/domain/inbox-task";
 import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
@@ -15,7 +16,6 @@ import {
   getDeterministicRandomElement,
   WidgetProps,
 } from "~/components/domain/application/home/common";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 export function ChoreRandomWidget(props: WidgetProps) {
   const choreTasks = props.choreTasks!;

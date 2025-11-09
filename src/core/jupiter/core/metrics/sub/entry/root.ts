@@ -1,6 +1,6 @@
 import type { MetricEntry } from "@jupiter/webapi-client";
 
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
+import { aDateToDate } from "~/adate";
 
 export function metricEntryName(metricEntry: MetricEntry) {
   return `${metricEntry.value} at ${aDateToDate(

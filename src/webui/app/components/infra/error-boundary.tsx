@@ -9,9 +9,9 @@ import {
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
+import { isDevelopment } from "@jupiter/core/jupiter/core/env";
 
 import { GlobalPropertiesContext } from "~/global-properties-client";
-import { isDevelopment } from "@jupiter/core/jupiter/core/env";
 import { BranchPanel } from "~/components/infra/layout/branch-panel";
 import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { ToolPanel } from "~/components/infra/layout/tool-panel";

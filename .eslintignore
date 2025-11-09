@@ -1,5 +1,8 @@
 # dependencies
 node_modules
+src/core/dist/**
+src/webui/dist/**
+src/**/node_modules/**
 .pnp
 .pnp.js
 

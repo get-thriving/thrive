@@ -6,6 +6,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { Divider } from "@mui/material";
+import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 import { bigPlanDonePct, type BigPlanParent } from "~/logic/domain/big-plan";
 import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
@@ -20,7 +21,6 @@ import { EisenTag } from "~/components/domain/core/eisen-tag";
 import { BigPlanDonePctTag } from "~/components/domain/concept/big-plan/big-plan-done-pct-tag";
 import { IsKeyTag } from "~/components/domain/core/is-key-tag";
 import { BigPlanMilestonesLeftTag } from "~/components/domain/concept/big-plan/big-plan-milestones-left-tag";
-import { aDateToDate } from "@jupiter/core/jupiter/core/adate";
 
 export interface BigPlanShowOptions {
   showDonePct?: boolean;

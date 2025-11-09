@@ -1,6 +1,6 @@
 import type { EmailTask } from "@jupiter/webapi-client";
+import { emailTaskNiceName } from "@jupiter/core/jupiter/core/push_integrations/sub/email/task";
 
-import { emailTaskNiceName } from "~/logic/domain/email-task";
 import { LinkTag } from "~/components/infra/link-tag";
 
 interface Props {

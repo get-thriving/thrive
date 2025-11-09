@@ -29,6 +29,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
+import { allHigherPeriods } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { InboxTaskCard } from "~/components/domain/concept/inbox-task/inbox-task-card";
@@ -53,7 +54,6 @@ import {
   inboxTaskFindEntryToParent,
   sortInboxTasksByEisenAndDifficulty,
 } from "~/logic/domain/inbox-task";
-import { allHigherPeriods } from "@jupiter/core/jupiter/core/common/recurring-task-period";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
