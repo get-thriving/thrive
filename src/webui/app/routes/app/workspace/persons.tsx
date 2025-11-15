@@ -5,10 +5,10 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultyTag } from "~/components/domain/core/difficulty-tag";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EisenTag } from "~/components/domain/core/eisen-tag";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";

@@ -14,15 +14,15 @@ import {
 } from "@mui/material";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
-
-import type { SkipRule } from "~/logic/domain/recurring-task-skip-rule";
+import type { SkipRule } from "@jupiter/core/common/recurring-task-skip-rule";
 import {
   SkipRuleType,
   assembleSkipRule,
   isCompatibleWithPeriod,
   parseSkipRule,
   skipRuleTypeName,
-} from "~/logic/domain/recurring-task-skip-rule";
+} from "@jupiter/core/common/recurring-task-skip-rule";
+
 import { useBigScreen } from "~/rendering/use-big-screen";
 
 interface RecurringTaskSkipRuleBlockProps {

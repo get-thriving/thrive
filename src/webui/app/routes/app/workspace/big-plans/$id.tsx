@@ -38,6 +38,13 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
 import { aDateToDate } from "@jupiter/core/adate";
+import { bigPlanDonePct } from "@jupiter/core/big_plans/root";
+import {
+  getSuggestedDatesForBigPlanActionableDate,
+  getSuggestedDatesForBigPlanDueDate,
+} from "@jupiter/core/common/suggested-date";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStatusBigTag } from "~/components/domain/concept/big-plan/big-plan-status-big-tag";
@@ -51,8 +58,6 @@ import { ProjectSelect } from "~/components/domain/concept/project/project-selec
 import { TimePlanActivityList } from "~/components/domain/concept/time-plan/time-plan-activity-list";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {
@@ -69,13 +74,8 @@ import {
 } from "~/components/infra/section-actions";
 import { IsKeySelect } from "~/components/domain/core/is-key-select";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import {
-  getSuggestedDatesForBigPlanActionableDate,
-  getSuggestedDatesForBigPlanDueDate,
-} from "~/logic/domain/suggested-date";
 import { BigPlanMilestoneStack } from "~/components/domain/concept/big-plan/big-plan-milestone-stack";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { bigPlanDonePct } from "~/logic/domain/big-plan";
 import { BigPlanDonePctBigTag } from "~/components/domain/concept/big-plan/big-plan-done-pct-big-tag";
 
 const ParamsSchema = z.object({

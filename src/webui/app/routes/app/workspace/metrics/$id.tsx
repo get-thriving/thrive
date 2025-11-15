@@ -1,5 +1,5 @@
 import type { MetricEntry } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
@@ -16,7 +16,6 @@ import { aDateToDate, compareADate } from "@jupiter/core/adate";
 import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { EntityCard, EntityLink } from "~/components/infra/entity-card";

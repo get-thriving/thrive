@@ -32,20 +32,20 @@ import {
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
 import { Link } from "@remix-run/react";
-
 import {
   InboxTaskParent,
   InboxTaskOptimisticState,
-} from "~/logic/domain/inbox-task";
-import { TopLevelInfo } from "~/top-level-context";
+} from "@jupiter/core/inbox_tasks/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
   widgetDimensionRows,
   widgetTypeName,
-} from "~/logic/widget";
-import { workspaceFeatureName, userFeatureName } from "~/logic/domain/features";
+} from "@jupiter/core/home/sub/widget/root";
+import { workspaceFeatureName, userFeatureName } from "@jupiter/core/features";
+
 import { useBigScreen } from "~/rendering/use-big-screen";
+import { TopLevelInfo } from "~/top-level-context";
 
 const WIDGET_HEIGHT_IN_REM_BASE = 14;
 

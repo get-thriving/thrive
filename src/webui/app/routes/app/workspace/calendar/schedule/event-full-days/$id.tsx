@@ -20,6 +20,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -34,7 +35,6 @@ import {
 import { SectionCard } from "~/components/infra/section-card";
 import { ScheduleStreamSelect } from "~/components/domain/concept/schedule/schedule-stream-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isCorePropertyEditable } from "~/logic/domain/schedule-event-full-days";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

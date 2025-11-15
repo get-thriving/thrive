@@ -21,6 +21,11 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  filterActivitiesByTargetStatus,
+  sortTimePlanActivitiesNaturally,
+} from "@jupiter/core/time_plans/sub/activity/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityStack } from "~/components/infra/entity-stack";
@@ -40,11 +45,6 @@ import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan
 import { TimePlanCard } from "~/components/domain/concept/time-plan/time-plan-card";
 import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import {
-  filterActivitiesByTargetStatus,
-  sortTimePlanActivitiesNaturally,
-} from "~/logic/domain/time-plan-activity";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useBigScreen } from "~/rendering/use-big-screen";

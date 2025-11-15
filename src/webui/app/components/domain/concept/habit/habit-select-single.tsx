@@ -5,16 +5,16 @@ import type {
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-
-import { PeriodTag } from "~/components/domain/core/period-tag";
 import {
   sortHabitSummariesByPeriod,
   sortHabitSummariesByProjectAndPeriod,
-} from "~/logic/domain/habit";
+} from "@jupiter/core/habits/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
+} from "@jupiter/core/projects/root";
+
+import { PeriodTag } from "~/components/domain/core/period-tag";
 
 interface HabitSelectSingleProps {
   name: string;

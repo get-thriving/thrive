@@ -1,31 +1,9 @@
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import HelpCenterIcon from "@mui/icons-material/HelpCenter";
 import { IconButton } from "@mui/material";
 import { useContext } from "react";
 
 import { GlobalPropertiesContext } from "~/global-properties-client";
-
-export enum DocsHelpSubject {
-  ROOT,
-  HOME,
-  GAMIFICATION,
-  INBOX_TASKS,
-  WORKING_MEM,
-  TIME_PLANS,
-  SCHEDULE,
-  HABITS,
-  CHORES,
-  BIG_PLANS,
-  JOURNALS,
-  DOCS,
-  VACATIONS,
-  PROJECTS,
-  SMART_LISTS,
-  METRICS,
-  PERSONS,
-  SLACK_TASKS,
-  EMAIL_TASKS,
-  SELF_HOSTING,
-}
 
 interface DocsHelpProps {
   size: "small" | "medium" | "large";

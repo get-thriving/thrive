@@ -1,4 +1,5 @@
-import type { CombinedTimeEventFullDaysEntry } from "~/logic/domain/time-event";
+import type { CombinedTimeEventFullDaysEntry } from "@jupiter/core/common/time_events/time-event";
+
 import type { TopLevelInfo } from "~/top-level-context";
 import { SectionCard } from "~/components/infra/section-card";
 import { TimeEventFullDaysBlockCard } from "~/components/domain/application/calendar/time-event-full-days-block-card";

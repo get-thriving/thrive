@@ -3,6 +3,7 @@ import {
   EntityId,
   HomeTab,
   HomeTabTarget,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import { z } from "zod";
 import {
@@ -23,6 +24,11 @@ import { IconButton, Stack } from "@mui/material";
 import { AnimatePresence } from "framer-motion";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import {
+  shiftTabDownInListOfTabs,
+  shiftTabUpInListOfTabs,
+  sortTabsByOrder,
+} from "@jupiter/core/home/sub/tab/root";
 
 import {
   DisplayType,
@@ -35,17 +41,11 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { GlobalError } from "~/components/infra/errors";
 import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { StandardDivider } from "~/components/infra/standard-divider";
 import { EntityCard, EntityLink } from "~/components/infra/entity-card";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import {
-  shiftTabDownInListOfTabs,
-  shiftTabUpInListOfTabs,
-  sortTabsByOrder,
-} from "~/logic/home-tab";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import EntityIconComponent from "~/components/infra/entity-icon";
 import { getIntent, makeIntent } from "~/logic/intent";

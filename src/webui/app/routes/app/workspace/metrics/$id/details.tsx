@@ -21,6 +21,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -32,7 +33,6 @@ import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
 import { StandardDivider } from "~/components/infra/standard-divider";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";
@@ -43,6 +43,7 @@ import {
   SectionActions,
   ActionSingle,
 } from "~/components/infra/section-actions";
+
 const ParamsSchema = z.object({
   id: z.string(),
 });

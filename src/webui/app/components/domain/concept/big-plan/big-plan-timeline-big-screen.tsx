@@ -19,8 +19,8 @@ import {
 } from "@mui/material";
 import type { DateTime } from "luxon";
 import { aDateToDate } from "@jupiter/core/adate";
+import { bigPlanDonePct } from "@jupiter/core/big_plans/root";
 
-import { bigPlanDonePct } from "~/logic/domain/big-plan";
 import { BigPlanStatusTag } from "~/components/domain/concept/big-plan/big-plan-status-tag";
 import { EntityNameOneLineComponent } from "~/components/infra/entity-name";
 import { EntityLink } from "~/components/infra/entity-card";

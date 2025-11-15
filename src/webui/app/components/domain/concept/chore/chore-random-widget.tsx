@@ -4,8 +4,8 @@ import {
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
 import { aDateToDate } from "@jupiter/core/adate";
+import { filterInboxTasksForDisplay } from "@jupiter/core/inbox_tasks/root";
 
-import { filterInboxTasksForDisplay } from "~/logic/domain/inbox-task";
 import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
 import {
   ActionableTime,

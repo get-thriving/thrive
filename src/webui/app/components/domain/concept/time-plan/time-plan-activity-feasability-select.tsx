@@ -1,8 +1,7 @@
 import { TimePlanActivityFeasability } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
-
-import { timePlanActivityFeasabilityName } from "~/logic/domain/time-plan-activity-feasability";
+import { timePlanActivityFeasabilityName } from "@jupiter/core/time_plans/sub/activity/feasability";
 
 interface TimePlanActivityFeasabilitySelectProps {
   name: string;

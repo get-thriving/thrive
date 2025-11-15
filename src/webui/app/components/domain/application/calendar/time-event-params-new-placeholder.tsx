@@ -1,12 +1,11 @@
 import type { ADate } from "@jupiter/webapi-client";
 import { Box } from "@mui/material";
 import { useSearchParams } from "@remix-run/react";
-
 import {
   calculateStartTimeFromBlockParams,
   calendarTimeEventInDayDurationToRems,
   calendarTimeEventInDayStartMinutesToRems,
-} from "~/logic/domain/time-event";
+} from "@jupiter/core/common/time_events/time-event";
 
 interface TimeEventParamsNewPlaceholderParams {
   daysToTheLeft: number;

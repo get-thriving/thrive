@@ -5,9 +5,9 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import EntityIconComponent from "~/components/infra/entity-icon";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";

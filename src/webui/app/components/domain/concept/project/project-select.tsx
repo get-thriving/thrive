@@ -1,11 +1,10 @@
 import type { ProjectSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-
 import {
   computeProjectDistanceFromRoot,
   sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
+} from "@jupiter/core/projects/root";
 
 interface ProjectSelectProps {
   name: string;

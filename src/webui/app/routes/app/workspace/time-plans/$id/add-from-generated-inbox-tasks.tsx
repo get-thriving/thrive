@@ -30,6 +30,17 @@ import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { allHigherPeriods } from "@jupiter/core/common/recurring-task-period";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  computeProjectHierarchicalNameFromRoot,
+  sortProjectsByTreeOrder,
+} from "@jupiter/core/projects/root";
+import {
+  filterInboxTasksForDisplay,
+  inboxTaskFindEntryToParent,
+  sortInboxTasksByEisenAndDifficulty,
+} from "@jupiter/core/inbox_tasks/root";
+import type { InboxTaskParent } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { InboxTaskCard } from "~/components/domain/concept/inbox-task/inbox-task-card";
@@ -48,17 +59,6 @@ import { StandardDivider } from "~/components/infra/standard-divider";
 import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import type { InboxTaskParent } from "~/logic/domain/inbox-task";
-import {
-  filterInboxTasksForDisplay,
-  inboxTaskFindEntryToParent,
-  sortInboxTasksByEisenAndDifficulty,
-} from "~/logic/domain/inbox-task";
-import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
 import {
   ActionableTime,

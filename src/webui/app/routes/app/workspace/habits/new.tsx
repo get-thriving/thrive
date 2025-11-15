@@ -16,6 +16,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { HabitRepeatStrategySelect } from "~/components/domain/concept/habit/habit-repeat-strategy-select";
@@ -25,7 +26,6 @@ import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { ProjectSelect } from "~/components/domain/concept/project/project-select";
 import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

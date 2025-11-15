@@ -1,5 +1,5 @@
 import type { SmartListTag } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
 import ReorderIcon from "@mui/icons-material/Reorder";
 import TagIcon from "@mui/icons-material/Tag";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -15,7 +15,6 @@ import { useContext } from "react";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import Check from "~/components/infra/check";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { EntityCard, EntityLink } from "~/components/infra/entity-card";

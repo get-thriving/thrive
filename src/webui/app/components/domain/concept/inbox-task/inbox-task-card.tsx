@@ -28,15 +28,15 @@ import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
 import { aDateToDate } from "@jupiter/core/adate";
-
-import { ClientOnly } from "~/components/infra/client-only";
-import { GlobalPropertiesContext } from "~/global-properties-client";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { isCompleted } from "@jupiter/core/inbox_tasks/status";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "~/logic/domain/inbox-task";
-import { isCompleted } from "~/logic/domain/inbox-task-status";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
+} from "@jupiter/core/inbox_tasks/root";
+
+import { ClientOnly } from "~/components/infra/client-only";
+import { GlobalPropertiesContext } from "~/global-properties-client";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import type { TopLevelInfo } from "~/top-level-context";
 import { ADateTag } from "~/components/domain/core/adate-tag";

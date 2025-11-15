@@ -23,6 +23,12 @@ import { parseForm, parseParams, parseQuery, parseQuerySafe } from "zodix";
 import TuneIcon from "@mui/icons-material/Tune";
 import { StatusCodes } from "http-status-codes";
 import { Fragment, useContext } from "react";
+import {
+  isWidgetDimensionKSized,
+  widgetDimensionCols,
+  widgetDimensionRows,
+  widgetTypeName,
+} from "@jupiter/core/home/sub/widget/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
@@ -35,12 +41,6 @@ import {
   useBranchNeedsToShowLeaf,
 } from "~/rendering/use-nested-entities";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import {
-  isWidgetDimensionKSized,
-  widgetDimensionCols,
-  widgetDimensionRows,
-  widgetTypeName,
-} from "~/logic/widget";
 import { newURLParams } from "~/logic/navigation";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { EntityLink } from "~/components/infra/entity-card";

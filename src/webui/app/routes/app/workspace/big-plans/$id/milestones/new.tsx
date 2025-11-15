@@ -8,6 +8,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { getSuggestedDatesForBigPlanMilestoneDate } from "@jupiter/core/common/suggested-date";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
@@ -26,7 +27,6 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import { getSuggestedDatesForBigPlanMilestoneDate } from "~/logic/domain/suggested-date";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -43,7 +43,6 @@ export const handle = {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  console.log("action");
   const { id: bigPlanId } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, CreateFormSchema);
 

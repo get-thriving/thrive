@@ -16,13 +16,13 @@ import {
   Box,
 } from "@mui/material";
 import { Fragment, useState } from "react";
-
 import {
   isWidgetDimensionKSized,
   widgetDimensionCols,
   widgetDimensionRows,
   widgetTypeName,
-} from "~/logic/widget";
+} from "@jupiter/core/home/sub/widget/root";
+
 import { useBigScreen } from "~/rendering/use-big-screen";
 
 interface WidgetPlacementQuickSelectorProps {

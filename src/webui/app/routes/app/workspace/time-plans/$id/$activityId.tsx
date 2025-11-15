@@ -28,6 +28,13 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/time_events/time-event";
+import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
+import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
@@ -47,13 +54,6 @@ import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/t
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { isInboxTaskCoreFieldEditable } from "~/logic/domain/inbox-task";
-import { allowUserChanges } from "~/logic/domain/inbox-task-source";
-import {
-  sortInboxTaskTimeEventsNaturally,
-  timeEventInDayBlockToTimezone,
-} from "~/logic/domain/time-event";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useBigScreen } from "~/rendering/use-big-screen";

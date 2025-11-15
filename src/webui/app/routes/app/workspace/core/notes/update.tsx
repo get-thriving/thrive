@@ -4,13 +4,13 @@ import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import { NoteContentParser } from "@jupiter/core/common/notes/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import {
   noErrorNoData,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { NoteContentParser } from "~/logic/domain/notes";
 
 const UpdateForEntityFormSchema = z.object({
   id: z.string(),

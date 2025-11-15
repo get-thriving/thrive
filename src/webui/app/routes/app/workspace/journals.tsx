@@ -10,9 +10,9 @@ import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import TuneIcon from "@mui/icons-material/Tune";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";

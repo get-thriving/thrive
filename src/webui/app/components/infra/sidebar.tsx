@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import { Link } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { StandardDivider } from "~/components/infra/standard-divider";

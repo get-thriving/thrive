@@ -20,6 +20,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
@@ -41,7 +42,6 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { TopLevelInfoContext } from "~/top-level-context";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import {
   validationErrorToUIErrorInfo,
   noErrorNoData,

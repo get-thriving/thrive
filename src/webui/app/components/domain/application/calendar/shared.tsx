@@ -31,8 +31,6 @@ import {
 } from "react";
 import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
-
-import { useBigScreen } from "~/rendering/use-big-screen";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
@@ -49,11 +47,13 @@ import {
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
-} from "~/logic/domain/time-event";
+} from "@jupiter/core/common/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
   scheduleStreamColorHex,
-} from "~/logic/domain/schedule-stream-color";
+} from "@jupiter/core/schedule/sub/stream/color";
+
+import { useBigScreen } from "~/rendering/use-big-screen";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityLink } from "~/components/infra/entity-card";
 import { TimeEventParamsNewPlaceholder } from "~/components/domain/application/calendar/time-event-params-new-placeholder";
@@ -348,7 +348,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       return (
         <Box
           ref={containerRef}
-          id={`person-birthday-event-${fullDaysEntry.person.ref_id}`}
+          id={`birthday-event-${fullDaysEntry.person.ref_id}`}
           sx={{
             minWidth: "7rem",
             fontSize: "10px",
@@ -363,7 +363,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           }}
         >
           <EntityLink
-            key={`person-birthday-event-${fullDaysEntry.person.ref_id}`}
+            key={`birthday-event-${fullDaysEntry.person.ref_id}`}
             to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.birthday_time_event.ref_id}?${query}`}
             inline
             block={props.isAdding}

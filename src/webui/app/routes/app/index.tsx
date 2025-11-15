@@ -2,9 +2,10 @@ import { Button, ButtonGroup } from "@mui/material";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link } from "@remix-run/react";
 import { useContext } from "react";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
 import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
 import { SmartAppBar } from "~/components/infra/smart-appbar";

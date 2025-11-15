@@ -17,6 +17,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/stream/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -30,7 +31,6 @@ import {
 import { SectionCard } from "~/components/infra/section-card";
 import { ScheduleStreamColorInput } from "~/components/domain/concept/schedule/schedule-stream-color-input";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isCorePropertyEditable } from "~/logic/domain/schedule-stream";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

@@ -26,6 +26,7 @@ import {
   WidgetTypeConstraints,
   User,
   Workspace,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { DateTime } from "luxon";
@@ -34,6 +35,20 @@ import TuneIcon from "@mui/icons-material/Tune";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { Tabs, Tab, Box } from "@mui/material";
+import {
+  widgetDimensionRows,
+  widgetDimensionCols,
+  isAllowedForWidgetConstraints,
+} from "@jupiter/core/home/sub/widget/root";
+import {
+  inboxTaskFindEntryToParent,
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { isUserFeatureAvailable } from "@jupiter/core/users/root";
+import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
 
 import {
   useTrunkNeedsToShowLeaf,
@@ -46,12 +61,6 @@ import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
 import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { MOTDWidget } from "~/components/domain/concept/motd/motd-widget";
-import {
-  inboxTaskFindEntryToParent,
-  InboxTaskOptimisticState,
-  InboxTaskParent,
-  sortInboxTasksNaturally,
-} from "~/logic/domain/inbox-task";
 import { TopLevelInfo, TopLevelInfoContext } from "~/top-level-context";
 import { NavSingle, SectionActions } from "~/components/infra/section-actions";
 import { newURLParams } from "~/logic/navigation";
@@ -66,12 +75,6 @@ import {
   WidgetPropsNoGeometry,
 } from "~/components/domain/application/home/common";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
-import {
-  widgetDimensionRows,
-  widgetDimensionCols,
-  isAllowedForWidgetConstraints,
-} from "~/logic/widget";
 import { ScheduleDailyWidget } from "~/components/domain/application/calendar/schedule-daily-widget";
 import { HabitRandomWidget } from "~/components/domain/concept/habit/habit-random-widget";
 import { ChoreInboxTasksWidget } from "~/components/domain/concept/chore/chore-inbox-tasks-widget";
@@ -81,9 +84,6 @@ import { GamificationOverviewWidget } from "~/components/domain/application/gami
 import { GamificationHistoryWeeklyWidget } from "~/components/domain/application/gamification/gamification-history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "~/components/domain/application/gamification/gamification-history-monthly-widget";
 import { KeyBigPlansProgressWidget } from "~/components/domain/concept/big-plan/key-big-plans-progress-widget";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { isUserFeatureAvailable } from "~/logic/domain/user";
-import { sortAndFilterTabsByTheirOrder } from "~/logic/domain/home-tab";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

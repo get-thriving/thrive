@@ -1,7 +1,6 @@
 import { TimePlanActivityFeasability } from "@jupiter/webapi-client";
 import { SlimChip } from "@jupiter/core/infra/components/chips";
-
-import { timePlanActivityFeasabilityName } from "~/logic/domain/time-plan-activity-feasability";
+import { timePlanActivityFeasabilityName } from "@jupiter/core/time_plans/sub/activity/feasability";
 
 interface TimePlanActivityFeasabilityTagProps {
   feasability: TimePlanActivityFeasability;

@@ -1,22 +1,22 @@
 import { Box, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { Fragment, useEffect, useRef, useState } from "react";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
+import {
+  KeyHabitStreak,
+  limitKeyHabitResultsBasedOnScreenSize,
+} from "@jupiter/core/habits/streak";
+import {
+  isWidgetDimensionKSized,
+  widgetDimensionCols,
+  widgetDimensionRows,
+} from "@jupiter/core/home/sub/widget/root";
 
 import {
   CELL_FULL_SIZE,
   HabitStreakCalendar,
 } from "~/components/domain/concept/habit/habit-streak-calendar";
 import { WidgetProps } from "~/components/domain/application/home/common";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import {
-  KeyHabitStreak,
-  limitKeyHabitResultsBasedOnScreenSize,
-} from "~/logic/domain/habit-streak";
-import {
-  isWidgetDimensionKSized,
-  widgetDimensionCols,
-  widgetDimensionRows,
-} from "~/logic/widget";
 
 const ANIMATION_DURATION_MS = 10_000;
 

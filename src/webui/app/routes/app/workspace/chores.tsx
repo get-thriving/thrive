@@ -1,16 +1,17 @@
 import type { ChoreFindResultEntry, Project } from "@jupiter/webapi-client";
-import { WorkspaceFeature } from "@jupiter/webapi-client";
+import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortChoresNaturally } from "@jupiter/core/chores/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import Check from "~/components/infra/check";
 import { DifficultyTag } from "~/components/domain/core/difficulty-tag";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EisenTag } from "~/components/domain/core/eisen-tag";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
@@ -21,8 +22,6 @@ import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block
 import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
 import { PeriodTag } from "~/components/domain/core/period-tag";
 import { ProjectTag } from "~/components/domain/concept/project/project-tag";
-import { sortChoresNaturally } from "~/logic/domain/chore";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {

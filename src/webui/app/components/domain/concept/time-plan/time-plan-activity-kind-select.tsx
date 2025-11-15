@@ -1,8 +1,7 @@
 import { TimePlanActivityKind } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
-
-import { timePlanActivityKindName } from "~/logic/domain/time-plan-activity-kind";
+import { timePlanActivityKindName } from "@jupiter/core/time_plans/sub/activity/kind";
 
 interface TimePlanActivityKindSelectProps {
   name: string;

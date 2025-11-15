@@ -23,6 +23,7 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate } from "@jupiter/core/adate";
 import { difficultyName } from "@jupiter/core/common/difficulty";
+import { inboxTaskStatusName } from "@jupiter/core/inbox_tasks/status";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
@@ -32,7 +33,6 @@ import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
 import { FieldError, GlobalError } from "~/components/infra/errors";
 import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { inboxTaskStatusName } from "~/logic/domain/inbox-task-status";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

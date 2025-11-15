@@ -1,4 +1,4 @@
-import { WorkspaceFeature } from "@jupiter/webapi-client";
+import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -8,12 +8,21 @@ import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  computeProjectHierarchicalNameFromRoot,
+  sortProjectsByTreeOrder,
+} from "@jupiter/core/projects/root";
+import {
+  bigPlanFindEntryToParent,
+  sortBigPlansNaturally,
+} from "@jupiter/core/big_plans/root";
+import type { BigPlanParent } from "@jupiter/core/big_plans/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
 import { BigPlanTimelineBigScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-big-screen";
 import { BigPlanTimelineSmallScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-small-screen";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
@@ -23,16 +32,6 @@ import {
   SectionActions,
 } from "~/components/infra/section-actions";
 import { StandardDivider } from "~/components/infra/standard-divider";
-import type { BigPlanParent } from "~/logic/domain/big-plan";
-import {
-  bigPlanFindEntryToParent,
-  sortBigPlansNaturally,
-} from "~/logic/domain/big-plan";
-import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

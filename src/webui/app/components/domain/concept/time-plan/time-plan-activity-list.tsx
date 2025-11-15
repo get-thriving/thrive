@@ -10,8 +10,8 @@ import {
   InboxTaskSource,
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
+import { sortTimePlanActivitiesNaturally } from "@jupiter/core/time_plans/sub/activity/root";
 
-import { sortTimePlanActivitiesNaturally } from "~/logic/domain/time-plan-activity";
 import type { TopLevelInfo } from "~/top-level-context";
 import { EntityStack } from "~/components/infra/entity-stack";
 import { TimePlanActivityCard } from "~/components/domain/concept/time-plan/time-plan-activity-card";

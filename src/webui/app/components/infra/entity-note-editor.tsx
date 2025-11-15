@@ -4,10 +4,10 @@ import { useFetcher } from "@remix-run/react";
 import { Buffer } from "buffer-polyfill";
 import type { ComponentType } from "react";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import type { OneOfNoteContentBlock } from "@jupiter/core/common/notes/root";
 
 import { ClientOnly } from "~/components/infra/client-only";
 import type { SomeErrorNoData } from "~/logic/action-result";
-import type { OneOfNoteContentBlock } from "~/logic/domain/notes";
 import type { BlockEditorProps } from "~/components/infra/block-editor";
 import { FieldError, GlobalError } from "~/components/infra/errors";
 

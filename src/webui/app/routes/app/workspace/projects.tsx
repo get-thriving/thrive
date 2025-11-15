@@ -10,6 +10,13 @@ import { AnimatePresence } from "framer-motion";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import {
+  computeProjectDistanceFromRoot,
+  isRootProject,
+  shiftProjectDownInListOfChildren,
+  shiftProjectUpInListOfChildren,
+  sortProjectsByTreeOrder,
+} from "@jupiter/core/projects/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNameComponent } from "~/components/infra/entity-name";
@@ -20,13 +27,6 @@ import { GlobalError } from "~/components/infra/errors";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import {
-  computeProjectDistanceFromRoot,
-  isRootProject,
-  shiftProjectDownInListOfChildren,
-  shiftProjectUpInListOfChildren,
-  sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

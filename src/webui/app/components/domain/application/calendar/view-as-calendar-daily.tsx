@@ -1,15 +1,15 @@
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
-
-import { useBigScreen } from "~/rendering/use-big-screen";
 import {
   combinedTimeEventFullDayEntryPartionByDay,
   CombinedTimeEventInDayEntry,
   timeEventInDayBlockToTimezone,
   CombinedTimeEventFullDaysEntry,
   combinedTimeEventInDayEntryPartionByDay,
-} from "~/logic/domain/time-event";
+} from "@jupiter/core/common/time_events/time-event";
+
+import { useBigScreen } from "~/rendering/use-big-screen";
 import {
   MAX_VISIBLE_TIME_EVENT_FULL_DAYS,
   ViewAsCalendarDateHeader,

@@ -1,10 +1,10 @@
 import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
 import { aDateToDate } from "@jupiter/core/adate";
-
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
-} from "~/logic/domain/inbox-task";
+} from "@jupiter/core/inbox_tasks/root";
+
 import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
 import {
   ActionableTime,

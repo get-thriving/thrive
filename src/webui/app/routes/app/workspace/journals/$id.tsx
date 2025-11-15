@@ -14,6 +14,8 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 import { allowUserChanges } from "@jupiter/core/journals/source";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -33,8 +35,6 @@ import {
   aGlobalError,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { sortTimePlansNaturally } from "~/logic/domain/time-plan";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

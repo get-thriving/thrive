@@ -1,4 +1,4 @@
-import { ApiError, AppShell } from "@jupiter/webapi-client";
+import { ApiError, AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -10,7 +10,7 @@ import { parseForm } from "zodix";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
 import { FieldError, GlobalError } from "~/components/infra/errors";
 import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";

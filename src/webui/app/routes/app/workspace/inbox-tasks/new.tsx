@@ -29,6 +29,11 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
+import {
+  getSuggestedDatesForInboxTaskActionableDate,
+  getSuggestedDatesForInboxTaskDueDate,
+} from "@jupiter/core/common/suggested-date";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
@@ -44,17 +49,12 @@ import { ProjectSelect } from "~/components/domain/concept/project/project-selec
 import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { IsKeySelect } from "~/components/domain/core/is-key-select";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import {
-  getSuggestedDatesForInboxTaskActionableDate,
-  getSuggestedDatesForInboxTaskDueDate,
-} from "~/logic/domain/suggested-date";
 import { SectionCard, ActionsPosition } from "~/components/infra/section-card";
 import {
   ActionSingle,

@@ -7,9 +7,12 @@ import type {
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { Divider } from "@mui/material";
 import { aDateToDate } from "@jupiter/core/adate";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  bigPlanDonePct,
+  type BigPlanParent,
+} from "@jupiter/core/big_plans/root";
 
-import { bigPlanDonePct, type BigPlanParent } from "~/logic/domain/big-plan";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import type { TopLevelInfo } from "~/top-level-context";
 import { ADateTag } from "~/components/domain/core/adate-tag";
 import { BigPlanStatusTag } from "~/components/domain/concept/big-plan/big-plan-status-tag";

@@ -21,6 +21,8 @@ import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
+import { personRelationshipName } from "@jupiter/core/persons/relationship";
+import { birthdayFromParts } from "@jupiter/core/persons/birthday";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
@@ -29,8 +31,6 @@ import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
 import { StandardDivider } from "~/components/infra/standard-divider";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { birthdayFromParts } from "~/logic/domain/person-birthday";
-import { personRelationshipName } from "~/logic/domain/person-relationship";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { DisplayType } from "~/rendering/use-nested-entities";
 import {

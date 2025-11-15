@@ -25,6 +25,8 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { aDateToDate } from "@jupiter/core/adate";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -35,8 +37,6 @@ import { LeafPanel } from "~/components/infra/layout/leaf-panel";
 import { ProjectSelect } from "~/components/domain/concept/project/project-select";
 import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

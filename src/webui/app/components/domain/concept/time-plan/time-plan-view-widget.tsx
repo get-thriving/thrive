@@ -6,12 +6,12 @@ import {
   BigPlan,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
+import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { filterActivityByFeasabilityWithParents } from "~/logic/domain/time-plan-activity";
 import { TimePlanMergedActivities } from "~/components/domain/concept/time-plan/time-plan-merged-activities";
 import { WidgetProps } from "~/components/domain/application/home/common";
 

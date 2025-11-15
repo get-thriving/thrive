@@ -3,6 +3,7 @@ import {
   AppShell,
   UserFeature,
   WorkspaceFeature,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -25,7 +26,7 @@ import { parseForm } from "zodix";
 
 import { getGuestApiClient } from "~/api-clients.server";
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import {
   UserFeatureFlagsEditor,
   WorkspaceFeatureFlagsEditor,

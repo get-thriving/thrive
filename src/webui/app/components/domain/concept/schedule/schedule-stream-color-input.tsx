@@ -1,7 +1,7 @@
 import { ScheduleStreamColor } from "@jupiter/webapi-client";
 import { Box, MenuItem, Select } from "@mui/material";
+import { scheduleStreamColorName } from "@jupiter/core/schedule/sub/stream/color";
 
-import { scheduleStreamColorName } from "~/logic/domain/schedule-stream-color";
 import { ScheduleStreamColorTag } from "~/components/domain/concept/schedule/schedule-stream-color-tag";
 
 interface ScheduleStreamColorInputProps {

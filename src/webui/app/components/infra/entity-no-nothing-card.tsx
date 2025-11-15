@@ -1,3 +1,4 @@
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 import {
   Button,
   Card,
@@ -8,7 +9,6 @@ import {
 } from "@mui/material";
 import { Form, Link } from "@remix-run/react";
 
-import type { DocsHelpSubject } from "~/components/infra/docs-help";
 import { DocsHelp } from "~/components/infra/docs-help";
 
 interface EntityNoNothingCardProps {

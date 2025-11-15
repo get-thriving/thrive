@@ -22,6 +22,11 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  getSuggestedDatesForBigPlanActionableDate,
+  getSuggestedDatesForBigPlanDueDate,
+} from "@jupiter/core/common/suggested-date";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
@@ -39,16 +44,11 @@ import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/t
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { IsKeySelect } from "~/components/domain/core/is-key-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import {
-  getSuggestedDatesForBigPlanActionableDate,
-  getSuggestedDatesForBigPlanDueDate,
-} from "~/logic/domain/suggested-date";
 
 const ParamsSchema = z.object({});
 

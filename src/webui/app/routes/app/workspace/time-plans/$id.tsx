@@ -13,6 +13,7 @@ import {
   TimePlanActivityKind,
   TimePlanActivityTarget,
   WorkspaceFeature,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import FlareIcon from "@mui/icons-material/Flare";
 import ViewListIcon from "@mui/icons-material/ViewList";
@@ -27,10 +28,14 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { allowUserChanges } from "@jupiter/core/time_plans/source";
+import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
+import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
+import { sortProjectsByTreeOrder } from "@jupiter/core/projects/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
 import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
@@ -53,11 +58,6 @@ import {
   aGlobalError,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { sortProjectsByTreeOrder } from "~/logic/domain/project";
-import { sortTimePlansNaturally } from "~/logic/domain/time-plan";
-import { filterActivityByFeasabilityWithParents } from "~/logic/domain/time-plan-activity";
-import { allowUserChanges } from "~/logic/domain/time-plan-source";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

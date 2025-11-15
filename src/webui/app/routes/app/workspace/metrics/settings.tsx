@@ -9,6 +9,7 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
@@ -16,7 +17,6 @@ import { FieldError, GlobalError } from "~/components/infra/errors";
 import { BranchPanel } from "~/components/infra/layout/branch-panel";
 import { ProjectSelect } from "~/components/domain/concept/project/project-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";
@@ -26,6 +26,7 @@ import {
   ActionSingle,
 } from "~/components/infra/section-actions";
 import { SectionCard } from "~/components/infra/section-card";
+
 const ParamsSchema = z.object({});
 
 const UpdateFormSchema = z.object({

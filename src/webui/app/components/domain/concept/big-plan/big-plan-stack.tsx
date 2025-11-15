@@ -4,8 +4,8 @@ import type {
   BigPlanStats,
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
+import type { BigPlanParent } from "@jupiter/core/big_plans/root";
 
-import type { BigPlanParent } from "~/logic/domain/big-plan";
 import type { TopLevelInfo } from "~/top-level-context";
 import type { BigPlanShowOptions } from "~/components/domain/concept/big-plan/big-plan-card";
 import { BigPlanCard } from "~/components/domain/concept/big-plan/big-plan-card";

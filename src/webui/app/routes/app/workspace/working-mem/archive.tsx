@@ -5,6 +5,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
+import { sortWorkingMemsNaturally } from "@jupiter/core/working_mem/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";
@@ -15,7 +16,6 @@ import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
 import { BranchPanel } from "~/components/infra/layout/branch-panel";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { PeriodTag } from "~/components/domain/core/period-tag";
-import { sortWorkingMemsNaturally } from "~/logic/domain/working-mem";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {

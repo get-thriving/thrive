@@ -29,6 +29,14 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortBirthdayTimeEventsNaturally } from "@jupiter/core/common/time_events/time-event";
+import { personRelationshipName } from "@jupiter/core/persons/relationship";
+import {
+  birthdayFromParts,
+  extractBirthday,
+} from "@jupiter/core/persons/birthday";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -40,14 +48,6 @@ import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-
 import { StandardDivider } from "~/components/infra/standard-divider";
 import { TimeEventFullDaysBlockStack } from "~/components/domain/application/calendar/time-event-full-days-block-stack";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import {
-  birthdayFromParts,
-  extractBirthday,
-} from "~/logic/domain/person-birthday";
-import { personRelationshipName } from "~/logic/domain/person-relationship";
-import { sortBirthdayTimeEventsNaturally } from "~/logic/domain/time-event";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

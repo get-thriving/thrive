@@ -16,6 +16,10 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
+import {
+  findTimePlansThatAreActive,
+  sortTimePlansNaturally,
+} from "@jupiter/core/time_plans/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
@@ -29,10 +33,6 @@ import { SectionCard } from "~/components/infra/section-card";
 import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
 import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import {
-  findTimePlansThatAreActive,
-  sortTimePlansNaturally,
-} from "~/logic/domain/time-plan";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

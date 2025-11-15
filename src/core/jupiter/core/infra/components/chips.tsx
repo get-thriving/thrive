@@ -1,5 +1,6 @@
 import * as React from "react";
-import Chip, { type ChipProps } from "@mui/material/Chip";
+import { Chip } from "@mui/material";
+import type { ChipProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 type ChipComponent = React.ComponentType<ChipProps>;

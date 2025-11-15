@@ -7,8 +7,10 @@ import {
   Workspace,
 } from "@jupiter/webapi-client";
 import { useEffect, useState } from "react";
-
-import { isAllowedForWidgetConstraints, widgetTypeName } from "~/logic/widget";
+import {
+  isAllowedForWidgetConstraints,
+  widgetTypeName,
+} from "@jupiter/core/home/sub/widget/root";
 
 interface WidgetTypeSelectorProps {
   user: User;

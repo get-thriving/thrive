@@ -1,10 +1,10 @@
 import type { InboxTaskStatus } from "@jupiter/webapi-client";
 import { Box, useTheme } from "@mui/material";
-
 import {
   inboxTaskStatusIcon,
   inboxTaskStatusName,
-} from "~/logic/domain/inbox-task-status";
+} from "@jupiter/core/inbox_tasks/status";
+
 import { useBigScreen } from "~/rendering/use-big-screen";
 
 interface InboxTaskStatusBigTagProps {

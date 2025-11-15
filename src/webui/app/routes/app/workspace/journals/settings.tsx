@@ -33,6 +33,7 @@ import {
   ToggleButton,
 } from "@mui/material";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -41,7 +42,6 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { FieldError, GlobalError } from "~/components/infra/errors";
 import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
 import { PeriodSelect } from "~/components/domain/core/period-select";

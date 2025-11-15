@@ -30,20 +30,20 @@ import {
 import { Fragment, useState } from "react";
 import { aDateToDate } from "@jupiter/core/adate";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { inboxTaskSourceName } from "@jupiter/core/inbox_tasks/source";
+import {
+  computeProjectHierarchicalNameFromRoot,
+  sortProjectsByTreeOrder,
+} from "@jupiter/core/projects/root";
+import { isUserFeatureAvailable } from "@jupiter/core/users/root";
+import {
+  inferSourcesForEnabledFeatures,
+  isWorkspaceFeatureAvailable,
+} from "@jupiter/core/workspaces/root";
 
 import { EntityNameOneLineComponent } from "~/components/infra/entity-name";
 import { ScoreOverview } from "~/components/domain/application/gamification/score-overview";
 import { EntityLink } from "~/components/infra/entity-card";
-import { inboxTaskSourceName } from "~/logic/domain/inbox-task-source";
-import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
-import { isUserFeatureAvailable } from "~/logic/domain/user";
-import {
-  inferSourcesForEnabledFeatures,
-  isWorkspaceFeatureAvailable,
-} from "~/logic/domain/workspace";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import type { TopLevelInfo } from "~/top-level-context";
 import { StandardDivider } from "~/components/infra/standard-divider";

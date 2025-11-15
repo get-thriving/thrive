@@ -1,4 +1,4 @@
-import { AppShell } from "@jupiter/webapi-client";
+import { AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -13,7 +13,7 @@ import { useNavigation } from "@remix-run/react";
 import { useContext, useState } from "react";
 
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import { FieldError } from "~/components/infra/errors";
 import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
 import { StandaloneContainer } from "~/components/infra/layout/standalone-container";

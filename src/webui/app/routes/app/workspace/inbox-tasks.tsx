@@ -29,6 +29,23 @@ import { Fragment, memo, useContext, useState } from "react";
 import { z } from "zod";
 import { aDateToDate } from "@jupiter/core/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  inboxTaskStatusIcon,
+  inboxTaskStatusName,
+} from "@jupiter/core/inbox_tasks/status";
+import {
+  canInboxTaskBeInStatus,
+  filterInboxTasksForDisplay,
+  inboxTaskFindEntryToParent,
+  isInboxTaskCoreFieldEditable,
+  sortInboxTasksByEisenAndDifficulty,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
+import type {
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+} from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import type { InboxTaskShowOptions } from "~/components/domain/concept/inbox-task/inbox-task-card";
@@ -50,23 +67,6 @@ import { StandardDivider } from "~/components/infra/standard-divider";
 import { TabPanel } from "~/components/infra/tab-panel";
 import { GlobalPropertiesContext } from "~/global-properties-client";
 import type { SomeErrorNoData } from "~/logic/action-result";
-import type {
-  InboxTaskOptimisticState,
-  InboxTaskParent,
-} from "~/logic/domain/inbox-task";
-import {
-  canInboxTaskBeInStatus,
-  filterInboxTasksForDisplay,
-  inboxTaskFindEntryToParent,
-  isInboxTaskCoreFieldEditable,
-  sortInboxTasksByEisenAndDifficulty,
-  sortInboxTasksNaturally,
-} from "~/logic/domain/inbox-task";
-import {
-  inboxTaskStatusIcon,
-  inboxTaskStatusName,
-} from "~/logic/domain/inbox-task-status";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import {
   ActionableTime,
   actionableTimeToDateTime,

@@ -5,10 +5,11 @@ import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
 import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
 import { StandaloneContainer } from "~/components/infra/layout/standalone-container";

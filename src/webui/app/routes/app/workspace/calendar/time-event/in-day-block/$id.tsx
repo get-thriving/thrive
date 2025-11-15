@@ -28,6 +28,13 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
+import {
+  isTimeEventInDayBlockEditable,
+  timeEventInDayBlockParamsToTimezone,
+  timeEventInDayBlockParamsToUtc,
+} from "@jupiter/core/common/time_events/time-event";
+import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
+import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { InboxTaskPropertiesEditor } from "~/components/domain/concept/inbox-task/inbox-task-properties-editor";
@@ -44,13 +51,6 @@ import { TimeEventParamsSource } from "~/components/domain/application/calendar/
 import { TimeEventSourceLink } from "~/components/domain/application/calendar/time-event-source-link";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { isInboxTaskCoreFieldEditable } from "~/logic/domain/inbox-task";
-import { allowUserChanges } from "~/logic/domain/inbox-task-source";
-import {
-  isTimeEventInDayBlockEditable,
-  timeEventInDayBlockParamsToTimezone,
-  timeEventInDayBlockParamsToUtc,
-} from "~/logic/domain/time-event";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

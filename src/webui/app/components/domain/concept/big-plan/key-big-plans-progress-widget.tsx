@@ -1,9 +1,12 @@
-import { BigPlanMilestone, BigPlanStats } from "@jupiter/webapi-client";
+import {
+  BigPlanMilestone,
+  BigPlanStats,
+  DocsHelpSubject,
+} from "@jupiter/webapi-client";
+import { sortBigPlansNaturally } from "@jupiter/core/big_plans/root";
 
 import { WidgetProps } from "~/components/domain/application/home/common";
-import { sortBigPlansNaturally } from "~/logic/domain/big-plan";
 import { StandardDivider } from "~/components/infra/standard-divider";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
 

@@ -8,6 +8,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { getSuggestedDatesForBigPlanMilestoneDate } from "@jupiter/core/common/suggested-date";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
@@ -27,7 +28,6 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 import { DisplayType } from "~/rendering/use-nested-entities";
 import { TopLevelInfoContext } from "~/top-level-context";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import { getSuggestedDatesForBigPlanMilestoneDate } from "~/logic/domain/suggested-date";
 import { BigPlanMilestoneSourceLink } from "~/components/domain/concept/big-plan/big-plan-milestone-source-link";
 
 const ParamsSchema = z.object({

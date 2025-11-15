@@ -4,9 +4,9 @@ import type {
   VacationEntry,
 } from "@jupiter/webapi-client";
 import { TimeEventNamespace } from "@jupiter/webapi-client";
+import type { CombinedTimeEventFullDaysEntry } from "@jupiter/core/common/time_events/time-event";
+import { birthdayTimeEventName } from "@jupiter/core/common/time_events/time-event";
 
-import type { CombinedTimeEventFullDaysEntry } from "~/logic/domain/time-event";
-import { birthdayTimeEventName } from "~/logic/domain/time-event";
 import { EntityNameComponent } from "~/components/infra/entity-name";
 import { EntityCard, EntityLink } from "~/components/infra/entity-card";
 

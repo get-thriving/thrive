@@ -1,4 +1,4 @@
-import { ApiError, SyncTarget } from "@jupiter/webapi-client";
+import { ApiError, SyncTarget, DocsHelpSubject } from "@jupiter/webapi-client";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import TuneIcon from "@mui/icons-material/Tune";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -12,7 +12,6 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
 import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";

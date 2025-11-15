@@ -11,13 +11,6 @@ import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Fragment } from "react";
 import { allDaysBetween } from "@jupiter/core/adate";
-
-import { useBigScreen } from "~/rendering/use-big-screen";
-import type { ViewAsProps } from "~/components/domain/application/calendar/shared";
-import {
-  ViewAsScheduleTimeEventFullDaysRows,
-  ViewAsScheduleTimeEventInDaysRows,
-} from "~/components/domain/application/calendar/shared";
 import {
   calculateStartTimeForTimeEvent,
   combinedTimeEventFullDayEntryPartionByDay,
@@ -25,7 +18,14 @@ import {
   CombinedTimeEventInDayEntry,
   combinedTimeEventInDayEntryPartionByDay,
   timeEventInDayBlockToTimezone,
-} from "~/logic/domain/time-event";
+} from "@jupiter/core/common/time_events/time-event";
+
+import { useBigScreen } from "~/rendering/use-big-screen";
+import type { ViewAsProps } from "~/components/domain/application/calendar/shared";
+import {
+  ViewAsScheduleTimeEventFullDaysRows,
+  ViewAsScheduleTimeEventInDaysRows,
+} from "~/components/domain/application/calendar/shared";
 
 export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
   const isBigScreen = useBigScreen();

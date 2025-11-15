@@ -31,6 +31,7 @@ import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
 import { SlimChip } from "@jupiter/core/infra/components/chips";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { ADateTag } from "~/components/domain/core/adate-tag";
@@ -50,7 +51,6 @@ import {
   noErrorNoData,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import {
   fixSelectOutputEntityId,
   fixSelectOutputToEnum,

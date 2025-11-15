@@ -24,10 +24,14 @@ import {
   TextField,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
+import {
+  getSuggestedDatesForInboxTaskActionableDate,
+  getSuggestedDatesForInboxTaskDueDate,
+} from "@jupiter/core/common/suggested-date";
 
 import type { SomeErrorNoData } from "~/logic/action-result";
-import { isInboxTaskCoreFieldEditable } from "~/logic/domain/inbox-task";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import type { TopLevelInfo } from "~/top-level-context";
 import { DifficultySelect } from "~/components/domain/core/difficulty-select";
 import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
@@ -47,10 +51,6 @@ import {
   constructFieldName,
 } from "~/logic/field-names";
 import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import {
-  getSuggestedDatesForInboxTaskActionableDate,
-  getSuggestedDatesForInboxTaskDueDate,
-} from "~/logic/domain/suggested-date";
 
 interface InboxTaskPropertiesEditorProps {
   title: string;

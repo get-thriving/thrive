@@ -1,4 +1,5 @@
-import type { CombinedTimeEventInDayEntry } from "~/logic/domain/time-event";
+import type { CombinedTimeEventInDayEntry } from "@jupiter/core/common/time_events/time-event";
+
 import type { TopLevelInfo } from "~/top-level-context";
 import { NavSingle, SectionActions } from "~/components/infra/section-actions";
 import { SectionCard } from "~/components/infra/section-card";

@@ -1,4 +1,4 @@
-import { UserFeature } from "@jupiter/webapi-client";
+import { UserFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import { Settings } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
@@ -22,10 +22,11 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Form, Link, useOutlet } from "@remix-run/react";
 import { AnimatePresence, useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
+import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { DocsHelp } from "~/components/infra/docs-help";
 import {
   ScoreSnackbarManager,
   useScoreActionSingleton,
@@ -38,7 +39,6 @@ import SearchBox from "~/components/infra/search-box";
 import Sidebar from "~/components/infra/sidebar";
 import { Title } from "~/components/infra/title";
 import { GlobalPropertiesContext } from "~/global-properties-client";
-import { isUserFeatureAvailable } from "~/logic/domain/user";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import editorJsTweaks from "~/styles/editorjs-tweaks.css";

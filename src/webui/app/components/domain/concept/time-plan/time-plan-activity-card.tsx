@@ -11,13 +11,13 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 
 import { BigPlanStatusTag } from "~/components/domain/concept/big-plan/big-plan-status-tag";
 import { InboxTaskStatusTag } from "~/components/domain/concept/inbox-task/inbox-task-status-tag";
 import { EntityCard, EntityLink } from "~/components/infra/entity-card";
 import { TimePlanActivityFeasabilityTag } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-tag";
 import { TimePlanActivityKindTag } from "~/components/domain/concept/time-plan/time-plan-activity-kind-tag";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import type { TopLevelInfo } from "~/top-level-context";
 import { ADateTag } from "~/components/domain/core/adate-tag";
 import { TimePlanTag } from "~/components/domain/concept/time-plan/time-plan-tag";

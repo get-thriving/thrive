@@ -21,6 +21,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
+import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/time_events/time-event";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
@@ -33,7 +34,6 @@ import {
 import { SectionCard } from "~/components/infra/section-card";
 import { TimeEventParamsSource } from "~/components/domain/application/calendar/time-event-params-source";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { timeEventInDayBlockParamsToUtc } from "~/logic/domain/time-event";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { DisplayType } from "~/rendering/use-nested-entities";

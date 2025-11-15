@@ -6,8 +6,7 @@ import {
   WidgetTypeConstraints,
 } from "@jupiter/webapi-client";
 import { useEffect, useState } from "react";
-
-import { widgetDimensionName } from "~/logic/widget";
+import { widgetDimensionName } from "@jupiter/core/home/sub/widget/root";
 
 interface WidgetDimensionSelectorProps {
   name: string;

@@ -1,8 +1,7 @@
 import { HomeTabTarget } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
-
-import { homeTabTargetName } from "../../../../../../core/jupiter/core/home/sub/tab/target";
+import { homeTabTargetName } from "@jupiter/core/home/sub/tab/target";
 
 interface HomeTabTargetSelectProps {
   name: string;

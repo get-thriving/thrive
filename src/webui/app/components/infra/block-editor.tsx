@@ -23,8 +23,7 @@ import {
 } from "@jupiter/webapi-client";
 import DragDrop from "editorjs-drag-drop";
 import { useEffect, useRef } from "react";
-
-import type { OneOfNoteContentBlock } from "~/logic/domain/notes";
+import type { OneOfNoteContentBlock } from "@jupiter/core/common/notes/root";
 
 export interface BlockEditorProps {
   autofocus: boolean;

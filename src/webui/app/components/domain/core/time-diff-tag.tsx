@@ -1,9 +1,9 @@
 import type { ADate, Timestamp } from "@jupiter/webapi-client";
 import { FatChip } from "@jupiter/core/infra/components/chips";
 import { aDateToDate } from "@jupiter/core/adate";
+import { timestampToDate } from "@jupiter/core/timestamp";
 
 import { ClientOnly } from "~/components/infra/client-only";
-import { timestampToDate } from "~/logic/domain/timestamp";
 
 interface TimeDiffTagProps {
   today: ADate;
