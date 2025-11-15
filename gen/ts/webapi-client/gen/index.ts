@@ -95,6 +95,7 @@ export type { DocLoadArgs } from './models/DocLoadArgs';
 export type { DocLoadResult } from './models/DocLoadResult';
 export type { DocName } from './models/DocName';
 export type { DocRemoveArgs } from './models/DocRemoveArgs';
+export { DocsHelpSubject } from './models/DocsHelpSubject';
 export type { DocUpdateArgs } from './models/DocUpdateArgs';
 export { Eisen } from './models/Eisen';
 export type { EmailAddress } from './models/EmailAddress';

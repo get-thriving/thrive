@@ -1,9 +1,9 @@
 import { type Chore } from "@jupiter/webapi-client";
-import { compareDifficulty } from "@jupiter/core/common/difficulty";
-import { compareEisen } from "@jupiter/core/common/eisen";
-import { comparePeriods } from "@jupiter/core/common/recurring-task-period";
 
-import { compareIsKey } from "~/logic/domain/is-key";
+import { compareDifficulty } from "~/common/difficulty";
+import { compareEisen } from "~/common/eisen";
+import { comparePeriods } from "~/common/recurring-task-period";
+import { compareIsKey } from "~/is-key";
 
 export function sortChoresNaturally(chores: Chore[]): Chore[] {
   return [...chores].sort((c1, c2) => {

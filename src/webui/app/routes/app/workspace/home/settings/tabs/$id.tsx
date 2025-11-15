@@ -41,7 +41,7 @@ import {
   widgetDimensionRows,
   widgetTypeName,
 } from "~/logic/widget";
-import { newURLParams } from "~/logic/domain/navigation";
+import { newURLParams } from "~/logic/navigation";
 import { useBigScreen } from "~/rendering/use-big-screen";
 import { EntityLink } from "~/components/infra/entity-card";
 import { SectionActions, NavSingle } from "~/components/infra/section-actions";

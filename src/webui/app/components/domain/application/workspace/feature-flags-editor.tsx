@@ -17,7 +17,7 @@ import {
   userFeatureToDocsHelpSubject,
   workspaceFeatureName,
   workspaceFeatureToDocsHelpSubject,
-} from "~/logic/domain/feature";
+} from "~/logic/domain/features";
 import { DocsHelp } from "~/components/infra/docs-help";
 
 interface UserFeatureFlagsEditorProps {

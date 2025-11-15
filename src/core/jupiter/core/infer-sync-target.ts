@@ -6,8 +6,8 @@ import {
   UserFeature,
 } from "@jupiter/webapi-client";
 
-import { isUserFeatureAvailable } from "~/logic/domain/user";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
+import { isUserFeatureAvailable } from "~/users/root";
+import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 
 export function inferSyncTargetsForEnabledFeatures(
   user: User,

@@ -10,6 +10,6 @@ export function journalSourceName(source: JournalSource) {
 }
 
 export function allowUserChanges(source: JournalSource) {
-  // Keep synced with python:journal-source.py
+  // Keep synced with python:journals/source.py
   return source === JournalSource.USER;
 }

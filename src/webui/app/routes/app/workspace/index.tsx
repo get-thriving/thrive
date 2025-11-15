@@ -54,7 +54,7 @@ import {
 } from "~/logic/domain/inbox-task";
 import { TopLevelInfo, TopLevelInfoContext } from "~/top-level-context";
 import { NavSingle, SectionActions } from "~/components/infra/section-actions";
-import { newURLParams } from "~/logic/domain/navigation";
+import { newURLParams } from "~/logic/navigation";
 import { HabitInboxTasksWidget } from "~/components/domain/concept/habit/habit-inbox-tasks-widget";
 import { TimePlanViewWidget } from "~/components/domain/concept/time-plan/time-plan-view-widget";
 import { CalendarDailyWidget } from "~/components/domain/application/calendar/calendar-daily-widget";

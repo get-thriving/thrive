@@ -9,6 +9,7 @@ import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import TuneIcon from "@mui/icons-material/Tune";
+import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { DocsHelpSubject } from "~/components/infra/docs-help";
@@ -17,7 +18,6 @@ import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
 import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
 import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
 import { JournalStack } from "~/components/domain/concept/journal/journal-stack";
-import { sortJournalsNaturally } from "~/logic/domain/journal";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import {

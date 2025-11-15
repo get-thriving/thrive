@@ -26,6 +26,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
@@ -52,7 +53,6 @@ import {
   aGlobalError,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { sortJournalsNaturally } from "~/logic/domain/journal";
 import { sortProjectsByTreeOrder } from "~/logic/domain/project";
 import { sortTimePlansNaturally } from "~/logic/domain/time-plan";
 import { filterActivityByFeasabilityWithParents } from "~/logic/domain/time-plan-activity";

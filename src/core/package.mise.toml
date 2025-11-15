@@ -11,13 +11,25 @@ wait_for = ["package:src:alib:py:framework:install"]
 
 ["package:src:core:fix:prettier"]
 hide = true
-sources = ["src/core/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+  "src/core/**/*.json",
+  "src/core/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/core"
 
 ["package:src:core:fix:eslint"]
 hide = true
-sources = ["src/core/**/*.{ts,tsx,js,jsx}"]
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+]
 outputs = { auto = true }
 run = "npx eslint src/core --fix"
 
@@ -64,19 +76,31 @@ run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_res
 
 ["package:src:core:lint:tsc"]
 hide = true
-sources = ["src/core/**/*.{ts,tsx}"]
+sources = ["src/core/**/*.ts", "src/core/**/*.tsx"]
 outputs = { auto = true }
 run = "cd src/core && npx tsc"
 
 ["package:src:core:lint:prettier"]
 hide = true
-sources = ["src/core/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+  "src/core/**/*.json",
+  "src/core/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --check src/core"
 
 ["package:src:core:lint:eslint"]
 hide = true
-sources = ["src/core/**/*.{ts,tsx,js,jsx}"]
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+]
 outputs = { auto = true }
 run = "npx eslint src/core"
 

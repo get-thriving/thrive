@@ -30,7 +30,8 @@
   ],
   "type": "module",
   "dependencies": {
-    "luxon": "^3.5.0"
+    "luxon": "^3.5.0",
+    "zod": "^3.24.2"
   },
   "peerDependencies": {
     "@emotion/react": "^11.14.0",

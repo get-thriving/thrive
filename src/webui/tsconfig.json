@@ -5,7 +5,8 @@
     "**/*.ts",
     "**/*.tsx",
     "vite.config.mts"
-  ],
+, "../core/jupiter/core/habits/repeats-strategy.ts", "../core/jupiter/core/habits/streak.ts", "../core/jupiter/core/habits/root.ts", "../core/jupiter/core/projects/project.ts", "../core/jupiter/core/users/user.ts", "../core/jupiter/core/vacations/vacation.ts", "../core/jupiter/core/workspaces/workspace.ts", "../core/jupiter/core/common/suggested-date.ts", "../core/jupiter/core/common/recurring-task-skip-rule.ts", "../core/jupiter/core/infer-sync-target.ts", "../core/jupiter/core/common/time_events/schedule-event-full-days.ts", "../core/jupiter/core/common/time_events/schedule-event-in-day.ts", "../core/jupiter/core/sync-target.ts", "../core/jupiter/core/common/notes/notes.ts", "../core/jupiter/core/chores/chore.ts"  ],, , "../core/jupiter/core/home/home-tab-target.ts", "../core/jupiter/core/home/home-tab.ts", "../core/jupiter/core/working_mem/working-mem.ts", "../core/jupiter/core/common/time_events/time-event.ts", "../core/jupiter/core/push_integrations/sub/slack/slack-task.ts", "../core/jupiter/core/timestamp.ts", "../core/jupiter/core/inbox_tasks/inbox-task-source.ts", "../core/jupiter/core/inbox_tasks/inbox-task-status.ts", "../core/jupiter/core/inbox_tasks/inbox-task.ts", "../core/jupiter/core/persons/person-birthday.ts", "../core/jupiter/core/persons/person-relationship.ts", "../core/jupiter/core/big_plans/big-plan.ts""../core/jupiter/core/is-key.ts"
+  "extends": ["../core/tsconfig.json"],
   "compilerOptions": {
     "types": ["@remix-run/node", "vite/client"],
     "skipLibCheck": true,

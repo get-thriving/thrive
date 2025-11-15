@@ -17,11 +17,11 @@ import {
   InboxTaskStatus,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
-import { aDateToDate, compareADate } from "@jupiter/core/adate";
-import { compareDifficulty } from "@jupiter/core/common/difficulty";
-import { compareEisen } from "@jupiter/core/common/eisen";
 
-import { compareIsKey } from "~/logic/domain/is-key";
+import { aDateToDate, compareADate } from "~/adate";
+import { compareDifficulty } from "~/common/difficulty";
+import { compareEisen } from "~/common/eisen";
+import { compareIsKey } from "~/is-key";
 
 export interface InboxTaskOptimisticState {
   status: InboxTaskStatus;

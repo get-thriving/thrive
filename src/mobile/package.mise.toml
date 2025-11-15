@@ -4,7 +4,14 @@ run = "true"
 
 ["package:src:mobile:fix:prettier"]
 hide = true
-sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/mobile/**/*.ts",
+  "src/mobile/**/*.tsx",
+  "src/mobile/**/*.js",
+  "src/mobile/**/*.jsx",
+  "src/mobile/**/*.json",
+  "src/mobile/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/mobile"
 
@@ -21,7 +28,14 @@ run = "npx eslint src/mobile/package.mise.toml"
 
 ["package:src:mobile:lint:prettier"]
 hide = true
-sources = ["src/mobile/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/mobile/**/*.ts",
+  "src/mobile/**/*.tsx",
+  "src/mobile/**/*.js",
+  "src/mobile/**/*.jsx",
+  "src/mobile/**/*.json",
+  "src/mobile/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --check src/mobile"
 

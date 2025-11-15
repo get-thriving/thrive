@@ -12,6 +12,8 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { sortJournalsNaturally } from "@jupiter/core/journals/root";
+import { allowUserChanges } from "@jupiter/core/journals/source";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
@@ -31,8 +33,6 @@ import {
   aGlobalError,
   validationErrorToUIErrorInfo,
 } from "~/logic/action-result";
-import { sortJournalsNaturally } from "~/logic/domain/journal";
-import { allowUserChanges } from "~/logic/domain/journal-source";
 import { sortTimePlansNaturally } from "~/logic/domain/time-plan";
 import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";

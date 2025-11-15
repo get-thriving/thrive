@@ -1,5 +1,6 @@
 import { ADate, EntityId, HabitStreakMark } from "@jupiter/webapi-client";
-import { aDateToDate } from "@jupiter/core/adate";
+
+import { aDateToDate } from "~/adate";
 
 export interface KeyHabitStreak {
   habitRefId: EntityId;

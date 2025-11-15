@@ -4,7 +4,14 @@ run = "true"
 
 ["package:src:desktop:fix:prettier"]
 hide = true
-sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/desktop"
 
@@ -21,7 +28,14 @@ run = "npx eslint src/desktop/package.mise.toml"
 
 ["package:src:desktop:lint:prettier"]
 hide = true
-sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --check src/desktop"
 

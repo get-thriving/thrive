@@ -25,7 +25,10 @@ run = "npx eslint src/docs/package.mise.toml"
 
 ["package:src:docs:lint:yamllint"]
 hide = true
-sources = ["src/docs/**/*.{yml|yaml}"]
+sources = [
+  "src/docs/**/*.yml",
+  "src/docs/**/*.yaml",
+]
 outputs = { auto = true }
 run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
 

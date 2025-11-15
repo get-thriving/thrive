@@ -29,7 +29,7 @@ import {
   NavSingle,
   SectionActions,
 } from "~/components/infra/section-actions";
-import { newURLParams } from "~/logic/domain/navigation";
+import { newURLParams } from "~/logic/navigation";
 import { statsSubperiodForPeriod } from "~/logic/domain/time-event";
 import { inferPlatformAndDistribution } from "~/logic/frontdoor.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";

@@ -37,7 +37,7 @@ import { ProjectSelect } from "~/components/domain/concept/project/project-selec
 import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { newURLParams } from "~/logic/domain/navigation";
+import { newURLParams } from "~/logic/navigation";
 import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
 import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";

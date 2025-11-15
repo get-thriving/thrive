@@ -44,7 +44,7 @@ import {
   widgetDimensionRows,
   widgetTypeName,
 } from "~/logic/widget";
-import { workspaceFeatureName, userFeatureName } from "~/logic/domain/feature";
+import { workspaceFeatureName, userFeatureName } from "~/logic/domain/features";
 import { useBigScreen } from "~/rendering/use-big-screen";
 
 const WIDGET_HEIGHT_IN_REM_BASE = 14;

@@ -107,6 +107,7 @@ from .doc_load_result import DocLoadResult
 from .doc_remove_args import DocRemoveArgs
 from .doc_update_args import DocUpdateArgs
 from .doc_update_args_name import DocUpdateArgsName
+from .docs_help_subject import DocsHelpSubject
 from .eisen import Eisen
 from .email_task import EmailTask
 from .email_task_archive_args import EmailTaskArchiveArgs
@@ -806,6 +807,7 @@ __all__ = (
     "DocLoadArgs",
     "DocLoadResult",
     "DocRemoveArgs",
+    "DocsHelpSubject",
     "DocUpdateArgs",
     "DocUpdateArgsName",
     "Eisen",
