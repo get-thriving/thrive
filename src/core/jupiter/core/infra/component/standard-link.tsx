@@ -1,5 +1,6 @@
-import { Link } from "@remix-run/react";
+import { Link, LinkProps } from "@remix-run/react";
 import { styled } from "@mui/material";
+import { ComponentPropsWithoutRef } from "react";
 
 interface StyledLinkProps {
   light?: string;
@@ -7,7 +8,9 @@ interface StyledLinkProps {
   singleline?: string;
 }
 
-export const StandardLink = styled(Link)<StyledLinkProps>(
+type StandardLinkComponent = React.ComponentType<StyledLinkProps & LinkProps & { children: React.ReactNode }>;
+
+export const StandardLink: StandardLinkComponent = styled(Link)<StyledLinkProps>(
   ({ theme, light, singleline, inline }) => ({
     textDecoration: "none",
     width: inline === "true" ? undefined : "100%",
@@ -31,7 +34,9 @@ export const StandardLink = styled(Link)<StyledLinkProps>(
   }),
 );
 
-export const FakeLink = styled("span")<StyledLinkProps>(
+type FakeLinkComponent = React.ComponentType<StyledLinkProps & ComponentPropsWithoutRef<"span"> & { children: React.ReactNode }>;
+
+export const FakeLink: FakeLinkComponent = styled("span")<StyledLinkProps>(
   ({ theme, inline, singleline, light }) => ({
     textDecoration: "none",
     width: "100%",

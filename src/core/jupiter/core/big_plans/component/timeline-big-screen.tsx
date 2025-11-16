@@ -200,7 +200,9 @@ interface DateMarkerProps {
   color: string;
 }
 
-const DateMarker = styled("div")<DateMarkerProps>(({ leftmargin, color }) => ({
+type DateMarkerComponent = React.ComponentType<DateMarkerProps>;
+
+const DateMarker: DateMarkerComponent = styled("div")<DateMarkerProps>(({ leftmargin, color }) => ({
   position: "absolute",
   top: 0,
   bottom: "-1px",

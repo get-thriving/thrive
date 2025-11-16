@@ -1102,12 +1102,16 @@ export function ViewAsScheduleTimeEventInDaysRows(
   }
 }
 
-export const ViewAsScheduleDateCell = styled(TableCell)(() => ({
+type ViewAsScheduleDateCellComponent = React.ComponentType;
+
+export const ViewAsScheduleDateCell: ViewAsScheduleDateCellComponent = styled(TableCell)(() => ({
   verticalAlign: "top",
   padding: "0.25rem",
 }));
 
-export const ViewAsScheduleContentCell = styled(TableCell)({
+type ViewAsScheduleContentCellComponent = React.ComponentType<{children: React.ReactNode}>;
+
+export const ViewAsScheduleContentCell: ViewAsScheduleContentCellComponent = styled(TableCell)({
   padding: "0.25rem",
 });
 
@@ -1116,7 +1120,9 @@ interface ViewAsScheduleTimeCellProps {
   period: RecurringTaskPeriod;
 }
 
-export const ViewAsScheduleTimeCell = styled(
+type ViewAsScheduleTimeCellComponent = React.ComponentType<ViewAsScheduleTimeCellProps & {children: React.ReactNode}>;
+
+export const ViewAsScheduleTimeCell: ViewAsScheduleTimeCellComponent = styled(
   TableCell,
 )<ViewAsScheduleTimeCellProps>(({ isbigscreen, period }) => ({
   verticalAlign: "top",
@@ -1132,7 +1138,9 @@ interface ViewAsScheduleEventCellProps {
   height: string;
 }
 
-export const ViewAsScheduleEventCell = styled(
+type ViewAsScheduleEventCellComponent = React.ComponentType<ViewAsScheduleEventCellProps & {children: React.ReactNode}>;
+
+export const ViewAsScheduleEventCell: ViewAsScheduleEventCellComponent = styled(
   TableCell,
 )<ViewAsScheduleEventCellProps>(({ color, height }) => ({
   verticalAlign: "top",
