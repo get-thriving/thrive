@@ -1,6 +1,6 @@
 """A smart list tag."""
 
-from jupiter.core.common.tags.name import TagName
+from jupiter.core.common.sub.tags.name import TagName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import MutationContext

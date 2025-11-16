@@ -10,7 +10,7 @@ run = "poetry install --no-interaction --no-ansi"
 
 ["root:install:pnpm"]
 hide = true
-sources = ["package.json"]
+sources = ["package.json", "src/**/package.json"]
 outputs = { auto = true }
 run = "pnpm install"
 

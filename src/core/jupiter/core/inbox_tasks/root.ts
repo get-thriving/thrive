@@ -18,10 +18,10 @@ import {
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
-import { aDateToDate, compareADate } from "~/adate";
+import { aDateToDate, compareADate } from "~/common/adate";
 import { compareDifficulty } from "~/common/difficulty";
 import { compareEisen } from "~/common/eisen";
-import { compareIsKey } from "~/is-key";
+import { compareIsKey } from "~/common/is-key";
 
 export interface InboxTaskOptimisticState {
   status: InboxTaskStatus;

@@ -1,8 +1,8 @@
 """A smart list."""
 
 from jupiter.core.common.entity_icon import EntityIcon
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.core.smart_lists.sub.tag.root import SmartListTag

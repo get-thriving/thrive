@@ -1,9 +1,9 @@
 """Use case for updateing a full day block in the schedule."""
 
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )

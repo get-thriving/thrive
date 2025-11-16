@@ -1,7 +1,7 @@
 """Use case for loading a schedule in day event."""
 
-from jupiter.core.common.notes.root import Note
-from jupiter.core.common.time_events.sub.in_day_block.root import (
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
 from jupiter.core.config import (

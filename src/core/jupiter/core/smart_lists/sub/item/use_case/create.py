@@ -1,6 +1,6 @@
 """The command for creating a smart list item."""
 
-from jupiter.core.common.tags.name import TagName
+from jupiter.core.common.sub.tags.name import TagName
 from jupiter.core.common.url import URL
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,

@@ -23,7 +23,7 @@ import { parseForm, parseParams } from "zodix";
 import {
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
-} from "@jupiter/core/common/time_events/time-event";
+} from "@jupiter/core/common/sub/time_events/time-event";
 import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_in_day/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";

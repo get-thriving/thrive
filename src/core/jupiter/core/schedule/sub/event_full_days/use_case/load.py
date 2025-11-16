@@ -1,7 +1,7 @@
 """Use case for loading a schedule full days event."""
 
-from jupiter.core.common.notes.root import Note
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.config import (

@@ -1,8 +1,8 @@
 """The command for archiving a metric."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.service.archive import (
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.config import (

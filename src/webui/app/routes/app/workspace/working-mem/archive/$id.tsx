@@ -20,7 +20,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-import { aDateToDate } from "@jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/common/adate";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 
 import { getLoggedInApiClient } from "~/api-clients.server";

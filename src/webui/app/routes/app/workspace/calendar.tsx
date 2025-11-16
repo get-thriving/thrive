@@ -18,7 +18,7 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
-import { statsSubperiodForPeriod } from "@jupiter/core/common/time_events/time-event";
+import { statsSubperiodForPeriod } from "@jupiter/core/common/sub/time_events/time-event";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";

@@ -10,8 +10,8 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.chores.service.archive import (
     ChoreArchiveService,
 )
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.service.archive import (
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.habits.collection import HabitCollection

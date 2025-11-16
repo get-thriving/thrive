@@ -70,6 +70,30 @@ importers:
 
   src/core:
     dependencies:
+      '@calumk/editorjs-codecup':
+        specifier: ^1.3.0
+        version: 1.3.0
+      '@editorjs/checklist':
+        specifier: ^1.6.0
+        version: 1.6.0
+      '@editorjs/delimiter':
+        specifier: ^1.4.2
+        version: 1.4.2
+      '@editorjs/editorjs':
+        specifier: ^2.30.8
+        version: 2.31.0
+      '@editorjs/header':
+        specifier: ^2.8.8
+        version: 2.8.8
+      '@editorjs/nested-list':
+        specifier: ^1.4.3
+        version: 1.4.3
+      '@editorjs/quote':
+        specifier: ^2.7.6
+        version: 2.7.6
+      '@editorjs/table':
+        specifier: ^2.4.4
+        version: 2.4.5
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@18.3.26)(react@18.3.1)
@@ -79,22 +103,73 @@ importers:
       '@jupiter/webapi-client':
         specifier: workspace:*
         version: link:../../gen/ts/webapi-client
+      '@mui/icons-material':
+        specifier: ^6.4.8
+        version: 6.5.0(@mui/material@6.5.0(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.26)(react@18.3.1)
       '@mui/material':
         specifier: ^6.4.8
         version: 6.5.0(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@nivo/calendar':
+        specifier: '=0.80.0'
+        version: 0.80.0(@nivo/core@0.80.0)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@nivo/core':
+        specifier: '=0.80.0'
+        version: 0.80.0(@nivo/tooltip@0.80.0)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@nivo/line':
+        specifier: '=0.80.0'
+        version: 0.80.0(@nivo/core@0.80.0)(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@remix-run/node':
+        specifier: ^2.16.3
+        version: 2.17.2(typescript@5.9.3)
+      '@remix-run/react':
+        specifier: ^2.16.3
+        version: 2.17.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)
+      buffer-polyfill:
+        specifier: npm:buffer@^6.0.3
+        version: buffer@6.0.3
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
+      editorjs-drag-drop:
+        specifier: ^1.1.16
+        version: 1.1.16
+      emoji-picker-react:
+        specifier: ^4.12.2
+        version: 4.15.0(react@18.3.1)
+      framer-motion:
+        specifier: ^12.5.0
+        version: 12.23.24(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      http-status-codes:
+        specifier: ^2.3.0
+        version: 2.3.0
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
       luxon:
         specifier: ^3.5.0
         version: 3.7.2
+      notistack:
+        specifier: ^3.0.2
+        version: 3.0.2(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+      react-use-websocket:
+        specifier: ^4.13.0
+        version: 4.13.0
+      ua-parser-js:
+        specifier: ^2.0.3
+        version: 2.0.6
       zod:
         specifier: ^3.24.2
         version: 3.25.76
     devDependencies:
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
       '@types/luxon':
         specifier: ^3.4.2
         version: 3.7.1

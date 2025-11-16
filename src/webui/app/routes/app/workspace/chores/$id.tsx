@@ -24,7 +24,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
-import { aDateToDate } from "@jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 

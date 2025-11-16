@@ -4,7 +4,7 @@ import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
-import { NoteContentParser } from "@jupiter/core/common/notes/root";
+import { NoteContentParser } from "@jupiter/core/common/sub/notes/root";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import {

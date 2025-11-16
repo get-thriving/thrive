@@ -21,7 +21,7 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
-import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/time_events/time-event";
+import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";

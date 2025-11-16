@@ -30,7 +30,7 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortBirthdayTimeEventsNaturally } from "@jupiter/core/common/time_events/time-event";
+import { sortBirthdayTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { personRelationshipName } from "@jupiter/core/persons/relationship";
 import {
   birthdayFromParts,

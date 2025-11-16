@@ -4,8 +4,8 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.service.archive import (
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.inbox_tasks.collection import (

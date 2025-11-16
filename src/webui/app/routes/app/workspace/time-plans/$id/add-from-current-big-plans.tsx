@@ -25,7 +25,7 @@ import type { DateTime } from "luxon";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { aDateToDate } from "@jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   computeProjectHierarchicalNameFromRoot,

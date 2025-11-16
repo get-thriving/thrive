@@ -482,6 +482,7 @@ class RecurringTaskSkipRule(AtomicValue[str]):
             )
         elif self.the_type == "custom_quarterly_rel_yearly":
             return f"custom quarterly relative to yearly: {self.custom_quarterly_rel_yearly}"
+        raise Exception(f"Invalid skip rule type {self.the_type}")
 
 
 class RecurringTaskSkipRuleDatabaseEncoder(

@@ -1,6 +1,6 @@
 """The command for updating a vacation's properties."""
 
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.config import (

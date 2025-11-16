@@ -3,8 +3,8 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.service.archive import (
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.inbox_tasks.collection import (

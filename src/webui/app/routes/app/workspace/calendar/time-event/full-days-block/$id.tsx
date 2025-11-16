@@ -20,7 +20,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-import { birthdayTimeEventName } from "@jupiter/core/common/time_events/time-event";
+import { birthdayTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";

@@ -2,14 +2,14 @@
 
 from collections import defaultdict
 
-from jupiter.core.common.notes.collection import NoteCollection
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
-from jupiter.core.common.time_events.domain import TimeEventDomain
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.config import (

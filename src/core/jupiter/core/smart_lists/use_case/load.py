@@ -1,8 +1,8 @@
 """Use case for loading a smart list."""
 
-from jupiter.core.common.notes.collection import NoteCollection
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,

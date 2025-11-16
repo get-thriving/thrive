@@ -1,8 +1,8 @@
 """A metric."""
 
 from jupiter.core.common.entity_icon import EntityIcon
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource

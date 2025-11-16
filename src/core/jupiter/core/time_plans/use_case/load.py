@@ -7,7 +7,7 @@ from jupiter.core.app import AppCore
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.common import schedules
-from jupiter.core.common.notes.root import Note
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,

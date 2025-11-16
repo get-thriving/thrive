@@ -6,14 +6,14 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.notes.collection import NoteCollection
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
-from jupiter.core.common.time_events.domain import TimeEventDomain
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.in_day_block.root import (
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
 from jupiter.core.config import (

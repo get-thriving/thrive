@@ -1,9 +1,9 @@
 """Use case for updating a schedule in day event."""
 
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.in_day_block.root import (
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlockRepository,
 )
 from jupiter.core.common.time_in_day import TimeInDay

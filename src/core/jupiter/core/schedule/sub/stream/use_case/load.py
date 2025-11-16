@@ -1,7 +1,7 @@
 """Use case for loading a particular stream."""
 
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,

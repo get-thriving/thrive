@@ -7,20 +7,20 @@ from typing import Final, Sequence, cast
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
-from jupiter.core.common.notes.collection import NoteCollection
-from jupiter.core.common.notes.domain import NoteDomain
-from jupiter.core.common.notes.root import Note
+from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.time_events.domain import TimeEventDomain
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.features import WorkspaceFeature

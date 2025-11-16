@@ -27,7 +27,7 @@ import { Link, Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, memo, useContext, useState } from "react";
 import { z } from "zod";
-import { aDateToDate } from "@jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {

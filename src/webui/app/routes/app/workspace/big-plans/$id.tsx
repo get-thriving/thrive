@@ -37,7 +37,7 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
-import { aDateToDate } from "@jupiter/core/adate";
+import { aDateToDate } from "@jupiter/core/common/adate";
 import { bigPlanDonePct } from "@jupiter/core/big_plans/root";
 import {
   getSuggestedDatesForBigPlanActionableDate,

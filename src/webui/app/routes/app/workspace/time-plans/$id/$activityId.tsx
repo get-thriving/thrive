@@ -32,7 +32,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
-} from "@jupiter/core/common/time_events/time-event";
+} from "@jupiter/core/common/sub/time_events/time-event";
 import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 

@@ -1,6 +1,6 @@
 import { ADate, BigPlan, TimePlan } from "@jupiter/webapi-client";
 
-import { aDateToDate, dateToAdate } from "@jupiter/core/adate";
+import { aDateToDate, dateToAdate } from "~/common/adate";
 
 export interface SuggestedDate {
   date: ADate;

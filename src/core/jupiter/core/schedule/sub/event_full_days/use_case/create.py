@@ -1,7 +1,7 @@
 """Use case for creating a full day block in the schedule."""
 
-from jupiter.core.common.time_events.domain import TimeEventDomain
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
 from jupiter.core.config import (

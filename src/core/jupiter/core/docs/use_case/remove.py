@@ -6,7 +6,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.docs.root import Doc
-from jupiter.core.docs.service.remive import (
+from jupiter.core.docs.service.remove import (
     DocRemoveService,
 )
 from jupiter.core.features import WorkspaceFeature

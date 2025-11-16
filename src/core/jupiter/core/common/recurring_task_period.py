@@ -40,6 +40,7 @@ class RecurringTaskPeriod(EnumValue):
             ]
         elif self == RecurringTaskPeriod.YEARLY:
             return []
+        raise Exception(f"Invalid period {self!s}")
 
     @property
     def all_smaller_periods(self) -> list["RecurringTaskPeriod"]:
@@ -63,7 +64,8 @@ class RecurringTaskPeriod(EnumValue):
                 RecurringTaskPeriod.MONTHLY,
                 RecurringTaskPeriod.QUARTERLY,
             ]
-
+        raise Exception(f"Invalid period {self!s}")
+        
     def __lt__(self, other: object) -> bool:
         """Compare this with another."""
         if not isinstance(other, RecurringTaskPeriod):

@@ -3,15 +3,15 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.time_events.domain import TimeEventDomain
-from jupiter.core.common.time_events.namespace import (
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
-from jupiter.core.common.time_events.sub.full_days_block.root import (
+from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
     TimeEventFullDaysBlockRepository,
 )
-from jupiter.core.common.time_events.sub.in_day_block.root import (
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
     TimeEventInDayBlockRepository,
 )

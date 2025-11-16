@@ -7,7 +7,7 @@ import {
 import { compareDifficulty } from "~/common/difficulty";
 import { compareEisen } from "~/common/eisen";
 import { comparePeriods } from "~/common/recurring-task-period";
-import { compareIsKey } from "~/is-key";
+import { compareIsKey } from "~/common/is-key";
 
 export function sortHabitsNaturally(habits: Habit[]): Habit[] {
   return [...habits].sort((c1, c2) => {
