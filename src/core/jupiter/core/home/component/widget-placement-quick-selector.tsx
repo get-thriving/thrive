@@ -16,13 +16,13 @@ import {
   Box,
 } from "@mui/material";
 import { Fragment, useState } from "react";
+
 import {
   isWidgetDimensionKSized,
   widgetDimensionCols,
   widgetDimensionRows,
   widgetTypeName,
 } from "~/home/sub/widget/root";
-
 import { useBigScreen } from "~/infra/component/use-big-screen";
 
 interface WidgetPlacementQuickSelectorProps {

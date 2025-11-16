@@ -1,4 +1,5 @@
 import { PersonRelationship } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { personRelationshipName } from "~/persons/relationship";
 

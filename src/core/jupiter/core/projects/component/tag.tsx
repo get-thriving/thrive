@@ -1,4 +1,5 @@
 import type { Project } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 
 interface Props {

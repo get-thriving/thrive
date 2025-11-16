@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
+
 import type { SkipRule } from "~/common/recurring-task-skip-rule";
 import {
   SkipRuleType,
@@ -22,8 +23,7 @@ import {
   parseSkipRule,
   skipRuleTypeName,
 } from "~/common/recurring-task-skip-rule";
-
-import { useBigScreen } from "~/rendering/use-big-screen";
+import { useBigScreen } from "~/infra/component/use-big-screen";
 
 interface RecurringTaskSkipRuleBlockProps {
   inputsEnabled: boolean;

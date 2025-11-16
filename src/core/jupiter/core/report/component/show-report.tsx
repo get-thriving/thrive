@@ -28,6 +28,7 @@ import {
   styled,
 } from "@mui/material";
 import { Fragment, useState } from "react";
+
 import { aDateToDate } from "~/common/adate";
 import { periodName } from "~/common/recurring-task-period";
 import { inboxTaskSourceName } from "~/inbox_tasks/source";
@@ -40,7 +41,6 @@ import {
   inferSourcesForEnabledFeatures,
   isWorkspaceFeatureAvailable,
 } from "~/workspaces/root";
-
 import { EntityNameOneLineComponent } from "~/common/component/entity-name";
 import { ScoreOverview } from "~/gamification/component/score-overview";
 import { EntityLink } from "~/infra/component/entity-card";

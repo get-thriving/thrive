@@ -10,6 +10,7 @@ import {
 import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Fragment } from "react";
+
 import { allDaysBetween } from "~/common/adate";
 import {
   calculateStartTimeForTimeEvent,
@@ -19,7 +20,6 @@ import {
   combinedTimeEventInDayEntryPartionByDay,
   timeEventInDayBlockToTimezone,
 } from "~/common/sub/time_events/time-event";
-
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import type { ViewAsProps } from "~/calendar/component/shared";
 import {

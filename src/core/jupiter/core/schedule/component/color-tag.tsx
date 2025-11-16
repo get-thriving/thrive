@@ -1,5 +1,6 @@
 import type { ScheduleStreamColor } from "@jupiter/webapi-client";
 import { Box } from "@mui/material";
+
 import { scheduleStreamColorHex } from "~/schedule/sub/stream/color";
 
 interface ScheduleStreamColorTagProps {

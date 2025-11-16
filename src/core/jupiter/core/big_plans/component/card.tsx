@@ -6,13 +6,10 @@ import type {
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { Divider } from "@mui/material";
+
 import { aDateToDate } from "~/common/adate";
 import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import {
-  bigPlanDonePct,
-  type BigPlanParent,
-} from "~/big_plans/root";
-
+import { bigPlanDonePct, type BigPlanParent } from "~/big_plans/root";
 import type { TopLevelInfo } from "~/infra/top-level-context";
 import { ADateTag } from "~/common/component/adate-tag";
 import { BigPlanStatusTag } from "~/big_plans/component/status-tag";

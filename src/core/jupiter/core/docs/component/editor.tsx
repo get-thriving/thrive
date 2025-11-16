@@ -4,8 +4,8 @@ import { useFetcher } from "@remix-run/react";
 import { Buffer } from "buffer-polyfill";
 import type { ComponentType } from "react";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
-import type { OneOfNoteContentBlock } from "~/common/sub/notes/root";
 
+import type { OneOfNoteContentBlock } from "~/common/sub/notes/root";
 import { ClientOnly } from "~/infra/component/client-only";
 import {
   NoErrorSomeData,

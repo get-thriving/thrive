@@ -9,9 +9,9 @@ import {
   UserFeature,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+
 import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 import { isUserFeatureAvailable } from "~/users/root";
-
 import type { TopLevelInfo } from "~/infra/top-level-context";
 import { EntityNameComponent } from "~/common/component/entity-name";
 import { EntityCard, EntityLink } from "~/infra/component/entity-card";

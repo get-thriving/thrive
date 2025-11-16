@@ -1,4 +1,5 @@
 import { AppComponent } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { appComponentName } from "~/app-component";
 

@@ -2,9 +2,9 @@
 
 import abc
 
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource

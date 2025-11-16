@@ -7,6 +7,7 @@ import {
   Workspace,
 } from "@jupiter/webapi-client";
 import { useEffect, useState } from "react";
+
 import {
   isAllowedForWidgetConstraints,
   widgetTypeName,

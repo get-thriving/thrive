@@ -31,6 +31,7 @@ import {
 } from "react";
 import { DateTime } from "luxon";
 import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
+
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
@@ -52,7 +53,6 @@ import {
   scheduleStreamColorContrastingHex,
   scheduleStreamColorHex,
 } from "~/schedule/sub/stream/color";
-
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import { EntityNameComponent } from "~/common/component/entity-name";
 import { EntityLink } from "~/infra/component/entity-card";

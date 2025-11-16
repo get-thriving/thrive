@@ -1,5 +1,4 @@
 import type { CombinedTimeEventInDayEntry } from "~/common/sub/time_events/time-event";
-
 import type { TopLevelInfo } from "~/infra/top-level-context";
 import { NavSingle, SectionActions } from "~/infra/component/section-actions";
 import { SectionCard } from "~/infra/component/section-card";

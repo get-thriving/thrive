@@ -2,11 +2,11 @@ import type { InboxTask } from "@jupiter/webapi-client";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Link, useLocation, useSearchParams } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
+
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "~/inbox_tasks/root";
-
 import type { TopLevelInfo } from "~/infra/top-level-context";
 import type { InboxTaskShowOptions } from "~/inbox_tasks/component/card";
 import { InboxTaskCard } from "~/inbox_tasks/component/card";

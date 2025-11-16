@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import { Link } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 
+import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import { TopLevelInfoContext } from "~/infra/top-level-context";
 import { StandardDivider } from "~/infra/component/standard-divider";

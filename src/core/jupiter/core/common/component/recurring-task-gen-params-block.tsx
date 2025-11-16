@@ -14,8 +14,8 @@ import {
   ToggleButtonGroup,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { periodName } from "~/common/recurring-task-period";
 
+import { periodName } from "~/common/recurring-task-period";
 import type { SomeErrorNoData } from "~/infra/action-result";
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import { DifficultySelect } from "~/common/component/difficulty-select";

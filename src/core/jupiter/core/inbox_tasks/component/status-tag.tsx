@@ -1,4 +1,5 @@
 import { InboxTaskStatus } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { inboxTaskStatusName } from "~/inbox_tasks/status";
 

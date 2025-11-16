@@ -18,9 +18,9 @@ import {
   useTheme,
 } from "@mui/material";
 import type { DateTime } from "luxon";
+
 import { aDateToDate } from "~/common/adate";
 import { bigPlanDonePct } from "~/big_plans/root";
-
 import { BigPlanStatusTag } from "~/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "~/common/component/entity-name";
 import { EntityLink } from "~/infra/component/entity-card";

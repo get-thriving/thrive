@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "@remix-run/react";
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 
+import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 import type { TopLevelInfo } from "~/infra/top-level-context";
 
 interface InboxTasksNoNothingCardProps {

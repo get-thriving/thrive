@@ -5,6 +5,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
+
 import {
   sortHabitSummariesByPeriod,
   sortHabitSummariesByProjectAndPeriod,
@@ -13,7 +14,6 @@ import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
 } from "~/projects/root";
-
 import { PeriodTag } from "~/common/component/period-tag";
 
 interface HabitSelectSingleProps {

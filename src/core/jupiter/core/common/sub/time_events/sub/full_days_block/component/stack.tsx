@@ -1,5 +1,4 @@
 import type { CombinedTimeEventFullDaysEntry } from "~/common/sub/time_events/time-event";
-
 import type { TopLevelInfo } from "~/infra/top-level-context";
 import { SectionCard } from "~/infra/component/section-card";
 import { TimeEventFullDaysBlockCard } from "~/common/sub/time_events/sub/full_days_block/component/card";

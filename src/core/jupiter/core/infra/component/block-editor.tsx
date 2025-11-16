@@ -23,6 +23,7 @@ import {
 } from "@jupiter/webapi-client";
 import DragDrop from "editorjs-drag-drop";
 import { useEffect, useRef } from "react";
+
 import type { OneOfNoteContentBlock } from "~/common/sub/notes/root";
 
 export interface BlockEditorProps {

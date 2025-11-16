@@ -27,6 +27,7 @@ import {
 import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
+
 import { aDateToDate } from "~/common/adate";
 import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 import { isCompleted } from "~/inbox_tasks/status";
@@ -34,7 +35,6 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "~/inbox_tasks/root";
-
 import { ClientOnly } from "~/infra/component/client-only";
 import { GlobalPropertiesContext } from "~/config-client";
 import { useBigScreen } from "~/infra/component/use-big-screen";

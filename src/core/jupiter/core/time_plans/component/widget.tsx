@@ -9,8 +9,8 @@ import {
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
-import { filterActivityByFeasabilityWithParents } from "~/time_plans/sub/activity/root";
 
+import { filterActivityByFeasabilityWithParents } from "~/time_plans/sub/activity/root";
 import { EntityNoNothingCard } from "~/infra/component/entity-no-nothing-card";
 import { TimePlanMergedActivities } from "~/time_plans/component/merged-activities";
 import { WidgetProps } from "~/home/component/common";

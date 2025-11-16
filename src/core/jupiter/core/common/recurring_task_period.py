@@ -65,7 +65,7 @@ class RecurringTaskPeriod(EnumValue):
                 RecurringTaskPeriod.QUARTERLY,
             ]
         raise Exception(f"Invalid period {self!s}")
-        
+
     def __lt__(self, other: object) -> bool:
         """Compare this with another."""
         if not isinstance(other, RecurringTaskPeriod):

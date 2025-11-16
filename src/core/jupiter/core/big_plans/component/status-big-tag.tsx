@@ -1,10 +1,7 @@
 import type { BigPlanStatus } from "@jupiter/webapi-client";
 import { Box, useTheme } from "@mui/material";
-import {
-  bigPlanStatusIcon,
-  bigPlanStatusName,
-} from "~/big_plans/status";
 
+import { bigPlanStatusIcon, bigPlanStatusName } from "~/big_plans/status";
 import { useBigScreen } from "~/infra/component/use-big-screen";
 
 interface BigPlanStatusBigTagProps {

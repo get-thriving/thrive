@@ -1,6 +1,7 @@
 import { Box, Stack, Tab, Tabs, Typography, useTheme } from "@mui/material";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
+
 import {
   KeyHabitStreak,
   limitKeyHabitResultsBasedOnScreenSize,
@@ -10,7 +11,6 @@ import {
   widgetDimensionCols,
   widgetDimensionRows,
 } from "~/home/sub/widget/root";
-
 import {
   CELL_FULL_SIZE,
   HabitStreakCalendar,

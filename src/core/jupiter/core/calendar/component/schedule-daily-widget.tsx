@@ -1,5 +1,5 @@
-import { ViewAsScheduleDailyAndWeekly } from "~/components/domain/application/calendar/view-as-schedule-daily-and-weekly";
-import { WidgetProps } from "~/components/domain/application/home/common";
+import { ViewAsScheduleDailyAndWeekly } from "~/calendar/component/view-as-schedule-daily-and-weekly";
+import { WidgetProps } from "~/home/component/common";
 
 export function ScheduleDailyWidget(props: WidgetProps) {
   const calendar = props.calendar!;

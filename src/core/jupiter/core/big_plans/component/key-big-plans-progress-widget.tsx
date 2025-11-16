@@ -3,8 +3,8 @@ import {
   BigPlanStats,
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
-import { sortBigPlansNaturally } from "~/big_plans/root";
 
+import { sortBigPlansNaturally } from "~/big_plans/root";
 import { WidgetProps } from "~/home/component/common";
 import { StandardDivider } from "~/infra/component/standard-divider";
 import { EntityNoNothingCard } from "~/infra/component/entity-no-nothing-card";

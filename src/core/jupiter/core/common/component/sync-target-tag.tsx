@@ -1,4 +1,5 @@
 import type { SyncTarget } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { syncTargetName } from "~/sync-target";
 

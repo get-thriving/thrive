@@ -1,6 +1,6 @@
 import { type BigPlanMilestone } from "@jupiter/webapi-client";
-import { sortBigPlanMilestones } from "~/big_plans/root";
 
+import { sortBigPlanMilestones } from "~/big_plans/root";
 import { EntityCard, EntityLink } from "~/infra/component/entity-card";
 import { EntityNameComponent } from "~/common/component/entity-name";
 import { EntityStack } from "~/infra/component/entity-stack";

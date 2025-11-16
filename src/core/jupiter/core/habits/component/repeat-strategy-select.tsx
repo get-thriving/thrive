@@ -1,6 +1,7 @@
 import { HabitRepeatsStrategy } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
+
 import { strategyName } from "~/habits/repeats-strategy";
 
 interface HabitRepeatStrategySelectProps {

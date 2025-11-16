@@ -10,8 +10,8 @@ import type {
   ProjectSummary,
 } from "@jupiter/webapi-client";
 import { TimePlanActivityTarget } from "@jupiter/webapi-client";
-import { computeProjectHierarchicalNameFromRoot } from "~/projects/root";
 
+import { computeProjectHierarchicalNameFromRoot } from "~/projects/root";
 import { StandardDivider } from "~/infra/component/standard-divider";
 import { TimePlanActivityList } from "~/time_plans/sub/activity/component/list";
 import { TopLevelInfoContext } from "~/infra/top-level-context";

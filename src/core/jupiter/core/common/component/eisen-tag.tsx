@@ -1,4 +1,5 @@
 import { Eisen } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { eisenName } from "~/common/eisen";
 

@@ -1,4 +1,5 @@
 import { TimePlanActivityKind } from "@jupiter/webapi-client";
+
 import { SlimChip } from "~/infra/component/chips";
 import { timePlanActivityKindName } from "~/time_plans/sub/activity/kind";
 

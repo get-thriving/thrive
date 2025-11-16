@@ -1,5 +1,5 @@
 {
-  "include": ["jupiter/core/**/*.ts", "jupiter/core/**/*.tsx"],
+  "include": ["editorjs.d.ts", "jupiter/core/**/*.ts", "jupiter/core/**/*.tsx"],
   "exclude": ["**/*.py", "**/__pycache__", ".mypy_cache", ".poetry"],
   "compilerOptions": {
     "skipLibCheck": true,

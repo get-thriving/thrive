@@ -7,9 +7,9 @@ import type {
 import { Tooltip, styled } from "@mui/material";
 import { Link } from "@remix-run/react";
 import type { DateTime } from "luxon";
+
 import { aDateToDate } from "~/common/adate";
 import { bigPlanDonePct } from "~/big_plans/root";
-
 import { BigPlanStatusTag } from "~/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "~/common/component/entity-name";
 import { EntityStack } from "~/infra/component/entity-stack";

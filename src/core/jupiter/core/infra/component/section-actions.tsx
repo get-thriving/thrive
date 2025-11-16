@@ -28,8 +28,8 @@ import {
 } from "@mui/material";
 import { Link } from "@remix-run/react";
 import { Fragment, useRef, useState } from "react";
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 
+import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import type { TopLevelInfo } from "~/infra/top-level-context";
 

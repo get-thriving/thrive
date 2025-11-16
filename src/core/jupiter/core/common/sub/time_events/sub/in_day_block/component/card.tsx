@@ -1,7 +1,7 @@
 import type { ScheduleInDayEventEntry, Timezone } from "@jupiter/webapi-client";
 import { TimeEventNamespace } from "@jupiter/webapi-client";
-import { type CombinedTimeEventInDayEntry } from "~/common/sub/time_events/time-event";
 
+import { type CombinedTimeEventInDayEntry } from "~/common/sub/time_events/time-event";
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import { EntityNameComponent } from "~/common/component/entity-name";
 import { EntityCard, EntityLink } from "~/infra/component/entity-card";

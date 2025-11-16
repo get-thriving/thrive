@@ -32,10 +32,8 @@ import {
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
 import { Link } from "@remix-run/react";
-import {
-  InboxTaskParent,
-  InboxTaskOptimisticState,
-} from "~/inbox_tasks/root";
+
+import { InboxTaskParent, InboxTaskOptimisticState } from "~/inbox_tasks/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
@@ -43,7 +41,6 @@ import {
   widgetTypeName,
 } from "~/home/sub/widget/root";
 import { workspaceFeatureName, userFeatureName } from "~/features";
-
 import { useBigScreen } from "~/infra/component/use-big-screen";
 import { TopLevelInfo } from "~/infra/top-level-context";
 
