@@ -5,27 +5,28 @@ import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp
-  
- } from "~/components/infra/docs-help";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
-import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Title } from "~/components/infra/title";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Title } from "@jupiter/core/infra/component/title";
 import {
-  NavSingle,
-  SectionActions,
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
+import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
+import {
   ActionsExpansion,
   ButtonSingle,
-} from "~/components/infra/section-actions";
-import { EMPTY_CONTEXT } from "~/top-level-context";
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const QuerySchema = z.object({
   recoveryToken: z.string(),

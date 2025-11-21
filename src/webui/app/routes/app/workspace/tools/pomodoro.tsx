@@ -3,19 +3,19 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Duration } from "luxon";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { isDevelopment } from "@jupiter/core/env";
-
-import { ClientOnly } from "~/components/infra/client-only";
-import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
+import { ClientOnly } from "@jupiter/core/infra/component/client-only";
+import { makeToolErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
 import {
   SectionActions,
   ButtonSingle,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DisplayType } from "~/rendering/use-nested-entities";
 
 const DEFAULT_PROD_DURATION = Duration.fromMillis(1000 * 60 * 25);
 const DEFAULT_DEV_DURATION = Duration.fromMillis(1000 * 4);

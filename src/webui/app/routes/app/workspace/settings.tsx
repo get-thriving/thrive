@@ -8,24 +8,24 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { WorkspaceFeatureFlagsEditor } from "~/components/domain/application/workspace/feature-flags-editor";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { SectionCard } from "~/components/infra/section-card";
+import { WorkspaceFeatureFlagsEditor } from "@jupiter/core/workspaces/component/feature-flags-editor";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   SectionActions,
   ActionSingle,
-} from "~/components/infra/section-actions";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
+} from "@jupiter/core/infra/component/section-actions";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({

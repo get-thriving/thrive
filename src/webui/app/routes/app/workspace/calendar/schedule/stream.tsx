@@ -5,23 +5,29 @@ import { Outlet, useNavigation, useSearchParams } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { useContext } from "react";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { ScheduleStreamColorTag } from "~/components/domain/concept/schedule/schedule-stream-color-tag";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { ScheduleStreamColorTag } from "@jupiter/core/schedule/component/color-tag";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { NavSingle, SectionActions } from "~/components/infra/section-actions";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 

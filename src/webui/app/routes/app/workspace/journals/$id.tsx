@@ -16,31 +16,31 @@ import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 import { allowUserChanges } from "@jupiter/core/journals/source";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { JournalStack } from "~/components/domain/concept/journal/journal-stack";
-import { PeriodSelect } from "~/components/domain/core/period-select";
-import { ShowReport } from "~/components/domain/application/search/show-report";
-import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { JournalStack } from "@jupiter/core/journals/component/stack";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { ShowReport } from "@jupiter/core/report/component/show-report";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import {
   aGlobalError,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+} from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { useBigScreen } from "~/rendering/use-big-screen";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

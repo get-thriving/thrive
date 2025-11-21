@@ -5,7 +5,7 @@
     "**/*.ts",
     "**/*.tsx",
     "vite.config.mts"
-],
+  ],
   "extends": ["../core/tsconfig.json"],
   "compilerOptions": {
     "types": ["@remix-run/node", "vite/client"],

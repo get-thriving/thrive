@@ -3,15 +3,14 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link } from "@remix-run/react";
 import { useContext } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp } from "~/components/infra/docs-help";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Title } from "~/components/infra/title";
-import { GlobalPropertiesContext } from "~/global-properties-client";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Title } from "@jupiter/core/infra/component/title";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 

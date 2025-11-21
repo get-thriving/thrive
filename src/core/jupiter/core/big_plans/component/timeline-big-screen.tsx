@@ -202,16 +202,18 @@ interface DateMarkerProps {
 
 type DateMarkerComponent = React.ComponentType<DateMarkerProps>;
 
-const DateMarker: DateMarkerComponent = styled("div")<DateMarkerProps>(({ leftmargin, color }) => ({
-  position: "absolute",
-  top: 0,
-  bottom: "-1px",
-  width: "2px",
-  backgroundColor: color,
-  left: `calc(${leftmargin * 100}% - 0.5rem)`,
-  zIndex: 1,
-  cursor: "pointer",
-}));
+const DateMarker: DateMarkerComponent = styled("div")<DateMarkerProps>(
+  ({ leftmargin, color }) => ({
+    position: "absolute",
+    top: 0,
+    bottom: "-1px",
+    width: "2px",
+    backgroundColor: color,
+    left: `calc(${leftmargin * 100}% - 0.5rem)`,
+    zIndex: 1,
+    cursor: "pointer",
+  }),
+);
 
 interface MilestoneMarkerProps {
   leftmargin: number;

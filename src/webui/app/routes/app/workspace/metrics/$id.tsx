@@ -14,25 +14,31 @@ import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
 import { metricEntryName } from "@jupiter/core/metrics/sub/entry/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TimeDiffTag } from "~/components/domain/core/time-diff-tag";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { NavSingle, SectionActions } from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

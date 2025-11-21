@@ -20,29 +20,32 @@ import { z } from "zod";
 import { parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortHabitsNaturally } from "@jupiter/core/habits/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DifficultyTag } from "~/components/domain/core/difficulty-tag";
-import { EisenTag } from "~/components/domain/core/eisen-tag";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { PeriodTag } from "~/components/domain/core/period-tag";
-import { ProjectTag } from "~/components/domain/concept/project/project-tag";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
+import { EisenTag } from "@jupiter/core/common/component/eisen-tag";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { PeriodTag } from "@jupiter/core/common/component/period-tag";
+import { ProjectTag } from "@jupiter/core/projects/component/tag";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { IsKeyTag } from "~/components/domain/core/is-key-tag";
-import { HabitKeyHabitStreakWidget } from "~/components/domain/concept/habit/habit-key-habit-streak-widget";
-import { WidgetProps } from "~/components/domain/application/home/common";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
+import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
+import { WidgetProps } from "@jupiter/core/home/component/common";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

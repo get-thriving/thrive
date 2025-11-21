@@ -13,24 +13,24 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState, useEffect } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { WidgetTypeSelector } from "@jupiter/core/home/component/widget-type-selector";
+import { WidgetDimensionSelector } from "@jupiter/core/home/component/widget-dimension-selector";
+import { RowAndColSelector } from "@jupiter/core/home/component/row-and-col-selector";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { SectionCard } from "~/components/infra/section-card";
-import { WidgetTypeSelector } from "~/components/home/widget-type-selector";
-import { WidgetDimensionSelector } from "~/components/home/widget-dimension-selector";
-import { RowAndColSelector } from "~/components/home/row-and-col-selector";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

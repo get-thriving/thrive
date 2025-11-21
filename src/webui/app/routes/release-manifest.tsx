@@ -1,7 +1,6 @@
 import { json } from "@remix-run/node";
-
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { RELEASE_MANIFEST_SCHEMA } from "~/logic/release";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { RELEASE_MANIFEST_SCHEMA } from "@jupiter/core/infra/release";
 
 export async function loader() {
   try {

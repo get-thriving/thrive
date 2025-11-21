@@ -9,26 +9,26 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { getSuggestedDatesForBigPlanMilestoneDate } from "@jupiter/core/common/suggested-date";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { SectionCard } from "~/components/infra/section-card";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
 import {
   aGlobalError,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+} from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+import { BigPlanMilestoneSourceLink } from "@jupiter/core/big_plans/sub/milestones/component/source-link";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import { BigPlanMilestoneSourceLink } from "~/components/domain/concept/big-plan/big-plan-milestone-source-link";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

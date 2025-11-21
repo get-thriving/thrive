@@ -17,23 +17,26 @@ import {
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
 } from "@jupiter/core/projects/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { GlobalError } from "~/components/infra/errors";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { getIntent, makeIntent } from "~/logic/intent";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
+} from "@jupiter/core/infra/component/use-nested-entities";
+
+import { getIntent, makeIntent } from "~/logic/intent";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),

@@ -3,9 +3,8 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { VERSION_HEADER } from "~/names";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { VERSION_HEADER } from "@jupiter/core/infra/names";
 
 const QuerySchema = z.object({
   distribution: z.nativeEnum(AppDistribution),

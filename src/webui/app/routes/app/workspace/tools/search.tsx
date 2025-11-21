@@ -20,31 +20,31 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EntityCard } from "~/components/infra/entity-card";
-import { EntityStack2 } from "~/components/infra/entity-stack";
-import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
-import { EntityTagSelect } from "~/components/infra/named-entity-tag-select";
+import { EntitySummaryLink } from "@jupiter/core/common/component/entity-summary-link";
+import { EntityCard } from "@jupiter/core/infra/component/entity-card";
+import { EntityStack2 } from "@jupiter/core/infra/component/entity-stack";
+import { makeToolErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
+import { EntityTagSelect } from "@jupiter/core/common/component/named-entity-tag-select";
 import {
   isNoErrorSomeData,
   noErrorSomeData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionCard } from "~/components/infra/section-card";
+} from "@jupiter/core/infra/action-result";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+
+import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 export const handle = {
   displayType: DisplayType.TOOL,
 };

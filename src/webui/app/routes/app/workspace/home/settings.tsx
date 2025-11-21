@@ -29,25 +29,28 @@ import {
   shiftTabUpInListOfTabs,
   sortTabsByOrder,
 } from "@jupiter/core/home/sub/tab/root";
-
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import EntityIconComponent from "@jupiter/core/infra/component/entity-icon";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { GlobalError } from "~/components/infra/errors";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import EntityIconComponent from "~/components/infra/entity-icon";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 import { getIntent, makeIntent } from "~/logic/intent";
 
 const ParamsSchema = z.object({});

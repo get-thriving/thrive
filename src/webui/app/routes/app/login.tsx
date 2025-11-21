@@ -7,32 +7,35 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getGuestApiClient } from "~/api-clients.server";
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp } from "~/components/infra/docs-help";
-import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Password } from "~/components/domain/application/auth/password";
-import { Title } from "~/components/infra/title";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { AUTH_TOKEN_NAME } from "~/names";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { commitSession, getSession } from "~/sessions";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Password } from "@jupiter/core/auth/component/password";
+import { Title } from "@jupiter/core/infra/component/title";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   NavSingle,
   NavMultipleCompact,
   ActionsExpansion,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { EMPTY_CONTEXT } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+
+import { commitSession, getSession } from "~/sessions";
+import { getGuestApiClient } from "~/api-clients.server";
 
 const LoginFormSchema = z.object({
   emailAddress: z.string(),

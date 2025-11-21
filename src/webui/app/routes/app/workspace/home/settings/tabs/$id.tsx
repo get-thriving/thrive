@@ -29,23 +29,26 @@ import {
   widgetDimensionRows,
   widgetTypeName,
 } from "@jupiter/core/home/sub/widget/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { EntityLink } from "@jupiter/core/infra/component/entity-card";
+import {
+  SectionActions,
+  NavSingle,
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { newURLParams } from "~/logic/navigation";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { EntityLink } from "~/components/infra/entity-card";
-import { SectionActions, NavSingle } from "~/components/infra/section-actions";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum Action {
   ADD_WIDGET = "add",

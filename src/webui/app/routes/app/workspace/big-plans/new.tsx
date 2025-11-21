@@ -27,28 +27,31 @@ import {
   getSuggestedDatesForBigPlanActionableDate,
   getSuggestedDatesForBigPlanDueDate,
 } from "@jupiter/core/common/suggested-date";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { DifficultySelect } from "~/components/domain/core/difficulty-select";
-import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { ProjectSelect } from "~/components/domain/concept/project/project-select";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { IsKeySelect } from "~/components/domain/core/is-key-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+} from "@jupiter/core/infra/component/section-actions";
+import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 

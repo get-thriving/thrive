@@ -33,16 +33,14 @@ import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
 import { sortProjectsByTreeOrder } from "@jupiter/core/projects/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
+import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import {
   ActionSingle,
   FilterFewOptionsSpread,
@@ -50,25 +48,27 @@ import {
   NavMultipleCompact,
   NavSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { JournalStack } from "~/components/domain/concept/journal/journal-stack";
-import { PeriodSelect } from "~/components/domain/core/period-select";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { JournalStack } from "@jupiter/core/journals/component/stack";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import {
   aGlobalError,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+} from "@jupiter/core/infra/action-result";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { TimePlanMergedActivities } from "~/components/domain/concept/time-plan/time-plan-merged-activities";
-import { TimePlanByProjectActivities } from "~/components/domain/concept/time-plan/time-plan-by-project-activities";
-import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { TimePlanMergedActivities } from "@jupiter/core/time_plans/component/merged-activities";
+import { TimePlanByProjectActivities } from "@jupiter/core/time_plans/component/by-project-activities";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   MERGED = "merged",

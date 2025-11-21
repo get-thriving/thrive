@@ -6,22 +6,25 @@ import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { sortWorkingMemsNaturally } from "@jupiter/core/working_mem/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { ADateTag } from "~/components/domain/core/adate-tag";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { PeriodTag } from "~/components/domain/core/period-tag";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { ADateTag } from "@jupiter/core/common/component/adate-tag";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
+} from "@jupiter/core/infra/component/use-nested-entities";
+
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.BRANCH,

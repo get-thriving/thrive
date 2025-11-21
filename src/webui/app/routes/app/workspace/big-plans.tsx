@@ -18,29 +18,29 @@ import {
   sortBigPlansNaturally,
 } from "@jupiter/core/big_plans/root";
 import type { BigPlanParent } from "@jupiter/core/big_plans/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
-import { BigPlanTimelineBigScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-big-screen";
-import { BigPlanTimelineSmallScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-small-screen";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
+import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
+import { BigPlanTimelineBigScreen } from "@jupiter/core/big_plans/component/timeline-big-screen";
+import { BigPlanTimelineSmallScreen } from "@jupiter/core/big_plans/component/timeline-small-screen";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsSpread,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+} from "@jupiter/core/infra/component/section-actions";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

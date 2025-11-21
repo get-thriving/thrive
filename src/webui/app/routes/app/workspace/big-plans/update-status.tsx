@@ -4,13 +4,13 @@ import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
 import {
   noErrorNoData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
+} from "@jupiter/core/infra/action-result";
+import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
+
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpdateStatusFormSchema = z.object({
   id: z.string(),

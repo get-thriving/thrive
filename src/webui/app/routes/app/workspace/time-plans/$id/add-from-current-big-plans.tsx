@@ -36,32 +36,34 @@ import {
   sortBigPlansNaturally,
 } from "@jupiter/core/big_plans/root";
 import type { BigPlanParent } from "@jupiter/core/big_plans/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { BigPlanStack } from "~/components/domain/concept/big-plan/big-plan-stack";
-import { BigPlanTimelineBigScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-big-screen";
-import { BigPlanTimelineSmallScreen } from "~/components/domain/concept/big-plan/big-plan-timeline-small-screen";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
+import { BigPlanTimelineBigScreen } from "@jupiter/core/big_plans/component/timeline-big-screen";
+import { BigPlanTimelineSmallScreen } from "@jupiter/core/big_plans/component/timeline-small-screen";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
   FilterFewOptionsCompact,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  TopLevelInfo,
+  TopLevelInfoContext,
+} from "@jupiter/core/infra/top-level-context";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import type { TopLevelInfo } from "~/top-level-context";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   LIST_MERGED = "list-merged",

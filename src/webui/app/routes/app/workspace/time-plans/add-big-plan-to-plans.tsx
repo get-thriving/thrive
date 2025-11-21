@@ -20,25 +20,25 @@ import {
   findTimePlansThatAreActive,
   sortTimePlansNaturally,
 } from "@jupiter/core/time_plans/root";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
