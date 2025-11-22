@@ -4,3 +4,4 @@ PUBLIC_NAME=Thrive
 HOSTED_GLOBAL_WEBUI_URL=https://app.get-thriving.com
 AUTHOR="Horia Coman"
 COPYRIGHT="2024 Horia Coman"
+DOCKER_REGISTRY_NAME=horia141

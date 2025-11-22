@@ -13,20 +13,60 @@ source src/Config.global
 
 log info "Taggin Docker images to Docker Hub"
 
-docker tag jupiter/webapi:latest horia141/jupiter-webapi:latest
-docker tag jupiter/webapi:${VERSION} horia141/jupiter-webapi:${VERSION}
-docker tag jupiter/webui:latest horia141/jupiter-webui:latest
-docker tag jupiter/webui:${VERSION} horia141/jupiter-webui:${VERSION}
-docker tag jupiter/cli:latest horia141/jupiter-cli:latest
-docker tag jupiter/cli:${VERSION} horia141/jupiter-cli:${VERSION}
+# webapi
+docker tag jupiter/webapi:latest-amd64   ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-amd64
+docker tag jupiter/webapi:${VERSION}-amd64 ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-amd64
+docker tag jupiter/webapi:latest-arm64   ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-arm64
+docker tag jupiter/webapi:${VERSION}-arm64 ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-arm64
+
+# webui
+docker tag jupiter/webui:latest-amd64    ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-amd64
+docker tag jupiter/webui:${VERSION}-amd64  ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-amd64
+docker tag jupiter/webui:latest-arm64    ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-arm64
+docker tag jupiter/webui:${VERSION}-arm64  ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-arm64
+
+# cli
+docker tag jupiter/cli:latest-amd64      ${DOCKER_REGISTRY_NAME}/jupiter-cli:latest-amd64
+docker tag jupiter/cli:${VERSION}-amd64    ${DOCKER_REGISTRY_NAME}/jupiter-cli:${VERSION}-amd64
+docker tag jupiter/cli:latest-arm64      ${DOCKER_REGISTRY_NAME}/jupiter-cli:latest-arm64
+docker tag jupiter/cli:${VERSION}-arm64    ${DOCKER_REGISTRY_NAME}/jupiter-cli:${VERSION}-arm64
 
 log info "Uploading Docker images to Docker Hub"
 
-docker image push horia141/jupiter-webapi:latest
-docker image push horia141/jupiter-webapi:${VERSION}
-docker image push horia141/jupiter-webui:latest
-docker image push horia141/jupiter-webui:${VERSION}
-docker image push horia141/jupiter-cli:latest
-docker image push horia141/jupiter-cli:${VERSION}
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-cli:latest-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-cli:${VERSION}-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-cli:latest-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-cli:${VERSION}-arm64
+
+log info "Creating and pushing multi-arch manifests"
+
+create_manifest() {
+  local name="$1"  # e.g. jupiter-webapi
+  local tag="$2"   # e.g. latest or ${VERSION}
+
+  docker manifest create "${DOCKER_REGISTRY_NAME}/${name}:${tag}" \
+    "${DOCKER_REGISTRY_NAME}/${name}:${tag}-amd64" \
+    "${DOCKER_REGISTRY_NAME}/${name}:${tag}-arm64"
+
+  docker manifest push "${DOCKER_REGISTRY_NAME}/${name}:${tag}"
+}
+
+# latest manifests
+create_manifest "jupiter-webapi" "latest"
+create_manifest "jupiter-webui" "latest"
+create_manifest "jupiter-cli" "latest"
+
+# versioned manifests
+create_manifest "jupiter-webapi" "${VERSION}"
+create_manifest "jupiter-webui" "${VERSION}"
+create_manifest "jupiter-cli" "${VERSION}"
 
 log info "Docker images uploaded to Docker Hub"

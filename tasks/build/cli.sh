@@ -7,6 +7,7 @@
 
 set -e -o pipefail
 
+
 source tasks/_common.sh
 
 release_branch=$(git rev-parse --abbrev-ref HEAD)
