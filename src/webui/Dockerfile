@@ -19,7 +19,6 @@ COPY src/Config.global src/Config.global
 COPY src/core/README.md src/core/README.md
 COPY src/core/package.json src/core/package.json
 COPY src/core/tsconfig.json src/core/tsconfig.json
-COPY src/core/tsconfig.build.json src/core/tsconfig.build.json
 COPY src/core/jupiter/core src/core/jupiter/core
 COPY src/webui/README.md src/webui/README.md
 COPY src/webui/Config.project.live src/webui/Config.project
@@ -39,7 +38,6 @@ RUN npm install -g pnpm@latest && pnpm install
 
 # hadolint ignore=DL3003
 RUN cd gen/ts/webapi-client && npx tsc
-RUN cd src/core && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json
 
 ARG PORT=10020
 ENV HOST=0.0.0.0
