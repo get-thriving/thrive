@@ -5,7 +5,6 @@ import re
 import time
 from collections.abc import Iterator
 
-from jupiter_webapi_client.models.time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigPlansResult
 import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
@@ -100,14 +99,14 @@ from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
-from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import (
-    TimePlanAssociateBigPlanWithPlanResult,
-)
 from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import (
     TimePlanAssociateInboxTaskWithPlanResult,
 )
 from jupiter_webapi_client.models.time_plan_associate_with_big_plans_args import (
     TimePlanAssociateWithBigPlansArgs,
+)
+from jupiter_webapi_client.models.time_plan_associate_with_big_plans_result import (
+    TimePlanAssociateWithBigPlansResult,
 )
 from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_args import (
     TimePlanAssociateWithInboxTasksArgs,
