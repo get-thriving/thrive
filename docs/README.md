@@ -1,7 +1,8 @@
 # Documentation
 
-This document is a guide to developing in Jupiter. By reading it you should gain an
-understanding of how to develop in this project, and should have a working dev environment
+This document is a guide to developing in Jupiter. By reading it
+you should gain an understanding of how to develop in this
+project, and should have a working dev environment
 that allows you to do said development.
 
 ## Naming
@@ -17,21 +18,25 @@ repository tasks and build tool.  Checkout `scripts/setup-for-dev.sh` for other 
 needed. It's a pretty standard Node & Python development setup. A modern IDE is
 implied, though no particular brand is assumed.
 
-After a `git clone jupiter ~/Work/jupiter` kind of setup, you should also run the following:
+After a `git clone jupiter ~/Work/jupiter` kind of setup, you
+should also run the following:
 
 ```bash
 % ./scripts/setup-for-dev.sh
 ```
 
-This will set things up locally inside the local repository for the dev tools we use.
-This is Python and Node right now. A venv is created, and a bunch of linters and checkers
-are installed. Also all the dependencies from pypi and npm. Where possible, everything
-is installed for the local repository, but there are some installed globally via brew.
+This will set things up locally inside the local repository for
+the dev tools we use.
+This is Python and Node right now. A venv is created, and a bunch
+of linters and checkers are installed. Also all the dependencies
+from pypi and npm. Where possible, everything is installed for
+the local repository, but there are some installed globally via brew.
 
 ## A Development Session
 
-When you want to develop a new feature or bugfix you need to activate the new dev
-session from a shell first. Then there's some small ceremony about creating a feature branch for the work (see below).
+When you want to develop a new feature or bugfix you need to activate
+the new dev session from a shell first. Then there's some small
+ceremony about creating a feature branch for the work (see below).
 
 ```bash
 % mise run work:feature:new work-on-something
@@ -44,13 +49,15 @@ Finally there's commands for running a local instance of Jupiter.
 % mise run run:srv a-test
 ```
 
-This will start the instance with the name `a-test`. If ommited, the standard name `dev`
-is used. You can start as many as you want, and they live independently (use different
-DBs, different ports, etc.). You can watch the overview of the started processes and their
+This will start the instance with the name `a-test`. If ommited, the
+standard name `dev` is used. You can start as many as you want, and they
+live independently (use different DBs, different ports, etc.). You can
+watch the overview of the started processes and their
 logs for easier debugging. Though `npx pm2 logs` is also useful here.
 
-For quick checks you can run `mise lint:lint-fast`. And for the whole test-suite with
-linters, type checkers, unit tests, integration tests, etc. you can run `mise check` (it'll take a couple minutes).
+For quick checks you can run `mise lint:lint-fast`. And for the whole
+test-suite with linters, type checkers, unit tests, integration tests,
+etc. you can run `mise check` (it'll take a couple minutes).
 
 When you're finished you can run:
 
@@ -58,31 +65,34 @@ When you're finished you can run:
 % mise run work:feature:close
 ```
 
-This will perform all ceremonies, merge the branch correctly into `develop` and push to GitHub.
+This will perform all ceremonies, merge the branch correctly
+into `develop` and push to GitHub.
 
 > A note on using `work:feature:new`, `work:feature:close`, and other
-counterparts: we want to keep hygene of the `master` branch to have a linear history of
-features and bugfixes, ocassionally tagged with releases. To enforce these, there's no
-straight coding on the `develop` branch, and the helper scripts help you setup things
+counterparts: we want to keep hygene of the `master` branch to have
+a linear history of features and bugfixes, ocassionally tagged
+with releases. To enforce these, there's no straight coding on
+the `develop` branch, and the helper scripts help you setup things
 in the right way.
 
 ## Environments
 
-The Jupiter infrastructure has a rather crips notion of environments. They operate
-on two levels: system and feature.
+The Jupiter infrastructure has a rather crips notion of environments.
+They operate on two levels: system and feature.
 
-System environments are the names we give for the code in various distances relative
-to users and developers. Code can look at the `Env` enum to understand what environment
-they are in.
+System environments are the names we give for the code in various
+distances relative to users and developers. Code can look at the
+`Env` enum to understand what environment they are in.
 
 * There is the `production` environment of which there is only one, and which consists
   of the totality of machines, cloud resources, SaaS services, etc. which handle
   the user data, the user interactions, etc. Crucially this also includes the distributed
-  clients that are the `cli` app, the `MacOS` app, the `iOS` and `Android` apps, and
-  the code running in all the browsers where the app is running like that. So it's both
-  machines we own, and ones our customers own! The code running here corresponds
-  to the code at `main:latest` or `main:vX.Y` depending on the distribution model.
-  This is considered a `live` environment because it is accessible for users.
+  clients that are the `cli` app, the `MacOS` app, the `iOS` and `Android` apps,
+  and the code running in all the browsers where the app is running like that.
+  So it's both machines we own, and ones our customers own! The code running
+  here corresponds to the code at `main:latest` or `main:vX.Y` depending on
+  the distribution model. This is considered a `live` environment because it
+  is accessible for users.
 * There is the `staging` environmenet of which there can be many, and which are used
   by developers to showcase their work. Every time you create a PR, you also create
   a `staging` environment that runs the code in your particular branch. You can build
@@ -93,10 +103,11 @@ they are in.
   time you run `./scripts/run-srv.sh` you're creating/using such an environment.
   This is not considered `local` environment because it is not accessible to users.
 
-Feature environments are a subset of `dev` and `staging` environments. When you specificy a
-particular name in `./scripts/run-srv.sh <your-name>` you create such an env for example,
-or reuse if you created it before. When you open a PR, the same happens but in a `live`
-setting. These environments are separate between each other, and start in a blank but valid state.
+Feature environments are a subset of `dev` and `staging` environments. When you
+specificy a particular name in `./scripts/run-srv.sh <your-name>` you create such
+an env for example, or reuse if you created it before. When you open a PR, the
+same happens but in a `live` setting. These environments are separate between
+each other, and start in a blank but valid state.
 
 ## Apps
 
@@ -164,11 +175,11 @@ where this thing is more clear, there is something that the shell does.
   into the app and that are the things that the capacitor webview is going to load
   initially. THere's an `index.html` and an `error.html` page. These serve two
   purposes.
-  * First: they take the environment configuration and pass it to the core, in a way
-    that capacitor currently doesn't.
-  * Second: the `index.html` shows a splash screen type-thing and simply reloads to
-    the remote server address. But if there's an error, there's a redirect to `error.html`
-    that allows a user to see an error has occurred and retry.
+  * First: they take the environment configuration and pass it to the core,
+    in a way that capacitor currently doesn't.
+  * Second: the `index.html` shows a splash screen type-thing and simply reloads
+    to the remote server address. But if there's an error, there's a redirect to
+    `error.html` that allows a user to see an error has occurred and retry.
   Together these give some control to the local app without having to rely on the
   remote thing to exist (and ditto a network connection to exist, etc.).
 * On desktop the logic is the same, but Electron can do a bit more setup in the
@@ -212,7 +223,8 @@ can pass in `pytest` arguments.
 ## Releases
 
 Jupiter has a notion of versions, represented by releases. These mark specific
-code versions, and the associated "release entities" for them (typically packaged apps).
+code versions, and the associated "release entities" for them (typically
+packaged apps).
 
 The main Jupiter system has a continuous deployment release model. Every piece
 of work that gets created via `work:feature:new` or `work:bugfix:new` triggers a

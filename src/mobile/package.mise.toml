@@ -15,6 +15,12 @@ sources = [
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/mobile"
 
+["package:src:mobile:fix:markdownlint"]
+hide = true
+sources = ["src/mobile/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/mobile/README.md"
+
 ["package:src:mobile:fix"]
 description = "Fix src/mobile module"
 depends = ["package:src:mobile:fix:*"]
@@ -39,11 +45,11 @@ sources = [
 outputs = { auto = true }
 run = "npx prettier --check src/mobile"
 
-["package:src:mobile:lint:mdl-readme"]
+["package:src:mobile:lint:markdownlint-readme"]
 hide = true
 sources = ["src/mobile/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/mobile/README.md"
+run = "npx markdownlint-cli2 src/mobile/README.md"
 
 ["package:src:mobile:lint"]
 description = "Check src/mobile module"

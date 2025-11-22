@@ -2,21 +2,28 @@
 hide = true
 run  = "true"
 
+["docs:fix:markdownlint"]
+hide = true
+sources = ["docs/**/*.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix 'docs/**/*.md'"
+
+["docs:fix"]
+description = "Fix docs module"
+depends = ["docs:fix:*"]
+run = "true"
+
 ["docs:lint:toml"]
 hide = true
 sources = ["docs/docs.mise.toml"]
 outputs = { auto = true }
 run = "npx eslint docs/docs.mise.toml"
 
-["docs:lint:mdl-docs"]
+["docs:lint:markdownlint-docs"]
 hide = true
 sources = ["docs/**/*.md"]
 outputs = { auto = true }
-run = '''
-#!/usr/bin/env bash
-set -e -o pipefail
-mdl --config="./tasks/_resources/check/lint/mdl-docs" docs/
-'''
+run = "npx markdownlint-cli2 'docs/**/*.md'"
 
 ["docs:lint"]
 description = "Check docs module"

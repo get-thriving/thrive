@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #MISE description="Fix lint issues"
-#MISE depends=["package:**:fix"]
+#MISE depends=["root:fix", "docs:fix", "package:**:fix"]
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }

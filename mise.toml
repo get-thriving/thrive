@@ -12,7 +12,6 @@ node = "22.14.0"
 pnpm = "latest"
 poetry = "latest"
 python = "3.13.0"
-ruby = "2.7"
 rust = "latest"
 
 [env]

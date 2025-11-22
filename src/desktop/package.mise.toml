@@ -15,6 +15,12 @@ sources = [
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/desktop"
 
+["package:src:desktop:fix:markdownlint"]
+hide = true
+sources = ["src/desktop/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/desktop/README.md"
+
 ["package:src:desktop:fix"]
 description = "Fix src/desktop module"
 depends = ["package:src:desktop:fix:*"]
@@ -39,11 +45,11 @@ sources = [
 outputs = { auto = true }
 run = "npx prettier --check src/desktop"
 
-["package:src:desktop:lint:mdl-readme"]
+["package:src:desktop:lint:markdownlint-readme"]
 hide = true
 sources = ["src/desktop/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/desktop/README.md"
+run = "npx markdownlint-cli2 src/desktop/README.md"
 
 ["package:src:desktop:lint"]
 description = "Check src/desktop module"

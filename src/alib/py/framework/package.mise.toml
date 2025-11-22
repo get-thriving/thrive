@@ -26,6 +26,12 @@ sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework --fix"
 
+["package:src:alib:py:framework:fix:markdownlint"]
+hide = true
+sources = ["src/alib/py/framework/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/alib/py/framework/README.md"
+
 ["package:src:alib:py:framework:fix"]
 description = "Fix src/alib/py/framework module"
 depends = ["package:src:alib:py:framework:fix:*"]
@@ -49,11 +55,11 @@ sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework"
 
-["package:src:alib:py:framework:lint:mdl-readme"]
+["package:src:alib:py:framework:lint:markdownlint-readme"]
 hide = true
 sources = ["src/alib/py/framework/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/alib/py/framework/README.md"
+run = "npx markdownlint-cli2 src/alib/py/framework/README.md"
 
 ["package:src:alib:py:framework:lint:pyflakes"]
 hide = true

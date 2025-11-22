@@ -3,12 +3,12 @@ site_name: !ENV PUBLIC_NAME
 site_description: "Documentation for Thrive, the life planning tool"
 site_author: !ENV AUTHOR
 copyright: !ENV COPYRIGHT
-repo_url: https://github.com/horia141/thrive
+repo_url: <https://github.com/horia141/thrive>
 repo_name: GitHub
 
 use_directory_urls: false
 
-site_url: https://docs.get-thriving.com
+site_url: <https://docs.get-thriving.com>
 docs_dir: material
 
 theme:
