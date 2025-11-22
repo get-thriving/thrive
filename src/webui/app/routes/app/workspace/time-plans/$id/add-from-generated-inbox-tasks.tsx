@@ -90,7 +90,7 @@ const QuerySchema = z.object({
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("gen"),
-    today: z.string(),
+    rightNow: z.string(),
     period: selectZod(z.nativeEnum(RecurringTaskPeriod)),
   }),
   z.object({
@@ -163,7 +163,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     switch (form.intent) {
       case "gen": {
         await apiClient.timePlans.timePlanGenForTimePlan({
-          today: form.today,
+          right_now: form.rightNow,
           period: fixSelectOutputToEnum<RecurringTaskPeriod>(form.period),
         });
 
@@ -376,7 +376,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
           direction={isBigScreen ? "row" : "column"}
         >
           <FormControl fullWidth>
-            <InputLabel id="today" shrink>
+            <InputLabel id="rightNow" shrink>
               Generation Date
             </InputLabel>
             <OutlinedInput
@@ -386,10 +386,10 @@ export default function TimePlanAddFromCurrentInboxTasks() {
               readOnly={!inputsEnabled}
               disabled={!inputsEnabled}
               defaultValue={loaderData.timePlan.start_date}
-              name="today"
+              name="rightNow"
             />
 
-            <FieldError actionResult={actionData} fieldName="/today" />
+            <FieldError actionResult={actionData} fieldName="/rightNow" />
           </FormControl>
 
           <FormControl fullWidth>

@@ -23,7 +23,7 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 class TimePlanGenForTimePlanArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    today: ADate
+    right_now: ADate
     period: list[RecurringTaskPeriod] | None
 
 
@@ -42,7 +42,7 @@ class TimePlanGenForTimePlanUseCase(
         """Execute the command's action."""
         user = context.user
         workspace = context.workspace
-        today = args.today
+        right_now = args.right_now
 
         gen_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
 
@@ -56,7 +56,7 @@ class TimePlanGenForTimePlanUseCase(
             user=user,
             workspace=workspace,
             gen_even_if_not_modified=False,
-            today=today,
+            today=right_now,
             gen_targets=gen_targets,
             period=args.period,
             filter_project_ref_ids=None,

@@ -366,7 +366,7 @@ export default function TimePlanView() {
                 defaultValue={loaderData.timePlan.right_now}
               />
 
-              <FieldError actionResult={actionData} fieldName="/right_now" />
+              <FieldError actionResult={actionData} fieldName="/rightNow" />
             </FormControl>
 
             <FormControl fullWidth>

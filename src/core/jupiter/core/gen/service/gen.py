@@ -1050,7 +1050,7 @@ class GenService:
 
                     found_time_plan = found_time_plan.update_link_to_time_plan_domain(
                         ctx,
-                        today=real_today,
+                        right_now=real_today,
                     )
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -1064,7 +1064,7 @@ class GenService:
                     time_plan = TimePlan.new_time_plan_generated(
                         ctx,
                         time_plan_domain_ref_id=time_plan_domain.ref_id,
-                        today=real_today,
+                        right_now=real_today,
                         period=period,
                         timeline=schedule.timeline,
                         start_date=schedule.first_day,

@@ -31,7 +31,7 @@ from jupiter.framework.utils.generic_creator import generic_creator
 class TimePlanCreateArgs(UseCaseArgsBase):
     """Args."""
 
-    today: ADate
+    right_now: ADate
     period: RecurringTaskPeriod
 
 
@@ -71,7 +71,7 @@ class TimePlanCreateUseCase(
         new_time_plan = TimePlan.new_time_plan_for_user(
             context.domain_context,
             time_plan_domain_ref_id=time_plan_domain.ref_id,
-            today=args.today,
+            right_now=args.right_now,
             period=args.period,
         )
         new_time_plan = await generic_creator(uow, progress_reporter, new_time_plan)

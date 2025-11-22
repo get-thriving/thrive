@@ -5,13 +5,13 @@ import { comparePeriods } from "#/core/common/recurring-task-period";
 
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,
-  today: ADate,
+  rightNow: ADate,
 ): TimePlan[] {
-  const todayDate = aDateToDate(today);
+  const rightNowDate = aDateToDate(rightNow);
   return timePlans.filter((timePlan) => {
     const startDate = aDateToDate(timePlan.start_date);
     const endDate = aDateToDate(timePlan.end_date);
-    return startDate <= todayDate && todayDate <= endDate;
+    return startDate <= rightNowDate && rightNowDate <= endDate;
   });
 }
 

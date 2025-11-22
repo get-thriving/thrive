@@ -187,16 +187,16 @@ export default function NewBigPlan() {
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
-        id="big-plan-properties"
-        title="Properties"
+        title="New Big Plan"
         actionsPosition={ActionsPosition.BELOW}
         actions={
           <SectionActions
-            id="big-plan-properties"
+            id="big-plan-create"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "big-plan-create",
                 text: "Create",
                 value: "create",
                 highlight: true,

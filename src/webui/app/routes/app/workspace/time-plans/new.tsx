@@ -47,7 +47,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
-  today: z.string(),
+  rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
 });
 
@@ -61,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const result = await apiClient.timePlans.timePlanCreate({
-      today: form.today,
+      right_now: form.rightNow,
       period: form.period,
     });
 
@@ -125,20 +125,20 @@ export default function NewTimePlan() {
         }
       >
         <FormControl fullWidth>
-          <InputLabel id="today" shrink margin="dense">
+          <InputLabel id="rightNow" shrink margin="dense">
             The Date
           </InputLabel>
           <OutlinedInput
             type="date"
             notched
-            label="today"
-            name="today"
+            label="rightNow"
+            name="rightNow"
             readOnly={!inputsEnabled}
             disabled={!inputsEnabled}
             defaultValue={initialToday}
           />
 
-          <FieldError actionResult={actionData} fieldName="/today" />
+          <FieldError actionResult={actionData} fieldName="/rightNow" />
         </FormControl>
 
         <FormControl fullWidth>
