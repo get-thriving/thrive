@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": "jupiter/core",
+    "rootDir": "jupiter/core",
+    "paths": {
+      "~/*": ["*"]
+    }
+  }
+}

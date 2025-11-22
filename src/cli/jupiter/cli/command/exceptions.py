@@ -3,22 +3,22 @@
 import sys
 
 from jupiter.cli.config import JupiterExceptionHandler
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
+from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
+from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.domain.concept.journals.journal import (
+from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
-from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
-from jupiter.core.domain.concept.time_plans.time_plan import (
+from jupiter.core.projects.errors import ProjectInSignificantUseError
+from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
-from jupiter.core.domain.concept.user.user import (
+from jupiter.core.users.root import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
-from jupiter.core.use_cases.login import InvalidLoginCredentialsError
+from jupiter.core.workspaces.root import WorkspaceNotFoundError
 from rich.console import Console
 
 

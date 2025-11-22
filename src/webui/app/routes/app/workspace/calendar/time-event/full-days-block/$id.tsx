@@ -20,24 +20,24 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { birthdayTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimeEventSourceLink } from "~/components/domain/application/calendar/time-event-source-link";
-import { birthdayTimeEventName } from "~/logic/domain/time-event";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
 import { getSession } from "~/sessions";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -52,7 +52,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.fullDaysBlock.timeEventFullDaysBlockLoad({
+    const response = await apiClient.timeEvents.timeEventFullDaysBlockLoad({
       ref_id: id,
       allow_archived: true,
     });

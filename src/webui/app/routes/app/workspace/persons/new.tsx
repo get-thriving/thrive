@@ -21,24 +21,27 @@ import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { birthdayFromParts } from "~/logic/domain/person-birthday";
-import { personRelationshipName } from "~/logic/domain/person-relationship";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DisplayType } from "~/rendering/use-nested-entities";
+import { personRelationshipName } from "@jupiter/core/persons/relationship";
+import { birthdayFromParts } from "@jupiter/core/persons/birthday";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard, ActionsPosition } from "~/components/infra/section-card";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import {
+  SectionCard,
+  ActionsPosition,
+} from "@jupiter/core/infra/component/section-card";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 

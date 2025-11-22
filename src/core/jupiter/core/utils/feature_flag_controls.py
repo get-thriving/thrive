@@ -1,14 +1,14 @@
 """Utilities for feature controls."""
 
 from jupiter.core.config import JupiterGlobalProperties
-from jupiter.core.domain.features import (
+from jupiter.core.features import (
     HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS,
     LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS,
     USER_FEATURE_FLAGS_CONTROLS,
     UserFeatureFlagsControls,
     WorkspaceFeatureFlagsControls,
 )
-from jupiter.core.domain.hosting import Hosting
+from jupiter.core.hosting import Hosting
 
 
 def infer_feature_flag_controls(

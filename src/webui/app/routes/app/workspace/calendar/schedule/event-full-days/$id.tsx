@@ -20,25 +20,25 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/event_full_days/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { ScheduleStreamSelect } from "~/components/domain/concept/schedule/schedule-stream-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isCorePropertyEditable } from "~/logic/domain/schedule-event-full-days";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -74,12 +74,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
 
   try {
-    const response = await apiClient.eventFullDays.scheduleEventFullDaysLoad({
+    const response = await apiClient.schedule.scheduleEventFullDaysLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -112,7 +112,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.eventFullDays.scheduleEventFullDaysUpdate({
+        await apiClient.schedule.scheduleEventFullDaysUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -131,12 +131,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "change-schedule-stream": {
-        await apiClient.eventFullDays.scheduleEventFullDaysChangeScheduleStream(
-          {
-            ref_id: id,
-            schedule_stream_ref_id: form.scheduleStreamRefId,
-          },
-        );
+        await apiClient.schedule.scheduleEventFullDaysChangeScheduleStream({
+          ref_id: id,
+          schedule_stream_ref_id: form.scheduleStreamRefId,
+        });
         return redirect(
           `/app/workspace/calendar/schedule/event-full-days/${id}?${url.searchParams}`,
         );
@@ -154,14 +152,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.eventFullDays.scheduleEventFullDaysArchive({
+        await apiClient.schedule.scheduleEventFullDaysArchive({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
       case "remove": {
-        await apiClient.eventFullDays.scheduleEventFullDaysRemove({
+        await apiClient.schedule.scheduleEventFullDaysRemove({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);

@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.concept.users.load import UserLoadResult, UserLoadUseCase
+from jupiter.core.users.use_case.load import UserLoadResult, UserLoadUseCase
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree

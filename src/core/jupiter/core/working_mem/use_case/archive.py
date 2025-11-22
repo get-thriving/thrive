@@ -1,0 +1,53 @@
+"""The command for archiving a working mem."""
+
+from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.working_mem.root import WorkingMem
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
+    mutation_use_case,
+)
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
+
+
+@use_case_args
+class WorkingMemArchiveArgs(UseCaseArgsBase):
+    """PersonFindArgs."""
+
+    ref_id: EntityId
+
+
+@mutation_use_case(WorkspaceFeature.WORKING_MEM)
+class WorkingMemArchiveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[WorkingMemArchiveArgs, None]
+):
+    """The command for archiving a working mem."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: WorkingMemArchiveArgs,
+    ) -> None:
+        """Execute the command's action."""
+        working_mem = await uow.get_for(WorkingMem).load_by_id(args.ref_id)
+        if not working_mem.can_be_archived_at(self._time_provider.get_current_time()):
+            raise Exception(
+                "Cannot archive a working mem that is less than 14 days old."
+            )
+        await generic_crown_archiver(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            WorkingMem,
+            args.ref_id,
+            JupiterArchivalReason.USER,
+        )

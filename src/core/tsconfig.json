@@ -1,0 +1,27 @@
+{
+  "include": ["editorjs.d.ts", "jupiter/core/**/*.ts", "jupiter/core/**/*.tsx"],
+  "exclude": ["**/*.py", "**/__pycache__", ".mypy_cache", ".poetry"],
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
+    "resolveJsonModule": true,
+    "target": "ES2020",
+    "strict": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "rootDir": ".",
+    "paths": {
+      "#/core/*": ["./jupiter/core/*"]
+    },
+    "noEmit": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}

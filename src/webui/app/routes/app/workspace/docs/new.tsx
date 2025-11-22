@@ -2,14 +2,17 @@ import { FormControl } from "@mui/material";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useNavigation } from "@remix-run/react";
 import { z } from "zod";
+import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 
-import { DocEditor } from "~/components/domain/concept/doc/doc-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DisplayType } from "~/rendering/use-nested-entities";
 
 const ParamsSchema = z.object({});
 

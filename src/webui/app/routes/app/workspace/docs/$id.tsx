@@ -6,18 +6,18 @@ import { useActionData, useNavigation } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocEditor } from "~/components/domain/concept/doc/doc-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { SectionCard } from "~/components/infra/section-card";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

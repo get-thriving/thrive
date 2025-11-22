@@ -1,45 +1,47 @@
 """Helpers for console rendering."""
 
-from jupiter.core.domain.app import AppComponent
-from jupiter.core.domain.application.gamification.user_score_overview import (
+from jupiter.core.app import AppComponent
+from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.common.difficulty import Difficulty
+from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
+from jupiter.core.common.recurring_task_due_at_month import (
+    RecurringTaskDueAtMonth,
+)
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.time_in_day import TimeInDay
+from jupiter.core.common.timezone import Timezone
+from jupiter.core.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.domain.concept.big_plans.big_plan_status import BigPlanStatus
-from jupiter.core.domain.concept.inbox_tasks.inbox_task import InboxTask
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
-from jupiter.core.domain.concept.metrics.metric_unit import MetricUnit
-from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
-from jupiter.core.domain.concept.persons.person_relationship import PersonRelationship
-from jupiter.core.domain.concept.projects.project_name import ProjectName
-from jupiter.core.domain.concept.push_integrations.email.email_user_name import (
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.metrics.unit import MetricUnit
+from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.persons.birthday import PersonBirthday
+from jupiter.core.persons.relationship import PersonRelationship
+from jupiter.core.projects.name import ProjectName
+from jupiter.core.push_integrations.sub.email.user_name import (
     EmailUserName,
 )
-from jupiter.core.domain.concept.push_integrations.slack.slack_channel_name import (
+from jupiter.core.push_integrations.sub.slack.channel_name import (
     SlackChannelName,
 )
-from jupiter.core.domain.concept.push_integrations.slack.slack_user_name import (
+from jupiter.core.push_integrations.sub.slack.user_name import (
     SlackUserName,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_activity_feasability import (
+from jupiter.core.sync_target import SyncTarget
+from jupiter.core.time_plans.source import TimePlanSource
+from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_activity_kind import (
+from jupiter.core.time_plans.sub.activity.kind import (
     TimePlanActivityKind,
 )
-from jupiter.core.domain.concept.time_plans.time_plan_source import TimePlanSource
-from jupiter.core.domain.core.difficulty import Difficulty
-from jupiter.core.domain.core.eisen import Eisen
-from jupiter.core.domain.core.email_address import EmailAddress
-from jupiter.core.domain.core.recurring_task_due_at_day import RecurringTaskDueAtDay
-from jupiter.core.domain.core.recurring_task_due_at_month import RecurringTaskDueAtMonth
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.core.recurring_task_skip_rule import RecurringTaskSkipRule
-from jupiter.core.domain.core.time_in_day import TimeInDay
-from jupiter.core.domain.core.timezone import Timezone
-from jupiter.core.domain.named_entity_tag import NamedEntityTag
-from jupiter.core.domain.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName

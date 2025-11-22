@@ -1,8 +1,7 @@
 import type { AuthTokenExt } from "@jupiter/webapi-client";
 import { createCookieSessionStorage } from "@remix-run/node";
-
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { SESSION_COOKIE_NAME } from "~/names";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { SESSION_COOKIE_NAME } from "@jupiter/core/infra/names";
 
 export class SessionInfoNotFoundError extends Error {
   constructor() {

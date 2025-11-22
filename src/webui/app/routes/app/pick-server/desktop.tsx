@@ -1,4 +1,4 @@
-import { AppShell } from "@jupiter/webapi-client";
+import { AppShell, DocsHelpSubject } from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -11,27 +11,29 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useNavigation } from "@remix-run/react";
 import { useContext, useState } from "react";
-
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
-import { FieldError } from "~/components/infra/errors";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Title } from "~/components/infra/title";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { aFieldError } from "~/logic/action-result";
-import { loadFrontDoorInfo } from "~/logic/frontdoor.server";
-import { SectionCard, ActionsPosition } from "~/components/infra/section-card";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { FieldError } from "@jupiter/core/infra/component/errors";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Title } from "@jupiter/core/infra/component/title";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { aFieldError } from "@jupiter/core/infra/action-result";
+import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
+import {
+  SectionCard,
+  ActionsPosition,
+} from "@jupiter/core/infra/component/section-card";
 import {
   ButtonSingle,
   NavSingle,
   SectionActions,
   ActionsExpansion,
-} from "~/components/infra/section-actions";
-import { EMPTY_CONTEXT } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const frontDoor = await loadFrontDoorInfo(

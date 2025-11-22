@@ -6,13 +6,12 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
-
 import {
   GlobalPropertiesContext,
   serverToClientGlobalProperties,
-} from "~/global-properties-client";
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { loadFrontDoorInfo } from "~/logic/frontdoor.server";
+} from "@jupiter/core/config-client";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   // This is the only place where we can read this field.

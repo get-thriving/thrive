@@ -1,7 +1,7 @@
 import {
   ApiError,
   NoteDomain,
-  ScheduleSource,
+  ScheduleStreamSource,
   ScheduleStreamColor,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
@@ -17,24 +17,24 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { isCorePropertyEditable } from "@jupiter/core/schedule/sub/stream/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { ScheduleStreamColorInput } from "~/components/domain/concept/schedule/schedule-stream-color-input";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isCorePropertyEditable } from "~/logic/domain/schedule-stream";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { ScheduleStreamColorInput } from "@jupiter/core/schedule/component/color-input";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -69,7 +69,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.stream.scheduleStreamLoad({
+    const response = await apiClient.schedule.scheduleStreamLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -99,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.stream.scheduleStreamUpdate({
+        await apiClient.schedule.scheduleStreamUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -140,7 +140,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.stream.scheduleStreamArchive({
+        await apiClient.schedule.scheduleStreamArchive({
           ref_id: id,
         });
 
@@ -150,7 +150,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.stream.scheduleStreamRemove({
+        await apiClient.schedule.scheduleStreamRemove({
           ref_id: id,
         });
 
@@ -219,13 +219,14 @@ export default function ScheduleStreamViewOne() {
                 value: "sync",
                 disabled:
                   loaderData.scheduleStream.source !==
-                  ScheduleSource.EXTERNAL_ICAL,
+                  ScheduleStreamSource.EXTERNAL_ICAL,
               }),
             ]}
           />
         }
       >
-        {loaderData.scheduleStream.source === ScheduleSource.EXTERNAL_ICAL && (
+        {loaderData.scheduleStream.source ===
+          ScheduleStreamSource.EXTERNAL_ICAL && (
           <FormControl fullWidth>
             <InputLabel id="sourceIcalUrl">Source iCal URL</InputLabel>
             <OutlinedInput

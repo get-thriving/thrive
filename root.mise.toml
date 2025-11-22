@@ -8,11 +8,11 @@ sources = ["pyproject.toml"]
 outputs = { auto = true }
 run = "poetry install --no-interaction --no-ansi"
 
-["root:install:npm"]
+["root:install:pnpm"]
 hide = true
-sources = ["package.json"]
+sources = ["package.json", "src/**/package.json"]
 outputs = { auto = true }
-run = "npm install --no-save"
+run = "pnpm install"
 
 ["root:install:docker"]
 hide = true
@@ -64,9 +64,9 @@ set -e -o pipefail
 poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
 '''
 
-["root:audit:npm-audit"]
+["root:audit:pnpm-audit"]
 hide = true
-run = "npm audit --audit-level=info"
+run = "pnpm audit"
 
 ["root:audit"]
 description = "Audit root dependencies"
@@ -77,7 +77,7 @@ run = "true"
 hide = true
 run = "libyear toml pyproject.toml"
 
-["root:libyear:npm-libyear"]
+["root:libyear:pnpm-libyear"]
 hide = true
 run = "npx libyear"
 

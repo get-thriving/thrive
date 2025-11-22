@@ -8,24 +8,24 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { TimeDiffTag } from "~/components/domain/core/time-diff-tag";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -58,7 +58,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
-    const result = await apiClient.entry.metricEntryLoad({
+    const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
       allow_archived: true,
     });
@@ -87,7 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.entry.metricEntryUpdate({
+        await apiClient.metrics.metricEntryUpdate({
           ref_id: entryId,
           collection_time: {
             should_change: true,
@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.entry.metricEntryArchive({
+        await apiClient.metrics.metricEntryArchive({
           ref_id: entryId,
         });
 
@@ -121,7 +121,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.entry.metricEntryRemove({
+        await apiClient.metrics.metricEntryRemove({
           ref_id: entryId,
         });
 

@@ -21,27 +21,27 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { DifficultySelect } from "~/components/domain/core/difficulty-select";
-import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { difficultyName } from "~/logic/domain/difficulty";
-import { inboxTaskStatusName } from "~/logic/domain/inbox-task-status";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionCard } from "~/components/infra/section-card";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { difficultyName } from "@jupiter/core/common/difficulty";
+import { inboxTaskStatusName } from "@jupiter/core/inbox_tasks/status";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -76,7 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
-    const response = await apiClient.slack.slackTaskLoad({
+    const response = await apiClient.pushIntegrations.slackTaskLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -105,7 +105,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.slack.slackTaskUpdate({
+        await apiClient.pushIntegrations.slackTaskUpdate({
           ref_id: id,
           user: {
             should_change: true,
@@ -157,7 +157,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.slack.slackTaskArchive({
+        await apiClient.pushIntegrations.slackTaskArchive({
           ref_id: id,
         });
 
@@ -165,7 +165,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.slack.slackTaskRemove({
+        await apiClient.pushIntegrations.slackTaskRemove({
           ref_id: id,
         });
 

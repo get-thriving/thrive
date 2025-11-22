@@ -20,24 +20,24 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   aGlobalError,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { periodName } from "~/logic/domain/period";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+} from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionCard } from "~/components/infra/section-card";
-import { GlobalError } from "~/components/infra/errors";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),

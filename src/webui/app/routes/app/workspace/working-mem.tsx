@@ -1,4 +1,4 @@
-import { ApiError, SyncTarget } from "@jupiter/webapi-client";
+import { ApiError, SyncTarget, DocsHelpSubject } from "@jupiter/webapi-client";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import TuneIcon from "@mui/icons-material/Tune";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -10,27 +10,29 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { SectionActions, NavSingle } from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { getIntent } from "~/logic/intent";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import {
+  SectionActions,
+  NavSingle,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { getIntent } from "~/logic/intent";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({ intent: z.literal("generate-first-note") }),

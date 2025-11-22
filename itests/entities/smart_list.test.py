@@ -1,11 +1,11 @@
 """Tests about smart lists."""
 
 import pytest
-from jupiter_webapi_client.api.item.smart_list_item_create import (
-    sync_detailed as smart_list_item_create_sync,
-)
 from jupiter_webapi_client.api.smart_lists.smart_list_create import (
     sync_detailed as smart_list_create_sync,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_item_create import (
+    sync_detailed as smart_list_item_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,

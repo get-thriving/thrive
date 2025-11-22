@@ -16,29 +16,29 @@ import { StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import {
-  ActionSingle,
-  SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import {
   findTimePlansThatAreActive,
   sortTimePlansNaturally,
-} from "~/logic/domain/time-plan";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/time_plans/root";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -76,7 +76,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         include_notes: false,
         include_planning_tasks: false,
       }),
-      apiClient.activity.timePlanActivityFindForTarget({
+      apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,
         target: TimePlanActivityTarget.INBOX_TASK,
         target_ref_id: query.inboxTaskRefId,

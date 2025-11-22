@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { ADate } from './ADate';
 import type { EntityId } from './EntityId';
-import type { ScheduleEventName } from './ScheduleEventName';
+import type { ScheduleEventFullDaysName } from './ScheduleEventFullDaysName';
 /**
  * Args.
  */
@@ -12,7 +12,7 @@ export type ScheduleEventFullDaysUpdateArgs = {
     ref_id: EntityId;
     name: {
         should_change: boolean;
-        value?: ScheduleEventName;
+        value?: ScheduleEventFullDaysName;
     };
     start_date: {
         should_change: boolean;

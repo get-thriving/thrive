@@ -1,6 +1,9 @@
 """Commands for the webapi app."""
 
 import abc
+import functools
+import importlib
+import sys
 import types
 from typing import (
     Any,
@@ -139,16 +142,71 @@ class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
     def _build_description(self) -> str:
         return self._use_case.__doc__ or ""
 
+    @functools.cached_property
     def _build_tag(self) -> str:
-        some_modules = self._use_case.__module__[
-            len(self._root_module.__name__) + 1 :
-        ].split(".")
-        if len(some_modules) == 1:
-            the_one_module = some_modules[0]
+        def _find_slice_pkg() -> types.ModuleType | None:
+            # Walk up from the use_case module to its parents to find a package
+            # whose __init__.py defines SLICE_TAG. Stops at self._root_module.
+            use_mod_name = (
+                self._use_case.__module__
+            )  # e.g. "app.feature.subfeature.use_case"
+            root_name = self._root_module.__name__  # e.g. "app"
+
+            # Ensure the leaf module is imported
+            try:
+                mod = importlib.import_module(use_mod_name)
+            except ImportError:
+                return None
+
+            # Derive the starting package name
+            # - If `mod` is a package, start with itself.
+            # - If it's a module, start with its __package__ (the containing package).
+            if getattr(mod, "__path__", None) is not None:  # it's a package
+                pkg_name = mod.__name__
+            else:
+                pkg_name = cast(str, getattr(mod, "__package__", None))
+            if not pkg_name:
+                return None
+
+            # Walk upward: "a.b.c" -> "a.b" -> "a"
+            while True:
+                try:
+                    pkg_mod = sys.modules.get(pkg_name) or importlib.import_module(
+                        pkg_name
+                    )
+                except ImportError:
+                    pkg_mod = None
+
+                if pkg_mod and hasattr(pkg_mod, "SLICE_TAG"):
+                    return pkg_mod
+
+                if pkg_name == root_name:
+                    break
+
+                if "." not in pkg_name:
+                    break
+
+                pkg_name = pkg_name.rsplit(".", 1)[0]
+
+            return None
+
+        if (slice_pkg := _find_slice_pkg()) is not None:
+            tag = slice_pkg.SLICE_TAG
+            if callable(tag):
+                the_one_tag = tag()
+            else:
+                the_one_tag = str(tag)
         else:
-            the_one_module = some_modules[-2]
-        the_one_tag = inflection.dasherize(the_one_module)
-        return the_one_tag
+            some_modules = self._use_case.__module__[
+                len(self._root_module.__name__) + 1 :
+            ].split(".")
+            if len(some_modules) == 1:
+                the_one_tag = some_modules[0]
+            else:
+                the_one_tag = some_modules[-2]
+        final_tag = inflection.dasherize(the_one_tag)
+
+        return final_tag
 
     @abc.abstractmethod
     def attach_route(self, app: FastAPI) -> None:
@@ -176,7 +234,7 @@ class GuestMutationCommand(
             name=self._build_api_name(),
             summary=self._build_description(),
             description=self._build_description(),
-            tags=[self._build_tag()],
+            tags=[self._build_tag],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request):  # type: ignore[no-untyped-def]
@@ -223,7 +281,7 @@ class GuestReadonlyCommand(
             name=self._build_api_name(),
             summary=self._build_description(),
             description=self._build_description(),
-            tags=[self._build_tag()],
+            tags=[self._build_tag],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request):  # type: ignore[no-untyped-def]
@@ -269,7 +327,7 @@ class LoggedInMutationCommand(
             name=self._build_api_name(),
             summary=self._build_description(),
             description=self._build_description(),
-            tags=[self._build_tag()],
+            tags=[self._build_tag],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request):  # type: ignore[no-untyped-def]
@@ -316,7 +374,7 @@ class LoggedInReadonlyCommand(
             name=self._build_api_name(),
             summary=self._build_description(),
             description=self._build_description(),
-            tags=[self._build_tag()],
+            tags=[self._build_tag],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request):  # type: ignore[no-untyped-def]

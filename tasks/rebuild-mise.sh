@@ -16,4 +16,4 @@ warning="THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks
 # shellcheck disable=SC2068
 data_json="$(jo warning="$warning" packageMisePaths="$(jo -a ${usage_package_mise_path[@]})")"
 
-npx hbs-cli --stdout -D "$data_json" mise.toml.hbs > mise.toml
+node tasks/_resources/render-hbs.mjs mise.toml.hbs "$data_json" > mise.toml

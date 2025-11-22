@@ -17,37 +17,37 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { statsSubperiodForPeriod } from "@jupiter/core/common/sub/time_events/time-event";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   NavMultipleCompact,
   NavMultipleSpread,
   NavSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { newURLParams } from "~/logic/domain/navigation";
-import { periodName } from "~/logic/domain/period";
-import { statsSubperiodForPeriod } from "~/logic/domain/time-event";
-import { inferPlatformAndDistribution } from "~/logic/frontdoor.server";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+} from "@jupiter/core/infra/component/section-actions";
+import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { View } from "~/components/domain/application/calendar/shared";
-import { ViewAsCalendarDaily } from "~/components/domain/application/calendar/view-as-calendar-daily";
-import { ViewAsCalendarWeekly } from "~/components/domain/application/calendar/view-as-calendar-weekly";
-import { ViewAsCalendarMonthly } from "~/components/domain/application/calendar/view-as-calendar-monthly";
-import { ViewAsCalendarQuarterly } from "~/components/domain/application/calendar/view-as-calendar-quarterly";
-import { ViewAsCalendarYearly } from "~/components/domain/application/calendar/view-as-calendar-yearly";
-import { ViewAsScheduleMonthlyQuarterlyAndYearly } from "~/components/domain/application/calendar/view-as-schedule-monthly-quarterly-and-yearly";
-import { ViewAsScheduleDailyAndWeekly } from "~/components/domain/application/calendar/view-as-schedule-daily-and-weekly";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { View } from "@jupiter/core/calendar/component/shared";
+import { ViewAsCalendarDaily } from "@jupiter/core/calendar/component/view-as-calendar-daily";
+import { ViewAsCalendarWeekly } from "@jupiter/core/calendar/component/view-as-calendar-weekly";
+import { ViewAsCalendarMonthly } from "@jupiter/core/calendar/component/view-as-calendar-monthly";
+import { ViewAsCalendarQuarterly } from "@jupiter/core/calendar/component/view-as-calendar-quarterly";
+import { ViewAsCalendarYearly } from "@jupiter/core/calendar/component/view-as-calendar-yearly";
+import { ViewAsScheduleMonthlyQuarterlyAndYearly } from "@jupiter/core/calendar/component/view-as-schedule-monthly-quarterly-and-yearly";
+import { ViewAsScheduleDailyAndWeekly } from "@jupiter/core/calendar/component/view-as-schedule-daily-and-weekly";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { newURLParams } from "~/logic/navigation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

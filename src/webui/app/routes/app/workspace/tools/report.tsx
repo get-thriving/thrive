@@ -16,30 +16,30 @@ import { DateTime } from "luxon";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
-import { PeriodSelect } from "~/components/domain/core/period-select";
-import { ShowReport } from "~/components/domain/application/search/show-report";
-import type { ActionResult } from "~/logic/action-result";
+import { oneLessThanPeriod } from "@jupiter/core/common/recurring-task-period";
+import { makeToolErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { ShowReport } from "@jupiter/core/report/component/show-report";
+import type { ActionResult } from "@jupiter/core/infra/action-result";
 import {
   isNoErrorSomeData,
   noErrorSomeData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { oneLessThanPeriod } from "~/logic/domain/period";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionCard } from "~/components/infra/section-card";
+} from "@jupiter/core/infra/action-result";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const QuerySchema = z.object({
   today: z
@@ -68,12 +68,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json(noErrorSomeData({ report: undefined }));
   }
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 
   try {
-    const reportResponse = await apiClient.application.report({
+    const reportResponse = await apiClient.report.report({
       today: today,
       period: period,
       breakdown_period:

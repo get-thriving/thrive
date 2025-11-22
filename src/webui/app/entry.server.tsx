@@ -3,9 +3,12 @@ import { PassThrough, Readable } from "stream";
 import type { EntryContext } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { renderToPipeableStream } from "react-dom/server";
-
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { ENV_HEADER, HOSTING_HEADER, VERSION_HEADER } from "~/names";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  ENV_HEADER,
+  HOSTING_HEADER,
+  VERSION_HEADER,
+} from "@jupiter/core/infra/names";
 
 const ABORT_DELAY = 5000;
 

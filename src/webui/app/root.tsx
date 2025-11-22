@@ -12,11 +12,10 @@ import {
 } from "@remix-run/react";
 import { SnackbarProvider } from "notistack";
 import { StrictMode } from "react";
-
-import { EnvBanner } from "~/components/infra/env-banner";
-import { serverToClientGlobalProperties } from "~/global-properties-client";
-import { GLOBAL_PROPERTIES } from "~/global-properties-server";
-import { loadFrontDoorInfo } from "~/logic/frontdoor.server";
+import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
+import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
+import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 
 const THEME = createTheme({
   palette: {

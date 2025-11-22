@@ -2,7 +2,7 @@
 
 import asyncio
 
-import jupiter.core.domain
+import jupiter.core
 from jupiter.core.config import build_global_properties
 from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
 from jupiter.framework.storage.sqlite.connection import SqliteConnection
@@ -21,7 +21,7 @@ async def main() -> None:
     #     ],
     # )
 
-    ModuleExplorerRealmCodecRegistry.build_from_module_root(jupiter.core.domain)
+    ModuleExplorerRealmCodecRegistry.build_from_module_root(jupiter.core)
 
     global_properties = build_global_properties()
 

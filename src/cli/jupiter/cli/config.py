@@ -3,6 +3,7 @@
 import abc
 from typing import Any, Generic, TypeVar, Union
 
+from jupiter.core.app import AppCore, AppDistribution, AppPlatform, AppShell
 from jupiter.core.config import (
     JupiterComponentProperties,
     JupiterGlobalProperties,
@@ -18,7 +19,6 @@ from jupiter.core.config import (
     JupiterLoggedInSession,
     JupiterPorts,
 )
-from jupiter.core.domain.app import AppCore, AppDistribution, AppPlatform, AppShell
 from jupiter.framework.appform.cli.appform import CliAppForm
 from jupiter.framework.appform.cli.commands import (
     GuestMutationCommand,

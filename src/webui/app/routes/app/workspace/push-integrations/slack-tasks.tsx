@@ -6,26 +6,32 @@ import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import TuneIcon from "@mui/icons-material/Tune";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { ADateTag } from "~/components/domain/core/adate-tag";
-import { DifficultyTag } from "~/components/domain/core/difficulty-tag";
-import { EisenTag } from "~/components/domain/core/eisen-tag";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { slackTaskNiceName } from "~/logic/domain/slack-task";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { slackTaskNiceName } from "@jupiter/core/push_integrations/sub/slack/task";
+import { ADateTag } from "@jupiter/core/common/component/adate-tag";
+import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
+import { EisenTag } from "@jupiter/core/common/component/eisen-tag";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { NavSingle, SectionActions } from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -33,7 +39,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.slack.slackTaskFind({
+  const response = await apiClient.pushIntegrations.slackTaskFind({
     allow_archived: false,
     include_inbox_tasks: false,
   });

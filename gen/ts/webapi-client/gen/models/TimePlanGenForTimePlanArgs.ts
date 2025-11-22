@@ -8,7 +8,7 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
  * PersonFindArgs.
  */
 export type TimePlanGenForTimePlanArgs = {
-    today: ADate;
+    right_now: ADate;
     period?: (Array<RecurringTaskPeriod> | null);
 };
 
