@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,8 +25,8 @@ class ClearAllArgs:
         auth_new_password_repeat (str): A new password in plain text, as received from a user.
         workspace_name (str): The workspace name.
         workspace_root_project_name (str): The project name.
-        user_feature_flags (Union[None, Unset, list[UserFeature]]):
-        workspace_feature_flags (Union[None, Unset, list[WorkspaceFeature]]):
+        user_feature_flags (list[UserFeature] | None | Unset):
+        workspace_feature_flags (list[WorkspaceFeature] | None | Unset):
     """
 
     user_name: str
@@ -34,8 +36,8 @@ class ClearAllArgs:
     auth_new_password_repeat: str
     workspace_name: str
     workspace_root_project_name: str
-    user_feature_flags: Union[None, Unset, list[UserFeature]] = UNSET
-    workspace_feature_flags: Union[None, Unset, list[WorkspaceFeature]] = UNSET
+    user_feature_flags: list[UserFeature] | None | Unset = UNSET
+    workspace_feature_flags: list[WorkspaceFeature] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,7 +55,7 @@ class ClearAllArgs:
 
         workspace_root_project_name = self.workspace_root_project_name
 
-        user_feature_flags: Union[None, Unset, list[str]]
+        user_feature_flags: list[str] | None | Unset
         if isinstance(self.user_feature_flags, Unset):
             user_feature_flags = UNSET
         elif isinstance(self.user_feature_flags, list):
@@ -65,7 +67,7 @@ class ClearAllArgs:
         else:
             user_feature_flags = self.user_feature_flags
 
-        workspace_feature_flags: Union[None, Unset, list[str]]
+        workspace_feature_flags: list[str] | None | Unset
         if isinstance(self.workspace_feature_flags, Unset):
             workspace_feature_flags = UNSET
         elif isinstance(self.workspace_feature_flags, list):
@@ -114,7 +116,7 @@ class ClearAllArgs:
 
         workspace_root_project_name = d.pop("workspace_root_project_name")
 
-        def _parse_user_feature_flags(data: object) -> Union[None, Unset, list[UserFeature]]:
+        def _parse_user_feature_flags(data: object) -> list[UserFeature] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -130,13 +132,13 @@ class ClearAllArgs:
                     user_feature_flags_type_0.append(user_feature_flags_type_0_item)
 
                 return user_feature_flags_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[UserFeature]], data)
+            return cast(list[UserFeature] | None | Unset, data)
 
         user_feature_flags = _parse_user_feature_flags(d.pop("user_feature_flags", UNSET))
 
-        def _parse_workspace_feature_flags(data: object) -> Union[None, Unset, list[WorkspaceFeature]]:
+        def _parse_workspace_feature_flags(data: object) -> list[WorkspaceFeature] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -152,9 +154,9 @@ class ClearAllArgs:
                     workspace_feature_flags_type_0.append(workspace_feature_flags_type_0_item)
 
                 return workspace_feature_flags_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[WorkspaceFeature]], data)
+            return cast(list[WorkspaceFeature] | None | Unset, data)
 
         workspace_feature_flags = _parse_workspace_feature_flags(d.pop("workspace_feature_flags", UNSET))
 

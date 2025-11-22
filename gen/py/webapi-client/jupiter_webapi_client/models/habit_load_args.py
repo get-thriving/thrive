@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,16 +18,16 @@ class HabitLoadArgs:
     Attributes:
         ref_id (str): A generic entity id.
         allow_archived (bool):
-        inbox_task_retrieve_offset (Union[None, Unset, int]):
-        include_streak_marks_earliest_date (Union[None, Unset, str]):
-        include_streak_marks_latest_date (Union[None, Unset, str]):
+        inbox_task_retrieve_offset (int | None | Unset):
+        include_streak_marks_earliest_date (None | str | Unset):
+        include_streak_marks_latest_date (None | str | Unset):
     """
 
     ref_id: str
     allow_archived: bool
-    inbox_task_retrieve_offset: Union[None, Unset, int] = UNSET
-    include_streak_marks_earliest_date: Union[None, Unset, str] = UNSET
-    include_streak_marks_latest_date: Union[None, Unset, str] = UNSET
+    inbox_task_retrieve_offset: int | None | Unset = UNSET
+    include_streak_marks_earliest_date: None | str | Unset = UNSET
+    include_streak_marks_latest_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,19 +35,19 @@ class HabitLoadArgs:
 
         allow_archived = self.allow_archived
 
-        inbox_task_retrieve_offset: Union[None, Unset, int]
+        inbox_task_retrieve_offset: int | None | Unset
         if isinstance(self.inbox_task_retrieve_offset, Unset):
             inbox_task_retrieve_offset = UNSET
         else:
             inbox_task_retrieve_offset = self.inbox_task_retrieve_offset
 
-        include_streak_marks_earliest_date: Union[None, Unset, str]
+        include_streak_marks_earliest_date: None | str | Unset
         if isinstance(self.include_streak_marks_earliest_date, Unset):
             include_streak_marks_earliest_date = UNSET
         else:
             include_streak_marks_earliest_date = self.include_streak_marks_earliest_date
 
-        include_streak_marks_latest_date: Union[None, Unset, str]
+        include_streak_marks_latest_date: None | str | Unset
         if isinstance(self.include_streak_marks_latest_date, Unset):
             include_streak_marks_latest_date = UNSET
         else:
@@ -75,32 +77,32 @@ class HabitLoadArgs:
 
         allow_archived = d.pop("allow_archived")
 
-        def _parse_inbox_task_retrieve_offset(data: object) -> Union[None, Unset, int]:
+        def _parse_inbox_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         inbox_task_retrieve_offset = _parse_inbox_task_retrieve_offset(d.pop("inbox_task_retrieve_offset", UNSET))
 
-        def _parse_include_streak_marks_earliest_date(data: object) -> Union[None, Unset, str]:
+        def _parse_include_streak_marks_earliest_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         include_streak_marks_earliest_date = _parse_include_streak_marks_earliest_date(
             d.pop("include_streak_marks_earliest_date", UNSET)
         )
 
-        def _parse_include_streak_marks_latest_date(data: object) -> Union[None, Unset, str]:
+        def _parse_include_streak_marks_latest_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         include_streak_marks_latest_date = _parse_include_streak_marks_latest_date(
             d.pop("include_streak_marks_latest_date", UNSET)

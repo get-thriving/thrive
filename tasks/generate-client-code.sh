@@ -60,7 +60,7 @@ echo "$python_generation_config" > config.yaml
 
 trap "rm -rf jupiter_webapi_client config.yaml" EXIT
 rm -rf gen/py/$PACKAGE_NAME
-poetry run openapi-python-client generate --config config.yaml --path .build-cache/apigen/openapi.json --meta poetry
+uvx openapi-python-client generate --config config.yaml --path .build-cache/apigen/openapi.json --meta uv
 mv jupiter_webapi_client gen/py/$PACKAGE_NAME
 
 py_package_json="$(jo packageName="$PACKAGE_NAME")"

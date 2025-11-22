@@ -1,6 +1,7 @@
 # THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks rebuild-mise TO UPDATE.
 
 [settings]
+python.uv_venv_auto = false
 lockfile = true
 
 [tools]
@@ -9,10 +10,9 @@ gcloud = "latest"
 "github:cli/cli" = "latest"
 jq = "latest"
 node = "22.14.0"
-pnpm = "latest"
-poetry = "latest"
 python = "3.13.0"
 rust = "latest"
+uv = "latest"
 
 [env]
 _.python.venv = { path = ".build-cache/venv", create = true }

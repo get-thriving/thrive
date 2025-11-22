@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +18,12 @@ class WorkableBigPlan:
     Attributes:
         ref_id (str): A generic entity id.
         name (str): The big plan name.
-        actionable_date (Union[None, Unset, str]):
+        actionable_date (None | str | Unset):
     """
 
     ref_id: str
     name: str
-    actionable_date: Union[None, Unset, str] = UNSET
+    actionable_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +31,7 @@ class WorkableBigPlan:
 
         name = self.name
 
-        actionable_date: Union[None, Unset, str]
+        actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
             actionable_date = UNSET
         else:
@@ -55,12 +57,12 @@ class WorkableBigPlan:
 
         name = d.pop("name")
 
-        def _parse_actionable_date(data: object) -> Union[None, Unset, str]:
+        def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         actionable_date = _parse_actionable_date(d.pop("actionable_date", UNSET))
 

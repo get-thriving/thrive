@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,24 +24,24 @@ class BigPlanCreateArgs:
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
-        time_plan_ref_id (Union[None, Unset, str]):
-        time_plan_activity_kind (Union[None, TimePlanActivityKind, Unset]):
-        time_plan_activity_feasability (Union[None, TimePlanActivityFeasability, Unset]):
-        project_ref_id (Union[None, Unset, str]):
-        actionable_date (Union[None, Unset, str]):
-        due_date (Union[None, Unset, str]):
+        time_plan_ref_id (None | str | Unset):
+        time_plan_activity_kind (None | TimePlanActivityKind | Unset):
+        time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
+        project_ref_id (None | str | Unset):
+        actionable_date (None | str | Unset):
+        due_date (None | str | Unset):
     """
 
     name: str
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
-    time_plan_ref_id: Union[None, Unset, str] = UNSET
-    time_plan_activity_kind: Union[None, TimePlanActivityKind, Unset] = UNSET
-    time_plan_activity_feasability: Union[None, TimePlanActivityFeasability, Unset] = UNSET
-    project_ref_id: Union[None, Unset, str] = UNSET
-    actionable_date: Union[None, Unset, str] = UNSET
-    due_date: Union[None, Unset, str] = UNSET
+    time_plan_ref_id: None | str | Unset = UNSET
+    time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
+    time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
+    project_ref_id: None | str | Unset = UNSET
+    actionable_date: None | str | Unset = UNSET
+    due_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,13 +53,13 @@ class BigPlanCreateArgs:
 
         difficulty = self.difficulty.value
 
-        time_plan_ref_id: Union[None, Unset, str]
+        time_plan_ref_id: None | str | Unset
         if isinstance(self.time_plan_ref_id, Unset):
             time_plan_ref_id = UNSET
         else:
             time_plan_ref_id = self.time_plan_ref_id
 
-        time_plan_activity_kind: Union[None, Unset, str]
+        time_plan_activity_kind: None | str | Unset
         if isinstance(self.time_plan_activity_kind, Unset):
             time_plan_activity_kind = UNSET
         elif isinstance(self.time_plan_activity_kind, TimePlanActivityKind):
@@ -65,7 +67,7 @@ class BigPlanCreateArgs:
         else:
             time_plan_activity_kind = self.time_plan_activity_kind
 
-        time_plan_activity_feasability: Union[None, Unset, str]
+        time_plan_activity_feasability: None | str | Unset
         if isinstance(self.time_plan_activity_feasability, Unset):
             time_plan_activity_feasability = UNSET
         elif isinstance(self.time_plan_activity_feasability, TimePlanActivityFeasability):
@@ -73,19 +75,19 @@ class BigPlanCreateArgs:
         else:
             time_plan_activity_feasability = self.time_plan_activity_feasability
 
-        project_ref_id: Union[None, Unset, str]
+        project_ref_id: None | str | Unset
         if isinstance(self.project_ref_id, Unset):
             project_ref_id = UNSET
         else:
             project_ref_id = self.project_ref_id
 
-        actionable_date: Union[None, Unset, str]
+        actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
             actionable_date = UNSET
         else:
             actionable_date = self.actionable_date
 
-        due_date: Union[None, Unset, str]
+        due_date: None | str | Unset
         if isinstance(self.due_date, Unset):
             due_date = UNSET
         else:
@@ -127,16 +129,16 @@ class BigPlanCreateArgs:
 
         difficulty = Difficulty(d.pop("difficulty"))
 
-        def _parse_time_plan_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_time_plan_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         time_plan_ref_id = _parse_time_plan_ref_id(d.pop("time_plan_ref_id", UNSET))
 
-        def _parse_time_plan_activity_kind(data: object) -> Union[None, TimePlanActivityKind, Unset]:
+        def _parse_time_plan_activity_kind(data: object) -> None | TimePlanActivityKind | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -147,13 +149,13 @@ class BigPlanCreateArgs:
                 time_plan_activity_kind_type_0 = TimePlanActivityKind(data)
 
                 return time_plan_activity_kind_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, TimePlanActivityKind, Unset], data)
+            return cast(None | TimePlanActivityKind | Unset, data)
 
         time_plan_activity_kind = _parse_time_plan_activity_kind(d.pop("time_plan_activity_kind", UNSET))
 
-        def _parse_time_plan_activity_feasability(data: object) -> Union[None, TimePlanActivityFeasability, Unset]:
+        def _parse_time_plan_activity_feasability(data: object) -> None | TimePlanActivityFeasability | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -164,38 +166,38 @@ class BigPlanCreateArgs:
                 time_plan_activity_feasability_type_0 = TimePlanActivityFeasability(data)
 
                 return time_plan_activity_feasability_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, TimePlanActivityFeasability, Unset], data)
+            return cast(None | TimePlanActivityFeasability | Unset, data)
 
         time_plan_activity_feasability = _parse_time_plan_activity_feasability(
             d.pop("time_plan_activity_feasability", UNSET)
         )
 
-        def _parse_project_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_project_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         project_ref_id = _parse_project_ref_id(d.pop("project_ref_id", UNSET))
 
-        def _parse_actionable_date(data: object) -> Union[None, Unset, str]:
+        def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         actionable_date = _parse_actionable_date(d.pop("actionable_date", UNSET))
 
-        def _parse_due_date(data: object) -> Union[None, Unset, str]:
+        def _parse_due_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         due_date = _parse_due_date(d.pop("due_date", UNSET))
 

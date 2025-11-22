@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,10 +29,10 @@ class ScoreLogEntry:
         task_ref_id (str): A generic entity id.
         success (bool):
         score (int):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        difficulty (Union[Difficulty, None, Unset]):
-        has_lucky_puppy_bonus (Union[None, Unset, bool]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        difficulty (Difficulty | None | Unset):
+        has_lucky_puppy_bonus (bool | None | Unset):
     """
 
     ref_id: str
@@ -44,10 +46,10 @@ class ScoreLogEntry:
     task_ref_id: str
     success: bool
     score: int
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    difficulty: Union[Difficulty, None, Unset] = UNSET
-    has_lucky_puppy_bonus: Union[None, Unset, bool] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    difficulty: Difficulty | None | Unset = UNSET
+    has_lucky_puppy_bonus: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -73,19 +75,19 @@ class ScoreLogEntry:
 
         score = self.score
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        difficulty: Union[None, Unset, str]
+        difficulty: None | str | Unset
         if isinstance(self.difficulty, Unset):
             difficulty = UNSET
         elif isinstance(self.difficulty, Difficulty):
@@ -93,7 +95,7 @@ class ScoreLogEntry:
         else:
             difficulty = self.difficulty
 
-        has_lucky_puppy_bonus: Union[None, Unset, bool]
+        has_lucky_puppy_bonus: bool | None | Unset
         if isinstance(self.has_lucky_puppy_bonus, Unset):
             has_lucky_puppy_bonus = UNSET
         else:
@@ -152,25 +154,25 @@ class ScoreLogEntry:
 
         score = d.pop("score")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_difficulty(data: object) -> Union[Difficulty, None, Unset]:
+        def _parse_difficulty(data: object) -> Difficulty | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -181,18 +183,18 @@ class ScoreLogEntry:
                 difficulty_type_0 = Difficulty(data)
 
                 return difficulty_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[Difficulty, None, Unset], data)
+            return cast(Difficulty | None | Unset, data)
 
         difficulty = _parse_difficulty(d.pop("difficulty", UNSET))
 
-        def _parse_has_lucky_puppy_bonus(data: object) -> Union[None, Unset, bool]:
+        def _parse_has_lucky_puppy_bonus(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         has_lucky_puppy_bonus = _parse_has_lucky_puppy_bonus(d.pop("has_lucky_puppy_bonus", UNSET))
 

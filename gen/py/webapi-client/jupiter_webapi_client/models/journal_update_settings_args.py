@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -35,12 +37,12 @@ class JournalUpdateSettingsArgs:
         writing_task_difficulty (JournalUpdateSettingsArgsWritingTaskDifficulty):
     """
 
-    periods: "JournalUpdateSettingsArgsPeriods"
-    generation_approach: "JournalUpdateSettingsArgsGenerationApproach"
-    generation_in_advance_days: "JournalUpdateSettingsArgsGenerationInAdvanceDays"
-    writing_task_project_ref_id: "JournalUpdateSettingsArgsWritingTaskProjectRefId"
-    writing_task_eisen: "JournalUpdateSettingsArgsWritingTaskEisen"
-    writing_task_difficulty: "JournalUpdateSettingsArgsWritingTaskDifficulty"
+    periods: JournalUpdateSettingsArgsPeriods
+    generation_approach: JournalUpdateSettingsArgsGenerationApproach
+    generation_in_advance_days: JournalUpdateSettingsArgsGenerationInAdvanceDays
+    writing_task_project_ref_id: JournalUpdateSettingsArgsWritingTaskProjectRefId
+    writing_task_eisen: JournalUpdateSettingsArgsWritingTaskEisen
+    writing_task_difficulty: JournalUpdateSettingsArgsWritingTaskDifficulty
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

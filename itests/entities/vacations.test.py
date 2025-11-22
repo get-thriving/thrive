@@ -37,7 +37,7 @@ def _enable_vacations_feature(logged_in_client: AuthenticatedClient) -> Iterator
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_vacation(logged_in_client: AuthenticatedClient):
     def _create_vacation(
         name: str, start_month: int, start_day: int, end_month: int, end_day: int

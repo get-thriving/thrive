@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +23,13 @@ class TimePlanActivityLoadResult:
 
     Attributes:
         time_plan_activity (TimePlanActivity): A certain activity that happens in a plan.
-        target_inbox_task (Union['InboxTask', None, Unset]):
-        target_big_plan (Union['BigPlan', None, Unset]):
+        target_inbox_task (InboxTask | None | Unset):
+        target_big_plan (BigPlan | None | Unset):
     """
 
-    time_plan_activity: "TimePlanActivity"
-    target_inbox_task: Union["InboxTask", None, Unset] = UNSET
-    target_big_plan: Union["BigPlan", None, Unset] = UNSET
+    time_plan_activity: TimePlanActivity
+    target_inbox_task: InboxTask | None | Unset = UNSET
+    target_big_plan: BigPlan | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +38,7 @@ class TimePlanActivityLoadResult:
 
         time_plan_activity = self.time_plan_activity.to_dict()
 
-        target_inbox_task: Union[None, Unset, dict[str, Any]]
+        target_inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.target_inbox_task, Unset):
             target_inbox_task = UNSET
         elif isinstance(self.target_inbox_task, InboxTask):
@@ -44,7 +46,7 @@ class TimePlanActivityLoadResult:
         else:
             target_inbox_task = self.target_inbox_task
 
-        target_big_plan: Union[None, Unset, dict[str, Any]]
+        target_big_plan: dict[str, Any] | None | Unset
         if isinstance(self.target_big_plan, Unset):
             target_big_plan = UNSET
         elif isinstance(self.target_big_plan, BigPlan):
@@ -75,7 +77,7 @@ class TimePlanActivityLoadResult:
         d = dict(src_dict)
         time_plan_activity = TimePlanActivity.from_dict(d.pop("time_plan_activity"))
 
-        def _parse_target_inbox_task(data: object) -> Union["InboxTask", None, Unset]:
+        def _parse_target_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,13 +88,13 @@ class TimePlanActivityLoadResult:
                 target_inbox_task_type_0 = InboxTask.from_dict(data)
 
                 return target_inbox_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["InboxTask", None, Unset], data)
+            return cast(InboxTask | None | Unset, data)
 
         target_inbox_task = _parse_target_inbox_task(d.pop("target_inbox_task", UNSET))
 
-        def _parse_target_big_plan(data: object) -> Union["BigPlan", None, Unset]:
+        def _parse_target_big_plan(data: object) -> BigPlan | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +105,9 @@ class TimePlanActivityLoadResult:
                 target_big_plan_type_0 = BigPlan.from_dict(data)
 
                 return target_big_plan_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["BigPlan", None, Unset], data)
+            return cast(BigPlan | None | Unset, data)
 
         target_big_plan = _parse_target_big_plan(d.pop("target_big_plan", UNSET))
 

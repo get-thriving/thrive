@@ -2,7 +2,7 @@
 hide = true
 sources = ["src/core/pyproject.toml"]
 outputs = { auto = true }
-run = "cd src/core && poetry install --no-interaction --no-ansi"
+run = "cd src/core && uv sync --active"
 wait_for = ["package:src:alib:py:framework:install"]
 
 ["package:src:core:fix:prettier"]
@@ -33,19 +33,19 @@ run = "npx eslint src/core --fix"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/core"
+run = "uvx autoflake --config=tasks/_resources/check/lint/autoflake src/core"
 
 ["package:src:core:fix:black"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run black src/core"
+run = "uvx black src/core"
 
 ["package:src:core:fix:ruff"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
+run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
 
 ["package:src:core:fix:markdownlint"]
 hide = true
@@ -68,13 +68,13 @@ run = "npx eslint src/core/package.mise.toml"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "cd src/core && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --explicit-package-bases --show-absolute-path"
+run = "cd src/core && uvx mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --explicit-package-bases --show-absolute-path"
 
 ["package:src:core:lint:ruff"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core"
+run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core"
 
 ["package:src:core:lint:tsc"]
 hide = true
@@ -116,19 +116,19 @@ run = "npx markdownlint-cli2 src/core/README.md"
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pyflakes src/core"
+run = "uvx pyflakes src/core"
 
 ["package:src:core:lint:bandit"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/core"
+run = "uvx bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/core"
 
 ["package:src:core:lint:pydocstyle"]
 hide = true
 sources = ["src/core/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/core"
+run = "uvx pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/core"
 
 ["package:src:core:lint"]
 description = "Check src/core module"
@@ -150,7 +150,7 @@ run = "cd src/core && pnpm audit"
 hide = true
 run = '''
 cd src/core
-poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+uvx pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["package:src:core:audit"]

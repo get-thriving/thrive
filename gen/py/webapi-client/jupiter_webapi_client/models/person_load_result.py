@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,25 +24,25 @@ class PersonLoadResult:
 
     Attributes:
         person (Person): A person.
-        birthday_time_event_blocks (list['TimeEventFullDaysBlock']):
-        catch_up_tasks (list['InboxTask']):
+        birthday_time_event_blocks (list[TimeEventFullDaysBlock]):
+        catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
         catch_up_tasks_page_size (int):
-        birthday_tasks (list['InboxTask']):
+        birthday_tasks (list[InboxTask]):
         birthday_tasks_total_cnt (int):
         birthday_tasks_page_size (int):
-        note (Union['Note', None, Unset]):
+        note (None | Note | Unset):
     """
 
-    person: "Person"
-    birthday_time_event_blocks: list["TimeEventFullDaysBlock"]
-    catch_up_tasks: list["InboxTask"]
+    person: Person
+    birthday_time_event_blocks: list[TimeEventFullDaysBlock]
+    catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
     catch_up_tasks_page_size: int
-    birthday_tasks: list["InboxTask"]
+    birthday_tasks: list[InboxTask]
     birthday_tasks_total_cnt: int
     birthday_tasks_page_size: int
-    note: Union["Note", None, Unset] = UNSET
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,7 +73,7 @@ class PersonLoadResult:
 
         birthday_tasks_page_size = self.birthday_tasks_page_size
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -137,7 +139,7 @@ class PersonLoadResult:
 
         birthday_tasks_page_size = d.pop("birthday_tasks_page_size")
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,9 +150,9 @@ class PersonLoadResult:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 

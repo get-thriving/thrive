@@ -15,4 +15,4 @@ run = "true"
 
 ["package:gen:py:webapi-client:install"]
 hide = true
-run = "cd gen/py/webapi-client && poetry install --no-interaction --no-ansi"
+run = "cd gen/py/webapi-client && uv sync --active"

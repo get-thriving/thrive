@@ -15,4 +15,4 @@ run = "true"
 
 ["package:gen:py:{{packageName}}:install"]
 hide = true
-run = "cd gen/py/{{packageName}} && poetry install --no-interaction --no-ansi"
+run = "cd gen/py/{{packageName}} && uv sync --active"

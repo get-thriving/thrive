@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +23,13 @@ class TimeEventInDayBlockLoadResult:
 
     Attributes:
         in_day_block (TimeEventInDayBlock): Time event.
-        schedule_event (Union['ScheduleEventInDay', None, Unset]):
-        inbox_task (Union['InboxTask', None, Unset]):
+        schedule_event (None | ScheduleEventInDay | Unset):
+        inbox_task (InboxTask | None | Unset):
     """
 
-    in_day_block: "TimeEventInDayBlock"
-    schedule_event: Union["ScheduleEventInDay", None, Unset] = UNSET
-    inbox_task: Union["InboxTask", None, Unset] = UNSET
+    in_day_block: TimeEventInDayBlock
+    schedule_event: None | ScheduleEventInDay | Unset = UNSET
+    inbox_task: InboxTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +38,7 @@ class TimeEventInDayBlockLoadResult:
 
         in_day_block = self.in_day_block.to_dict()
 
-        schedule_event: Union[None, Unset, dict[str, Any]]
+        schedule_event: dict[str, Any] | None | Unset
         if isinstance(self.schedule_event, Unset):
             schedule_event = UNSET
         elif isinstance(self.schedule_event, ScheduleEventInDay):
@@ -44,7 +46,7 @@ class TimeEventInDayBlockLoadResult:
         else:
             schedule_event = self.schedule_event
 
-        inbox_task: Union[None, Unset, dict[str, Any]]
+        inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.inbox_task, Unset):
             inbox_task = UNSET
         elif isinstance(self.inbox_task, InboxTask):
@@ -75,7 +77,7 @@ class TimeEventInDayBlockLoadResult:
         d = dict(src_dict)
         in_day_block = TimeEventInDayBlock.from_dict(d.pop("in_day_block"))
 
-        def _parse_schedule_event(data: object) -> Union["ScheduleEventInDay", None, Unset]:
+        def _parse_schedule_event(data: object) -> None | ScheduleEventInDay | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,13 +88,13 @@ class TimeEventInDayBlockLoadResult:
                 schedule_event_type_0 = ScheduleEventInDay.from_dict(data)
 
                 return schedule_event_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["ScheduleEventInDay", None, Unset], data)
+            return cast(None | ScheduleEventInDay | Unset, data)
 
         schedule_event = _parse_schedule_event(d.pop("schedule_event", UNSET))
 
-        def _parse_inbox_task(data: object) -> Union["InboxTask", None, Unset]:
+        def _parse_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +105,9 @@ class TimeEventInDayBlockLoadResult:
                 inbox_task_type_0 = InboxTask.from_dict(data)
 
                 return inbox_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["InboxTask", None, Unset], data)
+            return cast(InboxTask | None | Unset, data)
 
         inbox_task = _parse_inbox_task(d.pop("inbox_task", UNSET))
 

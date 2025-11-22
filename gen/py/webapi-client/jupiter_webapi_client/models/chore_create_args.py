@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,14 +25,14 @@ class ChoreCreateArgs:
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
         must_do (bool):
-        project_ref_id (Union[None, Unset, str]):
-        actionable_from_day (Union[None, Unset, int]):
-        actionable_from_month (Union[None, Unset, int]):
-        due_at_day (Union[None, Unset, int]):
-        due_at_month (Union[None, Unset, int]):
-        skip_rule (Union[None, Unset, str]):
-        start_at_date (Union[None, Unset, str]):
-        end_at_date (Union[None, Unset, str]):
+        project_ref_id (None | str | Unset):
+        actionable_from_day (int | None | Unset):
+        actionable_from_month (int | None | Unset):
+        due_at_day (int | None | Unset):
+        due_at_month (int | None | Unset):
+        skip_rule (None | str | Unset):
+        start_at_date (None | str | Unset):
+        end_at_date (None | str | Unset):
     """
 
     name: str
@@ -39,14 +41,14 @@ class ChoreCreateArgs:
     eisen: Eisen
     difficulty: Difficulty
     must_do: bool
-    project_ref_id: Union[None, Unset, str] = UNSET
-    actionable_from_day: Union[None, Unset, int] = UNSET
-    actionable_from_month: Union[None, Unset, int] = UNSET
-    due_at_day: Union[None, Unset, int] = UNSET
-    due_at_month: Union[None, Unset, int] = UNSET
-    skip_rule: Union[None, Unset, str] = UNSET
-    start_at_date: Union[None, Unset, str] = UNSET
-    end_at_date: Union[None, Unset, str] = UNSET
+    project_ref_id: None | str | Unset = UNSET
+    actionable_from_day: int | None | Unset = UNSET
+    actionable_from_month: int | None | Unset = UNSET
+    due_at_day: int | None | Unset = UNSET
+    due_at_month: int | None | Unset = UNSET
+    skip_rule: None | str | Unset = UNSET
+    start_at_date: None | str | Unset = UNSET
+    end_at_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,49 +64,49 @@ class ChoreCreateArgs:
 
         must_do = self.must_do
 
-        project_ref_id: Union[None, Unset, str]
+        project_ref_id: None | str | Unset
         if isinstance(self.project_ref_id, Unset):
             project_ref_id = UNSET
         else:
             project_ref_id = self.project_ref_id
 
-        actionable_from_day: Union[None, Unset, int]
+        actionable_from_day: int | None | Unset
         if isinstance(self.actionable_from_day, Unset):
             actionable_from_day = UNSET
         else:
             actionable_from_day = self.actionable_from_day
 
-        actionable_from_month: Union[None, Unset, int]
+        actionable_from_month: int | None | Unset
         if isinstance(self.actionable_from_month, Unset):
             actionable_from_month = UNSET
         else:
             actionable_from_month = self.actionable_from_month
 
-        due_at_day: Union[None, Unset, int]
+        due_at_day: int | None | Unset
         if isinstance(self.due_at_day, Unset):
             due_at_day = UNSET
         else:
             due_at_day = self.due_at_day
 
-        due_at_month: Union[None, Unset, int]
+        due_at_month: int | None | Unset
         if isinstance(self.due_at_month, Unset):
             due_at_month = UNSET
         else:
             due_at_month = self.due_at_month
 
-        skip_rule: Union[None, Unset, str]
+        skip_rule: None | str | Unset
         if isinstance(self.skip_rule, Unset):
             skip_rule = UNSET
         else:
             skip_rule = self.skip_rule
 
-        start_at_date: Union[None, Unset, str]
+        start_at_date: None | str | Unset
         if isinstance(self.start_at_date, Unset):
             start_at_date = UNSET
         else:
             start_at_date = self.start_at_date
 
-        end_at_date: Union[None, Unset, str]
+        end_at_date: None | str | Unset
         if isinstance(self.end_at_date, Unset):
             end_at_date = UNSET
         else:
@@ -156,75 +158,75 @@ class ChoreCreateArgs:
 
         must_do = d.pop("must_do")
 
-        def _parse_project_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_project_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         project_ref_id = _parse_project_ref_id(d.pop("project_ref_id", UNSET))
 
-        def _parse_actionable_from_day(data: object) -> Union[None, Unset, int]:
+        def _parse_actionable_from_day(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         actionable_from_day = _parse_actionable_from_day(d.pop("actionable_from_day", UNSET))
 
-        def _parse_actionable_from_month(data: object) -> Union[None, Unset, int]:
+        def _parse_actionable_from_month(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         actionable_from_month = _parse_actionable_from_month(d.pop("actionable_from_month", UNSET))
 
-        def _parse_due_at_day(data: object) -> Union[None, Unset, int]:
+        def _parse_due_at_day(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         due_at_day = _parse_due_at_day(d.pop("due_at_day", UNSET))
 
-        def _parse_due_at_month(data: object) -> Union[None, Unset, int]:
+        def _parse_due_at_month(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         due_at_month = _parse_due_at_month(d.pop("due_at_month", UNSET))
 
-        def _parse_skip_rule(data: object) -> Union[None, Unset, str]:
+        def _parse_skip_rule(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         skip_rule = _parse_skip_rule(d.pop("skip_rule", UNSET))
 
-        def _parse_start_at_date(data: object) -> Union[None, Unset, str]:
+        def _parse_start_at_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         start_at_date = _parse_start_at_date(d.pop("start_at_date", UNSET))
 
-        def _parse_end_at_date(data: object) -> Union[None, Unset, str]:
+        def _parse_end_at_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         end_at_date = _parse_end_at_date(d.pop("end_at_date", UNSET))
 

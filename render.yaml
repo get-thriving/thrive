@@ -75,7 +75,7 @@ services:
     - key: ENV
       value: production
       previewValue: staging
-    - key: POETRY_VERSION
-      value: 2.1.1
+    - key: UV_VERSION
+      value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0

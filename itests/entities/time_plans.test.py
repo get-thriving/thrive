@@ -144,7 +144,7 @@ def _enable_time_plans_feature(logged_in_client: AuthenticatedClient) -> Iterato
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_time_plan(logged_in_client: AuthenticatedClient):
     def _create_time_plan(day: str, period: RecurringTaskPeriod) -> TimePlan:
         result = time_plan_create_sync(
@@ -156,7 +156,7 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
     return _create_time_plan
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClient):
     def _create_time_plan_activity(
         time_plan_id: int, big_plan_id: int
@@ -178,7 +178,7 @@ def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClien
     return _create_time_plan_activity
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedClient):
     def _create_time_plan_activity(
         time_plan_id: int, inbox_task_id: int
@@ -200,7 +200,7 @@ def create_time_plan_activity_from_inbox_task(logged_in_client: AuthenticatedCli
     return _create_time_plan_activity
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create_inbox_task(
         name: str, big_plan_id: int | None = None, due_date: str | None = None
@@ -221,7 +221,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
     return _create_inbox_task
 
 
-@pytest.fixture()
+@pytest.fixture
 def create_big_plan(logged_in_client: AuthenticatedClient):
     def _create_big_plan(
         name: str, actionable_date: str | None = None, due_date: str | None = None

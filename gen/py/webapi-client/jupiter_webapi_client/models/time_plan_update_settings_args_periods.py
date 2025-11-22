@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,17 +17,17 @@ class TimePlanUpdateSettingsArgsPeriods:
     """
     Attributes:
         should_change (bool):
-        value (Union[Unset, list[RecurringTaskPeriod]]):
+        value (list[RecurringTaskPeriod] | Unset):
     """
 
     should_change: bool
-    value: Union[Unset, list[RecurringTaskPeriod]] = UNSET
+    value: list[RecurringTaskPeriod] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: Union[Unset, list[str]] = UNSET
+        value: list[str] | Unset = UNSET
         if not isinstance(self.value, Unset):
             value = []
             for value_item_data in self.value:
@@ -49,12 +51,14 @@ class TimePlanUpdateSettingsArgsPeriods:
         d = dict(src_dict)
         should_change = d.pop("should_change")
 
-        value = []
         _value = d.pop("value", UNSET)
-        for value_item_data in _value or []:
-            value_item = RecurringTaskPeriod(value_item_data)
+        value: list[RecurringTaskPeriod] | Unset = UNSET
+        if _value is not UNSET:
+            value = []
+            for value_item_data in _value:
+                value_item = RecurringTaskPeriod(value_item_data)
 
-            value.append(value_item)
+                value.append(value_item)
 
         time_plan_update_settings_args_periods = cls(
             should_change=should_change,

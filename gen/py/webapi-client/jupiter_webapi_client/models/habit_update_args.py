@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -45,19 +47,19 @@ class HabitUpdateArgs:
     """
 
     ref_id: str
-    name: "HabitUpdateArgsName"
-    project_ref_id: "HabitUpdateArgsProjectRefId"
-    is_key: "HabitUpdateArgsIsKey"
-    period: "HabitUpdateArgsPeriod"
-    eisen: "HabitUpdateArgsEisen"
-    difficulty: "HabitUpdateArgsDifficulty"
-    actionable_from_day: "HabitUpdateArgsActionableFromDay"
-    actionable_from_month: "HabitUpdateArgsActionableFromMonth"
-    due_at_day: "HabitUpdateArgsDueAtDay"
-    due_at_month: "HabitUpdateArgsDueAtMonth"
-    skip_rule: "HabitUpdateArgsSkipRule"
-    repeats_strategy: "HabitUpdateArgsRepeatsStrategy"
-    repeats_in_period_count: "HabitUpdateArgsRepeatsInPeriodCount"
+    name: HabitUpdateArgsName
+    project_ref_id: HabitUpdateArgsProjectRefId
+    is_key: HabitUpdateArgsIsKey
+    period: HabitUpdateArgsPeriod
+    eisen: HabitUpdateArgsEisen
+    difficulty: HabitUpdateArgsDifficulty
+    actionable_from_day: HabitUpdateArgsActionableFromDay
+    actionable_from_month: HabitUpdateArgsActionableFromMonth
+    due_at_day: HabitUpdateArgsDueAtDay
+    due_at_month: HabitUpdateArgsDueAtMonth
+    skip_rule: HabitUpdateArgsSkipRule
+    repeats_strategy: HabitUpdateArgsRepeatsStrategy
+    repeats_in_period_count: HabitUpdateArgsRepeatsInPeriodCount
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

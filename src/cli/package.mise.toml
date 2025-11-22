@@ -7,25 +7,25 @@ hide = true
 sources = ["src/cli/pyproject.toml"]
 outputs = { auto = true }
 wait_for = ["root:install:apt", "package:src:core:install"]
-run = "cd src/cli && poetry install --no-interaction --no-ansi"
+run = "cd src/cli && uv sync --active"
 
 ["package:src:cli:fix:autoflake"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/cli"
+run = "uvx autoflake --config=tasks/_resources/check/lint/autoflake src/cli"
 
 ["package:src:cli:fix:black"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run black src/cli"
+run = "uvx black src/cli"
 
 ["package:src:cli:fix:ruff"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli --fix"
+run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli --fix"
 
 ["package:src:cli:fix:markdownlint"]
 hide = true
@@ -66,14 +66,14 @@ env.MYPYPATH = "../core"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "cd src/cli && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/cli && uvx mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:cli:lint:ruff"]
 env.MYPYPATH = "../core"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli"
+run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli"
 
 ["package:src:cli:lint:markdownlint-readme"]
 hide = true
@@ -85,19 +85,19 @@ run = "npx markdownlint-cli2 src/cli/README.md"
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pyflakes src/cli"
+run = "uvx pyflakes src/cli"
 
 ["package:src:cli:lint:bandit"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/cli"
+run = "uvx bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/cli"
 
 ["package:src:cli:lint:pydocstyle"]
 hide = true
 sources = ["src/cli/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/cli"
+run = "uvx pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/cli"
 
 ["package:src:cli:lint"]
 description = "Check src/cli module"
@@ -110,7 +110,7 @@ run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
 cd src/cli
-poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+uvx pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["package:src:cli:audit"]

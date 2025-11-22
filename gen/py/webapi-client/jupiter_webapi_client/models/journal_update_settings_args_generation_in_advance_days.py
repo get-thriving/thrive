@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,17 +22,17 @@ class JournalUpdateSettingsArgsGenerationInAdvanceDays:
     """
     Attributes:
         should_change (bool):
-        value (Union[Unset, JournalUpdateSettingsArgsGenerationInAdvanceDaysValue]):
+        value (JournalUpdateSettingsArgsGenerationInAdvanceDaysValue | Unset):
     """
 
     should_change: bool
-    value: Union[Unset, "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue"] = UNSET
+    value: JournalUpdateSettingsArgsGenerationInAdvanceDaysValue | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: Union[Unset, dict[str, Any]] = UNSET
+        value: dict[str, Any] | Unset = UNSET
         if not isinstance(self.value, Unset):
             value = self.value.to_dict()
 
@@ -56,7 +58,7 @@ class JournalUpdateSettingsArgsGenerationInAdvanceDays:
         should_change = d.pop("should_change")
 
         _value = d.pop("value", UNSET)
-        value: Union[Unset, JournalUpdateSettingsArgsGenerationInAdvanceDaysValue]
+        value: JournalUpdateSettingsArgsGenerationInAdvanceDaysValue | Unset
         if isinstance(_value, Unset):
             value = UNSET
         else:

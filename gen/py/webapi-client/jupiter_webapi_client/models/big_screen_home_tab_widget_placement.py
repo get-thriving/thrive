@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,13 +21,13 @@ class BigScreenHomeTabWidgetPlacement:
 
     Attributes:
         kind (BigScreenHomeTabWidgetPlacementKind):
-        matrix (list[list[Union[None, str]]]):
-        sections (list['HomeTabWidgetPlacementSection']):
+        matrix (list[list[None | str]]):
+        sections (list[HomeTabWidgetPlacementSection]):
     """
 
     kind: BigScreenHomeTabWidgetPlacementKind
-    matrix: list[list[Union[None, str]]]
-    sections: list["HomeTabWidgetPlacementSection"]
+    matrix: list[list[None | str]]
+    sections: list[HomeTabWidgetPlacementSection]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +37,7 @@ class BigScreenHomeTabWidgetPlacement:
         for matrix_item_data in self.matrix:
             matrix_item = []
             for matrix_item_item_data in matrix_item_data:
-                matrix_item_item: Union[None, str]
+                matrix_item_item: None | str
                 matrix_item_item = matrix_item_item_data
                 matrix_item.append(matrix_item_item)
 
@@ -72,10 +74,10 @@ class BigScreenHomeTabWidgetPlacement:
             _matrix_item = matrix_item_data
             for matrix_item_item_data in _matrix_item:
 
-                def _parse_matrix_item_item(data: object) -> Union[None, str]:
+                def _parse_matrix_item_item(data: object) -> None | str:
                     if data is None:
                         return data
-                    return cast(Union[None, str], data)
+                    return cast(None | str, data)
 
                 matrix_item_item = _parse_matrix_item_item(matrix_item_item_data)
 

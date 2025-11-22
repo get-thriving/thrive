@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,12 +19,12 @@ class CalendarLoadForDateAndPeriodArgs:
     Attributes:
         right_now (str): A date or possibly a datetime for the application.
         period (RecurringTaskPeriod): A period for a particular task.
-        stats_subperiod (Union[None, RecurringTaskPeriod, Unset]):
+        stats_subperiod (None | RecurringTaskPeriod | Unset):
     """
 
     right_now: str
     period: RecurringTaskPeriod
-    stats_subperiod: Union[None, RecurringTaskPeriod, Unset] = UNSET
+    stats_subperiod: None | RecurringTaskPeriod | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,7 +32,7 @@ class CalendarLoadForDateAndPeriodArgs:
 
         period = self.period.value
 
-        stats_subperiod: Union[None, Unset, str]
+        stats_subperiod: None | str | Unset
         if isinstance(self.stats_subperiod, Unset):
             stats_subperiod = UNSET
         elif isinstance(self.stats_subperiod, RecurringTaskPeriod):
@@ -58,7 +60,7 @@ class CalendarLoadForDateAndPeriodArgs:
 
         period = RecurringTaskPeriod(d.pop("period"))
 
-        def _parse_stats_subperiod(data: object) -> Union[None, RecurringTaskPeriod, Unset]:
+        def _parse_stats_subperiod(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -69,9 +71,9 @@ class CalendarLoadForDateAndPeriodArgs:
                 stats_subperiod_type_0 = RecurringTaskPeriod(data)
 
                 return stats_subperiod_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, RecurringTaskPeriod, Unset], data)
+            return cast(None | RecurringTaskPeriod | Unset, data)
 
         stats_subperiod = _parse_stats_subperiod(d.pop("stats_subperiod", UNSET))
 

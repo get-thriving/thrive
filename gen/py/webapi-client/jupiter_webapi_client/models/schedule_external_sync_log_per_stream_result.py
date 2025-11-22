@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +18,12 @@ class ScheduleExternalSyncLogPerStreamResult:
     Attributes:
         schedule_stream_ref_id (str): A generic entity id.
         success (bool):
-        error_msg (Union[None, Unset, str]):
+        error_msg (None | str | Unset):
     """
 
     schedule_stream_ref_id: str
     success: bool
-    error_msg: Union[None, Unset, str] = UNSET
+    error_msg: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +31,7 @@ class ScheduleExternalSyncLogPerStreamResult:
 
         success = self.success
 
-        error_msg: Union[None, Unset, str]
+        error_msg: None | str | Unset
         if isinstance(self.error_msg, Unset):
             error_msg = UNSET
         else:
@@ -55,12 +57,12 @@ class ScheduleExternalSyncLogPerStreamResult:
 
         success = d.pop("success")
 
-        def _parse_error_msg(data: object) -> Union[None, Unset, str]:
+        def _parse_error_msg(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         error_msg = _parse_error_msg(d.pop("error_msg", UNSET))
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,9 +28,9 @@ class CalendarLoadForDateAndPeriodResult:
         period_end_date (str): A date or possibly a datetime for the application.
         prev_period_start_date (str): A date or possibly a datetime for the application.
         next_period_start_date (str): A date or possibly a datetime for the application.
-        stats_subperiod (Union[None, RecurringTaskPeriod, Unset]):
-        entries (Union['CalendarEventsEntries', None, Unset]):
-        stats (Union['CalendarEventsStats', None, Unset]):
+        stats_subperiod (None | RecurringTaskPeriod | Unset):
+        entries (CalendarEventsEntries | None | Unset):
+        stats (CalendarEventsStats | None | Unset):
     """
 
     right_now: str
@@ -37,9 +39,9 @@ class CalendarLoadForDateAndPeriodResult:
     period_end_date: str
     prev_period_start_date: str
     next_period_start_date: str
-    stats_subperiod: Union[None, RecurringTaskPeriod, Unset] = UNSET
-    entries: Union["CalendarEventsEntries", None, Unset] = UNSET
-    stats: Union["CalendarEventsStats", None, Unset] = UNSET
+    stats_subperiod: None | RecurringTaskPeriod | Unset = UNSET
+    entries: CalendarEventsEntries | None | Unset = UNSET
+    stats: CalendarEventsStats | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +60,7 @@ class CalendarLoadForDateAndPeriodResult:
 
         next_period_start_date = self.next_period_start_date
 
-        stats_subperiod: Union[None, Unset, str]
+        stats_subperiod: None | str | Unset
         if isinstance(self.stats_subperiod, Unset):
             stats_subperiod = UNSET
         elif isinstance(self.stats_subperiod, RecurringTaskPeriod):
@@ -66,7 +68,7 @@ class CalendarLoadForDateAndPeriodResult:
         else:
             stats_subperiod = self.stats_subperiod
 
-        entries: Union[None, Unset, dict[str, Any]]
+        entries: dict[str, Any] | None | Unset
         if isinstance(self.entries, Unset):
             entries = UNSET
         elif isinstance(self.entries, CalendarEventsEntries):
@@ -74,7 +76,7 @@ class CalendarLoadForDateAndPeriodResult:
         else:
             entries = self.entries
 
-        stats: Union[None, Unset, dict[str, Any]]
+        stats: dict[str, Any] | None | Unset
         if isinstance(self.stats, Unset):
             stats = UNSET
         elif isinstance(self.stats, CalendarEventsStats):
@@ -121,7 +123,7 @@ class CalendarLoadForDateAndPeriodResult:
 
         next_period_start_date = d.pop("next_period_start_date")
 
-        def _parse_stats_subperiod(data: object) -> Union[None, RecurringTaskPeriod, Unset]:
+        def _parse_stats_subperiod(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -132,13 +134,13 @@ class CalendarLoadForDateAndPeriodResult:
                 stats_subperiod_type_0 = RecurringTaskPeriod(data)
 
                 return stats_subperiod_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, RecurringTaskPeriod, Unset], data)
+            return cast(None | RecurringTaskPeriod | Unset, data)
 
         stats_subperiod = _parse_stats_subperiod(d.pop("stats_subperiod", UNSET))
 
-        def _parse_entries(data: object) -> Union["CalendarEventsEntries", None, Unset]:
+        def _parse_entries(data: object) -> CalendarEventsEntries | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,13 +151,13 @@ class CalendarLoadForDateAndPeriodResult:
                 entries_type_0 = CalendarEventsEntries.from_dict(data)
 
                 return entries_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["CalendarEventsEntries", None, Unset], data)
+            return cast(CalendarEventsEntries | None | Unset, data)
 
         entries = _parse_entries(d.pop("entries", UNSET))
 
-        def _parse_stats(data: object) -> Union["CalendarEventsStats", None, Unset]:
+        def _parse_stats(data: object) -> CalendarEventsStats | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -166,9 +168,9 @@ class CalendarLoadForDateAndPeriodResult:
                 stats_type_0 = CalendarEventsStats.from_dict(data)
 
                 return stats_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["CalendarEventsStats", None, Unset], data)
+            return cast(CalendarEventsStats | None | Unset, data)
 
         stats = _parse_stats(d.pop("stats", UNSET))
 

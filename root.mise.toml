@@ -17,7 +17,7 @@ run = "true"
 hide = true
 sources = ["pyproject.toml"]
 outputs = { auto = true }
-run = "poetry install --no-interaction --no-ansi"
+run = "uv sync --active"
 
 ["root:install:pnpm"]
 hide = true
@@ -66,7 +66,7 @@ hide = true
 run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
-poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+uvx pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["root:audit:pnpm-audit"]
@@ -101,7 +101,7 @@ run = "npx eslint mise.toml root.mise.toml"
 hide = true
 sources = [".github/**/*.(yaml|yml)"]
 outputs = { auto = true }
-run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
+run = "uvx yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
 
 ["root:lint:markdownlint-readme"]
 hide = true

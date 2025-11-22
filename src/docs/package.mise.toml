@@ -6,7 +6,7 @@ run = "true"
 hide = true
 sources = ["src/docs/pyproject.toml"]
 outputs = { auto = true }
-run = "cd src/docs && poetry install --no-interaction --no-ansi"
+run = "cd src/docs && uv sync --active"
 
 ["package:src:docs:fix:markdownlint"]
 hide = true
@@ -41,7 +41,7 @@ sources = [
   "src/docs/**/*.yaml",
 ]
 outputs = { auto = true }
-run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
+run = "uvx yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
 
 ["package:src:docs:lint:markdownlint-docs"]
 hide = true

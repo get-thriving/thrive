@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,17 +17,17 @@ class InboxTaskUpdateArgsStatus:
     """
     Attributes:
         should_change (bool):
-        value (Union[Unset, InboxTaskStatus]): The status of an inbox task.
+        value (InboxTaskStatus | Unset): The status of an inbox task.
     """
 
     should_change: bool
-    value: Union[Unset, InboxTaskStatus] = UNSET
+    value: InboxTaskStatus | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: Union[Unset, str] = UNSET
+        value: str | Unset = UNSET
         if not isinstance(self.value, Unset):
             value = self.value.value
 
@@ -47,7 +49,7 @@ class InboxTaskUpdateArgsStatus:
         should_change = d.pop("should_change")
 
         _value = d.pop("value", UNSET)
-        value: Union[Unset, InboxTaskStatus]
+        value: InboxTaskStatus | Unset
         if isinstance(_value, Unset):
             value = UNSET
         else:

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,15 +20,15 @@ class CodeBlock:
         correlation_id (str): A generic entity id.
         kind (CodeBlockKind):
         code (str):
-        language (Union[None, Unset, str]):
-        show_line_numbers (Union[None, Unset, bool]):
+        language (None | str | Unset):
+        show_line_numbers (bool | None | Unset):
     """
 
     correlation_id: str
     kind: CodeBlockKind
     code: str
-    language: Union[None, Unset, str] = UNSET
-    show_line_numbers: Union[None, Unset, bool] = UNSET
+    language: None | str | Unset = UNSET
+    show_line_numbers: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,13 +38,13 @@ class CodeBlock:
 
         code = self.code
 
-        language: Union[None, Unset, str]
+        language: None | str | Unset
         if isinstance(self.language, Unset):
             language = UNSET
         else:
             language = self.language
 
-        show_line_numbers: Union[None, Unset, bool]
+        show_line_numbers: bool | None | Unset
         if isinstance(self.show_line_numbers, Unset):
             show_line_numbers = UNSET
         else:
@@ -73,21 +75,21 @@ class CodeBlock:
 
         code = d.pop("code")
 
-        def _parse_language(data: object) -> Union[None, Unset, str]:
+        def _parse_language(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         language = _parse_language(d.pop("language", UNSET))
 
-        def _parse_show_line_numbers(data: object) -> Union[None, Unset, bool]:
+        def _parse_show_line_numbers(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         show_line_numbers = _parse_show_line_numbers(d.pop("show_line_numbers", UNSET))
 

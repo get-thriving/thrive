@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,12 +22,12 @@ class NumberedListBlock:
     Attributes:
         correlation_id (str): A generic entity id.
         kind (NumberedListBlockKind):
-        items (list['ListItem']):
+        items (list[ListItem]):
     """
 
     correlation_id: str
     kind: NumberedListBlockKind
-    items: list["ListItem"]
+    items: list[ListItem]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

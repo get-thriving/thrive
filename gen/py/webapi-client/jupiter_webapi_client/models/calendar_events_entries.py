@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,18 +22,18 @@ class CalendarEventsEntries:
     """Full entries for results.
 
     Attributes:
-        schedule_event_full_days_entries (list['ScheduleFullDaysEventEntry']):
-        schedule_event_in_day_entries (list['ScheduleInDayEventEntry']):
-        inbox_task_entries (list['InboxTaskEntry']):
-        person_entries (list['PersonEntry']):
-        vacation_entries (list['VacationEntry']):
+        schedule_event_full_days_entries (list[ScheduleFullDaysEventEntry]):
+        schedule_event_in_day_entries (list[ScheduleInDayEventEntry]):
+        inbox_task_entries (list[InboxTaskEntry]):
+        person_entries (list[PersonEntry]):
+        vacation_entries (list[VacationEntry]):
     """
 
-    schedule_event_full_days_entries: list["ScheduleFullDaysEventEntry"]
-    schedule_event_in_day_entries: list["ScheduleInDayEventEntry"]
-    inbox_task_entries: list["InboxTaskEntry"]
-    person_entries: list["PersonEntry"]
-    vacation_entries: list["VacationEntry"]
+    schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
+    schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
+    inbox_task_entries: list[InboxTaskEntry]
+    person_entries: list[PersonEntry]
+    vacation_entries: list[VacationEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

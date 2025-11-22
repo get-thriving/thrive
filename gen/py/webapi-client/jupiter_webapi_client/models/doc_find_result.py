@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -16,10 +18,10 @@ class DocFindResult:
     """The result.
 
     Attributes:
-        entries (list['DocFindResultEntry']):
+        entries (list[DocFindResultEntry]):
     """
 
-    entries: list["DocFindResultEntry"]
+    entries: list[DocFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

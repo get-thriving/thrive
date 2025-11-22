@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,17 +18,17 @@ class TimePlanGenForTimePlanArgs:
 
     Attributes:
         right_now (str): A date or possibly a datetime for the application.
-        period (Union[None, Unset, list[RecurringTaskPeriod]]):
+        period (list[RecurringTaskPeriod] | None | Unset):
     """
 
     right_now: str
-    period: Union[None, Unset, list[RecurringTaskPeriod]] = UNSET
+    period: list[RecurringTaskPeriod] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         right_now = self.right_now
 
-        period: Union[None, Unset, list[str]]
+        period: list[str] | None | Unset
         if isinstance(self.period, Unset):
             period = UNSET
         elif isinstance(self.period, list):
@@ -55,7 +57,7 @@ class TimePlanGenForTimePlanArgs:
         d = dict(src_dict)
         right_now = d.pop("right_now")
 
-        def _parse_period(data: object) -> Union[None, Unset, list[RecurringTaskPeriod]]:
+        def _parse_period(data: object) -> list[RecurringTaskPeriod] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -71,9 +73,9 @@ class TimePlanGenForTimePlanArgs:
                     period_type_0.append(period_type_0_item)
 
                 return period_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[RecurringTaskPeriod]], data)
+            return cast(list[RecurringTaskPeriod] | None | Unset, data)
 
         period = _parse_period(d.pop("period", UNSET))
 
