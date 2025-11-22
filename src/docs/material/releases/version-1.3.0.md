@@ -9,7 +9,8 @@ This version introduces:
 * Better support for streaks of habits. Widgets and various visualisations
   allow you to engage with them better.
 * Milestones for big plans
-* Big plans also have difficulty and eisen, like inbox tasks. These influence scoring too!
+* Big plans also have difficulty and eisen, like inbox tasks. These influence
+  scoring too!
 * Big plans also show a "finish percentage", to quickly gauge the
   work done.
 * There are suggestions for due dates and actionable dates

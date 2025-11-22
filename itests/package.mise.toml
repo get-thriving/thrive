@@ -30,6 +30,12 @@ sources = ["itests/**/*.py"]
 outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests --fix"
 
+["package:itests:fix:markdownlint"]
+hide = true
+sources = ["itests/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix itests/README.md"
+
 ["package:itests:fix"]
 description = "Fix itests module"
 depends = ["package:itests:fix:*"]
@@ -53,11 +59,11 @@ sources = ["itests/**/*.py"]
 outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests"
 
-["package:itests:lint:mdl-readme"]
+["package:itests:lint:markdownlint-readme"]
 hide = true
 sources = ["itests/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" itests/README.md"
+run = "npx markdownlint-cli2 itests/README.md"
 
 ["package:itests:lint:pyflakes"]
 hide = true

@@ -47,6 +47,12 @@ sources = ["src/core/**/*.py"]
 outputs = { auto = true }
 run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
 
+["package:src:core:fix:markdownlint"]
+hide = true
+sources = ["src/core/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/core/README.md"
+
 ["package:src:core:fix"]
 description = "Fix src/core module"
 depends = ["package:src:core:fix:*"]
@@ -100,11 +106,11 @@ sources = [
 outputs = { auto = true }
 run = "npx eslint src/core"
 
-["package:src:core:lint:mdl-readme"]
+["package:src:core:lint:markdownlint-readme"]
 hide = true
 sources = ["src/core/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/core/README.md"
+run = "npx markdownlint-cli2 src/core/README.md"
 
 ["package:src:core:lint:pyflakes"]
 hide = true

@@ -14,6 +14,12 @@ sources = ["src/webui/**/*.ts", "src/webui/**/*.tsx", "src/webui/**/*.js", "src/
 outputs = { auto = true }
 run = "npx eslint src/webui --fix"
 
+["package:src:webui:fix:markdownlint"]
+hide = true
+sources = ["src/webui/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/webui/README.md"
+
 ["package:src:webui:fix"]
 description = "Fix src/webui module"
 depends = ["package:src:webui:fix:*"]
@@ -71,11 +77,11 @@ sources = [
 outputs = { auto = true }
 run = "npx eslint src/webui"
 
-["package:src:webui:lint:mdl-readme"]
+["package:src:webui:lint:markdownlint-readme"]
 hide = true
 sources = ["src/webui/README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" src/webui/README.md"
+run = "npx markdownlint-cli2 src/webui/README.md"
 
 ["package:src:webui:lint"]
 description = "Check src/webui module"

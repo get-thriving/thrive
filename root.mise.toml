@@ -2,6 +2,17 @@
 hide = true
 run = "true"
 
+["root:fix:markdownlint-readme"]
+hide = true
+sources = ["README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix README.md"
+
+["root:fix"]
+description = "Fix the root"
+depends = ["root:fix:*"]
+run = "true"
+
 ["root:install:pyproject"]
 hide = true
 sources = ["pyproject.toml"]
@@ -45,12 +56,6 @@ fi
 sudo apt-get update
 xargs sudo apt-get install -y < aptfile
 '''
-
-["root:install:gem"]
-hide = true
-sources = ["Gemfile"]
-outputs = { auto = true }
-run = "bundle install"
 
 ["root:install"]
 hide = true
@@ -98,11 +103,11 @@ sources = [".github/**/*.(yaml|yml)"]
 outputs = { auto = true }
 run = "poetry run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
 
-["root:lint:mdl-readme"]
+["root:lint:markdownlint-readme"]
 hide = true
 sources = ["README.md"]
 outputs = { auto = true }
-run = "mdl --config=\"./tasks/_resources/check/lint/mdl-readme\" README.md"
+run = "npx markdownlint-cli2 README.md"
 
 ["root:lint"]
 description = "Check root lint"
