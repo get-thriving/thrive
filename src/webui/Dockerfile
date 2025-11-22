@@ -34,7 +34,7 @@ COPY src/webui/public/pomodoro-notification.mp3 src/webui/public/pomodoro-notifi
 COPY src/webui/public/frontdoor-redirect-hack-init.html src/webui/public/frontdoor-redirect-hack-init.html
 COPY src/webui/public/frontdoor-redirect-hack-workspace.html src/webui/public/frontdoor-redirect-hack-workspace.html
 
-RUN npm install -g pnpm@latest && pnpm install
+RUN npm install -g pnpm@latest && pnpm install && chown -R "$(id -u)":"$(id -g)" node_modules
 
 # hadolint ignore=DL3003
 RUN cd gen/ts/webapi-client && npx tsc
