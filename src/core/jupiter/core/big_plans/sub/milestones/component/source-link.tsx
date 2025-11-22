@@ -1,4 +1,4 @@
-import LaunchIcon from "@mui/icons-material/Launch";
+import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { Link } from "@remix-run/react";
 

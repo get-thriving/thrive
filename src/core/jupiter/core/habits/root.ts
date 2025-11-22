@@ -4,10 +4,10 @@ import {
   type Habit,
 } from "@jupiter/webapi-client";
 
-import { compareDifficulty } from "~/common/difficulty";
-import { compareEisen } from "~/common/eisen";
-import { comparePeriods } from "~/common/recurring-task-period";
-import { compareIsKey } from "~/common/is-key";
+import { compareDifficulty } from "#/core/common/difficulty";
+import { compareEisen } from "#/core/common/eisen";
+import { comparePeriods } from "#/core/common/recurring-task-period";
+import { compareIsKey } from "#/core/common/is-key";
 
 export function sortHabitsNaturally(habits: Habit[]): Habit[] {
   return [...habits].sort((c1, c2) => {

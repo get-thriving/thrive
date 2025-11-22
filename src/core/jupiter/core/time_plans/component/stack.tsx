@@ -1,9 +1,9 @@
 import type { TimePlan } from "@jupiter/webapi-client";
 
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { EntityStack2 } from "~/infra/component/entity-stack";
-import { StandardDivider } from "~/infra/component/standard-divider";
-import { TimePlanCard } from "~/time_plans/component/card";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { EntityStack2 } from "#/core/infra/component/entity-stack";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { TimePlanCard } from "#/core/time_plans/component/card";
 
 interface TimePlanStackProps {
   id?: string;

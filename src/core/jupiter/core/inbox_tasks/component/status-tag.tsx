@@ -1,7 +1,7 @@
 import { InboxTaskStatus } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { inboxTaskStatusName } from "~/inbox_tasks/status";
+import { SlimChip } from "#/core/infra/component/chips";
+import { inboxTaskStatusName } from "#/core/inbox_tasks/status";
 
 interface Props {
   status: InboxTaskStatus;

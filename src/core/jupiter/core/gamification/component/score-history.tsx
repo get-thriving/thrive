@@ -2,7 +2,7 @@ import type { UserScoreAtDate, UserScoreHistory } from "@jupiter/webapi-client";
 import { Typography, styled } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
 
-import { aDateToDate } from "~/common/adate";
+import { aDateToDate } from "#/core/common/adate";
 
 interface ScoreHistoryProps {
   scoreHistory: UserScoreHistory;

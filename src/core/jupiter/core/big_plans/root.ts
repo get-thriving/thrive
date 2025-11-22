@@ -7,11 +7,11 @@ import {
   type BigPlanMilestone,
 } from "@jupiter/webapi-client";
 
-import { compareADate } from "~/common/adate";
-import { compareBigPlanStatus } from "~/big_plans/status";
-import { compareDifficulty } from "~/common/difficulty";
-import { compareEisen } from "~/common/eisen";
-import { compareIsKey } from "~/common/is-key";
+import { compareADate } from "#/core/common/adate";
+import { compareBigPlanStatus } from "#/core/big_plans/status";
+import { compareDifficulty } from "#/core/common/difficulty";
+import { compareEisen } from "#/core/common/eisen";
+import { compareIsKey } from "#/core/common/is-key";
 
 export interface BigPlanParent {
   project?: Project;

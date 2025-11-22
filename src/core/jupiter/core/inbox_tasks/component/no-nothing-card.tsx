@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { Link } from "@remix-run/react";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface InboxTasksNoNothingCardProps {
   topLevelInfo: TopLevelInfo;

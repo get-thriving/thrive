@@ -9,13 +9,13 @@ import {
 import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { ViewAsProps } from "~/calendar/component/shared";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { ViewAsProps } from "#/core/calendar/component/shared";
 import {
   ViewAsScheduleContentCell,
   ViewAsStatsPerSubperiod,
   View,
-} from "~/calendar/component/shared";
+} from "#/core/calendar/component/shared";
 
 function monthToQuarter(month: number): string {
   if (month <= 3) return "Q1";

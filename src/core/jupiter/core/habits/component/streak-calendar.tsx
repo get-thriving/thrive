@@ -15,12 +15,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { PropsWithChildren } from "react";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import {
+  ArrowBackIosNew as ArrowBackIosNewIcon,
+  ArrowForwardIos as ArrowForwardIosIcon,
+} from "@mui/icons-material";
 import { Link } from "@remix-run/react";
 import { DateTime } from "luxon";
 
-import { aDateToDate, dateToAdate } from "~/common/adate";
+import { aDateToDate, dateToAdate } from "#/core/common/adate";
 
 const CELL_SIZE = (theme: Theme) => theme.typography.htmlFontSize - 2;
 export const CELL_FULL_SIZE = (theme: Theme) => CELL_SIZE(theme) + 2;

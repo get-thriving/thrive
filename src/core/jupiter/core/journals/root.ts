@@ -1,7 +1,7 @@
 import type { Journal } from "@jupiter/webapi-client";
 
-import { compareADate } from "~/common/adate";
-import { comparePeriods } from "~/common/recurring-task-period";
+import { compareADate } from "#/core/common/adate";
+import { comparePeriods } from "#/core/common/recurring-task-period";
 
 export function sortJournalsNaturally(journals: Array<Journal>): Journal[] {
   return [...journals].sort((j1, j2) => {

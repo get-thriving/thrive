@@ -2,7 +2,7 @@ import { Hosting } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "~/config-client";
+import { GlobalPropertiesContext } from "#/core/config-client";
 
 interface TitleProps {
   hideOnSmallScreen?: boolean;

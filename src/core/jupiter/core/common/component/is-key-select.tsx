@@ -1,5 +1,5 @@
 import { ToggleButton } from "@mui/material";
-import KeyIcon from "@mui/icons-material/Key";
+import { Key as KeyIcon } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 
 interface IsKeySelectProps {

@@ -6,11 +6,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "~/inbox_tasks/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import type { InboxTaskShowOptions } from "~/inbox_tasks/component/card";
-import { InboxTaskCard } from "~/inbox_tasks/component/card";
-import { StandardDivider } from "~/infra/component/standard-divider";
+} from "#/core/inbox_tasks/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import type { InboxTaskShowOptions } from "#/core/inbox_tasks/component/card";
+import { InboxTaskCard } from "#/core/inbox_tasks/component/card";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
 
 interface PagesProps {
   retrieveOffsetParamName: string;

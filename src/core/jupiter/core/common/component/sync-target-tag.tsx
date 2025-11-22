@@ -1,7 +1,7 @@
 import type { SyncTarget } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { syncTargetName } from "~/sync-target";
+import { SlimChip } from "#/core/infra/component/chips";
+import { syncTargetName } from "#/core/sync-target";
 
 interface SyncTargetTagProps {
   target: SyncTarget;

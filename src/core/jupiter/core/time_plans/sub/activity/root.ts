@@ -8,8 +8,8 @@ import {
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
-import { compareTimePlanActivityFeasability } from "~/time_plans/sub/activity/feasability";
-import { compareTimePlanActivityKind } from "~/time_plans/sub/activity/kind";
+import { compareTimePlanActivityFeasability } from "#/core/time_plans/sub/activity/feasability";
+import { compareTimePlanActivityKind } from "#/core/time_plans/sub/activity/kind";
 
 const TIME_PLAN_ACTIVITY_TARGET_MAP = {
   [TimePlanActivityTarget.BIG_PLAN]: 0,

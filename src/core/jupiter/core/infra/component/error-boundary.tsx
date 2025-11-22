@@ -10,12 +10,12 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 
-import { isDevelopment } from "~/env";
-import { GlobalPropertiesContext } from "~/config-client";
-import { BranchPanel } from "~/infra/component/layout/branch-panel";
-import { LeafPanel } from "~/infra/component/layout/leaf-panel";
-import { ToolPanel } from "~/infra/component/layout/tool-panel";
-import { TrunkPanel } from "~/infra/component/layout/trunk-panel";
+import { isDevelopment } from "#/core/env";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { BranchPanel } from "#/core/infra/component/layout/branch-panel";
+import { LeafPanel } from "#/core/infra/component/layout/leaf-panel";
+import { ToolPanel } from "#/core/infra/component/layout/tool-panel";
+import { TrunkPanel } from "#/core/infra/component/layout/trunk-panel";
 
 export function makeRootErrorBoundary(labelsFor: { error?: () => string }) {
   function ErrorBoundary() {

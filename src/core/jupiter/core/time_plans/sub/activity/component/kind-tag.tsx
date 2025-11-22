@@ -1,7 +1,7 @@
 import { TimePlanActivityKind } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { timePlanActivityKindName } from "~/time_plans/sub/activity/kind";
+import { SlimChip } from "#/core/infra/component/chips";
+import { timePlanActivityKindName } from "#/core/time_plans/sub/activity/kind";
 
 interface TimePlanActivityKindTagProps {
   kind: TimePlanActivityKind;

@@ -1,7 +1,7 @@
 import { PersonRelationship } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { personRelationshipName } from "~/persons/relationship";
+import { SlimChip } from "#/core/infra/component/chips";
+import { personRelationshipName } from "#/core/persons/relationship";
 
 interface PersonRelationshipTagProps {
   relationship: PersonRelationship;

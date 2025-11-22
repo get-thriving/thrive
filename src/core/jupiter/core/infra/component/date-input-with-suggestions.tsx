@@ -11,10 +11,10 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { CalendarMonth as CalendarMonthIcon } from "@mui/icons-material";
 
-import { strToADate } from "~/common/adate";
-import { SuggestedDate } from "~/common/suggested-date";
+import { strToADate } from "#/core/common/adate";
+import { SuggestedDate } from "#/core/common/suggested-date";
 
 interface DateInputWithSuggestionsProps {
   name: string;

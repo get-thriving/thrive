@@ -5,18 +5,18 @@ import { DocsHelpSubject } from "@jupiter/webapi-client";
 import {
   KeyHabitStreak,
   limitKeyHabitResultsBasedOnScreenSize,
-} from "~/habits/streak";
+} from "#/core/habits/streak";
 import {
   isWidgetDimensionKSized,
   widgetDimensionCols,
   widgetDimensionRows,
-} from "~/home/sub/widget/root";
+} from "#/core/home/sub/widget/root";
 import {
   CELL_FULL_SIZE,
   HabitStreakCalendar,
-} from "~/habits/component/streak-calendar";
-import { WidgetProps } from "~/home/component/common";
-import { EntityNoNothingCard } from "~/infra/component/entity-no-nothing-card";
+} from "#/core/habits/component/streak-calendar";
+import { WidgetProps } from "#/core/home/component/common";
+import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
 
 const ANIMATION_DURATION_MS = 10_000;
 

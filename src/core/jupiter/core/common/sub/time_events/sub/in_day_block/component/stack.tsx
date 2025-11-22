@@ -1,8 +1,11 @@
-import type { CombinedTimeEventInDayEntry } from "~/common/sub/time_events/time-event";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { NavSingle, SectionActions } from "~/infra/component/section-actions";
-import { SectionCard } from "~/infra/component/section-card";
-import { TimeEventInDayBlockCard } from "~/common/sub/time_events/sub/in_day_block/component/card";
+import type { CombinedTimeEventInDayEntry } from "#/core/common/sub/time_events/time-event";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import {
+  NavSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import { SectionCard } from "#/core/infra/component/section-card";
+import { TimeEventInDayBlockCard } from "#/core/common/sub/time_events/sub/in_day_block/component/card";
 
 interface TimeEventInDayBlockStackProps {
   topLevelInfo: TopLevelInfo;

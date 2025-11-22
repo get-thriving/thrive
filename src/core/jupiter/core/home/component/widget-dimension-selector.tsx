@@ -7,7 +7,7 @@ import {
 } from "@jupiter/webapi-client";
 import { useEffect, useState } from "react";
 
-import { widgetDimensionName } from "~/home/sub/widget/root";
+import { widgetDimensionName } from "#/core/home/sub/widget/root";
 
 interface WidgetDimensionSelectorProps {
   name: string;

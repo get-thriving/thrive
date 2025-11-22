@@ -2,8 +2,8 @@ import { TimePlanGenerationApproach } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { approachName } from "~/time_plans/generation-approach";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { approachName } from "#/core/time_plans/generation-approach";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface TimePlanGenerationApproachSelectProps {
   name: string;

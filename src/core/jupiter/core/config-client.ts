@@ -8,8 +8,8 @@ import {
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
 
-import type { GlobalPropertiesServer } from "~/config-server";
-import type { FrontDoorInfo } from "~/frontdoor";
+import type { GlobalPropertiesServer } from "#/core/config-server";
+import type { FrontDoorInfo } from "#/core/frontdoor";
 
 export interface GlobalPropertiesClient {
   env: Env;

@@ -1,7 +1,3 @@
-["package:src:core:prepare"]
-hide = true
-run = "cd src/core && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json"
-
 ["package:src:core:install"]
 hide = true
 sources = ["src/core/pyproject.toml"]

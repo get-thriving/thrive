@@ -1,9 +1,9 @@
 import { SyncTarget } from "@jupiter/webapi-client";
 import { Box, Chip, MenuItem, Select } from "@mui/material";
 
-import { syncTargetName } from "~/sync-target";
-import { inferSyncTargetsForEnabledFeatures } from "~/infer-sync-target";
-import type { TopLevelInfo } from "~/infra/top-level-context";
+import { syncTargetName } from "#/core/sync-target";
+import { inferSyncTargetsForEnabledFeatures } from "#/core/infer-sync-target";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface SyncTargetSelectProps {
   topLevelInfo: TopLevelInfo;

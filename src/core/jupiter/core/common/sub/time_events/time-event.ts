@@ -17,8 +17,8 @@ import {
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
-import { aDateToDate, compareADate } from "~/common/adate";
-import { measureText } from "~/utils";
+import { aDateToDate, compareADate } from "#/core/common/adate";
+import { measureText } from "#/core/utils";
 
 export function birthdayTimeEventName(
   block: TimeEventFullDaysBlock,

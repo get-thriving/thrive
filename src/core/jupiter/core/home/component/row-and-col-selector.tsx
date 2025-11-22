@@ -7,8 +7,8 @@ import {
 } from "@jupiter/webapi-client";
 import { useEffect, useState } from "react";
 
-import { constructFieldName } from "~/infra/field-names";
-import { WidgetPlacementQuickSelector } from "~/home/component/widget-placement-quick-selector";
+import { constructFieldName } from "#/core/infra/field-names";
+import { WidgetPlacementQuickSelector } from "#/core/home/component/widget-placement-quick-selector";
 
 interface RowAndColSelectorProps {
   namePrefix: string;

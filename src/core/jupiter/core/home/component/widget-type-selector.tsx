@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import {
   isAllowedForWidgetConstraints,
   widgetTypeName,
-} from "~/home/sub/widget/root";
+} from "#/core/home/sub/widget/root";
 
 interface WidgetTypeSelectorProps {
   user: User;

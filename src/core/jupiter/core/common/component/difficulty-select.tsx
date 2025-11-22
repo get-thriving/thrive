@@ -2,7 +2,7 @@ import { Difficulty } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { difficultyName } from "~/common/difficulty";
+import { difficultyName } from "#/core/common/difficulty";
 
 interface DifficultySelectProps {
   name: string;

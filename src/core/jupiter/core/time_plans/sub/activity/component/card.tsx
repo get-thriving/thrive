@@ -12,16 +12,16 @@ import {
 } from "@jupiter/webapi-client";
 import { Typography } from "@mui/material";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { BigPlanStatusTag } from "~/big_plans/component/status-tag";
-import { InboxTaskStatusTag } from "~/inbox_tasks/component/status-tag";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
-import { TimePlanActivityFeasabilityTag } from "~/time_plans/sub/activity/component/feasability-tag";
-import { TimePlanActivityKindTag } from "~/time_plans/sub/activity/component/kind-tag";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { ADateTag } from "~/common/component/adate-tag";
-import { TimePlanTag } from "~/time_plans/component/tag";
-import { IsKeyTag } from "~/common/component/is-key-tag";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
+import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { TimePlanActivityFeasabilityTag } from "#/core/time_plans/sub/activity/component/feasability-tag";
+import { TimePlanActivityKindTag } from "#/core/time_plans/sub/activity/component/kind-tag";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { ADateTag } from "#/core/common/component/adate-tag";
+import { TimePlanTag } from "#/core/time_plans/component/tag";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
 interface TimePlanActivityCardProps {
   topLevelInfo: TopLevelInfo;

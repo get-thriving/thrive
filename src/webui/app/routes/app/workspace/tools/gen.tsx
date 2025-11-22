@@ -30,7 +30,7 @@ import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
-import { SlimChip } from "@jupiter/core/infra/components/chips";
+import { SlimChip } from "@jupiter/core/infra/component/chips";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";

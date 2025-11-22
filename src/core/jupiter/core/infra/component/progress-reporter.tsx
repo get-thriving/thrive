@@ -1,7 +1,9 @@
 import type { AuthTokenExt } from "@jupiter/webapi-client";
-import CallToActionIcon from "@mui/icons-material/CallToAction";
-import CloseIcon from "@mui/icons-material/Close";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  CallToAction as CallToActionIcon,
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 import {
   Badge,
   ButtonGroup,
@@ -15,9 +17,9 @@ import { useContext, useEffect, useRef, useState } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { z } from "zod";
 
-import { ClientOnly } from "~/infra/component/client-only";
-import { GlobalPropertiesContext } from "~/config-client";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { ClientOnly } from "#/core/infra/component/client-only";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 enum LogMessageType {
   SECTION = "section",

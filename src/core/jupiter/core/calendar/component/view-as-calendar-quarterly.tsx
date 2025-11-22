@@ -2,11 +2,11 @@ import { Box, Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 
-import type { ViewAsProps } from "~/calendar/component/shared";
+import type { ViewAsProps } from "#/core/calendar/component/shared";
 import {
   ViewAsCalendarGoToCell,
   ViewAsCalendarStatsCell,
-} from "~/calendar/component/shared";
+} from "#/core/calendar/component/shared";
 
 function monthToQuarter(month: number): string {
   if (month <= 3) return "Q1";

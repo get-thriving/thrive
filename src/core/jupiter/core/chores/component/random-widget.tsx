@@ -4,18 +4,18 @@ import {
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
 
-import { aDateToDate } from "~/common/adate";
-import { filterInboxTasksForDisplay } from "~/inbox_tasks/root";
-import { InboxTaskStack } from "~/inbox_tasks/component/stack";
+import { aDateToDate } from "#/core/common/adate";
+import { filterInboxTasksForDisplay } from "#/core/inbox_tasks/root";
+import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
 import {
   ActionableTime,
   actionableTimeToDateTime,
-} from "~/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "~/inbox_tasks/component/no-tasks-card";
+} from "#/core/infra/actionable-time";
+import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
 import {
   getDeterministicRandomElement,
   WidgetProps,
-} from "~/home/component/common";
+} from "#/core/home/component/common";
 
 export function ChoreRandomWidget(props: WidgetProps) {
   const choreTasks = props.choreTasks!;

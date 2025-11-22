@@ -1,6 +1,6 @@
 import type { WorkingMem } from "@jupiter/webapi-client";
 
-import { LinkTag } from "~/infra/component/link-tag";
+import { LinkTag } from "#/core/infra/component/link-tag";
 
 interface Props {
   workingMem: WorkingMem;

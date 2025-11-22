@@ -1,7 +1,7 @@
-import type { CombinedTimeEventFullDaysEntry } from "~/common/sub/time_events/time-event";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { SectionCard } from "~/infra/component/section-card";
-import { TimeEventFullDaysBlockCard } from "~/common/sub/time_events/sub/full_days_block/component/card";
+import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { SectionCard } from "#/core/infra/component/section-card";
+import { TimeEventFullDaysBlockCard } from "#/core/common/sub/time_events/sub/full_days_block/component/card";
 
 interface TimeEventFullDaysBlockStackProps {
   topLevelInfo: TopLevelInfo;

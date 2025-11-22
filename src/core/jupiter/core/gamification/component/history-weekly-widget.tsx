@@ -1,5 +1,5 @@
-import { WidgetProps } from "~/home/component/common";
-import { ScoreHistory } from "~/gamification/component/score-history";
+import { WidgetProps } from "#/core/home/component/common";
+import { ScoreHistory } from "#/core/gamification/component/score-history";
 
 export function GamificationHistoryWeeklyWidget(props: WidgetProps) {
   const gamification = props.gamificationHistory!;

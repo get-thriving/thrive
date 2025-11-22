@@ -11,7 +11,7 @@ import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { Fragment } from "react";
 
-import { allDaysBetween } from "~/common/adate";
+import { allDaysBetween } from "#/core/common/adate";
 import {
   calculateStartTimeForTimeEvent,
   combinedTimeEventFullDayEntryPartionByDay,
@@ -19,13 +19,13 @@ import {
   CombinedTimeEventInDayEntry,
   combinedTimeEventInDayEntryPartionByDay,
   timeEventInDayBlockToTimezone,
-} from "~/common/sub/time_events/time-event";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { ViewAsProps } from "~/calendar/component/shared";
+} from "#/core/common/sub/time_events/time-event";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { ViewAsProps } from "#/core/calendar/component/shared";
 import {
   ViewAsScheduleTimeEventFullDaysRows,
   ViewAsScheduleTimeEventInDaysRows,
-} from "~/calendar/component/shared";
+} from "#/core/calendar/component/shared";
 
 export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
   const isBigScreen = useBigScreen();

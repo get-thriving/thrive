@@ -1,7 +1,10 @@
 import { PropsWithChildren, useEffect, useState } from "react";
 import { DateTime } from "luxon";
 
-import { TopLevelInfo, TopLevelInfoContext } from "~/infra/top-level-context";
+import {
+  TopLevelInfo,
+  TopLevelInfoContext,
+} from "#/core/infra/top-level-context";
 
 const REFRESH_TODAY_MS = 1000; // 1 hour
 

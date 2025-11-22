@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 
-import { WidgetProps } from "~/home/component/common";
-import { StandardLink } from "~/infra/component/standard-link";
+import { WidgetProps } from "#/core/home/component/common";
+import { StandardLink } from "#/core/infra/component/standard-link";
 
 export function MOTDWidget(props: WidgetProps) {
   const motd = props.motd!;

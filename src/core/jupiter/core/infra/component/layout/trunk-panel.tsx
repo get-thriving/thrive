@@ -1,7 +1,9 @@
-import AddIcon from "@mui/icons-material/Add";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import CloseIcon from "@mui/icons-material/Close";
+import {
+  Add as AddIcon,
+  ArrowDownward as ArrowDownwardIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  Close as CloseIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -15,18 +17,18 @@ import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useRef } from "react";
 
-import { extractTrunkFromPath } from "~/infra/routes";
+import { extractTrunkFromPath } from "#/core/infra/routes";
 import {
   restoreScrollPosition,
   saveScrollPosition,
-} from "~/infra/scroll-restoration";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { useHydrated } from "~/infra/component/use-hidrated";
+} from "#/core/infra/scroll-restoration";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { useHydrated } from "#/core/infra/component/use-hidrated";
 import {
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
-} from "~/infra/component/use-nested-entities";
+} from "#/core/infra/component/use-nested-entities";
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
 

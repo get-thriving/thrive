@@ -15,15 +15,15 @@ import {
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 
-import type { SkipRule } from "~/common/recurring-task-skip-rule";
+import type { SkipRule } from "#/core/common/recurring-task-skip-rule";
 import {
   SkipRuleType,
   assembleSkipRule,
   isCompatibleWithPeriod,
   parseSkipRule,
   skipRuleTypeName,
-} from "~/common/recurring-task-skip-rule";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+} from "#/core/common/recurring-task-skip-rule";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface RecurringTaskSkipRuleBlockProps {
   inputsEnabled: boolean;

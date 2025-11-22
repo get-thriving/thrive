@@ -1,11 +1,13 @@
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
-import PictureInPictureAltIcon from "@mui/icons-material/PictureInPictureAlt";
-import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
+import {
+  ArrowBack as ArrowBackIcon,
+  ArrowDownward as ArrowDownwardIcon,
+  ArrowUpward as ArrowUpwardIcon,
+  Delete as DeleteIcon,
+  DeleteForever as DeleteForeverIcon,
+  KeyboardDoubleArrowRight as KeyboardDoubleArrowRightIcon,
+  PictureInPictureAlt as PictureInPictureAltIcon,
+  SwitchLeft as SwitchLeftIcon,
+} from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -27,12 +29,12 @@ import {
   LeafPanelExpansionState,
   loadLeafPanelExpansion,
   saveLeafPanelExpansion,
-} from "~/infra/leaf-panel-expansion";
+} from "#/core/infra/leaf-panel-expansion";
 import {
   restoreScrollPosition,
   saveScrollPosition,
-} from "~/infra/scroll-restoration";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+} from "#/core/infra/scroll-restoration";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
 const BIG_SCREEN_ANIMATION_END = "480px";

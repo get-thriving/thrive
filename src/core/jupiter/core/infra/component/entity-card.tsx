@@ -1,5 +1,7 @@
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  CheckCircle as CheckCircleIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 import {
   Card,
   CardActions,
@@ -11,8 +13,8 @@ import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import type { PropsWithChildren } from "react";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { FakeLink, StandardLink } from "~/infra/component/standard-link";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { FakeLink, StandardLink } from "#/core/infra/component/standard-link";
 
 const SWIPE_THRESHOLD = 200;
 const SWIPE_COMPLETE_THRESHOLD = 150;

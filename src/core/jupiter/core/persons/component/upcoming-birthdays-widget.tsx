@@ -1,17 +1,17 @@
 import { InboxTaskSource, InboxTaskStatus } from "@jupiter/webapi-client";
 
-import { aDateToDate } from "~/common/adate";
+import { aDateToDate } from "#/core/common/adate";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
-} from "~/inbox_tasks/root";
-import { InboxTaskStack } from "~/inbox_tasks/component/stack";
+} from "#/core/inbox_tasks/root";
+import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
 import {
   ActionableTime,
   actionableTimeToDateTime,
-} from "~/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "~/inbox_tasks/component/no-tasks-card";
-import { WidgetProps } from "~/home/component/common";
+} from "#/core/infra/actionable-time";
+import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
+import { WidgetProps } from "#/core/home/component/common";
 
 export function UpcomingBirthdaysWidget(props: WidgetProps) {
   const personTasks = props.personTasks!;

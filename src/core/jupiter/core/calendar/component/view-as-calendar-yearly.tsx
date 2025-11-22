@@ -2,12 +2,12 @@ import { Box, Typography } from "@mui/material";
 import { DateTime } from "luxon";
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { ViewAsProps } from "~/calendar/component/shared";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { ViewAsProps } from "#/core/calendar/component/shared";
 import {
   ViewAsCalendarGoToCell,
   ViewAsCalendarStatsCell,
-} from "~/calendar/component/shared";
+} from "#/core/calendar/component/shared";
 
 export function ViewAsCalendarYearly(props: ViewAsProps) {
   const isBigScreen = useBigScreen();

@@ -13,10 +13,10 @@ import {
 import { Link } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { TopLevelInfoContext } from "~/infra/top-level-context";
-import { StandardDivider } from "~/infra/component/standard-divider";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
 
 const BIG_SCREEN_WIDTH = "240px";
 const BIG_SCREEN_ANIMATION_START = "-240px";

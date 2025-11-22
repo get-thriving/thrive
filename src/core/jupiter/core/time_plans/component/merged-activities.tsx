@@ -9,9 +9,9 @@ import type {
   TimeEventInDayBlock,
 } from "@jupiter/webapi-client";
 
-import { StandardDivider } from "~/infra/component/standard-divider";
-import { TimePlanActivityList } from "~/time_plans/sub/activity/component/list";
-import { TopLevelInfoContext } from "~/infra/top-level-context";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 interface TimePlanMergedActivitiesProps {
   mustDoActivities: TimePlanActivity[];

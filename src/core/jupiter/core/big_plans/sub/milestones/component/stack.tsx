@@ -1,10 +1,10 @@
 import { type BigPlanMilestone } from "@jupiter/webapi-client";
 
-import { sortBigPlanMilestones } from "~/big_plans/root";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityStack } from "~/infra/component/entity-stack";
-import { ADateTag } from "~/common/component/adate-tag";
+import { sortBigPlanMilestones } from "#/core/big_plans/root";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityStack } from "#/core/infra/component/entity-stack";
+import { ADateTag } from "#/core/common/component/adate-tag";
 
 interface BigPlanMilestoneStackProps {
   milestones: Array<BigPlanMilestone>;

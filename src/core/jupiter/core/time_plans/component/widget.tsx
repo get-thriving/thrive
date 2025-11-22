@@ -10,10 +10,10 @@ import {
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
 
-import { filterActivityByFeasabilityWithParents } from "~/time_plans/sub/activity/root";
-import { EntityNoNothingCard } from "~/infra/component/entity-no-nothing-card";
-import { TimePlanMergedActivities } from "~/time_plans/component/merged-activities";
-import { WidgetProps } from "~/home/component/common";
+import { filterActivityByFeasabilityWithParents } from "#/core/time_plans/sub/activity/root";
+import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
+import { TimePlanMergedActivities } from "#/core/time_plans/component/merged-activities";
+import { WidgetProps } from "#/core/home/component/common";
 
 export function TimePlanViewWidget(props: WidgetProps) {
   const timePlans = props.timePlans!;

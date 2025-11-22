@@ -11,10 +11,10 @@ import type {
 } from "@jupiter/webapi-client";
 import { TimePlanActivityTarget } from "@jupiter/webapi-client";
 
-import { computeProjectHierarchicalNameFromRoot } from "~/projects/root";
-import { StandardDivider } from "~/infra/component/standard-divider";
-import { TimePlanActivityList } from "~/time_plans/sub/activity/component/list";
-import { TopLevelInfoContext } from "~/infra/top-level-context";
+import { computeProjectHierarchicalNameFromRoot } from "#/core/projects/root";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 interface TimePlanByProjectActivitiesProps {
   mustDoActivities: TimePlanActivity[];

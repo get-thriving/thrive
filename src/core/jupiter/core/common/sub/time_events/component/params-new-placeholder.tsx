@@ -6,7 +6,7 @@ import {
   calculateStartTimeFromBlockParams,
   calendarTimeEventInDayDurationToRems,
   calendarTimeEventInDayStartMinutesToRems,
-} from "~/common/sub/time_events/time-event";
+} from "#/core/common/sub/time_events/time-event";
 
 interface TimeEventParamsNewPlaceholderParams {
   daysToTheLeft: number;

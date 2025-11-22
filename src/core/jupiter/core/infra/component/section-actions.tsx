@@ -1,8 +1,10 @@
 import type { WorkspaceFeature } from "@jupiter/webapi-client";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import BoltIcon from "@mui/icons-material/Bolt";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import {
+  ArrowDropDown as ArrowDropDownIcon,
+  Bolt as BoltIcon,
+  CheckBox as CheckBoxIcon,
+  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+} from "@mui/icons-material";
 import {
   Autocomplete,
   Box,
@@ -29,9 +31,9 @@ import {
 import { Link } from "@remix-run/react";
 import { Fragment, useRef, useState } from "react";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { TopLevelInfo } from "~/infra/top-level-context";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
   kind: "nav-single";

@@ -3,7 +3,7 @@ import { useLocation } from "@remix-run/react";
 import { motion } from "framer-motion";
 import type { PropsWithChildren } from "react";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";

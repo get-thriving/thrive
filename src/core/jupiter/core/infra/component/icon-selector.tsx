@@ -3,7 +3,7 @@ import type { EmojiClickData } from "emoji-picker-react";
 import EmojiPicker, { EmojiStyle } from "emoji-picker-react";
 import { useState } from "react";
 
-import { ClientOnly } from "~/infra/component/client-only";
+import { ClientOnly } from "#/core/infra/component/client-only";
 
 interface Props {
   defaultIcon?: string | null;

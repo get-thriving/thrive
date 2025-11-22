@@ -48,15 +48,15 @@ import {
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
-} from "~/common/sub/time_events/time-event";
+} from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
   scheduleStreamColorHex,
-} from "~/schedule/sub/stream/color";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityLink } from "~/infra/component/entity-card";
-import { TimeEventParamsNewPlaceholder } from "~/common/sub/time_events/component/params-new-placeholder";
+} from "#/core/schedule/sub/stream/color";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityLink } from "#/core/infra/component/entity-card";
+import { TimeEventParamsNewPlaceholder } from "#/core/common/sub/time_events/component/params-new-placeholder";
 
 export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 

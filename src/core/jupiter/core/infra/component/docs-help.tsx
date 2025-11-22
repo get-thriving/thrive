@@ -1,9 +1,9 @@
 import { DocsHelpSubject } from "@jupiter/webapi-client";
-import HelpCenterIcon from "@mui/icons-material/HelpCenter";
+import { HelpCenter as HelpCenterIcon } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "~/config-client";
+import { GlobalPropertiesContext } from "#/core/config-client";
 
 interface DocsHelpProps {
   size: "small" | "medium" | "large";

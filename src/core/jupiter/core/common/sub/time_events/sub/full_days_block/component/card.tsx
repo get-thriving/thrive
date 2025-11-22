@@ -5,10 +5,10 @@ import type {
 } from "@jupiter/webapi-client";
 import { TimeEventNamespace } from "@jupiter/webapi-client";
 
-import type { CombinedTimeEventFullDaysEntry } from "~/common/sub/time_events/time-event";
-import { birthdayTimeEventName } from "~/common/sub/time_events/time-event";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
+import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
+import { birthdayTimeEventName } from "#/core/common/sub/time_events/time-event";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 
 interface TimeEventFullDaysBlockCardProps {
   entry: CombinedTimeEventFullDaysEntry;

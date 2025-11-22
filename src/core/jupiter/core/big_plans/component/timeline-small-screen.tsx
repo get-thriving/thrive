@@ -8,12 +8,12 @@ import { Tooltip, styled } from "@mui/material";
 import { Link } from "@remix-run/react";
 import type { DateTime } from "luxon";
 
-import { aDateToDate } from "~/common/adate";
-import { bigPlanDonePct } from "~/big_plans/root";
-import { BigPlanStatusTag } from "~/big_plans/component/status-tag";
-import { EntityNameOneLineComponent } from "~/common/component/entity-name";
-import { EntityStack } from "~/infra/component/entity-stack";
-import { IsKeyTag } from "~/common/component/is-key-tag";
+import { aDateToDate } from "#/core/common/adate";
+import { bigPlanDonePct } from "#/core/big_plans/root";
+import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
+import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
+import { EntityStack } from "#/core/infra/component/entity-stack";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
 interface DateMarker {
   date: ADate;

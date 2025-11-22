@@ -5,19 +5,19 @@ import { Buffer } from "buffer-polyfill";
 import type { ComponentType } from "react";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 
-import type { OneOfNoteContentBlock } from "~/common/sub/notes/root";
-import { ClientOnly } from "~/infra/component/client-only";
+import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
+import { ClientOnly } from "#/core/infra/component/client-only";
 import {
   NoErrorSomeData,
   SomeErrorNoData,
   isNoErrorSomeData,
-} from "~/infra/action-result";
-import type { BlockEditorProps } from "~/infra/component/block-editor";
-import { FieldError, GlobalError } from "~/infra/component/errors";
-import { useIdempotencyKey } from "~/infra/component/use-idempotency";
+} from "#/core/infra/action-result";
+import type { BlockEditorProps } from "#/core/infra/component/block-editor";
+import { FieldError, GlobalError } from "#/core/infra/component/errors";
+import { useIdempotencyKey } from "#/core/infra/component/use-idempotency";
 
 const BlockEditor = lazy(() =>
-  import("~/infra/component/block-editor.js").then((module) => ({
+  import("#/core/infra/component/block-editor.js").then((module) => ({
     default: module.default as unknown as ComponentType<BlockEditorProps>,
   })),
 );

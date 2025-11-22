@@ -11,14 +11,14 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@emotion/react",
     "resolveJsonModule": true,
-    "target": "ES2019",
+    "target": "ES2020",
     "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "rootDir": ".",
     "paths": {
-      "~/*": ["./jupiter/core/*"]
+      "#/core/*": ["./jupiter/core/*"]
     },
     "noEmit": true,
     "experimentalDecorators": true,

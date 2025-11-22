@@ -1,5 +1,4 @@
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { IconButton, InputAdornment, OutlinedInput } from "@mui/material";
 import { useState } from "react";
 

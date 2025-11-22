@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 export interface TabPanelProps {
   children?: React.ReactNode;

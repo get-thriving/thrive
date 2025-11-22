@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import { styled } from "@mui/material";
 import { Env } from "@jupiter/webapi-client";
 
 interface EnvBannerProps {

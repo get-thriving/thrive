@@ -22,8 +22,8 @@ import {
   widgetDimensionCols,
   widgetDimensionRows,
   widgetTypeName,
-} from "~/home/sub/widget/root";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+} from "#/core/home/sub/widget/root";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface WidgetPlacementQuickSelectorProps {
   target: HomeTabTarget;

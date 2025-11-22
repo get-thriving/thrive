@@ -10,14 +10,14 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { isUserFeatureAvailable } from "~/users/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
-import { EntityStack } from "~/infra/component/entity-stack";
-import { JournalSourceTag } from "~/journals/component/tag";
-import { PeriodTag } from "~/common/component/period-tag";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { isUserFeatureAvailable } from "#/core/users/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { EntityStack } from "#/core/infra/component/entity-stack";
+import { JournalSourceTag } from "#/core/journals/component/tag";
+import { PeriodTag } from "#/core/common/component/period-tag";
 
 interface JournalStackProps {
   topLevelInfo: TopLevelInfo;

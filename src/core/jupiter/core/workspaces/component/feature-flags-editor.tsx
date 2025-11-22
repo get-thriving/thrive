@@ -10,15 +10,15 @@ import {
 } from "@jupiter/webapi-client";
 import { FormControl, FormControlLabel, Switch, Tooltip } from "@mui/material";
 
-import { hostingName } from "~/hosting";
+import { hostingName } from "#/core/hosting";
 import {
   featureControlImpliesReadonly,
   userFeatureName,
   userFeatureToDocsHelpSubject,
   workspaceFeatureName,
   workspaceFeatureToDocsHelpSubject,
-} from "~/features";
-import { DocsHelp } from "~/infra/component/docs-help";
+} from "#/core/features";
+import { DocsHelp } from "#/core/infra/component/docs-help";
 
 interface UserFeatureFlagsEditorProps {
   name: string;

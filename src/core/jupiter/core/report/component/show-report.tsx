@@ -29,25 +29,25 @@ import {
 } from "@mui/material";
 import { Fragment, useState } from "react";
 
-import { aDateToDate } from "~/common/adate";
-import { periodName } from "~/common/recurring-task-period";
-import { inboxTaskSourceName } from "~/inbox_tasks/source";
+import { aDateToDate } from "#/core/common/adate";
+import { periodName } from "#/core/common/recurring-task-period";
+import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "~/projects/root";
-import { isUserFeatureAvailable } from "~/users/root";
+} from "#/core/projects/root";
+import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,
   isWorkspaceFeatureAvailable,
-} from "~/workspaces/root";
-import { EntityNameOneLineComponent } from "~/common/component/entity-name";
-import { ScoreOverview } from "~/gamification/component/score-overview";
-import { EntityLink } from "~/infra/component/entity-card";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { StandardDivider } from "~/infra/component/standard-divider";
-import { TabPanel } from "~/infra/component/tab-panel";
+} from "#/core/workspaces/root";
+import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
+import { ScoreOverview } from "#/core/gamification/component/score-overview";
+import { EntityLink } from "#/core/infra/component/entity-card";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { TabPanel } from "#/core/infra/component/tab-panel";
 
 const _SOURCES_TO_REPORT = [
   InboxTaskSource.USER,

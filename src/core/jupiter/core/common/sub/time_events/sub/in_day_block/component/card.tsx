@@ -1,10 +1,10 @@
 import type { ScheduleInDayEventEntry, Timezone } from "@jupiter/webapi-client";
 import { TimeEventNamespace } from "@jupiter/webapi-client";
 
-import { type CombinedTimeEventInDayEntry } from "~/common/sub/time_events/time-event";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
+import { type CombinedTimeEventInDayEntry } from "#/core/common/sub/time_events/time-event";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 
 interface TimeEventInDayBlockCardProps {
   entry: CombinedTimeEventInDayEntry;

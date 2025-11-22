@@ -1,7 +1,7 @@
 import type { RecordScoreResult } from "@jupiter/webapi-client";
 import { createCookie } from "@remix-run/node";
 
-import { SCORE_ACTION_COOKIE_NAME } from "~/infra/names";
+import { SCORE_ACTION_COOKIE_NAME } from "#/core/infra/names";
 
 const scoreActionCookie = createCookie(SCORE_ACTION_COOKIE_NAME, {
   maxAge: 60 * 60, // 1 hour

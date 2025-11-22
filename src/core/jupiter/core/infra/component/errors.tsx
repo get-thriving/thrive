@@ -2,8 +2,8 @@ import { Alert } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useEffect } from "react";
 
-import type { ActionResult } from "~/infra/action-result";
-import { getFieldError } from "~/infra/action-result";
+import type { ActionResult } from "#/core/infra/action-result";
+import { getFieldError } from "#/core/infra/action-result";
 
 interface GlobalErrorProps {
   intent?: string;

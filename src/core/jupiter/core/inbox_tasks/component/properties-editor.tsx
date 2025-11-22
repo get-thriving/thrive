@@ -9,7 +9,7 @@ import {
   InboxTaskStatus,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import LaunchIcon from "@mui/icons-material/Launch";
+import { Launch as LaunchIcon } from "@mui/icons-material";
 import {
   Autocomplete,
   Box,
@@ -25,32 +25,32 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { isInboxTaskCoreFieldEditable } from "~/inbox_tasks/root";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { isInboxTaskCoreFieldEditable } from "#/core/inbox_tasks/root";
 import {
   getSuggestedDatesForInboxTaskActionableDate,
   getSuggestedDatesForInboxTaskDueDate,
-} from "~/common/suggested-date";
-import type { SomeErrorNoData } from "~/infra/action-result";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { DifficultySelect } from "~/common/component/difficulty-select";
-import { EisenhowerSelect } from "~/common/component/eisenhower-select";
-import { InboxTaskSourceLink } from "~/inbox_tasks/component/source-link";
-import { InboxTaskStatusBigTag } from "~/inbox_tasks/component/status-big-tag";
-import { FieldError } from "~/infra/component/errors";
+} from "#/core/common/suggested-date";
+import type { SomeErrorNoData } from "#/core/infra/action-result";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { DifficultySelect } from "#/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
+import { InboxTaskSourceLink } from "#/core/inbox_tasks/component/source-link";
+import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
+import { FieldError } from "#/core/infra/component/errors";
 import {
   ActionSingle,
   NavSingle,
   SectionActions,
-} from "~/infra/component/section-actions";
-import { SectionCard } from "~/infra/component/section-card";
-import { ProjectSelect } from "~/projects/component/select";
-import { IsKeySelect } from "~/common/component/is-key-select";
+} from "#/core/infra/component/section-actions";
+import { SectionCard } from "#/core/infra/component/section-card";
+import { ProjectSelect } from "#/core/projects/component/select";
+import { IsKeySelect } from "#/core/common/component/is-key-select";
 import {
   constructFieldErrorName,
   constructFieldName,
-} from "~/infra/field-names";
-import { DateInputWithSuggestions } from "~/infra/component/date-input-with-suggestions";
+} from "#/core/infra/field-names";
+import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 
 interface InboxTaskPropertiesEditorProps {
   title: string;

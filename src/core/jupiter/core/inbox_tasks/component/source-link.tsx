@@ -1,10 +1,10 @@
 import type { InboxTaskLoadResult } from "@jupiter/webapi-client";
 import { InboxTaskSource } from "@jupiter/webapi-client";
-import LaunchIcon from "@mui/icons-material/Launch";
+import { Launch as LaunchIcon } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { Link } from "@remix-run/react";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface InboxTaskSourceLinkProps {
   inboxTaskResult: InboxTaskLoadResult;

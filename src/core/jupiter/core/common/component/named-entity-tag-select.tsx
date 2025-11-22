@@ -1,9 +1,9 @@
 import { NamedEntityTag } from "@jupiter/webapi-client";
 import { Box, Chip, MenuItem, Select } from "@mui/material";
 
-import { entityTagName } from "~/named-entity-tag";
-import { inferEntityTagsForEnabledFeatures } from "~/workspaces/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
+import { entityTagName } from "#/core/named-entity-tag";
+import { inferEntityTagsForEnabledFeatures } from "#/core/workspaces/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface EntityTagSelectProps {
   topLevelInfo: TopLevelInfo;

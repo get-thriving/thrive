@@ -1,7 +1,7 @@
 import { AppComponent } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { appComponentName } from "~/app-component";
+import { SlimChip } from "#/core/infra/component/chips";
+import { appComponentName } from "#/core/app-component";
 
 interface Props {
   source: string;

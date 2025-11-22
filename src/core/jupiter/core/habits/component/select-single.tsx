@@ -9,12 +9,12 @@ import { useEffect, useMemo, useState } from "react";
 import {
   sortHabitSummariesByPeriod,
   sortHabitSummariesByProjectAndPeriod,
-} from "~/habits/root";
+} from "#/core/habits/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "~/projects/root";
-import { PeriodTag } from "~/common/component/period-tag";
+} from "#/core/projects/root";
+import { PeriodTag } from "#/core/common/component/period-tag";
 
 interface HabitSelectSingleProps {
   name: string;

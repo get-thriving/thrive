@@ -10,7 +10,7 @@ import {
   styled,
 } from "@mui/material";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface ScoreOverviewProps {
   scoreOverview: UserScoreOverview;

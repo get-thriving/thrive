@@ -1,7 +1,7 @@
 import { JournalSource } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { journalSourceName } from "~/journals/source";
+import { SlimChip } from "#/core/infra/component/chips";
+import { journalSourceName } from "#/core/journals/source";
 
 interface Props {
   source: JournalSource;

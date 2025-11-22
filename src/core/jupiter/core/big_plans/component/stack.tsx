@@ -5,11 +5,11 @@ import type {
 } from "@jupiter/webapi-client";
 import { Stack } from "@mui/material";
 
-import type { BigPlanParent } from "~/big_plans/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import type { BigPlanShowOptions } from "~/big_plans/component/card";
-import { BigPlanCard } from "~/big_plans/component/card";
-import { StandardDivider } from "~/infra/component/standard-divider";
+import type { BigPlanParent } from "#/core/big_plans/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import type { BigPlanShowOptions } from "#/core/big_plans/component/card";
+import { BigPlanCard } from "#/core/big_plans/component/card";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
 
 interface BigPlanStackProps {
   topLevelInfo: TopLevelInfo;

@@ -15,13 +15,13 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { periodName } from "~/common/recurring-task-period";
-import type { SomeErrorNoData } from "~/infra/action-result";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { DifficultySelect } from "~/common/component/difficulty-select";
-import { EisenhowerSelect } from "~/common/component/eisenhower-select";
-import { FieldError } from "~/infra/component/errors";
-import { RecurringTaskSkipRuleBlock } from "~/common/component/recurring-task-skip-rule-block";
+import { periodName } from "#/core/common/recurring-task-period";
+import type { SomeErrorNoData } from "#/core/infra/action-result";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { DifficultySelect } from "#/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
+import { FieldError } from "#/core/infra/component/errors";
+import { RecurringTaskSkipRuleBlock } from "#/core/common/component/recurring-task-skip-rule-block";
 
 interface RecurringTaskGenParamsBlockProps {
   inputsEnabled: boolean;

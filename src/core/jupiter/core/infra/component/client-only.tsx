@@ -1,4 +1,4 @@
-import { useHydrated } from "~/infra/component/use-hidrated";
+import { useHydrated } from "#/core/infra/component/use-hidrated";
 
 interface ClientOnlyProps {
   children: React.ReactNode | (() => React.ReactNode);

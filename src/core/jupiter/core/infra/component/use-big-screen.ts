@@ -2,7 +2,7 @@ import { AppPlatform, AppShell } from "@jupiter/webapi-client";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "~/config-client";
+import { GlobalPropertiesContext } from "#/core/config-client";
 
 export function useBigScreen(): boolean {
   const globalProperties = useContext(GlobalPropertiesContext);

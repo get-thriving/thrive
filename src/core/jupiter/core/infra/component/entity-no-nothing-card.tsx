@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Form, Link } from "@remix-run/react";
 
-import { DocsHelp } from "~/infra/component/docs-help";
+import { DocsHelp } from "#/core/infra/component/docs-help";
 
 interface EntityNoNothingCardProps {
   title: string;

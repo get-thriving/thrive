@@ -1,7 +1,7 @@
 import { Box, Stack } from "@mui/material";
 import type { PropsWithChildren } from "react";
 
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 export function LifecyclePanel(props: PropsWithChildren) {
   const isBigScreen = useBigScreen();

@@ -1,7 +1,7 @@
 import type { ADate } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { aDateToDate } from "~/common/adate";
+import { SlimChip } from "#/core/infra/component/chips";
+import { aDateToDate } from "#/core/common/adate";
 
 interface Props {
   label: string;

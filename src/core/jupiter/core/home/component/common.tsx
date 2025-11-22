@@ -33,16 +33,19 @@ import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
 import { Link } from "@remix-run/react";
 
-import { InboxTaskParent, InboxTaskOptimisticState } from "~/inbox_tasks/root";
+import {
+  InboxTaskParent,
+  InboxTaskOptimisticState,
+} from "#/core/inbox_tasks/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,
   widgetDimensionRows,
   widgetTypeName,
-} from "~/home/sub/widget/root";
-import { workspaceFeatureName, userFeatureName } from "~/features";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import { TopLevelInfo } from "~/infra/top-level-context";
+} from "#/core/home/sub/widget/root";
+import { workspaceFeatureName, userFeatureName } from "#/core/features";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { TopLevelInfo } from "#/core/infra/top-level-context";
 
 const WIDGET_HEIGHT_IN_REM_BASE = 14;
 

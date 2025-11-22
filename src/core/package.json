@@ -10,24 +10,6 @@
   "documentation": "https://docs.get-thriving.com",
   "license": "MIT",
   "readme": "README.md",
-  "exports": {
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.js",
-      "default": "./dist/*.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "dist/*.d.ts"
-      ]
-    }
-  },
-  "files": [
-    "dist"
-  ],
   "type": "module",
   "dependencies": {
     "luxon": "^3.5.0",

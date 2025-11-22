@@ -8,8 +8,8 @@ import {
   timeEventInDayBlockToTimezone,
   CombinedTimeEventFullDaysEntry,
   combinedTimeEventInDayEntryPartionByDay,
-} from "~/common/sub/time_events/time-event";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+} from "#/core/common/sub/time_events/time-event";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import {
   MAX_VISIBLE_TIME_EVENT_FULL_DAYS,
   ViewAsCalendarDateHeader,
@@ -22,7 +22,7 @@ import {
   ViewAsCalendarTimeEventFullDaysColumn,
   ViewAsCalendarTimeEventInDayColumn,
   ViewAsProps,
-} from "~/calendar/component/shared";
+} from "#/core/calendar/component/shared";
 
 export function ViewAsCalendarDaily(props: ViewAsProps) {
   const isBigScreen = useBigScreen();

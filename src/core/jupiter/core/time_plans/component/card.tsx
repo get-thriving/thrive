@@ -1,10 +1,10 @@
 import type { TimePlan } from "@jupiter/webapi-client";
 
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { EntityCard, EntityLink } from "~/infra/component/entity-card";
-import { PeriodTag } from "~/common/component/period-tag";
-import { TimePlanSourceTag } from "~/time_plans/component/source-tag";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
+import { PeriodTag } from "#/core/common/component/period-tag";
+import { TimePlanSourceTag } from "#/core/time_plans/component/source-tag";
 
 export interface TimePlanShowOptions {
   showSource?: boolean;

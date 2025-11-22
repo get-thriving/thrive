@@ -19,15 +19,15 @@ import {
 } from "@mui/material";
 import type { DateTime } from "luxon";
 
-import { aDateToDate } from "~/common/adate";
-import { bigPlanDonePct } from "~/big_plans/root";
-import { BigPlanStatusTag } from "~/big_plans/component/status-tag";
-import { EntityNameOneLineComponent } from "~/common/component/entity-name";
-import { EntityLink } from "~/infra/component/entity-card";
-import { EisenTag } from "~/common/component/eisen-tag";
-import { DifficultyTag } from "~/common/component/difficulty-tag";
-import { BigPlanDonePctTag } from "~/big_plans/component/done-pct-tag";
-import { IsKeyTag } from "~/common/component/is-key-tag";
+import { aDateToDate } from "#/core/common/adate";
+import { bigPlanDonePct } from "#/core/big_plans/root";
+import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
+import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
+import { EntityLink } from "#/core/infra/component/entity-card";
+import { EisenTag } from "#/core/common/component/eisen-tag";
+import { DifficultyTag } from "#/core/common/component/difficulty-tag";
+import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
 interface DateMarker {
   date: ADate;

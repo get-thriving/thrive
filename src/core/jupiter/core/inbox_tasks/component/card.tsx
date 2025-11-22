@@ -11,8 +11,10 @@ import type {
   SlackTask,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  CheckCircle as CheckCircleIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
 import type { ChipProps } from "@mui/material";
 import {
   Box,
@@ -28,33 +30,33 @@ import type { PanInfo } from "framer-motion";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { useContext, useState } from "react";
 
-import { aDateToDate } from "~/common/adate";
-import { isWorkspaceFeatureAvailable } from "~/workspaces/root";
-import { isCompleted } from "~/inbox_tasks/status";
+import { aDateToDate } from "#/core/common/adate";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
+import { isCompleted } from "#/core/inbox_tasks/status";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "~/inbox_tasks/root";
-import { ClientOnly } from "~/infra/component/client-only";
-import { GlobalPropertiesContext } from "~/config-client";
-import { useBigScreen } from "~/infra/component/use-big-screen";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { ADateTag } from "~/common/component/adate-tag";
-import { BigPlanTag } from "~/big_plans/component/tag";
-import { ChoreTag } from "~/chores/component/tag";
-import { DifficultyTag } from "~/common/component/difficulty-tag";
-import { EisenTag } from "~/common/component/eisen-tag";
-import { EmailTaskTag } from "~/push_integrations/sub/email/component/tag";
-import { EntityNameComponent } from "~/common/component/entity-name";
-import { HabitTag } from "~/habits/component/habit-tag";
-import { InboxTaskSourceTag } from "~/inbox_tasks/component/source-tag";
-import { InboxTaskStatusTag } from "~/inbox_tasks/component/status-tag";
-import { EntityLink } from "~/infra/component/entity-card";
-import { MetricTag } from "~/metrics/component/tag";
-import { PersonTag } from "~/persons/component/tag";
-import { ProjectTag } from "~/projects/component/tag";
-import { SlackTaskTag } from "~/push_integrations/sub/slack/component/tag";
-import { IsKeyTag } from "~/common/component/is-key-tag";
+} from "#/core/inbox_tasks/root";
+import { ClientOnly } from "#/core/infra/component/client-only";
+import { GlobalPropertiesContext } from "#/core/config-client";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { ADateTag } from "#/core/common/component/adate-tag";
+import { BigPlanTag } from "#/core/big_plans/component/tag";
+import { ChoreTag } from "#/core/chores/component/tag";
+import { DifficultyTag } from "#/core/common/component/difficulty-tag";
+import { EisenTag } from "#/core/common/component/eisen-tag";
+import { EmailTaskTag } from "#/core/push_integrations/sub/email/component/tag";
+import { EntityNameComponent } from "#/core/common/component/entity-name";
+import { HabitTag } from "#/core/habits/component/habit-tag";
+import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
+import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
+import { EntityLink } from "#/core/infra/component/entity-card";
+import { MetricTag } from "#/core/metrics/component/tag";
+import { PersonTag } from "#/core/persons/component/tag";
+import { ProjectTag } from "#/core/projects/component/tag";
+import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
+import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;

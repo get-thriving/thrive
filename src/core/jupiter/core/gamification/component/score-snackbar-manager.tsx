@@ -2,10 +2,10 @@ import Cookies from "js-cookie";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 
-import type { ScoreAction } from "~/gamification/scores";
-import { SCORE_ACTION_COOKIE_SCHEMA } from "~/gamification/scores";
-import { SCORE_ACTION_COOKIE_NAME } from "~/infra/names";
-import { useBigScreen } from "~/infra/component/use-big-screen";
+import type { ScoreAction } from "#/core/gamification/scores";
+import { SCORE_ACTION_COOKIE_SCHEMA } from "#/core/gamification/scores";
+import { SCORE_ACTION_COOKIE_NAME } from "#/core/infra/names";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 function formatScoreUpdate(result: ScoreAction, isBigScreen: boolean): string {
   let resultStr = "";

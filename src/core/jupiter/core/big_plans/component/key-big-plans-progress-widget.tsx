@@ -4,11 +4,11 @@ import {
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
 
-import { sortBigPlansNaturally } from "~/big_plans/root";
-import { WidgetProps } from "~/home/component/common";
-import { StandardDivider } from "~/infra/component/standard-divider";
-import { EntityNoNothingCard } from "~/infra/component/entity-no-nothing-card";
-import { BigPlanStack } from "~/big_plans/component/stack";
+import { sortBigPlansNaturally } from "#/core/big_plans/root";
+import { WidgetProps } from "#/core/home/component/common";
+import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
+import { BigPlanStack } from "#/core/big_plans/component/stack";
 
 export function KeyBigPlansProgressWidget(props: WidgetProps) {
   const keyBigPlans = props.keyBigPlans!;

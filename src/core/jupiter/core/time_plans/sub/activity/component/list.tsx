@@ -11,10 +11,10 @@ import {
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
-import { sortTimePlanActivitiesNaturally } from "~/time_plans/sub/activity/root";
-import type { TopLevelInfo } from "~/infra/top-level-context";
-import { EntityStack } from "~/infra/component/entity-stack";
-import { TimePlanActivityCard } from "~/time_plans/sub/activity/component/card";
+import { sortTimePlanActivitiesNaturally } from "#/core/time_plans/sub/activity/root";
+import type { TopLevelInfo } from "#/core/infra/top-level-context";
+import { EntityStack } from "#/core/infra/component/entity-stack";
+import { TimePlanActivityCard } from "#/core/time_plans/sub/activity/component/card";
 
 interface TimePlanActivityListProps {
   topLevelInfo: TopLevelInfo;

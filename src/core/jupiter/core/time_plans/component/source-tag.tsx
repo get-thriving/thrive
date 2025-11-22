@@ -1,7 +1,7 @@
 import { TimePlanSource } from "@jupiter/webapi-client";
 
-import { SlimChip } from "~/infra/component/chips";
-import { timePlanSourceName } from "~/time_plans/source";
+import { SlimChip } from "#/core/infra/component/chips";
+import { timePlanSourceName } from "#/core/time_plans/source";
 
 interface Props {
   source: TimePlanSource;
