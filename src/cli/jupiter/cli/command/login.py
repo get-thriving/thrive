@@ -1,8 +1,8 @@
 """Command for logging in."""
 
 from jupiter.cli.config import JupiterGuestReadonlyCommand
+from jupiter.core.application.use_case.login import LoginResult, LoginUseCase
 from jupiter.core.config import JupiterGuestReadonlyContext
-from jupiter.core.use_cases.login import LoginResult, LoginUseCase
 from jupiter.framework.appform.cli.session_storage import SessionInfo
 from jupiter.framework.secure import secure_class
 from rich.console import Console

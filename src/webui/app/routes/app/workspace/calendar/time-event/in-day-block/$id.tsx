@@ -28,33 +28,33 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { InboxTaskPropertiesEditor } from "~/components/domain/concept/inbox-task/inbox-task-properties-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import {
-  ActionMultipleSpread,
-  ActionSingle,
-  SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimeEventParamsSource } from "~/components/domain/application/calendar/time-event-params-source";
-import { TimeEventSourceLink } from "~/components/domain/application/calendar/time-event-source-link";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { isInboxTaskCoreFieldEditable } from "~/logic/domain/inbox-task";
-import { allowUserChanges } from "~/logic/domain/inbox-task-source";
 import {
   isTimeEventInDayBlockEditable,
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
-} from "~/logic/domain/time-event";
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
+import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionMultipleSpread,
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
+import { TimeEventSourceLink } from "@jupiter/core/common/sub/time_events/component/source-link";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -130,7 +130,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
     include_projects: true,
@@ -138,7 +138,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
-    const response = await apiClient.inDayBlock.timeEventInDayBlockLoad({
+    const response = await apiClient.timeEvents.timeEventInDayBlockLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -185,7 +185,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           form,
           form.userTimezone,
         );
-        await apiClient.inDayBlock.timeEventInDayBlockUpdate({
+        await apiClient.timeEvents.timeEventInDayBlockUpdate({
           ref_id: id,
           start_date: {
             should_change: true,
@@ -204,14 +204,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.inDayBlock.timeEventInDayBlockArchive({
+        await apiClient.timeEvents.timeEventInDayBlockArchive({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
       case "remove": {
-        await apiClient.inDayBlock.timeEventInDayBlockRemove({
+        await apiClient.timeEvents.timeEventInDayBlockRemove({
           ref_id: id,
         });
         return redirect(`/app/workspace/calendar?${url.searchParams}`);

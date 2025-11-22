@@ -17,24 +17,27 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
-import { PeriodSelect } from "~/components/domain/core/period-select";
+} from "@jupiter/core/infra/component/section-actions";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import {
   aGlobalError,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
+} from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -44,7 +47,7 @@ const QuerySchema = z.object({
 });
 
 const CreateFormSchema = z.object({
-  today: z.string(),
+  rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
 });
 
@@ -58,7 +61,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const result = await apiClient.timePlans.timePlanCreate({
-      today: form.today,
+      right_now: form.rightNow,
       period: form.period,
     });
 
@@ -122,20 +125,20 @@ export default function NewTimePlan() {
         }
       >
         <FormControl fullWidth>
-          <InputLabel id="today" shrink margin="dense">
+          <InputLabel id="rightNow" shrink margin="dense">
             The Date
           </InputLabel>
           <OutlinedInput
             type="date"
             notched
-            label="today"
-            name="today"
+            label="rightNow"
+            name="rightNow"
             readOnly={!inputsEnabled}
             disabled={!inputsEnabled}
             defaultValue={initialToday}
           />
 
-          <FieldError actionResult={actionData} fieldName="/today" />
+          <FieldError actionResult={actionData} fieldName="/rightNow" />
         </FormControl>
 
         <FormControl fullWidth>

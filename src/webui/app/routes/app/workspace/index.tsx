@@ -26,6 +26,7 @@ import {
   WidgetTypeConstraints,
   User,
   Workspace,
+  DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { DateTime } from "luxon";
@@ -34,56 +35,61 @@ import TuneIcon from "@mui/icons-material/Tune";
 import { z } from "zod";
 import { parseQuery } from "zodix";
 import { Tabs, Tab, Box } from "@mui/material";
-
 import {
-  useTrunkNeedsToShowLeaf,
-  DisplayType,
-} from "~/rendering/use-nested-entities";
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { MOTDWidget } from "~/components/domain/concept/motd/motd-widget";
+  widgetDimensionRows,
+  widgetDimensionCols,
+  isAllowedForWidgetConstraints,
+} from "@jupiter/core/home/sub/widget/root";
 import {
   inboxTaskFindEntryToParent,
   InboxTaskOptimisticState,
   InboxTaskParent,
   sortInboxTasksNaturally,
-} from "~/logic/domain/inbox-task";
-import { TopLevelInfo, TopLevelInfoContext } from "~/top-level-context";
-import { NavSingle, SectionActions } from "~/components/infra/section-actions";
-import { newURLParams } from "~/logic/domain/navigation";
-import { HabitInboxTasksWidget } from "~/components/domain/concept/habit/habit-inbox-tasks-widget";
-import { TimePlanViewWidget } from "~/components/domain/concept/time-plan/time-plan-view-widget";
-import { CalendarDailyWidget } from "~/components/domain/application/calendar/calendar-daily-widget";
-import { HabitKeyHabitStreakWidget } from "~/components/domain/concept/habit/habit-key-habit-streak-widget";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/inbox_tasks/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { isUserFeatureAvailable } from "@jupiter/core/users/root";
+import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";
+import {
+  useTrunkNeedsToShowLeaf,
+  DisplayType,
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { MOTDWidget } from "@jupiter/core/motd/component/widget";
+import {
+  TopLevelInfo,
+  TopLevelInfoContext,
+} from "@jupiter/core/infra/top-level-context";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { HabitInboxTasksWidget } from "@jupiter/core/habits/component/inbox-tasks-widget";
+import { TimePlanViewWidget } from "@jupiter/core/time_plans/component/widget";
+import { CalendarDailyWidget } from "@jupiter/core/calendar/component/calendar-daily-widget";
+import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   WidgetFeatureNotAvailableBanner,
   WidgetContainer,
   WidgetPropsNoGeometry,
-} from "~/components/domain/application/home/common";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
-import {
-  widgetDimensionRows,
-  widgetDimensionCols,
-  isAllowedForWidgetConstraints,
-} from "~/logic/widget";
-import { ScheduleDailyWidget } from "~/components/domain/application/calendar/schedule-daily-widget";
-import { HabitRandomWidget } from "~/components/domain/concept/habit/habit-random-widget";
-import { ChoreInboxTasksWidget } from "~/components/domain/concept/chore/chore-inbox-tasks-widget";
-import { ChoreRandomWidget } from "~/components/domain/concept/chore/chore-random-widget";
-import { UpcomingBirthdaysWidget } from "~/components/domain/concept/person/upcoming-birthdays-widget";
-import { GamificationOverviewWidget } from "~/components/domain/application/gamification/gamification-overview-widget";
-import { GamificationHistoryWeeklyWidget } from "~/components/domain/application/gamification/gamification-history-weekly-widget";
-import { GamificationHistoryMonthlyWidget } from "~/components/domain/application/gamification/gamification-history-monthly-widget";
-import { KeyBigPlansProgressWidget } from "~/components/domain/concept/big-plan/key-big-plans-progress-widget";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { isUserFeatureAvailable } from "~/logic/domain/user";
-import { sortAndFilterTabsByTheirOrder } from "~/logic/domain/home-tab";
+} from "@jupiter/core/home/component/common";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { ScheduleDailyWidget } from "@jupiter/core/calendar/component/schedule-daily-widget";
+import { HabitRandomWidget } from "@jupiter/core/habits/component/random-widget";
+import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
+import { ChoreRandomWidget } from "@jupiter/core/chores/component/random-widget";
+import { UpcomingBirthdaysWidget } from "@jupiter/core/persons/component/upcoming-birthdays-widget";
+import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
+import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
+import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
+import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
+
+import { newURLParams } from "~/logic/navigation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -98,7 +104,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_user: true,
     include_workspace: true,
     include_habits: true,

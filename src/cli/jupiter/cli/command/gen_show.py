@@ -11,7 +11,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.application.gen.load_runs import (
+from jupiter.core.gen.use_case.load_runs import (
     GenLoadRunsResult,
     GenLoadRunsUseCase,
 )

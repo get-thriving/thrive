@@ -21,23 +21,23 @@ import { DateTime } from "luxon";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { timeEventInDayBlockParamsToUtc } from "@jupiter/core/common/sub/time_events/time-event";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimeEventParamsSource } from "~/components/domain/application/calendar/time-event-params-source";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { timeEventInDayBlockParamsToUtc } from "~/logic/domain/time-event";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/component/params-source";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -113,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
       form.userTimezone,
     );
 
-    await apiClient.inDayBlock.timeEventInDayBlockCreateForInboxTask({
+    await apiClient.timeEvents.timeEventInDayBlockCreateForInboxTask({
       inbox_task_ref_id: query.inboxTaskRefId,
       start_date: startDate,
       start_time_in_day: startTimeInDay ?? "",

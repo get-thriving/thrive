@@ -3,7 +3,7 @@
 from typing import cast
 
 import pytest
-from jupiter_webapi_client.api.get_summaries.get_summaries import (
+from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
 from jupiter_webapi_client.api.projects.project_create import (

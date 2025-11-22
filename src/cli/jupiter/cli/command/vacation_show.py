@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.use_cases.concept.vacations.find import (
+from jupiter.core.vacations.use_case.find import (
     VacationFindResult,
     VacationFindUseCase,
 )

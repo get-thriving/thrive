@@ -1,11 +1,11 @@
 """Command for resetting a password."""
 
 from jupiter.cli.config import JupiterGuestMutationCommand
-from jupiter.core.config import JupiterGuestMutationContext
-from jupiter.core.use_cases.concept.auth.reset_password import (
+from jupiter.core.auth.use_case.reset_password import (
     ResetPasswordResult,
     ResetPasswordUseCase,
 )
+from jupiter.core.config import JupiterGuestMutationContext
 from jupiter.framework.secure import secure_class
 from rich.console import Console
 from rich.text import Text

@@ -1,0 +1,6 @@
+packages:
+  - "gen/ts/webapi-client"
+  - "src/core"
+  - "src/webui"
+  - "src/desktop"
+  - "src/mobile"

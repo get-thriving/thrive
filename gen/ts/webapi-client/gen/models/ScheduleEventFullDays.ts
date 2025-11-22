@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { ScheduleEventName } from './ScheduleEventName';
+import type { ScheduleEventFullDaysName } from './ScheduleEventFullDaysName';
 import type { ScheduleExternalUid } from './ScheduleExternalUid';
-import type { ScheduleSource } from './ScheduleSource';
+import type { ScheduleStreamSource } from './ScheduleStreamSource';
 import type { Timestamp } from './Timestamp';
 /**
  * A full day block in a schedule.
@@ -18,10 +18,10 @@ export type ScheduleEventFullDays = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
-    name: ScheduleEventName;
+    name: ScheduleEventFullDaysName;
     schedule_domain_ref_id: string;
     schedule_stream_ref_id: EntityId;
-    source: ScheduleSource;
+    source: ScheduleStreamSource;
     external_uid?: (ScheduleExternalUid | null);
 };
 

@@ -37,46 +37,46 @@ import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { BigPlanStatusBigTag } from "~/components/domain/concept/big-plan/big-plan-status-big-tag";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { SectionCard } from "~/components/infra/section-card";
-import { ProjectSelect } from "~/components/domain/concept/project/project-select";
-import { TimePlanActivityList } from "~/components/domain/concept/time-plan/time-plan-activity-list";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { bigPlanDonePct } from "@jupiter/core/big_plans/root";
+import {
+  getSuggestedDatesForBigPlanActionableDate,
+  getSuggestedDatesForBigPlanDueDate,
+} from "@jupiter/core/common/suggested-date";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { BigPlanStatusBigTag } from "@jupiter/core/big_plans/component/status-big-tag";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
-import { DifficultySelect } from "~/components/domain/core/difficulty-select";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import {
   SectionActions,
   ActionSingle,
   NavSingle,
-} from "~/components/infra/section-actions";
-import { IsKeySelect } from "~/components/domain/core/is-key-select";
-import { DateInputWithSuggestions } from "~/components/domain/core/date-input-with-suggestions";
-import {
-  getSuggestedDatesForBigPlanActionableDate,
-  getSuggestedDatesForBigPlanDueDate,
-} from "~/logic/domain/suggested-date";
-import { BigPlanMilestoneStack } from "~/components/domain/concept/big-plan/big-plan-milestone-stack";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { bigPlanDonePct } from "~/logic/domain/big-plan";
-import { BigPlanDonePctBigTag } from "~/components/domain/concept/big-plan/big-plan-done-pct-big-tag";
-import { aDateToDate } from "~/logic/domain/adate";
+} from "@jupiter/core/infra/component/section-actions";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -148,7 +148,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_projects: true,
   });
@@ -163,7 +163,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
       const timePlanActivitiesResult =
-        await apiClient.activity.timePlanActivityFindForTarget({
+        await apiClient.timePlans.timePlanActivityFindForTarget({
           allow_archived: true,
           target: TimePlanActivityTarget.BIG_PLAN,
           target_ref_id: id,

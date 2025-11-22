@@ -1,0 +1,98 @@
+"""Retrieve details about a journal."""
+
+from jupiter.core.app import AppCore
+from jupiter.core.common import schedules
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.journals.root import Journal, JournalRepository
+from jupiter.core.journals.stats import (
+    JournalStats,
+    JournalStatsRepository,
+)
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_name import EntityName
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
+    readonly_use_case,
+)
+from jupiter.framework.use_case_io import (
+    UseCaseArgsBase,
+    UseCaseResultBase,
+    use_case_args,
+    use_case_result,
+)
+
+
+@use_case_args
+class JournalLoadForDateAndPeriodArgs(UseCaseArgsBase):
+    """Args."""
+
+    right_now: ADate
+    period: RecurringTaskPeriod
+    allow_archived: bool
+
+
+@use_case_result
+class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
+    """Result."""
+
+    journal: Journal | None
+    journal_stats: JournalStats | None
+    sub_period_journals: list[Journal]
+
+
+@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+class JournalLoadForDateAndPeriodUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult
+    ]
+):
+    """The command for loading details about a journal."""
+
+    async def _perform_transactional_read(
+        self,
+        uow: DomainUnitOfWork,
+        context: JupiterLoggedInReadonlyContext,
+        args: JournalLoadForDateAndPeriodArgs,
+    ) -> JournalLoadForDateAndPeriodResult:
+        """Execute the command's actions."""
+        workspace = context.workspace
+        journal_collection = await uow.get_for(JournalCollection).load_by_parent(
+            workspace.ref_id
+        )
+        schedule = schedules.get_schedule(
+            period=args.period,
+            name=EntityName("Test"),
+            right_now=args.right_now.to_timestamp_at_end_of_day(),
+        )
+
+        all_journals = await uow.get(JournalRepository).find_all_in_range(
+            parent_ref_id=journal_collection.ref_id,
+            allow_archived=False,
+            filter_periods=[args.period, *args.period.all_smaller_periods],
+            filter_start_date=schedule.first_day,
+            filter_end_date=schedule.end_day,
+        )
+
+        journal = next((j for j in all_journals if j.period == args.period), None)
+
+        if journal is not None:
+            journal_stats = await uow.get(JournalStatsRepository).load_by_key_optional(
+                journal.ref_id
+            )
+
+            if journal_stats is None:
+                raise Exception("Journal stats not found")
+        else:
+            journal_stats = None
+
+        return JournalLoadForDateAndPeriodResult(
+            journal=journal,
+            journal_stats=journal_stats,
+            sub_period_journals=[j for j in all_journals if j.period != args.period],
+        )

@@ -43,7 +43,8 @@ npx openapi \
     --name ApiClient
 
 ts_package_json="$(jo packageName="$PACKAGE_NAME")"
-npx hbs-cli --stdout -D "$ts_package_json" tasks/_resources/ts-package.mise.toml.hbs > gen/ts/$PACKAGE_NAME/package.mise.toml
+
+node tasks/_resources/render-hbs.mjs tasks/_resources/ts-package.mise.toml.hbs "$ts_package_json" > gen/ts/$PACKAGE_NAME/package.mise.toml
 
 log info "Generating Python client code"
 
@@ -63,7 +64,7 @@ poetry run openapi-python-client generate --config config.yaml --path .build-cac
 mv jupiter_webapi_client gen/py/$PACKAGE_NAME
 
 py_package_json="$(jo packageName="$PACKAGE_NAME")"
-npx hbs-cli --stdout -D "$py_package_json" tasks/_resources/py-package.mise.toml.hbs > gen/py/$PACKAGE_NAME/package.mise.toml
+node tasks/_resources/render-hbs.mjs tasks/_resources/py-package.mise.toml.hbs "$py_package_json" > gen/py/$PACKAGE_NAME/package.mise.toml
 
 log info "Rebuilding mise.toml files"
 

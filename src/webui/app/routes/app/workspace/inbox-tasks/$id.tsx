@@ -25,34 +25,34 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { InboxTaskPropertiesEditor } from "~/components/domain/concept/inbox-task/inbox-task-properties-editor";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { SectionCard } from "~/components/infra/section-card";
-import { TimeEventInDayBlockStack } from "~/components/domain/application/calendar/time-event-in-day-block-stack";
-import { TimePlanActivityList } from "~/components/domain/concept/time-plan/time-plan-activity-list";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { saveScoreAction } from "~/logic/domain/gamification/scores.server";
-import { isInboxTaskCoreFieldEditable } from "~/logic/domain/inbox-task";
-import { allowUserChanges } from "~/logic/domain/inbox-task-source";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
-} from "~/logic/domain/time-event";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
+import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
   NavSingle,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -123,7 +123,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
     include_projects: true,
@@ -140,7 +140,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
       const timePlanActivitiesResult =
-        await apiClient.activity.timePlanActivityFindForTarget({
+        await apiClient.timePlans.timePlanActivityFindForTarget({
           allow_archived: true,
           target: TimePlanActivityTarget.INBOX_TASK,
           target_ref_id: id,

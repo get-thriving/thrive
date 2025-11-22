@@ -5,18 +5,16 @@ import logging
 import sys
 
 import aiohttp
-import jupiter.core.domain
-import jupiter.core.impl.repository.sqlite
-import jupiter.core.use_cases
+import jupiter.core
 import jupiter.webapi.config
 import jupiter.webapi.exceptions
+from jupiter.core.application.crm import CRM
+from jupiter.core.application.impl.crm.noop import NoOpCRM
+from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.hosting import Hosting
-from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.crm.wix import WixCRM
-from jupiter.core.impl.repository.sqlite.application.search_storage_engine import (
+from jupiter.core.env import Env
+from jupiter.core.hosting import Hosting
+from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
@@ -69,7 +67,7 @@ async def main() -> None:
     no_timezone_global_properties = build_global_properties()
 
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
-        jupiter.core.domain, jupiter.core.use_cases
+        jupiter.core
     )
 
     sqlite_connection = SqliteConnection(
@@ -85,10 +83,7 @@ async def main() -> None:
     global_properties = build_global_properties()
 
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
-        realm_codec_registry,
-        sqlite_connection,
-        jupiter.core.impl.repository.sqlite,
-        jupiter.core.domain,
+        realm_codec_registry, sqlite_connection, jupiter.core
     )
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
@@ -138,7 +133,7 @@ async def main() -> None:
         progress_reporter_factory,
         auth_token_stamper,
         jupiter.webapi.config,
-        jupiter.core.use_cases,
+        jupiter.core,
         jupiter.webapi.exceptions,
     )
 

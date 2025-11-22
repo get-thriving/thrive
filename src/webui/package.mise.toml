@@ -2,21 +2,15 @@
 hide = true
 run = "true"
 
-["package:src:webui:install"]
-hide = true
-sources = ["src/webui/package.json"]
-outputs = { auto = true }
-run = "cd src/webui && npm install --no-save"
-
 ["package:src:webui:fix:prettier"]
 hide = true
-sources = ["src/webui/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = ["src/webui/**/*.ts", "src/webui/**/*.tsx", "src/webui/**/*.js", "src/webui/**/*.jsx", "src/webui/**/*.json", "src/webui/**/*.md"]
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/webui"
 
 ["package:src:webui:fix:eslint"]
 hide = true
-sources = ["src/webui/**/*.{ts,tsx,js,jsx}"]
+sources = ["src/webui/**/*.ts", "src/webui/**/*.tsx", "src/webui/**/*.js", "src/webui/**/*.jsx"]
 outputs = { auto = true }
 run = "npx eslint src/webui --fix"
 
@@ -49,19 +43,31 @@ run = "npx eslint src/webui/package.mise.toml"
 
 ["package:src:webui:lint:tsc"]
 hide = true
-sources = ["src/webui/**/*.{ts,tsx}"]
+sources = ["src/webui/**/*.ts", "src/webui/**/*.tsx"]
 outputs = { auto = true }
 run = "cd src/webui && npx tsc"
 
 ["package:src:webui:lint:prettier"]
 hide = true
-sources = ["src/webui/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/webui/**/*.ts",
+  "src/webui/**/*.tsx",
+  "src/webui/**/*.js",
+  "src/webui/**/*.jsx",
+  "src/webui/**/*.json",
+  "src/webui/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --check src/webui"
 
 ["package:src:webui:lint:eslint"]
 hide = true
-sources = ["src/webui/**/*.{ts,tsx,js,jsx}"]
+sources = [
+  "src/webui/**/*.ts",
+  "src/webui/**/*.tsx",
+  "src/webui/**/*.js",
+  "src/webui/**/*.jsx",
+]
 outputs = { auto = true }
 run = "npx eslint src/webui"
 
@@ -76,16 +82,16 @@ description = "Check src/webui module"
 depends = ["package:src:webui:lint:*"]
 run = "true"
 
-["package:src:webui:audit:npm-audit"]
+["package:src:webui:audit:pnpm-audit"]
 hide = true
-run = "cd src/webui && npm audit --audit-level=high"
+run = "cd src/webui && pnpm audit"
 
 ["package:src:webui:audit"]
 description = "Audit src/webui module"
 depends = ["package:src:webui:audit:*"]
 run = "true"
 
-["package:src:webui:libyear:npm-libyear"]
+["package:src:webui:libyear:pnpm-libyear"]
 hide = true
 run = "cd src/webui && npx libyear"
 

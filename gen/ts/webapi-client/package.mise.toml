@@ -15,4 +15,4 @@ run = "cd gen/ts/webapi-client && npx tsc"
 
 ["package:gen:ts:webapi-client:install"]
 hide = true
-run = "cd gen/ts/webapi-client && npm install --no-save"
+run = "true"

@@ -1,1 +1,0 @@
-"""Persons domain logic."""

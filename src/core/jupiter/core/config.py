@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Generic, TypeVar, Union, cast
 
 import dotenv
-from jupiter.core.domain.app import (
+from jupiter.core.app import (
     AppComponent,
     AppCore,
     AppDistribution,
@@ -15,16 +15,16 @@ from jupiter.core.domain.app import (
     AppShell,
     AppVersion,
 )
-from jupiter.core.domain.concept.user.user import User
-from jupiter.core.domain.concept.user_workspace_link.user_workspace_link import (
+from jupiter.core.application.crm import CRM
+from jupiter.core.env import Env
+from jupiter.core.features import UserFeature, WorkspaceFeature
+from jupiter.core.hosting import Hosting
+from jupiter.core.search.storage_engine import SearchStorageEngine
+from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
-from jupiter.core.domain.concept.workspaces.workspace import Workspace
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.features import UserFeature, WorkspaceFeature
-from jupiter.core.domain.hosting import Hosting
-from jupiter.core.domain.storage_engine import SearchStorageEngine
+from jupiter.core.users.root import User
+from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
 from jupiter.framework.component_properties import ComponentProperties
 from jupiter.framework.context import MutationContext

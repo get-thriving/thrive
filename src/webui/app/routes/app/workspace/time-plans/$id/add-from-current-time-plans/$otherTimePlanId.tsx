@@ -21,36 +21,36 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  filterActivitiesByTargetStatus,
+  sortTimePlanActivitiesNaturally,
+} from "@jupiter/core/time_plans/sub/activity/root";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { TimePlanActivityCard } from "~/components/domain/concept/time-plan/time-plan-activity-card";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { TimePlanCard } from "~/components/domain/concept/time-plan/time-plan-card";
-import { TimePlanStack } from "~/components/domain/concept/time-plan/time-plan-stack";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import {
-  filterActivitiesByTargetStatus,
-  sortTimePlanActivitiesNaturally,
-} from "~/logic/domain/time-plan-activity";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { TimePlanActivityCard } from "@jupiter/core/time_plans/sub/activity/component/card";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { TimePlanCard } from "@jupiter/core/time_plans/component/card";
+import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -84,7 +84,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id, otherTimePlanId } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
   });
 

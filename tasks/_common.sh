@@ -83,10 +83,10 @@ _run_jupiter_webapp_with_pm2() {
 
     if [[ "$in_ci" == "dev" ]]; then
         data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
-        npx hbs-cli --stdout -D "$data" tasks/_resources/pm2.config.dev.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     else
         data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
-        npx hbs-cli --stdout -D "$data" tasks/_resources/pm2.config.ci.js.hbs > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     fi
 
     # shellcheck disable=SC2064

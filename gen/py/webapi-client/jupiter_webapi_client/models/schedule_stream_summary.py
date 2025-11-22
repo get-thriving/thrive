@@ -4,8 +4,8 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.schedule_source import ScheduleSource
 from ..models.schedule_stream_color import ScheduleStreamColor
+from ..models.schedule_stream_source import ScheduleStreamSource
 
 T = TypeVar("T", bound="ScheduleStreamSummary")
 
@@ -16,13 +16,13 @@ class ScheduleStreamSummary:
 
     Attributes:
         ref_id (str): A generic entity id.
-        source (ScheduleSource): The source of a schedule.
+        source (ScheduleStreamSource): The source of a schedule.
         name (str): The name of a schedule stream.
         color (ScheduleStreamColor): The color of a particular schedule stream.
     """
 
     ref_id: str
-    source: ScheduleSource
+    source: ScheduleStreamSource
     name: str
     color: ScheduleStreamColor
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -54,7 +54,7 @@ class ScheduleStreamSummary:
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        source = ScheduleSource(d.pop("source"))
+        source = ScheduleStreamSource(d.pop("source"))
 
         name = d.pop("name")
 

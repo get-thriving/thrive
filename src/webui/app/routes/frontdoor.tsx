@@ -1,12 +1,12 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { redirectDocument } from "@remix-run/node";
 import { parseQuery } from "zodix";
+import { FRONT_DOOR_INFO_SCHEMA } from "@jupiter/core/frontdoor";
+import { saveFrontDoorInfo } from "@jupiter/core/frontdoor.server";
+import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 
 import { getGuestApiClient } from "~/api-clients.server";
-import { FRONT_DOOR_INFO_SCHEMA } from "~/logic/frontdoor";
-import { saveFrontDoorInfo } from "~/logic/frontdoor.server";
-import { AUTH_TOKEN_NAME } from "~/names";
-import { DisplayType } from "~/rendering/use-nested-entities";
 import { getSession } from "~/sessions";
 
 export const handle = {
@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   if (session.has(AUTH_TOKEN_NAME)) {
     const apiClient = await getGuestApiClient(request, params);
-    const result = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+    const result = await apiClient.application.loadTopLevelInfo({});
 
     if (result.user || result.workspace) {
       const cookie = await saveFrontDoorInfo(params);

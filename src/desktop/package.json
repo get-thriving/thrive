@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@braintree/sanitize-url": "^7.1.1",
-    "@jupiter/webapi-client": "file:../../gen/ts/webapi-client",
+    "@jupiter/webapi-client": "workspace:*",
     "dotenv": "^16.4.7",
     "electron-squirrel-startup": "^1.0.1",
     "normalize-url": "^8.0.1",

@@ -19,7 +19,7 @@
     "@capacitor/device": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.0",
-    "@jupiter/webapi-client": "file:../../gen/ts/webapi-client",
+    "@jupiter/webapi-client": "workspace:*",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {

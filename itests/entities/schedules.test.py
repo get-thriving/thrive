@@ -4,10 +4,10 @@ import re
 
 import pendulum
 import pytest
-from jupiter_webapi_client.api.event_in_day.schedule_event_in_day_create import (
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
     sync_detailed as schedule_event_in_day_create_sync,
 )
-from jupiter_webapi_client.api.stream.schedule_stream_create_for_user import (
+from jupiter_webapi_client.api.schedule.schedule_stream_create_for_user import (
     sync_detailed as schedule_stream_create_for_user_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (

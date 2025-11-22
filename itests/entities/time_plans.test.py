@@ -99,14 +99,14 @@ from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
-from jupiter_webapi_client.models.time_plan_associate_big_plan_with_plan_result import (
-    TimePlanAssociateBigPlanWithPlanResult,
-)
 from jupiter_webapi_client.models.time_plan_associate_inbox_task_with_plan_result import (
     TimePlanAssociateInboxTaskWithPlanResult,
 )
 from jupiter_webapi_client.models.time_plan_associate_with_big_plans_args import (
     TimePlanAssociateWithBigPlansArgs,
+)
+from jupiter_webapi_client.models.time_plan_associate_with_big_plans_result import (
+    TimePlanAssociateWithBigPlansResult,
 )
 from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_args import (
     TimePlanAssociateWithInboxTasksArgs,
@@ -149,7 +149,7 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
     def _create_time_plan(day: str, period: RecurringTaskPeriod) -> TimePlan:
         result = time_plan_create_sync(
             client=logged_in_client,
-            body=TimePlanCreateArgs(today=day, period=period),
+            body=TimePlanCreateArgs(right_now=day, period=period),
         )
         return get_parsed_from_response(TimePlanCreateResult, result).new_time_plan
 
@@ -172,7 +172,7 @@ def create_time_plan_activity_from_big_plan(logged_in_client: AuthenticatedClien
             ),
         )
         return get_parsed_from_response(
-            TimePlanAssociateBigPlanWithPlanResult, result
+            TimePlanAssociateWithBigPlansResult, result
         ).new_time_plan_activities[0]
 
     return _create_time_plan_activity
@@ -425,7 +425,7 @@ def test_time_plan_create_new_inbox_task_activity(page: Page, create_time_plan) 
     page.wait_for_url(re.compile("/app/workspace/inbox-tasks/new"))
 
     page.locator('input[name="name"]').fill("New Inbox Task")
-    page.locator("#inbox-task-create").click()
+    page.locator("button[id='inbox-task-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -456,7 +456,7 @@ def test_time_plan_create_new_inbox_task_with_big_plan_activity(
     page.locator("#bigPlan").locator("..").click()
     page.locator("li", has_text="The Big Plan").click()
 
-    page.locator("#inbox-task-create").click()
+    page.locator("button[id='inbox-task-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -500,7 +500,7 @@ def test_time_plan_create_new_big_plan_activity(
     page.wait_for_url(re.compile("/app/workspace/big-plans/new"))
 
     page.locator('input[name="name"]').fill("New Big Plan")
-    page.locator("#big-plan-create").click()
+    page.locator("button[id='big-plan-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -535,7 +535,7 @@ def test_time_plan_create_new_inbox_task_from_big_plan_activity(
     page.wait_for_url(re.compile(r"/app/workspace/inbox-tasks/new"))
 
     page.locator('input[name="name"]').fill("The New Inbox Task")
-    page.locator("#inbox-task-create").click()
+    page.locator("button[id='inbox-task-create']").click()
 
     expect(page.locator("input[id='bigPlan']")).to_have_value("The Big Plan")
 

@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.schedule_source import ScheduleSource
+from ..models.schedule_stream_source import ScheduleStreamSource
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ScheduleEventInDay")
@@ -23,7 +23,7 @@ class ScheduleEventInDay:
         name (str): The name of a schedule event.
         schedule_domain_ref_id (str):
         schedule_stream_ref_id (str): A generic entity id.
-        source (ScheduleSource): The source of a schedule.
+        source (ScheduleStreamSource): The source of a schedule.
         archival_reason (Union[None, Unset, str]):
         archived_time (Union[None, Unset, str]):
         external_uid (Union[None, Unset, str]):
@@ -37,7 +37,7 @@ class ScheduleEventInDay:
     name: str
     schedule_domain_ref_id: str
     schedule_stream_ref_id: str
-    source: ScheduleSource
+    source: ScheduleStreamSource
     archival_reason: Union[None, Unset, str] = UNSET
     archived_time: Union[None, Unset, str] = UNSET
     external_uid: Union[None, Unset, str] = UNSET
@@ -123,7 +123,7 @@ class ScheduleEventInDay:
 
         schedule_stream_ref_id = d.pop("schedule_stream_ref_id")
 
-        source = ScheduleSource(d.pop("source"))
+        source = ScheduleStreamSource(d.pop("source"))
 
         def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
             if data is None:

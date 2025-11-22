@@ -1,0 +1,1 @@
+"""Full days block entities."""

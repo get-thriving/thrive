@@ -2,15 +2,16 @@
 hide = true
 run = "true"
 
-["package:src:desktop:install"]
-hide = true
-sources = ["src/desktop/package.json"]
-outputs = { auto = true }
-run = "cd src/desktop && npm install --no-save"
-
 ["package:src:desktop:fix:prettier"]
 hide = true
-sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --write --list-different src/desktop"
 
@@ -27,7 +28,14 @@ run = "npx eslint src/desktop/package.mise.toml"
 
 ["package:src:desktop:lint:prettier"]
 hide = true
-sources = ["src/desktop/**/*.{ts,tsx,js,jsx,json,md}"]
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
 outputs = { auto = true }
 run = "npx prettier --check src/desktop"
 
@@ -42,16 +50,16 @@ description = "Check src/desktop module"
 depends = ["package:src:desktop:lint:*"]
 run = "true"
 
-["package:src:desktop:audit:npm-audit"]
+["package:src:desktop:audit:pnpm-audit"]
 hide = true
-run = "cd src/desktop && npm audit --audit-level=high"
+run = "cd src/desktop && pnpm audit"
 
 ["package:src:desktop:audit"]
 description = "Audit src/desktop module"
 depends = ["package:src:desktop:audit:*"]
 run = "true"
 
-["package:src:desktop:libyear:npm-libyear"]
+["package:src:desktop:libyear:pnpm-libyear"]
 hide = true
 run = "cd src/desktop && npx libyear"
 

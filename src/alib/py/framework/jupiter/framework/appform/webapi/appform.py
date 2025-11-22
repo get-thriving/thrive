@@ -105,7 +105,7 @@ from jupiter.framework.use_case import (
     UseCase,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
-from jupiter.framework.utils import (
+from jupiter.framework.utils.utils import (
     find_all_modules,
     is_primitive_type,
     is_thing_ish_type,
@@ -919,7 +919,7 @@ class WebApiAppForm(
 
             paths_object["summary"] = command._build_description()
             paths_object["operationId"] = command._build_operation_id()
-            paths_object["tags"] = [command._build_tag()]
+            paths_object["tags"] = [command._build_tag]
 
             if isinstance(command, (GuestMutationCommand, GuestReadonlyCommand)):
                 paths_object["security"] = []
