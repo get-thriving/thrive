@@ -2,12 +2,6 @@
 hide = true
 run = "true"
 
-["package:src:docs:install"]
-hide = true
-sources = ["src/docs/pyproject.toml"]
-outputs = { auto = true }
-run = "cd src/docs && uv sync --active"
-
 ["package:src:docs:fix:markdownlint"]
 hide = true
 sources = ["src/docs/**/*.md"]
@@ -41,7 +35,7 @@ sources = [
   "src/docs/**/*.yaml",
 ]
 outputs = { auto = true }
-run = "uvx yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
+run = "uv run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
 
 ["package:src:docs:lint:markdownlint-docs"]
 hide = true

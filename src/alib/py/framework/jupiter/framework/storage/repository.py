@@ -36,7 +36,7 @@ class RecordNotFoundError(Exception):
     """Error raised when a record is not found."""
 
 
-class RecordRepository(Generic[_RecordT, _RecordKeyT], Repository, abc.ABC):
+class RecordRepository(Repository, abc.ABC, Generic[_RecordT, _RecordKeyT]):
     """A repository for records."""
 
     @abc.abstractmethod
@@ -74,7 +74,7 @@ _EntityT = TypeVar("_EntityT", bound=Entity)
 _ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
 
 
-class EntityRepository(Generic[_EntityT], Repository, abc.ABC):
+class EntityRepository(Repository, abc.ABC, Generic[_EntityT]):
     """A repository for entities."""
 
     @abc.abstractmethod
@@ -209,9 +209,7 @@ _BranchEntityT = TypeVar("_BranchEntityT", bound=BranchEntity)
 
 
 class BranchEntityRepository(
-    Generic[_BranchEntityT],
-    CrownEntityRepository[_BranchEntityT],
-    abc.ABC,
+    CrownEntityRepository[_BranchEntityT], abc.ABC, Generic[_BranchEntityT]
 ):
     """A repository for branch entities."""
 
@@ -220,7 +218,7 @@ _LeafEntityT = TypeVar("_LeafEntityT", bound=LeafEntity)
 
 
 class LeafEntityRepository(
-    Generic[_LeafEntityT], CrownEntityRepository[_LeafEntityT], abc.ABC
+    CrownEntityRepository[_LeafEntityT], abc.ABC, Generic[_LeafEntityT]
 ):
     """A repository for leaf entities."""
 
@@ -232,7 +230,7 @@ class UnitOfWork:
 _UnitOfWorkT = TypeVar("_UnitOfWorkT", bound=UnitOfWork)
 
 
-class StorageEngine(Generic[_UnitOfWorkT], abc.ABC):
+class StorageEngine(abc.ABC, Generic[_UnitOfWorkT]):
     """A storage engine that can produce a unit of work."""
 
     @abc.abstractmethod

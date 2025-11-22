@@ -45,7 +45,7 @@ class EntityName(AtomicValue[str]):
 
 
 class EntityNameDatabaseEncoder(
-    Generic[_EntityNameT], RealmEncoder[_EntityNameT, DatabaseRealm]
+    RealmEncoder[_EntityNameT, DatabaseRealm], Generic[_EntityNameT]
 ):
     """Encode an entity name for the database."""
 
@@ -61,7 +61,7 @@ class EntityNameDatabaseEncoder(
 
 
 class EntityNameDatabaseDecoder(
-    Generic[_EntityNameT], RealmDecoder[_EntityNameT, DatabaseRealm]
+    RealmDecoder[_EntityNameT, DatabaseRealm], Generic[_EntityNameT]
 ):
     """Decode an entity name from the database."""
 

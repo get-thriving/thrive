@@ -89,8 +89,8 @@ _CliAppFormT = TypeVar("_CliAppFormT", bound="CliAppForm[Any, Any, Any]")  # typ
 
 
 class CliAppForm(
-    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
     AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
 ):
     """A CLI application form."""
 

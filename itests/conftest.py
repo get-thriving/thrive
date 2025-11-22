@@ -35,7 +35,7 @@ class TestUser:
         )
 
 
-@pytest.fixture
+@pytest.fixture()
 def new_random_user() -> TestUser:
     """Create a new random test user."""
     return TestUser.new_random()

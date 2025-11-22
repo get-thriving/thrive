@@ -15,13 +15,13 @@ run = "true"
 
 ["root:install:pyproject"]
 hide = true
-sources = ["pyproject.toml"]
+sources = ["pyproject.toml", "gen/**/pyproject.toml", "src/**/pyproject.toml", "itests/pyproject.toml"]
 outputs = { auto = true }
-run = "uv sync --active"
+run = "uv sync --all-packages --active"
 
 ["root:install:pnpm"]
 hide = true
-sources = ["package.json", "src/**/package.json"]
+sources = ["package.json", "gen/**/package.json", "src/**/package.json"]
 outputs = { auto = true }
 run = "pnpm install"
 
@@ -66,7 +66,7 @@ hide = true
 run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
-uvx pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["root:audit:pnpm-audit"]
@@ -101,7 +101,7 @@ run = "npx eslint mise.toml root.mise.toml"
 hide = true
 sources = [".github/**/*.(yaml|yml)"]
 outputs = { auto = true }
-run = "uvx yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
+run = "uv run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
 
 ["root:lint:markdownlint-readme"]
 hide = true

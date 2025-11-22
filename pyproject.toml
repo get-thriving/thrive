@@ -12,6 +12,17 @@ Homepage = "https://get-thriving.com/"
 Repository = "https://github.com/horia141/thrive"
 Documentation = "https://docs.get-thriving.com/"
 
+[tool.uv.workspace]
+members = [
+    "gen/py/webapi-client",
+    "src/alib/py/framework",
+    "src/webapi",
+    "src/core",
+    "src/docs",
+    "src/cli",
+    "itests",
+]
+
 [dependency-groups]
 dev = [
     "yamllint>=1.36.2,<2",

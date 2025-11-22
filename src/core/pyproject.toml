@@ -47,7 +47,7 @@ dev = [
 [tool.uv]
 
 [tool.uv.sources]
-jupiter-framework = { path = "../alib/py/framework", editable = true }
+jupiter-framework = { workspace = true }
 
 [tool.hatch.build.targets.sdist]
 include = ["jupiter"]

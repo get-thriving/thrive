@@ -272,51 +272,51 @@ class EntityLink(Generic[_EntityT]):
         return reified_filters
 
 
-class ContainsLink(Generic[_EntityT], EntityLink[_EntityT]):
+class ContainsLink(EntityLink[_EntityT], Generic[_EntityT]):
     """An entity that contains another entity."""
 
 
-class ContainsOne(Generic[_EntityT], ContainsLink[_EntityT]):
+class ContainsOne(ContainsLink[_EntityT], Generic[_EntityT]):
     """An entity that can contain exactly one other entity."""
 
 
-class ContainsAtMostOne(Generic[_EntityT], ContainsLink[_EntityT]):
+class ContainsAtMostOne(ContainsLink[_EntityT], Generic[_EntityT]):
     """An entity that can contain at most one other entity."""
 
 
-class ContainsMany(Generic[_EntityT], ContainsLink[_EntityT]):
+class ContainsMany(ContainsLink[_EntityT], Generic[_EntityT]):
     """An entity that can contain many other entities."""
 
 
-class OwnsLink(Generic[_EntityT], EntityLink[_EntityT]):
+class OwnsLink(EntityLink[_EntityT], Generic[_EntityT]):
     """An entity that owns another entity."""
 
 
-class OwnsOne(Generic[_EntityT], OwnsLink[_EntityT]):
+class OwnsOne(OwnsLink[_EntityT], Generic[_EntityT]):
     """An entity that can owns exactly one other entity."""
 
 
-class OwnsAtMostOne(Generic[_EntityT], OwnsLink[_EntityT]):
+class OwnsAtMostOne(OwnsLink[_EntityT], Generic[_EntityT]):
     """An entity that can only be owned by at most one other entity."""
 
 
-class OwnsMany(Generic[_EntityT], OwnsLink[_EntityT]):
+class OwnsMany(OwnsLink[_EntityT], Generic[_EntityT]):
     """An entity that can only be owned by at most one other entity."""
 
 
-class RefsLink(Generic[_EntityT], EntityLink[_EntityT]):
+class RefsLink(EntityLink[_EntityT], Generic[_EntityT]):
     """An entity that references another entity."""
 
 
-class RefsOne(Generic[_EntityT], RefsLink[_EntityT]):
+class RefsOne(RefsLink[_EntityT], Generic[_EntityT]):
     """An entity that can reference exactly one other entity."""
 
 
-class RefsAtMostOne(Generic[_EntityT], RefsLink[_EntityT]):
+class RefsAtMostOne(RefsLink[_EntityT], Generic[_EntityT]):
     """An entity that can reference at most one other entity."""
 
 
-class RefsAtMostOneCond(Generic[_EntityT], RefsLink[_EntityT]):
+class RefsAtMostOneCond(RefsLink[_EntityT], Generic[_EntityT]):
     """An entity that can reference at most one other entity."""
 
     self_cond: SelfCond
@@ -341,7 +341,7 @@ class RefsAtMostOneCond(Generic[_EntityT], RefsLink[_EntityT]):
         return True
 
 
-class RefsMany(Generic[_EntityT], RefsLink[_EntityT]):
+class RefsMany(RefsLink[_EntityT], Generic[_EntityT]):
     """An entity that can reference many other entities."""
 
 

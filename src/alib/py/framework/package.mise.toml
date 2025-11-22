@@ -2,29 +2,23 @@
 hide = true
 run = "true"
 
-["package:src:alib:py:framework:install"]
-hide = true
-sources = ["src/alib/py/framework/pyproject.toml"]
-outputs = { auto = true }
-run = "cd src/alib/py/framework && uv sync --active"
-
 ["package:src:alib:py:framework:fix:autoflake"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx autoflake --config=tasks/_resources/check/lint/autoflake src/alib/py/framework"
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/alib/py/framework"
 
 ["package:src:alib:py:framework:fix:black"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx black src/alib/py/framework"
+run = "uv run black src/alib/py/framework"
 
 ["package:src:alib:py:framework:fix:ruff"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework --fix"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework --fix"
 
 ["package:src:alib:py:framework:fix:markdownlint"]
 hide = true
@@ -47,13 +41,13 @@ run = "npx eslint src/alib/py/framework/package.mise.toml"
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "cd src/alib/py/framework && uvx mypy --config=../../../../tasks/_resources/check/lint/mypy --package jupiter.framework --explicit-package-bases --show-absolute-path"
+run = "cd src/alib/py/framework && uv run mypy --config=../../../../tasks/_resources/check/lint/mypy --package jupiter.framework --explicit-package-bases --show-absolute-path"
 
 ["package:src:alib:py:framework:lint:ruff"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/alib/py/framework"
 
 ["package:src:alib:py:framework:lint:markdownlint-readme"]
 hide = true
@@ -65,19 +59,19 @@ run = "npx markdownlint-cli2 src/alib/py/framework/README.md"
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx pyflakes src/alib/py/framework"
+run = "uv run pyflakes src/alib/py/framework"
 
 ["package:src:alib:py:framework:lint:bandit"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/alib/py/framework"
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/alib/py/framework"
 
 ["package:src:alib:py:framework:lint:pydocstyle"]
 hide = true
 sources = ["src/alib/py/framework/**/*.py"]
 outputs = { auto = true }
-run = "uvx pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/alib/py/framework"
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/alib/py/framework"
 
 ["package:src:alib:py:framework:lint"]
 description = "Check src/alib/py/framework module"
@@ -97,7 +91,7 @@ run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
 cd src/alib/py/framework
-uvx pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["package:src:alib:py:framework:audit"]

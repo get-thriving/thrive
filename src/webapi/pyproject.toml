@@ -33,7 +33,7 @@ dev = ["types-requests>=2.32.0,<3"]
 package = false
 
 [tool.uv.sources]
-jupiter-core = { path = "../core", editable = true }
+jupiter-core = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

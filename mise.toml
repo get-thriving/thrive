@@ -15,6 +15,7 @@ rust = "latest"
 uv = "latest"
 
 [env]
+UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"
 _.python.venv = { path = ".build-cache/venv", create = true }
 
 [task_config]
