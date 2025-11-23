@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -39,16 +41,16 @@ class PersonUpdateArgs:
     """
 
     ref_id: str
-    name: "PersonUpdateArgsName"
-    relationship: "PersonUpdateArgsRelationship"
-    catch_up_period: "PersonUpdateArgsCatchUpPeriod"
-    catch_up_eisen: "PersonUpdateArgsCatchUpEisen"
-    catch_up_difficulty: "PersonUpdateArgsCatchUpDifficulty"
-    catch_up_actionable_from_day: "PersonUpdateArgsCatchUpActionableFromDay"
-    catch_up_actionable_from_month: "PersonUpdateArgsCatchUpActionableFromMonth"
-    catch_up_due_at_day: "PersonUpdateArgsCatchUpDueAtDay"
-    catch_up_due_at_month: "PersonUpdateArgsCatchUpDueAtMonth"
-    birthday: "PersonUpdateArgsBirthday"
+    name: PersonUpdateArgsName
+    relationship: PersonUpdateArgsRelationship
+    catch_up_period: PersonUpdateArgsCatchUpPeriod
+    catch_up_eisen: PersonUpdateArgsCatchUpEisen
+    catch_up_difficulty: PersonUpdateArgsCatchUpDifficulty
+    catch_up_actionable_from_day: PersonUpdateArgsCatchUpActionableFromDay
+    catch_up_actionable_from_month: PersonUpdateArgsCatchUpActionableFromMonth
+    catch_up_due_at_day: PersonUpdateArgsCatchUpDueAtDay
+    catch_up_due_at_month: PersonUpdateArgsCatchUpDueAtMonth
+    birthday: PersonUpdateArgsBirthday
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

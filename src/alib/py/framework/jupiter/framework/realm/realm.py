@@ -67,7 +67,7 @@ class RealmDecodingError(Exception):
     """Error raised when a concept from a realm cannot be decoded to the domain model."""
 
 
-class RealmEncoder(Generic[_DomainThingT, _RealmT], abc.ABC):
+class RealmEncoder(abc.ABC, Generic[_DomainThingT, _RealmT]):
     """A encoder and decoder for a realm and a particular type."""
 
     @abc.abstractmethod
@@ -75,7 +75,7 @@ class RealmEncoder(Generic[_DomainThingT, _RealmT], abc.ABC):
         """Encode a domain thing to a realm."""
 
 
-class RealmDecoder(Generic[_DomainThingT, _RealmT], abc.ABC):
+class RealmDecoder(abc.ABC, Generic[_DomainThingT, _RealmT]):
     """A encoder and decoder for a realm and a particular type."""
 
     @abc.abstractmethod

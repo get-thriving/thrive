@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -21,8 +23,8 @@ class JournalCreateResult:
         new_note (Note): A note in the notebook.
     """
 
-    new_journal: "Journal"
-    new_note: "Note"
+    new_journal: Journal
+    new_note: Note
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

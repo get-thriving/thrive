@@ -126,7 +126,7 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=UseCaseResultBase)
 #     EntityLink
 
 
-class _LiteralEncoder(Generic[_RealmT], RealmEncoder[str, _RealmT]):
+class _LiteralEncoder(RealmEncoder[str, _RealmT], Generic[_RealmT]):
 
     _allowed_values: list[str]
     _realm: type[_RealmT]
@@ -141,7 +141,7 @@ class _LiteralEncoder(Generic[_RealmT], RealmEncoder[str, _RealmT]):
         return value
 
 
-class _LiteralDecoder(Generic[_RealmT], RealmDecoder[str, _RealmT]):
+class _LiteralDecoder(RealmDecoder[str, _RealmT], Generic[_RealmT]):
 
     _allowed_values: list[str]
     _realm: type[_RealmT]
@@ -235,7 +235,7 @@ class _UpdateActionWebDecoder(RealmDecoder[UpdateAction[DomainThing], WebRealm])
             ):
                 raise Exception("Off the beaten codepath")
 
-            field_type, is_optional = normalize_optional(self._the_type)
+            _, is_optional = normalize_optional(self._the_type)
             if "value" not in value:
                 if is_optional:
                     final_value = UpdateAction.change_to(None)
@@ -255,7 +255,7 @@ class _UpdateActionWebDecoder(RealmDecoder[UpdateAction[DomainThing], WebRealm])
         return final_value
 
 
-class _UnionEncoder(Generic[_RealmT], RealmEncoder[DomainThing, _RealmT]):
+class _UnionEncoder(RealmEncoder[DomainThing, _RealmT], Generic[_RealmT]):
     """An encoder for unions."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -291,7 +291,7 @@ class _UnionEncoder(Generic[_RealmT], RealmEncoder[DomainThing, _RealmT]):
         )
 
 
-class _UnionDecoder(Generic[_RealmT], RealmDecoder[DomainThing, _RealmT]):
+class _UnionDecoder(RealmDecoder[DomainThing, _RealmT], Generic[_RealmT]):
     """An ecnoder for unions."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -329,7 +329,7 @@ class _UnionDecoder(Generic[_RealmT], RealmDecoder[DomainThing, _RealmT]):
         )
 
 
-class _ListEncoder(Generic[_RealmT], RealmEncoder[list[DomainThing], _RealmT]):
+class _ListEncoder(RealmEncoder[list[DomainThing], _RealmT], Generic[_RealmT]):
     """An encoder for lists."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -357,7 +357,7 @@ class _ListEncoder(Generic[_RealmT], RealmEncoder[list[DomainThing], _RealmT]):
         return [encoder.encode(v) for v in value]
 
 
-class _ListDecoder(Generic[_RealmT], RealmDecoder[list[DomainThing], _RealmT]):
+class _ListDecoder(RealmDecoder[list[DomainThing], _RealmT], Generic[_RealmT]):
     """An encoder for lists."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -389,7 +389,7 @@ class _ListDecoder(Generic[_RealmT], RealmDecoder[list[DomainThing], _RealmT]):
         return [decoder.decode(v) for v in value]
 
 
-class _SetEncoder(Generic[_RealmT], RealmEncoder[set[DomainThing], _RealmT]):
+class _SetEncoder(RealmEncoder[set[DomainThing], _RealmT], Generic[_RealmT]):
     """An encoder for sets."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -417,7 +417,7 @@ class _SetEncoder(Generic[_RealmT], RealmEncoder[set[DomainThing], _RealmT]):
         return [encoder.encode(v) for v in value]
 
 
-class _SetDecoder(Generic[_RealmT], RealmDecoder[set[DomainThing], _RealmT]):
+class _SetDecoder(RealmDecoder[set[DomainThing], _RealmT], Generic[_RealmT]):
     """An encoder for sets."""
 
     _realm_codec_registry: Final[RealmCodecRegistry]
@@ -450,7 +450,7 @@ class _SetDecoder(Generic[_RealmT], RealmDecoder[set[DomainThing], _RealmT]):
 
 
 class _DictEncoder(
-    Generic[_RealmT], RealmEncoder[dict[DomainThing, DomainThing], _RealmT]
+    RealmEncoder[dict[DomainThing, DomainThing], _RealmT], Generic[_RealmT]
 ):
     """An encoder for dicts."""
 
@@ -495,7 +495,7 @@ class _DictEncoder(
 
 
 class _DictDecoder(
-    Generic[_RealmT], RealmDecoder[dict[DomainThing, DomainThing], _RealmT]
+    RealmDecoder[dict[DomainThing, DomainThing], _RealmT], Generic[_RealmT]
 ):
     """An encoder for dicts."""
 
@@ -537,7 +537,7 @@ class _DictDecoder(
 
 
 class _StandardPrimitiveDatabaseEncoder(
-    Generic[_PrimitiveT], RealmEncoder[_PrimitiveT, DatabaseRealm]
+    RealmEncoder[_PrimitiveT, DatabaseRealm], Generic[_PrimitiveT]
 ):
     """An encoder for primitive values."""
 
@@ -553,7 +553,7 @@ class _StandardPrimitiveDatabaseEncoder(
 
 
 class _StandardPrimitiveDatabaseDecoder(
-    Generic[_PrimitiveT], RealmDecoder[_PrimitiveT, DatabaseRealm]
+    RealmDecoder[_PrimitiveT, DatabaseRealm], Generic[_PrimitiveT]
 ):
     """A decoder for primitive values."""
 
@@ -575,7 +575,7 @@ class _StandardPrimitiveDatabaseDecoder(
 
 
 class PrimitiveAtomicValueDatabaseEncoder(
-    Generic[_AtomicValueT], RealmEncoder[_AtomicValueT, DatabaseRealm], abc.ABC
+    RealmEncoder[_AtomicValueT, DatabaseRealm], abc.ABC, Generic[_AtomicValueT]
 ):
     """An encoder for atomic values."""
 
@@ -589,8 +589,8 @@ class PrimitiveAtomicValueDatabaseEncoder(
 
 
 class PrimitiveAtomicValueDatabaseDecoder(
-    Generic[_AtomicValueT],
     RealmDecoder[_AtomicValueT, DatabaseRealm],
+    Generic[_AtomicValueT],
 ):
     """An encoder for atomic values."""
 
@@ -650,7 +650,7 @@ class PrimitiveAtomicValueDatabaseDecoder(
 
 
 class _StandardCompositeValueEncoder(
-    Generic[_CompositeValueT, _RealmT], RealmEncoder[_CompositeValueT, _RealmT]
+    RealmEncoder[_CompositeValueT, _RealmT], Generic[_CompositeValueT, _RealmT]
 ):
     """An encoder for composite values."""
 
@@ -682,7 +682,7 @@ class _StandardCompositeValueEncoder(
 
 
 class _StandardCompositeValueDecoder(
-    Generic[_CompositeValueT, _RealmT], RealmDecoder[_CompositeValueT, _RealmT]
+    RealmDecoder[_CompositeValueT, _RealmT], Generic[_CompositeValueT, _RealmT]
 ):
     """A decoder for composite values."""
 
@@ -726,7 +726,7 @@ class _StandardCompositeValueDecoder(
 
 
 class _StandardEnumValueDatabaseEncoder(
-    Generic[_EnumValueT], RealmEncoder[_EnumValueT, DatabaseRealm]
+    RealmEncoder[_EnumValueT, DatabaseRealm], Generic[_EnumValueT]
 ):
 
     _the_type: type[_EnumValueT]
@@ -741,7 +741,7 @@ class _StandardEnumValueDatabaseEncoder(
 
 
 class _StandardEnumValueDatabaseDecoder(
-    Generic[_EnumValueT], RealmDecoder[_EnumValueT, DatabaseRealm]
+    RealmDecoder[_EnumValueT, DatabaseRealm], Generic[_EnumValueT]
 ):
     """A codec for enums."""
 
@@ -769,7 +769,7 @@ class _StandardEnumValueDatabaseDecoder(
 
 
 class _StandardEntityEncoder(
-    Generic[_EntityT, _RealmT], RealmEncoder[_EntityT, _RealmT]
+    RealmEncoder[_EntityT, _RealmT], Generic[_EntityT, _RealmT]
 ):
     """An encoder for entities."""
 
@@ -810,7 +810,7 @@ class _StandardEntityEncoder(
 
 
 class _StandardEntityDecoder(
-    Generic[_EntityT, _RealmT], RealmDecoder[_EntityT, _RealmT]
+    RealmDecoder[_EntityT, _RealmT], Generic[_EntityT, _RealmT]
 ):
     """A decoder for entities."""
 
@@ -948,7 +948,7 @@ class _StandardEntityDecoder(
 
 
 class _StandardRecordEncoder(
-    Generic[_RecordT, _RealmT], RealmEncoder[_RecordT, _RealmT]
+    RealmEncoder[_RecordT, _RealmT], Generic[_RecordT, _RealmT]
 ):
     """An encoder for records."""
 
@@ -985,7 +985,7 @@ class _StandardRecordEncoder(
 
 
 class _StandardRecordDecoder(
-    Generic[_RecordT, _RealmT], RealmDecoder[_RecordT, _RealmT]
+    RealmDecoder[_RecordT, _RealmT], Generic[_RecordT, _RealmT]
 ):
     """A decoder for records."""
 
@@ -1063,7 +1063,7 @@ class _StandardRecordDecoder(
 
 
 class _StandardUseCaseArgsEventStoreEncoder(
-    Generic[_UseCaseArgsT], RealmEncoder[_UseCaseArgsT, EventStoreRealm]
+    RealmEncoder[_UseCaseArgsT, EventStoreRealm], Generic[_UseCaseArgsT]
 ):
     """An encoder for use case args."""
 
@@ -1090,7 +1090,7 @@ class _StandardUseCaseArgsEventStoreEncoder(
 
 
 class _StandardUseCaseArgsCliDecoder(
-    Generic[_UseCaseArgsT], RealmDecoder[_UseCaseArgsT, CliRealm]
+    RealmDecoder[_UseCaseArgsT, CliRealm], Generic[_UseCaseArgsT]
 ):
     """A decoder for use case args."""
 
@@ -1162,7 +1162,7 @@ class _StandardUseCaseArgsCliDecoder(
 
 
 class _StandardUseCaseArgsWebDecoder(
-    Generic[_UseCaseArgsT], RealmDecoder[_UseCaseArgsT, WebRealm]
+    RealmDecoder[_UseCaseArgsT, WebRealm], Generic[_UseCaseArgsT]
 ):
     """A decoder for use case args."""
 
@@ -1192,7 +1192,7 @@ class _StandardUseCaseArgsWebDecoder(
                         f"Cannot decode field {field.name} of {self._the_type.__name__} because it's a virtual field"
                     )
 
-                field_type, is_optional = normalize_optional(field.type)
+                _, is_optional = normalize_optional(field.type)
                 if field.name not in value:
                     if is_optional:
                         ctor_args[field.name] = None
@@ -1216,7 +1216,7 @@ class _StandardUseCaseArgsWebDecoder(
 
 
 class _StandardUseCaseResultWebEncoder(
-    Generic[_UseCaseResultT], RealmEncoder[_UseCaseResultT, WebRealm]
+    RealmEncoder[_UseCaseResultT, WebRealm], Generic[_UseCaseResultT]
 ):
     """An encoder for use case args."""
 

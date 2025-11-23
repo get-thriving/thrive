@@ -1,6 +1,7 @@
 # {{ warning }}
 
 [settings]
+python.uv_venv_auto = false
 lockfile = true
 
 [tools]
@@ -9,11 +10,13 @@ gcloud = "latest"
 "github:cli/cli" = "latest"
 jq = "latest"
 node = "22.14.0"
-poetry = "latest"
 python = "3.13.0"
 rust = "latest"
+uv = "latest"
+pnpm = "latest"
 
 [env]
+UV_PROJECT_ENVIRONMENT = "\{{ config_root }}/.build-cache/venv"
 _.python.venv = { path = ".build-cache/venv", create = true }
 
 [task_config]

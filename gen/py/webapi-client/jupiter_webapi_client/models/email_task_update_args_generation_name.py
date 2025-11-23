@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,17 +16,17 @@ class EmailTaskUpdateArgsGenerationName:
     """
     Attributes:
         should_change (bool):
-        value (Union[None, Unset, str]):
+        value (None | str | Unset):
     """
 
     should_change: bool
-    value: Union[None, Unset, str] = UNSET
+    value: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: Union[None, Unset, str]
+        value: None | str | Unset
         if isinstance(self.value, Unset):
             value = UNSET
         else:
@@ -47,12 +49,12 @@ class EmailTaskUpdateArgsGenerationName:
         d = dict(src_dict)
         should_change = d.pop("should_change")
 
-        def _parse_value(data: object) -> Union[None, Unset, str]:
+        def _parse_value(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         value = _parse_value(d.pop("value", UNSET))
 

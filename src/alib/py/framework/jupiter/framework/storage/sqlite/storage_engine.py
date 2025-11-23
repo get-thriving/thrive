@@ -195,9 +195,9 @@ class SqliteDomainUnitOfWork(DomainUnitOfWork):
 
 
 class _StandardSqliteRootEntityRepository(
-    Generic[_RootEntityT],
     SqliteRootEntityRepository[_RootEntityT],
     RootEntityRepository[_RootEntityT],
+    Generic[_RootEntityT],
 ):
     """A standard repository for root entities."""
 
@@ -215,9 +215,9 @@ class _StandardSqliteRootEntityRepository(
 
 
 class _StandardSqliteStubEntityRepository(
-    Generic[_StubEntityT],
     SqliteStubEntityRepository[_StubEntityT],
     StubEntityRepository[_StubEntityT],
+    Generic[_StubEntityT],
 ):
     """A standard repository for stub entities."""
 
@@ -235,9 +235,9 @@ class _StandardSqliteStubEntityRepository(
 
 
 class _StandardSqliteTrunkEntityRepository(
-    Generic[_TrunkEntityT],
     SqliteTrunkEntityRepository[_TrunkEntityT],
     TrunkEntityRepository[_TrunkEntityT],
+    Generic[_TrunkEntityT],
 ):
     """A standard repository for trunk entities."""
 
@@ -255,9 +255,9 @@ class _StandardSqliteTrunkEntityRepository(
 
 
 class _StandardSqliteCrownEntityRepository(
-    Generic[_CrownEntityT],
     SqliteCrownEntityRepository[_CrownEntityT],
     CrownEntityRepository[_CrownEntityT],
+    Generic[_CrownEntityT],
 ):
     """A standard repository for crown entities."""
 

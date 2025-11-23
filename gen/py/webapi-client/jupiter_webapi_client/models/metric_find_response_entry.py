@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,17 +24,17 @@ class MetricFindResponseEntry:
 
     Attributes:
         metric (Metric): A metric.
-        note (Union['Note', None, Unset]):
-        metric_entries (Union[None, Unset, list['MetricEntry']]):
-        metric_collection_inbox_tasks (Union[None, Unset, list['InboxTask']]):
-        metric_entry_notes (Union[None, Unset, list['Note']]):
+        note (None | Note | Unset):
+        metric_entries (list[MetricEntry] | None | Unset):
+        metric_collection_inbox_tasks (list[InboxTask] | None | Unset):
+        metric_entry_notes (list[Note] | None | Unset):
     """
 
-    metric: "Metric"
-    note: Union["Note", None, Unset] = UNSET
-    metric_entries: Union[None, Unset, list["MetricEntry"]] = UNSET
-    metric_collection_inbox_tasks: Union[None, Unset, list["InboxTask"]] = UNSET
-    metric_entry_notes: Union[None, Unset, list["Note"]] = UNSET
+    metric: Metric
+    note: None | Note | Unset = UNSET
+    metric_entries: list[MetricEntry] | None | Unset = UNSET
+    metric_collection_inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    metric_entry_notes: list[Note] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +42,7 @@ class MetricFindResponseEntry:
 
         metric = self.metric.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -48,7 +50,7 @@ class MetricFindResponseEntry:
         else:
             note = self.note
 
-        metric_entries: Union[None, Unset, list[dict[str, Any]]]
+        metric_entries: list[dict[str, Any]] | None | Unset
         if isinstance(self.metric_entries, Unset):
             metric_entries = UNSET
         elif isinstance(self.metric_entries, list):
@@ -60,7 +62,7 @@ class MetricFindResponseEntry:
         else:
             metric_entries = self.metric_entries
 
-        metric_collection_inbox_tasks: Union[None, Unset, list[dict[str, Any]]]
+        metric_collection_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.metric_collection_inbox_tasks, Unset):
             metric_collection_inbox_tasks = UNSET
         elif isinstance(self.metric_collection_inbox_tasks, list):
@@ -72,7 +74,7 @@ class MetricFindResponseEntry:
         else:
             metric_collection_inbox_tasks = self.metric_collection_inbox_tasks
 
-        metric_entry_notes: Union[None, Unset, list[dict[str, Any]]]
+        metric_entry_notes: list[dict[str, Any]] | None | Unset
         if isinstance(self.metric_entry_notes, Unset):
             metric_entry_notes = UNSET
         elif isinstance(self.metric_entry_notes, list):
@@ -112,7 +114,7 @@ class MetricFindResponseEntry:
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -123,13 +125,13 @@ class MetricFindResponseEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_metric_entries(data: object) -> Union[None, Unset, list["MetricEntry"]]:
+        def _parse_metric_entries(data: object) -> list[MetricEntry] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -145,13 +147,13 @@ class MetricFindResponseEntry:
                     metric_entries_type_0.append(metric_entries_type_0_item)
 
                 return metric_entries_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["MetricEntry"]], data)
+            return cast(list[MetricEntry] | None | Unset, data)
 
         metric_entries = _parse_metric_entries(d.pop("metric_entries", UNSET))
 
-        def _parse_metric_collection_inbox_tasks(data: object) -> Union[None, Unset, list["InboxTask"]]:
+        def _parse_metric_collection_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -169,15 +171,15 @@ class MetricFindResponseEntry:
                     metric_collection_inbox_tasks_type_0.append(metric_collection_inbox_tasks_type_0_item)
 
                 return metric_collection_inbox_tasks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["InboxTask"]], data)
+            return cast(list[InboxTask] | None | Unset, data)
 
         metric_collection_inbox_tasks = _parse_metric_collection_inbox_tasks(
             d.pop("metric_collection_inbox_tasks", UNSET)
         )
 
-        def _parse_metric_entry_notes(data: object) -> Union[None, Unset, list["Note"]]:
+        def _parse_metric_entry_notes(data: object) -> list[Note] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -193,9 +195,9 @@ class MetricFindResponseEntry:
                     metric_entry_notes_type_0.append(metric_entry_notes_type_0_item)
 
                 return metric_entry_notes_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["Note"]], data)
+            return cast(list[Note] | None | Unset, data)
 
         metric_entry_notes = _parse_metric_entry_notes(d.pop("metric_entry_notes", UNSET))
 

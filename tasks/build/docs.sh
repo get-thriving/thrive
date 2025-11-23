@@ -19,7 +19,7 @@ export COPYRIGHT
 
 log info "Building documentation"
 
-(cd src/docs && poetry install --only main --no-interaction --no-ansi --no-root)
+(cd src/docs && uv sync --active)
 
 mkdocs build --config-file src/docs/mkdocs.yml --site-dir ../../.build-cache/docs --clean
 

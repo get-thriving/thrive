@@ -98,15 +98,15 @@ class RecordLink(Generic[_RecordT]):
         self.filters = kwargs
 
 
-class ContainsRecordLink(Generic[_RecordT], RecordLink[_RecordT]):
+class ContainsRecordLink(RecordLink[_RecordT], Generic[_RecordT]):
     """A record link descriptor that contains records."""
 
 
-class ContainsManyRecords(Generic[_RecordT], ContainsRecordLink[_RecordT]):
+class ContainsManyRecords(ContainsRecordLink[_RecordT], Generic[_RecordT]):
     """A record link descriptor that contains many records."""
 
 
-class ContainsOneRecord(Generic[_RecordT], ContainsRecordLink[_RecordT]):
+class ContainsOneRecord(ContainsRecordLink[_RecordT], Generic[_RecordT]):
     """A record link descriptor that contains one record."""
 
 

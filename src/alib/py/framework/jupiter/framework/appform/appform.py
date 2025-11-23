@@ -12,7 +12,7 @@ _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 
 
-class AppForm(Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT], abc.ABC):
+class AppForm(abc.ABC, Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT]):
     """An application form."""
 
     _ports: _PortsT

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,28 +17,28 @@ class StatsDoArgs:
     """StatsDoArgs.
 
     Attributes:
-        today (Union[None, Unset, str]):
-        stats_targets (Union[None, Unset, list[SyncTarget]]):
-        filter_habit_ref_ids (Union[None, Unset, list[str]]):
-        filter_big_plan_ref_ids (Union[None, Unset, list[str]]):
-        filter_journal_ref_ids (Union[None, Unset, list[str]]):
+        today (None | str | Unset):
+        stats_targets (list[SyncTarget] | None | Unset):
+        filter_habit_ref_ids (list[str] | None | Unset):
+        filter_big_plan_ref_ids (list[str] | None | Unset):
+        filter_journal_ref_ids (list[str] | None | Unset):
     """
 
-    today: Union[None, Unset, str] = UNSET
-    stats_targets: Union[None, Unset, list[SyncTarget]] = UNSET
-    filter_habit_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_big_plan_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_journal_ref_ids: Union[None, Unset, list[str]] = UNSET
+    today: None | str | Unset = UNSET
+    stats_targets: list[SyncTarget] | None | Unset = UNSET
+    filter_habit_ref_ids: list[str] | None | Unset = UNSET
+    filter_big_plan_ref_ids: list[str] | None | Unset = UNSET
+    filter_journal_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        today: Union[None, Unset, str]
+        today: None | str | Unset
         if isinstance(self.today, Unset):
             today = UNSET
         else:
             today = self.today
 
-        stats_targets: Union[None, Unset, list[str]]
+        stats_targets: list[str] | None | Unset
         if isinstance(self.stats_targets, Unset):
             stats_targets = UNSET
         elif isinstance(self.stats_targets, list):
@@ -48,7 +50,7 @@ class StatsDoArgs:
         else:
             stats_targets = self.stats_targets
 
-        filter_habit_ref_ids: Union[None, Unset, list[str]]
+        filter_habit_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_habit_ref_ids, Unset):
             filter_habit_ref_ids = UNSET
         elif isinstance(self.filter_habit_ref_ids, list):
@@ -57,7 +59,7 @@ class StatsDoArgs:
         else:
             filter_habit_ref_ids = self.filter_habit_ref_ids
 
-        filter_big_plan_ref_ids: Union[None, Unset, list[str]]
+        filter_big_plan_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_big_plan_ref_ids, Unset):
             filter_big_plan_ref_ids = UNSET
         elif isinstance(self.filter_big_plan_ref_ids, list):
@@ -66,7 +68,7 @@ class StatsDoArgs:
         else:
             filter_big_plan_ref_ids = self.filter_big_plan_ref_ids
 
-        filter_journal_ref_ids: Union[None, Unset, list[str]]
+        filter_journal_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_journal_ref_ids, Unset):
             filter_journal_ref_ids = UNSET
         elif isinstance(self.filter_journal_ref_ids, list):
@@ -95,16 +97,16 @@ class StatsDoArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_today(data: object) -> Union[None, Unset, str]:
+        def _parse_today(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         today = _parse_today(d.pop("today", UNSET))
 
-        def _parse_stats_targets(data: object) -> Union[None, Unset, list[SyncTarget]]:
+        def _parse_stats_targets(data: object) -> list[SyncTarget] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -120,13 +122,13 @@ class StatsDoArgs:
                     stats_targets_type_0.append(stats_targets_type_0_item)
 
                 return stats_targets_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[SyncTarget]], data)
+            return cast(list[SyncTarget] | None | Unset, data)
 
         stats_targets = _parse_stats_targets(d.pop("stats_targets", UNSET))
 
-        def _parse_filter_habit_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_habit_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -137,13 +139,13 @@ class StatsDoArgs:
                 filter_habit_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_habit_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_habit_ref_ids = _parse_filter_habit_ref_ids(d.pop("filter_habit_ref_ids", UNSET))
 
-        def _parse_filter_big_plan_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_big_plan_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -154,13 +156,13 @@ class StatsDoArgs:
                 filter_big_plan_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_big_plan_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_big_plan_ref_ids = _parse_filter_big_plan_ref_ids(d.pop("filter_big_plan_ref_ids", UNSET))
 
-        def _parse_filter_journal_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_journal_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -171,9 +173,9 @@ class StatsDoArgs:
                 filter_journal_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_journal_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_journal_ref_ids = _parse_filter_journal_ref_ids(d.pop("filter_journal_ref_ids", UNSET))
 

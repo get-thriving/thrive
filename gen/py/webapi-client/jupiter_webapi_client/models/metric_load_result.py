@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,19 +24,19 @@ class MetricLoadResult:
 
     Attributes:
         metric (Metric): A metric.
-        metric_entries (list['MetricEntry']):
-        collection_tasks (list['InboxTask']):
+        metric_entries (list[MetricEntry]):
+        collection_tasks (list[InboxTask]):
         collection_tasks_total_cnt (int):
         collection_tasks_page_size (int):
-        note (Union['Note', None, Unset]):
+        note (None | Note | Unset):
     """
 
-    metric: "Metric"
-    metric_entries: list["MetricEntry"]
-    collection_tasks: list["InboxTask"]
+    metric: Metric
+    metric_entries: list[MetricEntry]
+    collection_tasks: list[InboxTask]
     collection_tasks_total_cnt: int
     collection_tasks_page_size: int
-    note: Union["Note", None, Unset] = UNSET
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,7 +58,7 @@ class MetricLoadResult:
 
         collection_tasks_page_size = self.collection_tasks_page_size
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -108,7 +110,7 @@ class MetricLoadResult:
 
         collection_tasks_page_size = d.pop("collection_tasks_page_size")
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -119,9 +121,9 @@ class MetricLoadResult:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 

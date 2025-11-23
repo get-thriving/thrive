@@ -129,8 +129,8 @@ _WebApiAppFormT = TypeVar("_WebApiAppFormT", bound="WebApiAppForm[Any, Any, Any]
 
 
 class WebApiAppForm(
-    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
     AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
 ):
     """A Web based API application."""
 

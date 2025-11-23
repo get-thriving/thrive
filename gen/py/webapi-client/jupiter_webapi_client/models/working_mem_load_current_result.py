@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,16 +20,16 @@ class WorkingMemLoadCurrentResult:
     """Working mem load current result.
 
     Attributes:
-        entry (Union['WorkingMemLoadCurrentEntry', None, Unset]):
+        entry (None | Unset | WorkingMemLoadCurrentEntry):
     """
 
-    entry: Union["WorkingMemLoadCurrentEntry", None, Unset] = UNSET
+    entry: None | Unset | WorkingMemLoadCurrentEntry = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry
 
-        entry: Union[None, Unset, dict[str, Any]]
+        entry: dict[str, Any] | None | Unset
         if isinstance(self.entry, Unset):
             entry = UNSET
         elif isinstance(self.entry, WorkingMemLoadCurrentEntry):
@@ -49,7 +51,7 @@ class WorkingMemLoadCurrentResult:
 
         d = dict(src_dict)
 
-        def _parse_entry(data: object) -> Union["WorkingMemLoadCurrentEntry", None, Unset]:
+        def _parse_entry(data: object) -> None | Unset | WorkingMemLoadCurrentEntry:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -60,9 +62,9 @@ class WorkingMemLoadCurrentResult:
                 entry_type_0 = WorkingMemLoadCurrentEntry.from_dict(data)
 
                 return entry_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["WorkingMemLoadCurrentEntry", None, Unset], data)
+            return cast(None | Unset | WorkingMemLoadCurrentEntry, data)
 
         entry = _parse_entry(d.pop("entry", UNSET))
 

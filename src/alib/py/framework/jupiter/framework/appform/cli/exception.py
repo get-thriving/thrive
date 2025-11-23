@@ -10,7 +10,7 @@ _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
-class CliExceptionHandler(Generic[_GlobalPropertiesT, _ExceptionT], abc.ABC):
+class CliExceptionHandler(abc.ABC, Generic[_GlobalPropertiesT, _ExceptionT]):
     """Base class for exception handlers."""
 
     _global_properties: _GlobalPropertiesT

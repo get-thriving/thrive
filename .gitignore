@@ -13,7 +13,6 @@ site
 .coverage
 .build-cache/
 .cache/
-.poetry/
 src/webui/build/
 src/webui/public/build/
 .env

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,26 +32,24 @@ class NoteCreateArgs:
     Attributes:
         domain (NoteDomain): The source of a note.
         source_entity_ref_id (str): A generic entity id.
-        content (list[Union['BulletedListBlock', 'ChecklistBlock', 'CodeBlock', 'DividerBlock', 'EntityReferenceBlock',
-            'HeadingBlock', 'LinkBlock', 'NumberedListBlock', 'ParagraphBlock', 'QuoteBlock', 'TableBlock']]):
+        content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
+            HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
     """
 
     domain: NoteDomain
     source_entity_ref_id: str
     content: list[
-        Union[
-            "BulletedListBlock",
-            "ChecklistBlock",
-            "CodeBlock",
-            "DividerBlock",
-            "EntityReferenceBlock",
-            "HeadingBlock",
-            "LinkBlock",
-            "NumberedListBlock",
-            "ParagraphBlock",
-            "QuoteBlock",
-            "TableBlock",
-        ]
+        BulletedListBlock
+        | ChecklistBlock
+        | CodeBlock
+        | DividerBlock
+        | EntityReferenceBlock
+        | HeadingBlock
+        | LinkBlock
+        | NumberedListBlock
+        | ParagraphBlock
+        | QuoteBlock
+        | TableBlock
     ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -134,26 +134,26 @@ class NoteCreateArgs:
 
             def _parse_content_item(
                 data: object,
-            ) -> Union[
-                "BulletedListBlock",
-                "ChecklistBlock",
-                "CodeBlock",
-                "DividerBlock",
-                "EntityReferenceBlock",
-                "HeadingBlock",
-                "LinkBlock",
-                "NumberedListBlock",
-                "ParagraphBlock",
-                "QuoteBlock",
-                "TableBlock",
-            ]:
+            ) -> (
+                BulletedListBlock
+                | ChecklistBlock
+                | CodeBlock
+                | DividerBlock
+                | EntityReferenceBlock
+                | HeadingBlock
+                | LinkBlock
+                | NumberedListBlock
+                | ParagraphBlock
+                | QuoteBlock
+                | TableBlock
+            ):
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
                     content_item_type_0 = ParagraphBlock.from_dict(data)
 
                     return content_item_type_0
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -161,7 +161,7 @@ class NoteCreateArgs:
                     content_item_type_1 = HeadingBlock.from_dict(data)
 
                     return content_item_type_1
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -169,7 +169,7 @@ class NoteCreateArgs:
                     content_item_type_2 = BulletedListBlock.from_dict(data)
 
                     return content_item_type_2
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -177,7 +177,7 @@ class NoteCreateArgs:
                     content_item_type_3 = NumberedListBlock.from_dict(data)
 
                     return content_item_type_3
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -185,7 +185,7 @@ class NoteCreateArgs:
                     content_item_type_4 = ChecklistBlock.from_dict(data)
 
                     return content_item_type_4
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -193,7 +193,7 @@ class NoteCreateArgs:
                     content_item_type_5 = TableBlock.from_dict(data)
 
                     return content_item_type_5
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -201,7 +201,7 @@ class NoteCreateArgs:
                     content_item_type_6 = CodeBlock.from_dict(data)
 
                     return content_item_type_6
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -209,7 +209,7 @@ class NoteCreateArgs:
                     content_item_type_7 = QuoteBlock.from_dict(data)
 
                     return content_item_type_7
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -217,7 +217,7 @@ class NoteCreateArgs:
                     content_item_type_8 = DividerBlock.from_dict(data)
 
                     return content_item_type_8
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -225,7 +225,7 @@ class NoteCreateArgs:
                     content_item_type_9 = LinkBlock.from_dict(data)
 
                     return content_item_type_9
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()

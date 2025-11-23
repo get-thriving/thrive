@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,25 +20,25 @@ class InboxTaskFindArgs:
         allow_archived (bool):
         include_notes (bool):
         include_time_event_blocks (bool):
-        filter_just_workable (Union[None, Unset, bool]):
-        filter_just_user (Union[None, Unset, bool]):
-        filter_just_generated (Union[None, Unset, bool]):
-        filter_ref_ids (Union[None, Unset, list[str]]):
-        filter_project_ref_ids (Union[None, Unset, list[str]]):
-        filter_sources (Union[None, Unset, list[InboxTaskSource]]):
-        filter_source_entity_ref_ids (Union[None, Unset, list[str]]):
+        filter_just_workable (bool | None | Unset):
+        filter_just_user (bool | None | Unset):
+        filter_just_generated (bool | None | Unset):
+        filter_ref_ids (list[str] | None | Unset):
+        filter_project_ref_ids (list[str] | None | Unset):
+        filter_sources (list[InboxTaskSource] | None | Unset):
+        filter_source_entity_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
     include_notes: bool
     include_time_event_blocks: bool
-    filter_just_workable: Union[None, Unset, bool] = UNSET
-    filter_just_user: Union[None, Unset, bool] = UNSET
-    filter_just_generated: Union[None, Unset, bool] = UNSET
-    filter_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_project_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_sources: Union[None, Unset, list[InboxTaskSource]] = UNSET
-    filter_source_entity_ref_ids: Union[None, Unset, list[str]] = UNSET
+    filter_just_workable: bool | None | Unset = UNSET
+    filter_just_user: bool | None | Unset = UNSET
+    filter_just_generated: bool | None | Unset = UNSET
+    filter_ref_ids: list[str] | None | Unset = UNSET
+    filter_project_ref_ids: list[str] | None | Unset = UNSET
+    filter_sources: list[InboxTaskSource] | None | Unset = UNSET
+    filter_source_entity_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,25 +48,25 @@ class InboxTaskFindArgs:
 
         include_time_event_blocks = self.include_time_event_blocks
 
-        filter_just_workable: Union[None, Unset, bool]
+        filter_just_workable: bool | None | Unset
         if isinstance(self.filter_just_workable, Unset):
             filter_just_workable = UNSET
         else:
             filter_just_workable = self.filter_just_workable
 
-        filter_just_user: Union[None, Unset, bool]
+        filter_just_user: bool | None | Unset
         if isinstance(self.filter_just_user, Unset):
             filter_just_user = UNSET
         else:
             filter_just_user = self.filter_just_user
 
-        filter_just_generated: Union[None, Unset, bool]
+        filter_just_generated: bool | None | Unset
         if isinstance(self.filter_just_generated, Unset):
             filter_just_generated = UNSET
         else:
             filter_just_generated = self.filter_just_generated
 
-        filter_ref_ids: Union[None, Unset, list[str]]
+        filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
             filter_ref_ids = UNSET
         elif isinstance(self.filter_ref_ids, list):
@@ -73,7 +75,7 @@ class InboxTaskFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_project_ref_ids: Union[None, Unset, list[str]]
+        filter_project_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_project_ref_ids, Unset):
             filter_project_ref_ids = UNSET
         elif isinstance(self.filter_project_ref_ids, list):
@@ -82,7 +84,7 @@ class InboxTaskFindArgs:
         else:
             filter_project_ref_ids = self.filter_project_ref_ids
 
-        filter_sources: Union[None, Unset, list[str]]
+        filter_sources: list[str] | None | Unset
         if isinstance(self.filter_sources, Unset):
             filter_sources = UNSET
         elif isinstance(self.filter_sources, list):
@@ -94,7 +96,7 @@ class InboxTaskFindArgs:
         else:
             filter_sources = self.filter_sources
 
-        filter_source_entity_ref_ids: Union[None, Unset, list[str]]
+        filter_source_entity_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_source_entity_ref_ids, Unset):
             filter_source_entity_ref_ids = UNSET
         elif isinstance(self.filter_source_entity_ref_ids, list):
@@ -138,34 +140,34 @@ class InboxTaskFindArgs:
 
         include_time_event_blocks = d.pop("include_time_event_blocks")
 
-        def _parse_filter_just_workable(data: object) -> Union[None, Unset, bool]:
+        def _parse_filter_just_workable(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         filter_just_workable = _parse_filter_just_workable(d.pop("filter_just_workable", UNSET))
 
-        def _parse_filter_just_user(data: object) -> Union[None, Unset, bool]:
+        def _parse_filter_just_user(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         filter_just_user = _parse_filter_just_user(d.pop("filter_just_user", UNSET))
 
-        def _parse_filter_just_generated(data: object) -> Union[None, Unset, bool]:
+        def _parse_filter_just_generated(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         filter_just_generated = _parse_filter_just_generated(d.pop("filter_just_generated", UNSET))
 
-        def _parse_filter_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -176,13 +178,13 @@ class InboxTaskFindArgs:
                 filter_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_project_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -193,13 +195,13 @@ class InboxTaskFindArgs:
                 filter_project_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_project_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
 
-        def _parse_filter_sources(data: object) -> Union[None, Unset, list[InboxTaskSource]]:
+        def _parse_filter_sources(data: object) -> list[InboxTaskSource] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -215,13 +217,13 @@ class InboxTaskFindArgs:
                     filter_sources_type_0.append(filter_sources_type_0_item)
 
                 return filter_sources_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[InboxTaskSource]], data)
+            return cast(list[InboxTaskSource] | None | Unset, data)
 
         filter_sources = _parse_filter_sources(d.pop("filter_sources", UNSET))
 
-        def _parse_filter_source_entity_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_source_entity_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -232,9 +234,9 @@ class InboxTaskFindArgs:
                 filter_source_entity_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_source_entity_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_source_entity_ref_ids = _parse_filter_source_entity_ref_ids(d.pop("filter_source_entity_ref_ids", UNSET))
 

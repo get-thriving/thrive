@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -37,15 +39,15 @@ class InboxTaskUpdateArgs:
     """
 
     ref_id: str
-    name: "InboxTaskUpdateArgsName"
-    status: "InboxTaskUpdateArgsStatus"
-    project_ref_id: "InboxTaskUpdateArgsProjectRefId"
-    big_plan_ref_id: "InboxTaskUpdateArgsBigPlanRefId"
-    is_key: "InboxTaskUpdateArgsIsKey"
-    eisen: "InboxTaskUpdateArgsEisen"
-    difficulty: "InboxTaskUpdateArgsDifficulty"
-    actionable_date: "InboxTaskUpdateArgsActionableDate"
-    due_date: "InboxTaskUpdateArgsDueDate"
+    name: InboxTaskUpdateArgsName
+    status: InboxTaskUpdateArgsStatus
+    project_ref_id: InboxTaskUpdateArgsProjectRefId
+    big_plan_ref_id: InboxTaskUpdateArgsBigPlanRefId
+    is_key: InboxTaskUpdateArgsIsKey
+    eisen: InboxTaskUpdateArgsEisen
+    difficulty: InboxTaskUpdateArgsDifficulty
+    actionable_date: InboxTaskUpdateArgsActionableDate
+    due_date: InboxTaskUpdateArgsDueDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -47,8 +47,8 @@ _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
 class JupiterGuestMutationCommand(
-    Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
     GuestMutationCommand[_JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestMutationContext, _UseCaseResultT],  # type: ignore
+    Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -68,8 +68,8 @@ class JupiterGuestMutationCommand(
 
 
 class JupiterGuestReadonlyCommand(
-    Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
     GuestReadonlyCommand[_JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestReadonlyContext, _UseCaseResultT],  # type: ignore
+    Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -89,8 +89,8 @@ class JupiterGuestReadonlyCommand(
 
 
 class JupiterLoggedInMutationCommand(
-    Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
     LoggedInMutationCommand[_JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInMutationContext, _UseCaseResultT],  # type: ignore
+    Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
@@ -110,8 +110,8 @@ class JupiterLoggedInMutationCommand(
 
 
 class JupiterLoggedInReadonlyCommand(
-    Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
     LoggedInReadonlyCommand[_JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInReadonlyContext, _UseCaseResultT],  # type: ignore
+    Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A logged in mutation commmand tailore to Jupiter."""
 
@@ -131,9 +131,9 @@ class JupiterLoggedInReadonlyCommand(
 
 
 class JupiterExceptionHandler(
-    Generic[_ExceptionT],
     CliExceptionHandler[JupiterGlobalProperties, _ExceptionT],
     abc.ABC,
+    Generic[_ExceptionT],
 ):
     """A Jupiter exception handler."""
 

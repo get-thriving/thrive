@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,29 +32,27 @@ class DocCreateArgs:
     Attributes:
         idempotency_key (str): A document idempotency key in this domain.
         name (str): The doc name.
-        content (list[Union['BulletedListBlock', 'ChecklistBlock', 'CodeBlock', 'DividerBlock', 'EntityReferenceBlock',
-            'HeadingBlock', 'LinkBlock', 'NumberedListBlock', 'ParagraphBlock', 'QuoteBlock', 'TableBlock']]):
-        parent_doc_ref_id (Union[None, Unset, str]):
+        content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
+            HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
+        parent_doc_ref_id (None | str | Unset):
     """
 
     idempotency_key: str
     name: str
     content: list[
-        Union[
-            "BulletedListBlock",
-            "ChecklistBlock",
-            "CodeBlock",
-            "DividerBlock",
-            "EntityReferenceBlock",
-            "HeadingBlock",
-            "LinkBlock",
-            "NumberedListBlock",
-            "ParagraphBlock",
-            "QuoteBlock",
-            "TableBlock",
-        ]
+        BulletedListBlock
+        | ChecklistBlock
+        | CodeBlock
+        | DividerBlock
+        | EntityReferenceBlock
+        | HeadingBlock
+        | LinkBlock
+        | NumberedListBlock
+        | ParagraphBlock
+        | QuoteBlock
+        | TableBlock
     ]
-    parent_doc_ref_id: Union[None, Unset, str] = UNSET
+    parent_doc_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -99,7 +99,7 @@ class DocCreateArgs:
 
             content.append(content_item)
 
-        parent_doc_ref_id: Union[None, Unset, str]
+        parent_doc_ref_id: None | str | Unset
         if isinstance(self.parent_doc_ref_id, Unset):
             parent_doc_ref_id = UNSET
         else:
@@ -144,26 +144,26 @@ class DocCreateArgs:
 
             def _parse_content_item(
                 data: object,
-            ) -> Union[
-                "BulletedListBlock",
-                "ChecklistBlock",
-                "CodeBlock",
-                "DividerBlock",
-                "EntityReferenceBlock",
-                "HeadingBlock",
-                "LinkBlock",
-                "NumberedListBlock",
-                "ParagraphBlock",
-                "QuoteBlock",
-                "TableBlock",
-            ]:
+            ) -> (
+                BulletedListBlock
+                | ChecklistBlock
+                | CodeBlock
+                | DividerBlock
+                | EntityReferenceBlock
+                | HeadingBlock
+                | LinkBlock
+                | NumberedListBlock
+                | ParagraphBlock
+                | QuoteBlock
+                | TableBlock
+            ):
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
                     content_item_type_0 = ParagraphBlock.from_dict(data)
 
                     return content_item_type_0
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -171,7 +171,7 @@ class DocCreateArgs:
                     content_item_type_1 = HeadingBlock.from_dict(data)
 
                     return content_item_type_1
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -179,7 +179,7 @@ class DocCreateArgs:
                     content_item_type_2 = BulletedListBlock.from_dict(data)
 
                     return content_item_type_2
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -187,7 +187,7 @@ class DocCreateArgs:
                     content_item_type_3 = NumberedListBlock.from_dict(data)
 
                     return content_item_type_3
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -195,7 +195,7 @@ class DocCreateArgs:
                     content_item_type_4 = ChecklistBlock.from_dict(data)
 
                     return content_item_type_4
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -203,7 +203,7 @@ class DocCreateArgs:
                     content_item_type_5 = TableBlock.from_dict(data)
 
                     return content_item_type_5
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -211,7 +211,7 @@ class DocCreateArgs:
                     content_item_type_6 = CodeBlock.from_dict(data)
 
                     return content_item_type_6
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -219,7 +219,7 @@ class DocCreateArgs:
                     content_item_type_7 = QuoteBlock.from_dict(data)
 
                     return content_item_type_7
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -227,7 +227,7 @@ class DocCreateArgs:
                     content_item_type_8 = DividerBlock.from_dict(data)
 
                     return content_item_type_8
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 try:
                     if not isinstance(data, dict):
@@ -235,7 +235,7 @@ class DocCreateArgs:
                     content_item_type_9 = LinkBlock.from_dict(data)
 
                     return content_item_type_9
-                except:  # noqa: E722
+                except (TypeError, ValueError, AttributeError, KeyError):
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -247,12 +247,12 @@ class DocCreateArgs:
 
             content.append(content_item)
 
-        def _parse_parent_doc_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_doc_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         parent_doc_ref_id = _parse_parent_doc_ref_id(d.pop("parent_doc_ref_id", UNSET))
 

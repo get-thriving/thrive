@@ -193,7 +193,7 @@ get_jupiter_port() {
 }
 
 get_namespace() {
-    poetry run codename -s '-'
+    uvx codename -s '-'
 }
 
 get_free_port() {

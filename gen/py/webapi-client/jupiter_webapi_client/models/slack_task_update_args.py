@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -37,15 +39,15 @@ class SlackTaskUpdateArgs:
     """
 
     ref_id: str
-    user: "SlackTaskUpdateArgsUser"
-    channel: "SlackTaskUpdateArgsChannel"
-    message: "SlackTaskUpdateArgsMessage"
-    generation_name: "SlackTaskUpdateArgsGenerationName"
-    generation_status: "SlackTaskUpdateArgsGenerationStatus"
-    generation_eisen: "SlackTaskUpdateArgsGenerationEisen"
-    generation_difficulty: "SlackTaskUpdateArgsGenerationDifficulty"
-    generation_actionable_date: "SlackTaskUpdateArgsGenerationActionableDate"
-    generation_due_date: "SlackTaskUpdateArgsGenerationDueDate"
+    user: SlackTaskUpdateArgsUser
+    channel: SlackTaskUpdateArgsChannel
+    message: SlackTaskUpdateArgsMessage
+    generation_name: SlackTaskUpdateArgsGenerationName
+    generation_status: SlackTaskUpdateArgsGenerationStatus
+    generation_eisen: SlackTaskUpdateArgsGenerationEisen
+    generation_difficulty: SlackTaskUpdateArgsGenerationDifficulty
+    generation_actionable_date: SlackTaskUpdateArgsGenerationActionableDate
+    generation_due_date: SlackTaskUpdateArgsGenerationDueDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

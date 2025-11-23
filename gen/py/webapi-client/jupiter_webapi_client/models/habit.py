@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,10 +32,10 @@ class Habit:
         is_key (bool):
         gen_params (RecurringTaskGenParams): Parameters for metric collection.
         suspended (bool):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        repeats_strategy (Union[HabitRepeatsStrategy, None, Unset]):
-        repeats_in_period_count (Union[None, Unset, int]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        repeats_strategy (HabitRepeatsStrategy | None | Unset):
+        repeats_in_period_count (int | None | Unset):
     """
 
     ref_id: str
@@ -45,12 +47,12 @@ class Habit:
     habit_collection_ref_id: str
     project_ref_id: str
     is_key: bool
-    gen_params: "RecurringTaskGenParams"
+    gen_params: RecurringTaskGenParams
     suspended: bool
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    repeats_strategy: Union[HabitRepeatsStrategy, None, Unset] = UNSET
-    repeats_in_period_count: Union[None, Unset, int] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    repeats_strategy: HabitRepeatsStrategy | None | Unset = UNSET
+    repeats_in_period_count: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -76,19 +78,19 @@ class Habit:
 
         suspended = self.suspended
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        repeats_strategy: Union[None, Unset, str]
+        repeats_strategy: None | str | Unset
         if isinstance(self.repeats_strategy, Unset):
             repeats_strategy = UNSET
         elif isinstance(self.repeats_strategy, HabitRepeatsStrategy):
@@ -96,7 +98,7 @@ class Habit:
         else:
             repeats_strategy = self.repeats_strategy
 
-        repeats_in_period_count: Union[None, Unset, int]
+        repeats_in_period_count: int | None | Unset
         if isinstance(self.repeats_in_period_count, Unset):
             repeats_in_period_count = UNSET
         else:
@@ -157,25 +159,25 @@ class Habit:
 
         suspended = d.pop("suspended")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_repeats_strategy(data: object) -> Union[HabitRepeatsStrategy, None, Unset]:
+        def _parse_repeats_strategy(data: object) -> HabitRepeatsStrategy | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -186,18 +188,18 @@ class Habit:
                 repeats_strategy_type_0 = HabitRepeatsStrategy(data)
 
                 return repeats_strategy_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[HabitRepeatsStrategy, None, Unset], data)
+            return cast(HabitRepeatsStrategy | None | Unset, data)
 
         repeats_strategy = _parse_repeats_strategy(d.pop("repeats_strategy", UNSET))
 
-        def _parse_repeats_in_period_count(data: object) -> Union[None, Unset, int]:
+        def _parse_repeats_in_period_count(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         repeats_in_period_count = _parse_repeats_in_period_count(d.pop("repeats_in_period_count", UNSET))
 

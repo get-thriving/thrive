@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,14 +21,14 @@ class JournalLoadForDateAndPeriodResult:
     """Result.
 
     Attributes:
-        sub_period_journals (list['Journal']):
-        journal (Union['Journal', None, Unset]):
-        journal_stats (Union['JournalStats', None, Unset]):
+        sub_period_journals (list[Journal]):
+        journal (Journal | None | Unset):
+        journal_stats (JournalStats | None | Unset):
     """
 
-    sub_period_journals: list["Journal"]
-    journal: Union["Journal", None, Unset] = UNSET
-    journal_stats: Union["JournalStats", None, Unset] = UNSET
+    sub_period_journals: list[Journal]
+    journal: Journal | None | Unset = UNSET
+    journal_stats: JournalStats | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +40,7 @@ class JournalLoadForDateAndPeriodResult:
             sub_period_journals_item = sub_period_journals_item_data.to_dict()
             sub_period_journals.append(sub_period_journals_item)
 
-        journal: Union[None, Unset, dict[str, Any]]
+        journal: dict[str, Any] | None | Unset
         if isinstance(self.journal, Unset):
             journal = UNSET
         elif isinstance(self.journal, Journal):
@@ -46,7 +48,7 @@ class JournalLoadForDateAndPeriodResult:
         else:
             journal = self.journal
 
-        journal_stats: Union[None, Unset, dict[str, Any]]
+        journal_stats: dict[str, Any] | None | Unset
         if isinstance(self.journal_stats, Unset):
             journal_stats = UNSET
         elif isinstance(self.journal_stats, JournalStats):
@@ -81,7 +83,7 @@ class JournalLoadForDateAndPeriodResult:
 
             sub_period_journals.append(sub_period_journals_item)
 
-        def _parse_journal(data: object) -> Union["Journal", None, Unset]:
+        def _parse_journal(data: object) -> Journal | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -92,13 +94,13 @@ class JournalLoadForDateAndPeriodResult:
                 journal_type_0 = Journal.from_dict(data)
 
                 return journal_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Journal", None, Unset], data)
+            return cast(Journal | None | Unset, data)
 
         journal = _parse_journal(d.pop("journal", UNSET))
 
-        def _parse_journal_stats(data: object) -> Union["JournalStats", None, Unset]:
+        def _parse_journal_stats(data: object) -> JournalStats | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -109,9 +111,9 @@ class JournalLoadForDateAndPeriodResult:
                 journal_stats_type_0 = JournalStats.from_dict(data)
 
                 return journal_stats_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["JournalStats", None, Unset], data)
+            return cast(JournalStats | None | Unset, data)
 
         journal_stats = _parse_journal_stats(d.pop("journal_stats", UNSET))
 

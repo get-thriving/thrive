@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -41,16 +43,16 @@ class MetricUpdateArgs:
     """
 
     ref_id: str
-    name: "MetricUpdateArgsName"
-    is_key: "MetricUpdateArgsIsKey"
-    icon: "MetricUpdateArgsIcon"
-    collection_period: "MetricUpdateArgsCollectionPeriod"
-    collection_eisen: "MetricUpdateArgsCollectionEisen"
-    collection_difficulty: "MetricUpdateArgsCollectionDifficulty"
-    collection_actionable_from_day: "MetricUpdateArgsCollectionActionableFromDay"
-    collection_actionable_from_month: "MetricUpdateArgsCollectionActionableFromMonth"
-    collection_due_at_day: "MetricUpdateArgsCollectionDueAtDay"
-    collection_due_at_month: "MetricUpdateArgsCollectionDueAtMonth"
+    name: MetricUpdateArgsName
+    is_key: MetricUpdateArgsIsKey
+    icon: MetricUpdateArgsIcon
+    collection_period: MetricUpdateArgsCollectionPeriod
+    collection_eisen: MetricUpdateArgsCollectionEisen
+    collection_difficulty: MetricUpdateArgsCollectionDifficulty
+    collection_actionable_from_day: MetricUpdateArgsCollectionActionableFromDay
+    collection_actionable_from_month: MetricUpdateArgsCollectionActionableFromMonth
+    collection_due_at_day: MetricUpdateArgsCollectionDueAtDay
+    collection_due_at_month: MetricUpdateArgsCollectionDueAtMonth
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

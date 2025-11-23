@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,13 +19,13 @@ class ProjectSummary:
         ref_id (str): A generic entity id.
         name (str): The project name.
         order_of_child_projects (list[str]):
-        parent_project_ref_id (Union[None, Unset, str]):
+        parent_project_ref_id (None | str | Unset):
     """
 
     ref_id: str
     name: str
     order_of_child_projects: list[str]
-    parent_project_ref_id: Union[None, Unset, str] = UNSET
+    parent_project_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +35,7 @@ class ProjectSummary:
 
         order_of_child_projects = self.order_of_child_projects
 
-        parent_project_ref_id: Union[None, Unset, str]
+        parent_project_ref_id: None | str | Unset
         if isinstance(self.parent_project_ref_id, Unset):
             parent_project_ref_id = UNSET
         else:
@@ -62,12 +64,12 @@ class ProjectSummary:
 
         order_of_child_projects = cast(list[str], d.pop("order_of_child_projects"))
 
-        def _parse_parent_project_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_project_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         parent_project_ref_id = _parse_parent_project_ref_id(d.pop("parent_project_ref_id", UNSET))
 

@@ -21,7 +21,7 @@ ExceptionDetailT = dict[
 ]
 
 
-class WebApiExceptionHandler(Generic[_GlobalPropertiesT, _ExceptionT], abc.ABC):
+class WebApiExceptionHandler(abc.ABC, Generic[_GlobalPropertiesT, _ExceptionT]):
     """An exception handler for the web."""
 
     _global_properties: _GlobalPropertiesT

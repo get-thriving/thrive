@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -32,12 +34,12 @@ class ScheduleExternalSyncLogEntry:
         end_of_window (str): A date or possibly a datetime for the application.
         sync_even_if_not_modified (bool):
         opened (bool):
-        per_stream_results (list['ScheduleExternalSyncLogPerStreamResult']):
-        entity_records (list['EntitySummary']):
+        per_stream_results (list[ScheduleExternalSyncLogPerStreamResult]):
+        entity_records (list[EntitySummary]):
         even_more_entity_records (bool):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        filter_schedule_stream_ref_id (Union[None, Unset, list[str]]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        filter_schedule_stream_ref_id (list[str] | None | Unset):
     """
 
     ref_id: str
@@ -53,12 +55,12 @@ class ScheduleExternalSyncLogEntry:
     end_of_window: str
     sync_even_if_not_modified: bool
     opened: bool
-    per_stream_results: list["ScheduleExternalSyncLogPerStreamResult"]
-    entity_records: list["EntitySummary"]
+    per_stream_results: list[ScheduleExternalSyncLogPerStreamResult]
+    entity_records: list[EntitySummary]
     even_more_entity_records: bool
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    filter_schedule_stream_ref_id: Union[None, Unset, list[str]] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    filter_schedule_stream_ref_id: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -100,19 +102,19 @@ class ScheduleExternalSyncLogEntry:
 
         even_more_entity_records = self.even_more_entity_records
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        filter_schedule_stream_ref_id: Union[None, Unset, list[str]]
+        filter_schedule_stream_ref_id: list[str] | None | Unset
         if isinstance(self.filter_schedule_stream_ref_id, Unset):
             filter_schedule_stream_ref_id = UNSET
         elif isinstance(self.filter_schedule_stream_ref_id, list):
@@ -200,25 +202,25 @@ class ScheduleExternalSyncLogEntry:
 
         even_more_entity_records = d.pop("even_more_entity_records")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_filter_schedule_stream_ref_id(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_schedule_stream_ref_id(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -229,9 +231,9 @@ class ScheduleExternalSyncLogEntry:
                 filter_schedule_stream_ref_id_type_0 = cast(list[str], data)
 
                 return filter_schedule_stream_ref_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_schedule_stream_ref_id = _parse_filter_schedule_stream_ref_id(
             d.pop("filter_schedule_stream_ref_id", UNSET)

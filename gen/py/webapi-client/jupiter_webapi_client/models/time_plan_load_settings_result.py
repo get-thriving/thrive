@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,17 +30,17 @@ class TimePlanLoadSettingsResult:
         periods (list[RecurringTaskPeriod]):
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanLoadSettingsResultGenerationInAdvanceDays):
-        planning_tasks (list['InboxTask']):
-        planning_task_project (Union['Project', None, Unset]):
-        planning_task_gen_params (Union['RecurringTaskGenParams', None, Unset]):
+        planning_tasks (list[InboxTask]):
+        planning_task_project (None | Project | Unset):
+        planning_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
-    generation_in_advance_days: "TimePlanLoadSettingsResultGenerationInAdvanceDays"
-    planning_tasks: list["InboxTask"]
-    planning_task_project: Union["Project", None, Unset] = UNSET
-    planning_task_gen_params: Union["RecurringTaskGenParams", None, Unset] = UNSET
+    generation_in_advance_days: TimePlanLoadSettingsResultGenerationInAdvanceDays
+    planning_tasks: list[InboxTask]
+    planning_task_project: None | Project | Unset = UNSET
+    planning_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -59,7 +61,7 @@ class TimePlanLoadSettingsResult:
             planning_tasks_item = planning_tasks_item_data.to_dict()
             planning_tasks.append(planning_tasks_item)
 
-        planning_task_project: Union[None, Unset, dict[str, Any]]
+        planning_task_project: dict[str, Any] | None | Unset
         if isinstance(self.planning_task_project, Unset):
             planning_task_project = UNSET
         elif isinstance(self.planning_task_project, Project):
@@ -67,7 +69,7 @@ class TimePlanLoadSettingsResult:
         else:
             planning_task_project = self.planning_task_project
 
-        planning_task_gen_params: Union[None, Unset, dict[str, Any]]
+        planning_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.planning_task_gen_params, Unset):
             planning_task_gen_params = UNSET
         elif isinstance(self.planning_task_gen_params, RecurringTaskGenParams):
@@ -122,7 +124,7 @@ class TimePlanLoadSettingsResult:
 
             planning_tasks.append(planning_tasks_item)
 
-        def _parse_planning_task_project(data: object) -> Union["Project", None, Unset]:
+        def _parse_planning_task_project(data: object) -> None | Project | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,13 +135,13 @@ class TimePlanLoadSettingsResult:
                 planning_task_project_type_0 = Project.from_dict(data)
 
                 return planning_task_project_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Project", None, Unset], data)
+            return cast(None | Project | Unset, data)
 
         planning_task_project = _parse_planning_task_project(d.pop("planning_task_project", UNSET))
 
-        def _parse_planning_task_gen_params(data: object) -> Union["RecurringTaskGenParams", None, Unset]:
+        def _parse_planning_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,9 +152,9 @@ class TimePlanLoadSettingsResult:
                 planning_task_gen_params_type_0 = RecurringTaskGenParams.from_dict(data)
 
                 return planning_task_gen_params_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["RecurringTaskGenParams", None, Unset], data)
+            return cast(None | RecurringTaskGenParams | Unset, data)
 
         planning_task_gen_params = _parse_planning_task_gen_params(d.pop("planning_task_gen_params", UNSET))
 

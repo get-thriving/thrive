@@ -1,36 +1,40 @@
-[tool.poetry]
-package-mode = false
+[project]
 name = "jupiter-webapi"
 version = "0.1.0"
 description = "A Web RPC-ish API for Thrive."
-authors = ["Horia Coman <horia141@gmail.com>"]
-license = "MIT"
-homepage = "https://get-thriving.com"
+authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+requires-python = ">=3.13,<4"
 readme = "README.md"
-repository = "https://github.com/horia141/thrive"
-documentation = "https://docs.get-thriving.com"
+license = "MIT"
+dependencies = [
+    "jupiter-core",
+    "fastapi>=0.115.11,<0.116",
+    "uvicorn>=0.34.0,<0.35",
+    "pydantic>=2.10.6,<3",
+    "websockets>=15.0.1,<16",
+    "gunicorn>=23.0.0,<24",
+    "python-multipart>=0.0.20,<0.0.21",
+    "apscheduler>=3.11.0,<4",
+    "inflection>=0.5.1,<0.6",
+    "aiohttp>=3.11.14,<4",
+    "wsproto>=1.2.0,<2",
+    "aiodns>=3.2.0,<4",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-jupiter-core = {path = "../core", develop = true}
-fastapi = "^0.115.11"
-uvicorn = "^0.34.0"
-pydantic = "^2.10.6"
-websockets = "^15.0.1"
-gunicorn = "^23.0.0"
-python-multipart = "^0.0.20"
-apscheduler = "^3.11.0"
-inflection = "^0.5.1"
-aiohttp = "^3.11.14"
-wsproto = "^1.2.0"
-aiodns = "^3.2.0"
+[project.urls]
+Homepage = "https://get-thriving.com"
+Repository = "https://github.com/horia141/thrive"
+Documentation = "https://docs.get-thriving.com"
 
-[tool.poetry.group.dev.dependencies]
-types-requests = "^2.32.0"
+[dependency-groups]
+dev = ["types-requests>=2.32.0,<3"]
 
-[tool.poetry.requires-plugins]
-poetry-plugin-export = ">=1.8"
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+jupiter-core = { workspace = true }
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

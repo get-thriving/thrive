@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +18,12 @@ class MetricEntryCreateArgs:
     Attributes:
         metric_ref_id (str): A generic entity id.
         value (float):
-        collection_time (Union[None, Unset, str]):
+        collection_time (None | str | Unset):
     """
 
     metric_ref_id: str
     value: float
-    collection_time: Union[None, Unset, str] = UNSET
+    collection_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +31,7 @@ class MetricEntryCreateArgs:
 
         value = self.value
 
-        collection_time: Union[None, Unset, str]
+        collection_time: None | str | Unset
         if isinstance(self.collection_time, Unset):
             collection_time = UNSET
         else:
@@ -55,12 +57,12 @@ class MetricEntryCreateArgs:
 
         value = d.pop("value")
 
-        def _parse_collection_time(data: object) -> Union[None, Unset, str]:
+        def _parse_collection_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         collection_time = _parse_collection_time(d.pop("collection_time", UNSET))
 

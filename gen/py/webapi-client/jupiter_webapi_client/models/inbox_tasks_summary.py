@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -23,11 +25,11 @@ class InboxTasksSummary:
         done (NestedResult): A result broken down by the various sources of inbox tasks.
     """
 
-    created: "NestedResult"
-    not_started: "NestedResult"
-    working: "NestedResult"
-    not_done: "NestedResult"
-    done: "NestedResult"
+    created: NestedResult
+    not_started: NestedResult
+    working: NestedResult
+    not_done: NestedResult
+    done: NestedResult
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

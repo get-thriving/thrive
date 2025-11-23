@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,10 +30,10 @@ class HomeTab:
         name (str): The name for an entity which acts as both name and unique identifier.
         home_config_ref_id (str):
         target (HomeTabTarget): A target for a tab.
-        widget_placement (Union['BigScreenHomeTabWidgetPlacement', 'SmallScreenHomeTabWidgetPlacement']):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        icon (Union[None, Unset, str]):
+        widget_placement (BigScreenHomeTabWidgetPlacement | SmallScreenHomeTabWidgetPlacement):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        icon (None | str | Unset):
     """
 
     ref_id: str
@@ -42,10 +44,10 @@ class HomeTab:
     name: str
     home_config_ref_id: str
     target: HomeTabTarget
-    widget_placement: Union["BigScreenHomeTabWidgetPlacement", "SmallScreenHomeTabWidgetPlacement"]
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    icon: Union[None, Unset, str] = UNSET
+    widget_placement: BigScreenHomeTabWidgetPlacement | SmallScreenHomeTabWidgetPlacement
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    icon: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -73,19 +75,19 @@ class HomeTab:
         else:
             widget_placement = self.widget_placement.to_dict()
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        icon: Union[None, Unset, str]
+        icon: None | str | Unset
         if isinstance(self.icon, Unset):
             icon = UNSET
         else:
@@ -139,14 +141,14 @@ class HomeTab:
 
         def _parse_widget_placement(
             data: object,
-        ) -> Union["BigScreenHomeTabWidgetPlacement", "SmallScreenHomeTabWidgetPlacement"]:
+        ) -> BigScreenHomeTabWidgetPlacement | SmallScreenHomeTabWidgetPlacement:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
                 widget_placement_type_0 = BigScreenHomeTabWidgetPlacement.from_dict(data)
 
                 return widget_placement_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
@@ -156,30 +158,30 @@ class HomeTab:
 
         widget_placement = _parse_widget_placement(d.pop("widget_placement"))
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_icon(data: object) -> Union[None, Unset, str]:
+        def _parse_icon(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         icon = _parse_icon(d.pop("icon", UNSET))
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -17,11 +19,11 @@ class SearchResult:
 
     Attributes:
         search_time (str): A date or possibly a datetime for the application.
-        matches (list['SearchMatch']):
+        matches (list[SearchMatch]):
     """
 
     search_time: str
-    matches: list["SearchMatch"]
+    matches: list[SearchMatch]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

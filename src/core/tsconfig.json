@@ -1,6 +1,6 @@
 {
   "include": ["editorjs.d.ts", "jupiter/core/**/*.ts", "jupiter/core/**/*.tsx"],
-  "exclude": ["**/*.py", "**/__pycache__", ".mypy_cache", ".poetry"],
+  "exclude": ["**/*.py", "**/__pycache__", ".mypy_cache"],
   "compilerOptions": {
     "skipLibCheck": true,
     "module": "ESNext",

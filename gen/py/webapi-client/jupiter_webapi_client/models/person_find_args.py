@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +21,7 @@ class PersonFindArgs:
         include_birthday_time_event_blocks (bool):
         include_catch_up_inbox_tasks (bool):
         include_birthday_inbox_tasks (bool):
-        filter_person_ref_ids (Union[None, Unset, list[str]]):
+        filter_person_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
@@ -27,7 +29,7 @@ class PersonFindArgs:
     include_birthday_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
     include_birthday_inbox_tasks: bool
-    filter_person_ref_ids: Union[None, Unset, list[str]] = UNSET
+    filter_person_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +43,7 @@ class PersonFindArgs:
 
         include_birthday_inbox_tasks = self.include_birthday_inbox_tasks
 
-        filter_person_ref_ids: Union[None, Unset, list[str]]
+        filter_person_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_person_ref_ids, Unset):
             filter_person_ref_ids = UNSET
         elif isinstance(self.filter_person_ref_ids, list):
@@ -79,7 +81,7 @@ class PersonFindArgs:
 
         include_birthday_inbox_tasks = d.pop("include_birthday_inbox_tasks")
 
-        def _parse_filter_person_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_person_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -90,9 +92,9 @@ class PersonFindArgs:
                 filter_person_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_person_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_person_ref_ids = _parse_filter_person_ref_ids(d.pop("filter_person_ref_ids", UNSET))
 

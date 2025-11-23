@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,17 +17,17 @@ class PersonUpdateArgsCatchUpEisen:
     """
     Attributes:
         should_change (bool):
-        value (Union[Eisen, None, Unset]):
+        value (Eisen | None | Unset):
     """
 
     should_change: bool
-    value: Union[Eisen, None, Unset] = UNSET
+    value: Eisen | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: Union[None, Unset, str]
+        value: None | str | Unset
         if isinstance(self.value, Unset):
             value = UNSET
         elif isinstance(self.value, Eisen):
@@ -50,7 +52,7 @@ class PersonUpdateArgsCatchUpEisen:
         d = dict(src_dict)
         should_change = d.pop("should_change")
 
-        def _parse_value(data: object) -> Union[Eisen, None, Unset]:
+        def _parse_value(data: object) -> Eisen | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -61,9 +63,9 @@ class PersonUpdateArgsCatchUpEisen:
                 value_type_0 = Eisen(data)
 
                 return value_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[Eisen, None, Unset], data)
+            return cast(Eisen | None | Unset, data)
 
         value = _parse_value(d.pop("value", UNSET))
 

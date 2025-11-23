@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -21,8 +23,8 @@ class TimePlanActivityFindForTargetResultEntry:
         time_plan_activity (TimePlanActivity): A certain activity that happens in a plan.
     """
 
-    time_plan: "TimePlan"
-    time_plan_activity: "TimePlanActivity"
+    time_plan: TimePlan
+    time_plan_activity: TimePlanActivity
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

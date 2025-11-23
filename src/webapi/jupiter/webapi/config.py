@@ -69,7 +69,6 @@ _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
 class JupiterGuestMutationCommand(
-    Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
     GuestMutationCommand[
         _JupiterGuestMutationUseCaseT,
         JupiterGlobalProperties,
@@ -77,6 +76,7 @@ class JupiterGuestMutationCommand(
         JupiterGuestMutationContext,
         _UseCaseResultT,
     ],
+    Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
 ):
     """A guest mutation commmand tailore to Jupiter."""
 
@@ -93,7 +93,6 @@ class JupiterGuestMutationCommand(
 
 
 class JupiterGuestReadonlyCommand(
-    Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
     GuestReadonlyCommand[
         _JupiterGuestReadonlyUseCaseT,
         JupiterGlobalProperties,
@@ -101,6 +100,7 @@ class JupiterGuestReadonlyCommand(
         JupiterGuestReadonlyContext,
         _UseCaseResultT,
     ],
+    Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A guest readonly command tailore to Jupiter."""
 
@@ -117,7 +117,6 @@ class JupiterGuestReadonlyCommand(
 
 
 class JupiterLoggedInMutationCommand(
-    Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
     LoggedInMutationCommand[
         _JupiterLoggedInMutationUseCaseT,
         JupiterGlobalProperties,
@@ -125,6 +124,7 @@ class JupiterLoggedInMutationCommand(
         JupiterLoggedInMutationContext,
         _UseCaseResultT,
     ],
+    Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
 ):
     """A logged in mutation command tailore to Jupiter."""
 
@@ -147,7 +147,6 @@ class JupiterLoggedInMutationCommand(
 
 
 class JupiterLoggedInReadonlyCommand(
-    Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
     LoggedInReadonlyCommand[
         _JupiterLoggedInReadonlyUseCaseT,
         JupiterGlobalProperties,
@@ -155,6 +154,7 @@ class JupiterLoggedInReadonlyCommand(
         JupiterLoggedInReadonlyContext,
         _UseCaseResultT,
     ],
+    Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A logged in readonly command tailore to Jupiter."""
 
@@ -177,9 +177,9 @@ class JupiterLoggedInReadonlyCommand(
 
 
 class JupiterExceptionHandler(
-    Generic[_ExceptionT],
     WebApiExceptionHandler[JupiterGlobalProperties, _ExceptionT],
     abc.ABC,
+    Generic[_ExceptionT],
 ):
     """A Jupiter exception handler."""
 

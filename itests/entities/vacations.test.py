@@ -86,12 +86,12 @@ def test_vacation_view_one(page: Page, create_vacation) -> None:
 def test_vacation_create(page: Page, browser: Browser) -> None:
     page.goto("/app/workspace/vacations")
     page.wait_for_selector("#trunk-panel")
-    page.locator("#trunk-new-leaf-entity").click()
+    page.locator("a[id='trunk-new-leaf-entity']").click()
     page.locator('input[name="name"]').fill("First Vacation")
     page.locator('input[name="startDate"]').fill("2024-12-10")
     page.locator('input[name="endDate"]').fill("2024-12-15")
 
-    page.locator("#vacation-create").click()
+    page.locator("button[id='vacation-create']").click()
 
     page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
 
@@ -113,9 +113,11 @@ def test_vacation_update(page: Page, create_vacation) -> None:
     page.locator('input[name="startDate"]').fill("2024-12-11")
     page.locator('input[name="endDate"]').fill("2024-12-16")
 
-    page.locator("#vacation-update").click()
+    page.locator("button[id='vacation-update']").click()
 
-    page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
+    page.wait_for_url("/app/workspace/vacations")
+
+    page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
     expect(page.locator('input[name="name"]')).to_have_value("Updated Vacation")
@@ -138,7 +140,7 @@ def test_vacation_create_note(page: Page, create_vacation) -> None:
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("#vacation-create-note").click()
+    page.locator("button[id='vacation-create-note']").click()
     page.wait_for_selector("#entity-block-editor")
 
     page.locator('#editorjs div[contenteditable="true"]').first.fill("This is a note.")
@@ -164,17 +166,19 @@ def test_vacation_archive(page: Page, create_vacation) -> None:
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
 
-    page.locator("#leaf-entity-archive").click()
-    page.locator("#leaf-entity-archive-confirm").click()
+    page.locator("button[id='leaf-entity-archive']").click()
+    page.locator("button[id='leaf-entity-archive-confirm']").click()
+
+    page.wait_for_url("/app/workspace/vacations")
 
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
 
-    expect(page.locator('input[name="name"]')).not_to_be_disabled()
-    expect(page.locator('input[name="startDate"]')).not_to_be_disabled()
-    expect(page.locator('input[name="endDate"]')).not_to_be_disabled()
+    expect(page.locator('input[name="name"]')).to_be_disabled()
+    expect(page.locator('input[name="startDate"]')).to_be_disabled()
+    expect(page.locator('input[name="endDate"]')).to_be_disabled()
 
-    expect(page.locator("#vacation-update")).to_be_disabled()
-    expect(page.locator("#vacation-create-note")).to_be_disabled()
+    expect(page.locator("button[id='vacation-update']")).to_be_disabled()
+    expect(page.locator("button[id='vacation-create-note']")).to_be_disabled()
 
     entity_id = page.url.split("/")[-1]
     expect(page.locator(f"#vacation-{entity_id}")).to_have_count(0)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -23,8 +25,8 @@ class InitResult:
         recovery_token (str): A recovery token for auth systems.
     """
 
-    new_user: "User"
-    new_workspace: "Workspace"
+    new_user: User
+    new_workspace: Workspace
     auth_token_ext: str
     recovery_token: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)

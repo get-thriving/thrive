@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,26 +22,26 @@ class PersonCreateArgs:
     Attributes:
         name (str): The person name.
         relationship (PersonRelationship): The relationship the user has with a person.
-        catch_up_period (Union[None, RecurringTaskPeriod, Unset]):
-        catch_up_eisen (Union[Eisen, None, Unset]):
-        catch_up_difficulty (Union[Difficulty, None, Unset]):
-        catch_up_actionable_from_day (Union[None, Unset, int]):
-        catch_up_actionable_from_month (Union[None, Unset, int]):
-        catch_up_due_at_day (Union[None, Unset, int]):
-        catch_up_due_at_month (Union[None, Unset, int]):
-        birthday (Union[None, Unset, str]):
+        catch_up_period (None | RecurringTaskPeriod | Unset):
+        catch_up_eisen (Eisen | None | Unset):
+        catch_up_difficulty (Difficulty | None | Unset):
+        catch_up_actionable_from_day (int | None | Unset):
+        catch_up_actionable_from_month (int | None | Unset):
+        catch_up_due_at_day (int | None | Unset):
+        catch_up_due_at_month (int | None | Unset):
+        birthday (None | str | Unset):
     """
 
     name: str
     relationship: PersonRelationship
-    catch_up_period: Union[None, RecurringTaskPeriod, Unset] = UNSET
-    catch_up_eisen: Union[Eisen, None, Unset] = UNSET
-    catch_up_difficulty: Union[Difficulty, None, Unset] = UNSET
-    catch_up_actionable_from_day: Union[None, Unset, int] = UNSET
-    catch_up_actionable_from_month: Union[None, Unset, int] = UNSET
-    catch_up_due_at_day: Union[None, Unset, int] = UNSET
-    catch_up_due_at_month: Union[None, Unset, int] = UNSET
-    birthday: Union[None, Unset, str] = UNSET
+    catch_up_period: None | RecurringTaskPeriod | Unset = UNSET
+    catch_up_eisen: Eisen | None | Unset = UNSET
+    catch_up_difficulty: Difficulty | None | Unset = UNSET
+    catch_up_actionable_from_day: int | None | Unset = UNSET
+    catch_up_actionable_from_month: int | None | Unset = UNSET
+    catch_up_due_at_day: int | None | Unset = UNSET
+    catch_up_due_at_month: int | None | Unset = UNSET
+    birthday: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -47,7 +49,7 @@ class PersonCreateArgs:
 
         relationship = self.relationship.value
 
-        catch_up_period: Union[None, Unset, str]
+        catch_up_period: None | str | Unset
         if isinstance(self.catch_up_period, Unset):
             catch_up_period = UNSET
         elif isinstance(self.catch_up_period, RecurringTaskPeriod):
@@ -55,7 +57,7 @@ class PersonCreateArgs:
         else:
             catch_up_period = self.catch_up_period
 
-        catch_up_eisen: Union[None, Unset, str]
+        catch_up_eisen: None | str | Unset
         if isinstance(self.catch_up_eisen, Unset):
             catch_up_eisen = UNSET
         elif isinstance(self.catch_up_eisen, Eisen):
@@ -63,7 +65,7 @@ class PersonCreateArgs:
         else:
             catch_up_eisen = self.catch_up_eisen
 
-        catch_up_difficulty: Union[None, Unset, str]
+        catch_up_difficulty: None | str | Unset
         if isinstance(self.catch_up_difficulty, Unset):
             catch_up_difficulty = UNSET
         elif isinstance(self.catch_up_difficulty, Difficulty):
@@ -71,31 +73,31 @@ class PersonCreateArgs:
         else:
             catch_up_difficulty = self.catch_up_difficulty
 
-        catch_up_actionable_from_day: Union[None, Unset, int]
+        catch_up_actionable_from_day: int | None | Unset
         if isinstance(self.catch_up_actionable_from_day, Unset):
             catch_up_actionable_from_day = UNSET
         else:
             catch_up_actionable_from_day = self.catch_up_actionable_from_day
 
-        catch_up_actionable_from_month: Union[None, Unset, int]
+        catch_up_actionable_from_month: int | None | Unset
         if isinstance(self.catch_up_actionable_from_month, Unset):
             catch_up_actionable_from_month = UNSET
         else:
             catch_up_actionable_from_month = self.catch_up_actionable_from_month
 
-        catch_up_due_at_day: Union[None, Unset, int]
+        catch_up_due_at_day: int | None | Unset
         if isinstance(self.catch_up_due_at_day, Unset):
             catch_up_due_at_day = UNSET
         else:
             catch_up_due_at_day = self.catch_up_due_at_day
 
-        catch_up_due_at_month: Union[None, Unset, int]
+        catch_up_due_at_month: int | None | Unset
         if isinstance(self.catch_up_due_at_month, Unset):
             catch_up_due_at_month = UNSET
         else:
             catch_up_due_at_month = self.catch_up_due_at_month
 
-        birthday: Union[None, Unset, str]
+        birthday: None | str | Unset
         if isinstance(self.birthday, Unset):
             birthday = UNSET
         else:
@@ -135,7 +137,7 @@ class PersonCreateArgs:
 
         relationship = PersonRelationship(d.pop("relationship"))
 
-        def _parse_catch_up_period(data: object) -> Union[None, RecurringTaskPeriod, Unset]:
+        def _parse_catch_up_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -146,13 +148,13 @@ class PersonCreateArgs:
                 catch_up_period_type_0 = RecurringTaskPeriod(data)
 
                 return catch_up_period_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, RecurringTaskPeriod, Unset], data)
+            return cast(None | RecurringTaskPeriod | Unset, data)
 
         catch_up_period = _parse_catch_up_period(d.pop("catch_up_period", UNSET))
 
-        def _parse_catch_up_eisen(data: object) -> Union[Eisen, None, Unset]:
+        def _parse_catch_up_eisen(data: object) -> Eisen | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -163,13 +165,13 @@ class PersonCreateArgs:
                 catch_up_eisen_type_0 = Eisen(data)
 
                 return catch_up_eisen_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[Eisen, None, Unset], data)
+            return cast(Eisen | None | Unset, data)
 
         catch_up_eisen = _parse_catch_up_eisen(d.pop("catch_up_eisen", UNSET))
 
-        def _parse_catch_up_difficulty(data: object) -> Union[Difficulty, None, Unset]:
+        def _parse_catch_up_difficulty(data: object) -> Difficulty | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -180,56 +182,56 @@ class PersonCreateArgs:
                 catch_up_difficulty_type_0 = Difficulty(data)
 
                 return catch_up_difficulty_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[Difficulty, None, Unset], data)
+            return cast(Difficulty | None | Unset, data)
 
         catch_up_difficulty = _parse_catch_up_difficulty(d.pop("catch_up_difficulty", UNSET))
 
-        def _parse_catch_up_actionable_from_day(data: object) -> Union[None, Unset, int]:
+        def _parse_catch_up_actionable_from_day(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         catch_up_actionable_from_day = _parse_catch_up_actionable_from_day(d.pop("catch_up_actionable_from_day", UNSET))
 
-        def _parse_catch_up_actionable_from_month(data: object) -> Union[None, Unset, int]:
+        def _parse_catch_up_actionable_from_month(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         catch_up_actionable_from_month = _parse_catch_up_actionable_from_month(
             d.pop("catch_up_actionable_from_month", UNSET)
         )
 
-        def _parse_catch_up_due_at_day(data: object) -> Union[None, Unset, int]:
+        def _parse_catch_up_due_at_day(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         catch_up_due_at_day = _parse_catch_up_due_at_day(d.pop("catch_up_due_at_day", UNSET))
 
-        def _parse_catch_up_due_at_month(data: object) -> Union[None, Unset, int]:
+        def _parse_catch_up_due_at_month(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         catch_up_due_at_month = _parse_catch_up_due_at_month(d.pop("catch_up_due_at_month", UNSET))
 
-        def _parse_birthday(data: object) -> Union[None, Unset, str]:
+        def _parse_birthday(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         birthday = _parse_birthday(d.pop("birthday", UNSET))
 

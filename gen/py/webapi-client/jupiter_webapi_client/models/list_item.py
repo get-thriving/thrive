@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -13,11 +15,11 @@ class ListItem:
 
     Attributes:
         text (str):
-        items (list['ListItem']):
+        items (list[ListItem]):
     """
 
     text: str
-    items: list["ListItem"]
+    items: list[ListItem]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
