@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -27,7 +29,7 @@ class HabitStreakMark:
     last_modified_time: str
     habit_ref_id: str
     date: str
-    statuses: "HabitStreakMarkStatuses"
+    statuses: HabitStreakMarkStatuses
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

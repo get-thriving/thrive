@@ -104,6 +104,7 @@ class ContextBase(abc.ABC):
 
 
 class UseCase(
+    abc.ABC,
     Generic[
         _PortsT,
         _GlobalPropertiesT,
@@ -113,7 +114,6 @@ class UseCase(
         _UseCaseArgsT,
         _UseCaseResultT,
     ],
-    abc.ABC,
 ):
     """A generic use case."""
 
@@ -168,15 +168,6 @@ class EmptyContext(ContextBase):
 
 
 class MutationUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _SessionT,
-        _ContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     UseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -187,6 +178,15 @@ class MutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _SessionT,
+        _ContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of mutation."""
 
@@ -273,15 +273,6 @@ class MutationUseCase(
 
 
 class ReadonlyUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _SessionT,
-        _ContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     UseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -292,6 +283,15 @@ class ReadonlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _SessionT,
+        _ContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which only does reads."""
 
@@ -360,15 +360,6 @@ _GuestMutationContextT = TypeVar("_GuestMutationContextT", bound=GuestMutationCo
 
 
 class GuestMutationUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _GuestSessionT,
-        _GuestMutationContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     MutationUseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -379,6 +370,15 @@ class GuestMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _GuestSessionT,
+        _GuestMutationContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of mutation for the app, but does not assume a logged-in user."""
 
@@ -441,15 +441,6 @@ _GuestReadonlyContextT = TypeVar("_GuestReadonlyContextT", bound=GuestReadonlyCo
 
 
 class GuestReadonlyUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _GuestSessionT,
-        _GuestReadonlyContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     ReadonlyUseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -460,6 +451,15 @@ class GuestReadonlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _GuestSessionT,
+        _GuestReadonlyContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A query which does not mutate anything, and does not assume a logged-in user."""
 
@@ -532,15 +532,6 @@ _LoggedInMutationContextT = TypeVar(
 
 
 class LoggedInMutationUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _LoggedInSessionT,
-        _LoggedInMutationContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     MutationUseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -551,6 +542,15 @@ class LoggedInMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _LoggedInSessionT,
+        _LoggedInMutationContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of mutation for the app, and assumes a logged-in user."""
 
@@ -679,15 +679,6 @@ class LoggedInMutationUseCase(
 
 
 class TransactionalLoggedInMutationUseCase(
-    Generic[
-        _DomainPortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _LoggedInSessionT,
-        _LoggedInMutationContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     LoggedInMutationUseCase[
         _DomainPortsT,
         _GlobalPropertiesT,
@@ -698,6 +689,15 @@ class TransactionalLoggedInMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _DomainPortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _LoggedInSessionT,
+        _LoggedInMutationContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of mutation for the app transactionally, and assumes a logged-in user."""
 
@@ -748,15 +748,6 @@ _LoggedInReadonlyContextT = TypeVar(
 
 
 class LoggedInReadonlyUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _LoggedInSessionT,
-        _LoggedInReadonlyContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     ReadonlyUseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -767,6 +758,15 @@ class LoggedInReadonlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _LoggedInSessionT,
+        _LoggedInReadonlyContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of read in the app, and assumes a logged-in user."""
 
@@ -856,15 +856,6 @@ class LoggedInReadonlyUseCase(
 
 
 class TransactionalLoggedInReadOnlyUseCase(
-    Generic[
-        _DomainPortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _LoggedInSessionT,
-        _LoggedInReadonlyContextT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     LoggedInReadonlyUseCase[
         _DomainPortsT,
         _GlobalPropertiesT,
@@ -875,6 +866,15 @@ class TransactionalLoggedInReadOnlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _DomainPortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _LoggedInSessionT,
+        _LoggedInReadonlyContextT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of transactional read in the app, and assumes a logged-in user."""
 
@@ -898,13 +898,6 @@ class TransactionalLoggedInReadOnlyUseCase(
 
 
 class BackgroundMutationUseCase(
-    Generic[
-        _PortsT,
-        _GlobalPropertiesT,
-        _ComponentPropertiesT,
-        _UseCaseArgsT,
-        _UseCaseResultT,
-    ],
     UseCase[
         _PortsT,
         _GlobalPropertiesT,
@@ -915,6 +908,13 @@ class BackgroundMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[
+        _PortsT,
+        _GlobalPropertiesT,
+        _ComponentPropertiesT,
+        _UseCaseArgsT,
+        _UseCaseResultT,
+    ],
 ):
     """A command which does some sort of mutation for the app in the background."""
 

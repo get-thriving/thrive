@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,18 +27,18 @@ class BigPlanLoadResult:
     Attributes:
         big_plan (BigPlan): A big plan.
         project (Project): The project.
-        milestones (list['BigPlanMilestone']):
-        inbox_tasks (list['InboxTask']):
+        milestones (list[BigPlanMilestone]):
+        inbox_tasks (list[InboxTask]):
         stats (BigPlanStats): Stats about a big plan.
-        note (Union['Note', None, Unset]):
+        note (None | Note | Unset):
     """
 
-    big_plan: "BigPlan"
-    project: "Project"
-    milestones: list["BigPlanMilestone"]
-    inbox_tasks: list["InboxTask"]
-    stats: "BigPlanStats"
-    note: Union["Note", None, Unset] = UNSET
+    big_plan: BigPlan
+    project: Project
+    milestones: list[BigPlanMilestone]
+    inbox_tasks: list[InboxTask]
+    stats: BigPlanStats
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +60,7 @@ class BigPlanLoadResult:
 
         stats = self.stats.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -112,7 +114,7 @@ class BigPlanLoadResult:
 
         stats = BigPlanStats.from_dict(d.pop("stats"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -123,9 +125,9 @@ class BigPlanLoadResult:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 

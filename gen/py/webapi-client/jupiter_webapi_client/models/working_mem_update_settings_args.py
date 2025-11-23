@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -23,8 +25,8 @@ class WorkingMemUpdateSettingsArgs:
         cleanup_project_ref_id (WorkingMemUpdateSettingsArgsCleanupProjectRefId):
     """
 
-    generation_period: "WorkingMemUpdateSettingsArgsGenerationPeriod"
-    cleanup_project_ref_id: "WorkingMemUpdateSettingsArgsCleanupProjectRefId"
+    generation_period: WorkingMemUpdateSettingsArgsGenerationPeriod
+    cleanup_project_ref_id: WorkingMemUpdateSettingsArgsCleanupProjectRefId
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

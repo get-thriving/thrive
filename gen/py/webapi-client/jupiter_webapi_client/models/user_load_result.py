@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +23,13 @@ class UserLoadResult:
 
     Attributes:
         user (User): A user of jupiter.
-        user_score_overview (Union['UserScoreOverview', None, Unset]):
-        user_score_history (Union['UserScoreHistory', None, Unset]):
+        user_score_overview (None | Unset | UserScoreOverview):
+        user_score_history (None | Unset | UserScoreHistory):
     """
 
-    user: "User"
-    user_score_overview: Union["UserScoreOverview", None, Unset] = UNSET
-    user_score_history: Union["UserScoreHistory", None, Unset] = UNSET
+    user: User
+    user_score_overview: None | Unset | UserScoreOverview = UNSET
+    user_score_history: None | Unset | UserScoreHistory = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +38,7 @@ class UserLoadResult:
 
         user = self.user.to_dict()
 
-        user_score_overview: Union[None, Unset, dict[str, Any]]
+        user_score_overview: dict[str, Any] | None | Unset
         if isinstance(self.user_score_overview, Unset):
             user_score_overview = UNSET
         elif isinstance(self.user_score_overview, UserScoreOverview):
@@ -44,7 +46,7 @@ class UserLoadResult:
         else:
             user_score_overview = self.user_score_overview
 
-        user_score_history: Union[None, Unset, dict[str, Any]]
+        user_score_history: dict[str, Any] | None | Unset
         if isinstance(self.user_score_history, Unset):
             user_score_history = UNSET
         elif isinstance(self.user_score_history, UserScoreHistory):
@@ -75,7 +77,7 @@ class UserLoadResult:
         d = dict(src_dict)
         user = User.from_dict(d.pop("user"))
 
-        def _parse_user_score_overview(data: object) -> Union["UserScoreOverview", None, Unset]:
+        def _parse_user_score_overview(data: object) -> None | Unset | UserScoreOverview:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,13 +88,13 @@ class UserLoadResult:
                 user_score_overview_type_0 = UserScoreOverview.from_dict(data)
 
                 return user_score_overview_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["UserScoreOverview", None, Unset], data)
+            return cast(None | Unset | UserScoreOverview, data)
 
         user_score_overview = _parse_user_score_overview(d.pop("user_score_overview", UNSET))
 
-        def _parse_user_score_history(data: object) -> Union["UserScoreHistory", None, Unset]:
+        def _parse_user_score_history(data: object) -> None | Unset | UserScoreHistory:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +105,9 @@ class UserLoadResult:
                 user_score_history_type_0 = UserScoreHistory.from_dict(data)
 
                 return user_score_history_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["UserScoreHistory", None, Unset], data)
+            return cast(None | Unset | UserScoreHistory, data)
 
         user_score_history = _parse_user_score_history(d.pop("user_score_history", UNSET))
 

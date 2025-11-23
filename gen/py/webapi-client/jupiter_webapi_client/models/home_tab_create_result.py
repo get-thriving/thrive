@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -19,7 +21,7 @@ class HomeTabCreateResult:
         new_home_tab (HomeTab): A tab on the home page.
     """
 
-    new_home_tab: "HomeTab"
+    new_home_tab: HomeTab
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,17 +17,17 @@ class SmartListCreateArgs:
 
     Attributes:
         name (str): The smart list name.
-        icon (Union[None, Unset, str]):
+        icon (None | str | Unset):
     """
 
     name: str
-    icon: Union[None, Unset, str] = UNSET
+    icon: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        icon: Union[None, Unset, str]
+        icon: None | str | Unset
         if isinstance(self.icon, Unset):
             icon = UNSET
         else:
@@ -48,12 +50,12 @@ class SmartListCreateArgs:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_icon(data: object) -> Union[None, Unset, str]:
+        def _parse_icon(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         icon = _parse_icon(d.pop("icon", UNSET))
 

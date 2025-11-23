@@ -6,29 +6,23 @@ playwright install-deps
 playwright install
 '''
 
-["package:itests:install"]
-hide = true
-sources = ["itests/pyproject.toml"]
-outputs = { auto = true }
-run = "cd itests && poetry install --no-interaction --no-ansi"
-
 ["package:itests:fix:autoflake"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake itests"
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake itests"
 
 ["package:itests:fix:black"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run black itests"
+run = "uv run black itests"
 
 ["package:itests:fix:ruff"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests --fix"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests --fix"
 
 ["package:itests:fix:markdownlint"]
 hide = true
@@ -51,13 +45,13 @@ run = "npx eslint itests/package.mise.toml"
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run mypy --config=tasks/_resources/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
+run = "uv run mypy --config=tasks/_resources/check/lint/mypy --explicit-package-bases --show-absolute-path itests"
 
 ["package:itests:lint:ruff"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml itests"
 
 ["package:itests:lint:markdownlint-readme"]
 hide = true
@@ -69,19 +63,19 @@ run = "npx markdownlint-cli2 itests/README.md"
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pyflakes itests"
+run = "uv run pyflakes itests"
 
 ["package:itests:lint:bandit"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.test.ini -r itests"
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.test.ini -r itests"
 
 ["package:itests:lint:pydocstyle"]
 hide = true
 sources = ["itests/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle itests"
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle itests"
 
 ["package:itests:lint"]
 description = "Check itests module"
@@ -90,7 +84,12 @@ run = "true"
 
 ["package:itests:audit:pip-audit"]
 hide = true
-run = "poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)"
+run = """
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/webapi
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+"""
 
 ["package:itests:audit"]
 description = "Audit itests module"

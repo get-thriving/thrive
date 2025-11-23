@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -18,11 +20,11 @@ class PersonFindResult:
 
     Attributes:
         catch_up_project (Project): The project.
-        entries (list['PersonFindResultEntry']):
+        entries (list[PersonFindResultEntry]):
     """
 
-    catch_up_project: "Project"
-    entries: list["PersonFindResultEntry"]
+    catch_up_project: Project
+    entries: list[PersonFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

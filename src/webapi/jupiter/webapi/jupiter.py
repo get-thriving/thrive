@@ -37,7 +37,7 @@ from jupiter.framework.time_provider import (
     PerRequestTimeProvider,
 )
 from jupiter.webapi.config import JupiterWebApiAppForm
-from rich import print
+from rich import print as rich_print
 from rich.console import Console
 from rich.logging import RichHandler
 
@@ -142,12 +142,12 @@ async def main() -> None:
     # await search_storage_engine.initialize()
     # await usecase_storage_engine.initialize()
 
-    print("=" * 80)
-    print("Starting Jupiter WebAPI:")
-    print(f"  Version: {global_properties.version}")
-    print(f"  Environment: {global_properties.env}")
-    print(f"  Hosting: {global_properties.hosting}")
-    print("=" * 80)
+    rich_print("=" * 80)
+    rich_print("Starting Jupiter WebAPI:")
+    rich_print(f"  Version: {global_properties.version}")
+    rich_print(f"  Environment: {global_properties.env}")
+    rich_print(f"  Hosting: {global_properties.hosting}")
+    rich_print("=" * 80)
 
     try:
         await web_app_form.run(sys.argv)

@@ -13,4 +13,4 @@ source tasks/_common.sh
 : "${usage_migration_name:=}"
 
 # Run Alembic revision command
-poetry run alembic -c src/core/migrations/alembic.ini revision -m "$usage_migration_name"
+uvx alembic -c src/core/migrations/alembic.ini revision -m "$usage_migration_name"

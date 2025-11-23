@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -34,28 +36,28 @@ class ReportPeriodResult:
         breakdowns (list[ReportBreakdown]):
         global_inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
         global_big_plans_summary (WorkableSummary): The reporting summary.
-        per_project_breakdown (list['PerProjectBreakdownItem']):
-        per_period_breakdown (list['PerPeriodBreakdownItem']):
-        per_habit_breakdown (list['PerHabitBreakdownItem']):
-        per_chore_breakdown (list['PerChoreBreakdownItem']):
-        per_big_plan_breakdown (list['PerBigPlanBreakdownItem']):
-        breakdown_period (Union[None, RecurringTaskPeriod, Unset]):
-        user_score_overview (Union['UserScoreOverview', None, Unset]):
+        per_project_breakdown (list[PerProjectBreakdownItem]):
+        per_period_breakdown (list[PerPeriodBreakdownItem]):
+        per_habit_breakdown (list[PerHabitBreakdownItem]):
+        per_chore_breakdown (list[PerChoreBreakdownItem]):
+        per_big_plan_breakdown (list[PerBigPlanBreakdownItem]):
+        breakdown_period (None | RecurringTaskPeriod | Unset):
+        user_score_overview (None | Unset | UserScoreOverview):
     """
 
     today: str
     period: RecurringTaskPeriod
     sources: list[InboxTaskSource]
     breakdowns: list[ReportBreakdown]
-    global_inbox_tasks_summary: "InboxTasksSummary"
-    global_big_plans_summary: "WorkableSummary"
-    per_project_breakdown: list["PerProjectBreakdownItem"]
-    per_period_breakdown: list["PerPeriodBreakdownItem"]
-    per_habit_breakdown: list["PerHabitBreakdownItem"]
-    per_chore_breakdown: list["PerChoreBreakdownItem"]
-    per_big_plan_breakdown: list["PerBigPlanBreakdownItem"]
-    breakdown_period: Union[None, RecurringTaskPeriod, Unset] = UNSET
-    user_score_overview: Union["UserScoreOverview", None, Unset] = UNSET
+    global_inbox_tasks_summary: InboxTasksSummary
+    global_big_plans_summary: WorkableSummary
+    per_project_breakdown: list[PerProjectBreakdownItem]
+    per_period_breakdown: list[PerPeriodBreakdownItem]
+    per_habit_breakdown: list[PerHabitBreakdownItem]
+    per_chore_breakdown: list[PerChoreBreakdownItem]
+    per_big_plan_breakdown: list[PerBigPlanBreakdownItem]
+    breakdown_period: None | RecurringTaskPeriod | Unset = UNSET
+    user_score_overview: None | Unset | UserScoreOverview = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -104,7 +106,7 @@ class ReportPeriodResult:
             per_big_plan_breakdown_item = per_big_plan_breakdown_item_data.to_dict()
             per_big_plan_breakdown.append(per_big_plan_breakdown_item)
 
-        breakdown_period: Union[None, Unset, str]
+        breakdown_period: None | str | Unset
         if isinstance(self.breakdown_period, Unset):
             breakdown_period = UNSET
         elif isinstance(self.breakdown_period, RecurringTaskPeriod):
@@ -112,7 +114,7 @@ class ReportPeriodResult:
         else:
             breakdown_period = self.breakdown_period
 
-        user_score_overview: Union[None, Unset, dict[str, Any]]
+        user_score_overview: dict[str, Any] | None | Unset
         if isinstance(self.user_score_overview, Unset):
             user_score_overview = UNSET
         elif isinstance(self.user_score_overview, UserScoreOverview):
@@ -213,7 +215,7 @@ class ReportPeriodResult:
 
             per_big_plan_breakdown.append(per_big_plan_breakdown_item)
 
-        def _parse_breakdown_period(data: object) -> Union[None, RecurringTaskPeriod, Unset]:
+        def _parse_breakdown_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -224,13 +226,13 @@ class ReportPeriodResult:
                 breakdown_period_type_0 = RecurringTaskPeriod(data)
 
                 return breakdown_period_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, RecurringTaskPeriod, Unset], data)
+            return cast(None | RecurringTaskPeriod | Unset, data)
 
         breakdown_period = _parse_breakdown_period(d.pop("breakdown_period", UNSET))
 
-        def _parse_user_score_overview(data: object) -> Union["UserScoreOverview", None, Unset]:
+        def _parse_user_score_overview(data: object) -> None | Unset | UserScoreOverview:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -241,9 +243,9 @@ class ReportPeriodResult:
                 user_score_overview_type_0 = UserScoreOverview.from_dict(data)
 
                 return user_score_overview_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["UserScoreOverview", None, Unset], data)
+            return cast(None | Unset | UserScoreOverview, data)
 
         user_score_overview = _parse_user_score_overview(d.pop("user_score_overview", UNSET))
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +23,13 @@ class WorkingMemFindResultEntry:
 
     Attributes:
         working_mem (WorkingMem): An entry in the working_mem.txt system.
-        note (Union['Note', None, Unset]):
-        cleanup_task (Union['InboxTask', None, Unset]):
+        note (None | Note | Unset):
+        cleanup_task (InboxTask | None | Unset):
     """
 
-    working_mem: "WorkingMem"
-    note: Union["Note", None, Unset] = UNSET
-    cleanup_task: Union["InboxTask", None, Unset] = UNSET
+    working_mem: WorkingMem
+    note: None | Note | Unset = UNSET
+    cleanup_task: InboxTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +38,7 @@ class WorkingMemFindResultEntry:
 
         working_mem = self.working_mem.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -44,7 +46,7 @@ class WorkingMemFindResultEntry:
         else:
             note = self.note
 
-        cleanup_task: Union[None, Unset, dict[str, Any]]
+        cleanup_task: dict[str, Any] | None | Unset
         if isinstance(self.cleanup_task, Unset):
             cleanup_task = UNSET
         elif isinstance(self.cleanup_task, InboxTask):
@@ -75,7 +77,7 @@ class WorkingMemFindResultEntry:
         d = dict(src_dict)
         working_mem = WorkingMem.from_dict(d.pop("working_mem"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,13 +88,13 @@ class WorkingMemFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_cleanup_task(data: object) -> Union["InboxTask", None, Unset]:
+        def _parse_cleanup_task(data: object) -> InboxTask | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +105,9 @@ class WorkingMemFindResultEntry:
                 cleanup_task_type_0 = InboxTask.from_dict(data)
 
                 return cleanup_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["InboxTask", None, Unset], data)
+            return cast(InboxTask | None | Unset, data)
 
         cleanup_task = _parse_cleanup_task(d.pop("cleanup_task", UNSET))
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -19,7 +21,7 @@ class SmartListItemCreateResult:
         new_smart_list_item (SmartListItem): A smart list item.
     """
 
-    new_smart_list_item: "SmartListItem"
+    new_smart_list_item: SmartListItem
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

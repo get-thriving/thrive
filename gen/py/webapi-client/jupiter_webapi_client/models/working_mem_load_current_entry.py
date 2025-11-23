@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -23,9 +25,9 @@ class WorkingMemLoadCurrentEntry:
         cleanup_task (InboxTask): An inbox task.
     """
 
-    working_mem: "WorkingMem"
-    note: "Note"
-    cleanup_task: "InboxTask"
+    working_mem: WorkingMem
+    note: Note
+    cleanup_task: InboxTask
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

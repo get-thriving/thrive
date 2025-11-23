@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -21,8 +23,8 @@ class WorkableSummary:
         working_cnt (int):
         not_done_cnt (int):
         done_cnt (int):
-        not_done_big_plans (list['WorkableBigPlan']):
-        done_big_plans (list['WorkableBigPlan']):
+        not_done_big_plans (list[WorkableBigPlan]):
+        done_big_plans (list[WorkableBigPlan]):
     """
 
     created_cnt: int
@@ -30,8 +32,8 @@ class WorkableSummary:
     working_cnt: int
     not_done_cnt: int
     done_cnt: int
-    not_done_big_plans: list["WorkableBigPlan"]
-    done_big_plans: list["WorkableBigPlan"]
+    not_done_big_plans: list[WorkableBigPlan]
+    done_big_plans: list[WorkableBigPlan]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

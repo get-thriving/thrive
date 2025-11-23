@@ -79,7 +79,7 @@ class Command:
     """The base class for all commands."""
 
 
-class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
+class UseCaseCommand(Command, abc.ABC, Generic[_GlobalPropertiesT, _UseCaseT]):
     """A command that is a use case."""
 
     _global_properties: _GlobalPropertiesT
@@ -214,6 +214,8 @@ class UseCaseCommand(Generic[_GlobalPropertiesT, _UseCaseT], Command, abc.ABC):
 
 
 class GuestMutationCommand(
+    UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
+    abc.ABC,
     Generic[
         _GuestMutationUseCaseT,
         _GlobalPropertiesT,
@@ -221,8 +223,6 @@ class GuestMutationCommand(
         _GuestMutationContextT,
         _UseCaseResultT,
     ],
-    UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
-    abc.ABC,
 ):
     """Base class for commands which do not require authentication."""
 
@@ -261,6 +261,8 @@ class GuestMutationCommand(
 
 
 class GuestReadonlyCommand(
+    UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
+    abc.ABC,
     Generic[
         _GuestReadonlyUseCaseT,
         _GlobalPropertiesT,
@@ -268,8 +270,6 @@ class GuestReadonlyCommand(
         _GuestReadonlyContextT,
         _UseCaseResultT,
     ],
-    UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
-    abc.ABC,
 ):
     """Base class for commands which just read and present data."""
 
@@ -307,6 +307,8 @@ class GuestReadonlyCommand(
 
 
 class LoggedInMutationCommand(
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
+    abc.ABC,
     Generic[
         _LoggedInMutationUseCaseT,
         _GlobalPropertiesT,
@@ -314,8 +316,6 @@ class LoggedInMutationCommand(
         _LoggedInMutationContextT,
         _UseCaseResultT,
     ],
-    UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
-    abc.ABC,
 ):
     """Base class for commands which require authentication."""
 
@@ -354,6 +354,8 @@ class LoggedInMutationCommand(
 
 
 class LoggedInReadonlyCommand(
+    UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
+    abc.ABC,
     Generic[
         _LoggedInReadonlyUseCaseT,
         _GlobalPropertiesT,
@@ -361,8 +363,6 @@ class LoggedInReadonlyCommand(
         _LoggedInReadonlyContextT,
         _UseCaseResultT,
     ],
-    UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
-    abc.ABC,
 ):
     """Base class for commands which just read and present data."""
 
@@ -401,9 +401,9 @@ class LoggedInReadonlyCommand(
 
 
 class CronCommand(
-    Generic[_BackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
     UseCaseCommand[_GlobalPropertiesT, _BackgroundMutationUseCaseT],
     abc.ABC,
+    Generic[_BackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
 ):
     """Base class for commands which just read and present data."""
 

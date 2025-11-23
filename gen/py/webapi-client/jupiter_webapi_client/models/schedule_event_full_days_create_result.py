@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -21,8 +23,8 @@ class ScheduleEventFullDaysCreateResult:
         new_time_event_full_day_block (TimeEventFullDaysBlock): A full day block of time.
     """
 
-    new_schedule_event_full_days: "ScheduleEventFullDays"
-    new_time_event_full_day_block: "TimeEventFullDaysBlock"
+    new_schedule_event_full_days: ScheduleEventFullDays
+    new_time_event_full_day_block: TimeEventFullDaysBlock
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

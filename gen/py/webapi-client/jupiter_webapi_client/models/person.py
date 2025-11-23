@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,10 +29,10 @@ class Person:
         name (str): The person name.
         person_collection_ref_id (str):
         relationship (PersonRelationship): The relationship the user has with a person.
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        catch_up_params (Union['RecurringTaskGenParams', None, Unset]):
-        birthday (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        catch_up_params (None | RecurringTaskGenParams | Unset):
+        birthday (None | str | Unset):
     """
 
     ref_id: str
@@ -41,10 +43,10 @@ class Person:
     name: str
     person_collection_ref_id: str
     relationship: PersonRelationship
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    catch_up_params: Union["RecurringTaskGenParams", None, Unset] = UNSET
-    birthday: Union[None, Unset, str] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    catch_up_params: None | RecurringTaskGenParams | Unset = UNSET
+    birthday: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -66,19 +68,19 @@ class Person:
 
         relationship = self.relationship.value
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        catch_up_params: Union[None, Unset, dict[str, Any]]
+        catch_up_params: dict[str, Any] | None | Unset
         if isinstance(self.catch_up_params, Unset):
             catch_up_params = UNSET
         elif isinstance(self.catch_up_params, RecurringTaskGenParams):
@@ -86,7 +88,7 @@ class Person:
         else:
             catch_up_params = self.catch_up_params
 
-        birthday: Union[None, Unset, str]
+        birthday: None | str | Unset
         if isinstance(self.birthday, Unset):
             birthday = UNSET
         else:
@@ -138,25 +140,25 @@ class Person:
 
         relationship = PersonRelationship(d.pop("relationship"))
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_catch_up_params(data: object) -> Union["RecurringTaskGenParams", None, Unset]:
+        def _parse_catch_up_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -167,18 +169,18 @@ class Person:
                 catch_up_params_type_0 = RecurringTaskGenParams.from_dict(data)
 
                 return catch_up_params_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["RecurringTaskGenParams", None, Unset], data)
+            return cast(None | RecurringTaskGenParams | Unset, data)
 
         catch_up_params = _parse_catch_up_params(d.pop("catch_up_params", UNSET))
 
-        def _parse_birthday(data: object) -> Union[None, Unset, str]:
+        def _parse_birthday(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         birthday = _parse_birthday(d.pop("birthday", UNSET))
 

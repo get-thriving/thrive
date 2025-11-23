@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,14 +22,14 @@ class WorkingMemLoadResult:
     Attributes:
         working_mem (WorkingMem): An entry in the working_mem.txt system.
         note (Note): A note in the notebook.
-        cleanup_tasks (list['InboxTask']):
+        cleanup_tasks (list[InboxTask]):
         cleanup_tasks_total_cnt (int):
         cleanup_tasks_page_size (int):
     """
 
-    working_mem: "WorkingMem"
-    note: "Note"
-    cleanup_tasks: list["InboxTask"]
+    working_mem: WorkingMem
+    note: Note
+    cleanup_tasks: list[InboxTask]
     cleanup_tasks_total_cnt: int
     cleanup_tasks_page_size: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)

@@ -2,13 +2,6 @@
 hide = true
 run = "true"
 
-["package:src:webapi:install"]
-hide = true
-sources = ["src/webapi/pyproject.toml"]
-outputs = { auto = true }
-run = "cd src/webapi && poetry install --no-interaction --no-ansi"
-wait_for = ["package:src:core:install"]
-
 ["package:src:webapi:fix:markdownlint"]
 hide = true
 sources = ["src/webapi/README.md"]
@@ -19,19 +12,19 @@ run = "npx markdownlint-cli2 --fix src/webapi/README.md"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi"
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/webapi"
 
 ["package:src:webapi:fix:black"]
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run black src/webapi"
+run = "uv run black src/webapi"
 
 ["package:src:webapi:fix:ruff"]
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi --fix"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi --fix"
 
 ["package:src:webapi:fix"]
 description = "Fix src/webapi module"
@@ -65,14 +58,14 @@ env.MYPYPATH = "../core"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "cd src/webapi && poetry run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
+run = "cd src/webapi && uv run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.webapi --package tests --explicit-package-bases --show-absolute-path"
 
 ["package:src:webapi:lint:ruff"]
 env.MYPYPATH = "../core"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi"
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/webapi"
 
 ["package:src:webapi:lint:markdownlint-readme"]
 hide = true
@@ -84,19 +77,19 @@ run = "npx markdownlint-cli2 src/webapi/README.md"
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pyflakes src/webapi"
+run = "uv run pyflakes src/webapi"
 
 ["package:src:webapi:lint:bandit"]
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi"
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/webapi"
 
 ["package:src:webapi:lint:pydocstyle"]
 hide = true
 sources = ["src/webapi/**/*.py"]
 outputs = { auto = true }
-run = "poetry run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi"
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/webapi"
 
 ["package:src:webapi:lint"]
 description = "Check src/webapi module"
@@ -109,7 +102,7 @@ run = '''
 #!/usr/bin/env bash
 set -e -o pipefail
 cd src/webapi
-poetry run pip-audit -r <(poetry export -f requirements.txt --all-groups --without-hashes)
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
 '''
 
 ["package:src:webapi:audit"]

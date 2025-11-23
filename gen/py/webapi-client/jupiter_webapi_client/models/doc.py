@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,9 +24,9 @@ class Doc:
         name (str): The doc name.
         doc_collection_ref_id (str):
         idempotency_key (str): A document idempotency key in this domain.
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        parent_doc_ref_id (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        parent_doc_ref_id (None | str | Unset):
     """
 
     ref_id: str
@@ -35,9 +37,9 @@ class Doc:
     name: str
     doc_collection_ref_id: str
     idempotency_key: str
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    parent_doc_ref_id: Union[None, Unset, str] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    parent_doc_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,19 +59,19 @@ class Doc:
 
         idempotency_key = self.idempotency_key
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        parent_doc_ref_id: Union[None, Unset, str]
+        parent_doc_ref_id: None | str | Unset
         if isinstance(self.parent_doc_ref_id, Unset):
             parent_doc_ref_id = UNSET
         else:
@@ -117,30 +119,30 @@ class Doc:
 
         idempotency_key = d.pop("idempotency_key")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_parent_doc_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_doc_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         parent_doc_ref_id = _parse_parent_doc_ref_id(d.pop("parent_doc_ref_id", UNSET))
 

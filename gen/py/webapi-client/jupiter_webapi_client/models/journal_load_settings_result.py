@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,17 +30,17 @@ class JournalLoadSettingsResult:
         periods (list[RecurringTaskPeriod]):
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalLoadSettingsResultGenerationInAdvanceDays):
-        writing_tasks (list['InboxTask']):
-        writing_task_project (Union['Project', None, Unset]):
-        writing_task_gen_params (Union['RecurringTaskGenParams', None, Unset]):
+        writing_tasks (list[InboxTask]):
+        writing_task_project (None | Project | Unset):
+        writing_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
     periods: list[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
-    generation_in_advance_days: "JournalLoadSettingsResultGenerationInAdvanceDays"
-    writing_tasks: list["InboxTask"]
-    writing_task_project: Union["Project", None, Unset] = UNSET
-    writing_task_gen_params: Union["RecurringTaskGenParams", None, Unset] = UNSET
+    generation_in_advance_days: JournalLoadSettingsResultGenerationInAdvanceDays
+    writing_tasks: list[InboxTask]
+    writing_task_project: None | Project | Unset = UNSET
+    writing_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -59,7 +61,7 @@ class JournalLoadSettingsResult:
             writing_tasks_item = writing_tasks_item_data.to_dict()
             writing_tasks.append(writing_tasks_item)
 
-        writing_task_project: Union[None, Unset, dict[str, Any]]
+        writing_task_project: dict[str, Any] | None | Unset
         if isinstance(self.writing_task_project, Unset):
             writing_task_project = UNSET
         elif isinstance(self.writing_task_project, Project):
@@ -67,7 +69,7 @@ class JournalLoadSettingsResult:
         else:
             writing_task_project = self.writing_task_project
 
-        writing_task_gen_params: Union[None, Unset, dict[str, Any]]
+        writing_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.writing_task_gen_params, Unset):
             writing_task_gen_params = UNSET
         elif isinstance(self.writing_task_gen_params, RecurringTaskGenParams):
@@ -122,7 +124,7 @@ class JournalLoadSettingsResult:
 
             writing_tasks.append(writing_tasks_item)
 
-        def _parse_writing_task_project(data: object) -> Union["Project", None, Unset]:
+        def _parse_writing_task_project(data: object) -> None | Project | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,13 +135,13 @@ class JournalLoadSettingsResult:
                 writing_task_project_type_0 = Project.from_dict(data)
 
                 return writing_task_project_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Project", None, Unset], data)
+            return cast(None | Project | Unset, data)
 
         writing_task_project = _parse_writing_task_project(d.pop("writing_task_project", UNSET))
 
-        def _parse_writing_task_gen_params(data: object) -> Union["RecurringTaskGenParams", None, Unset]:
+        def _parse_writing_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,9 +152,9 @@ class JournalLoadSettingsResult:
                 writing_task_gen_params_type_0 = RecurringTaskGenParams.from_dict(data)
 
                 return writing_task_gen_params_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["RecurringTaskGenParams", None, Unset], data)
+            return cast(None | RecurringTaskGenParams | Unset, data)
 
         writing_task_gen_params = _parse_writing_task_gen_params(d.pop("writing_task_gen_params", UNSET))
 

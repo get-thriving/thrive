@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -47,20 +49,20 @@ class ChoreUpdateArgs:
     """
 
     ref_id: str
-    name: "ChoreUpdateArgsName"
-    project_ref_id: "ChoreUpdateArgsProjectRefId"
-    is_key: "ChoreUpdateArgsIsKey"
-    period: "ChoreUpdateArgsPeriod"
-    eisen: "ChoreUpdateArgsEisen"
-    difficulty: "ChoreUpdateArgsDifficulty"
-    actionable_from_day: "ChoreUpdateArgsActionableFromDay"
-    actionable_from_month: "ChoreUpdateArgsActionableFromMonth"
-    due_at_day: "ChoreUpdateArgsDueAtDay"
-    due_at_month: "ChoreUpdateArgsDueAtMonth"
-    must_do: "ChoreUpdateArgsMustDo"
-    skip_rule: "ChoreUpdateArgsSkipRule"
-    start_at_date: "ChoreUpdateArgsStartAtDate"
-    end_at_date: "ChoreUpdateArgsEndAtDate"
+    name: ChoreUpdateArgsName
+    project_ref_id: ChoreUpdateArgsProjectRefId
+    is_key: ChoreUpdateArgsIsKey
+    period: ChoreUpdateArgsPeriod
+    eisen: ChoreUpdateArgsEisen
+    difficulty: ChoreUpdateArgsDifficulty
+    actionable_from_day: ChoreUpdateArgsActionableFromDay
+    actionable_from_month: ChoreUpdateArgsActionableFromMonth
+    due_at_day: ChoreUpdateArgsDueAtDay
+    due_at_month: ChoreUpdateArgsDueAtMonth
+    must_do: ChoreUpdateArgsMustDo
+    skip_rule: ChoreUpdateArgsSkipRule
+    start_at_date: ChoreUpdateArgsStartAtDate
+    end_at_date: ChoreUpdateArgsEndAtDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

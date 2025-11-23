@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -31,17 +33,17 @@ class InboxTask:
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        actionable_date (Union[None, Unset, str]):
-        due_date (Union[None, Unset, str]):
-        notes (Union[None, Unset, str]):
-        source_entity_ref_id (Union[None, Unset, str]):
-        recurring_timeline (Union[None, Unset, str]):
-        recurring_repeat_index (Union[None, Unset, int]):
-        recurring_gen_right_now (Union[None, Unset, str]):
-        working_time (Union[None, Unset, str]):
-        completed_time (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        actionable_date (None | str | Unset):
+        due_date (None | str | Unset):
+        notes (None | str | Unset):
+        source_entity_ref_id (None | str | Unset):
+        recurring_timeline (None | str | Unset):
+        recurring_repeat_index (int | None | Unset):
+        recurring_gen_right_now (None | str | Unset):
+        working_time (None | str | Unset):
+        completed_time (None | str | Unset):
     """
 
     ref_id: str
@@ -57,17 +59,17 @@ class InboxTask:
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    actionable_date: Union[None, Unset, str] = UNSET
-    due_date: Union[None, Unset, str] = UNSET
-    notes: Union[None, Unset, str] = UNSET
-    source_entity_ref_id: Union[None, Unset, str] = UNSET
-    recurring_timeline: Union[None, Unset, str] = UNSET
-    recurring_repeat_index: Union[None, Unset, int] = UNSET
-    recurring_gen_right_now: Union[None, Unset, str] = UNSET
-    working_time: Union[None, Unset, str] = UNSET
-    completed_time: Union[None, Unset, str] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    actionable_date: None | str | Unset = UNSET
+    due_date: None | str | Unset = UNSET
+    notes: None | str | Unset = UNSET
+    source_entity_ref_id: None | str | Unset = UNSET
+    recurring_timeline: None | str | Unset = UNSET
+    recurring_repeat_index: int | None | Unset = UNSET
+    recurring_gen_right_now: None | str | Unset = UNSET
+    working_time: None | str | Unset = UNSET
+    completed_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -97,67 +99,67 @@ class InboxTask:
 
         difficulty = self.difficulty.value
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        actionable_date: Union[None, Unset, str]
+        actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
             actionable_date = UNSET
         else:
             actionable_date = self.actionable_date
 
-        due_date: Union[None, Unset, str]
+        due_date: None | str | Unset
         if isinstance(self.due_date, Unset):
             due_date = UNSET
         else:
             due_date = self.due_date
 
-        notes: Union[None, Unset, str]
+        notes: None | str | Unset
         if isinstance(self.notes, Unset):
             notes = UNSET
         else:
             notes = self.notes
 
-        source_entity_ref_id: Union[None, Unset, str]
+        source_entity_ref_id: None | str | Unset
         if isinstance(self.source_entity_ref_id, Unset):
             source_entity_ref_id = UNSET
         else:
             source_entity_ref_id = self.source_entity_ref_id
 
-        recurring_timeline: Union[None, Unset, str]
+        recurring_timeline: None | str | Unset
         if isinstance(self.recurring_timeline, Unset):
             recurring_timeline = UNSET
         else:
             recurring_timeline = self.recurring_timeline
 
-        recurring_repeat_index: Union[None, Unset, int]
+        recurring_repeat_index: int | None | Unset
         if isinstance(self.recurring_repeat_index, Unset):
             recurring_repeat_index = UNSET
         else:
             recurring_repeat_index = self.recurring_repeat_index
 
-        recurring_gen_right_now: Union[None, Unset, str]
+        recurring_gen_right_now: None | str | Unset
         if isinstance(self.recurring_gen_right_now, Unset):
             recurring_gen_right_now = UNSET
         else:
             recurring_gen_right_now = self.recurring_gen_right_now
 
-        working_time: Union[None, Unset, str]
+        working_time: None | str | Unset
         if isinstance(self.working_time, Unset):
             working_time = UNSET
         else:
             working_time = self.working_time
 
-        completed_time: Union[None, Unset, str]
+        completed_time: None | str | Unset
         if isinstance(self.completed_time, Unset):
             completed_time = UNSET
         else:
@@ -236,102 +238,102 @@ class InboxTask:
 
         difficulty = Difficulty(d.pop("difficulty"))
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_actionable_date(data: object) -> Union[None, Unset, str]:
+        def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         actionable_date = _parse_actionable_date(d.pop("actionable_date", UNSET))
 
-        def _parse_due_date(data: object) -> Union[None, Unset, str]:
+        def _parse_due_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         due_date = _parse_due_date(d.pop("due_date", UNSET))
 
-        def _parse_notes(data: object) -> Union[None, Unset, str]:
+        def _parse_notes(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         notes = _parse_notes(d.pop("notes", UNSET))
 
-        def _parse_source_entity_ref_id(data: object) -> Union[None, Unset, str]:
+        def _parse_source_entity_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         source_entity_ref_id = _parse_source_entity_ref_id(d.pop("source_entity_ref_id", UNSET))
 
-        def _parse_recurring_timeline(data: object) -> Union[None, Unset, str]:
+        def _parse_recurring_timeline(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         recurring_timeline = _parse_recurring_timeline(d.pop("recurring_timeline", UNSET))
 
-        def _parse_recurring_repeat_index(data: object) -> Union[None, Unset, int]:
+        def _parse_recurring_repeat_index(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         recurring_repeat_index = _parse_recurring_repeat_index(d.pop("recurring_repeat_index", UNSET))
 
-        def _parse_recurring_gen_right_now(data: object) -> Union[None, Unset, str]:
+        def _parse_recurring_gen_right_now(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         recurring_gen_right_now = _parse_recurring_gen_right_now(d.pop("recurring_gen_right_now", UNSET))
 
-        def _parse_working_time(data: object) -> Union[None, Unset, str]:
+        def _parse_working_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         working_time = _parse_working_time(d.pop("working_time", UNSET))
 
-        def _parse_completed_time(data: object) -> Union[None, Unset, str]:
+        def _parse_completed_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         completed_time = _parse_completed_time(d.pop("completed_time", UNSET))
 

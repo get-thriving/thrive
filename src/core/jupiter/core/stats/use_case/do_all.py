@@ -80,7 +80,9 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 filter_journal_ref_ids=None,
             )
 
-            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+            async with (
+                self._ports.search_storage_engine.get_unit_of_work() as search_uow
+            ):
                 for updated_entity in progress_reporter.updated_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, updated_entity

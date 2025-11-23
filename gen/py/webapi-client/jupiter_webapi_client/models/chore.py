@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -31,9 +33,9 @@ class Chore:
         suspended (bool):
         must_do (bool):
         start_at_date (str): A date or possibly a datetime for the application.
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        end_at_date (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        end_at_date (None | str | Unset):
     """
 
     ref_id: str
@@ -45,13 +47,13 @@ class Chore:
     chore_collection_ref_id: str
     project_ref_id: str
     is_key: bool
-    gen_params: "RecurringTaskGenParams"
+    gen_params: RecurringTaskGenParams
     suspended: bool
     must_do: bool
     start_at_date: str
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    end_at_date: Union[None, Unset, str] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    end_at_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,19 +83,19 @@ class Chore:
 
         start_at_date = self.start_at_date
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        end_at_date: Union[None, Unset, str]
+        end_at_date: None | str | Unset
         if isinstance(self.end_at_date, Unset):
             end_at_date = UNSET
         else:
@@ -158,30 +160,30 @@ class Chore:
 
         start_at_date = d.pop("start_at_date")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_end_at_date(data: object) -> Union[None, Unset, str]:
+        def _parse_end_at_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         end_at_date = _parse_end_at_date(d.pop("end_at_date", UNSET))
 

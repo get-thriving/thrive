@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -18,11 +20,11 @@ class EmailTaskFindResult:
 
     Attributes:
         generation_project (Project): The project.
-        entries (list['EmailTaskFindResultEntry']):
+        entries (list[EmailTaskFindResultEntry]):
     """
 
-    generation_project: "Project"
-    entries: list["EmailTaskFindResultEntry"]
+    generation_project: Project
+    entries: list[EmailTaskFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

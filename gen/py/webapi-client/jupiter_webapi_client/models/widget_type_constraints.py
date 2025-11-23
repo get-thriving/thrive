@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,19 +23,19 @@ class WidgetTypeConstraints:
 
     Attributes:
         allowed_dimensions (WidgetTypeConstraintsAllowedDimensions):
-        only_for_workspace_features (Union[None, Unset, list[WorkspaceFeature]]):
-        only_for_user_features (Union[None, Unset, list[UserFeature]]):
+        only_for_workspace_features (list[WorkspaceFeature] | None | Unset):
+        only_for_user_features (list[UserFeature] | None | Unset):
     """
 
-    allowed_dimensions: "WidgetTypeConstraintsAllowedDimensions"
-    only_for_workspace_features: Union[None, Unset, list[WorkspaceFeature]] = UNSET
-    only_for_user_features: Union[None, Unset, list[UserFeature]] = UNSET
+    allowed_dimensions: WidgetTypeConstraintsAllowedDimensions
+    only_for_workspace_features: list[WorkspaceFeature] | None | Unset = UNSET
+    only_for_user_features: list[UserFeature] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         allowed_dimensions = self.allowed_dimensions.to_dict()
 
-        only_for_workspace_features: Union[None, Unset, list[str]]
+        only_for_workspace_features: list[str] | None | Unset
         if isinstance(self.only_for_workspace_features, Unset):
             only_for_workspace_features = UNSET
         elif isinstance(self.only_for_workspace_features, list):
@@ -45,7 +47,7 @@ class WidgetTypeConstraints:
         else:
             only_for_workspace_features = self.only_for_workspace_features
 
-        only_for_user_features: Union[None, Unset, list[str]]
+        only_for_user_features: list[str] | None | Unset
         if isinstance(self.only_for_user_features, Unset):
             only_for_user_features = UNSET
         elif isinstance(self.only_for_user_features, list):
@@ -78,7 +80,7 @@ class WidgetTypeConstraints:
         d = dict(src_dict)
         allowed_dimensions = WidgetTypeConstraintsAllowedDimensions.from_dict(d.pop("allowed_dimensions"))
 
-        def _parse_only_for_workspace_features(data: object) -> Union[None, Unset, list[WorkspaceFeature]]:
+        def _parse_only_for_workspace_features(data: object) -> list[WorkspaceFeature] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -96,13 +98,13 @@ class WidgetTypeConstraints:
                     only_for_workspace_features_type_0.append(only_for_workspace_features_type_0_item)
 
                 return only_for_workspace_features_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[WorkspaceFeature]], data)
+            return cast(list[WorkspaceFeature] | None | Unset, data)
 
         only_for_workspace_features = _parse_only_for_workspace_features(d.pop("only_for_workspace_features", UNSET))
 
-        def _parse_only_for_user_features(data: object) -> Union[None, Unset, list[UserFeature]]:
+        def _parse_only_for_user_features(data: object) -> list[UserFeature] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -118,9 +120,9 @@ class WidgetTypeConstraints:
                     only_for_user_features_type_0.append(only_for_user_features_type_0_item)
 
                 return only_for_user_features_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[UserFeature]], data)
+            return cast(list[UserFeature] | None | Unset, data)
 
         only_for_user_features = _parse_only_for_user_features(d.pop("only_for_user_features", UNSET))
 

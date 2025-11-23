@@ -69,7 +69,9 @@ class GCDoAllUseCase(JupiterBackgroundMutationUseCase[GCDoAllArgs, None]):
             gc_targets = infer_sync_targets_for_enabled_features(user, workspace, None)
             await gc_service.do_it(ctx, progress_reporter, workspace, gc_targets)
 
-            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+            async with (
+                self._ports.search_storage_engine.get_unit_of_work() as search_uow
+            ):
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, created_entity

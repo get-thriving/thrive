@@ -104,7 +104,7 @@ class SqliteRepository(abc.ABC):
         self._metadata = metadata
 
 
-class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
+class SqliteEntityRepository(SqliteRepository, abc.ABC, Generic[_EntityT]):
     """A repository for entities backed by SQLite, meant to be used as a mixin."""
 
     _table: Final[Table]
@@ -348,27 +348,27 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
                 table.append_column(
                     Column(field.name, String(100), nullable=field_optional)
                 )
-            elif field_type == bool:
+            elif field_type is bool:
                 table.append_column(
                     Column(field.name, Boolean, nullable=field_optional)
                 )
-            elif field_type == int:
+            elif field_type is int:
                 table.append_column(
                     Column(field.name, Integer, nullable=field_optional)
                 )
-            elif field_type == float:
+            elif field_type is float:
                 table.append_column(Column(field.name, Float, nullable=field_optional))
-            elif field_type == str:
+            elif field_type is str:
                 table.append_column(Column(field.name, String, nullable=field_optional))
-            elif field_type == date:
+            elif field_type is date:
                 table.append_column(Column(field.name, Date, nullable=field_optional))
-            elif field_type == datetime:
+            elif field_type is datetime:
                 table.append_column(
                     Column(field.name, DateTime, nullable=field_optional)
                 )
-            elif field_type == pendulum.Date:
+            elif field_type is pendulum.Date:
                 table.append_column(Column(field.name, Date, nullable=field_optional))
-            elif field_type == pendulum.DateTime:
+            elif field_type is pendulum.DateTime:
                 table.append_column(
                     Column(field.name, DateTime, nullable=field_optional)
                 )
@@ -378,35 +378,35 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
                 and issubclass(field_type, AtomicValue)
             ):
                 basic_field_type = field_type.base_type_hack()
-                if basic_field_type == bool:
+                if basic_field_type is bool:
                     table.append_column(
                         Column(field.name, Boolean, nullable=field_optional)
                     )
-                elif basic_field_type == int:
+                elif basic_field_type is int:
                     table.append_column(
                         Column(field.name, Integer, nullable=field_optional)
                     )
-                elif basic_field_type == float:
+                elif basic_field_type is float:
                     table.append_column(
                         Column(field.name, Float, nullable=field_optional)
                     )
-                elif basic_field_type == str:
+                elif basic_field_type is str:
                     table.append_column(
                         Column(field.name, String, nullable=field_optional)
                     )
-                elif basic_field_type == date:
+                elif basic_field_type is date:
                     table.append_column(
                         Column(field.name, Date, nullable=field_optional)
                     )
-                elif basic_field_type == datetime:
+                elif basic_field_type is datetime:
                     table.append_column(
                         Column(field.name, DateTime, nullable=field_optional)
                     )
-                elif basic_field_type == pendulum.Date:
+                elif basic_field_type is pendulum.Date:
                     table.append_column(
                         Column(field.name, Date, nullable=field_optional)
                     )
-                elif basic_field_type == pendulum.DateTime:
+                elif basic_field_type is pendulum.DateTime:
                     table.append_column(
                         Column(field.name, DateTime, nullable=field_optional)
                     )
@@ -452,15 +452,15 @@ class SqliteEntityRepository(Generic[_EntityT], SqliteRepository, abc.ABC):
                         raise Exception(
                             f"Unsupported field type {field_type} for {entity_type.__name__}:{field.name}"
                         )
-                elif origin_field_type == list:
+                elif origin_field_type is list:
                     table.append_column(
                         Column(field.name, JSON, nullable=field_optional)
                     )
-                elif origin_field_type == set:
+                elif origin_field_type is set:
                     table.append_column(
                         Column(field.name, JSON, nullable=field_optional)
                     )
-                elif origin_field_type == dict:
+                elif origin_field_type is dict:
                     table.append_column(
                         Column(field.name, JSON, nullable=field_optional)
                     )
@@ -497,7 +497,7 @@ _RootEntityT = TypeVar("_RootEntityT", bound=RootEntity)
 
 
 class SqliteRootEntityRepository(
-    Generic[_RootEntityT], SqliteEntityRepository[_RootEntityT], abc.ABC
+    SqliteEntityRepository[_RootEntityT], abc.ABC, Generic[_RootEntityT]
 ):
     """A repository for root entities backed by SQLite, meant to be used as a mixin."""
 
@@ -581,7 +581,7 @@ _TrunkEntityT = TypeVar("_TrunkEntityT", bound=TrunkEntity)
 
 
 class SqliteTrunkEntityRepository(
-    Generic[_TrunkEntityT], SqliteEntityRepository[_TrunkEntityT], abc.ABC
+    SqliteEntityRepository[_TrunkEntityT], abc.ABC, Generic[_TrunkEntityT]
 ):
     """A repository for trunk entities backed by SQLite, meant to be used as a mixin."""
 
@@ -653,7 +653,7 @@ _StubEntityT = TypeVar("_StubEntityT", bound=StubEntity)
 
 
 class SqliteStubEntityRepository(
-    Generic[_StubEntityT], SqliteEntityRepository[_StubEntityT], abc.ABC
+    SqliteEntityRepository[_StubEntityT], abc.ABC, Generic[_StubEntityT]
 ):
     """A repository for stub entities backed by SQLite, meant to be used as a mixin."""
 
@@ -692,7 +692,7 @@ _CrownEntityT = TypeVar("_CrownEntityT", bound=CrownEntity)
 
 
 class SqliteCrownEntityRepository(
-    Generic[_CrownEntityT], SqliteEntityRepository[_CrownEntityT], abc.ABC
+    SqliteEntityRepository[_CrownEntityT], abc.ABC, Generic[_CrownEntityT]
 ):
     """A repository for crown entities backed by SQLite, meant to be used as a mixin."""
 
@@ -807,7 +807,7 @@ _BranchEntityT = TypeVar("_BranchEntityT", bound=BranchEntity)
 
 
 class SqliteBranchEntityRepository(
-    Generic[_BranchEntityT], SqliteCrownEntityRepository[_BranchEntityT], abc.ABC
+    SqliteCrownEntityRepository[_BranchEntityT], abc.ABC, Generic[_BranchEntityT]
 ):
     """A repository for branch entities backed by SQLite, meant to be used as a mixin."""
 
@@ -816,15 +816,15 @@ _LeafEntityT = TypeVar("_LeafEntityT", bound=LeafEntity)
 
 
 class SqliteLeafEntityRepository(
-    Generic[_LeafEntityT], SqliteCrownEntityRepository[_LeafEntityT], abc.ABC
+    SqliteCrownEntityRepository[_LeafEntityT], abc.ABC, Generic[_LeafEntityT]
 ):
     """A repository for leaf entities backed by SQLite, meant to be used as a mixin."""
 
 
 class SqliteRecordRepository(
-    Generic[_RecordT, _RecordKeyPrefixT],
     SqliteRepository,
     RecordRepository[_RecordT, _RecordKeyPrefixT],
     abc.ABC,
+    Generic[_RecordT, _RecordKeyPrefixT],
 ):
     """A repository for records backed by SQLite, meant to be used as a mixin."""

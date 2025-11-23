@@ -288,7 +288,9 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                 await self._invocation_recorder.clear_all(context.as_str())
 
             async with progress_reporter.section("Clearing the search index"):
-                async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+                async with (
+                    self._ports.search_storage_engine.get_unit_of_work() as search_uow
+                ):
                     await search_uow.search_repository.drop(workspace.ref_id)
         except Exception as e:
             # Nothing should go wrong here, but if it does, it's kind of hard to debug.

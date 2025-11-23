@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +18,12 @@ class ChoreLoadArgs:
     Attributes:
         ref_id (str): A generic entity id.
         allow_archived (bool):
-        inbox_task_retrieve_offset (Union[None, Unset, int]):
+        inbox_task_retrieve_offset (int | None | Unset):
     """
 
     ref_id: str
     allow_archived: bool
-    inbox_task_retrieve_offset: Union[None, Unset, int] = UNSET
+    inbox_task_retrieve_offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,7 +31,7 @@ class ChoreLoadArgs:
 
         allow_archived = self.allow_archived
 
-        inbox_task_retrieve_offset: Union[None, Unset, int]
+        inbox_task_retrieve_offset: int | None | Unset
         if isinstance(self.inbox_task_retrieve_offset, Unset):
             inbox_task_retrieve_offset = UNSET
         else:
@@ -55,12 +57,12 @@ class ChoreLoadArgs:
 
         allow_archived = d.pop("allow_archived")
 
-        def _parse_inbox_task_retrieve_offset(data: object) -> Union[None, Unset, int]:
+        def _parse_inbox_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         inbox_task_retrieve_offset = _parse_inbox_task_retrieve_offset(d.pop("inbox_task_retrieve_offset", UNSET))
 

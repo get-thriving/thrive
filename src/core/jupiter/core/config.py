@@ -372,7 +372,6 @@ class JupiterLoggedInReadonlyContext(LoggedInReadonlyContext):
 
 
 class JupiterGuestMutationUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     GuestMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -383,6 +382,7 @@ class JupiterGuestMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
 
@@ -393,7 +393,6 @@ class JupiterGuestMutationUseCase(
 
 
 class JupiterGuestReadonlyUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     GuestReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -404,6 +403,7 @@ class JupiterGuestReadonlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does not mutate anything, and does not assume a logged in user."""
 
@@ -414,7 +414,6 @@ class JupiterGuestReadonlyUseCase(
 
 
 class JupiterLoggedInMutationUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     LoggedInMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -425,6 +424,7 @@ class JupiterLoggedInMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does some sort of mutation, and assumes a logged-in user."""
 
@@ -473,7 +473,6 @@ class JupiterLoggedInMutationUseCase(
 
 
 class JupiterTransactionalLoggedInMutationUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     JupiterLoggedInMutationUseCase[_UseCaseArgsT, _UseCaseResultT],
     TransactionalLoggedInMutationUseCase[
         JupiterPorts,
@@ -485,12 +484,12 @@ class JupiterTransactionalLoggedInMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does some sort of mutation transactionally, and assumes a logged-in user."""
 
 
 class JupiterLoggedInReadonlyUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     LoggedInReadonlyUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -501,6 +500,7 @@ class JupiterLoggedInReadonlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does some sort of read in the app, and assumes a logged-in user."""
 
@@ -525,7 +525,6 @@ class JupiterLoggedInReadonlyUseCase(
 
 
 class JupiterTransactionalLoggedInReadOnlyUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     JupiterLoggedInReadonlyUseCase[_UseCaseArgsT, _UseCaseResultT],
     TransactionalLoggedInReadOnlyUseCase[
         JupiterPorts,
@@ -537,12 +536,12 @@ class JupiterTransactionalLoggedInReadOnlyUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command that does some sort of read in the app transactionally, and assumes a logged-in user."""
 
 
 class JupiterBackgroundMutationUseCase(
-    Generic[_UseCaseArgsT, _UseCaseResultT],
     BackgroundMutationUseCase[
         JupiterPorts,
         JupiterGlobalProperties,
@@ -551,5 +550,6 @@ class JupiterBackgroundMutationUseCase(
         _UseCaseResultT,
     ],
     abc.ABC,
+    Generic[_UseCaseArgsT, _UseCaseResultT],
 ):
     """A Jupiter command which does some sort of mutation for the app in the background."""

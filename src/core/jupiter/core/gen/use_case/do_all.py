@@ -83,7 +83,9 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
                 filter_email_task_ref_ids=None,
             )
 
-            async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
+            async with (
+                self._ports.search_storage_engine.get_unit_of_work() as search_uow
+            ):
                 for created_entity in progress_reporter.created_entities:
                     await search_uow.search_repository.upsert(
                         workspace.ref_id, created_entity

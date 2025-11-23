@@ -36,8 +36,8 @@ _AtomicValueT = TypeVar("_AtomicValueT", bound="AtomicValue[Primitive]")
 
 @dataclass(frozen=True)
 class AtomicValue(
-    Generic[_PrimitiveT_co],
     Value,
+    Generic[_PrimitiveT_co],
 ):
     """An atomic value object in the domain."""
 

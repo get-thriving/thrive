@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,9 +22,9 @@ class BigPlanFindArgs:
         include_notes (bool):
         include_milestones (bool):
         include_stats (bool):
-        filter_just_workable (Union[None, Unset, bool]):
-        filter_ref_ids (Union[None, Unset, list[str]]):
-        filter_project_ref_ids (Union[None, Unset, list[str]]):
+        filter_just_workable (bool | None | Unset):
+        filter_ref_ids (list[str] | None | Unset):
+        filter_project_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
@@ -31,9 +33,9 @@ class BigPlanFindArgs:
     include_notes: bool
     include_milestones: bool
     include_stats: bool
-    filter_just_workable: Union[None, Unset, bool] = UNSET
-    filter_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_project_ref_ids: Union[None, Unset, list[str]] = UNSET
+    filter_just_workable: bool | None | Unset = UNSET
+    filter_ref_ids: list[str] | None | Unset = UNSET
+    filter_project_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -49,13 +51,13 @@ class BigPlanFindArgs:
 
         include_stats = self.include_stats
 
-        filter_just_workable: Union[None, Unset, bool]
+        filter_just_workable: bool | None | Unset
         if isinstance(self.filter_just_workable, Unset):
             filter_just_workable = UNSET
         else:
             filter_just_workable = self.filter_just_workable
 
-        filter_ref_ids: Union[None, Unset, list[str]]
+        filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
             filter_ref_ids = UNSET
         elif isinstance(self.filter_ref_ids, list):
@@ -64,7 +66,7 @@ class BigPlanFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_project_ref_ids: Union[None, Unset, list[str]]
+        filter_project_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_project_ref_ids, Unset):
             filter_project_ref_ids = UNSET
         elif isinstance(self.filter_project_ref_ids, list):
@@ -109,16 +111,16 @@ class BigPlanFindArgs:
 
         include_stats = d.pop("include_stats")
 
-        def _parse_filter_just_workable(data: object) -> Union[None, Unset, bool]:
+        def _parse_filter_just_workable(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         filter_just_workable = _parse_filter_just_workable(d.pop("filter_just_workable", UNSET))
 
-        def _parse_filter_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -129,13 +131,13 @@ class BigPlanFindArgs:
                 filter_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_project_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -146,9 +148,9 @@ class BigPlanFindArgs:
                 filter_project_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_project_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
 

@@ -328,7 +328,9 @@ class ScheduleExternalSyncService:
                         )
 
                         if uid not in all_full_days_events_by_external_uid:
-                            async with self._domain_storage_engine.get_unit_of_work() as uow:
+                            async with (
+                                self._domain_storage_engine.get_unit_of_work() as uow
+                            ):
                                 schedule_event_full_days = ScheduleEventFullDays.new_schedule_full_days_block_from_external_ical(
                                     ctx,
                                     schedule_domain_ref_id=schedule_domain.ref_id,
@@ -400,7 +402,9 @@ class ScheduleExternalSyncService:
                                 ].last_modified_time
                             )
                         ):
-                            async with self._domain_storage_engine.get_unit_of_work() as uow:
+                            async with (
+                                self._domain_storage_engine.get_unit_of_work() as uow
+                            ):
                                 schedule_event_full_days = (
                                     all_full_days_events_by_external_uid[uid]
                                 )
@@ -544,7 +548,9 @@ class ScheduleExternalSyncService:
                         )
 
                         if uid not in all_in_day_events_by_external_uid:
-                            async with self._domain_storage_engine.get_unit_of_work() as uow:
+                            async with (
+                                self._domain_storage_engine.get_unit_of_work() as uow
+                            ):
                                 schedule_event_in_day = ScheduleEventInDay.new_schedule_event_in_day_from_external_ical(
                                     ctx,
                                     schedule_domain_ref_id=schedule_domain.ref_id,
@@ -613,7 +619,9 @@ class ScheduleExternalSyncService:
                                 ].last_modified_time
                             )
                         ):
-                            async with self._domain_storage_engine.get_unit_of_work() as uow:
+                            async with (
+                                self._domain_storage_engine.get_unit_of_work() as uow
+                            ):
                                 schedule_event_in_day = (
                                     all_in_day_events_by_external_uid[uid]
                                 )

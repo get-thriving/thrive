@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,17 +24,17 @@ class PersonFindResultEntry:
 
     Attributes:
         person (Person): A person.
-        note (Union['Note', None, Unset]):
-        birthday_time_event_blocks (Union[None, Unset, list['TimeEventFullDaysBlock']]):
-        catch_up_inbox_tasks (Union[None, Unset, list['InboxTask']]):
-        birthday_inbox_tasks (Union[None, Unset, list['InboxTask']]):
+        note (None | Note | Unset):
+        birthday_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
+        catch_up_inbox_tasks (list[InboxTask] | None | Unset):
+        birthday_inbox_tasks (list[InboxTask] | None | Unset):
     """
 
-    person: "Person"
-    note: Union["Note", None, Unset] = UNSET
-    birthday_time_event_blocks: Union[None, Unset, list["TimeEventFullDaysBlock"]] = UNSET
-    catch_up_inbox_tasks: Union[None, Unset, list["InboxTask"]] = UNSET
-    birthday_inbox_tasks: Union[None, Unset, list["InboxTask"]] = UNSET
+    person: Person
+    note: None | Note | Unset = UNSET
+    birthday_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
+    catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    birthday_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +42,7 @@ class PersonFindResultEntry:
 
         person = self.person.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -48,7 +50,7 @@ class PersonFindResultEntry:
         else:
             note = self.note
 
-        birthday_time_event_blocks: Union[None, Unset, list[dict[str, Any]]]
+        birthday_time_event_blocks: list[dict[str, Any]] | None | Unset
         if isinstance(self.birthday_time_event_blocks, Unset):
             birthday_time_event_blocks = UNSET
         elif isinstance(self.birthday_time_event_blocks, list):
@@ -60,7 +62,7 @@ class PersonFindResultEntry:
         else:
             birthday_time_event_blocks = self.birthday_time_event_blocks
 
-        catch_up_inbox_tasks: Union[None, Unset, list[dict[str, Any]]]
+        catch_up_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.catch_up_inbox_tasks, Unset):
             catch_up_inbox_tasks = UNSET
         elif isinstance(self.catch_up_inbox_tasks, list):
@@ -72,7 +74,7 @@ class PersonFindResultEntry:
         else:
             catch_up_inbox_tasks = self.catch_up_inbox_tasks
 
-        birthday_inbox_tasks: Union[None, Unset, list[dict[str, Any]]]
+        birthday_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.birthday_inbox_tasks, Unset):
             birthday_inbox_tasks = UNSET
         elif isinstance(self.birthday_inbox_tasks, list):
@@ -112,7 +114,7 @@ class PersonFindResultEntry:
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -123,13 +125,13 @@ class PersonFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_birthday_time_event_blocks(data: object) -> Union[None, Unset, list["TimeEventFullDaysBlock"]]:
+        def _parse_birthday_time_event_blocks(data: object) -> list[TimeEventFullDaysBlock] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -147,13 +149,13 @@ class PersonFindResultEntry:
                     birthday_time_event_blocks_type_0.append(birthday_time_event_blocks_type_0_item)
 
                 return birthday_time_event_blocks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["TimeEventFullDaysBlock"]], data)
+            return cast(list[TimeEventFullDaysBlock] | None | Unset, data)
 
         birthday_time_event_blocks = _parse_birthday_time_event_blocks(d.pop("birthday_time_event_blocks", UNSET))
 
-        def _parse_catch_up_inbox_tasks(data: object) -> Union[None, Unset, list["InboxTask"]]:
+        def _parse_catch_up_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -169,13 +171,13 @@ class PersonFindResultEntry:
                     catch_up_inbox_tasks_type_0.append(catch_up_inbox_tasks_type_0_item)
 
                 return catch_up_inbox_tasks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["InboxTask"]], data)
+            return cast(list[InboxTask] | None | Unset, data)
 
         catch_up_inbox_tasks = _parse_catch_up_inbox_tasks(d.pop("catch_up_inbox_tasks", UNSET))
 
-        def _parse_birthday_inbox_tasks(data: object) -> Union[None, Unset, list["InboxTask"]]:
+        def _parse_birthday_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -191,9 +193,9 @@ class PersonFindResultEntry:
                     birthday_inbox_tasks_type_0.append(birthday_inbox_tasks_type_0_item)
 
                 return birthday_inbox_tasks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["InboxTask"]], data)
+            return cast(list[InboxTask] | None | Unset, data)
 
         birthday_inbox_tasks = _parse_birthday_inbox_tasks(d.pop("birthday_inbox_tasks", UNSET))
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -41,17 +43,17 @@ class EmailTaskUpdateArgs:
     """
 
     ref_id: str
-    from_address: "EmailTaskUpdateArgsFromAddress"
-    from_name: "EmailTaskUpdateArgsFromName"
-    to_address: "EmailTaskUpdateArgsToAddress"
-    subject: "EmailTaskUpdateArgsSubject"
-    body: "EmailTaskUpdateArgsBody"
-    generation_name: "EmailTaskUpdateArgsGenerationName"
-    generation_status: "EmailTaskUpdateArgsGenerationStatus"
-    generation_eisen: "EmailTaskUpdateArgsGenerationEisen"
-    generation_difficulty: "EmailTaskUpdateArgsGenerationDifficulty"
-    generation_actionable_date: "EmailTaskUpdateArgsGenerationActionableDate"
-    generation_due_date: "EmailTaskUpdateArgsGenerationDueDate"
+    from_address: EmailTaskUpdateArgsFromAddress
+    from_name: EmailTaskUpdateArgsFromName
+    to_address: EmailTaskUpdateArgsToAddress
+    subject: EmailTaskUpdateArgsSubject
+    body: EmailTaskUpdateArgsBody
+    generation_name: EmailTaskUpdateArgsGenerationName
+    generation_status: EmailTaskUpdateArgsGenerationStatus
+    generation_eisen: EmailTaskUpdateArgsGenerationEisen
+    generation_difficulty: EmailTaskUpdateArgsGenerationDifficulty
+    generation_actionable_date: EmailTaskUpdateArgsGenerationActionableDate
+    generation_due_date: EmailTaskUpdateArgsGenerationDueDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
