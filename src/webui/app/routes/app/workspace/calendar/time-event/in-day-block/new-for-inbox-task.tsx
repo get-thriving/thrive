@@ -1,5 +1,4 @@
-import type { InboxTask } from "@jupiter/webapi-client";
-import { ApiError, Difficulty } from "@jupiter/webapi-client";
+import { ApiError } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -34,6 +33,7 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { inferDurationMinsFromInboxTask } from "#/core/inbox_tasks/root";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -323,14 +323,3 @@ export const ErrorBoundary = makeLeafErrorBoundary(
       `There was an error creating the event in day! Please try again!`,
   },
 );
-
-function inferDurationMinsFromInboxTask(inboxTask: InboxTask): number {
-  switch (inboxTask.difficulty) {
-    case Difficulty.EASY:
-      return 15;
-    case Difficulty.MEDIUM:
-      return 30;
-    case Difficulty.HARD:
-      return 60;
-  }
-}

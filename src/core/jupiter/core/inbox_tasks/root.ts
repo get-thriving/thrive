@@ -326,3 +326,14 @@ function inferPeriodForRecurringTask(
     throw new Error(`Invalid timeline: ${timeline}`);
   }
 }
+
+export function inferDurationMinsFromInboxTask(inboxTask: InboxTask): number {
+  switch (inboxTask.difficulty) {
+    case Difficulty.EASY:
+      return 15;
+    case Difficulty.MEDIUM:
+      return 30;
+    case Difficulty.HARD:
+      return 60;
+  }
+}

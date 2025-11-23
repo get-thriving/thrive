@@ -41,6 +41,7 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TimeAndEffortView } from "@jupiter/core/time_plans/component/time-and-effort-view";
 import {
   ActionSingle,
   FilterFewOptionsSpread,
@@ -388,6 +389,18 @@ export default function TimePlanView() {
             inputsEnabled={inputsEnabled}
           />
         </SectionCard>
+
+        {(loaderData.timePlan.period === RecurringTaskPeriod.DAILY ||
+          loaderData.timePlan.period === RecurringTaskPeriod.WEEKLY) && (
+          <SectionCard id="time-plan-effort" title="Time & Effort">
+            <TimeAndEffortView
+              timePlan={loaderData.timePlan}
+              timePlanActivities={loaderData.activities}
+              targetInboxTasksByRefId={targetInboxTasksByRefId}
+              activityDoneness={loaderData.activityDoneness}
+            />
+          </SectionCard>
+        )}
 
         <SectionCard
           id="time-plan-activities"
