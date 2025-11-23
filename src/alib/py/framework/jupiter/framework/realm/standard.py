@@ -283,7 +283,7 @@ class _UnionEncoder(RealmEncoder[DomainThing, _RealmT], Generic[_RealmT]):
                     attempt_type, self._realm, self._root_type
                 )
                 return encoder.encode(value)
-            except RealmDecodingError:
+            except (RealmDecodingError, Exception):
                 pass
 
         raise RealmDecodingError(

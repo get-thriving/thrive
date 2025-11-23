@@ -181,11 +181,12 @@ export default function Vacation() {
         title="Properties"
         actions={
           <SectionActions
-            id="vacation-properties"
+            id="vacation-update"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "vacation-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -200,6 +201,7 @@ export default function Vacation() {
             label="name"
             name="name"
             readOnly={!inputsEnabled}
+            disabled={!inputsEnabled}
             defaultValue={vacation.name}
           />
           <FieldError actionResult={actionData} fieldName="/name" />
@@ -246,11 +248,12 @@ export default function Vacation() {
         title="Note"
         actions={
           <SectionActions
-            id="chore-note"
+            id="vacation-create-note"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "vacation-create-note",
                 text: "Create Note",
                 value: "create-note",
                 highlight: false,

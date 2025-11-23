@@ -80,15 +80,16 @@ export default function NewVacation() {
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
-        title="Properties"
+        title="New Vacation"
         actionsPosition={ActionsPosition.BELOW}
         actions={
           <SectionActions
-            id="vacation-properties"
+            id="vacation-create"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "vacation-create",
                 text: "Create",
                 value: "create",
                 highlight: true,
