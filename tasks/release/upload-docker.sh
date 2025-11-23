@@ -52,7 +52,7 @@ create_manifest() {
   local name="$1"  # e.g. jupiter-webapi
   local tag="$2"   # e.g. latest or ${VERSION}
 
-  docker manifest create "${DOCKER_REGISTRY_NAME}/${name}:${tag}" \
+  docker manifest create --amend "${DOCKER_REGISTRY_NAME}/${name}:${tag}" \
     "${DOCKER_REGISTRY_NAME}/${name}:${tag}-amd64" \
     "${DOCKER_REGISTRY_NAME}/${name}:${tag}-arm64"
 
