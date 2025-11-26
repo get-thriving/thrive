@@ -394,6 +394,7 @@ export default function TimePlanView() {
           loaderData.timePlan.period === RecurringTaskPeriod.WEEKLY) && (
           <SectionCard id="time-plan-effort" title="Time & Effort">
             <TimeAndEffortView
+              topLevelInfo={topLevelInfo}
               timePlan={loaderData.timePlan}
               timePlanActivities={loaderData.activities}
               targetInboxTasksByRefId={targetInboxTasksByRefId}
