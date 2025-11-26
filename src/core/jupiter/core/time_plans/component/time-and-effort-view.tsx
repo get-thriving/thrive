@@ -5,6 +5,8 @@ import {
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityTarget,
+  UserFeature,
+  WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
   Paper,
@@ -14,14 +16,19 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
 } from "@mui/material";
 
 import { inferDurationMinsFromInboxTask } from "#/core/inbox_tasks/root";
 import { timePlanActivityFeasabilityName } from "#/core/time_plans/sub/activity/feasability";
 import { timePlanActivityDonenessName } from "#/core/time_plans/sub/activity/doneness";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
+import { TopLevelInfo } from "#/core/infra/top-level-context";
+import { isUserFeatureAvailable } from "#/core/users/root";
+import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 
 interface TimeAndEffortViewProps {
+  topLevelInfo: TopLevelInfo;
   timePlan: TimePlan;
   timePlanActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
@@ -55,321 +62,678 @@ interface TimeAndEffortSummary {
 
 export function TimeAndEffortView(props: TimeAndEffortViewProps) {
   const timeAndEffortSummary = computeTimeAndEffortSummary(props);
+  const theme = useTheme();
+
+  const styles = {
+    sx: {
+      borderWidth: "1px",
+      borderColor: theme.palette.grey[200],
+      borderStyle: "solid",
+      textAlign: "left",
+    },
+  };
+
+  let plannedTextColSpan = 1;
+  let achievedTextColSpan = 3;
+  if (
+    isUserFeatureAvailable(props.topLevelInfo.user, UserFeature.GAMIFICATION)
+  ) {
+    plannedTextColSpan += 1;
+    achievedTextColSpan += 3;
+  }
+  if (
+    isWorkspaceFeatureAvailable(
+      props.topLevelInfo.workspace,
+      WorkspaceFeature.SCHEDULE,
+    )
+  ) {
+    plannedTextColSpan += 1;
+    achievedTextColSpan += 1;
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table size="small">
-        <TableHead>
+        <TableHead
+          sx={{
+            borderBottomWidth: "0.25rem",
+            borderBottomStyle: "solid",
+            borderBottomColor: "divider",
+          }}
+        >
           <TableRow>
-            <TableCell>Category</TableCell>
-            <TableCell colSpan={3}>Planned</TableCell>
-            <TableCell colSpan={7}>Achieved</TableCell>
+            <TableCell rowSpan={3} {...styles}>
+              Category
+            </TableCell>
+            <TableCell rowSpan={2} colSpan={plannedTextColSpan} {...styles}>
+              Planned
+            </TableCell>
+            <TableCell colSpan={achievedTextColSpan} {...styles}>
+              Achieved
+            </TableCell>
           </TableRow>
+
           <TableRow>
-            <TableCell colSpan={4} />
-            <TableCell colSpan={3}>Activities</TableCell>
-            <TableCell colSpan={3}>Scores</TableCell>
-            <TableCell>Hours</TableCell>
+            <TableCell colSpan={3} {...styles}>
+              Activities
+            </TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <TableCell colSpan={3} {...styles}>
+                Scores
+              </TableCell>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell rowSpan={2} {...styles}>
+                Hours
+              </TableCell>
+            )}
           </TableRow>
+
           <TableRow>
-            <TableCell colSpan={1} />
-            <TableCell>Activities</TableCell>
-            <TableCell>Est. Score</TableCell>
-            <TableCell>Est. Hours</TableCell>
-            <TableCell>
+            <TableCell {...styles}>Activities</TableCell>
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && <TableCell {...styles}>Est. Score</TableCell>}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && <TableCell {...styles}>Est. Hours</TableCell>}
+
+            <TableCell {...styles}>
               {timePlanActivityDonenessName(TimePlanActivityDoneness.DONE)}
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {timePlanActivityDonenessName(TimePlanActivityDoneness.WORKING)}
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {timePlanActivityDonenessName(TimePlanActivityDoneness.NOT_DONE)}
             </TableCell>
-            <TableCell>
-              {timePlanActivityDonenessName(TimePlanActivityDoneness.DONE)}
-            </TableCell>
-            <TableCell>
-              {timePlanActivityDonenessName(TimePlanActivityDoneness.WORKING)}
-            </TableCell>
-            <TableCell>
-              {timePlanActivityDonenessName(TimePlanActivityDoneness.NOT_DONE)}
-            </TableCell>
-            <TableCell colSpan={1} />
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <TableCell {...styles}>
+                  {timePlanActivityDonenessName(TimePlanActivityDoneness.DONE)}
+                </TableCell>
+                <TableCell {...styles}>
+                  {timePlanActivityDonenessName(
+                    TimePlanActivityDoneness.WORKING,
+                  )}
+                </TableCell>
+                <TableCell {...styles}>
+                  {timePlanActivityDonenessName(
+                    TimePlanActivityDoneness.NOT_DONE,
+                  )}
+                </TableCell>
+              </>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell>Total</TableCell>
+            <TableCell {...styles}>Total</TableCell>
             <TableCell>
               {timeAndEffortSummary.planned.totalActivities}
             </TableCell>
-            <TableCell>{timeAndEffortSummary.planned.totalScore}</TableCell>
-            <TableCell>
-              {timeAndEffortSummary.planned.totalHours.toFixed(2)}
-            </TableCell>
-            <TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.planned.totalScore}
+              </TableCell>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell>
+                {timeAndEffortSummary.planned.totalHours.toFixed(2)}
+              </TableCell>
+            )}
+
+            <TableCell {...styles} align="center">
               {
                 timeAndEffortSummary.achieved.totalActivitiesByDoneness[
                   TimePlanActivityDoneness.DONE
                 ]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved.totalActivitiesByDoneness[
+                  TimePlanActivityDoneness.DONE
+                ] /
+                  timeAndEffortSummary.planned.totalActivities) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles} align="center">
               {
                 timeAndEffortSummary.achieved.totalActivitiesByDoneness[
                   TimePlanActivityDoneness.WORKING
                 ]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved.totalActivitiesByDoneness[
+                  TimePlanActivityDoneness.WORKING
+                ] /
+                  timeAndEffortSummary.planned.totalActivities) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles} align="center">
               {
                 timeAndEffortSummary.achieved.totalActivitiesByDoneness[
                   TimePlanActivityDoneness.NOT_DONE
                 ]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.totalScoreByDoneness[
-                  TimePlanActivityDoneness.DONE
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.totalScoreByDoneness[
-                  TimePlanActivityDoneness.WORKING
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.totalScoreByDoneness[
-                  TimePlanActivityDoneness.NOT_DONE
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.achieved.totalHours.toFixed(2)}
-            </TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <TableCell {...styles} align="center">
+                  {
+                    timeAndEffortSummary.achieved.totalScoreByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.totalScoreByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ] /
+                      timeAndEffortSummary.planned.totalScore) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles} align="center">
+                  {
+                    timeAndEffortSummary.achieved.totalScoreByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.totalScoreByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ] /
+                      timeAndEffortSummary.planned.totalScore) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles} align="center">
+                  {
+                    timeAndEffortSummary.achieved.totalScoreByDoneness[
+                      TimePlanActivityDoneness.NOT_DONE
+                    ]
+                  }
+                </TableCell>
+              </>
+            )}
+
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles} align="center">
+                {timeAndEffortSummary.achieved.totalHours.toFixed(2)}
+              </TableCell>
+            )}
           </TableRow>
+
           <TableRow>
-            <TableCell>
+            <TableCell {...styles}>
               {timePlanActivityFeasabilityName(
                 TimePlanActivityFeasability.MUST_DO,
               )}
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.planned.activitiesByFeasability[
                   TimePlanActivityFeasability.MUST_DO
                 ]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.planned.scoreByFeasability[
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <TableCell {...styles}>
+                {
+                  timeAndEffortSummary.planned.scoreByFeasability[
+                    TimePlanActivityFeasability.MUST_DO
+                  ]
+                }
+              </TableCell>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.planned.hoursByFeasability[
                   TimePlanActivityFeasability.MUST_DO
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.planned.hoursByFeasability[
-                TimePlanActivityFeasability.MUST_DO
-              ].toFixed(2)}
-            </TableCell>
-            <TableCell>
+                ].toFixed(2)}
+              </TableCell>
+            )}
+
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.DONE
                 ][TimePlanActivityFeasability.MUST_DO]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.DONE
+                ][TimePlanActivityFeasability.MUST_DO] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.MUST_DO
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.WORKING
                 ][TimePlanActivityFeasability.MUST_DO]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.WORKING
+                ][TimePlanActivityFeasability.MUST_DO] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.MUST_DO
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.MUST_DO]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.DONE
-                ][TimePlanActivityFeasability.MUST_DO]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.WORKING
-                ][TimePlanActivityFeasability.MUST_DO]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.NOT_DONE
-                ][TimePlanActivityFeasability.MUST_DO]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.achieved.hoursByFeasability[
-                TimePlanActivityFeasability.MUST_DO
-              ].toFixed(2)}
-            </TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.MUST_DO]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.MUST_DO] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.MUST_DO
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles} align="center">
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.MUST_DO]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.MUST_DO] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.MUST_DO
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles} align="center">
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.NOT_DONE
+                    ][TimePlanActivityFeasability.MUST_DO]
+                  }
+                </TableCell>
+              </>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.achieved.hoursByFeasability[
+                  TimePlanActivityFeasability.MUST_DO
+                ].toFixed(2)}
+              </TableCell>
+            )}
           </TableRow>
+
           <TableRow>
-            <TableCell>
+            <TableCell {...styles}>
               {timePlanActivityFeasabilityName(
                 TimePlanActivityFeasability.NICE_TO_HAVE,
               )}
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.planned.activitiesByFeasability[
                   TimePlanActivityFeasability.NICE_TO_HAVE
                 ]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.planned.scoreByFeasability[
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <TableCell {...styles}>
+                {
+                  timeAndEffortSummary.planned.scoreByFeasability[
+                    TimePlanActivityFeasability.NICE_TO_HAVE
+                  ]
+                }
+              </TableCell>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.planned.hoursByFeasability[
                   TimePlanActivityFeasability.NICE_TO_HAVE
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.planned.hoursByFeasability[
-                TimePlanActivityFeasability.NICE_TO_HAVE
-              ].toFixed(2)}
-            </TableCell>
-            <TableCell>
+                ].toFixed(2)}
+              </TableCell>
+            )}
+
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.DONE
                 ][TimePlanActivityFeasability.NICE_TO_HAVE]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.DONE
+                ][TimePlanActivityFeasability.NICE_TO_HAVE] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.NICE_TO_HAVE
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.WORKING
                 ][TimePlanActivityFeasability.NICE_TO_HAVE]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.WORKING
+                ][TimePlanActivityFeasability.NICE_TO_HAVE] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.NICE_TO_HAVE
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.NICE_TO_HAVE]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.DONE
-                ][TimePlanActivityFeasability.NICE_TO_HAVE]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.WORKING
-                ][TimePlanActivityFeasability.NICE_TO_HAVE]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.NOT_DONE
-                ][TimePlanActivityFeasability.NICE_TO_HAVE]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.achieved.hoursByFeasability[
-                TimePlanActivityFeasability.NICE_TO_HAVE
-              ].toFixed(2)}
-            </TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.NICE_TO_HAVE]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.NICE_TO_HAVE] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.NICE_TO_HAVE
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.NICE_TO_HAVE]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.NICE_TO_HAVE] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.NICE_TO_HAVE
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.NOT_DONE
+                    ][TimePlanActivityFeasability.NICE_TO_HAVE]
+                  }
+                </TableCell>
+              </>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.achieved.hoursByFeasability[
+                  TimePlanActivityFeasability.NICE_TO_HAVE
+                ].toFixed(2)}
+              </TableCell>
+            )}
           </TableRow>
+
           <TableRow>
-            <TableCell>
+            <TableCell {...styles}>
               {timePlanActivityFeasabilityName(
                 TimePlanActivityFeasability.STRETCH,
               )}
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.planned.activitiesByFeasability[
                   TimePlanActivityFeasability.STRETCH
                 ]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.planned.scoreByFeasability[
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <TableCell {...styles}>
+                {
+                  timeAndEffortSummary.planned.scoreByFeasability[
+                    TimePlanActivityFeasability.STRETCH
+                  ]
+                }
+              </TableCell>
+            )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.planned.hoursByFeasability[
                   TimePlanActivityFeasability.STRETCH
-                ]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.planned.hoursByFeasability[
-                TimePlanActivityFeasability.STRETCH
-              ].toFixed(2)}
-            </TableCell>
-            <TableCell>
+                ].toFixed(2)}
+              </TableCell>
+            )}
+
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.DONE
                 ][TimePlanActivityFeasability.STRETCH]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.DONE
+                ][TimePlanActivityFeasability.STRETCH] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.STRETCH
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.WORKING
                 ][TimePlanActivityFeasability.STRETCH]
-              }
+              }{" "}
+              [
+              {(
+                (timeAndEffortSummary.achieved
+                  .activitiesByFeasabilityByDoneness[
+                  TimePlanActivityDoneness.WORKING
+                ][TimePlanActivityFeasability.STRETCH] /
+                  timeAndEffortSummary.planned.activitiesByFeasability[
+                    TimePlanActivityFeasability.STRETCH
+                  ]) *
+                100
+              ).toFixed(0) + "%"}
+              ]
             </TableCell>
-            <TableCell>
+            <TableCell {...styles}>
               {
                 timeAndEffortSummary.achieved.activitiesByFeasabilityByDoneness[
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.STRETCH]
               }
             </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.DONE
-                ][TimePlanActivityFeasability.STRETCH]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.WORKING
-                ][TimePlanActivityFeasability.STRETCH]
-              }
-            </TableCell>
-            <TableCell>
-              {
-                timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
-                  TimePlanActivityDoneness.NOT_DONE
-                ][TimePlanActivityFeasability.STRETCH]
-              }
-            </TableCell>
-            <TableCell>
-              {timeAndEffortSummary.achieved.hoursByFeasability[
-                TimePlanActivityFeasability.STRETCH
-              ].toFixed(2)}
-            </TableCell>
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.STRETCH]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.DONE
+                    ][TimePlanActivityFeasability.STRETCH] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.STRETCH
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.STRETCH]
+                  }{" "}
+                  [
+                  {(
+                    (timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.WORKING
+                    ][TimePlanActivityFeasability.STRETCH] /
+                      timeAndEffortSummary.planned.scoreByFeasability[
+                        TimePlanActivityFeasability.STRETCH
+                      ]) *
+                    100
+                  ).toFixed(0) + "%"}
+                  ]
+                </TableCell>
+                <TableCell {...styles}>
+                  {
+                    timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
+                      TimePlanActivityDoneness.NOT_DONE
+                    ][TimePlanActivityFeasability.STRETCH]
+                  }
+                </TableCell>
+              </>
+            )}
+
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && (
+              <TableCell {...styles}>
+                {timeAndEffortSummary.achieved.hoursByFeasability[
+                  TimePlanActivityFeasability.STRETCH
+                ].toFixed(2)}
+              </TableCell>
+            )}
           </TableRow>
         </TableBody>
       </Table>
