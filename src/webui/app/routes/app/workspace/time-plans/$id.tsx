@@ -42,6 +42,8 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TimeAndEffortView } from "@jupiter/core/time_plans/component/time-and-effort-view";
+import { FeasabilityView } from "@jupiter/core/time_plans/component/feasaibility-view";
+import { computeTimeAndEffortSummary } from "@jupiter/core/time_plans/time-and-effort-summary";
 import {
   ActionSingle,
   FilterFewOptionsSpread,
@@ -319,6 +321,12 @@ export default function TimePlanView() {
 
   const sortedSubJournals = sortJournalsNaturally(loaderData.subPeriodJournals);
 
+  const timeAndEffortSummary = computeTimeAndEffortSummary({
+    timePlanActivities: loaderData.activities,
+    targetInboxTasksByRefId: targetInboxTasksByRefId,
+    activityDoneness: loaderData.activityDoneness,
+  });
+
   return (
     <BranchPanel
       key={`time-plan-${loaderData.timePlan.ref_id}`}
@@ -396,9 +404,12 @@ export default function TimePlanView() {
             <TimeAndEffortView
               topLevelInfo={topLevelInfo}
               timePlan={loaderData.timePlan}
-              timePlanActivities={loaderData.activities}
-              targetInboxTasksByRefId={targetInboxTasksByRefId}
-              activityDoneness={loaderData.activityDoneness}
+              timeAndEffortSummary={timeAndEffortSummary}
+            />
+
+            <FeasabilityView
+              timePlan={loaderData.timePlan}
+              timeAndEffortSummary={timeAndEffortSummary}
             />
           </SectionCard>
         )}
