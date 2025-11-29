@@ -24,13 +24,16 @@ if [[ -z "${namespace}" ]]; then
     namespace=$STANDARD_NAMESPACE
     webapi_port=$STANDARD_WEBAPI_PORT
     webui_port=$STANDARD_WEBUI_PORT
+    docs_port=$STANDARD_DOCS_PORT
 elif [[ "${namespace}" == "+gen" ]]; then
     namespace=$(get_namespace)
     webapi_port=$(get_free_port)
     webui_port=$(get_free_port)
+    docs_port=$(get_free_port)
 else
     webapi_port=$(get_free_port)
     webui_port=$(get_free_port)
+    docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" no-wait monit dev "$usage_run_mode"
+run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_run_mode"

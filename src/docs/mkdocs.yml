@@ -8,20 +8,21 @@ repo_name: GitHub
 
 use_directory_urls: false
 
+dev_addr: !ENV DEV_ADDR
 site_url: https://docs.get-thriving.com
 docs_dir: material
 
 theme:
     name: material
-    favicon: assets/favicon.ico
-    logo: assets/jupiter.png
+    favicon: material/assets/favicon.ico
+    logo: material/assets/jupiter.png
     highlightjs: true
     hljs_style: obsidian
     palette:
         primary: custom
 
 extra_css:
-    - assets/stylesheet.css
+    - material/assets/stylesheet.css
 
 nav:
     - Home: 'index.md'
