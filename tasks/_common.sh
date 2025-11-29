@@ -235,7 +235,7 @@ wait_for_service_to_start() {
 
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        http --verify=no --timeout 10 --check-status --quiet --quiet get "${url}"
+        http --follow --verify=no --timeout 10 --check-status get "${url}" > /dev/null 2>&1
         resp=$?
         set -e
         
