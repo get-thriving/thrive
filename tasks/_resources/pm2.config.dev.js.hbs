@@ -15,8 +15,8 @@ module.exports = {
         name: "{{namespace}}:webui",
         cwd: "src/webui",
         interpreter: "none",
-        script: "npx",
-        args: "remix dev",
+        script: "node_modules/.bin/remix",
+        args: "dev",
         log_file: "{{webuiLogFile}}",
         env: {
             LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL: "{{webapiServerUrl}}",

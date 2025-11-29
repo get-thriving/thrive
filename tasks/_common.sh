@@ -137,9 +137,14 @@ _run_jupiter_webapp_with_docker() {
     export WEBUI_PORT=$3
     export WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
     export WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
-    local should_wait=$4
-    local should_monit=$5
-    local in_ci=$6
+    export DOCS_PORT=$4
+    export DOCS_SERVER_URL=http://0.0.0.0:${DOCS_PORT}
+    export DOCS_PUBLIC_NAME=$PUBLIC_NAME
+    export DOCS_AUTHOR=$AUTHOR
+    export DOCS_COPYRIGHT=$COPYRIGHT
+    local should_wait=$5
+    local should_monit=$6
+    local in_ci=$7
     export NAME="My Hosting"
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -165,6 +170,7 @@ _run_jupiter_webapp_with_docker() {
 
     echo "$WEBAPI_PORT" > "$RUN_ROOT/$NAMESPACE/webapi.port"
     echo "$WEBUI_PORT" > "$RUN_ROOT/$NAMESPACE/webui.port"
+    echo "$DOCS_PORT" > "$RUN_ROOT/$NAMESPACE/docs.port"
 
     log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
@@ -173,6 +179,7 @@ _run_jupiter_webapp_with_docker() {
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+        wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
@@ -181,6 +188,10 @@ _run_jupiter_webapp_with_docker() {
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+    fi
+
+    if [[ ${should_wait} == "wait:docs" ]]; then
+        wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
 
     if [[ ${should_monit} == "monit" ]]; then
