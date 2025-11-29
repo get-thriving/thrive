@@ -6,7 +6,7 @@ copyright: !ENV COPYRIGHT
 repo_url: https://github.com/horia141/thrive
 repo_name: GitHub
 
-use_directory_urls: false
+use_directory_urls: true
 
 dev_addr: !ENV DEV_ADDR
 site_url: https://docs.get-thriving.com
@@ -14,15 +14,15 @@ docs_dir: material
 
 theme:
     name: material
-    favicon: material/assets/favicon.ico
-    logo: material/assets/jupiter.png
+    favicon: assets/favicon.ico
+    logo: assets/jupiter.png
     highlightjs: true
     hljs_style: obsidian
     palette:
         primary: custom
 
 extra_css:
-    - material/assets/stylesheet.css
+    - assets/stylesheet.css
 
 nav:
     - Home: 'index.md'
