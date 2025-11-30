@@ -1,6 +1,5 @@
 import { Button, ButtonGroup } from "@mui/material";
-import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Link } from "@remix-run/react";
+import { Link, type ShouldRevalidateFunction } from "@remix-run/react";
 import { useContext } from "react";
 import { DocsHelpSubject } from "@jupiter/webapi-client";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
@@ -36,8 +35,8 @@ export default function Index() {
 
           <Button
             variant="outlined"
-            to={globalProperties.docsUrl}
-            component={Link}
+            href={globalProperties.docsUrl}
+            component={"a"}
           >
             Go To The Docs
           </Button>

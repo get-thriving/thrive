@@ -132,6 +132,8 @@ _run_jupiter_webapp_with_pm2() {
 }
 
 _run_jupiter_webapp_with_docker() {
+    source src/Config.global
+    export DOMAIN=localhost
     export NAMESPACE=$1
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3

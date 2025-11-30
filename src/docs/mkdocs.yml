@@ -9,8 +9,8 @@ repo_name: GitHub
 use_directory_urls: true
 
 dev_addr: !ENV DEV_ADDR
-site_url: https://docs.get-thriving.com
-docs_dir: material
+site_url: !ENV SITE_URL
+docs_dir: material      
 
 theme:
     name: material

@@ -50,6 +50,16 @@ docker buildx build \
     --load \
     .
 
+log info "Building Docker images for docs (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/docs:latest-${usage_platform}" \
+    --tag "jupiter/docs:${VERSION}-${usage_platform}" \
+    --file src/docs/Dockerfile \
+    --load \
+    .
+
 log info "Building Docker images for cli (platform: ${usage_platform})"
 
 docker buildx build \
