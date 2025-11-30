@@ -37,6 +37,7 @@ services:
       fromService:
         name: jupiter-docs
         type: web
+        envVarKey: RENDER_EXTERNAL_HOSTNAME
 - type: web
   name: jupiter-webapi
   runtime: docker
