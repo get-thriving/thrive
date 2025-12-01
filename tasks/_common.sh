@@ -4,6 +4,7 @@ export RUN_ROOT=.build-cache/run
 export STANDARD_NAMESPACE=dev
 export STANDARD_WEBAPI_PORT=8004
 export STANDARD_WEBUI_PORT=10020
+export STANDARD_DOCS_PORT=8000
 
 export NVM_DIR="$HOME/.nvm"
 # shellcheck disable=SC1091
@@ -43,10 +44,11 @@ run_jupiter_webapp() {
     local NAMESPACE=$1
     local WEBAPI_PORT=$2
     local WEBUI_PORT=$3
-    local should_wait=$4
-    local should_monit=$5
-    local in_ci=$6
-    local mode=$7
+    local DOCS_PORT=$4
+    local should_wait=$5
+    local should_monit=$6
+    local in_ci=$7
+    local mode=$8
 
     export SCRIPT_ARGS=
     platform=$(uname -s | awk '{print tolower($0)}')
@@ -59,16 +61,17 @@ run_jupiter_webapp() {
 
     mkdir -p "$RUN_ROOT/$NAMESPACE"
 
-    log info "Running Jupiter WebApi with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, mode: $mode"
+    log info "Running Jupiter WebApi with namespace: $NAMESPACE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mode: $mode"
 
     if [[ "$mode" == "pm2" ]]; then
-        _run_jupiter_webapp_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_pm2 "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci"
     else
-        _run_jupiter_webapp_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$should_wait" "$should_monit" "$in_ci"
+        _run_jupiter_webapp_with_docker "$NAMESPACE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci"
     fi
 }
 
 _run_jupiter_webapp_with_pm2() {
+    source src/Config.global
     local namespace=$1
     local webapiLogFile=../../$RUN_ROOT/$namespace/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
@@ -77,15 +80,22 @@ _run_jupiter_webapp_with_pm2() {
     local webuiLogFile=../../$RUN_ROOT/$namespace/webui.log
     local webuiPort=$3
     local webuiServerUrl=http://0.0.0.0:${webuiPort}
-    local should_wait=$4
-    local should_monit=$5
-    local in_ci=$6
+    local docsLogFile=../../$RUN_ROOT/$namespace/docs.log
+    local docsPort=$4
+    local docsServerUrl=http://0.0.0.0:${docsPort}
+    local docsPublicName=$PUBLIC_NAME
+    local docsAuthor=$AUTHOR
+    local docsCopyright=$COPYRIGHT
+    local should_wait=$5
+    local should_monit=$6
+    local in_ci=$7
 
+    # here!
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
+        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     else
-        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webapiServerUrl="$webapiServerUrl" webuiServerUrl="$webuiServerUrl")
+        data=$(jo namespace="$namespace" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$NAMESPACE/pm2.config.js"
     fi
 
@@ -96,10 +106,12 @@ _run_jupiter_webapp_with_pm2() {
 
     echo "$webapiPort" > "$RUN_ROOT/$namespace/webapi.port"
     echo "$webuiPort" > "$RUN_ROOT/$namespace/webui.port"
+    echo "$docsPort" > "$RUN_ROOT/$namespace/docs.port"
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
+        wait_for_service_to_start docs "$docsServerUrl"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
@@ -110,20 +122,31 @@ _run_jupiter_webapp_with_pm2() {
         wait_for_service_to_start webui "$webuiServerUrl"
     fi
 
+    if [[ ${should_wait} == "wait:docs" ]]; then
+        wait_for_service_to_start docs "$docsServerUrl"
+    fi
+
     if [[ ${should_monit} == "monit" ]]; then
         npx pm2 monit
     fi
 }
 
 _run_jupiter_webapp_with_docker() {
+    source src/Config.global
+    export DOMAIN=localhost
     export NAMESPACE=$1
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3
     export WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
     export WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
-    local should_wait=$4
-    local should_monit=$5
-    local in_ci=$6
+    export DOCS_PORT=$4
+    export DOCS_SERVER_URL=http://0.0.0.0:${DOCS_PORT}
+    export DOCS_PUBLIC_NAME=$PUBLIC_NAME
+    export DOCS_AUTHOR=$AUTHOR
+    export DOCS_COPYRIGHT=$COPYRIGHT
+    local should_wait=$5
+    local should_monit=$6
+    local in_ci=$7
     export NAME="My Hosting"
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -149,6 +172,7 @@ _run_jupiter_webapp_with_docker() {
 
     echo "$WEBAPI_PORT" > "$RUN_ROOT/$NAMESPACE/webapi.port"
     echo "$WEBUI_PORT" > "$RUN_ROOT/$NAMESPACE/webui.port"
+    echo "$DOCS_PORT" > "$RUN_ROOT/$NAMESPACE/docs.port"
 
     log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
@@ -157,6 +181,7 @@ _run_jupiter_webapp_with_docker() {
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+        wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
@@ -165,6 +190,10 @@ _run_jupiter_webapp_with_docker() {
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
+    fi
+
+    if [[ ${should_wait} == "wait:docs" ]]; then
+        wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
 
     if [[ ${should_monit} == "monit" ]]; then
@@ -219,7 +248,7 @@ wait_for_service_to_start() {
 
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        http --verify=no --timeout 10 --check-status --quiet --quiet get "${url}"
+        http --follow --verify=no --timeout 10 --check-status get "${url}" > /dev/null 2>&1
         resp=$?
         set -e
         
@@ -278,18 +307,18 @@ get_logs() {
 
 run_jupiter_cli() {
     local namespace=$1
-    local args_string=$2
+    local argsString=$2
     local sessionInfoPath=../../$RUN_ROOT/$namespace/session-info
     local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$namespace/jupiter.sqlite
 
     mkdir -p "$RUN_ROOT/$namespace"
 
-    log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl} with '${args_string}'"
+    log info "Running Jupiter CLI with namespace: ${namespace} on ${sqliteDbUrl} with '${argsString}'"
 
     export SESSION_INFO_PATH=${sessionInfoPath}
     export SQLITE_DB_URL=${sqliteDbUrl} 
 
     cd src/cli
     # MISE passes all jupiter args as a single string, so we need to eval it to properly parse quotes
-    eval "python -m jupiter.cli.jupiter ${args_string}"
+    eval "python -m jupiter.cli.jupiter ${argsString}"
 }

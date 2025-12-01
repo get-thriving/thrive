@@ -35,7 +35,7 @@ export function DocsHelp(props: DocsHelpProps) {
 function subjectToUrl(subject: DocsHelpSubject) {
   switch (subject) {
     case DocsHelpSubject.ROOT:
-      return "/";
+      return "";
     case DocsHelpSubject.HOME:
       return "concepts/home";
     case DocsHelpSubject.GAMIFICATION:

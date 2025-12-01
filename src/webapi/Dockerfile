@@ -33,9 +33,9 @@ COPY src/webapi/pyproject.toml src/webapi/pyproject.toml
 COPY src/webapi/Config.project.live src/webapi/Config.project
 COPY src/webapi/jupiter src/webapi/jupiter
 
-WORKDIR /jupiter/src/webapi
-
 RUN uv sync --all-packages --active
+
+WORKDIR /jupiter/src/webapi
 
 ARG PORT=10000
 ENV HOST=0.0.0.0

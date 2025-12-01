@@ -6,9 +6,10 @@ copyright: !ENV COPYRIGHT
 repo_url: https://github.com/horia141/thrive
 repo_name: GitHub
 
-use_directory_urls: false
+use_directory_urls: true
 
-site_url: https://docs.get-thriving.com
+dev_addr: !ENV DEV_ADDR
+site_url: !ENV SITE_URL
 docs_dir: material
 
 theme:

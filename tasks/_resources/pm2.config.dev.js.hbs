@@ -15,13 +15,28 @@ module.exports = {
         name: "{{namespace}}:webui",
         cwd: "src/webui",
         interpreter: "none",
-        script: "npx",
-        args: "remix dev",
+        script: "node_modules/.bin/remix",
+        args: "dev",
         log_file: "{{webuiLogFile}}",
         env: {
             LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL: "{{webapiServerUrl}}",
+            DOCS_URL: "{{docsServerUrl}}",
             PORT: "{{webuiPort}}",
             NODE_OPTIONS: "--trace-warnings"
+        }
+    }, {
+        name: "{{namespace}}:docs",
+        cwd: "src/docs",
+        interpreter: "none",
+        script: "mkdocs",
+        args: "serve",
+        log_file: "{{docsLogFile}}",
+        env: {
+          DEV_ADDR: "{{removePrefix docsServerUrl 'http://'}}",
+          PUBLIC_NAME: "{{docsPublicName}}",
+          SITE_URL: "{{docsServerUrl}}",
+          AUTHOR: "{{docsAuthor}}",
+          COPYRIGHT: "{{docsCopyright}}"
         }
     }]
   }

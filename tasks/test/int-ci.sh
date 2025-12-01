@@ -28,6 +28,7 @@ if [[ "$usage_run_mode" == "docker" ]]; then
 else
     webui_url=http://0.0.0.0:${webui_port}
 fi
+docs_port=$(get_free_port)
 
 # Are we truly in a CI environment, or on a local machine but running the CI script?
 # If we are, GitHub (and other CI providers) will set the CI environment variable.
@@ -40,7 +41,7 @@ fi
 
 log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
 
-run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" wait:all no-monit $in_ci "$usage_run_mode"
+run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" "$docs_port" wait:all no-monit $in_ci "$usage_run_mode"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 

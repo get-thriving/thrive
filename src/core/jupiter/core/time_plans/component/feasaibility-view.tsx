@@ -19,8 +19,8 @@ export function FeasabilityView(props: FeasaibilityViewProps) {
         There are {hoursAvailable(props.timePlan.period)} hours in the{" "}
         {props.timePlan.period === RecurringTaskPeriod.DAILY ? "day" : "week"}.
         Of these, {hoursSleep(props.timePlan.period)} hours should be for sleep,
-        leaving {availableHours} hours for activity. You have planned{" "}
-        {totalHours} hours for this time plan.
+        leaving {availableHours.toFixed(0)} hours for activity. You have planned{" "}
+        {totalHours.toFixed(0)} hours for this time plan.
       </Typography>
 
       <Typography component="p" sx={{ mt: 1 }}>
@@ -54,15 +54,15 @@ function getConfidence(
 ): { message: string } {
   if (totalHours < availableHours / 2) {
     return {
-      message: `You have high confidence in completing this plan. Your planned ${totalHours.toFixed(0)} hours is less than half of the ${availableHours} available hours.`,
+      message: `You should have high confidence in completing this plan. Your planned ${totalHours.toFixed(0)} hours is less than half of the ${availableHours} available hours.`,
     };
   } else if (totalHours < availableHours) {
     return {
-      message: `You have low confidence in completing this plan. Your planned ${totalHours.toFixed(0)} hours is approaching the ${availableHours} available hours.`,
+      message: `You should have low confidence in completing this plan. Your planned ${totalHours.toFixed(0)} hours is more than half of the ${availableHours} available hours.`,
     };
   } else {
     return {
-      message: `This plan is critical. Your planned ${totalHours.toFixed(0)} hours exceeds the ${availableHours} available hours, making it unlikely to complete.`,
+      message: `This plan is critically unlikely to be completed. Your planned ${totalHours.toFixed(0)} hours exceeds the ${availableHours} available hours, making it unlikely to complete.`,
     };
   }
 }

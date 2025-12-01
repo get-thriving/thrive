@@ -33,11 +33,11 @@ services:
         name: jupiter-webapi
         type: web
         property: port
-    # - key: DOCS_URL
-    #   fromService:
-    #     name: jupiter-docs
-    #     type: web
-    #     property: hostport
+    - key: DOCS_URL
+      fromService:
+        name: jupiter-docs
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 - type: web
   name: jupiter-webapi
   runtime: docker
@@ -79,3 +79,4 @@ services:
       value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0
+

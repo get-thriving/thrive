@@ -29,19 +29,19 @@ Here's a picture of a typical "home" view:
 
 And a picture from the "inbox" view:
 
-![Inbox Tasks](assets/showcase/showcase-inbox-tasks.png)
+![Inbox Tasks](assets/showcase/showcase-desktop-inbox-tasks.png)
 
 And the calendar view:
 
-![Calendars](assets/showcase/showcase-calendar.png)
+![Calendars](assets/showcase/showcase-desktop-calendar.png)
 
 And a metric feature:
 
-![Metrics](assets/showcase/showcase-metrics.png)
+![Metrics](assets/showcase/showcase-desktop-metrics.png)
 
 And finally, a timeplan feature:
 
-![Time Plans](assets/showcase/showcase-timeplan.png)
+![Time Plans](assets/showcase/showcase-desktop-timeplan.png)
 
 ## Further Reading
 

@@ -8,7 +8,7 @@ streams_.
 
 Here's how a calendar might look like:
 
-![Calendar View](../assets/showcase/showcase-calendar.png)
+![Calendar View](../assets/showcase/showcase-desktop-calendar.png)
 
 ## Calendar Events
 
