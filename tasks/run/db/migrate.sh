@@ -24,6 +24,7 @@ log info "Running database migrations for namespace: $namespace"
 # Get free ports for the migration run
 webapi_port=$(get_free_port)
 webui_port=$(get_free_port)
+docs_port=$(get_free_port)
 
 log info "Starting Jupiter for migrations with webapi port: $webapi_port and webui port: $webui_port"
 
@@ -36,7 +37,7 @@ fi
 
 
 # Run Jupiter with migrations - it will automatically run migrations on startup
-run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" wait:webapi no-monit ci pm2
+run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" "$docs_port" wait:webapi no-monit ci pm2
 
 get_logs pm2 "$namespace" webapi
 

@@ -28,8 +28,8 @@ COPY src/webui/remix.config.js src/webui/remix.config.js
 COPY src/webui/remix.env.d.ts src/webui/remix.env.d.ts
 COPY src/webui/from-electron.d.ts src/webui/from-electron.d.ts
 COPY src/webui/app src/webui/app
-COPY src/webui/public/favicon.ico src/webui/public/favicon.ico
-COPY src/webui/public/logo.png src/webui/public/logo.png
+COPY assets/jupiter.ico src/webui/public/favicon.ico
+COPY assets/jupiter.png src/webui/public/logo.png
 COPY src/webui/public/pomodoro-notification.mp3 src/webui/public/pomodoro-notification.mp3
 COPY src/webui/public/frontdoor-redirect-hack-init.html src/webui/public/frontdoor-redirect-hack-init.html
 COPY src/webui/public/frontdoor-redirect-hack-workspace.html src/webui/public/frontdoor-redirect-hack-workspace.html

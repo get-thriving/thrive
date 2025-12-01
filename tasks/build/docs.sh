@@ -16,6 +16,7 @@ source src/Config.global
 export PUBLIC_NAME
 export AUTHOR
 export COPYRIGHT
+export SITE_URL="${RENDER_EXTERNAL_URL:-https://docs.get-thriving.com}"
 
 log info "Building documentation"
 

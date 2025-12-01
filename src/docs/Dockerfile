@@ -21,20 +21,22 @@ COPY LICENSE LICENSE
 COPY pyproject.toml pyproject.toml
 COPY uv.lock uv.lock
 COPY src/Config.global src/Config.global
-COPY src/alib/py/framework src/alib/py/framework
-COPY src/alib/py/framework/pyproject.toml src/alib/py/framework/pyproject.toml
-COPY src/alib/py/framework/jupiter src/alib/py/framework/jupiter
-COPY src/core/README.md src/core/README.md
-COPY src/core/pyproject.toml src/core/pyproject.toml
-COPY src/core/migrations src/core/migrations
-COPY src/core/jupiter src/core/jupiter
-COPY src/cli/README.md src/cli/README.md
-COPY src/cli/pyproject.toml src/cli/pyproject.toml
-COPY src/cli/Config.project.live src/cli/Config.project
-COPY src/cli/jupiter src/cli/jupiter
+COPY src/docs/README.md src/docs/README.md
+COPY src/docs/pyproject.toml src/docs/pyproject.toml
+COPY src/docs/mkdocs.yml src/docs/mkdocs.yml
+COPY src/docs/material src/docs/material
+COPY assets/jupiter.ico src/docs/material/assets/favicon.ico
+COPY assets/jupiter.png src/docs/material/assets/jupiter.png
+COPY assets/showcase-*.png src/docs/material/assets/showcase/
 
 RUN uv sync --all-packages --active
 
-WORKDIR /jupiter/src/cli
+ARG PORT=8000
+ENV HOST=0.0.0.0
+ENV PORT=$PORT
+ENV DEV_ADDR=$HOST:$PORT
+EXPOSE $PORT
 
-ENTRYPOINT ["python", "-m", "jupiter.cli.jupiter"]
+WORKDIR /jupiter/src/docs
+
+ENTRYPOINT ["mkdocs", "serve", "--no-livereload"]
