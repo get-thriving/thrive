@@ -79,6 +79,4 @@ services:
       value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0
-    - key: SITE_URL
-      fromEnv: RENDER_EXTERNAL_HOSTNAME
 
