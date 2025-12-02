@@ -141,13 +141,12 @@ _run_jupiter_webapp_with_docker() {
     export WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
     export DOCS_PORT=$4
     export DOCS_SERVER_URL=http://0.0.0.0:${DOCS_PORT}
-    export DOCS_PUBLIC_NAME=$PUBLIC_NAME
+    export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT
     local should_wait=$5
     local should_monit=$6
     local in_ci=$7
-    export NAME="My Hosting"
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
     SESSION_COOKIE_SECRET=$(openssl rand -hex 32)

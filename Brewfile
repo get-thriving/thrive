@@ -1,6 +1,5 @@
 tap "rest-sh/tap"
 
-brew "shellcheck"
 brew "tree"
 brew "cloc"
 brew "create-dmg"

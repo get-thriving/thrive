@@ -56,6 +56,7 @@ const SectionHeader = styled("div")(() => ({
 
 const StyledCard = styled(Card)(() => ({
   position: "relative",
+  overflow: "visible",
 }));
 
 const SectionHeaderContent = styled("div")(() => ({

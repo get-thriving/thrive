@@ -13,7 +13,7 @@ from jupiter.framework.value import AtomicValue, value
 
 _RECURRING_TASK_DUE_AT_DAY_BOUNDS: Final[dict[RecurringTaskPeriod, tuple[int, int]]] = {
     RecurringTaskPeriod.DAILY: (0, 0),
-    RecurringTaskPeriod.WEEKLY: (1, 6),
+    RecurringTaskPeriod.WEEKLY: (1, 7),
     RecurringTaskPeriod.MONTHLY: (1, 31),
     RecurringTaskPeriod.QUARTERLY: (1, 31),
     RecurringTaskPeriod.YEARLY: (1, 31),
