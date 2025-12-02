@@ -139,7 +139,6 @@ export default function SmartListViewTags() {
           id="smart-list-tags"
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
-          expansion={ActionsExpansion.ALWAYS_SHOW}
           actions={[
             NavSingle({
               text: isBigScreen ? "Details" : "",

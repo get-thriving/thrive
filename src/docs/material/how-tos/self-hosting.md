@@ -127,7 +127,7 @@ force folks to be _on top of_ domain renewals!
 With the groundwork out of the way, we can actually do something thatis specific
 to Thrive.
 
-First, you need to download some configuration files toyour machine. Putting
+First, you need to download some configuration files to your machine. Putting
 these files in your home directory should be enough:
 
 ```bash
@@ -141,12 +141,12 @@ It's instructive to inspect them, and you are free to modify them, butthere
 should not be any need.
 
 There is some configuration that's specific to your instance of Thrive
-thatyou'll need to provide though. You'll need to create and edit an `.env` file
+that you'll need to provide though. You'll need to create and edit an `.env` file
 like so:
 
 ```bash
 touch .env
-echo "NAME=Horia's Thrive" >> .env # Use your own name here
+echo "PUBLIC_NAME=Horia's Thrive" >> .env # Use your own name here
 echo "DOMAIN=my-thrive-instance.com" >> .env # Use your own value here
 echo "AUTH_TOKEN_SECRET=$(openssl rand -base64 32)" >> .env
 echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
