@@ -225,6 +225,7 @@ export default function Gen() {
             actions={[
               ActionSingle({
                 text: "Generate",
+                id: "generate",
                 value: "update",
                 highlight: true,
               }),

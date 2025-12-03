@@ -796,7 +796,7 @@ export default function BigPlan() {
               title="Time Plans"
               actions={
                 <SectionActions
-                  id="inbox-task-time-plans"
+                  id="big-plan-time-plans-actions"
                   topLevelInfo={topLevelInfo}
                   inputsEnabled={inputsEnabled}
                   actions={[

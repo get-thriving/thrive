@@ -63,6 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 // @secureFn
 export async function action({ request }: ActionFunctionArgs) {
+  console.log("Here");
   const session = await getSession(request.headers.get("Cookie"));
   const apiClient = await getGuestApiClient(request);
   const form = await parseForm(request, LoginFormSchema);

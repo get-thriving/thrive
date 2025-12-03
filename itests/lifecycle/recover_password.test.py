@@ -19,7 +19,10 @@ def test_recover_password(
 ):
     page.goto("/app/workspace")
 
-    page.locator("#reset-password").click()
+    page.locator("#section-action-nav-multiple-compact-button").click()
+    page.locator("a", has_text="Reset Password").click()
+
+    page.wait_for_url("/app/reset-password")
 
     page.locator('input[name="emailAddress"]').fill(new_user.email)
     page.locator('input[name="recoveryToken"]').fill(
@@ -33,7 +36,7 @@ def test_recover_password(
     page.get_by_role("link", name="To Workspace").click()
 
     expect(page.locator("#trunk-panel-content")).to_contain_text(
-        re.compile("There are no inbox tasks to show")
+        re.compile("There are no tabs to show")
     )
 
     logged_in_client = AuthenticatedClient(

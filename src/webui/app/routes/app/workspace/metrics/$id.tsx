@@ -238,7 +238,7 @@ function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
           max: graphMaxValue,
         }}
         axisBottom={{
-          format: "%y-%b",
+          format: "'%y-%b-%d",
           tickValues: 7,
         }}
         pointSize={4}
