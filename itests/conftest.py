@@ -6,7 +6,6 @@ import uuid
 from dataclasses import dataclass
 
 import pytest
-from playwright.async_api import async_playwright
 import validators
 
 

@@ -33,7 +33,6 @@ import {
   NavMultipleSpread,
   NavSingle,
   SectionActions,
-  ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 

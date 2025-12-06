@@ -306,11 +306,15 @@ const BranchPanelContent = styled("div")<BranchPanelContentProps>(
     paddingLeft:
       isbigscreen === "true"
         ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-        : hasleaf === "true" ? "0px" : "0.25rem",
+        : hasleaf === "true"
+          ? "0px"
+          : "0.25rem",
     paddingRight:
       isbigscreen === "true"
         ? `calc((100vw - ${theme.breakpoints.values.lg}px) / 2)`
-        : hasleaf === "true" ? "0px" : "0.25rem",
+        : hasleaf === "true"
+          ? "0px"
+          : "0.25rem",
     height: `calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - ${
       isbigscreen === "true" ? "4rem" : "3.5rem"
     } - ${

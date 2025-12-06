@@ -7,7 +7,7 @@ from itests.conftest import TestUser
 def test_login(page: Page, new_user: TestUser):
     page.goto("/app/workspace")
 
-    page.wait_for_load_state('networkidle')
+    page.wait_for_load_state("networkidle")
 
     expect(page.locator("body")).to_contain_text("Login")
 

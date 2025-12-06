@@ -99,9 +99,6 @@ from jupiter_webapi_client.models.time_plan_activity_feasability import (
     TimePlanActivityFeasability,
 )
 from jupiter_webapi_client.models.time_plan_activity_kind import TimePlanActivityKind
-from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_result import (
-    TimePlanAssociateWithInboxTasksResult,
-)
 from jupiter_webapi_client.models.time_plan_associate_with_big_plans_args import (
     TimePlanAssociateWithBigPlansArgs,
 )
@@ -110,6 +107,9 @@ from jupiter_webapi_client.models.time_plan_associate_with_big_plans_result impo
 )
 from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_args import (
     TimePlanAssociateWithInboxTasksArgs,
+)
+from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_result import (
+    TimePlanAssociateWithInboxTasksResult,
 )
 from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArgs
 from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
@@ -335,7 +335,7 @@ def test_time_plan_archive(page: Page, create_time_plan) -> None:
     page.locator("#branch-entity-archive").click()
     page.locator("#branch-entity-archive-confirm").click()
 
-    page.wait_for_url(f"/app/workspace/time-plans")
+    page.wait_for_url("/app/workspace/time-plans")
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
@@ -1929,9 +1929,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_
         "p", has_text="Weekly plan for 2024-06-18"
     ).click()
 
-    page.locator("#add-inbox-task-to-plans").locator(
-        "button", has_text="Add"
-    ).click()
+    page.locator("#add-inbox-task-to-plans").locator("button", has_text="Add").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/inbox-tasks/{inbox_task.ref_id}"))
 
@@ -2157,7 +2155,9 @@ def test_time_plan_activity_archive_inbox_task(
 
     page.wait_for_url(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
-    page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}/{inbox_task_activity.ref_id}")
+    page.goto(
+        f"/app/workspace/time-plans/{time_plan.ref_id}/{inbox_task_activity.ref_id}"
+    )
 
     expect(
         page.locator('button[id="time-plan-activity-feasability-must-do"]')
@@ -2475,7 +2475,9 @@ def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None
     page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
     page.reload()
 
-    expect(page.locator("#trunk-panel").locator('button[aria-pressed="true"]')).to_have_text("Weekly")
+    expect(
+        page.locator("#trunk-panel").locator('button[aria-pressed="true"]')
+    ).to_have_text("Weekly")
 
 
 def _mark_inbox_task_done(
@@ -2780,12 +2782,17 @@ def test_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbox_task
 
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Inbox Task 1")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Inbox Task 2")
+    expect(page.locator("#time-plan-activities")).not_to_contain_text(
+        "The Inbox Task 1"
+    )
+    expect(page.locator("#time-plan-activities")).not_to_contain_text(
+        "The Inbox Task 2"
+    )
 
     page.goto(f"/app/workspace/big-plans/{big_plan.ref_id}")
     expect(page.locator("input[name='actionableDate']")).to_have_value("2024-06-10")
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
+
 
 # ideas
 # * view time plan should show some activities
