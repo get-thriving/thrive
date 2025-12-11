@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 #MISE description="Restore Jupiter database from backup"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
-backup_path="$RUN_ROOT/$namespace/jupiter.sqlite.bak"
+db_path="$RUN_ROOT/$environ/jupiter.sqlite"
+backup_path="$RUN_ROOT/$environ/jupiter.sqlite.bak"
 
 if [[ ! -f "$backup_path" ]]; then
     log info "Backup file not found at: $backup_path"
@@ -31,7 +31,7 @@ fi
 log info "Restoring Jupiter database from backup..."
 log info "Source (backup): $backup_path"
 log info "Destination: $db_path"
-log info "Namespace: $namespace"
+log info "Environ: $environ"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$(dirname "$db_path")"

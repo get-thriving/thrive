@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 
 #MISE description="Connect to Jupiter database"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
+db_path="$RUN_ROOT/$environ/jupiter.sqlite"
 
 if [[ ! -f "$db_path" ]]; then
     log info "Database file not found at: $db_path"
@@ -27,6 +27,6 @@ if [[ ! -f "$db_path" ]]; then
     exit 1
 fi
 
-log info "Connecting to Jupiter SQLite database for namespace: $namespace at path: $db_path"
+log info "Connecting to Jupiter SQLite database for environ: $environ at path: $db_path"
 
 sqlite3 "$db_path"

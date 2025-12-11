@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 #MISE description="Clear a Jupiter database - dangerous!"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
+db_path="$RUN_ROOT/$environ/jupiter.sqlite"
 
-log info "Clearing database for ${namespace} in ${db_path}"
+log info "Clearing database for ${environ} in ${db_path}"
 
 rm "${db_path}"

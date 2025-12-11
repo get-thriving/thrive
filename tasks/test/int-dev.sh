@@ -3,8 +3,8 @@
 #MISE description="Run integration tests on a dev machine"
 #USAGE flag "--webapi-url <webapiUrl>" help="The webapi url"
 #USAGE flag "--webui-url <webuiUrl>" help="The webui url"
-#USAGE flag "--namespace <namespace>" help="The namespace"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="The environ"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
@@ -17,7 +17,7 @@
 : "${usage_pytest_args:=}"
 : "${usage_webapi_url:=}"
 : "${usage_webui_url:=}"
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
@@ -29,9 +29,9 @@ mkdir -p .build-cache/itest
 webapi_url=$usage_webapi_url
 webui_url=$usage_webui_url
 
-if [[ -n "$usage_namespace" ]]; then
-    webapi_port=$(get_jupiter_port "$usage_namespace" webapi)
-    webui_port=$(get_jupiter_port "$usage_namespace" webui)
+if [[ -n "$usage_environ" ]]; then
+    webapi_port=$(get_jupiter_port "$usage_environ" webapi)
+    webui_port=$(get_jupiter_port "$usage_environ" webui)
     webapi_url="http://0.0.0.0:$webapi_port"
     webui_url="http://0.0.0.0:$webui_port"
 fi

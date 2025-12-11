@@ -19,7 +19,7 @@ source tasks/test/_common.sh
 
 mkdir -p .build-cache/itest
 
-namespace=$(get_namespace)
+environ=$(get_environ)
 webapi_port=$(get_free_port)
 webapi_url=http://0.0.0.0:${webapi_port}
 webui_port=$(get_free_port)
@@ -41,7 +41,7 @@ fi
 
 log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and pytest args ${usage_pytest_args[*]}"
 
-run_jupiter_webapp "$namespace" "$webapi_port" "$webui_port" "$docs_port" wait:all no-monit $in_ci "$usage_run_mode"
+run_jupiter_webapp "$environ" "$webapi_port" "$webui_port" "$docs_port" wait:all no-monit $in_ci "$usage_run_mode"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 

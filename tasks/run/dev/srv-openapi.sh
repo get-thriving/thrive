@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 
 #MISE description="Open the OpenAPI specification page"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-log info "Opening OpenAPI specification page for namespace $namespace"
+log info "Opening OpenAPI specification page for environ $environ"
 
-# Check if webapi service is already running for this namespace
-if ! check_service_is_running pm2 "$namespace" webapi; then
-    log info "WebAPI service is not running for namespace: $namespace"
+# Check if webapi service is already running for this environ
+if ! check_service_is_running pm2 "$environ" webapi; then
+    log info "WebAPI service is not running for environ: $environ"
     log info "Please start the service first"
     exit 1
 fi
 
-webapi_port=$(get_jupiter_port "$namespace" "webapi")
+webapi_port=$(get_jupiter_port "$environ" "webapi")
 webapi_url="http://localhost:${webapi_port}"
 
 open "${webapi_url}/openapi.json"
