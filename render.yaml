@@ -37,7 +37,7 @@ services:
       fromService:
         name: jupiter-webapi
         type: web
-        property: RENDER_EXTERNAL_URL
+        envVarKey: RENDER_EXTERNAL_URL
     - key: DOCS_URL
       fromService:
         name: jupiter-docs
