@@ -21,8 +21,8 @@ export async function loader() {
   }
 
   return json({
-    webUiUrl: GLOBAL_PROPERTIES.hostedGlobalWebUiUrl,
     webApiUrl: webApiServerUrl,
+    webUiUrl: GLOBAL_PROPERTIES.hostedGlobalWebUiUrl,
     docsUrl: GLOBAL_PROPERTIES.docsUrl,
   });
 }

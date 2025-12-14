@@ -51,7 +51,7 @@ def webui_url() -> str:
     webui_url = os.getenv("WEBUI_URL")
     if webui_url is None:
         raise Exception("WEBUI_URL is not set")
-    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", webui_url):
+    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", webui_url) or re.match(r"^http://localhost:\d+$", webui_url):
         return webui_url
     validation_result = validators.url(webui_url)
     if validation_result is not True:
@@ -65,7 +65,7 @@ def webapi_url() -> str:
     webapi_url = os.getenv("WEBAPI_URL")
     if webapi_url is None:
         raise Exception("WEBAPI_URL is not set")
-    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", webapi_url):
+    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", webapi_url) or re.match(r"^http://localhost:\d+$", webapi_url):
         return webapi_url
     validation_result = validators.url(webapi_url)
     if validation_result is not True:
@@ -79,7 +79,7 @@ def docs_url() -> str:
     docs_url = os.getenv("DOCS_URL")
     if docs_url is None:
         raise Exception("DOCS_URL is not set")
-    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", docs_url):
+    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", docs_url) or re.match(r"^http://localhost:\d+$", docs_url):
         return docs_url
     validation_result = validators.url(docs_url)
     if validation_result is not True:
