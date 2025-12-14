@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source src/Config.global
+
 export RUN_ROOT=.build-cache/run
 export STANDARD_ENVIRON=dev
 export STANDARD_UNIVERSE=local-dev
@@ -72,7 +74,6 @@ run_jupiter_webapp() {
 }
 
 _run_jupiter_webapp_with_pm2() {
-    source src/Config.global
     local environ=$1
     local webapiLogFile=../../$RUN_ROOT/$environ/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$environ/jupiter.sqlite
@@ -133,7 +134,6 @@ _run_jupiter_webapp_with_pm2() {
 }
 
 _run_jupiter_webapp_with_docker() {
-    source src/Config.global
     local environ=$1
     export DOMAIN=localhost
     export NAMESPACE=$environ

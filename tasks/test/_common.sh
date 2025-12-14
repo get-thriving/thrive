@@ -26,7 +26,18 @@ run_tests() {
         $@
 }
 
-format_universe_url() {
+format_local_dev_universe_url() {
+    local environ=$1
+    local webui_port=$(get_jupiter_port "$environ" webui)
+    echo "http://0.0.0.0:${webui_port}"
+}
+
+format_thrive_universe_url() {
+    local environ=$1
+    echo "https://jupiter-webui-${environ}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+format_other_universe_url() {
     local universe_url=$1
     # If the URL starts with http or https return it as is
     # Otherwise add http as a prefix
