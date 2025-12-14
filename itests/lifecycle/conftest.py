@@ -31,9 +31,7 @@ def new_user() -> TestUser:
 
 
 @pytest.fixture(autouse=True)
-def new_user_and_workspace(
-    webapi_url: str, new_user: TestUser
-) -> Iterator[InitResult]:
+def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[InitResult]:
     """Create a new user and workspace."""
     guest_client = AuthenticatedClient(base_url=webapi_url, token=_FAKE_TOKEN)
 

@@ -17,11 +17,11 @@ run_tests() {
     export WEBAPI_URL=$webapi_url 
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
+    # shellcheck disable=SC2068
     pytest itests \
         --last-failed \
         -o log_cli=true \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \
-        --base-url="$webui_url" \
-        $@ # shellcheck disable=SC2068
+        $@
 }

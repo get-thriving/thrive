@@ -7,7 +7,9 @@ def test_docs_works(page: Page, docs_url: str) -> None:
     expect(page.locator("body")).to_contain_text("Thrive is a tool for life planning")
 
 
-def test_docs_button_goes_to_docs(context: BrowserContext, page: Page, docs_url: str) -> None:
+def test_docs_button_goes_to_docs(
+    context: BrowserContext, page: Page, docs_url: str
+) -> None:
     """Test that the docs button goes to the docs."""
     page.goto("/app/workspace")
     # Clicking opens a new tab, so set a snare for the new page
@@ -20,4 +22,6 @@ def test_docs_button_goes_to_docs(context: BrowserContext, page: Page, docs_url:
     new_page.wait_for_url(docs_url)
 
     # Assert content in the new tab
-    expect(new_page.locator("body")).to_contain_text("Thrive is a tool for life planning")
+    expect(new_page.locator("body")).to_contain_text(
+        "Thrive is a tool for life planning"
+    )
