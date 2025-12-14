@@ -153,7 +153,7 @@ export default function Workspace() {
 
           <CommunityLink />
 
-          <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} />
+          <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} theId="docs-help" />
 
           <IconButton
             id="account-menu"

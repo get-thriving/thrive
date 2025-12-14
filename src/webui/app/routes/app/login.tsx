@@ -112,7 +112,7 @@ export default function Login() {
 
         <CommunityLink />
 
-        <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} />
+        <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} theId="docs-help" />
       </SmartAppBar>
 
       <LifecyclePanel>

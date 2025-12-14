@@ -11,7 +11,7 @@ from itests.conftest import TestUser
 
 def test_change_password(
     page: Page,
-    webapi_server_url: str,
+    webapi_url: str,
     new_user: TestUser,
     new_user_and_workspace: InitResult,
 ):
@@ -62,7 +62,7 @@ def test_change_password(
     page.wait_for_url("/app/workspace")
 
     logged_in_client = AuthenticatedClient(
-        base_url=webapi_server_url, token=new_user_and_workspace.auth_token_ext
+        base_url=webapi_url, token=new_user_and_workspace.auth_token_ext
     )
 
     change_password(

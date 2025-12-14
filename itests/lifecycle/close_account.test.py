@@ -6,7 +6,7 @@ from itests.conftest import TestUser
 
 def test_close_account(
     page: Page,
-    webapi_server_url: str,
+    webapi_url: str,
     new_user: TestUser,
     new_user_and_workspace: InitResult,
 ) -> None:

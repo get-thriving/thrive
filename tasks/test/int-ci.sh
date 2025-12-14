@@ -29,6 +29,7 @@ else
     webui_url=http://0.0.0.0:${webui_port}
 fi
 docs_port=$(get_free_port)
+docs_url=http://0.0.0.0:${docs_port}
 
 # Are we truly in a CI environment, or on a local machine but running the CI script?
 # If we are, GitHub (and other CI providers) will set the CI environment variable.
@@ -45,4 +46,4 @@ run_jupiter_webapp "$environ" "$webapi_port" "$webui_port" "$docs_port" wait:all
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$webui_url" "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$webui_url" "$docs_url" "${usage_pytest_args[@]}"

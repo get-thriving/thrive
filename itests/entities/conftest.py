@@ -33,10 +33,10 @@ def new_user() -> TestUser:
 
 @pytest.fixture(autouse=True, scope="package")
 def new_user_and_workspace(
-    webapi_server_url: str, new_user: TestUser
+    webapi_url: str, new_user: TestUser
 ) -> Iterator[InitResult]:
     """Create a new user and workspace."""
-    guest_client = AuthenticatedClient(base_url=webapi_server_url, token=_FAKE_TOKEN)
+    guest_client = AuthenticatedClient(base_url=webapi_url, token=_FAKE_TOKEN)
 
     init_response = init_sync(
         client=guest_client,
@@ -61,7 +61,7 @@ def new_user_and_workspace(
         raise Exception(init_response.content)
 
     logged_in_client = AuthenticatedClient(
-        base_url=webapi_server_url,
+        base_url=webapi_url,
         token=get_parsed_from_response(InitResult, init_response).auth_token_ext,
     )
 
@@ -72,11 +72,11 @@ def new_user_and_workspace(
 
 @pytest.fixture(autouse=True, scope="package")
 def logged_in_client(
-    webapi_server_url: str, new_user_and_workspace: InitResult
+    webapi_url: str, new_user_and_workspace: InitResult
 ) -> AuthenticatedClient:
     """An authenticated client."""
     return AuthenticatedClient(
-        base_url=webapi_server_url, token=new_user_and_workspace.auth_token_ext
+        base_url=webapi_url, token=new_user_and_workspace.auth_token_ext
     )
 
 

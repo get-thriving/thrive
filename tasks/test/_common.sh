@@ -9,10 +9,15 @@ run_tests() {
     shift
     local webui_url=$1
     shift
+    local docs_url=$1
+    shift
 
     log info "Running tests with pytest args ${*}"
 
-    LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL=$webapi_url pytest itests \
+    export WEBAPI_URL=$webapi_url 
+    export WEBUI_URL=$webui_url
+    export DOCS_URL=$docs_url
+    pytest itests \
         --last-failed \
         -o log_cli=true \
         --html-report=.build-cache/itest/test-report.html \

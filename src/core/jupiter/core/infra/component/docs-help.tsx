@@ -8,6 +8,7 @@ import { GlobalPropertiesContext } from "#/core/config-client";
 interface DocsHelpProps {
   size: "small" | "medium" | "large";
   subject: DocsHelpSubject;
+  theId?: string;
 }
 
 export function DocsHelp(props: DocsHelpProps) {
@@ -20,6 +21,7 @@ export function DocsHelp(props: DocsHelpProps) {
 
   return (
     <IconButton
+      id={props.theId}
       component={"a"}
       size={props.size}
       disableRipple
