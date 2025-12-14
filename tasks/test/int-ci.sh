@@ -4,6 +4,7 @@
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
+#USAGE flag "--headed" help="Run tests in headed mode"
 #USAGE arg "[pytestArgs]" var=#true help="The pytest args"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
@@ -11,6 +12,7 @@
 
 : "${usage_run_mode:=}"
 : "${usage_pytest_args:=}"
+: "${usage_headed:=}"
 
 set -e -o pipefail
 
@@ -46,4 +48,4 @@ run_jupiter_webapp "$environ" "$webapi_port" "$webui_port" "$docs_port" wait:all
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$webui_url" "$docs_url" "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$webui_url" "$docs_url" "$usage_headed" "${usage_pytest_args[@]}" 

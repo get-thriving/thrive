@@ -60,5 +60,5 @@ wait_for_service_to_start "docs" "$docs_url"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$webui_url" "$docs_url" --headed "${usage_pytest_args[@]}"
+run_tests "$webapi_url" "$webui_url" "$docs_url" true "${usage_pytest_args[@]}"
 
