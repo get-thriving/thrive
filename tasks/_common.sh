@@ -2,6 +2,7 @@
 
 export RUN_ROOT=.build-cache/run
 export STANDARD_ENVIRON=dev
+export STANDARD_UNIVERSE=local-dev
 export STANDARD_WEBAPI_PORT=8004
 export STANDARD_WEBUI_PORT=10020
 export STANDARD_DOCS_PORT=8000

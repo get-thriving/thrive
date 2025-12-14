@@ -18,5 +18,5 @@ run_tests() {
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \
         --base-url="$webui_url" \
-        "$@"
+        $@ # shellcheck disable=SC2068
 }

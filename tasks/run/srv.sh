@@ -3,6 +3,7 @@
 #MISE description="Run Jupiter server with optional environ and mode"
 #USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
 #USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="Run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
@@ -11,6 +12,7 @@
 #USAGE }
 
 : "${usage_environ:=}"
+: "${usage_universe:=local-dev}"
 : "${usage_run_mode:=pm2}"
 
 set -e -o pipefail

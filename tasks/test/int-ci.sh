@@ -4,7 +4,7 @@
 #USAGE flag "--run-mode <runMode>" default="pm2" help="The run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
-#USAGE arg "[pytestArgs]" double_dash="required" var=#true help="The pytest args"
+#USAGE arg "[pytestArgs]" var=#true help="The pytest args"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -45,4 +45,4 @@ run_jupiter_webapp "$environ" "$webapi_port" "$webui_port" "$docs_port" wait:all
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$webui_url" "${usage_pytest_args[*]}"
+run_tests "$webapi_url" "$webui_url" "${usage_pytest_args[@]}"

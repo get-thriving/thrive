@@ -6,12 +6,14 @@
 #USAGE }
 #USAGE flag "--environ <environ>" help="Jupiter environ"
 #USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
 : "${usage_platform:=}"
 : "${usage_environ:=}"
+: "${usage_universe:=local-dev}"
 
 set -e -o pipefail
 
