@@ -22,6 +22,7 @@ export interface GlobalPropertiesClient {
   title: string;
   description: string;
   webApiProgressReporterUrl: string;
+  webApiUrl: string;
   docsUrl: string;
   hostedGlobalDomain: string;
   communityUrl: string;
@@ -50,6 +51,7 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   title: "FAKE-FAKE",
   description: "FAKE-FAKE",
   webApiProgressReporterUrl: "FAKE-FAKE",
+  webApiUrl: "FAKE-FAKE",
   docsUrl: "FAKE-FAKE",
   hostedGlobalDomain: "FAKE-FAKE",
   communityUrl: "FAKE-FAKE",
@@ -80,6 +82,7 @@ export function serverToClientGlobalProperties(
       globalPropertiesServer.hosting === Hosting.SELF_HOSTED
         ? globalPropertiesServer.localOrSelfHostedWebApiProgressReporterUrl
         : globalPropertiesServer.hostedGlobalWebApiProgressReporterUrl,
+    webApiUrl: globalPropertiesServer.webApiUrl,
     docsUrl: globalPropertiesServer.docsUrl,
     hostedGlobalDomain: globalPropertiesServer.hostedGlobalWebUiUrl,
     communityUrl: globalPropertiesServer.communityUrl,

@@ -31,6 +31,7 @@ elif [[ "$usage_universe" == "thrive" ]]; then
     exit 1
 else 
     universe_url=$(format_universe_url "$usage_universe")
+    wait_for_service_to_start "universe" "$universe_url"
     # webui_url=$(http get $universe_url/test-manifest | jq -r '.webUiUrl')
     webui_url=$universe_url # A small hack
     webapi_url=$(http get $universe_url/test-manifest | jq -r '.webApiUrl')
@@ -59,6 +60,10 @@ fi
 # fi
 
 log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and Docs $docs_url and pytest args ${usage_pytest_args[*]}"
+
+wait_for_service_to_start "webapi" "$webapi_url"
+wait_for_service_to_start "webui" "$webui_url"
+wait_for_service_to_start "docs" "$docs_url"
 
 exit 1
 

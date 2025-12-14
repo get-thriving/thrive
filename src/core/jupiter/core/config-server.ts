@@ -13,6 +13,7 @@ export interface GlobalPropertiesServer {
   localOrSelfHostedWebApiProgressReporterUrl: string;
   hostedGlobalWebApiServerUrl: string;
   hostedGlobalWebApiProgressReporterUrl: string;
+  webApiUrl: string;
   docsUrl: string;
   hostedGlobalWebUiUrl: string;
   pwaStartUrl: string;
@@ -54,6 +55,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     version: process.env.VERSION as string,
     title: process.env.TITLE as string,
     description: process.env.DESCRIPTION as string,
+    webApiUrl: process.env.WEBAPI_URL as string,
     localOrSelfHostedWebApiServerUrl: process.env
       .LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL as string,
     localOrSelfHostedWebApiProgressReporterUrl: process.env

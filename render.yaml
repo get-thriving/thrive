@@ -33,6 +33,11 @@ services:
         name: jupiter-webapi
         type: web
         property: port
+    - key: WEBAPI_URL
+      fromService:
+        name: jupiter-webapi
+        type: web
+        property: RENDER_EXTERNAL_URL
     - key: DOCS_URL
       fromService:
         name: jupiter-docs
