@@ -76,7 +76,7 @@ current_manifest_url=$(gh release view "${release_tag}" --json assets | jq -r '.
 
 if [ -z "$current_manifest_url" ]
 then
-    cp scripts/release/release-manifest.template.json .build-cache/release/"${usage_version}"/current-release-manifest.json
+    cp tasks/release/release-manifest.template.json .build-cache/release/"${usage_version}"/current-release-manifest.json
 else
     curl -L "$current_manifest_url" > .build-cache/release/"${usage_version}"/current-release-manifest.json
 fi

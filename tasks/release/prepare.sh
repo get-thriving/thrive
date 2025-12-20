@@ -44,7 +44,7 @@ git pull
 git checkout -b "${release_branch}"
 sed -E "s/VERSION=.+/VERSION=${usage_version}/g" < src/Config.global > src/Config.global.bak
 mv src/Config.global.bak src/Config.global
-cp scripts/release/template.md "${release_notes_path}"
+cp tasks/release/template.md "${release_notes_path}"
 sed -i "" -E "s/{{release_version}}/${usage_version}/g" "${release_notes_path}"
 sed -i "" -E "s|{{release_date}}|${release_date}|g" "${release_notes_path}"
 git add "${release_notes_path}"

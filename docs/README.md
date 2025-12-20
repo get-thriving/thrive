@@ -242,7 +242,7 @@ which are useful for folks.
 There is a new release banner. Helps you reload the app if there's a new
 named version, or even download it if there's no app stores releases.
 
-It depends on scripts in `./scripts/release` to prepare the right
+It depends on scripts in `./tasks/release` to prepare the right
 release manifest (a `release-manifest.json` file) on GitHub releases.
 This means we're depending "live" on this system.
 

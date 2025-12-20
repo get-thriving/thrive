@@ -79,7 +79,7 @@ jq --arg desktop_macos "$desktop_macos" \
           .["google-play-store"] = "in-review" 
      else 
           .["google-play-store"] = "not-available" 
-     end' scripts/release/release-manifest.template.json > .build-cache/release/"${usage_version}"/release-manifest.json
+     end' tasks/release/release-manifest.template.json > .build-cache/release/"${usage_version}"/release-manifest.json
 
 log info "Creating release ${usage_version} on GitHub"
 
