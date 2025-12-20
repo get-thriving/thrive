@@ -439,7 +439,7 @@ export default function InboxTask() {
             title="Time Plans"
             actions={
               <SectionActions
-                id="inbox-task-time-plans"
+                id="inbox-task-time-plans-actions"
                 topLevelInfo={topLevelInfo}
                 inputsEnabled={inputsEnabled}
                 actions={[

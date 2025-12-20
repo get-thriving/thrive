@@ -145,6 +145,7 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
             )}
           </TableRow>
         </TableHead>
+
         <TableBody>
           <TableRow>
             <ValueAndPctCell value="Total" align="left" />
@@ -191,6 +192,7 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                   TimePlanActivityDoneness.NOT_DONE
                 ]
               }
+              total={timeAndEffortSummary.planned.totalActivities}
             />
 
             {isUserFeatureAvailable(
@@ -220,6 +222,7 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                       TimePlanActivityDoneness.NOT_DONE
                     ]
                   }
+                  total={timeAndEffortSummary.planned.totalScore}
                 />
               </>
             )}
@@ -304,6 +307,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.MUST_DO]
               }
+              total={
+                timeAndEffortSummary.planned.activitiesByFeasability[
+                  TimePlanActivityFeasability.MUST_DO
+                ]
+              }
             />
 
             {isUserFeatureAvailable(
@@ -340,6 +348,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                     timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
                       TimePlanActivityDoneness.NOT_DONE
                     ][TimePlanActivityFeasability.MUST_DO]
+                  }
+                  total={
+                    timeAndEffortSummary.planned.scoreByFeasability[
+                      TimePlanActivityFeasability.MUST_DO
+                    ]
                   }
                 />
               </>
@@ -428,6 +441,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.NICE_TO_HAVE]
               }
+              total={
+                timeAndEffortSummary.planned.activitiesByFeasability[
+                  TimePlanActivityFeasability.NICE_TO_HAVE
+                ]
+              }
             />
 
             {isUserFeatureAvailable(
@@ -464,6 +482,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                     timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
                       TimePlanActivityDoneness.NOT_DONE
                     ][TimePlanActivityFeasability.NICE_TO_HAVE]
+                  }
+                  total={
+                    timeAndEffortSummary.planned.scoreByFeasability[
+                      TimePlanActivityFeasability.NICE_TO_HAVE
+                    ]
                   }
                 />
               </>
@@ -552,6 +575,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                   TimePlanActivityDoneness.NOT_DONE
                 ][TimePlanActivityFeasability.STRETCH]
               }
+              total={
+                timeAndEffortSummary.planned.activitiesByFeasability[
+                  TimePlanActivityFeasability.STRETCH
+                ]
+              }
             />
 
             {isUserFeatureAvailable(
@@ -588,6 +616,11 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
                     timeAndEffortSummary.achieved.scoreByFeasabilityByDoneness[
                       TimePlanActivityDoneness.NOT_DONE
                     ][TimePlanActivityFeasability.STRETCH]
+                  }
+                  total={
+                    timeAndEffortSummary.planned.scoreByFeasability[
+                      TimePlanActivityFeasability.STRETCH
+                    ]
                   }
                 />
               </>

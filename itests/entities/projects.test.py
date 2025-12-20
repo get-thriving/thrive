@@ -1,6 +1,6 @@
 """Tests about projects."""
 
-from typing import cast
+from typing import Callable, cast
 
 import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
@@ -30,19 +30,23 @@ from itests.helpers import get_parsed_from_response
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_projects_feature(logged_in_client: AuthenticatedClient):
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=True),
-    )
-    yield
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=False),
-    )
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=True),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.PROJECTS, value=False
+            ),
+        )
 
 
 @pytest.fixture(autouse=True, scope="module")
-def get_root_project_id(logged_in_client: AuthenticatedClient):
+def get_root_project_id(logged_in_client: AuthenticatedClient) -> Callable[[], str]:
     def _get_root_project_id() -> str:
         response = get_summaries_sync(
             client=logged_in_client,
@@ -61,7 +65,10 @@ def get_root_project_id(logged_in_client: AuthenticatedClient):
 
 
 @pytest.fixture(autouse=True, scope="module")
-def create_project(logged_in_client: AuthenticatedClient, get_root_project_id):
+def create_project(
+    logged_in_client: AuthenticatedClient,
+    get_root_project_id: Callable[[], str],
+):
     def _create_project(name: str, parent_project_ref_id: str | None = None) -> Project:
         if parent_project_ref_id is None:
             parent_project_ref_id = get_root_project_id()

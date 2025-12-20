@@ -225,6 +225,7 @@ export default function AddBigPlanToPlans() {
         />
 
         <TimePlanStack
+          id="all-time-plans"
           label="All Time Plans"
           topLevelInfo={topLevelInfo}
           timePlans={allTimePlans}

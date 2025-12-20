@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="List all Jupiter namespaces"
+#MISE description="List all Jupiter environs"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -9,7 +9,7 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-log debug Listing Jupiter namespaces
+log debug Listing Jupiter environs
 
 # --- Config ---
 COL_W=42
@@ -25,8 +25,8 @@ else
     reset=""
 fi
 
-echo "Jupiter Namespaces:"
-echo "==================="
+echo "Jupiter Environs:"
+echo "================="
 
 if [[ -z "${RUN_ROOT:-}" ]]; then
     echo "RUN_ROOT is not set."
@@ -34,69 +34,62 @@ if [[ -z "${RUN_ROOT:-}" ]]; then
 fi
 
 if [[ ! -d "$RUN_ROOT" ]]; then
-    echo "No namespaces found. Run directory does not exist: $RUN_ROOT"
+    echo "No environs found. Run directory does not exist: $RUN_ROOT"
     exit 0
 fi
 
-# Collect namespaces (directories directly under RUN_ROOT)
+# Collect environs (directories directly under RUN_ROOT)
 # Use a portable approach that works on GNU/BSD find.
-namespaces=$(
+environs=$(
   find "$RUN_ROOT" -maxdepth 1 -type d -not -path "$RUN_ROOT" \
     | sed "s|$RUN_ROOT/||" \
     | LC_ALL=C sort
 )
 
-if [[ -z "$namespaces" ]]; then
-    echo "No namespaces found in $RUN_ROOT"
+if [[ -z "$environs" ]]; then
+    echo "No environs found in $RUN_ROOT"
     exit 0
 fi
 
-count="$(echo "$namespaces" | wc -l | tr -d ' ')"
-echo "Found $count namespace(s):"
+count="$(echo "$environs" | wc -l | tr -d ' ')"
+echo "Found $count environ(s):"
 echo "Run directory: $RUN_ROOT"
 echo ""
 
-# Iterate each namespace
+# Iterate each environ
 # (names shouldn't contain whitespace; if they could, switch to a read-while loop)
-for namespace in $namespaces; do
-    namespace_path="$RUN_ROOT/$namespace"
+for environ in $environs; do
+    environ_path="$RUN_ROOT/$environ"
 
     # Build status info
-    webapi_port_file="$namespace_path/webapi.port"
-    webui_port_file="$namespace_path/webui.port"
-    db_file="$namespace_path/jupiter.sqlite"
+    webapi_url=$(get_jupiter_url "$environ" "webapi")
+    webui_url=$(get_jupiter_url "$environ" "webui")
+    docs_url=$(get_jupiter_url "$environ" "docs")
+    db_file="$environ_path/jupiter.sqlite"
 
-    status_info=""
-
-    if [[ -f "$webapi_port_file" && -f "$webui_port_file" ]]; then
-        webapi_port="$(cat "$webapi_port_file" 2>/dev/null || true)"
-        webui_port="$(cat "$webui_port_file" 2>/dev/null || true)"
-        if [[ -n "$webapi_port" && -n "$webui_port" ]]; then
-        status_info+=" - WebAPI: http://localhost:$webapi_port, WebUI: http://localhost:$webui_port"
-        fi
-    fi
+    status_info="WebAPI: $webapi_url, WebUI: $webui_url, Docs: $docs_url"
 
     if [[ -f "$db_file" ]]; then
         # Portable-ish size: parse ls -lh output (fifth field)
         db_size="$(find "$db_file" -prune -exec ls -lh {} \; | awk '{print $5}')"
         if [[ -n "$status_info" ]]; then
-        status_info+=", Database: $db_size"
+            status_info+=", Database: $db_size"
         else
-        status_info+=" - Database: $db_size"
+            status_info="Database: $db_size"
         fi
     fi
 
     # Build plain (no ANSI) label for width calc
-    plain="  * $namespace"
-    if [[ "${namespace}" == "${STANDARD_NAMESPACE:-}" ]]; then
+    plain="  * $environ"
+    if [[ "${environ}" == "${STANDARD_ENVIRON:-}" ]]; then
         plain+=" (standard)"
     fi
 
     # Build colored label for output
-    if [[ "${namespace}" == "${STANDARD_NAMESPACE:-}" ]]; then
-        colored="  * ${blue}${namespace}${reset} ${green}(standard)${reset}"
+    if [[ "${environ}" == "${STANDARD_ENVIRON:-}" ]]; then
+        colored="  * ${blue}${environ}${reset} ${green}(standard)${reset}"
     else
-        colored="  * ${blue}${namespace}${reset}"
+        colored="  * ${blue}${environ}${reset}"
     fi
 
     # Compute padding based on *visible* length of plain label

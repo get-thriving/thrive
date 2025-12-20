@@ -94,7 +94,11 @@ export default function ResetPassword() {
 
         <CommunityLink />
 
-        <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} />
+        <DocsHelp
+          size="medium"
+          subject={DocsHelpSubject.ROOT}
+          theId="docs-help"
+        />
       </SmartAppBar>
 
       <LifecyclePanel>

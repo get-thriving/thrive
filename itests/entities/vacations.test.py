@@ -26,15 +26,21 @@ from itests.helpers import get_parsed_from_response
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_vacations_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.VACATIONS, value=True),
-    )
-    yield
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.VACATIONS, value=False),
-    )
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.VACATIONS, value=False
+            ),
+        )
 
 
 @pytest.fixture()

@@ -87,96 +87,102 @@ class TimePlanAssociateWithActivitiesUseCase(
 
         new_time_plan_actitivies = []
 
+        # First we create all the explicitly called out big plan activities.
         for activity in activities:
-            if activity.target == TimePlanActivityTarget.INBOX_TASK:
-                inbox_task = await uow.get_for(InboxTask).load_by_id(
-                    activity.target_ref_id
-                )
+            if activity.target != TimePlanActivityTarget.BIG_PLAN:
+                continue
 
-                new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+            big_plan = await uow.get_for(BigPlan).load_by_id(activity.target_ref_id)
+
+            new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+                context.domain_context,
+                time_plan_ref_id=args.ref_id,
+                existing_activity_name=activity.name,
+                existing_activity_target=activity.target,
+                existing_activity_target_ref_id=big_plan.ref_id,
+                existing_activity_kind=args.kind,
+                existing_activity_feasability=args.feasability,
+            )
+            new_time_plan_activity = await generic_creator(
+                uow, progress_reporter, new_time_plan_activity
+            )
+            new_time_plan_actitivies.append(new_time_plan_activity)
+
+            if (
+                big_plan.actionable_date is None or big_plan.due_date is None
+            ) or args.override_existing_dates:
+                big_plan = big_plan.change_dates_via_time_plan(
                     context.domain_context,
-                    time_plan_ref_id=args.ref_id,
-                    existing_activity_name=activity.name,
-                    existing_activity_target=activity.target,
-                    existing_activity_target_ref_id=inbox_task.ref_id,
-                    existing_activity_kind=args.kind,
-                    existing_activity_feasability=args.feasability,
+                    actionable_date=time_plan.start_date,
+                    due_date=time_plan.end_date,
                 )
-                new_time_plan_activity = await generic_creator(
-                    uow, progress_reporter, new_time_plan_activity
+                await uow.get_for(BigPlan).save(big_plan)
+                await progress_reporter.mark_updated(big_plan)
+
+        # Then we create all the inbox tasks, with their owning big plans if not already.
+        for activity in activities:
+            if activity.target != TimePlanActivityTarget.INBOX_TASK:
+                continue
+
+            inbox_task = await uow.get_for(InboxTask).load_by_id(activity.target_ref_id)
+
+            new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
+                context.domain_context,
+                time_plan_ref_id=args.ref_id,
+                existing_activity_name=activity.name,
+                existing_activity_target=activity.target,
+                existing_activity_target_ref_id=inbox_task.ref_id,
+                existing_activity_kind=args.kind,
+                existing_activity_feasability=args.feasability,
+            )
+            new_time_plan_activity = await generic_creator(
+                uow, progress_reporter, new_time_plan_activity
+            )
+            new_time_plan_actitivies.append(new_time_plan_activity)
+
+            if inbox_task.allow_user_changes and (
+                inbox_task.due_date is None or args.override_existing_dates
+            ):
+                inbox_task = inbox_task.change_due_date_via_time_plan(
+                    context.domain_context, due_date=time_plan.end_date
                 )
-                new_time_plan_actitivies.append(new_time_plan_activity)
+                await uow.get_for(InboxTask).save(inbox_task)
+                await progress_reporter.mark_updated(inbox_task)
 
-                if inbox_task.allow_user_changes and (
-                    inbox_task.due_date is None or args.override_existing_dates
-                ):
-                    inbox_task = inbox_task.change_due_date_via_time_plan(
-                        context.domain_context, due_date=time_plan.end_date
+            if inbox_task.source == InboxTaskSource.BIG_PLAN:
+                big_plan = await uow.get_for(BigPlan).load_by_id(
+                    inbox_task.source_entity_ref_id_for_sure
+                )
+
+                try:
+                    print(
+                        f"Creating new big plan time plan activity for big plan: {big_plan.ref_id}"
                     )
-                    await uow.get_for(InboxTask).save(inbox_task)
-                    await progress_reporter.mark_updated(inbox_task)
-
-                if inbox_task.source == InboxTaskSource.BIG_PLAN:
-                    big_plan = await uow.get_for(BigPlan).load_by_id(
-                        inbox_task.source_entity_ref_id_for_sure
-                    )
-
-                    try:
-                        new_big_plan_time_plan_activity = (
-                            TimePlanActivity.new_activity_for_big_plan(
-                                context.domain_context,
-                                time_plan_ref_id=args.ref_id,
-                                big_plan_ref_id=big_plan.ref_id,
-                                kind=TimePlanActivityKind.MAKE_PROGRESS,
-                                feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
-                            )
+                    new_big_plan_time_plan_activity = (
+                        TimePlanActivity.new_activity_for_big_plan(
+                            context.domain_context,
+                            time_plan_ref_id=args.ref_id,
+                            big_plan_ref_id=big_plan.ref_id,
+                            kind=TimePlanActivityKind.MAKE_PROGRESS,
+                            feasability=TimePlanActivityFeasability.NICE_TO_HAVE,
                         )
-                        new_big_plan_time_plan_activity = await generic_creator(
-                            uow, progress_reporter, new_big_plan_time_plan_activity
-                        )
-                        new_time_plan_actitivies.append(new_big_plan_time_plan_activity)
-
-                        if (
-                            big_plan.actionable_date is None
-                            or big_plan.due_date is None
-                        ):
-                            big_plan = big_plan.change_dates_via_time_plan(
-                                context.domain_context,
-                                actionable_date=time_plan.start_date,
-                                due_date=time_plan.end_date,
-                            )
-                            await uow.get_for(BigPlan).save(big_plan)
-                            await progress_reporter.mark_updated(big_plan)
-                    except TimePlanAlreadyAssociatedWithTargetError:
-                        # We were already working on this plan, no need to panic
-                        pass
-            else:
-                big_plan = await uow.get_for(BigPlan).load_by_id(activity.target_ref_id)
-
-                new_time_plan_activity = TimePlanActivity.new_activity_from_existing(
-                    context.domain_context,
-                    time_plan_ref_id=args.ref_id,
-                    existing_activity_name=activity.name,
-                    existing_activity_target=activity.target,
-                    existing_activity_target_ref_id=big_plan.ref_id,
-                    existing_activity_kind=args.kind,
-                    existing_activity_feasability=args.feasability,
-                )
-                new_time_plan_activity = await generic_creator(
-                    uow, progress_reporter, new_time_plan_activity
-                )
-                new_time_plan_actitivies.append(new_time_plan_activity)
-
-                if (
-                    big_plan.actionable_date is None or big_plan.due_date is None
-                ) or args.override_existing_dates:
-                    big_plan = big_plan.change_dates_via_time_plan(
-                        context.domain_context,
-                        actionable_date=time_plan.start_date,
-                        due_date=time_plan.end_date,
                     )
-                    await uow.get_for(BigPlan).save(big_plan)
-                    await progress_reporter.mark_updated(big_plan)
+                    new_big_plan_time_plan_activity = await generic_creator(
+                        uow, progress_reporter, new_big_plan_time_plan_activity
+                    )
+                    new_time_plan_actitivies.append(new_big_plan_time_plan_activity)
+
+                    if big_plan.actionable_date is None or big_plan.due_date is None:
+                        big_plan = big_plan.change_dates_via_time_plan(
+                            context.domain_context,
+                            actionable_date=time_plan.start_date,
+                            due_date=time_plan.end_date,
+                        )
+                        await uow.get_for(BigPlan).save(big_plan)
+                        await progress_reporter.mark_updated(big_plan)
+                except TimePlanAlreadyAssociatedWithTargetError:
+                    # We were already working on this plan, no need to panic
+                    pass
 
         return TimePlanAssociateWithActivitiesResult(
             new_time_plan_activities=new_time_plan_actitivies

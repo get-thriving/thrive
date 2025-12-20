@@ -8,6 +8,7 @@ LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL="http://127.0.0.1:8010"
 LOCAL_OR_SELF_HOSTED_WEBAPI_PROGRESS_REPORTER_URL="ws://localhost:8010/progress-reporter"
 _HOSTED_GLOBAL_WEBAPI_SERVER_HOST=WILL-BE-FILLED-BY-RENDER
 _HOSTED_GLOBAL_WEBAPI_SERVER_PORT=WILL-BE-FILLED-BY-RENDER
+WEBAPI_URL=http://localhost:8004/
 DOCS_URL=http://localhost:8000/
 PWA_START_URL=/frontdoor?clientVersion=to-fill&appShell=pwa&appPlatform=to-fill&appDistribution=web
 TERMS_OF_SERVICE_URL=https://get-thriving.com/terms-conditions

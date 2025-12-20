@@ -26,15 +26,17 @@ from itests.helpers import get_parsed_from_response
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_docs_feature(logged_in_client: AuthenticatedClient):
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
-    )
-    yield
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=False),
-    )
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=True),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.DOCS, value=False),
+        )
 
 
 @pytest.fixture(autouse=True, scope="module")

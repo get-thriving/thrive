@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
 #MISE description="Logout from the webapi"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-rm "${RUN_ROOT}/$namespace/rest_access_token"
+rm "${RUN_ROOT}/$environ/rest_access_token"
 
-log info "Logged out from $namespace webapi"
+log info "Logged out from $environ webapi"

@@ -32,11 +32,9 @@ def new_user() -> TestUser:
 
 
 @pytest.fixture(autouse=True, scope="package")
-def new_user_and_workspace(
-    webapi_server_url: str, new_user: TestUser
-) -> Iterator[InitResult]:
+def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[InitResult]:
     """Create a new user and workspace."""
-    guest_client = AuthenticatedClient(base_url=webapi_server_url, token=_FAKE_TOKEN)
+    guest_client = AuthenticatedClient(base_url=webapi_url, token=_FAKE_TOKEN)
 
     init_response = init_sync(
         client=guest_client,
@@ -61,22 +59,23 @@ def new_user_and_workspace(
         raise Exception(init_response.content)
 
     logged_in_client = AuthenticatedClient(
-        base_url=webapi_server_url,
+        base_url=webapi_url,
         token=get_parsed_from_response(InitResult, init_response).auth_token_ext,
     )
 
-    yield get_parsed_from_response(InitResult, init_response)
-
-    remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
+    try:
+        yield get_parsed_from_response(InitResult, init_response)
+    finally:
+        remove_all_sync(client=logged_in_client, body=RemoveAllArgs())
 
 
 @pytest.fixture(autouse=True, scope="package")
 def logged_in_client(
-    webapi_server_url: str, new_user_and_workspace: InitResult
+    webapi_url: str, new_user_and_workspace: InitResult
 ) -> AuthenticatedClient:
     """An authenticated client."""
     return AuthenticatedClient(
-        base_url=webapi_server_url, token=new_user_and_workspace.auth_token_ext
+        base_url=webapi_url, token=new_user_and_workspace.auth_token_ext
     )
 
 
@@ -98,17 +97,18 @@ def page_logged_in(
     # here then the redirect from "post /login" with cookies will not work!
     page.wait_for_url("/app/workspace")
 
-    yield new_user
-
-    clear_all_sync(
-        client=logged_in_client,
-        body=ClearAllArgs(
-            user_name=new_user.name,
-            user_timezone="UTC",
-            auth_current_password=new_user.password,
-            auth_new_password=new_user.password,
-            auth_new_password_repeat=new_user.password,
-            workspace_name="Test Workspace",
-            workspace_root_project_name="Root Project",
-        ),
-    )
+    try:
+        yield new_user
+    finally:
+        clear_all_sync(
+            client=logged_in_client,
+            body=ClearAllArgs(
+                user_name=new_user.name,
+                user_timezone="UTC",
+                auth_current_password=new_user.password,
+                auth_new_password=new_user.password,
+                auth_new_password_repeat=new_user.password,
+                workspace_name="Test Workspace",
+                workspace_root_project_name="Root Project",
+            ),
+        )

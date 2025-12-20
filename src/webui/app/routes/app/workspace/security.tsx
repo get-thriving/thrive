@@ -100,6 +100,7 @@ export default function Security() {
               inputsEnabled={inputsEnabled}
               actions={[
                 ActionSingle({
+                  id: "change-password",
                   text: "Change Password",
                   value: "change-password",
                   highlight: true,

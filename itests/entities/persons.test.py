@@ -23,15 +23,17 @@ from itests.helpers import get_parsed_from_response
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_persons_feature(logged_in_client: AuthenticatedClient):
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PERSONS, value=True),
-    )
-    yield
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PERSONS, value=False),
-    )
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PERSONS, value=True),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PERSONS, value=False),
+        )
 
 
 @pytest.fixture(autouse=True, scope="module")

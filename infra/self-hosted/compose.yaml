@@ -3,13 +3,12 @@ name: jupiter
 services:
   webapi:
     environment:
-      - ENV=production
-      - HOSTING=self-hosted
+      - ENV=${ENV:-production}
+      - HOSTING=${HOSTING:-self-hosted}
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
-    # image: jupiter/webapi:${VERSION:-latest}-arm64
-    image: horia141/jupiter-webapi:${VERSION:-latest}
+    image: ${DOCKER_IMAGE_WEBAPI:-horia141/jupiter-webapi:${VERSION:-latest}-arm64}
     ports:
     - "${WEBAPI_PORT:-0}:2000"
     volumes:
@@ -21,17 +20,17 @@ services:
       retries: 5
   webui:
     environment:
-      - ENV=production
-      - HOSTING=self-hosted
+      - ENV=${ENV:-production}
+      - HOSTING=${HOSTING:-self-hosted}
       - HOSTING_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
       - LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL=http://webapi:2000
+      - WEBAPI_URL=${WEBAPI_SERVER_URL:-http://webapi:2000}
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
-    # image: jupiter/webui:${VERSION:-latest}-arm64
-    image: horia141/jupiter-webui:${VERSION:-latest}
+    image: ${DOCKER_IMAGE_WEBUI:-horia141/jupiter-webui:${VERSION:-latest}-arm64}
     depends_on:
       - webapi
     healthcheck:
@@ -41,13 +40,12 @@ services:
       retries: 5
   docs:
     environment:
-      - ENV=production
+      - ENV=${ENV:-production}
       - DEV_ADDR=0.0.0.0:8000
       - SITE_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - PUBLIC_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
-    # image: jupiter/docs:${VERSION:-latest}-arm64
-    image: horia141/jupiter-docs:${VERSION:-latest}
+    image: ${DOCKER_IMAGE_DOCS:-horia141/jupiter-docs:${VERSION:-latest}-arm64}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s

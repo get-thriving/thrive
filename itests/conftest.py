@@ -10,9 +10,13 @@ import validators
 
 
 @pytest.fixture(scope="session")
-def browser_context_args(browser_context_args):
+def browser_context_args(browser_context_args, webui_url: str):
     """Browser context args."""
-    return {**browser_context_args, "ignore_https_errors": True}
+    return {
+        **browser_context_args,
+        "ignore_https_errors": True,
+        "base_url": webui_url,
+    }
 
 
 @dataclass
@@ -41,15 +45,49 @@ def new_random_user() -> TestUser:
     return TestUser.new_random()
 
 
-@pytest.fixture(autouse=True, scope="package")
-def webapi_server_url() -> str:
-    """The URL of the local Web API server."""
-    local_webapi_server_url = os.getenv("LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL")
-    if local_webapi_server_url is None:
-        raise Exception("LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL is not set")
-    if re.match(r"^http://0[.]0[.]0[.]0:\d+$", local_webapi_server_url):
-        return local_webapi_server_url
-    validation_result = validators.url(local_webapi_server_url)
+@pytest.fixture(autouse=True, scope="session")
+def webui_url() -> str:
+    """The URL of the local Web UI server."""
+    webui_url = os.getenv("WEBUI_URL")
+    if webui_url is None:
+        raise Exception("WEBUI_URL is not set")
+    if re.match(r"^https?://0[.]0[.]0[.]0(:\d+)?", webui_url) or re.match(
+        r"^https?://localhost(:\d+)?", webui_url
+    ):
+        return webui_url
+    validation_result = validators.url(webui_url)
     if validation_result is not True:
-        raise Exception(f"Invalid Web API URL '{local_webapi_server_url}'")
-    return local_webapi_server_url
+        raise Exception(f"Invalid WEBUI_URL '{webui_url}'")
+    return webui_url
+
+
+@pytest.fixture(autouse=True, scope="session")
+def webapi_url() -> str:
+    """The URL of the local Web API server."""
+    webapi_url = os.getenv("WEBAPI_URL")
+    if webapi_url is None:
+        raise Exception("WEBAPI_URL is not set")
+    if re.match(r"^https?://0[.]0[.]0[.]0(:\d+)?", webapi_url) or re.match(
+        r"^https?://localhost(:\d+)?", webapi_url
+    ):
+        return webapi_url
+    validation_result = validators.url(webapi_url)
+    if validation_result is not True:
+        raise Exception(f"Invalid WEBAPI_URL '{webapi_url}'")
+    return webapi_url
+
+
+@pytest.fixture(autouse=True, scope="session")
+def docs_url() -> str:
+    """The URL of the local Docs server."""
+    docs_url = os.getenv("DOCS_URL")
+    if docs_url is None:
+        raise Exception("DOCS_URL is not set")
+    if re.match(r"^https?://0[.]0[.]0[.]0(:\d+)?", docs_url) or re.match(
+        r"^https?://localhost(:\d+)?", docs_url
+    ):
+        return docs_url
+    validation_result = validators.url(docs_url)
+    if validation_result is not True:
+        raise Exception(f"Invalid DOCS_URL '{docs_url}'")
+    return docs_url

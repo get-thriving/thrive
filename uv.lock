@@ -875,6 +875,7 @@ dev = [
     { name = "pylibyear" },
     { name = "pytest" },
     { name = "pytest-html-reporter" },
+    { name = "pytest-retry" },
     { name = "ruff" },
     { name = "vulture" },
     { name = "watchfiles" },
@@ -899,6 +900,7 @@ dev = [
     { name = "pylibyear", specifier = ">=0.3.4,<0.4" },
     { name = "pytest", specifier = ">=8.3.5,<9" },
     { name = "pytest-html-reporter", specifier = ">=0.2.9,<0.3" },
+    { name = "pytest-retry", specifier = ">=1.7.0" },
     { name = "ruff", specifier = ">=0.4.0,<0.5" },
     { name = "vulture", specifier = ">=2.14,<3" },
     { name = "watchfiles", specifier = ">=1.0.4,<2" },
@@ -1828,6 +1830,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a0/1e/9771990bad2b59d37728c4b6f28c234b3badbb2494bd72d54a6e2a988e23/pytest_playwright-0.7.1.tar.gz", hash = "sha256:94b551b2677ecdc16284fcd6a4f0045eafda47a60e74410f3fe4d8260e12cabf", size = 16769, upload-time = "2025-09-08T08:10:53.765Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dd/59/373da90ce6a1a46ca6a449bf16cea11a3c6e269814eb60e7668526350b95/pytest_playwright-0.7.1-py3-none-any.whl", hash = "sha256:fcc46510fb75f8eba6df3bc8e84e4e902483d92be98075f20b9d160651a36d90", size = 16754, upload-time = "2025-09-08T08:10:55.92Z" },
+]
+
+[[package]]
+name = "pytest-retry"
+version = "1.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c5/5b/607b017994cca28de3a1ad22a3eee8418e5d428dcd8ec25b26b18e995a73/pytest_retry-1.7.0.tar.gz", hash = "sha256:f8d52339f01e949df47c11ba9ee8d5b362f5824dff580d3870ec9ae0057df80f", size = 19977, upload-time = "2025-01-19T01:56:13.115Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7c/ff/3266c8a73b9b93c4b14160a7e2b31d1e1088e28ed29f4c2d93ae34093bfd/pytest_retry-1.7.0-py3-none-any.whl", hash = "sha256:a2dac85b79a4e2375943f1429479c65beb6c69553e7dae6b8332be47a60954f4", size = 13775, upload-time = "2025-01-19T01:56:11.199Z" },
 ]
 
 [[package]]

@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 
 #MISE description="View the logs for the webapi and webui services"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE arg "<service>" required help="The service to view logs for"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 : "${usage_service:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-log info "Viewing logs for namespace $namespace"
+log info "Viewing logs for environ $environ"
 
-# Check if webapi service is already running for this namespace
-if ! check_service_is_running pm2 "$namespace" "$usage_service"; then
-    log info "WebAPI service is not running for namespace: $namespace"
+# Check if webapi service is already running for this environ
+if ! check_service_is_running pm2 "$environ" "$usage_service"; then
+    log info "WebAPI service is not running for environ: $environ"
     log info "Please start the service first"
     exit 1
 fi
 
-npx pm2 logs "$namespace:$usage_service" --lines 1000
+npx pm2 logs "$environ:$usage_service" --lines 1000

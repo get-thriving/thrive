@@ -14,15 +14,21 @@ from playwright.sync_api import Page, expect
 
 @pytest.fixture(autouse=True, scope="module")
 def _enable_working_mem_feature(logged_in_client: AuthenticatedClient):
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.WORKING_MEM, value=True),
-    )
-    yield
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.WORKING_MEM, value=False),
-    )
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.WORKING_MEM, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.WORKING_MEM, value=False
+            ),
+        )
 
 
 def test_working_mem_write(page: Page) -> None:

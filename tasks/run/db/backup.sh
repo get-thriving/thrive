@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 #MISE description="Backup Jupiter database"
-#USAGE flag "--namespace <namespace>" help="Jupiter namespace (defaults to standard namespace)"
-#USAGE complete "namespace" run="./tasks/run/namespace/_list-fast.sh"
+#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
+#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_namespace:=}"
+: "${usage_environ:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-namespace="${usage_namespace}"
+environ="${usage_environ}"
 
-if [[ -z "$namespace" ]]; then
-    namespace=$STANDARD_NAMESPACE
+if [[ -z "$environ" ]]; then
+    environ=$STANDARD_ENVIRON
 fi
 
-db_path="$RUN_ROOT/$namespace/jupiter.sqlite"
-backup_path="$RUN_ROOT/$namespace/jupiter.sqlite.bak"
+db_path="$RUN_ROOT/$environ/jupiter.sqlite"
+backup_path="$RUN_ROOT/$environ/jupiter.sqlite.bak"
 
 if [[ ! -f "$db_path" ]]; then
     log info "Database file not found at: $db_path"
@@ -28,7 +28,7 @@ if [[ ! -f "$db_path" ]]; then
     exit 1
 fi
 
-log info "Backing up Jupiter database for namespace: $namespace at path: $db_path to path: $backup_path"
+log info "Backing up Jupiter database for environ: $environ at path: $db_path to path: $backup_path"
 
 if cp "$db_path" "$backup_path"; then
     log info "Backup completed successfully!"

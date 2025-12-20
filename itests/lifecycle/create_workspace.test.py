@@ -21,5 +21,5 @@ def test_create_workspace(page: Page, new_random_user: TestUser) -> None:
     page.get_by_role("link", name="To Workspace").click()
 
     expect(page.locator("#trunk-panel-content")).to_contain_text(
-        re.compile("There are no inbox tasks to show")
+        re.compile("There are no tabs to show")
     )
