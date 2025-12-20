@@ -43,7 +43,7 @@ fi
 
 release_tag="v${usage_version}"
 
-if git tag | grep -q "${release_tag}"
+if ! git tag | grep -q "^${release_tag}$"
 then
     log info "Release tag ${usage_version} seems to not exist"
     exit 1
