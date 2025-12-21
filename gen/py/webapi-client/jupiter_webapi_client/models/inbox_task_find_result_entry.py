@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -33,34 +35,34 @@ class InboxTaskFindResultEntry:
     Attributes:
         inbox_task (InboxTask): An inbox task.
         project (Project): The project.
-        note (Union['Note', None, Unset]):
-        time_event_blocks (Union[None, Unset, list['TimeEventInDayBlock']]):
-        working_mem (Union['WorkingMem', None, Unset]):
-        time_plan (Union['TimePlan', None, Unset]):
-        habit (Union['Habit', None, Unset]):
-        chore (Union['Chore', None, Unset]):
-        big_plan (Union['BigPlan', None, Unset]):
-        journal (Union['Journal', None, Unset]):
-        metric (Union['Metric', None, Unset]):
-        person (Union['Person', None, Unset]):
-        slack_task (Union['SlackTask', None, Unset]):
-        email_task (Union['EmailTask', None, Unset]):
+        note (None | Note | Unset):
+        time_event_blocks (list[TimeEventInDayBlock] | None | Unset):
+        working_mem (None | Unset | WorkingMem):
+        time_plan (None | TimePlan | Unset):
+        habit (Habit | None | Unset):
+        chore (Chore | None | Unset):
+        big_plan (BigPlan | None | Unset):
+        journal (Journal | None | Unset):
+        metric (Metric | None | Unset):
+        person (None | Person | Unset):
+        slack_task (None | SlackTask | Unset):
+        email_task (EmailTask | None | Unset):
     """
 
-    inbox_task: "InboxTask"
-    project: "Project"
-    note: Union["Note", None, Unset] = UNSET
-    time_event_blocks: Union[None, Unset, list["TimeEventInDayBlock"]] = UNSET
-    working_mem: Union["WorkingMem", None, Unset] = UNSET
-    time_plan: Union["TimePlan", None, Unset] = UNSET
-    habit: Union["Habit", None, Unset] = UNSET
-    chore: Union["Chore", None, Unset] = UNSET
-    big_plan: Union["BigPlan", None, Unset] = UNSET
-    journal: Union["Journal", None, Unset] = UNSET
-    metric: Union["Metric", None, Unset] = UNSET
-    person: Union["Person", None, Unset] = UNSET
-    slack_task: Union["SlackTask", None, Unset] = UNSET
-    email_task: Union["EmailTask", None, Unset] = UNSET
+    inbox_task: InboxTask
+    project: Project
+    note: None | Note | Unset = UNSET
+    time_event_blocks: list[TimeEventInDayBlock] | None | Unset = UNSET
+    working_mem: None | Unset | WorkingMem = UNSET
+    time_plan: None | TimePlan | Unset = UNSET
+    habit: Habit | None | Unset = UNSET
+    chore: Chore | None | Unset = UNSET
+    big_plan: BigPlan | None | Unset = UNSET
+    journal: Journal | None | Unset = UNSET
+    metric: Metric | None | Unset = UNSET
+    person: None | Person | Unset = UNSET
+    slack_task: None | SlackTask | Unset = UNSET
+    email_task: EmailTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -80,7 +82,7 @@ class InboxTaskFindResultEntry:
 
         project = self.project.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -88,7 +90,7 @@ class InboxTaskFindResultEntry:
         else:
             note = self.note
 
-        time_event_blocks: Union[None, Unset, list[dict[str, Any]]]
+        time_event_blocks: list[dict[str, Any]] | None | Unset
         if isinstance(self.time_event_blocks, Unset):
             time_event_blocks = UNSET
         elif isinstance(self.time_event_blocks, list):
@@ -100,7 +102,7 @@ class InboxTaskFindResultEntry:
         else:
             time_event_blocks = self.time_event_blocks
 
-        working_mem: Union[None, Unset, dict[str, Any]]
+        working_mem: dict[str, Any] | None | Unset
         if isinstance(self.working_mem, Unset):
             working_mem = UNSET
         elif isinstance(self.working_mem, WorkingMem):
@@ -108,7 +110,7 @@ class InboxTaskFindResultEntry:
         else:
             working_mem = self.working_mem
 
-        time_plan: Union[None, Unset, dict[str, Any]]
+        time_plan: dict[str, Any] | None | Unset
         if isinstance(self.time_plan, Unset):
             time_plan = UNSET
         elif isinstance(self.time_plan, TimePlan):
@@ -116,7 +118,7 @@ class InboxTaskFindResultEntry:
         else:
             time_plan = self.time_plan
 
-        habit: Union[None, Unset, dict[str, Any]]
+        habit: dict[str, Any] | None | Unset
         if isinstance(self.habit, Unset):
             habit = UNSET
         elif isinstance(self.habit, Habit):
@@ -124,7 +126,7 @@ class InboxTaskFindResultEntry:
         else:
             habit = self.habit
 
-        chore: Union[None, Unset, dict[str, Any]]
+        chore: dict[str, Any] | None | Unset
         if isinstance(self.chore, Unset):
             chore = UNSET
         elif isinstance(self.chore, Chore):
@@ -132,7 +134,7 @@ class InboxTaskFindResultEntry:
         else:
             chore = self.chore
 
-        big_plan: Union[None, Unset, dict[str, Any]]
+        big_plan: dict[str, Any] | None | Unset
         if isinstance(self.big_plan, Unset):
             big_plan = UNSET
         elif isinstance(self.big_plan, BigPlan):
@@ -140,7 +142,7 @@ class InboxTaskFindResultEntry:
         else:
             big_plan = self.big_plan
 
-        journal: Union[None, Unset, dict[str, Any]]
+        journal: dict[str, Any] | None | Unset
         if isinstance(self.journal, Unset):
             journal = UNSET
         elif isinstance(self.journal, Journal):
@@ -148,7 +150,7 @@ class InboxTaskFindResultEntry:
         else:
             journal = self.journal
 
-        metric: Union[None, Unset, dict[str, Any]]
+        metric: dict[str, Any] | None | Unset
         if isinstance(self.metric, Unset):
             metric = UNSET
         elif isinstance(self.metric, Metric):
@@ -156,7 +158,7 @@ class InboxTaskFindResultEntry:
         else:
             metric = self.metric
 
-        person: Union[None, Unset, dict[str, Any]]
+        person: dict[str, Any] | None | Unset
         if isinstance(self.person, Unset):
             person = UNSET
         elif isinstance(self.person, Person):
@@ -164,7 +166,7 @@ class InboxTaskFindResultEntry:
         else:
             person = self.person
 
-        slack_task: Union[None, Unset, dict[str, Any]]
+        slack_task: dict[str, Any] | None | Unset
         if isinstance(self.slack_task, Unset):
             slack_task = UNSET
         elif isinstance(self.slack_task, SlackTask):
@@ -172,7 +174,7 @@ class InboxTaskFindResultEntry:
         else:
             slack_task = self.slack_task
 
-        email_task: Union[None, Unset, dict[str, Any]]
+        email_task: dict[str, Any] | None | Unset
         if isinstance(self.email_task, Unset):
             email_task = UNSET
         elif isinstance(self.email_task, EmailTask):
@@ -237,7 +239,7 @@ class InboxTaskFindResultEntry:
 
         project = Project.from_dict(d.pop("project"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -248,13 +250,13 @@ class InboxTaskFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_time_event_blocks(data: object) -> Union[None, Unset, list["TimeEventInDayBlock"]]:
+        def _parse_time_event_blocks(data: object) -> list[TimeEventInDayBlock] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -270,13 +272,13 @@ class InboxTaskFindResultEntry:
                     time_event_blocks_type_0.append(time_event_blocks_type_0_item)
 
                 return time_event_blocks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["TimeEventInDayBlock"]], data)
+            return cast(list[TimeEventInDayBlock] | None | Unset, data)
 
         time_event_blocks = _parse_time_event_blocks(d.pop("time_event_blocks", UNSET))
 
-        def _parse_working_mem(data: object) -> Union["WorkingMem", None, Unset]:
+        def _parse_working_mem(data: object) -> None | Unset | WorkingMem:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -287,13 +289,13 @@ class InboxTaskFindResultEntry:
                 working_mem_type_0 = WorkingMem.from_dict(data)
 
                 return working_mem_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["WorkingMem", None, Unset], data)
+            return cast(None | Unset | WorkingMem, data)
 
         working_mem = _parse_working_mem(d.pop("working_mem", UNSET))
 
-        def _parse_time_plan(data: object) -> Union["TimePlan", None, Unset]:
+        def _parse_time_plan(data: object) -> None | TimePlan | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -304,13 +306,13 @@ class InboxTaskFindResultEntry:
                 time_plan_type_0 = TimePlan.from_dict(data)
 
                 return time_plan_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["TimePlan", None, Unset], data)
+            return cast(None | TimePlan | Unset, data)
 
         time_plan = _parse_time_plan(d.pop("time_plan", UNSET))
 
-        def _parse_habit(data: object) -> Union["Habit", None, Unset]:
+        def _parse_habit(data: object) -> Habit | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -321,13 +323,13 @@ class InboxTaskFindResultEntry:
                 habit_type_0 = Habit.from_dict(data)
 
                 return habit_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Habit", None, Unset], data)
+            return cast(Habit | None | Unset, data)
 
         habit = _parse_habit(d.pop("habit", UNSET))
 
-        def _parse_chore(data: object) -> Union["Chore", None, Unset]:
+        def _parse_chore(data: object) -> Chore | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -338,13 +340,13 @@ class InboxTaskFindResultEntry:
                 chore_type_0 = Chore.from_dict(data)
 
                 return chore_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Chore", None, Unset], data)
+            return cast(Chore | None | Unset, data)
 
         chore = _parse_chore(d.pop("chore", UNSET))
 
-        def _parse_big_plan(data: object) -> Union["BigPlan", None, Unset]:
+        def _parse_big_plan(data: object) -> BigPlan | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -355,13 +357,13 @@ class InboxTaskFindResultEntry:
                 big_plan_type_0 = BigPlan.from_dict(data)
 
                 return big_plan_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["BigPlan", None, Unset], data)
+            return cast(BigPlan | None | Unset, data)
 
         big_plan = _parse_big_plan(d.pop("big_plan", UNSET))
 
-        def _parse_journal(data: object) -> Union["Journal", None, Unset]:
+        def _parse_journal(data: object) -> Journal | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -372,13 +374,13 @@ class InboxTaskFindResultEntry:
                 journal_type_0 = Journal.from_dict(data)
 
                 return journal_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Journal", None, Unset], data)
+            return cast(Journal | None | Unset, data)
 
         journal = _parse_journal(d.pop("journal", UNSET))
 
-        def _parse_metric(data: object) -> Union["Metric", None, Unset]:
+        def _parse_metric(data: object) -> Metric | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -389,13 +391,13 @@ class InboxTaskFindResultEntry:
                 metric_type_0 = Metric.from_dict(data)
 
                 return metric_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Metric", None, Unset], data)
+            return cast(Metric | None | Unset, data)
 
         metric = _parse_metric(d.pop("metric", UNSET))
 
-        def _parse_person(data: object) -> Union["Person", None, Unset]:
+        def _parse_person(data: object) -> None | Person | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -406,13 +408,13 @@ class InboxTaskFindResultEntry:
                 person_type_0 = Person.from_dict(data)
 
                 return person_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Person", None, Unset], data)
+            return cast(None | Person | Unset, data)
 
         person = _parse_person(d.pop("person", UNSET))
 
-        def _parse_slack_task(data: object) -> Union["SlackTask", None, Unset]:
+        def _parse_slack_task(data: object) -> None | SlackTask | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -423,13 +425,13 @@ class InboxTaskFindResultEntry:
                 slack_task_type_0 = SlackTask.from_dict(data)
 
                 return slack_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["SlackTask", None, Unset], data)
+            return cast(None | SlackTask | Unset, data)
 
         slack_task = _parse_slack_task(d.pop("slack_task", UNSET))
 
-        def _parse_email_task(data: object) -> Union["EmailTask", None, Unset]:
+        def _parse_email_task(data: object) -> EmailTask | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -440,9 +442,9 @@ class InboxTaskFindResultEntry:
                 email_task_type_0 = EmailTask.from_dict(data)
 
                 return email_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["EmailTask", None, Unset], data)
+            return cast(EmailTask | None | Unset, data)
 
         email_task = _parse_email_task(d.pop("email_task", UNSET))
 

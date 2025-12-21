@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,15 +22,15 @@ class HomeConfigLoadResult:
 
     Attributes:
         home_config (HomeConfig): The home config entity.
-        tabs (list['HomeTab']):
-        widgets (list['HomeWidget']):
+        tabs (list[HomeTab]):
+        widgets (list[HomeWidget]):
         widget_constraints (HomeConfigLoadResultWidgetConstraints):
     """
 
-    home_config: "HomeConfig"
-    tabs: list["HomeTab"]
-    widgets: list["HomeWidget"]
-    widget_constraints: "HomeConfigLoadResultWidgetConstraints"
+    home_config: HomeConfig
+    tabs: list[HomeTab]
+    widgets: list[HomeWidget]
+    widget_constraints: HomeConfigLoadResultWidgetConstraints
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

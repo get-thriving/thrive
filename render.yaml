@@ -33,11 +33,16 @@ services:
         name: jupiter-webapi
         type: web
         property: port
-    # - key: DOCS_URL
-    #   fromService:
-    #     name: jupiter-docs
-    #     type: web
-    #     property: hostport
+    - key: WEBAPI_URL
+      fromService:
+        name: jupiter-webapi
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
+    - key: DOCS_URL
+      fromService:
+        name: jupiter-docs
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
 - type: web
   name: jupiter-webapi
   runtime: docker
@@ -65,7 +70,7 @@ services:
 - type: web
   name: jupiter-docs
   runtime: static
-  buildCommand: ./scripts/build/docs.sh
+  buildCommand: ./tasks/build/docs.sh
   staticPublishPath: .build-cache/docs
   domains:
     - docs.get-thriving.com
@@ -75,7 +80,8 @@ services:
     - key: ENV
       value: production
       previewValue: staging
-    - key: POETRY_VERSION
-      value: 2.1.1
+    - key: UV_VERSION
+      value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0
+

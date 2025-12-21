@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -16,16 +18,16 @@ class UserScoreHistory:
     """A history of user scores over time.
 
     Attributes:
-        daily_scores (list['UserScoreAtDate']):
-        weekly_scores (list['UserScoreAtDate']):
-        monthly_scores (list['UserScoreAtDate']):
-        quarterly_scores (list['UserScoreAtDate']):
+        daily_scores (list[UserScoreAtDate]):
+        weekly_scores (list[UserScoreAtDate]):
+        monthly_scores (list[UserScoreAtDate]):
+        quarterly_scores (list[UserScoreAtDate]):
     """
 
-    daily_scores: list["UserScoreAtDate"]
-    weekly_scores: list["UserScoreAtDate"]
-    monthly_scores: list["UserScoreAtDate"]
-    quarterly_scores: list["UserScoreAtDate"]
+    daily_scores: list[UserScoreAtDate]
+    weekly_scores: list[UserScoreAtDate]
+    monthly_scores: list[UserScoreAtDate]
+    quarterly_scores: list[UserScoreAtDate]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

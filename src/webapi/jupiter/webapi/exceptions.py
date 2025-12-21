@@ -1,268 +1,221 @@
 """Exceptions handling for the webapi module."""
 
-from fastapi.responses import JSONResponse
-from jupiter.core.domain.concept.auth.auth_token import (
-    ExpiredAuthTokenError,
-    InvalidAuthTokenError,
-)
-from jupiter.core.domain.concept.big_plans.big_plan_milestone import (
+from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
+from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
-from jupiter.core.domain.concept.journals.journal import (
+from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
-from jupiter.core.domain.concept.projects.errors import ProjectInSignificantUseError
-from jupiter.core.domain.concept.time_plans.time_plan import (
+from jupiter.core.projects.errors import ProjectInSignificantUseError
+from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
-from jupiter.core.domain.concept.user.user import (
+from jupiter.core.users.root import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from jupiter.core.domain.concept.workspaces.workspace import WorkspaceNotFoundError
-from jupiter.core.domain.features import FeatureUnavailableError
-from jupiter.core.framework.errors import (
-    InputValidationError,
-    MultiInputValidationError,
-)
-from jupiter.core.framework.repository import EntityNotFoundError
-from jupiter.core.use_cases.login import InvalidLoginCredentialsError
-from jupiter.webapi.app import WebExceptionHandler, WebServiceApp
+from jupiter.core.workspaces.root import WorkspaceNotFoundError
+from jupiter.framework.appform.webapi.exception import ExceptionDetailT
+from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
 
 
-class InputValidationHandler(WebExceptionHandler[InputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: InputValidationError
-    ) -> JSONResponse:
-        """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"{exception}",
-                        "type": "value_error.inputvalidationerror",
-                    },
-                ],
-            },
-        )
-
-
-class MultiInputValidationHandler(WebExceptionHandler[MultiInputValidationError]):
-    """Handle input validation errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: MultiInputValidationError
-    ) -> JSONResponse:
-        """Handle input validation errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                            k,
-                        ],
-                        "msg": f"{v}",
-                        "type": "value_error.inputvalidationerror",
-                    }
-                    for k, v in exception.errors.items()
-                ]
-            },
-        )
-
-
-class FeatureUnavailableHandler(WebExceptionHandler[FeatureUnavailableError]):
-    """Handle feature unavailable errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: FeatureUnavailableError
-    ) -> JSONResponse:
-        """Handle feature unavailable errors."""
-        return JSONResponse(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            content=f"{exception}",
-        )
-
-
-class UserAlreadyExistsHandler(WebExceptionHandler[UserAlreadyExistsError]):
+class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     """Handle user already exists errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: UserAlreadyExistsError
-    ) -> JSONResponse:
-        """Handle user already exists errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"{exception}",
-                        "type": "value_error.useralreadyexistserror",
-                    },
-                ],
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: UserAlreadyExistsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"{exception}",
+                    "type": "value_error.useralreadyexistserror",
+                },
+            ],
+        }
 
 
-class ExpiredAuthTokenandler(WebExceptionHandler[ExpiredAuthTokenError]):
-    """Handle expired auth token errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: ExpiredAuthTokenError
-    ) -> JSONResponse:
-        """Handle expired auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_426_UPGRADE_REQUIRED,
-            content="Your session token seems to be busted",
-        )
-
-
-class InvalidLoginCredentialsHandler(WebExceptionHandler[InvalidLoginCredentialsError]):
+class InvalidLoginCredentialsHandler(
+    JupiterExceptionHandler[InvalidLoginCredentialsError]
+):
     """Handle invalid login credentials errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: InvalidLoginCredentialsError
-    ) -> JSONResponse:
-        """Handle invalid login credentials errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": "User email or password invalid",
-                        "type": "value_error.invalidlogincredentialserror",
-                    },
-                ],
-            },
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: InvalidLoginCredentialsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "User email or password invalid",
+                    "type": "value_error.invalidlogincredentialserror",
+                },
+            ],
+        }
 
 
-class ProjectInSignificantUseHandler(WebExceptionHandler[ProjectInSignificantUseError]):
+class ProjectInSignificantUseHandler(
+    JupiterExceptionHandler[ProjectInSignificantUseError]
+):
     """Handle project in significant use errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: ProjectInSignificantUseError
-    ) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: ProjectInSignificantUseError) -> ExceptionDetailT:
         """Handle project in significant use errors."""
-        return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "detail": [
-                    {
-                        "loc": [
-                            "body",
-                        ],
-                        "msg": f"Cannot remove because: {exception}",
-                        "type": "value_error.projectinsignificantuserror",
-                    },
-                ],
-            },
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"Cannot remove because: {exception}",
+                    "type": "value_error.projectinsignificantuserror",
+                },
+            ],
+        }
 
 
-class EntityNotFoundHandler(WebExceptionHandler[EntityNotFoundError]):
-    """Handle entity not found errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: EntityNotFoundError
-    ) -> JSONResponse:
-        """Handle entity not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_404_NOT_FOUND,
-            content="Entity does not exist",
-        )
-
-
-class InvalidAuthTokenHandler(WebExceptionHandler[InvalidAuthTokenError]):
-    """Handle invalid auth token errors."""
-
-    def handle(
-        self, app: WebServiceApp, exception: InvalidAuthTokenError
-    ) -> JSONResponse:
-        """Handle invalid auth token errors."""
-        return JSONResponse(
-            status_code=status.HTTP_426_UPGRADE_REQUIRED,
-            content="Your session token seems to be busted",
-        )
-
-
-class UserNotFoundHandler(WebExceptionHandler[UserNotFoundError]):
+class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     """Handle user not found errors."""
 
-    def handle(self, app: WebServiceApp, exception: UserNotFoundError) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_410_GONE
+
+    def get_detail(self, exception: UserNotFoundError) -> ExceptionDetailT:
         """Handle user not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_410_GONE,
-            content="User does not exist",
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "User does not exist",
+                    "type": "value_error.usernotfounderror",
+                },
+            ],
+        }
 
 
-class WorkspaceNotFoundHandler(WebExceptionHandler[WorkspaceNotFoundError]):
+class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     """Handle workspace not found errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: WorkspaceNotFoundError
-    ) -> JSONResponse:
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_410_GONE
+
+    def get_detail(self, exception: WorkspaceNotFoundError) -> ExceptionDetailT:
         """Handle workspace not found errors."""
-        return JSONResponse(
-            status_code=status.HTTP_410_GONE,
-            content="Workspace does not exist",
-        )
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Workspace does not exist",
+                    "type": "value_error.workspacenotfounderror",
+                },
+            ],
+        }
 
 
 class TimePlanExistsForDatePeriodCombinationHandler(
-    WebExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[TimePlanExistsForDatePeriodCombinationError]
 ):
     """Handle time plan exists for date period combination errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: TimePlanExistsForDatePeriodCombinationError
-    ) -> JSONResponse:
-        """Handle time plan exists for date period combination errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Time plan already exists for this date and period combination"
-            + str(exception),
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
+        self, exception: TimePlanExistsForDatePeriodCombinationError
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Time plan already exists for this date and period combination",
+                    "type": "value_error.timeplanexistsfordateperiodcombinationerror",
+                },
+            ],
+        }
 
 
 class BigPlanMilestoneAlreadyExistsForDateHandler(
-    WebExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
+    JupiterExceptionHandler[BigPlanMilestoneAlreadyExistsForDateError]
 ):
     """Handle big plan milestone already exists for date errors."""
 
-    def handle(
-        self, app: WebServiceApp, exception: BigPlanMilestoneAlreadyExistsForDateError
-    ) -> JSONResponse:
-        """Handle big plan milestone already exists for date errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Big plan milestone already exists for this date",
-        )
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
+        self, exception: BigPlanMilestoneAlreadyExistsForDateError
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Big plan milestone already exists for this date",
+                    "type": "value_error.bigplanmilestonealreadyexistsfordateerror",
+                },
+            ],
+        }
 
 
 class JournalExistsForDatePeriodCombinationHandler(
-    WebExceptionHandler[JournalExistsForDatePeriodCombinationError]
+    JupiterExceptionHandler[JournalExistsForDatePeriodCombinationError]
 ):
-    def handle(
-        self, app: WebServiceApp, exception: JournalExistsForDatePeriodCombinationError
-    ) -> JSONResponse:
-        """Handle journal exists for date period combination errors."""
-        return JSONResponse(
-            status_code=status.HTTP_409_CONFLICT,
-            content="Journal already exists for this date and period combination",
-        )
+    """Handle journal exists for date period combination errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(
+        self, exception: JournalExistsForDatePeriodCombinationError
+    ) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Journal already exists for this date and period combination",
+                    "type": "value_error.journalexistsfordateperiodcombinationerror",
+                },
+            ],
+        }

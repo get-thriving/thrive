@@ -30,31 +30,31 @@ import {
   Divider,
   Typography,
 } from "@mui/material";
-
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { PeriodSelect } from "~/components/domain/core/period-select";
-import { ProjectSelect } from "~/components/domain/concept/project/project-select";
-import { EisenhowerSelect } from "~/components/domain/core/eisenhower-select";
-import { DifficultySelect } from "~/components/domain/core/difficulty-select";
-import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { TimePlanGenerationApproachSelect } from "~/components/domain/concept/time-plan/time-plan-generation-approach-select";
-import { periodName } from "~/logic/domain/period";
-import { SectionCard } from "~/components/infra/section-card";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TimePlanGenerationApproachSelect } from "@jupiter/core/time_plans/component/generation-approach-select";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
+} from "@jupiter/core/infra/component/section-actions";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+
+import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -84,7 +84,7 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_projects: true,
   });

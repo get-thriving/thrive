@@ -1,5 +1,5 @@
 import type { SmartListTag } from "@jupiter/webapi-client";
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
 import ReorderIcon from "@mui/icons-material/Reorder";
 import TagIcon from "@mui/icons-material/Tag";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -12,32 +12,33 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { useContext } from "react";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import Check from "~/components/infra/check";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
-import { EntityNameComponent } from "~/components/infra/entity-name";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { EntityStack } from "~/components/infra/entity-stack";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { SmartListTagTag } from "~/components/domain/concept/smart-list/smart-list-tag-tag";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import Check from "@jupiter/core/infra/component/check";
+import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { SmartListTagTag } from "@jupiter/core/smart_lists/component/tag";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
+} from "@jupiter/core/infra/component/use-nested-entities";
 import {
   NavMultipleSpread,
   NavSingle,
   SectionActions,
-  ActionsExpansion,
-} from "~/components/infra/section-actions";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -141,7 +142,6 @@ export default function SmartListViewItems() {
           id="smart-list-items"
           topLevelInfo={topLevelInfo}
           inputsEnabled={inputsEnabled}
-          expansion={ActionsExpansion.ALWAYS_SHOW}
           actions={[
             NavSingle({
               text: isBigScreen ? "Details" : "",

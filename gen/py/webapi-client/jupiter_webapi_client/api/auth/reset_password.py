@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any
 
 import httpx
 
@@ -21,9 +21,8 @@ def _get_kwargs(
         "url": "/reset-password",
     }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -31,21 +30,45 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, ResetPasswordResult]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | ResetPasswordResult | None:
     if response.status_code == 200:
         response_200 = ResetPasswordResult.from_dict(response.json())
 
         return response_200
-    if response.status_code == 410:
-        response_410 = cast(Any, None)
-        return response_410
+
+    if response.status_code == 400:
+        response_400 = response.json()
+        return response_400
+
+    if response.status_code == 401:
+        response_401 = response.json()
+        return response_401
+
+    if response.status_code == 404:
+        response_404 = response.json()
+        return response_404
+
     if response.status_code == 406:
-        response_406 = cast(Any, None)
+        response_406 = response.json()
         return response_406
+
+    if response.status_code == 409:
+        response_409 = response.json()
+        return response_409
+
+    if response.status_code == 410:
+        response_410 = response.json()
+        return response_410
+
     if response.status_code == 422:
-        response_422 = cast(Any, None)
+        response_422 = response.json()
         return response_422
+
+    if response.status_code == 426:
+        response_426 = response.json()
+        return response_426
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -53,8 +76,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, ResetPasswordResult]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | ResetPasswordResult]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -65,12 +88,10 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
+    client: AuthenticatedClient | Client,
     body: ResetPasswordArgs,
-) -> Response[Union[Any, ResetPasswordResult]]:
+) -> Response[Any | ResetPasswordResult]:
     """Use case for reseting a password.
-
-     Use case for reseting a password.
 
     Args:
         body (ResetPasswordArgs): Reset password args.
@@ -80,7 +101,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ResetPasswordResult]]
+        Response[Any | ResetPasswordResult]
     """
 
     kwargs = _get_kwargs(
@@ -96,12 +117,10 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient,
+    client: AuthenticatedClient | Client,
     body: ResetPasswordArgs,
-) -> Optional[Union[Any, ResetPasswordResult]]:
+) -> Any | ResetPasswordResult | None:
     """Use case for reseting a password.
-
-     Use case for reseting a password.
 
     Args:
         body (ResetPasswordArgs): Reset password args.
@@ -111,7 +130,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ResetPasswordResult]
+        Any | ResetPasswordResult
     """
 
     return sync_detailed(
@@ -122,12 +141,10 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
+    client: AuthenticatedClient | Client,
     body: ResetPasswordArgs,
-) -> Response[Union[Any, ResetPasswordResult]]:
+) -> Response[Any | ResetPasswordResult]:
     """Use case for reseting a password.
-
-     Use case for reseting a password.
 
     Args:
         body (ResetPasswordArgs): Reset password args.
@@ -137,7 +154,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ResetPasswordResult]]
+        Response[Any | ResetPasswordResult]
     """
 
     kwargs = _get_kwargs(
@@ -151,12 +168,10 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
+    client: AuthenticatedClient | Client,
     body: ResetPasswordArgs,
-) -> Optional[Union[Any, ResetPasswordResult]]:
+) -> Any | ResetPasswordResult | None:
     """Use case for reseting a password.
-
-     Use case for reseting a password.
 
     Args:
         body (ResetPasswordArgs): Reset password args.
@@ -166,7 +181,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ResetPasswordResult]
+        Any | ResetPasswordResult
     """
 
     return (

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -18,11 +20,11 @@ class SlackTaskFindResult:
 
     Attributes:
         generation_project (Project): The project.
-        entries (list['SlackTaskFindResultEntry']):
+        entries (list[SlackTaskFindResultEntry]):
     """
 
-    generation_project: "Project"
-    entries: list["SlackTaskFindResultEntry"]
+    generation_project: Project
+    entries: list[SlackTaskFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

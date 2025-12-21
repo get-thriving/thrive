@@ -1,6 +1,5 @@
 """UseCase for showing the email tasks."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
     difficulty_to_rich_text,
@@ -13,24 +12,27 @@ from jupiter.cli.command.rendering import (
     entity_name_to_rich_text,
     inbox_task_summary_to_rich_text,
 )
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.concept.push_integrations.email.find import (
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.push_integrations.sub.email.use_case.find import (
     EmailTaskFindResult,
     EmailTaskFindUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class EmailTaskShow(LoggedInReadonlyCommand[EmailTaskFindUseCase, EmailTaskFindResult]):
+class EmailTaskShow(
+    JupiterLoggedInReadonlyCommand[EmailTaskFindUseCase, EmailTaskFindResult]
+):
     """UseCase class for showing the email tasks."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: EmailTaskFindResult,
     ) -> None:
         sorted_email_tasks = sorted(

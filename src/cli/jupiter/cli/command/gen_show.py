@@ -1,40 +1,39 @@
 """ommand for loading previous runs of Gen."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     boolean_to_rich_text,
     date_with_label_to_rich_text,
     entity_id_to_rich_text,
     entity_summary_snippet_to_rich_text,
     entity_tag_to_rich_text,
-    event_source_to_rich_text,
     period_to_rich_text,
     sync_target_to_rich_text,
 )
-from jupiter.core.use_cases.application.gen.load_runs import (
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.gen.use_case.load_runs import (
     GenLoadRunsResult,
     GenLoadRunsUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
-class GenShow(LoggedInReadonlyCommand[GenLoadRunsUseCase, GenLoadRunsResult]):
+class GenShow(JupiterLoggedInReadonlyCommand[GenLoadRunsUseCase, GenLoadRunsResult]):
     """Command for loading previous runs of task generation."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: GenLoadRunsResult,
     ) -> None:
         rich_tree = Tree("🗑  Task Generation", guide_style="bold bright_blue")
 
         for entry in result.entries:
             entry_text = Text("Run from ")
-            entry_text.append(event_source_to_rich_text(entry.source))
+            entry_text.append(entry.source)
             entry_text.append(
                 f" on {entry.created_time.as_date()} with {len(entry.entity_created_records)} entities created, "
             )

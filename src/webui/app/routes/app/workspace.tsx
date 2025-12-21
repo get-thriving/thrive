@@ -1,4 +1,4 @@
-import { UserFeature } from "@jupiter/webapi-client";
+import { UserFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import { Settings } from "@mui/icons-material";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Logout from "@mui/icons-material/Logout";
@@ -22,27 +22,27 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Form, Link, useOutlet } from "@remix-run/react";
 import { AnimatePresence, useAnimate } from "framer-motion";
 import { useContext, useEffect, useState } from "react";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
+import { isUserFeatureAvailable } from "@jupiter/core/users/root";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import {
   ScoreSnackbarManager,
   useScoreActionSingleton,
-} from "~/components/domain/application/gamification/score-snackbar-manager";
-import { makeRootErrorBoundary } from "~/components/infra/error-boundary";
-import { WorkspaceContainer } from "~/components/infra/layout/workspace-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { ReleaseUpdateWidget } from "~/components/infra/release-update-widget";
-import SearchBox from "~/components/infra/search-box";
-import Sidebar from "~/components/infra/sidebar";
-import { Title } from "~/components/infra/title";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import { isUserFeatureAvailable } from "~/logic/domain/user";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/gamification/component/score-snackbar-manager";
+import { makeRootErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { WorkspaceContainer } from "@jupiter/core/infra/component/layout/workspace-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { ReleaseUpdateWidget } from "@jupiter/core/infra/component/release-update-widget";
+import SearchBox from "@jupiter/core/search/component/search-box";
+import Sidebar from "@jupiter/core/infra/component/sidebar";
+import { Title } from "@jupiter/core/infra/component/title";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TopLevelInfoProvider } from "@jupiter/core/infra/component/top-level-info-provider";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { getLoggedInApiClient } from "~/api-clients.server";
 import editorJsTweaks from "~/styles/editorjs-tweaks.css";
-import { TopLevelInfoProvider } from "~/components/infra/top-level-info-provider";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: editorJsTweaks },
@@ -51,14 +51,14 @@ export const links: LinksFunction = () => [
 // @secureFn
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.loadTopLevelInfo.loadTopLevelInfo({});
+  const response = await apiClient.application.loadTopLevelInfo({});
 
   if (!response.user || !response.workspace) {
     return redirect("/app/init");
   }
 
   const progressReporterTokenResponse =
-    await apiClient.loadProgressReporterToken.loadProgressReporterToken({});
+    await apiClient.application.loadProgressReporterToken({});
 
   return json({
     userFeatureFlagControls: response.user_feature_flag_controls,
@@ -153,7 +153,11 @@ export default function Workspace() {
 
           <CommunityLink />
 
-          <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} />
+          <DocsHelp
+            size="medium"
+            subject={DocsHelpSubject.ROOT}
+            theId="docs-help"
+          />
 
           <IconButton
             id="account-menu"

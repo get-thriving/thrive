@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -35,14 +37,14 @@ class BigPlanUpdateArgs:
     """
 
     ref_id: str
-    name: "BigPlanUpdateArgsName"
-    status: "BigPlanUpdateArgsStatus"
-    project_ref_id: "BigPlanUpdateArgsProjectRefId"
-    is_key: "BigPlanUpdateArgsIsKey"
-    eisen: "BigPlanUpdateArgsEisen"
-    difficulty: "BigPlanUpdateArgsDifficulty"
-    actionable_date: "BigPlanUpdateArgsActionableDate"
-    due_date: "BigPlanUpdateArgsDueDate"
+    name: BigPlanUpdateArgsName
+    status: BigPlanUpdateArgsStatus
+    project_ref_id: BigPlanUpdateArgsProjectRefId
+    is_key: BigPlanUpdateArgsIsKey
+    eisen: BigPlanUpdateArgsEisen
+    difficulty: BigPlanUpdateArgsDifficulty
+    actionable_date: BigPlanUpdateArgsActionableDate
+    due_date: BigPlanUpdateArgsDueDate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

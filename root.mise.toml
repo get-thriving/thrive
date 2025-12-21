@@ -1,0 +1,115 @@
+["root:prepare"]
+hide = true
+run = "true"
+
+["root:fix:markdownlint-readme"]
+hide = true
+sources = ["README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix README.md"
+
+["root:fix"]
+description = "Fix the root"
+depends = ["root:fix:*"]
+run = "true"
+
+["root:install:pyproject"]
+hide = true
+sources = ["pyproject.toml", "gen/**/pyproject.toml", "src/**/pyproject.toml", "itests/pyproject.toml"]
+outputs = { auto = true }
+run = "uv sync --all-packages --active"
+
+["root:install:pnpm"]
+hide = true
+sources = ["package.json", "gen/**/package.json", "src/**/package.json"]
+outputs = { auto = true }
+run = "pnpm install"
+
+["root:install:docker"]
+hide = true
+sources = ["Dockfile"]
+outputs = { auto = true }
+run = "xargs docker pull < Dockfile"
+
+["root:install:brew"]
+hide = true
+sources = ["Brewfile"]
+outputs = { auto = true }
+run = '''#!/usr/bin/env bash
+if [[ "$(uname)" != "Darwin" ]]; then
+  exit 0
+fi
+brew bundle install
+'''
+
+["root:install:apt"]
+hide = true
+sources = ["aptfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+# Are we truly in a CI environment, or on a local machine but running the CI script?
+# If we are, GitHub (and other CI providers) will set the CI environment variable.
+if [[ "$(uname)" != "Linux" ]]; then
+  exit 0
+fi
+sudo apt-get update
+xargs sudo apt-get install -y < aptfile
+'''
+
+["root:install"]
+hide = true
+depends = ["root:install:*"]
+
+["root:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["root:audit:pnpm-audit"]
+hide = true
+run = "pnpm audit"
+
+["root:audit"]
+description = "Audit root dependencies"
+depends = ["root:audit:*"]
+run = "true"
+
+["root:libyear:libyear-toml"]
+hide = true
+run = "libyear toml pyproject.toml"
+
+["root:libyear:pnpm-libyear"]
+hide = true
+run = "npx libyear"
+
+["root:libyear"]
+description = "Check root libyear"
+depends = ["root:libyear:*"]
+run = "true"
+
+["docs:lint:toml"]
+hide = true
+sources = ["mise.toml", "root.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint mise.toml root.mise.toml"
+
+["root:lint:yamllint-workflows"]
+hide = true
+sources = [".github/**/*.(yaml|yml)"]
+outputs = { auto = true }
+run = "uv run yamllint --config-file=./tasks/_resources/check/lint/yamllint .github/"
+
+["root:lint:markdownlint-readme"]
+hide = true
+sources = ["README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 README.md"
+
+["root:lint"]
+description = "Check root lint"
+depends = ["root:lint:*"]
+run = "true"

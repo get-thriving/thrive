@@ -1,0 +1,121 @@
+["package:src:cli:prepare"]
+hide = true
+run = "true"
+
+["package:src:cli:fix:autoflake"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/cli"
+
+["package:src:cli:fix:black"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/cli"
+
+["package:src:cli:fix:ruff"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli --fix"
+
+["package:src:cli:fix:markdownlint"]
+hide = true
+sources = ["src/cli/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/cli/README.md"
+
+["package:src:cli:fix"]
+description = "Fix src/cli module"
+depends = ["package:src:cli:fix:*"]
+run = "true"
+
+
+["package:src:cli:lint:toml"]
+hide = true
+sources = ["src/cli/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/cli/package.mise.toml"
+
+["package:src:cli:lint:hadolint"]
+hide = true
+sources = ["src/cli/Dockerfile"]
+outputs = { auto = true }
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+docker run --rm -i \
+  -v "$(pwd)/tasks/_resources/check/lint/hadolint":/hadolint \
+  -v "$(pwd)/src/cli/Dockerfile:/Dockerfile" \
+  hadolint/hadolint \
+  hadolint \
+  --config=/hadolint \
+  /Dockerfile
+'''
+
+["package:src:cli:lint:mypy"]
+env.MYPYPATH = "../core"
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "cd src/cli && uv run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.cli --package tests --explicit-package-bases --show-absolute-path"
+
+["package:src:cli:lint:ruff"]
+env.MYPYPATH = "../core"
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/cli"
+
+["package:src:cli:lint:markdownlint-readme"]
+hide = true
+sources = ["src/cli/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/cli/README.md"
+
+["package:src:cli:lint:pyflakes"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/cli"
+
+["package:src:cli:lint:bandit"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/cli"
+
+["package:src:cli:lint:pydocstyle"]
+hide = true
+sources = ["src/cli/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/cli"
+
+["package:src:cli:lint"]
+description = "Check src/cli module"
+depends = ["package:src:cli:lint:*"]
+run = "true"
+
+["package:src:cli:audit:pip-audit"]
+hide = true
+run = '''
+#!/usr/bin/env bash
+set -e -o pipefail
+cd src/cli
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["package:src:cli:audit"]
+description = "Audit src/cli module"
+depends = ["package:src:cli:audit:*"]
+run = "true"
+
+["package:src:cli:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/cli/pyproject.toml"
+
+["package:src:cli:libyear"]
+description = "Check src/cli libyear"
+depends = ["package:src:cli:libyear:*"]
+run = "true"

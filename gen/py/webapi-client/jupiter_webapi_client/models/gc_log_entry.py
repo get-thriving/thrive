@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.event_source import EventSource
 from ..models.sync_target import SyncTarget
 from ..types import UNSET, Unset
 
@@ -27,12 +28,12 @@ class GCLogEntry:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         gc_log_ref_id (str):
-        source (EventSource): The source of the modification which this event records.
+        source (str):
         gc_targets (list[SyncTarget]):
         opened (bool):
-        entity_records (list['EntitySummary']):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
+        entity_records (list[EntitySummary]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
     """
 
     ref_id: str
@@ -42,12 +43,12 @@ class GCLogEntry:
     last_modified_time: str
     name: str
     gc_log_ref_id: str
-    source: EventSource
+    source: str
     gc_targets: list[SyncTarget]
     opened: bool
-    entity_records: list["EntitySummary"]
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
+    entity_records: list[EntitySummary]
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,7 +66,7 @@ class GCLogEntry:
 
         gc_log_ref_id = self.gc_log_ref_id
 
-        source = self.source.value
+        source = self.source
 
         gc_targets = []
         for gc_targets_item_data in self.gc_targets:
@@ -79,13 +80,13 @@ class GCLogEntry:
             entity_records_item = entity_records_item_data.to_dict()
             entity_records.append(entity_records_item)
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
@@ -134,7 +135,7 @@ class GCLogEntry:
 
         gc_log_ref_id = d.pop("gc_log_ref_id")
 
-        source = EventSource(d.pop("source"))
+        source = d.pop("source")
 
         gc_targets = []
         _gc_targets = d.pop("gc_targets")
@@ -152,21 +153,21 @@ class GCLogEntry:
 
             entity_records.append(entity_records_item)
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 

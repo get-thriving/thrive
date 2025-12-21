@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -35,12 +37,12 @@ class TimePlanUpdateSettingsArgs:
         planning_task_difficulty (TimePlanUpdateSettingsArgsPlanningTaskDifficulty):
     """
 
-    periods: "TimePlanUpdateSettingsArgsPeriods"
-    generation_approach: "TimePlanUpdateSettingsArgsGenerationApproach"
-    generation_in_advance_days: "TimePlanUpdateSettingsArgsGenerationInAdvanceDays"
-    planning_task_project_ref_id: "TimePlanUpdateSettingsArgsPlanningTaskProjectRefId"
-    planning_task_eisen: "TimePlanUpdateSettingsArgsPlanningTaskEisen"
-    planning_task_difficulty: "TimePlanUpdateSettingsArgsPlanningTaskDifficulty"
+    periods: TimePlanUpdateSettingsArgsPeriods
+    generation_approach: TimePlanUpdateSettingsArgsGenerationApproach
+    generation_in_advance_days: TimePlanUpdateSettingsArgsGenerationInAdvanceDays
+    planning_task_project_ref_id: TimePlanUpdateSettingsArgsPlanningTaskProjectRefId
+    planning_task_eisen: TimePlanUpdateSettingsArgsPlanningTaskEisen
+    planning_task_difficulty: TimePlanUpdateSettingsArgsPlanningTaskDifficulty
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

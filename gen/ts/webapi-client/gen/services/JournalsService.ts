@@ -24,7 +24,6 @@ export class JournalsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
      * Use case for archiving a journal.
-     * Use case for archiving a journal.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
@@ -38,14 +37,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Command for updating the time configuration of a journal.
      * Command for updating the time configuration of a journal.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -60,14 +63,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Use case for creating a journal.
      * Use case for creating a journal.
      * @param requestBody The input data
      * @returns JournalCreateResult Successful response
@@ -82,14 +89,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * The command for finding journals.
      * The command for finding journals.
      * @param requestBody The input data
      * @returns JournalFindResult Successful response
@@ -104,14 +115,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * The command for loading details about a journal.
      * The command for loading details about a journal.
      * @param requestBody The input data
      * @returns JournalLoadResult Successful response
@@ -126,14 +141,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * The command for loading details about a journal.
      * The command for loading details about a journal.
      * @param requestBody The input data
      * @returns JournalLoadForDateAndPeriodResult Successful response
@@ -148,14 +167,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * The command for loading the settings around journals.
      * The command for loading the settings around journals.
      * @param requestBody The input data
      * @returns JournalLoadSettingsResult Successful response
@@ -170,14 +193,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Use case for refreshing stats for a journal.
      * Use case for refreshing stats for a journal.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -192,14 +219,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * A use case for regenerating journals.
      * A use case for regenerating journals.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -214,14 +245,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Use case for removing a journal.
      * Use case for removing a journal.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -236,14 +271,18 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Command for updating the settings for journals in general.
      * Command for updating the settings for journals in general.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -258,9 +297,14 @@ export class JournalsService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }

@@ -14,30 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.13
-        id: setup-python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
         with:
-          python-version: "3.13"
-      - name: Set up Node 22
-        id: setup-node
-        uses: actions/setup-node@v3
-        with:
-          node-version: "22"
-      - name: Set up Ruby 2.7
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "2.7"
-      - name: Set up Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: "stable"
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 2.1.1
-      - name: Prepare for CI
-        run: ./scripts/setup-for-ci.sh
+          version: 2025.9.19
+          install: true
+          cache: true
+          experimental: true
+      - name: Install dependencies
+        run: mise run --jobs=1 install
+      - name: Prepare for development
+        run: mise run --jobs=1 prepare
       - name: Check scripts
-        run: ./scripts/check/check.sh
+        run: mise run check

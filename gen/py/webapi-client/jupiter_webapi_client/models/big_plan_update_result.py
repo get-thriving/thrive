@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,16 +20,16 @@ class BigPlanUpdateResult:
     """InboxTaskUpdate result.
 
     Attributes:
-        record_score_result (Union['RecordScoreResult', None, Unset]):
+        record_score_result (None | RecordScoreResult | Unset):
     """
 
-    record_score_result: Union["RecordScoreResult", None, Unset] = UNSET
+    record_score_result: None | RecordScoreResult | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.record_score_result import RecordScoreResult
 
-        record_score_result: Union[None, Unset, dict[str, Any]]
+        record_score_result: dict[str, Any] | None | Unset
         if isinstance(self.record_score_result, Unset):
             record_score_result = UNSET
         elif isinstance(self.record_score_result, RecordScoreResult):
@@ -49,7 +51,7 @@ class BigPlanUpdateResult:
 
         d = dict(src_dict)
 
-        def _parse_record_score_result(data: object) -> Union["RecordScoreResult", None, Unset]:
+        def _parse_record_score_result(data: object) -> None | RecordScoreResult | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -60,9 +62,9 @@ class BigPlanUpdateResult:
                 record_score_result_type_0 = RecordScoreResult.from_dict(data)
 
                 return record_score_result_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["RecordScoreResult", None, Unset], data)
+            return cast(None | RecordScoreResult | Unset, data)
 
         record_score_result = _parse_record_score_result(d.pop("record_score_result", UNSET))
 

@@ -4,13 +4,13 @@ import { json } from "@remix-run/node";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
+import { NoteContentParser } from "@jupiter/core/common/sub/notes/root";
 import {
   noErrorSomeData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { NoteContentParser } from "~/logic/domain/notes";
+} from "@jupiter/core/infra/action-result";
+
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const CreateFormSchema = z.object({
   idempotencyKey: z.string(),

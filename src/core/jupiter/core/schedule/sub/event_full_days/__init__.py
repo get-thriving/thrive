@@ -1,0 +1,1 @@
+"""Event full days domain."""

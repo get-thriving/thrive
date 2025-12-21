@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -6,29 +6,32 @@ import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
-
-import { getGuestApiClient } from "~/api-clients.server";
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Password } from "~/components/domain/application/auth/password";
-import { Title } from "~/components/infra/title";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { AUTH_TOKEN_NAME } from "~/names";
-import { commitSession, getSession } from "~/sessions";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Password } from "@jupiter/core/auth/component/password";
+import { Title } from "@jupiter/core/infra/component/title";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
-  ActionsExpansion,
   NavSingle,
   NavMultipleCompact,
+  ActionsExpansion,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
-import { EMPTY_CONTEXT } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+
+import { commitSession, getSession } from "~/sessions";
+import { getGuestApiClient } from "~/api-clients.server";
 
 const RecoverAccountFormSchema = z.object({
   emailAddress: z.string(),
@@ -51,7 +54,7 @@ export async function action({ request }: LoaderFunctionArgs) {
       new_password_repeat: form.newPasswordRepeat,
     });
 
-    const loginResult = await apiClient.login.login({
+    const loginResult = await apiClient.application.login({
       email_address: form.emailAddress,
       password: form.newPassword,
     });
@@ -91,7 +94,11 @@ export default function ResetPassword() {
 
         <CommunityLink />
 
-        <DocsHelp size="medium" subject={DocsHelpSubject.ROOT} />
+        <DocsHelp
+          size="medium"
+          subject={DocsHelpSubject.ROOT}
+          theId="docs-help"
+        />
       </SmartAppBar>
 
       <LifecyclePanel>

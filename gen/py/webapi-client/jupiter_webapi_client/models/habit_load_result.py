@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,24 +26,24 @@ class HabitLoadResult:
     Attributes:
         habit (Habit): A habit.
         project (Project): The project.
-        inbox_tasks (list['InboxTask']):
+        inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
-        streak_marks (list['HabitStreakMark']):
+        streak_marks (list[HabitStreakMark]):
         streak_mark_earliest_date (str): A date or possibly a datetime for the application.
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
-        note (Union['Note', None, Unset]):
+        note (None | Note | Unset):
     """
 
-    habit: "Habit"
-    project: "Project"
-    inbox_tasks: list["InboxTask"]
+    habit: Habit
+    project: Project
+    inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
-    streak_marks: list["HabitStreakMark"]
+    streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: str
     streak_mark_latest_date: str
-    note: Union["Note", None, Unset] = UNSET
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,7 +71,7 @@ class HabitLoadResult:
 
         streak_mark_latest_date = self.streak_mark_latest_date
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -131,7 +133,7 @@ class HabitLoadResult:
 
         streak_mark_latest_date = d.pop("streak_mark_latest_date")
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -142,9 +144,9 @@ class HabitLoadResult:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 

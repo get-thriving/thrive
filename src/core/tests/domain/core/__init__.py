@@ -1,1 +1,0 @@
-"""Core domain object tests."""

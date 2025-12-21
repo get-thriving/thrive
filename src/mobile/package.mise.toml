@@ -1,0 +1,75 @@
+["package:src:mobile:prepare"]
+hide = true
+run = "true"
+
+["package:src:mobile:fix:prettier"]
+hide = true
+sources = [
+  "src/mobile/**/*.ts",
+  "src/mobile/**/*.tsx",
+  "src/mobile/**/*.js",
+  "src/mobile/**/*.jsx",
+  "src/mobile/**/*.json",
+  "src/mobile/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/mobile"
+
+["package:src:mobile:fix:markdownlint"]
+hide = true
+sources = ["src/mobile/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/mobile/README.md"
+
+["package:src:mobile:fix"]
+description = "Fix src/mobile module"
+depends = ["package:src:mobile:fix:*"]
+run = "true"
+
+["package:src:mobile:lint:toml"]
+hide = true
+sources = ["src/mobile/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/mobile/package.mise.toml"
+
+["package:src:mobile:lint:prettier"]
+hide = true
+sources = [
+  "src/mobile/**/*.ts",
+  "src/mobile/**/*.tsx",
+  "src/mobile/**/*.js",
+  "src/mobile/**/*.jsx",
+  "src/mobile/**/*.json",
+  "src/mobile/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --check src/mobile"
+
+["package:src:mobile:lint:markdownlint-readme"]
+hide = true
+sources = ["src/mobile/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/mobile/README.md"
+
+["package:src:mobile:lint"]
+description = "Check src/mobile module"
+depends = ["package:src:mobile:lint:*"]
+run = "true"
+
+["package:src:mobile:audit:pnpm-audit"]
+hide = true
+run = "cd src/mobile && pnpm audit"
+
+["package:src:mobile:audit"]
+description = "Audit src/mobile module"
+depends = ["package:src:mobile:audit:*"]
+run = "true"
+
+["package:src:mobile:libyear:pnpm-libyear"]
+hide = true
+run = "cd src/mobile && npx libyear"
+
+["package:src:mobile:libyear"]
+description = "Check src/mobile libyear"
+depends = ["package:src:mobile:libyear:*"]
+run = "true"

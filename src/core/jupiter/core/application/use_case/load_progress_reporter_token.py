@@ -1,0 +1,54 @@
+"""The command for loading a progress reporter specific token."""
+
+from jupiter.core.config import (
+    JupiterLoggedInReadonlyContext,
+    JupiterTransactionalLoggedInReadOnlyUseCase,
+)
+from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.secure import secure_class
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
+    readonly_use_case,
+)
+from jupiter.framework.use_case_io import (
+    UseCaseArgsBase,
+    UseCaseResultBase,
+    use_case_args,
+    use_case_result,
+)
+
+
+@use_case_args
+class LoadProgressReporterTokenArgs(UseCaseArgsBase):
+    """Load progress reporter token args."""
+
+
+@use_case_result
+class LoadProgressReporterTokenResult(UseCaseResultBase):
+    """Get progress reporter token result."""
+
+    progress_reporter_token_ext: AuthTokenExt
+
+
+@secure_class
+@readonly_use_case()
+class LoadProgressReporterTokenUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[
+        LoadProgressReporterTokenArgs, LoadProgressReporterTokenResult
+    ]
+):
+    """The use case for retrieving summaries about entities."""
+
+    async def _perform_transactional_read(
+        self,
+        uow: DomainUnitOfWork,
+        context: JupiterLoggedInReadonlyContext,
+        args: LoadProgressReporterTokenArgs,
+    ) -> LoadProgressReporterTokenResult:
+        """Execute the command."""
+        auth_token = self._auth_token_stamper.stamp_for_progress_reporter(
+            context.user.ref_id
+        )
+        return LoadProgressReporterTokenResult(
+            progress_reporter_token_ext=auth_token.to_ext()
+        )

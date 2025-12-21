@@ -1,45 +1,60 @@
-[tool.poetry]
+[project]
 name = "jupiter-core"
 version = "0.1.0"
 description = "The core business logic for Thrive."
-authors = ["Horia Coman <horia141@gmail.com>"]
-license = "MIT"
-homepage = "https://get-thriving.com"
+authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+requires-python = ">=3.13,<4"
 readme = "README.md"
-repository = "https://github.com/horia141/jupiter"
-documentation = "https://docs.get-thriving.com"
-packages = [{ include = "jupiter" }]
+license = "MIT"
+dependencies = [
+    "pendulum>=3.1.0,<4",
+    "python-dotenv>=1.0.1,<2",
+    "pytz>=2025.1,<2026",
+    "requests>=2.32.3,<3",
+    "SQLAlchemy>=2.0.39,<3",
+    "alembic>=1.15.1,<2",
+    "coverage>=7.7.0,<8",
+    "emoji>=2.14.1,<3",
+    "jupiter-framework",
+    "rich>=13.9.4,<14",
+    "email-validator>=2.2.0,<3",
+    "aiosqlite>=0.21.0,<0.22",
+    "greenlet>=3.1.1,<4",
+    "validators>=0.34.0,<0.35",
+    "argon2-cffi>=23.1.0,<24",
+    "cffi>=1.17.1,<2",
+    "pyjwt>=2.10.1,<3",
+    "avinit>=1.3.0,<2",
+    "inflection>=0.5.1,<0.6",
+    "typing-extensions>=4.12.2,<5",
+    "pydantic>=2.10.6,<3",
+    "cryptography>=44.0.2,<45",
+    "icalendar>=6.1.2,<7",
+    "recurring-ical-events>=3.6.0,<4",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-pendulum = "^3.0.0"
-python-dotenv = "^1.0.1"
-pytz = "^2025.1"
-requests = "^2.32.3"
-SQLAlchemy = "^2.0.39"
-alembic = "^1.15.1"
-coverage = "^7.7.0"
-emoji = "^2.14.1"
-rich = "^13.9.4"
-email-validator = "^2.2.0"
-aiosqlite = "^0.21.0"
-greenlet = "^3.1.1"
-validators = "^0.34.0"
-argon2-cffi = "^23.1.0"
-cffi = "^1.17.1"
-pyjwt = "^2.10.1"
-avinit = "^1.3.0"
-inflection = "^0.5.1"
-typing-extensions = "^4.12.2"
-pydantic = "^2.10.6"
-cryptography = "^44.0.2"
-icalendar = "^6.1.2"
-recurring-ical-events = "^3.6.0"
+[project.urls]
+Homepage = "https://get-thriving.com"
+Repository = "https://github.com/horia141/thrive"
+Documentation = "https://docs.get-thriving.com"
 
-[tool.poetry.group.dev.dependencies]
-types-requests = "^2.32.0"
-types-icalendar = "^6.1.0"
+[dependency-groups]
+dev = [
+    "types-requests>=2.32.0,<3",
+    "types-icalendar>=6.1.0,<7",
+]
+
+[tool.uv]
+
+[tool.uv.sources]
+jupiter-framework = { workspace = true }
+
+[tool.hatch.build.targets.sdist]
+include = ["jupiter"]
+
+[tool.hatch.build.targets.wheel]
+include = ["jupiter"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,11 +29,11 @@ class Metric:
         name (str): THe metric name.
         metric_collection_ref_id (str):
         is_key (bool):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        icon (Union[None, Unset, str]):
-        collection_params (Union['RecurringTaskGenParams', None, Unset]):
-        metric_unit (Union[MetricUnit, None, Unset]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        icon (None | str | Unset):
+        collection_params (None | RecurringTaskGenParams | Unset):
+        metric_unit (MetricUnit | None | Unset):
     """
 
     ref_id: str
@@ -42,11 +44,11 @@ class Metric:
     name: str
     metric_collection_ref_id: str
     is_key: bool
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    icon: Union[None, Unset, str] = UNSET
-    collection_params: Union["RecurringTaskGenParams", None, Unset] = UNSET
-    metric_unit: Union[MetricUnit, None, Unset] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    icon: None | str | Unset = UNSET
+    collection_params: None | RecurringTaskGenParams | Unset = UNSET
+    metric_unit: MetricUnit | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,25 +70,25 @@ class Metric:
 
         is_key = self.is_key
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        icon: Union[None, Unset, str]
+        icon: None | str | Unset
         if isinstance(self.icon, Unset):
             icon = UNSET
         else:
             icon = self.icon
 
-        collection_params: Union[None, Unset, dict[str, Any]]
+        collection_params: dict[str, Any] | None | Unset
         if isinstance(self.collection_params, Unset):
             collection_params = UNSET
         elif isinstance(self.collection_params, RecurringTaskGenParams):
@@ -94,7 +96,7 @@ class Metric:
         else:
             collection_params = self.collection_params
 
-        metric_unit: Union[None, Unset, str]
+        metric_unit: None | str | Unset
         if isinstance(self.metric_unit, Unset):
             metric_unit = UNSET
         elif isinstance(self.metric_unit, MetricUnit):
@@ -150,34 +152,34 @@ class Metric:
 
         is_key = d.pop("is_key")
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_icon(data: object) -> Union[None, Unset, str]:
+        def _parse_icon(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         icon = _parse_icon(d.pop("icon", UNSET))
 
-        def _parse_collection_params(data: object) -> Union["RecurringTaskGenParams", None, Unset]:
+        def _parse_collection_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -188,13 +190,13 @@ class Metric:
                 collection_params_type_0 = RecurringTaskGenParams.from_dict(data)
 
                 return collection_params_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["RecurringTaskGenParams", None, Unset], data)
+            return cast(None | RecurringTaskGenParams | Unset, data)
 
         collection_params = _parse_collection_params(d.pop("collection_params", UNSET))
 
-        def _parse_metric_unit(data: object) -> Union[MetricUnit, None, Unset]:
+        def _parse_metric_unit(data: object) -> MetricUnit | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -205,9 +207,9 @@ class Metric:
                 metric_unit_type_0 = MetricUnit(data)
 
                 return metric_unit_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[MetricUnit, None, Unset], data)
+            return cast(MetricUnit | None | Unset, data)
 
         metric_unit = _parse_metric_unit(d.pop("metric_unit", UNSET))
 

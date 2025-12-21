@@ -48,6 +48,10 @@ window.onerror = (event: Event | string) => {
     // then does a Remix reload to the final page. We're gonna log this
     // at some point.
 
+    if (window.location.pathname.startsWith("/app/render-fix")) {
+      return true; // We're already on the render fix page, so we don't need to do anything.
+    }
+
     const destUrl = Buffer.from(
       `${window.location.pathname}?${window.location.search}`,
       "utf-8",

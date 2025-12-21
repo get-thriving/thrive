@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+#MISE description="Upload Android app to Google Play Store"
+#USAGE arg "<version>" required help="Release version (X.Y.Z format)"
+#USAGE complete "version" run="./tasks/release/list.sh"
+#USAGE flag "--log <log>" default="info" help="Log output" {
+#USAGE   choices "info" "debug" "trace"
+#USAGE }
+
+set -e -o pipefail
+
+source tasks/_common.sh
+
+: "${usage_version:=}"
+
+if ! [[ "${usage_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+then
+    log info "Not a valid X.Y.Z version string"
+    exit 1
+fi
+
+release_tag="v${usage_version}"
+
+if git tag | grep -q "${release_tag}"
+then
+    log info "Release tag ${usage_version} seems to not exist"
+    exit 1
+fi
+
+source src/Config.global
+# shellcheck disable=SC1091
+source secrets/Config.secrets
+
+export GOOGLE_APPLICATION_CREDENTIALS=./secrets/play-store-bundle-uploader-key.json
+
+access_token=$(gcloud auth application-default print-access-token --scopes=https://www.googleapis.com/auth/androidpublisher)
+
+# Start the edit
+
+log info "Authenticating with Google Play Store"
+
+edit_id=$(curl -X POST \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-Type: application/json" \
+    https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${BUNDLE_ID}/edits | jq -r '.id')
+
+# Upload the bundle
+
+log info "Uploading Android app to Google Play Store"
+
+curl -X POST \
+    -T .build-cache/mobile/android/v"${usage_version}"/app-"${usage_version}".aab \
+    -H "Authorization: Bearer $access_token" \
+    -H "Content-Type: application/octet-stream" \
+    "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${BUNDLE_ID}/edits/${edit_id}/bundles"
+
+# Close the edit
+
+log info "Closing edit"
+
+curl -X POST \
+    -H "Authorization: Bearer $access_token" \
+    https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${BUNDLE_ID}/edits/"${edit_id}":commit

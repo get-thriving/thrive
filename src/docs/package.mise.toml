@@ -1,0 +1,49 @@
+["package:src:docs:prepare"]
+hide = true
+run = "true"
+
+["package:src:docs:fix:markdownlint"]
+hide = true
+sources = ["src/docs/**/*.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix 'src/docs/**/*.md'"
+
+["package:src:docs:fix"]
+description = "Fix src/docs module"
+depends = ["package:src:docs:fix:*"]
+run = "true"
+
+["package:src:docs:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/docs/pyproject.toml"
+
+["package:src:docs:libyear"]
+description = "Check src/docs libyear"
+depends = ["package:src:docs:libyear:*"]
+run = "true"
+
+["package:src:docs:lint:toml"]
+hide = true
+sources = ["src/docs/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/docs/package.mise.toml"
+
+["package:src:docs:lint:yamllint"]
+hide = true
+sources = [
+  "src/docs/**/*.yml",
+  "src/docs/**/*.yaml",
+]
+outputs = { auto = true }
+run = "uv run yamllint --config-file=./tasks/_resources/check/lint/yamllint src/docs/mkdocs.yml"
+
+["package:src:docs:lint:markdownlint-docs"]
+hide = true
+sources = ["src/docs/**/*.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 'src/docs/**/*.md'"
+
+["package:src:docs:lint"]
+description = "Check src/docs module"
+depends = ["package:src:docs:lint:*"]
+run = "true"

@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.event_source import EventSource
 from ..models.sync_target import SyncTarget
 from ..types import UNSET, Unset
 
@@ -27,16 +28,16 @@ class StatsLogEntry:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         stats_log_ref_id (str):
-        source (EventSource): The source of the modification which this event records.
+        source (str):
         stats_targets (list[SyncTarget]):
         today (str): A date or possibly a datetime for the application.
         opened (bool):
-        entity_records (list['EntitySummary']):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        filter_big_plan_ref_ids (Union[None, Unset, list[str]]):
-        filter_journal_ref_ids (Union[None, Unset, list[str]]):
-        filter_habit_ref_ids (Union[None, Unset, list[str]]):
+        entity_records (list[EntitySummary]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        filter_big_plan_ref_ids (list[str] | None | Unset):
+        filter_journal_ref_ids (list[str] | None | Unset):
+        filter_habit_ref_ids (list[str] | None | Unset):
     """
 
     ref_id: str
@@ -46,16 +47,16 @@ class StatsLogEntry:
     last_modified_time: str
     name: str
     stats_log_ref_id: str
-    source: EventSource
+    source: str
     stats_targets: list[SyncTarget]
     today: str
     opened: bool
-    entity_records: list["EntitySummary"]
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    filter_big_plan_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_journal_ref_ids: Union[None, Unset, list[str]] = UNSET
-    filter_habit_ref_ids: Union[None, Unset, list[str]] = UNSET
+    entity_records: list[EntitySummary]
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    filter_big_plan_ref_ids: list[str] | None | Unset = UNSET
+    filter_journal_ref_ids: list[str] | None | Unset = UNSET
+    filter_habit_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -73,7 +74,7 @@ class StatsLogEntry:
 
         stats_log_ref_id = self.stats_log_ref_id
 
-        source = self.source.value
+        source = self.source
 
         stats_targets = []
         for stats_targets_item_data in self.stats_targets:
@@ -89,19 +90,19 @@ class StatsLogEntry:
             entity_records_item = entity_records_item_data.to_dict()
             entity_records.append(entity_records_item)
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        filter_big_plan_ref_ids: Union[None, Unset, list[str]]
+        filter_big_plan_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_big_plan_ref_ids, Unset):
             filter_big_plan_ref_ids = UNSET
         elif isinstance(self.filter_big_plan_ref_ids, list):
@@ -110,7 +111,7 @@ class StatsLogEntry:
         else:
             filter_big_plan_ref_ids = self.filter_big_plan_ref_ids
 
-        filter_journal_ref_ids: Union[None, Unset, list[str]]
+        filter_journal_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_journal_ref_ids, Unset):
             filter_journal_ref_ids = UNSET
         elif isinstance(self.filter_journal_ref_ids, list):
@@ -119,7 +120,7 @@ class StatsLogEntry:
         else:
             filter_journal_ref_ids = self.filter_journal_ref_ids
 
-        filter_habit_ref_ids: Union[None, Unset, list[str]]
+        filter_habit_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_habit_ref_ids, Unset):
             filter_habit_ref_ids = UNSET
         elif isinstance(self.filter_habit_ref_ids, list):
@@ -178,7 +179,7 @@ class StatsLogEntry:
 
         stats_log_ref_id = d.pop("stats_log_ref_id")
 
-        source = EventSource(d.pop("source"))
+        source = d.pop("source")
 
         stats_targets = []
         _stats_targets = d.pop("stats_targets")
@@ -198,25 +199,25 @@ class StatsLogEntry:
 
             entity_records.append(entity_records_item)
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_filter_big_plan_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_big_plan_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -227,13 +228,13 @@ class StatsLogEntry:
                 filter_big_plan_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_big_plan_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_big_plan_ref_ids = _parse_filter_big_plan_ref_ids(d.pop("filter_big_plan_ref_ids", UNSET))
 
-        def _parse_filter_journal_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_journal_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -244,13 +245,13 @@ class StatsLogEntry:
                 filter_journal_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_journal_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_journal_ref_ids = _parse_filter_journal_ref_ids(d.pop("filter_journal_ref_ids", UNSET))
 
-        def _parse_filter_habit_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_habit_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -261,9 +262,9 @@ class StatsLogEntry:
                 filter_habit_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_habit_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_habit_ref_ids = _parse_filter_habit_ref_ids(d.pop("filter_habit_ref_ids", UNSET))
 

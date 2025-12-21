@@ -3,18 +3,22 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CloseAccountArgs } from '../models/CloseAccountArgs';
+import type { GetSummariesArgs } from '../models/GetSummariesArgs';
+import type { GetSummariesResult } from '../models/GetSummariesResult';
 import type { InitArgs } from '../models/InitArgs';
 import type { InitResult } from '../models/InitResult';
-import type { ReportArgs } from '../models/ReportArgs';
-import type { ReportResult } from '../models/ReportResult';
-import type { SearchArgs } from '../models/SearchArgs';
-import type { SearchResult } from '../models/SearchResult';
+import type { LoadProgressReporterTokenArgs } from '../models/LoadProgressReporterTokenArgs';
+import type { LoadProgressReporterTokenResult } from '../models/LoadProgressReporterTokenResult';
+import type { LoadTopLevelInfoArgs } from '../models/LoadTopLevelInfoArgs';
+import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
+import type { LoginArgs } from '../models/LoginArgs';
+import type { LoginResult } from '../models/LoginResult';
+import type { NoOpArgs } from '../models/NoOpArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ApplicationService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * Close account use case.
      * Close account use case.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -29,14 +33,44 @@ export class ApplicationService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * UseCase for initialising the workspace.
+     * The use case for retrieving summaries about entities.
+     * @param requestBody The input data
+     * @returns GetSummariesResult Successful response
+     * @throws ApiError
+     */
+    public getSummaries(
+        requestBody?: GetSummariesArgs,
+    ): CancelablePromise<GetSummariesResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/get-summaries',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
      * UseCase for initialising the workspace.
      * @param requestBody The input data
      * @returns InitResult Successful response
@@ -51,53 +85,118 @@ export class ApplicationService {
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * The command for reporting on progress.
-     * The command for reporting on progress.
+     * The use case for retrieving summaries about entities.
      * @param requestBody The input data
-     * @returns ReportResult Successful response
+     * @returns LoadProgressReporterTokenResult Successful response
      * @throws ApiError
      */
-    public report(
-        requestBody?: ReportArgs,
-    ): CancelablePromise<ReportResult> {
+    public loadProgressReporterToken(
+        requestBody?: LoadProgressReporterTokenArgs,
+    ): CancelablePromise<LoadProgressReporterTokenResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/report',
+            url: '/load-progress-reporter-token',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }
     /**
-     * Use case for free form searching through jupiter.
-     * Use case for free form searching through jupiter.
+     * The command for loading a user and workspace if they exist and other data too.
      * @param requestBody The input data
-     * @returns SearchResult Successful response
+     * @returns LoadTopLevelInfoResult Successful response
      * @throws ApiError
      */
-    public search(
-        requestBody?: SearchArgs,
-    ): CancelablePromise<SearchResult> {
+    public loadTopLevelInfo(
+        requestBody?: LoadTopLevelInfoArgs,
+    ): CancelablePromise<LoadTopLevelInfoResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/search',
+            url: '/load-top-level-info',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
-                406: `Feature Not Available`,
-                410: `Workspace Or User Not Found`,
-                422: `Validation Error`,
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for logging in as a particular user.
+     * @param requestBody The input data
+     * @returns LoginResult Successful response
+     * @throws ApiError
+     */
+    public login(
+        requestBody?: LoginArgs,
+    ): CancelablePromise<LoginResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/login',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * A use case that doesn't do anything.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public noOp(
+        requestBody?: NoOpArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/no-op',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
             },
         });
     }

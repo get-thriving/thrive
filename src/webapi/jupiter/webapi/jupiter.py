@@ -2,35 +2,42 @@
 
 import asyncio
 import logging
+import sys
 
 import aiohttp
-import jupiter.core.domain
-import jupiter.core.impl.repository.sqlite.domain
-import jupiter.core.use_cases
+import jupiter.core
+import jupiter.webapi.config
 import jupiter.webapi.exceptions
-from jupiter.core.domain.concept.auth.auth_token_stamper import AuthTokenStamper
-from jupiter.core.domain.crm import CRM
-from jupiter.core.domain.env import Env
-from jupiter.core.domain.hosting import Hosting
-from jupiter.core.impl.crm.noop import NoOpCRM
-from jupiter.core.impl.crm.wix import WixCRM
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.impl.repository.sqlite.domain.storage_engine import (
-    SqliteDomainStorageEngine,
+from jupiter.core.application.crm import CRM
+from jupiter.core.application.impl.crm.noop import NoOpCRM
+from jupiter.core.application.impl.crm.wix import WixCRM
+from jupiter.core.config import JupiterPorts, build_global_properties
+from jupiter.core.env import Env
+from jupiter.core.hosting import Hosting
+from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
-from jupiter.core.impl.repository.sqlite.use_case.storage_engine import (
-    SqliteUseCaseStorageEngine,
+from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.mutation_inovcation.recorders.impl.sqlite import (
+    SqliteMutationInvocationStorageEngine,
 )
-from jupiter.core.use_cases.infra.persistent_mutation_use_case_recoder import (
-    PersistentMutationUseCaseInvocationRecorder,
+from jupiter.framework.mutation_inovcation.recorders.persistent import (
+    PersistentMutationInvocationRecorder,
 )
-from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
-from jupiter.core.utils.global_properties import build_global_properties
-from jupiter.webapi.app import WebServiceApp
-from jupiter.webapi.time_provider import CronRunTimeProvider, PerRequestTimeProvider
-from jupiter.webapi.websocket_progress_reporter import WebsocketProgressReporterFactory
-from rich import print
+from jupiter.framework.progress_reporter.reporters.websocket import (
+    WebsocketProgressReporterFactory,
+)
+from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
+from jupiter.framework.storage.sqlite.connection import SqliteConnection
+from jupiter.framework.storage.sqlite.storage_engine import (
+    SqliteDomainStorageEngine,
+)
+from jupiter.framework.time_provider import (
+    CronRunTimeProvider,
+    PerRequestTimeProvider,
+)
+from jupiter.webapi.config import JupiterWebApiAppForm
+from rich import print as rich_print
 from rich.console import Console
 from rich.logging import RichHandler
 
@@ -60,7 +67,7 @@ async def main() -> None:
     no_timezone_global_properties = build_global_properties()
 
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
-        jupiter.core.domain, jupiter.core.use_cases
+        jupiter.core
     )
 
     sqlite_connection = SqliteConnection(
@@ -76,15 +83,12 @@ async def main() -> None:
     global_properties = build_global_properties()
 
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
-        realm_codec_registry,
-        sqlite_connection,
-        jupiter.core.impl.repository.sqlite.domain,
-        jupiter.core.domain,
+        realm_codec_registry, sqlite_connection, jupiter.core
     )
     search_storage_engine = SqliteSearchStorageEngine(
         realm_codec_registry, sqlite_connection
     )
-    usecase_storage_engine = SqliteUseCaseStorageEngine(
+    mutation_invocation_storage_engine = SqliteMutationInvocationStorageEngine(
         realm_codec_registry, sqlite_connection
     )
 
@@ -109,23 +113,27 @@ async def main() -> None:
 
     progress_reporter_factory = WebsocketProgressReporterFactory()
 
-    invocation_recorder = PersistentMutationUseCaseInvocationRecorder(
-        storage_engine=usecase_storage_engine,
+    invocation_recorder = PersistentMutationInvocationRecorder(
+        storage_engine=mutation_invocation_storage_engine,
     )
 
-    web_app = WebServiceApp.build_from_module_root(
+    ports = JupiterPorts(
+        domain_storage_engine=domain_storage_engine,
+        search_storage_engine=search_storage_engine,
+        crm=crm,
+    )
+
+    web_app_form = JupiterWebApiAppForm.build_from_module_root(
+        ports,
         global_properties,
         request_time_provider,
         cron_run_time_provider,
+        realm_codec_registry,
         invocation_recorder,
         progress_reporter_factory,
-        realm_codec_registry,
         auth_token_stamper,
-        domain_storage_engine,
-        search_storage_engine,
-        usecase_storage_engine,
-        crm,
-        jupiter.core.use_cases,
+        jupiter.webapi.config,
+        jupiter.core,
         jupiter.webapi.exceptions,
     )
 
@@ -134,15 +142,15 @@ async def main() -> None:
     # await search_storage_engine.initialize()
     # await usecase_storage_engine.initialize()
 
-    print("=" * 80)
-    print("Starting Jupiter WebAPI:")
-    print(f"  Version: {global_properties.version}")
-    print(f"  Environment: {global_properties.env}")
-    print(f"  Hosting: {global_properties.hosting}")
-    print("=" * 80)
+    rich_print("=" * 80)
+    rich_print("Starting Jupiter WebAPI:")
+    rich_print(f"  Version: {global_properties.version}")
+    rich_print(f"  Environment: {global_properties.env}")
+    rich_print(f"  Hosting: {global_properties.hosting}")
+    rich_print("=" * 80)
 
     try:
-        await web_app.run()
+        await web_app_form.run(sys.argv)
     finally:
         try:
             await sqlite_connection.dispose()

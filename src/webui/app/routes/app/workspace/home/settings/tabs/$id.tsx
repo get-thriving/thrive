@@ -23,29 +23,32 @@ import { parseForm, parseParams, parseQuery, parseQuerySafe } from "zodix";
 import TuneIcon from "@mui/icons-material/Tune";
 import { StatusCodes } from "http-status-codes";
 import { Fragment, useContext } from "react";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import {
-  DisplayType,
-  useBranchNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
 import {
   isWidgetDimensionKSized,
   widgetDimensionCols,
   widgetDimensionRows,
   widgetTypeName,
-} from "~/logic/widget";
-import { newURLParams } from "~/logic/domain/navigation";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { EntityLink } from "~/components/infra/entity-card";
-import { SectionActions, NavSingle } from "~/components/infra/section-actions";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/home/sub/widget/root";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import {
+  DisplayType,
+  useBranchNeedsToShowLeaf,
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { EntityLink } from "@jupiter/core/infra/component/entity-card";
+import {
+  SectionActions,
+  NavSingle,
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { newURLParams } from "~/logic/navigation";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum Action {
   ADD_WIDGET = "add",
@@ -91,7 +94,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return redirect(url.pathname + url.search);
   }
 
-  const result = await apiClient.tab.homeTabLoad({
+  const result = await apiClient.home.homeTabLoad({
     ref_id: id,
     allow_archived: true,
   });
@@ -107,7 +110,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "archive": {
-        await apiClient.tab.homeTabArchive({
+        await apiClient.home.homeTabArchive({
           ref_id: id,
         });
 
@@ -115,7 +118,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.tab.homeTabRemove({
+        await apiClient.home.homeTabRemove({
           ref_id: id,
         });
 

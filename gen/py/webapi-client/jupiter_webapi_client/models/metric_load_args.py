@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,13 +19,13 @@ class MetricLoadArgs:
         ref_id (str): A generic entity id.
         allow_archived (bool):
         allow_archived_entries (bool):
-        collection_task_retrieve_offset (Union[None, Unset, int]):
+        collection_task_retrieve_offset (int | None | Unset):
     """
 
     ref_id: str
     allow_archived: bool
     allow_archived_entries: bool
-    collection_task_retrieve_offset: Union[None, Unset, int] = UNSET
+    collection_task_retrieve_offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +35,7 @@ class MetricLoadArgs:
 
         allow_archived_entries = self.allow_archived_entries
 
-        collection_task_retrieve_offset: Union[None, Unset, int]
+        collection_task_retrieve_offset: int | None | Unset
         if isinstance(self.collection_task_retrieve_offset, Unset):
             collection_task_retrieve_offset = UNSET
         else:
@@ -62,12 +64,12 @@ class MetricLoadArgs:
 
         allow_archived_entries = d.pop("allow_archived_entries")
 
-        def _parse_collection_task_retrieve_offset(data: object) -> Union[None, Unset, int]:
+        def _parse_collection_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         collection_task_retrieve_offset = _parse_collection_task_retrieve_offset(
             d.pop("collection_task_retrieve_offset", UNSET)

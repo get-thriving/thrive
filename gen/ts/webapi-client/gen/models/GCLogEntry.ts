@@ -5,7 +5,6 @@
 import type { EntityId } from './EntityId';
 import type { EntityName } from './EntityName';
 import type { EntitySummary } from './EntitySummary';
-import type { EventSource } from './EventSource';
 import type { SyncTarget } from './SyncTarget';
 import type { Timestamp } from './Timestamp';
 /**
@@ -21,7 +20,7 @@ export type GCLogEntry = {
     archived_time?: (Timestamp | null);
     name: EntityName;
     gc_log_ref_id: string;
-    source: EventSource;
+    source: string;
     gc_targets: Array<SyncTarget>;
     opened: boolean;
     entity_records: Array<EntitySummary>;

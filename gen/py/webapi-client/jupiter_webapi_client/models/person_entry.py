@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -21,8 +23,8 @@ class PersonEntry:
         birthday_time_event (TimeEventFullDaysBlock): A full day block of time.
     """
 
-    person: "Person"
-    birthday_time_event: "TimeEventFullDaysBlock"
+    person: Person
+    birthday_time_event: TimeEventFullDaysBlock
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

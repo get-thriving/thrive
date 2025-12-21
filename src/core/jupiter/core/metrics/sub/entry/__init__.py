@@ -1,0 +1,1 @@
+"""The metrics entry subdomain."""

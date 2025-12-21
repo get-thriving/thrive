@@ -8,25 +8,25 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { TimeEventFullDaysBlockStack } from "~/components/domain/application/calendar/time-event-full-days-block-stack";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionCard } from "~/components/infra/section-card";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -181,11 +181,12 @@ export default function Vacation() {
         title="Properties"
         actions={
           <SectionActions
-            id="vacation-properties"
+            id="vacation-update"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "vacation-update",
                 text: "Save",
                 value: "update",
                 highlight: true,
@@ -200,6 +201,7 @@ export default function Vacation() {
             label="name"
             name="name"
             readOnly={!inputsEnabled}
+            disabled={!inputsEnabled}
             defaultValue={vacation.name}
           />
           <FieldError actionResult={actionData} fieldName="/name" />
@@ -246,11 +248,12 @@ export default function Vacation() {
         title="Note"
         actions={
           <SectionActions
-            id="chore-note"
+            id="vacation-create-note"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
+                id: "vacation-create-note",
                 text: "Create Note",
                 value: "create-note",
                 highlight: false,

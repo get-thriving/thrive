@@ -2,10 +2,10 @@
 
 import asyncio
 
-import jupiter.core.domain
-from jupiter.core.impl.repository.sqlite.connection import SqliteConnection
-from jupiter.core.use_cases.infra.realms import ModuleExplorerRealmCodecRegistry
-from jupiter.core.utils.global_properties import build_global_properties
+import jupiter.core
+from jupiter.core.config import build_global_properties
+from jupiter.framework.realm.standard import ModuleExplorerRealmCodecRegistry
+from jupiter.framework.storage.sqlite.connection import SqliteConnection
 
 
 async def main() -> None:
@@ -21,7 +21,7 @@ async def main() -> None:
     #     ],
     # )
 
-    ModuleExplorerRealmCodecRegistry.build_from_module_root(jupiter.core.domain)
+    ModuleExplorerRealmCodecRegistry.build_from_module_root(jupiter.core)
 
     global_properties = build_global_properties()
 

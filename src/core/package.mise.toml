@@ -1,0 +1,165 @@
+["package:src:core:fix:prettier"]
+hide = true
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+  "src/core/**/*.json",
+  "src/core/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/core"
+
+["package:src:core:fix:eslint"]
+hide = true
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+]
+outputs = { auto = true }
+run = "npx eslint src/core --fix"
+
+["package:src:core:fix:autoflake"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run autoflake --config=tasks/_resources/check/lint/autoflake src/core"
+
+["package:src:core:fix:black"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run black src/core"
+
+["package:src:core:fix:ruff"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core --fix"
+
+["package:src:core:fix:markdownlint"]
+hide = true
+sources = ["src/core/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/core/README.md"
+
+["package:src:core:fix"]
+description = "Fix src/core module"
+depends = ["package:src:core:fix:*"]
+run = "true"
+
+["package:src:core:lint:toml"]
+hide = true
+sources = ["src/core/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/core/package.mise.toml"
+
+["package:src:core:lint:mypy"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "cd src/core && uv run mypy --config=../../tasks/_resources/check/lint/mypy --package jupiter.core --explicit-package-bases --show-absolute-path"
+
+["package:src:core:lint:ruff"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run ruff check --cache-dir=.build-cache/ruff --config=./tasks/_resources/check/lint/ruff.toml src/core"
+
+["package:src:core:lint:tsc"]
+hide = true
+sources = ["src/core/**/*.ts", "src/core/**/*.tsx"]
+outputs = { auto = true }
+run = "cd src/core && npx tsc"
+
+["package:src:core:lint:prettier"]
+hide = true
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+  "src/core/**/*.json",
+  "src/core/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --check src/core"
+
+["package:src:core:lint:eslint"]
+hide = true
+sources = [
+  "src/core/**/*.ts",
+  "src/core/**/*.tsx",
+  "src/core/**/*.js",
+  "src/core/**/*.jsx",
+]
+outputs = { auto = true }
+run = "npx eslint src/core"
+
+["package:src:core:lint:markdownlint-readme"]
+hide = true
+sources = ["src/core/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/core/README.md"
+
+["package:src:core:lint:pyflakes"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run pyflakes src/core"
+
+["package:src:core:lint:bandit"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run bandit --configfile=./tasks/_resources/check/lint/bandit --ini=./tasks/_resources/check/lint/bandit.src.ini -r src/core"
+
+["package:src:core:lint:pydocstyle"]
+hide = true
+sources = ["src/core/**/*.py"]
+outputs = { auto = true }
+run = "uv run pydocstyle --config=./tasks/_resources/check/lint/pydocstyle src/core"
+
+["package:src:core:lint"]
+description = "Check src/core module"
+depends = ["package:src:core:lint:*"]
+run = "true"
+
+["package:src:core:test"]
+description = "Run tests"
+run = '''
+mkdir -p .build-cache/test
+pytest src/core --html-report=.build-cache/test/test-report.html --title="Jupiter Tests" $@
+'''
+
+["package:src:core:audit:pnpm-audit"]
+hide = true
+run = "cd src/core && pnpm audit"
+
+["package:src:core:audit:pip-audit"]
+hide = true
+run = '''
+cd src/core
+uv run pip-audit --disable-pip -r <(uv export --format requirements.txt --all-groups)
+'''
+
+["package:src:core:audit"]
+description = "Audit src/core module"
+depends = ["package:src:core:audit:*"]
+run = "true"
+
+["package:src:core:libyear:pnpm-libyear"]
+hide = true
+run = "cd src/core && npx libyear"
+
+["package:src:core:libyear:libyear-toml"]
+hide = true
+run = "libyear toml src/core/pyproject.toml"
+
+["package:src:core:libyear"]
+description = "Check src/core libyear"
+depends = ["package:src:core:libyear:*"]
+run = "true"

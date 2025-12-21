@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,8 +27,8 @@ class Workspace:
         last_modified_time (str): A timestamp in the application.
         name (str): The workspace name.
         feature_flags (WorkspaceFeatureFlags):
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
     """
 
     ref_id: str
@@ -35,9 +37,9 @@ class Workspace:
     created_time: str
     last_modified_time: str
     name: str
-    feature_flags: "WorkspaceFeatureFlags"
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
+    feature_flags: WorkspaceFeatureFlags
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,13 +57,13 @@ class Workspace:
 
         feature_flags = self.feature_flags.to_dict()
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
@@ -106,21 +108,21 @@ class Workspace:
 
         feature_flags = WorkspaceFeatureFlags.from_dict(d.pop("feature_flags"))
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 

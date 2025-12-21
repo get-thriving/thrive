@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,12 +22,12 @@ class RecordScoreResult:
     Attributes:
         latest_task_score (int):
         score_overview (UserScoreOverview): An overview of the scores for a user.
-        has_lucky_puppy_bonus (Union[None, Unset, bool]):
+        has_lucky_puppy_bonus (bool | None | Unset):
     """
 
     latest_task_score: int
-    score_overview: "UserScoreOverview"
-    has_lucky_puppy_bonus: Union[None, Unset, bool] = UNSET
+    score_overview: UserScoreOverview
+    has_lucky_puppy_bonus: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +35,7 @@ class RecordScoreResult:
 
         score_overview = self.score_overview.to_dict()
 
-        has_lucky_puppy_bonus: Union[None, Unset, bool]
+        has_lucky_puppy_bonus: bool | None | Unset
         if isinstance(self.has_lucky_puppy_bonus, Unset):
             has_lucky_puppy_bonus = UNSET
         else:
@@ -61,12 +63,12 @@ class RecordScoreResult:
 
         score_overview = UserScoreOverview.from_dict(d.pop("score_overview"))
 
-        def _parse_has_lucky_puppy_bonus(data: object) -> Union[None, Unset, bool]:
+        def _parse_has_lucky_puppy_bonus(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         has_lucky_puppy_bonus = _parse_has_lucky_puppy_bonus(d.pop("has_lucky_puppy_bonus", UNSET))
 

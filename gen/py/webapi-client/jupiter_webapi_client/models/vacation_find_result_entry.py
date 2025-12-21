@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +23,13 @@ class VacationFindResultEntry:
 
     Attributes:
         vacation (Vacation): A vacation.
-        note (Union['Note', None, Unset]):
-        time_event_block (Union['TimeEventFullDaysBlock', None, Unset]):
+        note (None | Note | Unset):
+        time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
 
-    vacation: "Vacation"
-    note: Union["Note", None, Unset] = UNSET
-    time_event_block: Union["TimeEventFullDaysBlock", None, Unset] = UNSET
+    vacation: Vacation
+    note: None | Note | Unset = UNSET
+    time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +38,7 @@ class VacationFindResultEntry:
 
         vacation = self.vacation.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -44,7 +46,7 @@ class VacationFindResultEntry:
         else:
             note = self.note
 
-        time_event_block: Union[None, Unset, dict[str, Any]]
+        time_event_block: dict[str, Any] | None | Unset
         if isinstance(self.time_event_block, Unset):
             time_event_block = UNSET
         elif isinstance(self.time_event_block, TimeEventFullDaysBlock):
@@ -75,7 +77,7 @@ class VacationFindResultEntry:
         d = dict(src_dict)
         vacation = Vacation.from_dict(d.pop("vacation"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,13 +88,13 @@ class VacationFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_time_event_block(data: object) -> Union["TimeEventFullDaysBlock", None, Unset]:
+        def _parse_time_event_block(data: object) -> None | TimeEventFullDaysBlock | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +105,9 @@ class VacationFindResultEntry:
                 time_event_block_type_0 = TimeEventFullDaysBlock.from_dict(data)
 
                 return time_event_block_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["TimeEventFullDaysBlock", None, Unset], data)
+            return cast(None | TimeEventFullDaysBlock | Unset, data)
 
         time_event_block = _parse_time_event_block(d.pop("time_event_block", UNSET))
 

@@ -1,4 +1,5 @@
 __pycache__/
+tsconfig.tsbuildinfo
 node_modules/
 secrets
 .system.lock

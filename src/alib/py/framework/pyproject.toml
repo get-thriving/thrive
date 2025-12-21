@@ -1,0 +1,26 @@
+[project]
+name = "jupiter-framework"
+version = "0.1.0"
+description = "The application framework for Jupiter"
+authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+requires-python = ">=3.13,<4"
+readme = "README.md"
+license = "MIT"
+
+[project.urls]
+Homepage = "https://get-thriving.com"
+Repository = "https://github.com/horia141/thrive"
+Documentation = "https://docs.get-thriving.com"
+
+[tool.hatch.build.targets.sdist]
+include = ["jupiter"]
+
+[tool.hatch.build.targets.sdist.force-include]
+"jupiter/framework/py.typed" = "jupiter/framework/py.typed"
+
+[tool.hatch.build.targets.wheel]
+include = ["jupiter"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

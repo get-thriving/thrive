@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -19,12 +21,12 @@ class DocLoadResult:
     Attributes:
         doc (Doc): A doc in the docbook.
         note (Note): A note in the notebook.
-        subdocs (list['Doc']):
+        subdocs (list[Doc]):
     """
 
-    doc: "Doc"
-    note: "Note"
-    subdocs: list["Doc"]
+    doc: Doc
+    note: Note
+    subdocs: list[Doc]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -1,0 +1,1 @@
+"""Testing component for connections."""

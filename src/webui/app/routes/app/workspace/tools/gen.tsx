@@ -30,41 +30,41 @@ import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { ADateTag } from "~/components/domain/core/adate-tag";
-import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EventSourceTag } from "~/components/infra/event-source-tag";
-import { SlimChip } from "~/components/infra/chips";
-import { EntityCard } from "~/components/infra/entity-card";
-import { makeToolErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { ToolPanel } from "~/components/infra/layout/tool-panel";
-import { PeriodSelect } from "~/components/domain/core/period-select";
-import { PeriodTag } from "~/components/domain/core/period-tag";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { SyncTargetSelect } from "~/components/domain/core/sync-target-select";
-import { SyncTargetTag } from "~/components/domain/core/sync-target-tag";
-import { TimeDiffTag } from "~/components/domain/core/time-diff-tag";
+import { SlimChip } from "@jupiter/core/infra/component/chips";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { PeriodTag } from "@jupiter/core/common/component/period-tag";
+import { ADateTag } from "@jupiter/core/common/component/adate-tag";
+import { EntitySummaryLink } from "@jupiter/core/common/component/entity-summary-link";
+import { AppComponentTag } from "@jupiter/core/infra/component/app-component-tag";
+import { EntityCard } from "@jupiter/core/infra/component/entity-card";
+import { makeToolErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { ToolPanel } from "@jupiter/core/infra/component/layout/tool-panel";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { SyncTargetSelect } from "@jupiter/core/common/component/sync-target-select";
+import { SyncTargetTag } from "@jupiter/core/common/component/sync-target-tag";
+import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import {
   noErrorNoData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
+} from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import {
   fixSelectOutputEntityId,
   fixSelectOutputToEnum,
   selectZod,
 } from "~/logic/select";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import {
-  ActionSingle,
-  SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 interface ProjectOption {
   refId: string;
@@ -109,7 +109,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summariesResponse = await apiClient.getSummaries.getSummaries({
+  const summariesResponse = await apiClient.application.getSummaries({
     include_projects: true,
     include_habits: true,
     include_chores: true,
@@ -225,6 +225,7 @@ export default function Gen() {
             actions={[
               ActionSingle({
                 text: "Generate",
+                id: "generate",
                 value: "update",
                 highlight: true,
               }),
@@ -483,7 +484,7 @@ export default function Gen() {
           <Accordion key={entry.ref_id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <AccordionHeader>
-                Run from <EventSourceTag source={entry.source} />
+                Run from <AppComponentTag source={entry.source} />
                 with {entry.entity_created_records.length} entities created,{" "}
                 {entry.entity_updated_records.length} entities updated, and{" "}
                 {entry.entity_removed_records.length} entities removed

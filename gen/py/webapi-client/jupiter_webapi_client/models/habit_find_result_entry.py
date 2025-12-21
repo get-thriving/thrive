@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,15 +24,15 @@ class HabitFindResultEntry:
 
     Attributes:
         habit (Habit): A habit.
-        project (Union['Project', None, Unset]):
-        inbox_tasks (Union[None, Unset, list['InboxTask']]):
-        note (Union['Note', None, Unset]):
+        project (None | Project | Unset):
+        inbox_tasks (list[InboxTask] | None | Unset):
+        note (None | Note | Unset):
     """
 
-    habit: "Habit"
-    project: Union["Project", None, Unset] = UNSET
-    inbox_tasks: Union[None, Unset, list["InboxTask"]] = UNSET
-    note: Union["Note", None, Unset] = UNSET
+    habit: Habit
+    project: None | Project | Unset = UNSET
+    inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +41,7 @@ class HabitFindResultEntry:
 
         habit = self.habit.to_dict()
 
-        project: Union[None, Unset, dict[str, Any]]
+        project: dict[str, Any] | None | Unset
         if isinstance(self.project, Unset):
             project = UNSET
         elif isinstance(self.project, Project):
@@ -47,7 +49,7 @@ class HabitFindResultEntry:
         else:
             project = self.project
 
-        inbox_tasks: Union[None, Unset, list[dict[str, Any]]]
+        inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.inbox_tasks, Unset):
             inbox_tasks = UNSET
         elif isinstance(self.inbox_tasks, list):
@@ -59,7 +61,7 @@ class HabitFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -93,7 +95,7 @@ class HabitFindResultEntry:
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
 
-        def _parse_project(data: object) -> Union["Project", None, Unset]:
+        def _parse_project(data: object) -> None | Project | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -104,13 +106,13 @@ class HabitFindResultEntry:
                 project_type_0 = Project.from_dict(data)
 
                 return project_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Project", None, Unset], data)
+            return cast(None | Project | Unset, data)
 
         project = _parse_project(d.pop("project", UNSET))
 
-        def _parse_inbox_tasks(data: object) -> Union[None, Unset, list["InboxTask"]]:
+        def _parse_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -126,13 +128,13 @@ class HabitFindResultEntry:
                     inbox_tasks_type_0.append(inbox_tasks_type_0_item)
 
                 return inbox_tasks_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["InboxTask"]], data)
+            return cast(list[InboxTask] | None | Unset, data)
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -143,9 +145,9 @@ class HabitFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 

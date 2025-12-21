@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,25 +17,25 @@ class ScheduleExternalSyncDoArgs:
 
     Attributes:
         sync_even_if_not_modified (bool):
-        today (Union[None, Unset, str]):
-        filter_schedule_stream_ref_id (Union[None, Unset, list[str]]):
+        today (None | str | Unset):
+        filter_schedule_stream_ref_id (list[str] | None | Unset):
     """
 
     sync_even_if_not_modified: bool
-    today: Union[None, Unset, str] = UNSET
-    filter_schedule_stream_ref_id: Union[None, Unset, list[str]] = UNSET
+    today: None | str | Unset = UNSET
+    filter_schedule_stream_ref_id: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         sync_even_if_not_modified = self.sync_even_if_not_modified
 
-        today: Union[None, Unset, str]
+        today: None | str | Unset
         if isinstance(self.today, Unset):
             today = UNSET
         else:
             today = self.today
 
-        filter_schedule_stream_ref_id: Union[None, Unset, list[str]]
+        filter_schedule_stream_ref_id: list[str] | None | Unset
         if isinstance(self.filter_schedule_stream_ref_id, Unset):
             filter_schedule_stream_ref_id = UNSET
         elif isinstance(self.filter_schedule_stream_ref_id, list):
@@ -61,16 +63,16 @@ class ScheduleExternalSyncDoArgs:
         d = dict(src_dict)
         sync_even_if_not_modified = d.pop("sync_even_if_not_modified")
 
-        def _parse_today(data: object) -> Union[None, Unset, str]:
+        def _parse_today(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         today = _parse_today(d.pop("today", UNSET))
 
-        def _parse_filter_schedule_stream_ref_id(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_schedule_stream_ref_id(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -81,9 +83,9 @@ class ScheduleExternalSyncDoArgs:
                 filter_schedule_stream_ref_id_type_0 = cast(list[str], data)
 
                 return filter_schedule_stream_ref_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_schedule_stream_ref_id = _parse_filter_schedule_stream_ref_id(
             d.pop("filter_schedule_stream_ref_id", UNSET)

@@ -1,0 +1,1 @@
+"""Event in day domain."""

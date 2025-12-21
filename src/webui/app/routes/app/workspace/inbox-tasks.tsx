@@ -27,33 +27,13 @@ import { Link, Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, memo, useContext, useState } from "react";
 import { z } from "zod";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import type { InboxTaskShowOptions } from "~/components/domain/concept/inbox-task/inbox-task-card";
-import { InboxTaskCard } from "~/components/domain/concept/inbox-task/inbox-task-card";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { InboxTaskStatusTag } from "~/components/domain/concept/inbox-task/inbox-task-status-tag";
-import { InboxTasksNoNothingCard } from "~/components/domain/concept/inbox-task/inbox-tasks-no-nothing-card";
-import { InboxTasksNoTasksCard } from "~/components/domain/concept/inbox-task/inbox-tasks-no-tasks-card";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
-  FilterFewOptionsCompact,
-  SectionActions,
-  FilterFewOptionsSpread,
-} from "~/components/infra/section-actions";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { TabPanel } from "~/components/infra/tab-panel";
-import { GlobalPropertiesContext } from "~/global-properties-client";
-import type { SomeErrorNoData } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { eisenIcon, eisenName } from "~/logic/domain/eisen";
-import type {
-  InboxTaskOptimisticState,
-  InboxTaskParent,
-} from "~/logic/domain/inbox-task";
+  inboxTaskStatusIcon,
+  inboxTaskStatusName,
+} from "@jupiter/core/inbox_tasks/status";
 import {
   canInboxTaskBeInStatus,
   filterInboxTasksForDisplay,
@@ -61,25 +41,45 @@ import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksByEisenAndDifficulty,
   sortInboxTasksNaturally,
-} from "~/logic/domain/inbox-task";
+} from "@jupiter/core/inbox_tasks/root";
+import type {
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+} from "@jupiter/core/inbox_tasks/root";
+import type { InboxTaskShowOptions } from "@jupiter/core/inbox_tasks/component/card";
+import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStatusTag } from "@jupiter/core/inbox_tasks/component/status-tag";
+import { InboxTasksNoNothingCard } from "@jupiter/core/inbox_tasks/component/no-nothing-card";
+import { InboxTasksNoTasksCard } from "@jupiter/core/inbox_tasks/component/no-tasks-card";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
-  inboxTaskStatusIcon,
-  inboxTaskStatusName,
-} from "~/logic/domain/inbox-task-status";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
+  FilterFewOptionsCompact,
+  SectionActions,
+  FilterFewOptionsSpread,
+} from "@jupiter/core/infra/component/section-actions";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
+import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
   actionableTimeToDateTime,
-} from "~/rendering/actionable-time";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+} from "@jupiter/core/infra/actionable-time";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import type { TopLevelInfo } from "~/top-level-context";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum DragTargetStatus {
   SOURCE_DRAG,

@@ -1,4 +1,4 @@
-import { ApiError, ScheduleSource } from "@jupiter/webapi-client";
+import { ApiError, ScheduleStreamSource } from "@jupiter/webapi-client";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -23,32 +23,35 @@ import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntitySummaryLink } from "~/components/infra/entity-summary-link";
-import { EventSourceTag } from "~/components/infra/event-source-tag";
-import { EntityCard, EntityLink } from "~/components/infra/entity-card";
-import { makeBranchErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { BranchPanel } from "~/components/infra/layout/branch-panel";
-import { ScheduleStreamMultiSelect } from "~/components/domain/concept/schedule/schedule-stream-multi-select";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { TimeDiffTag } from "~/components/domain/core/time-diff-tag";
+import { EntitySummaryLink } from "@jupiter/core/common/component/entity-summary-link";
+import { AppComponentTag } from "@jupiter/core/infra/component/app-component-tag";
+import {
+  EntityCard,
+  EntityLink,
+} from "@jupiter/core/infra/component/entity-card";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/multi-select";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { TimeDiffTag } from "@jupiter/core/common/component/time-diff-tag";
 import {
   noErrorNoData,
   validationErrorToUIErrorInfo,
-} from "~/logic/action-result";
-import { selectZod } from "~/logic/select";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { SectionCard } from "~/components/infra/section-card";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
   ActionsExpansion,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { selectZod } from "~/logic/select";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
 
@@ -63,7 +66,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_schedule_streams: true,
   });
   const response = await apiClient.schedule.scheduleExternalSyncLoadRuns({});
@@ -147,7 +150,7 @@ export default function CalendarSettings() {
             name="scheduleStreamRefIds"
             readOnly={!inputsEnabled}
             allScheduleStreams={loaderData.scheduleStreams.filter(
-              (ss) => ss.source === ScheduleSource.EXTERNAL_ICAL,
+              (ss) => ss.source === ScheduleStreamSource.EXTERNAL_ICAL,
             )}
           />
           <FieldError
@@ -182,7 +185,7 @@ export default function CalendarSettings() {
           <Accordion key={entry.ref_id}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <AccordionHeader>
-                Run from <EventSourceTag source={entry.source} />
+                Run from <AppComponentTag source={entry.source} />
                 on {entry.today} from {entry.start_of_window} to{" "}
                 {entry.end_of_window}{" "}
                 {entry.sync_even_if_not_modified ? "and sync forced " : " "}

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,11 +22,11 @@ class InboxTaskCreateResult:
 
     Attributes:
         new_inbox_task (InboxTask): An inbox task.
-        new_time_plan_activity (Union['TimePlanActivity', None, Unset]):
+        new_time_plan_activity (None | TimePlanActivity | Unset):
     """
 
-    new_inbox_task: "InboxTask"
-    new_time_plan_activity: Union["TimePlanActivity", None, Unset] = UNSET
+    new_inbox_task: InboxTask
+    new_time_plan_activity: None | TimePlanActivity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +34,7 @@ class InboxTaskCreateResult:
 
         new_inbox_task = self.new_inbox_task.to_dict()
 
-        new_time_plan_activity: Union[None, Unset, dict[str, Any]]
+        new_time_plan_activity: dict[str, Any] | None | Unset
         if isinstance(self.new_time_plan_activity, Unset):
             new_time_plan_activity = UNSET
         elif isinstance(self.new_time_plan_activity, TimePlanActivity):
@@ -60,7 +62,7 @@ class InboxTaskCreateResult:
         d = dict(src_dict)
         new_inbox_task = InboxTask.from_dict(d.pop("new_inbox_task"))
 
-        def _parse_new_time_plan_activity(data: object) -> Union["TimePlanActivity", None, Unset]:
+        def _parse_new_time_plan_activity(data: object) -> None | TimePlanActivity | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -71,9 +73,9 @@ class InboxTaskCreateResult:
                 new_time_plan_activity_type_0 = TimePlanActivity.from_dict(data)
 
                 return new_time_plan_activity_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["TimePlanActivity", None, Unset], data)
+            return cast(None | TimePlanActivity | Unset, data)
 
         new_time_plan_activity = _parse_new_time_plan_activity(d.pop("new_time_plan_activity", UNSET))
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,11 +22,11 @@ class SlackTaskFindResultEntry:
 
     Attributes:
         slack_task (SlackTask): A Slack task which needs to be converted into an inbox task.
-        inbox_task (Union['InboxTask', None, Unset]):
+        inbox_task (InboxTask | None | Unset):
     """
 
-    slack_task: "SlackTask"
-    inbox_task: Union["InboxTask", None, Unset] = UNSET
+    slack_task: SlackTask
+    inbox_task: InboxTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +34,7 @@ class SlackTaskFindResultEntry:
 
         slack_task = self.slack_task.to_dict()
 
-        inbox_task: Union[None, Unset, dict[str, Any]]
+        inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.inbox_task, Unset):
             inbox_task = UNSET
         elif isinstance(self.inbox_task, InboxTask):
@@ -60,7 +62,7 @@ class SlackTaskFindResultEntry:
         d = dict(src_dict)
         slack_task = SlackTask.from_dict(d.pop("slack_task"))
 
-        def _parse_inbox_task(data: object) -> Union["InboxTask", None, Unset]:
+        def _parse_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -71,9 +73,9 @@ class SlackTaskFindResultEntry:
                 inbox_task_type_0 = InboxTask.from_dict(data)
 
                 return inbox_task_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["InboxTask", None, Unset], data)
+            return cast(InboxTask | None | Unset, data)
 
         inbox_task = _parse_inbox_task(d.pop("inbox_task", UNSET))
 

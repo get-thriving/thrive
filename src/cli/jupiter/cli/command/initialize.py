@@ -1,22 +1,22 @@
 """UseCase for initialising a workspace."""
 
-from jupiter.cli.command.command import GuestMutationCommand
-from jupiter.cli.session_storage import SessionInfo
-from jupiter.core.framework.secure import secure_class
-from jupiter.core.use_cases.application.init import InitResult, InitUseCase
-from jupiter.core.use_cases.infra.use_cases import AppGuestMutationUseCaseContext
+from jupiter.cli.config import JupiterGuestMutationCommand
+from jupiter.core.application.use_case.init import InitResult, InitUseCase
+from jupiter.core.config import JupiterGuestMutationContext
+from jupiter.framework.appform.cli.session_storage import SessionInfo
+from jupiter.framework.secure import secure_class
 from rich.console import Console
 from rich.text import Text
 
 
 @secure_class
-class Initialize(GuestMutationCommand[InitUseCase, InitResult]):
+class Initialize(JupiterGuestMutationCommand[InitUseCase, InitResult]):
     """UseCase class for initialising a workspace."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppGuestMutationUseCaseContext,
+        context: JupiterGuestMutationContext,
         result: InitResult,
     ) -> None:
         self._session_storage.store(SessionInfo(auth_token_ext=result.auth_token_ext))

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,13 +19,13 @@ class DocFindArgs:
         include_notes (bool):
         allow_archived (bool):
         include_subdocs (bool):
-        filter_ref_ids (Union[None, Unset, list[str]]):
+        filter_ref_ids (list[str] | None | Unset):
     """
 
     include_notes: bool
     allow_archived: bool
     include_subdocs: bool
-    filter_ref_ids: Union[None, Unset, list[str]] = UNSET
+    filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +35,7 @@ class DocFindArgs:
 
         include_subdocs = self.include_subdocs
 
-        filter_ref_ids: Union[None, Unset, list[str]]
+        filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
             filter_ref_ids = UNSET
         elif isinstance(self.filter_ref_ids, list):
@@ -65,7 +67,7 @@ class DocFindArgs:
 
         include_subdocs = d.pop("include_subdocs")
 
-        def _parse_filter_ref_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -76,9 +78,9 @@ class DocFindArgs:
                 filter_ref_ids_type_0 = cast(list[str], data)
 
                 return filter_ref_ids_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 

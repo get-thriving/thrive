@@ -1,6 +1,5 @@
 """UseCase for generating reports of progress."""
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
@@ -8,34 +7,35 @@ from jupiter.cli.command.rendering import (
     period_to_rich_text,
     user_score_overview_to_rich,
 )
-from jupiter.core.domain.application.report.report_breakdown import ReportBreakdown
-from jupiter.core.domain.application.report.report_period_result import (
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.report.breakdown import ReportBreakdown
+from jupiter.core.report.period_result import (
     InboxTasksSummary,
     WorkableSummary,
 )
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_source import InboxTaskSource
-from jupiter.core.domain.concept.inbox_tasks.inbox_task_status import InboxTaskStatus
-from jupiter.core.domain.core.adate import ADate
-from jupiter.core.domain.core.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.domain.features import WorkspaceFeature
-from jupiter.core.use_cases.application.report import (
+from jupiter.core.report.use_case.report import (
     ReportResult,
     ReportUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
+from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 from rich.tree import Tree
 
 
-class Report(LoggedInReadonlyCommand[ReportUseCase, ReportResult]):
+class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
     """UseCase class for reporting progress."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: ReportResult,
     ) -> None:
         sources_to_present = result.period_result.sources

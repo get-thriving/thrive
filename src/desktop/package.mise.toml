@@ -1,0 +1,75 @@
+["package:src:desktop:prepare"]
+hide = true
+run = "true"
+
+["package:src:desktop:fix:prettier"]
+hide = true
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --write --list-different src/desktop"
+
+["package:src:desktop:fix:markdownlint"]
+hide = true
+sources = ["src/desktop/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 --fix src/desktop/README.md"
+
+["package:src:desktop:fix"]
+description = "Fix src/desktop module"
+depends = ["package:src:desktop:fix:*"]
+run = "true"
+
+["package:src:desktop:lint:toml"]
+hide = true
+sources = ["src/desktop/package.mise.toml"]
+outputs = { auto = true }
+run = "npx eslint src/desktop/package.mise.toml"
+
+["package:src:desktop:lint:prettier"]
+hide = true
+sources = [
+  "src/desktop/**/*.ts",
+  "src/desktop/**/*.tsx",
+  "src/desktop/**/*.js",
+  "src/desktop/**/*.jsx",
+  "src/desktop/**/*.json",
+  "src/desktop/**/*.md",
+]
+outputs = { auto = true }
+run = "npx prettier --check src/desktop"
+
+["package:src:desktop:lint:markdownlint-readme"]
+hide = true
+sources = ["src/desktop/README.md"]
+outputs = { auto = true }
+run = "npx markdownlint-cli2 src/desktop/README.md"
+
+["package:src:desktop:lint"]
+description = "Check src/desktop module"
+depends = ["package:src:desktop:lint:*"]
+run = "true"
+
+["package:src:desktop:audit:pnpm-audit"]
+hide = true
+run = "cd src/desktop && pnpm audit"
+
+["package:src:desktop:audit"]
+description = "Audit src/desktop module"
+depends = ["package:src:desktop:audit:*"]
+run = "true"
+
+["package:src:desktop:libyear:pnpm-libyear"]
+hide = true
+run = "cd src/desktop && npx libyear"
+
+["package:src:desktop:libyear"]
+description = "Check src/desktop libyear"
+depends = ["package:src:desktop:libyear:*"]
+run = "true"

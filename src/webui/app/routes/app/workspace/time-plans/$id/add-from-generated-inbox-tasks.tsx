@@ -29,48 +29,50 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { InboxTaskCard } from "~/components/domain/concept/inbox-task/inbox-task-card";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
+import { allHigherPeriods } from "@jupiter/core/common/recurring-task-period";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  computeProjectHierarchicalNameFromRoot,
+  sortProjectsByTreeOrder,
+} from "@jupiter/core/projects/root";
+import {
+  filterInboxTasksForDisplay,
+  inboxTaskFindEntryToParent,
+  sortInboxTasksByEisenAndDifficulty,
+} from "@jupiter/core/inbox_tasks/root";
+import type { InboxTaskParent } from "@jupiter/core/inbox_tasks/root";
+import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionMultipleSpread,
   ActionSingle,
   FilterFewOptionsCompact,
   SectionActions,
-} from "~/components/infra/section-actions";
-import { SectionCard } from "~/components/infra/section-card";
-import { PeriodSelect } from "~/components/domain/core/period-select";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { TimePlanActivityFeasabilitySelect } from "~/components/domain/concept/time-plan/time-plan-activity-feasability-select";
-import { TimePlanActivitKindSelect } from "~/components/domain/concept/time-plan/time-plan-activity-kind-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import type { InboxTaskParent } from "~/logic/domain/inbox-task";
-import {
-  filterInboxTasksForDisplay,
-  inboxTaskFindEntryToParent,
-  sortInboxTasksByEisenAndDifficulty,
-} from "~/logic/domain/inbox-task";
-import { allHigherPeriods } from "~/logic/domain/period";
-import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
-} from "~/logic/domain/project";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
+} from "@jupiter/core/infra/component/section-actions";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
   actionableTimeToDateTime,
-} from "~/rendering/actionable-time";
-import { LeafPanelExpansionState } from "~/rendering/leaf-panel-expansion";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
+} from "@jupiter/core/infra/actionable-time";
+import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  TopLevelInfo,
+  TopLevelInfoContext,
+} from "@jupiter/core/infra/top-level-context";
+
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import type { TopLevelInfo } from "~/top-level-context";
-import { TopLevelInfoContext } from "~/top-level-context";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   MERGED = "merged",
@@ -88,7 +90,7 @@ const QuerySchema = z.object({
 const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("gen"),
-    today: z.string(),
+    rightNow: z.string(),
     period: selectZod(z.nativeEnum(RecurringTaskPeriod)),
   }),
   z.object({
@@ -109,7 +111,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 
@@ -161,7 +163,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     switch (form.intent) {
       case "gen": {
         await apiClient.timePlans.timePlanGenForTimePlan({
-          today: form.today,
+          right_now: form.rightNow,
           period: fixSelectOutputToEnum<RecurringTaskPeriod>(form.period),
         });
 
@@ -374,7 +376,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
           direction={isBigScreen ? "row" : "column"}
         >
           <FormControl fullWidth>
-            <InputLabel id="today" shrink>
+            <InputLabel id="rightNow" shrink>
               Generation Date
             </InputLabel>
             <OutlinedInput
@@ -384,10 +386,10 @@ export default function TimePlanAddFromCurrentInboxTasks() {
               readOnly={!inputsEnabled}
               disabled={!inputsEnabled}
               defaultValue={loaderData.timePlan.start_date}
-              name="today"
+              name="rightNow"
             />
 
-            <FieldError actionResult={actionData} fieldName="/today" />
+            <FieldError actionResult={actionData} fieldName="/rightNow" />
           </FormControl>
 
           <FormControl fullWidth>

@@ -4,18 +4,24 @@ import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { z } from "zod";
 import { parseQuery } from "zodix";
-
-import { CommunityLink } from "~/components/infra/community-link";
-import { DocsHelp, DocsHelpSubject } from "~/components/infra/docs-help";
-import { LifecyclePanel } from "~/components/infra/layout/lifecycle-panel";
-import { StandaloneContainer } from "~/components/infra/layout/standalone-container";
-import { SmartAppBar } from "~/components/infra/smart-appbar";
-import { Logo } from "~/components/infra/logo";
-import { Title } from "~/components/infra/title";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { ActionsPosition, SectionCard } from "~/components/infra/section-card";
-import { NavSingle, SectionActions } from "~/components/infra/section-actions";
-import { EMPTY_CONTEXT } from "~/top-level-context";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { CommunityLink } from "@jupiter/core/infra/component/community-link";
+import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
+import { LifecyclePanel } from "@jupiter/core/infra/component/layout/lifecycle-panel";
+import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standalone-container";
+import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
+import { Logo } from "@jupiter/core/infra/component/logo";
+import { Title } from "@jupiter/core/infra/component/title";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
+import {
+  NavSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 
 const QuerySchema = z.object({
   returnTo: z.string(),

@@ -1,0 +1,4 @@
+[pydocstyle]
+convention=google
+match-dir = ^(?!(\.venv|\.git|migrations?)$).*
+match=^(?!.*\.test\.py$).*\.py$

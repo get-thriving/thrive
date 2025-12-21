@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,15 +24,15 @@ class TimeEventFullDaysBlockLoadResult:
 
     Attributes:
         full_days_block (TimeEventFullDaysBlock): A full day block of time.
-        schedule_event (Union['ScheduleEventFullDays', None, Unset]):
-        person (Union['Person', None, Unset]):
-        vacation (Union['Vacation', None, Unset]):
+        schedule_event (None | ScheduleEventFullDays | Unset):
+        person (None | Person | Unset):
+        vacation (None | Unset | Vacation):
     """
 
-    full_days_block: "TimeEventFullDaysBlock"
-    schedule_event: Union["ScheduleEventFullDays", None, Unset] = UNSET
-    person: Union["Person", None, Unset] = UNSET
-    vacation: Union["Vacation", None, Unset] = UNSET
+    full_days_block: TimeEventFullDaysBlock
+    schedule_event: None | ScheduleEventFullDays | Unset = UNSET
+    person: None | Person | Unset = UNSET
+    vacation: None | Unset | Vacation = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +42,7 @@ class TimeEventFullDaysBlockLoadResult:
 
         full_days_block = self.full_days_block.to_dict()
 
-        schedule_event: Union[None, Unset, dict[str, Any]]
+        schedule_event: dict[str, Any] | None | Unset
         if isinstance(self.schedule_event, Unset):
             schedule_event = UNSET
         elif isinstance(self.schedule_event, ScheduleEventFullDays):
@@ -48,7 +50,7 @@ class TimeEventFullDaysBlockLoadResult:
         else:
             schedule_event = self.schedule_event
 
-        person: Union[None, Unset, dict[str, Any]]
+        person: dict[str, Any] | None | Unset
         if isinstance(self.person, Unset):
             person = UNSET
         elif isinstance(self.person, Person):
@@ -56,7 +58,7 @@ class TimeEventFullDaysBlockLoadResult:
         else:
             person = self.person
 
-        vacation: Union[None, Unset, dict[str, Any]]
+        vacation: dict[str, Any] | None | Unset
         if isinstance(self.vacation, Unset):
             vacation = UNSET
         elif isinstance(self.vacation, Vacation):
@@ -90,7 +92,7 @@ class TimeEventFullDaysBlockLoadResult:
         d = dict(src_dict)
         full_days_block = TimeEventFullDaysBlock.from_dict(d.pop("full_days_block"))
 
-        def _parse_schedule_event(data: object) -> Union["ScheduleEventFullDays", None, Unset]:
+        def _parse_schedule_event(data: object) -> None | ScheduleEventFullDays | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -101,13 +103,13 @@ class TimeEventFullDaysBlockLoadResult:
                 schedule_event_type_0 = ScheduleEventFullDays.from_dict(data)
 
                 return schedule_event_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["ScheduleEventFullDays", None, Unset], data)
+            return cast(None | ScheduleEventFullDays | Unset, data)
 
         schedule_event = _parse_schedule_event(d.pop("schedule_event", UNSET))
 
-        def _parse_person(data: object) -> Union["Person", None, Unset]:
+        def _parse_person(data: object) -> None | Person | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -118,13 +120,13 @@ class TimeEventFullDaysBlockLoadResult:
                 person_type_0 = Person.from_dict(data)
 
                 return person_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Person", None, Unset], data)
+            return cast(None | Person | Unset, data)
 
         person = _parse_person(d.pop("person", UNSET))
 
-        def _parse_vacation(data: object) -> Union["Vacation", None, Unset]:
+        def _parse_vacation(data: object) -> None | Unset | Vacation:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -135,9 +137,9 @@ class TimeEventFullDaysBlockLoadResult:
                 vacation_type_0 = Vacation.from_dict(data)
 
                 return vacation_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Vacation", None, Unset], data)
+            return cast(None | Unset | Vacation, data)
 
         vacation = _parse_vacation(d.pop("vacation", UNSET))
 

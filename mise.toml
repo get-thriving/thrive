@@ -1,0 +1,39 @@
+# THIS IS AN AUTO-GENERATED FILE. MODIFY mise.toml.hbs AND RUN mise tasks rebuild-mise TO UPDATE.
+
+[settings]
+python.uv_venv_auto = false
+lockfile = true
+
+[tools]
+cocoapods = "latest"
+gcloud = "latest"
+"github:cli/cli" = "latest"
+jq = "latest"
+node = "22.14.0"
+python = "3.13.0"
+rust = "latest"
+uv = "latest"
+pnpm = "latest"
+shellcheck = "latest"
+
+[env]
+UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"
+_.python.venv = { path = ".build-cache/venv", create = true }
+
+[task_config]
+includes = [
+    "tasks",
+    "root.mise.toml",
+    "docs/docs.mise.toml",
+    "src/alib/py/framework/package.mise.toml",
+    "src/core/package.mise.toml",
+    "src/cli/package.mise.toml",
+    "src/webapi/package.mise.toml",
+    "src/docs/package.mise.toml",
+    "src/webui/package.mise.toml",
+    "src/desktop/package.mise.toml",
+    "src/mobile/package.mise.toml",
+    "itests/package.mise.toml",
+    "gen/ts/webapi-client/package.mise.toml",
+    "gen/py/webapi-client/package.mise.toml",
+]

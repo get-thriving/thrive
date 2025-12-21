@@ -2,7 +2,6 @@
 
 from typing import cast
 
-from jupiter.cli.command.command import LoggedInReadonlyCommand
 from jupiter.cli.command.rendering import (
     date_with_label_to_rich_text,
     entity_name_to_rich_text,
@@ -10,21 +9,22 @@ from jupiter.cli.command.rendering import (
     person_birthday_to_rich_text,
     time_in_day_to_rich_text,
 )
-from jupiter.core.domain.concept.persons.person_birthday import PersonBirthday
-from jupiter.core.use_cases.application.calendar.load_for_date_and_period import (
+from jupiter.cli.config import JupiterLoggedInReadonlyCommand
+from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarEventsEntries,
     CalendarEventsStats,
     CalendarLoadForDateAndPeriodResult,
     CalendarLoadForDateAndPeriodUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInReadonlyUseCaseContext
+from jupiter.core.config import JupiterLoggedInReadonlyContext
+from jupiter.core.persons.birthday import PersonBirthday
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
 
 
 class CalendarShow(
-    LoggedInReadonlyCommand[
+    JupiterLoggedInReadonlyCommand[
         CalendarLoadForDateAndPeriodUseCase, CalendarLoadForDateAndPeriodResult
     ]
 ):
@@ -33,7 +33,7 @@ class CalendarShow(
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInReadonlyUseCaseContext,
+        context: JupiterLoggedInReadonlyContext,
         result: CalendarLoadForDateAndPeriodResult,
     ) -> None:
         header_text = Text("📅 ")

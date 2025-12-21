@@ -9,24 +9,27 @@ import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext } from "react";
 import TuneIcon from "@mui/icons-material/Tune";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { DocsHelpSubject } from "~/components/infra/docs-help";
-import { EntityNoNothingCard } from "~/components/infra/entity-no-nothing-card";
-import { makeTrunkErrorBoundary } from "~/components/infra/error-boundary";
-import { NestingAwareBlock } from "~/components/infra/layout/nesting-aware-block";
-import { TrunkPanel } from "~/components/infra/layout/trunk-panel";
-import { JournalStack } from "~/components/domain/concept/journal/journal-stack";
-import { sortJournalsNaturally } from "~/logic/domain/journal";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { sortJournalsNaturally } from "@jupiter/core/journals/root";
+import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
+import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { JournalStack } from "@jupiter/core/journals/component/stack";
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
-} from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { SectionActions, NavSingle } from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  SectionActions,
+  NavSingle,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

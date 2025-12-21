@@ -1,22 +1,24 @@
 """UseCase for updating big plans."""
 
-from jupiter.cli.command.command import LoggedInMutationCommand
-from jupiter.core.use_cases.concept.big_plans.update import (
+from jupiter.cli.config import JupiterLoggedInMutationCommand
+from jupiter.core.big_plans.use_case.update import (
     BigPlanUpdateResult,
     BigPlanUpdateUseCase,
 )
-from jupiter.core.use_cases.infra.use_cases import AppLoggedInMutationUseCaseContext
+from jupiter.core.config import JupiterLoggedInMutationContext
 from rich.console import Console
 from rich.text import Text
 
 
-class BigPlanUpdate(LoggedInMutationCommand[BigPlanUpdateUseCase, BigPlanUpdateResult]):
+class BigPlanUpdate(
+    JupiterLoggedInMutationCommand[BigPlanUpdateUseCase, BigPlanUpdateResult]
+):
     """UseCase class for updating big plans."""
 
     def _render_result(
         self,
         console: Console,
-        context: AppLoggedInMutationUseCaseContext,
+        context: JupiterLoggedInMutationContext,
         result: BigPlanUpdateResult,
     ) -> None:
         if result.record_score_result is not None:

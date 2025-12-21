@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -47,36 +49,36 @@ class LoadTopLevelInfoResult:
         workspace_feature_flag_controls (WorkspaceFeatureFlagsControls): Feature settings controls for the workspace.
         default_workspace_feature_flags (LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags):
         workspace_feature_hack (WorkspaceFeature): A particular feature of a jupiter workspace.
-        user (Union['User', None, Unset]):
-        user_score_overview (Union['UserScoreOverview', None, Unset]):
-        workspace (Union['Workspace', None, Unset]):
-        user_feature_hack (Union[None, Unset, UserFeature]):
-        app_core_hack (Union[AppCore, None, Unset]):
-        app_shell_hack (Union[AppShell, None, Unset]):
-        app_platform_hack (Union[AppPlatform, None, Unset]):
-        app_distribution_hack (Union[AppDistribution, None, Unset]):
-        app_distribution_state_hack (Union[AppDistributionState, None, Unset]):
+        user (None | Unset | User):
+        user_score_overview (None | Unset | UserScoreOverview):
+        workspace (None | Unset | Workspace):
+        user_feature_hack (None | Unset | UserFeature):
+        app_core_hack (AppCore | None | Unset):
+        app_shell_hack (AppShell | None | Unset):
+        app_platform_hack (AppPlatform | None | Unset):
+        app_distribution_hack (AppDistribution | None | Unset):
+        app_distribution_state_hack (AppDistributionState | None | Unset):
     """
 
     env: Env
     hosting: Hosting
-    user_feature_flag_controls: "UserFeatureFlagsControls"
-    default_user_feature_flags: "LoadTopLevelInfoResultDefaultUserFeatureFlags"
+    user_feature_flag_controls: UserFeatureFlagsControls
+    default_user_feature_flags: LoadTopLevelInfoResultDefaultUserFeatureFlags
     deafult_workspace_name: str
     default_first_schedule_stream_name: str
     default_root_project_name: str
-    workspace_feature_flag_controls: "WorkspaceFeatureFlagsControls"
-    default_workspace_feature_flags: "LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags"
+    workspace_feature_flag_controls: WorkspaceFeatureFlagsControls
+    default_workspace_feature_flags: LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
-    user: Union["User", None, Unset] = UNSET
-    user_score_overview: Union["UserScoreOverview", None, Unset] = UNSET
-    workspace: Union["Workspace", None, Unset] = UNSET
-    user_feature_hack: Union[None, Unset, UserFeature] = UNSET
-    app_core_hack: Union[AppCore, None, Unset] = UNSET
-    app_shell_hack: Union[AppShell, None, Unset] = UNSET
-    app_platform_hack: Union[AppPlatform, None, Unset] = UNSET
-    app_distribution_hack: Union[AppDistribution, None, Unset] = UNSET
-    app_distribution_state_hack: Union[AppDistributionState, None, Unset] = UNSET
+    user: None | Unset | User = UNSET
+    user_score_overview: None | Unset | UserScoreOverview = UNSET
+    workspace: None | Unset | Workspace = UNSET
+    user_feature_hack: None | Unset | UserFeature = UNSET
+    app_core_hack: AppCore | None | Unset = UNSET
+    app_shell_hack: AppShell | None | Unset = UNSET
+    app_platform_hack: AppPlatform | None | Unset = UNSET
+    app_distribution_hack: AppDistribution | None | Unset = UNSET
+    app_distribution_state_hack: AppDistributionState | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -104,7 +106,7 @@ class LoadTopLevelInfoResult:
 
         workspace_feature_hack = self.workspace_feature_hack.value
 
-        user: Union[None, Unset, dict[str, Any]]
+        user: dict[str, Any] | None | Unset
         if isinstance(self.user, Unset):
             user = UNSET
         elif isinstance(self.user, User):
@@ -112,7 +114,7 @@ class LoadTopLevelInfoResult:
         else:
             user = self.user
 
-        user_score_overview: Union[None, Unset, dict[str, Any]]
+        user_score_overview: dict[str, Any] | None | Unset
         if isinstance(self.user_score_overview, Unset):
             user_score_overview = UNSET
         elif isinstance(self.user_score_overview, UserScoreOverview):
@@ -120,7 +122,7 @@ class LoadTopLevelInfoResult:
         else:
             user_score_overview = self.user_score_overview
 
-        workspace: Union[None, Unset, dict[str, Any]]
+        workspace: dict[str, Any] | None | Unset
         if isinstance(self.workspace, Unset):
             workspace = UNSET
         elif isinstance(self.workspace, Workspace):
@@ -128,7 +130,7 @@ class LoadTopLevelInfoResult:
         else:
             workspace = self.workspace
 
-        user_feature_hack: Union[None, Unset, str]
+        user_feature_hack: None | str | Unset
         if isinstance(self.user_feature_hack, Unset):
             user_feature_hack = UNSET
         elif isinstance(self.user_feature_hack, UserFeature):
@@ -136,7 +138,7 @@ class LoadTopLevelInfoResult:
         else:
             user_feature_hack = self.user_feature_hack
 
-        app_core_hack: Union[None, Unset, str]
+        app_core_hack: None | str | Unset
         if isinstance(self.app_core_hack, Unset):
             app_core_hack = UNSET
         elif isinstance(self.app_core_hack, AppCore):
@@ -144,7 +146,7 @@ class LoadTopLevelInfoResult:
         else:
             app_core_hack = self.app_core_hack
 
-        app_shell_hack: Union[None, Unset, str]
+        app_shell_hack: None | str | Unset
         if isinstance(self.app_shell_hack, Unset):
             app_shell_hack = UNSET
         elif isinstance(self.app_shell_hack, AppShell):
@@ -152,7 +154,7 @@ class LoadTopLevelInfoResult:
         else:
             app_shell_hack = self.app_shell_hack
 
-        app_platform_hack: Union[None, Unset, str]
+        app_platform_hack: None | str | Unset
         if isinstance(self.app_platform_hack, Unset):
             app_platform_hack = UNSET
         elif isinstance(self.app_platform_hack, AppPlatform):
@@ -160,7 +162,7 @@ class LoadTopLevelInfoResult:
         else:
             app_platform_hack = self.app_platform_hack
 
-        app_distribution_hack: Union[None, Unset, str]
+        app_distribution_hack: None | str | Unset
         if isinstance(self.app_distribution_hack, Unset):
             app_distribution_hack = UNSET
         elif isinstance(self.app_distribution_hack, AppDistribution):
@@ -168,7 +170,7 @@ class LoadTopLevelInfoResult:
         else:
             app_distribution_hack = self.app_distribution_hack
 
-        app_distribution_state_hack: Union[None, Unset, str]
+        app_distribution_state_hack: None | str | Unset
         if isinstance(self.app_distribution_state_hack, Unset):
             app_distribution_state_hack = UNSET
         elif isinstance(self.app_distribution_state_hack, AppDistributionState):
@@ -254,7 +256,7 @@ class LoadTopLevelInfoResult:
 
         workspace_feature_hack = WorkspaceFeature(d.pop("workspace_feature_hack"))
 
-        def _parse_user(data: object) -> Union["User", None, Unset]:
+        def _parse_user(data: object) -> None | Unset | User:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -265,13 +267,13 @@ class LoadTopLevelInfoResult:
                 user_type_0 = User.from_dict(data)
 
                 return user_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["User", None, Unset], data)
+            return cast(None | Unset | User, data)
 
         user = _parse_user(d.pop("user", UNSET))
 
-        def _parse_user_score_overview(data: object) -> Union["UserScoreOverview", None, Unset]:
+        def _parse_user_score_overview(data: object) -> None | Unset | UserScoreOverview:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -282,13 +284,13 @@ class LoadTopLevelInfoResult:
                 user_score_overview_type_0 = UserScoreOverview.from_dict(data)
 
                 return user_score_overview_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["UserScoreOverview", None, Unset], data)
+            return cast(None | Unset | UserScoreOverview, data)
 
         user_score_overview = _parse_user_score_overview(d.pop("user_score_overview", UNSET))
 
-        def _parse_workspace(data: object) -> Union["Workspace", None, Unset]:
+        def _parse_workspace(data: object) -> None | Unset | Workspace:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -299,13 +301,13 @@ class LoadTopLevelInfoResult:
                 workspace_type_0 = Workspace.from_dict(data)
 
                 return workspace_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Workspace", None, Unset], data)
+            return cast(None | Unset | Workspace, data)
 
         workspace = _parse_workspace(d.pop("workspace", UNSET))
 
-        def _parse_user_feature_hack(data: object) -> Union[None, Unset, UserFeature]:
+        def _parse_user_feature_hack(data: object) -> None | Unset | UserFeature:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -316,13 +318,13 @@ class LoadTopLevelInfoResult:
                 user_feature_hack_type_0 = UserFeature(data)
 
                 return user_feature_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, UserFeature], data)
+            return cast(None | Unset | UserFeature, data)
 
         user_feature_hack = _parse_user_feature_hack(d.pop("user_feature_hack", UNSET))
 
-        def _parse_app_core_hack(data: object) -> Union[AppCore, None, Unset]:
+        def _parse_app_core_hack(data: object) -> AppCore | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -333,13 +335,13 @@ class LoadTopLevelInfoResult:
                 app_core_hack_type_0 = AppCore(data)
 
                 return app_core_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[AppCore, None, Unset], data)
+            return cast(AppCore | None | Unset, data)
 
         app_core_hack = _parse_app_core_hack(d.pop("app_core_hack", UNSET))
 
-        def _parse_app_shell_hack(data: object) -> Union[AppShell, None, Unset]:
+        def _parse_app_shell_hack(data: object) -> AppShell | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -350,13 +352,13 @@ class LoadTopLevelInfoResult:
                 app_shell_hack_type_0 = AppShell(data)
 
                 return app_shell_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[AppShell, None, Unset], data)
+            return cast(AppShell | None | Unset, data)
 
         app_shell_hack = _parse_app_shell_hack(d.pop("app_shell_hack", UNSET))
 
-        def _parse_app_platform_hack(data: object) -> Union[AppPlatform, None, Unset]:
+        def _parse_app_platform_hack(data: object) -> AppPlatform | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -367,13 +369,13 @@ class LoadTopLevelInfoResult:
                 app_platform_hack_type_0 = AppPlatform(data)
 
                 return app_platform_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[AppPlatform, None, Unset], data)
+            return cast(AppPlatform | None | Unset, data)
 
         app_platform_hack = _parse_app_platform_hack(d.pop("app_platform_hack", UNSET))
 
-        def _parse_app_distribution_hack(data: object) -> Union[AppDistribution, None, Unset]:
+        def _parse_app_distribution_hack(data: object) -> AppDistribution | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -384,13 +386,13 @@ class LoadTopLevelInfoResult:
                 app_distribution_hack_type_0 = AppDistribution(data)
 
                 return app_distribution_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[AppDistribution, None, Unset], data)
+            return cast(AppDistribution | None | Unset, data)
 
         app_distribution_hack = _parse_app_distribution_hack(d.pop("app_distribution_hack", UNSET))
 
-        def _parse_app_distribution_state_hack(data: object) -> Union[AppDistributionState, None, Unset]:
+        def _parse_app_distribution_state_hack(data: object) -> AppDistributionState | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -401,9 +403,9 @@ class LoadTopLevelInfoResult:
                 app_distribution_state_hack_type_0 = AppDistributionState(data)
 
                 return app_distribution_state_hack_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[AppDistributionState, None, Unset], data)
+            return cast(AppDistributionState | None | Unset, data)
 
         app_distribution_state_hack = _parse_app_distribution_state_hack(d.pop("app_distribution_state_hack", UNSET))
 

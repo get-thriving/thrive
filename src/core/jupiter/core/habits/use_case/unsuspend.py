@@ -1,0 +1,42 @@
+"""The command for unsuspending a habit."""
+
+from jupiter.core.config import (
+    JupiterLoggedInMutationContext,
+    JupiterTransactionalLoggedInMutationUseCase,
+)
+from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.root import Habit
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.progress_reporter.reporter import ProgressReporter
+from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.use_case import (
+    mutation_use_case,
+)
+from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
+
+
+@use_case_args
+class HabitUnsuspendArgs(UseCaseArgsBase):
+    """PersonFindArgs."""
+
+    ref_id: EntityId
+
+
+@mutation_use_case(WorkspaceFeature.HABITS)
+class HabitUnsuspendUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[HabitUnsuspendArgs, None]
+):
+    """The command for unsuspending a habit."""
+
+    async def _perform_transactional_mutation(
+        self,
+        uow: DomainUnitOfWork,
+        progress_reporter: ProgressReporter,
+        context: JupiterLoggedInMutationContext,
+        args: HabitUnsuspendArgs,
+    ) -> None:
+        """Execute the command's action."""
+        habit = await uow.get_for(Habit).load_by_id(args.ref_id)
+        habit = habit.unsuspend(context.domain_context)
+        await uow.get_for(Habit).save(habit)
+        await progress_reporter.mark_updated(habit)

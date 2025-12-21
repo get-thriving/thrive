@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -27,9 +29,9 @@ class TimeEventInDayBlockUpdateArgs:
     """
 
     ref_id: str
-    start_date: "TimeEventInDayBlockUpdateArgsStartDate"
-    start_time_in_day: "TimeEventInDayBlockUpdateArgsStartTimeInDay"
-    duration_mins: "TimeEventInDayBlockUpdateArgsDurationMins"
+    start_date: TimeEventInDayBlockUpdateArgsStartDate
+    start_time_in_day: TimeEventInDayBlockUpdateArgsStartTimeInDay
+    duration_mins: TimeEventInDayBlockUpdateArgsDurationMins
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

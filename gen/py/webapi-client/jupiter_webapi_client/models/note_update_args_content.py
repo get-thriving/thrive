@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,30 +30,27 @@ class NoteUpdateArgsContent:
     """
     Attributes:
         should_change (bool):
-        value (Union[Unset, list[Union['BulletedListBlock', 'ChecklistBlock', 'CodeBlock', 'DividerBlock',
-            'EntityReferenceBlock', 'HeadingBlock', 'LinkBlock', 'NumberedListBlock', 'ParagraphBlock', 'QuoteBlock',
-            'TableBlock']]]):
+        value (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock | HeadingBlock
+            | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock] | Unset):
     """
 
     should_change: bool
-    value: Union[
-        Unset,
+    value: (
         list[
-            Union[
-                "BulletedListBlock",
-                "ChecklistBlock",
-                "CodeBlock",
-                "DividerBlock",
-                "EntityReferenceBlock",
-                "HeadingBlock",
-                "LinkBlock",
-                "NumberedListBlock",
-                "ParagraphBlock",
-                "QuoteBlock",
-                "TableBlock",
-            ]
-        ],
-    ] = UNSET
+            BulletedListBlock
+            | ChecklistBlock
+            | CodeBlock
+            | DividerBlock
+            | EntityReferenceBlock
+            | HeadingBlock
+            | LinkBlock
+            | NumberedListBlock
+            | ParagraphBlock
+            | QuoteBlock
+            | TableBlock
+        ]
+        | Unset
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,7 +67,7 @@ class NoteUpdateArgsContent:
 
         should_change = self.should_change
 
-        value: Union[Unset, list[dict[str, Any]]] = UNSET
+        value: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.value, Unset):
             value = []
             for value_item_data in self.value:
@@ -127,114 +126,131 @@ class NoteUpdateArgsContent:
         d = dict(src_dict)
         should_change = d.pop("should_change")
 
-        value = []
         _value = d.pop("value", UNSET)
-        for value_item_data in _value or []:
+        value: (
+            list[
+                BulletedListBlock
+                | ChecklistBlock
+                | CodeBlock
+                | DividerBlock
+                | EntityReferenceBlock
+                | HeadingBlock
+                | LinkBlock
+                | NumberedListBlock
+                | ParagraphBlock
+                | QuoteBlock
+                | TableBlock
+            ]
+            | Unset
+        ) = UNSET
+        if _value is not UNSET:
+            value = []
+            for value_item_data in _value:
 
-            def _parse_value_item(
-                data: object,
-            ) -> Union[
-                "BulletedListBlock",
-                "ChecklistBlock",
-                "CodeBlock",
-                "DividerBlock",
-                "EntityReferenceBlock",
-                "HeadingBlock",
-                "LinkBlock",
-                "NumberedListBlock",
-                "ParagraphBlock",
-                "QuoteBlock",
-                "TableBlock",
-            ]:
-                try:
+                def _parse_value_item(
+                    data: object,
+                ) -> (
+                    BulletedListBlock
+                    | ChecklistBlock
+                    | CodeBlock
+                    | DividerBlock
+                    | EntityReferenceBlock
+                    | HeadingBlock
+                    | LinkBlock
+                    | NumberedListBlock
+                    | ParagraphBlock
+                    | QuoteBlock
+                    | TableBlock
+                ):
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_0 = ParagraphBlock.from_dict(data)
+
+                        return value_item_type_0
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_1 = HeadingBlock.from_dict(data)
+
+                        return value_item_type_1
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_2 = BulletedListBlock.from_dict(data)
+
+                        return value_item_type_2
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_3 = NumberedListBlock.from_dict(data)
+
+                        return value_item_type_3
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_4 = ChecklistBlock.from_dict(data)
+
+                        return value_item_type_4
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_5 = TableBlock.from_dict(data)
+
+                        return value_item_type_5
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_6 = CodeBlock.from_dict(data)
+
+                        return value_item_type_6
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_7 = QuoteBlock.from_dict(data)
+
+                        return value_item_type_7
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_8 = DividerBlock.from_dict(data)
+
+                        return value_item_type_8
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        value_item_type_9 = LinkBlock.from_dict(data)
+
+                        return value_item_type_9
+                    except (TypeError, ValueError, AttributeError, KeyError):
+                        pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    value_item_type_0 = ParagraphBlock.from_dict(data)
+                    value_item_type_10 = EntityReferenceBlock.from_dict(data)
 
-                    return value_item_type_0
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_1 = HeadingBlock.from_dict(data)
+                    return value_item_type_10
 
-                    return value_item_type_1
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_2 = BulletedListBlock.from_dict(data)
+                value_item = _parse_value_item(value_item_data)
 
-                    return value_item_type_2
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_3 = NumberedListBlock.from_dict(data)
-
-                    return value_item_type_3
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_4 = ChecklistBlock.from_dict(data)
-
-                    return value_item_type_4
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_5 = TableBlock.from_dict(data)
-
-                    return value_item_type_5
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_6 = CodeBlock.from_dict(data)
-
-                    return value_item_type_6
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_7 = QuoteBlock.from_dict(data)
-
-                    return value_item_type_7
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_8 = DividerBlock.from_dict(data)
-
-                    return value_item_type_8
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    value_item_type_9 = LinkBlock.from_dict(data)
-
-                    return value_item_type_9
-                except:  # noqa: E722
-                    pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                value_item_type_10 = EntityReferenceBlock.from_dict(data)
-
-                return value_item_type_10
-
-            value_item = _parse_value_item(value_item_data)
-
-            value.append(value_item)
+                value.append(value_item)
 
         note_update_args_content = cls(
             should_change=should_change,

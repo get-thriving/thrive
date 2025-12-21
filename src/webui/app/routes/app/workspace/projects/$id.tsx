@@ -9,24 +9,24 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { ProjectSelect } from "~/components/domain/concept/project/project-select";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { isRootProject } from "~/logic/domain/project";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { SectionCard } from "~/components/infra/section-card";
+import { isRootProject } from "@jupiter/core/projects/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   SectionActions,
   ActionSingle,
-} from "~/components/infra/section-actions";
-import { TopLevelInfoContext } from "~/top-level-context";
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+
+import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -60,7 +60,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 

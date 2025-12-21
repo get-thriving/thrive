@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -20,31 +20,49 @@ def _get_kwargs(
         "url": "/chore-archive",
     }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[Any]:
+def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | None:
     if response.status_code == 200:
         return None
-    if response.status_code == 410:
+
+    if response.status_code == 400:
         return None
+
+    if response.status_code == 401:
+        return None
+
+    if response.status_code == 404:
+        return None
+
     if response.status_code == 406:
         return None
+
+    if response.status_code == 409:
+        return None
+
+    if response.status_code == 410:
+        return None
+
     if response.status_code == 422:
         return None
+
+    if response.status_code == 426:
+        return None
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[Any]:
+def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -59,8 +77,6 @@ def sync_detailed(
     body: ChoreArchiveArgs,
 ) -> Response[Any]:
     """The command for archiving a chore.
-
-     The command for archiving a chore.
 
     Args:
         body (ChoreArchiveArgs): PersonFindArgs.
@@ -90,8 +106,6 @@ async def asyncio_detailed(
     body: ChoreArchiveArgs,
 ) -> Response[Any]:
     """The command for archiving a chore.
-
-     The command for archiving a chore.
 
     Args:
         body (ChoreArchiveArgs): PersonFindArgs.

@@ -21,28 +21,29 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { IconSelector } from "~/components/infra/icon-selector";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
-import { StandardDivider } from "~/components/infra/standard-divider";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { IsKeySelect } from "~/components/domain/core/is-key-select";
-import { SectionCard } from "~/components/infra/section-card";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   SectionActions,
   ActionSingle,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
 const ParamsSchema = z.object({
   id: z.string(),
 });

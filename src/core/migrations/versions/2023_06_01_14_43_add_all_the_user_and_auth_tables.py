@@ -26,9 +26,9 @@ def upgrade():
         created_time DATETIME NOT NULL, 
         last_modified_time DATETIME NOT NULL, 
         archived_time DATETIME, 
-        email_address STRING NOT NULL UNIQUE ,
-        name STRING NOT NULL,
-        timezone STRING NOT NULL,
+        email_address varchar NOT NULL UNIQUE ,
+        name varchar NOT NULL,
+        timezone varchar NOT NULL,
         PRIMARY KEY (ref_id)
         );
         """
@@ -64,8 +64,8 @@ def upgrade():
         last_modified_time DATETIME NOT NULL, 
         archived_time DATETIME, 
         user_ref_id INTEGER NOT NULL UNIQUE,
-        password_hash STRING NOT NULL,
-        recovery_token_hash STRING NOT NULL,
+        password_hash varchar NOT NULL,
+        recovery_token_hash varchar NOT NULL,
         PRIMARY KEY (ref_id),
         FOREIGN KEY(user_ref_id) REFERENCES user (ref_id)
         );

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,13 +22,13 @@ class DocFindResultEntry:
 
     Attributes:
         doc (Doc): A doc in the docbook.
-        note (Union['Note', None, Unset]):
-        subdocs (Union[None, Unset, list['Doc']]):
+        note (None | Note | Unset):
+        subdocs (list[Doc] | None | Unset):
     """
 
-    doc: "Doc"
-    note: Union["Note", None, Unset] = UNSET
-    subdocs: Union[None, Unset, list["Doc"]] = UNSET
+    doc: Doc
+    note: None | Note | Unset = UNSET
+    subdocs: list[Doc] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +36,7 @@ class DocFindResultEntry:
 
         doc = self.doc.to_dict()
 
-        note: Union[None, Unset, dict[str, Any]]
+        note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
         elif isinstance(self.note, Note):
@@ -42,7 +44,7 @@ class DocFindResultEntry:
         else:
             note = self.note
 
-        subdocs: Union[None, Unset, list[dict[str, Any]]]
+        subdocs: list[dict[str, Any]] | None | Unset
         if isinstance(self.subdocs, Unset):
             subdocs = UNSET
         elif isinstance(self.subdocs, list):
@@ -76,7 +78,7 @@ class DocFindResultEntry:
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
 
-        def _parse_note(data: object) -> Union["Note", None, Unset]:
+        def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -87,13 +89,13 @@ class DocFindResultEntry:
                 note_type_0 = Note.from_dict(data)
 
                 return note_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["Note", None, Unset], data)
+            return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_subdocs(data: object) -> Union[None, Unset, list["Doc"]]:
+        def _parse_subdocs(data: object) -> list[Doc] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -109,9 +111,9 @@ class DocFindResultEntry:
                     subdocs_type_0.append(subdocs_type_0_item)
 
                 return subdocs_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, Unset, list["Doc"]], data)
+            return cast(list[Doc] | None | Unset, data)
 
         subdocs = _parse_subdocs(d.pop("subdocs", UNSET))
 

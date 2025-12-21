@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,12 +22,12 @@ class ChecklistBlock:
     Attributes:
         correlation_id (str): A generic entity id.
         kind (ChecklistBlockKind):
-        items (list['ChecklistItem']):
+        items (list[ChecklistItem]):
     """
 
     correlation_id: str
     kind: ChecklistBlockKind
-    items: list["ChecklistItem"]
+    items: list[ChecklistItem]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

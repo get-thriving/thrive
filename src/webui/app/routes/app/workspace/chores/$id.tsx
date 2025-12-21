@@ -24,30 +24,30 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
-
-import { getLoggedInApiClient } from "~/api-clients.server";
-import { EntityNoteEditor } from "~/components/infra/entity-note-editor";
-import { InboxTaskStack } from "~/components/domain/concept/inbox-task/inbox-task-stack";
-import { makeLeafErrorBoundary } from "~/components/infra/error-boundary";
-import { FieldError, GlobalError } from "~/components/infra/errors";
-import { LeafPanel } from "~/components/infra/layout/leaf-panel";
-import { ProjectSelect } from "~/components/domain/concept/project/project-select";
-import { RecurringTaskGenParamsBlock } from "~/components/domain/core/recurring-task-gen-params-block";
-import { validationErrorToUIErrorInfo } from "~/logic/action-result";
-import { aDateToDate } from "~/logic/domain/adate";
-import { sortInboxTasksNaturally } from "~/logic/domain/inbox-task";
-import { isWorkspaceFeatureAvailable } from "~/logic/domain/workspace";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
-import { useBigScreen } from "~/rendering/use-big-screen";
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { DisplayType } from "~/rendering/use-nested-entities";
-import { TopLevelInfoContext } from "~/top-level-context";
-import { IsKeySelect } from "~/components/domain/core/is-key-select";
-import { SectionCard } from "~/components/infra/section-card";
+import { aDateToDate } from "@jupiter/core/common/adate";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
   SectionActions,
-} from "~/components/infra/section-actions";
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -101,7 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
 
-  const summaryResponse = await apiClient.getSummaries.getSummaries({
+  const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
   });
 

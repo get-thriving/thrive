@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.schedule_source import ScheduleSource
 from ..models.schedule_stream_color import ScheduleStreamColor
+from ..models.schedule_stream_source import ScheduleStreamSource
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ScheduleStream")
@@ -23,11 +25,11 @@ class ScheduleStream:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a schedule stream.
         schedule_domain_ref_id (str):
-        source (ScheduleSource): The source of a schedule.
+        source (ScheduleStreamSource): The source of a schedule.
         color (ScheduleStreamColor): The color of a particular schedule stream.
-        archival_reason (Union[None, Unset, str]):
-        archived_time (Union[None, Unset, str]):
-        source_ical_url (Union[None, Unset, str]):
+        archival_reason (None | str | Unset):
+        archived_time (None | str | Unset):
+        source_ical_url (None | str | Unset):
     """
 
     ref_id: str
@@ -37,11 +39,11 @@ class ScheduleStream:
     last_modified_time: str
     name: str
     schedule_domain_ref_id: str
-    source: ScheduleSource
+    source: ScheduleStreamSource
     color: ScheduleStreamColor
-    archival_reason: Union[None, Unset, str] = UNSET
-    archived_time: Union[None, Unset, str] = UNSET
-    source_ical_url: Union[None, Unset, str] = UNSET
+    archival_reason: None | str | Unset = UNSET
+    archived_time: None | str | Unset = UNSET
+    source_ical_url: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,19 +65,19 @@ class ScheduleStream:
 
         color = self.color.value
 
-        archival_reason: Union[None, Unset, str]
+        archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
         else:
             archival_reason = self.archival_reason
 
-        archived_time: Union[None, Unset, str]
+        archived_time: None | str | Unset
         if isinstance(self.archived_time, Unset):
             archived_time = UNSET
         else:
             archived_time = self.archived_time
 
-        source_ical_url: Union[None, Unset, str]
+        source_ical_url: None | str | Unset
         if isinstance(self.source_ical_url, Unset):
             source_ical_url = UNSET
         else:
@@ -122,34 +124,34 @@ class ScheduleStream:
 
         schedule_domain_ref_id = d.pop("schedule_domain_ref_id")
 
-        source = ScheduleSource(d.pop("source"))
+        source = ScheduleStreamSource(d.pop("source"))
 
         color = ScheduleStreamColor(d.pop("color"))
 
-        def _parse_archival_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archival_reason = _parse_archival_reason(d.pop("archival_reason", UNSET))
 
-        def _parse_archived_time(data: object) -> Union[None, Unset, str]:
+        def _parse_archived_time(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        def _parse_source_ical_url(data: object) -> Union[None, Unset, str]:
+        def _parse_source_ical_url(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         source_ical_url = _parse_source_ical_url(d.pop("source_ical_url", UNSET))
 
