@@ -49,7 +49,7 @@ class ProjectRemoveArgs(UseCaseArgsBase):
     backup_project_ref_id: EntityId | None
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectRemoveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectRemoveArgs, None]
 ):

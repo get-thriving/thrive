@@ -203,7 +203,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             )}
             {isWorkspaceFeatureAvailable(
               props.topLevelInfo.workspace,
-              WorkspaceFeature.PROJECTS,
+              WorkspaceFeature.LIFE_PLAN,
             ) &&
               props.showOptions.showProject &&
               props.parent?.project && (

@@ -115,7 +115,7 @@ class ChoreShow(JupiterLoggedInReadonlyCommand[ChoreFindUseCase, ChoreFindResult
                 chore_info_text.append(end_date_to_rich_text(chore.end_at_date))
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 chore_info_text.append(" ")
                 chore_info_text.append(project_to_rich_text(project.name))

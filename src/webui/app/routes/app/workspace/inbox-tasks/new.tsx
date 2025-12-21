@@ -277,7 +277,7 @@ export default function NewInboxTask() {
   if (
     isWorkspaceFeatureAvailable(
       topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
+      WorkspaceFeature.LIFE_PLAN,
     )
   ) {
     for (const project of loaderData.allProjects) {
@@ -320,7 +320,7 @@ export default function NewInboxTask() {
     if (
       isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       )
     ) {
       if (big_plan_id === "none") {
@@ -423,7 +423,7 @@ export default function NewInboxTask() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
             <ProjectSelect

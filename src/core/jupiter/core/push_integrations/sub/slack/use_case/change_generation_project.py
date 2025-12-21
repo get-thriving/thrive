@@ -34,7 +34,7 @@ class SlackTaskChangeGenerationProjectArgs(UseCaseArgsBase):
     generation_project_ref_id: EntityId
 
 
-@mutation_use_case([WorkspaceFeature.SLACK_TASKS, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.SLACK_TASKS, WorkspaceFeature.LIFE_PLAN])
 class SlackTaskChangeGenerationProjectUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         SlackTaskChangeGenerationProjectArgs, None

@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.load_progress_reporter_token_args import LoadProgressReporterTokenArgs
 from ...models.load_progress_reporter_token_result import LoadProgressReporterTokenResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: LoadProgressReporterTokenArgs,
+    body: LoadProgressReporterTokenArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/load-progress-reporter-token",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: LoadProgressReporterTokenArgs,
+    body: LoadProgressReporterTokenArgs | Unset = UNSET,
 ) -> Response[Any | LoadProgressReporterTokenResult]:
     """The use case for retrieving summaries about entities.
 
     Args:
-        body (LoadProgressReporterTokenArgs): Load progress reporter token args.
+        body (LoadProgressReporterTokenArgs | Unset): Load progress reporter token args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: LoadProgressReporterTokenArgs,
+    body: LoadProgressReporterTokenArgs | Unset = UNSET,
 ) -> Any | LoadProgressReporterTokenResult | None:
     """The use case for retrieving summaries about entities.
 
     Args:
-        body (LoadProgressReporterTokenArgs): Load progress reporter token args.
+        body (LoadProgressReporterTokenArgs | Unset): Load progress reporter token args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: LoadProgressReporterTokenArgs,
+    body: LoadProgressReporterTokenArgs | Unset = UNSET,
 ) -> Response[Any | LoadProgressReporterTokenResult]:
     """The use case for retrieving summaries about entities.
 
     Args:
-        body (LoadProgressReporterTokenArgs): Load progress reporter token args.
+        body (LoadProgressReporterTokenArgs | Unset): Load progress reporter token args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: LoadProgressReporterTokenArgs,
+    body: LoadProgressReporterTokenArgs | Unset = UNSET,
 ) -> Any | LoadProgressReporterTokenResult | None:
     """The use case for retrieving summaries about entities.
 
     Args:
-        body (LoadProgressReporterTokenArgs): Load progress reporter token args.
+        body (LoadProgressReporterTokenArgs | Unset): Load progress reporter token args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -101,7 +101,7 @@ export default function SlackTasksSettings() {
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       ) && (
         <SectionCard
           title="Generation Project"

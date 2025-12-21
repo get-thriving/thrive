@@ -159,7 +159,7 @@ export default function MetricsSettings() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
             <ProjectSelect

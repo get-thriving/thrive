@@ -30,7 +30,7 @@ class ProjectChangeParentArgs(UseCaseArgsBase):
     parent_project_ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectChangeParentUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectChangeParentArgs, None]
 ):

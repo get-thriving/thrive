@@ -33,14 +33,14 @@ def _enable_projects_feature(logged_in_client: AuthenticatedClient):
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PROJECTS, value=True),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.LIFE_PLAN, value=True),
         )
         yield
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.PROJECTS, value=False
+                feature=WorkspaceFeature.LIFE_PLAN, value=False
             ),
         )
 

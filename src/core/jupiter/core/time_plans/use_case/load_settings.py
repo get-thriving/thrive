@@ -71,7 +71,7 @@ class TimePlanLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             planning_task_project = await uow.get_for(Project).load_by_id(
                 time_plan_domain.planning_task_project_ref_id,
             )

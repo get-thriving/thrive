@@ -324,7 +324,7 @@ export default function JournalsSettings() {
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
                   {isWorkspaceFeatureAvailable(
                     topLevelInfo.workspace,
-                    WorkspaceFeature.PROJECTS,
+                    WorkspaceFeature.LIFE_PLAN,
                   ) && (
                     <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                       <ProjectSelect

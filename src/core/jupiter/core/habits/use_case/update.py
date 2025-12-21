@@ -89,11 +89,11 @@ class HabitUpdateUseCase(
         initial_period = habit.gen_params.period
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.project_ref_id.should_change
             and args.project_ref_id.just_the_value != habit.project_ref_id
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         need_to_change_inbox_tasks = (
             args.name.should_change

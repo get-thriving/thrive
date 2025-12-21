@@ -466,7 +466,7 @@ export default function TimePlanView() {
                       value: View.BY_PROJECT,
                       text: "By Project",
                       icon: <FlareIcon />,
-                      gatedOn: WorkspaceFeature.PROJECTS,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
                   ],
                   (selected) => setSelectedView(selected),
@@ -664,7 +664,7 @@ export const ErrorBoundary = makeBranchErrorBoundary(
 );
 
 function inferDefaultSelectedView(workspace: Workspace, timePlan: TimePlan) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
     return View.MERGED;
   }
 

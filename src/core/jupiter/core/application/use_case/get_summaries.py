@@ -173,7 +173,7 @@ class GetSummariesUseCase(
         )
         projects = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_projects
         ):
             projects = await uow.get(FastInfoRepository).find_all_project_summaries(

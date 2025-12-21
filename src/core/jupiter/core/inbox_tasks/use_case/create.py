@@ -97,10 +97,10 @@ class InboxTaskCreateUseCase(
         ):
             raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.project_ref_id is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
             not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
             and args.big_plan_ref_id is not None

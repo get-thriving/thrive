@@ -37,7 +37,7 @@ class ProjectCreateResult(UseCaseResultBase):
     new_project: Project
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectCreateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectCreateArgs, ProjectCreateResult]
 ):

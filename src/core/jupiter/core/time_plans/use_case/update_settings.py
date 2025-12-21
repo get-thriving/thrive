@@ -80,7 +80,7 @@ class TimePlanUpdateSettingsUseCase(
                 workspace.ref_id
             )
 
-            if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
                 if args.planning_task_project_ref_id.test(lambda x: x is None):
                     raise Exception("Planning task project ref id is required")
                 if args.planning_task_project_ref_id.should_change:

@@ -76,7 +76,7 @@ class BigPlanShow(
                 big_plan_info_text.append(due_date_to_rich_text(big_plan.due_date))
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 big_plan_info_text.append(" ")
                 big_plan_info_text.append(project_to_rich_text(project.name))

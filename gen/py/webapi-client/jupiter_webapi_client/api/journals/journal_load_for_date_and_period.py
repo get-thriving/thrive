@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.journal_load_for_date_and_period_args import JournalLoadForDateAndPeriodArgs
 from ...models.journal_load_for_date_and_period_result import JournalLoadForDateAndPeriodResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: JournalLoadForDateAndPeriodArgs,
+    body: JournalLoadForDateAndPeriodArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/journal-load-for-date-and-period",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: JournalLoadForDateAndPeriodArgs,
+    body: JournalLoadForDateAndPeriodArgs | Unset = UNSET,
 ) -> Response[Any | JournalLoadForDateAndPeriodResult]:
     """The command for loading details about a journal.
 
     Args:
-        body (JournalLoadForDateAndPeriodArgs): Args.
+        body (JournalLoadForDateAndPeriodArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: JournalLoadForDateAndPeriodArgs,
+    body: JournalLoadForDateAndPeriodArgs | Unset = UNSET,
 ) -> Any | JournalLoadForDateAndPeriodResult | None:
     """The command for loading details about a journal.
 
     Args:
-        body (JournalLoadForDateAndPeriodArgs): Args.
+        body (JournalLoadForDateAndPeriodArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: JournalLoadForDateAndPeriodArgs,
+    body: JournalLoadForDateAndPeriodArgs | Unset = UNSET,
 ) -> Response[Any | JournalLoadForDateAndPeriodResult]:
     """The command for loading details about a journal.
 
     Args:
-        body (JournalLoadForDateAndPeriodArgs): Args.
+        body (JournalLoadForDateAndPeriodArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: JournalLoadForDateAndPeriodArgs,
+    body: JournalLoadForDateAndPeriodArgs | Unset = UNSET,
 ) -> Any | JournalLoadForDateAndPeriodResult | None:
     """The command for loading details about a journal.
 
     Args:
-        body (JournalLoadForDateAndPeriodArgs): Args.
+        body (JournalLoadForDateAndPeriodArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

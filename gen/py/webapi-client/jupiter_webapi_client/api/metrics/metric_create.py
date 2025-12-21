@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.metric_create_args import MetricCreateArgs
 from ...models.metric_create_result import MetricCreateResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: MetricCreateArgs,
+    body: MetricCreateArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/metric-create",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: MetricCreateArgs,
+    body: MetricCreateArgs | Unset = UNSET,
 ) -> Response[Any | MetricCreateResult]:
     """The command for creating a metric.
 
     Args:
-        body (MetricCreateArgs): PersonFindArgs.
+        body (MetricCreateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: MetricCreateArgs,
+    body: MetricCreateArgs | Unset = UNSET,
 ) -> Any | MetricCreateResult | None:
     """The command for creating a metric.
 
     Args:
-        body (MetricCreateArgs): PersonFindArgs.
+        body (MetricCreateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: MetricCreateArgs,
+    body: MetricCreateArgs | Unset = UNSET,
 ) -> Response[Any | MetricCreateResult]:
     """The command for creating a metric.
 
     Args:
-        body (MetricCreateArgs): PersonFindArgs.
+        body (MetricCreateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: MetricCreateArgs,
+    body: MetricCreateArgs | Unset = UNSET,
 ) -> Any | MetricCreateResult | None:
     """The command for creating a metric.
 
     Args:
-        body (MetricCreateArgs): PersonFindArgs.
+        body (MetricCreateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

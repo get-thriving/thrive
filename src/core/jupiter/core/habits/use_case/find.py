@@ -82,10 +82,10 @@ class HabitFindUseCase(
         workspace = context.workspace
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         project_collection = await uow.get_for(ProjectCollection).load_by_parent(
             workspace.ref_id,

@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.big_plan_milestone_archive_args import BigPlanMilestoneArchiveArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: BigPlanMilestoneArchiveArgs,
+    body: BigPlanMilestoneArchiveArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/big-plan-milestone-archive",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: BigPlanMilestoneArchiveArgs,
+    body: BigPlanMilestoneArchiveArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for archiving a big plan milestone.
 
     Args:
-        body (BigPlanMilestoneArchiveArgs): Big plan milestone archive args.
+        body (BigPlanMilestoneArchiveArgs | Unset): Big plan milestone archive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: BigPlanMilestoneArchiveArgs,
+    body: BigPlanMilestoneArchiveArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for archiving a big plan milestone.
 
     Args:
-        body (BigPlanMilestoneArchiveArgs): Big plan milestone archive args.
+        body (BigPlanMilestoneArchiveArgs | Unset): Big plan milestone archive args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

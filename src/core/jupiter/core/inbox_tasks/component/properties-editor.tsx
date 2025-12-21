@@ -102,7 +102,7 @@ export function InboxTaskPropertiesEditor(
   if (
     isWorkspaceFeatureAvailable(
       props.topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
+      WorkspaceFeature.LIFE_PLAN,
     )
   ) {
     for (const project of props.allProjects) {
@@ -297,7 +297,7 @@ export function InboxTaskPropertiesEditor(
 
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
             <ProjectSelect

@@ -88,7 +88,7 @@ export function ShowReport({
   if (
     !isWorkspaceFeatureAvailable(
       topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
+      WorkspaceFeature.LIFE_PLAN,
     )
   ) {
     tabIndicesMap["by-habits"] -= 1;
@@ -153,7 +153,7 @@ export function ShowReport({
         <Tab label="⌛ By Periods" />
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && <Tab label="💡 By Projects" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
@@ -194,7 +194,7 @@ export function ShowReport({
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       ) && (
         <TabPanel value={showTab} index={tabIndicesMap["by-projects"]}>
           <Stack spacing={2} useFlexGap>

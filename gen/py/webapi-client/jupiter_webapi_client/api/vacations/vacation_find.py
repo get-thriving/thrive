@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.vacation_find_args import VacationFindArgs
 from ...models.vacation_find_result import VacationFindResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: VacationFindArgs,
+    body: VacationFindArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/vacation-find",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: VacationFindArgs,
+    body: VacationFindArgs | Unset = UNSET,
 ) -> Response[Any | VacationFindResult]:
     """The command for finding vacations.
 
     Args:
-        body (VacationFindArgs): PersonFindArgs.
+        body (VacationFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: VacationFindArgs,
+    body: VacationFindArgs | Unset = UNSET,
 ) -> Any | VacationFindResult | None:
     """The command for finding vacations.
 
     Args:
-        body (VacationFindArgs): PersonFindArgs.
+        body (VacationFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: VacationFindArgs,
+    body: VacationFindArgs | Unset = UNSET,
 ) -> Response[Any | VacationFindResult]:
     """The command for finding vacations.
 
     Args:
-        body (VacationFindArgs): PersonFindArgs.
+        body (VacationFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: VacationFindArgs,
+    body: VacationFindArgs | Unset = UNSET,
 ) -> Any | VacationFindResult | None:
     """The command for finding vacations.
 
     Args:
-        body (VacationFindArgs): PersonFindArgs.
+        body (VacationFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

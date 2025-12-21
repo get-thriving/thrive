@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.load_top_level_info_args import LoadTopLevelInfoArgs
 from ...models.load_top_level_info_result import LoadTopLevelInfoResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: LoadTopLevelInfoArgs,
+    body: LoadTopLevelInfoArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/load-top-level-info",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: LoadTopLevelInfoArgs,
+    body: LoadTopLevelInfoArgs | Unset = UNSET,
 ) -> Response[Any | LoadTopLevelInfoResult]:
     """The command for loading a user and workspace if they exist and other data too.
 
     Args:
-        body (LoadTopLevelInfoArgs): Load user and workspsace args.
+        body (LoadTopLevelInfoArgs | Unset): Load user and workspsace args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    body: LoadTopLevelInfoArgs,
+    body: LoadTopLevelInfoArgs | Unset = UNSET,
 ) -> Any | LoadTopLevelInfoResult | None:
     """The command for loading a user and workspace if they exist and other data too.
 
     Args:
-        body (LoadTopLevelInfoArgs): Load user and workspsace args.
+        body (LoadTopLevelInfoArgs | Unset): Load user and workspsace args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: LoadTopLevelInfoArgs,
+    body: LoadTopLevelInfoArgs | Unset = UNSET,
 ) -> Response[Any | LoadTopLevelInfoResult]:
     """The command for loading a user and workspace if they exist and other data too.
 
     Args:
-        body (LoadTopLevelInfoArgs): Load user and workspsace args.
+        body (LoadTopLevelInfoArgs | Unset): Load user and workspsace args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    body: LoadTopLevelInfoArgs,
+    body: LoadTopLevelInfoArgs | Unset = UNSET,
 ) -> Any | LoadTopLevelInfoResult | None:
     """The command for loading a user and workspace if they exist and other data too.
 
     Args:
-        body (LoadTopLevelInfoArgs): Load user and workspsace args.
+        body (LoadTopLevelInfoArgs | Unset): Load user and workspsace args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -88,10 +88,10 @@ class BigPlanCreateUseCase(
         ):
             raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.project_ref_id is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:

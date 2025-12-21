@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.habit_create_args import HabitCreateArgs
 from ...models.habit_create_result import HabitCreateResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: HabitCreateArgs,
+    body: HabitCreateArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/habit-create",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitCreateArgs,
+    body: HabitCreateArgs | Unset = UNSET,
 ) -> Response[Any | HabitCreateResult]:
     """The command for creating a habit.
 
     Args:
-        body (HabitCreateArgs): HabitCreate args..
+        body (HabitCreateArgs | Unset): HabitCreate args..
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: HabitCreateArgs,
+    body: HabitCreateArgs | Unset = UNSET,
 ) -> Any | HabitCreateResult | None:
     """The command for creating a habit.
 
     Args:
-        body (HabitCreateArgs): HabitCreate args..
+        body (HabitCreateArgs | Unset): HabitCreate args..
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitCreateArgs,
+    body: HabitCreateArgs | Unset = UNSET,
 ) -> Response[Any | HabitCreateResult]:
     """The command for creating a habit.
 
     Args:
-        body (HabitCreateArgs): HabitCreate args..
+        body (HabitCreateArgs | Unset): HabitCreate args..
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: HabitCreateArgs,
+    body: HabitCreateArgs | Unset = UNSET,
 ) -> Any | HabitCreateResult | None:
     """The command for creating a habit.
 
     Args:
-        body (HabitCreateArgs): HabitCreate args..
+        body (HabitCreateArgs | Unset): HabitCreate args..
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

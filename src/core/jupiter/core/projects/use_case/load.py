@@ -37,7 +37,7 @@ class ProjectLoadResult(UseCaseResultBase):
     note: Note | None
 
 
-@readonly_use_case(WorkspaceFeature.PROJECTS)
+@readonly_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[ProjectLoadArgs, ProjectLoadResult]
 ):

@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.working_mem_find_args import WorkingMemFindArgs
 from ...models.working_mem_find_result import WorkingMemFindResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: WorkingMemFindArgs,
+    body: WorkingMemFindArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/working-mem-find",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemFindArgs,
+    body: WorkingMemFindArgs | Unset = UNSET,
 ) -> Response[Any | WorkingMemFindResult]:
     """The command for finding working mems.
 
     Args:
-        body (WorkingMemFindArgs): PersonFindArgs.
+        body (WorkingMemFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemFindArgs,
+    body: WorkingMemFindArgs | Unset = UNSET,
 ) -> Any | WorkingMemFindResult | None:
     """The command for finding working mems.
 
     Args:
-        body (WorkingMemFindArgs): PersonFindArgs.
+        body (WorkingMemFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemFindArgs,
+    body: WorkingMemFindArgs | Unset = UNSET,
 ) -> Response[Any | WorkingMemFindResult]:
     """The command for finding working mems.
 
     Args:
-        body (WorkingMemFindArgs): PersonFindArgs.
+        body (WorkingMemFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemFindArgs,
+    body: WorkingMemFindArgs | Unset = UNSET,
 ) -> Any | WorkingMemFindResult | None:
     """The command for finding working mems.
 
     Args:
-        body (WorkingMemFindArgs): PersonFindArgs.
+        body (WorkingMemFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

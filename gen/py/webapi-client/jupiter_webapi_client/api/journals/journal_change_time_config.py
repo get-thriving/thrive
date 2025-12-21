@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.journal_change_time_config_args import JournalChangeTimeConfigArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: JournalChangeTimeConfigArgs,
+    body: JournalChangeTimeConfigArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/journal-change-time-config",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: JournalChangeTimeConfigArgs,
+    body: JournalChangeTimeConfigArgs | Unset = UNSET,
 ) -> Response[Any]:
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs): Args.
+        body (JournalChangeTimeConfigArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: JournalChangeTimeConfigArgs,
+    body: JournalChangeTimeConfigArgs | Unset = UNSET,
 ) -> Response[Any]:
     """Command for updating the time configuration of a journal.
 
     Args:
-        body (JournalChangeTimeConfigArgs): Args.
+        body (JournalChangeTimeConfigArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

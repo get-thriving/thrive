@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.stats_do_args import StatsDoArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: StatsDoArgs,
+    body: StatsDoArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/stats-do",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: StatsDoArgs,
+    body: StatsDoArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for computing stats.
 
     Args:
-        body (StatsDoArgs): StatsDoArgs.
+        body (StatsDoArgs | Unset): StatsDoArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: StatsDoArgs,
+    body: StatsDoArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for computing stats.
 
     Args:
-        body (StatsDoArgs): StatsDoArgs.
+        body (StatsDoArgs | Unset): StatsDoArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

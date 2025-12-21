@@ -186,7 +186,7 @@ export default function Habits() {
                   <EntityNameComponent name={habit.name} />
                   {isWorkspaceFeatureAvailable(
                     topLevelInfo.workspace,
-                    WorkspaceFeature.PROJECTS,
+                    WorkspaceFeature.LIFE_PLAN,
                   ) && <ProjectTag project={entry.project as Project} />}
                   {habit.suspended && <span className="tag">Suspended</span>}
                   <PeriodTag period={habit.gen_params.period} />

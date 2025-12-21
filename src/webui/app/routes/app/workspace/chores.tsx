@@ -95,7 +95,7 @@ export default function Chores() {
                   <EntityNameComponent name={chore.name} />
                   {isWorkspaceFeatureAvailable(
                     topLevelInfo.workspace,
-                    WorkspaceFeature.PROJECTS,
+                    WorkspaceFeature.LIFE_PLAN,
                   ) && <ProjectTag project={entry.project as Project} />}
                   <Check isDone={!chore.suspended} label="Active" />
                   <PeriodTag period={chore.gen_params.period} />

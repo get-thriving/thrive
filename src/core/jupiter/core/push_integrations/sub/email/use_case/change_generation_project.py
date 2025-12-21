@@ -34,7 +34,7 @@ class EmailTaskChangeGenerationProjectArgs(UseCaseArgsBase):
     generation_project_ref_id: EntityId
 
 
-@mutation_use_case([WorkspaceFeature.EMAIL_TASKS, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.EMAIL_TASKS, WorkspaceFeature.LIFE_PLAN])
 class EmailTaskChangeGenerationProjectUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         EmailTaskChangeGenerationProjectArgs, None

@@ -50,7 +50,7 @@ class ProjectArchiveArgs(UseCaseArgsBase):
     backup_project_ref_id: EntityId | None
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectArchiveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectArchiveArgs, None]
 ):

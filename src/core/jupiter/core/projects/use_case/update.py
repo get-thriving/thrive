@@ -25,7 +25,7 @@ class ProjectUpdateArgs(UseCaseArgsBase):
     name: UpdateAction[ProjectName]
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectUpdateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectUpdateArgs, None]
 ):

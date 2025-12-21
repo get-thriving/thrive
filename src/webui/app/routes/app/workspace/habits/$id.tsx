@@ -411,7 +411,7 @@ export default function Habit() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
             <ProjectSelect

@@ -96,10 +96,10 @@ class ReportService:
     ) -> ReportPeriodResult:
         """Compute the report."""
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
@@ -340,7 +340,7 @@ class ReportService:
 
         # Build per project breakdown
 
-        if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             # all_inbox_tasks.groupBy(it -> it.project.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
             per_project_inbox_tasks_summary = {
                 k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))

@@ -32,7 +32,7 @@ class PersonChangeCatchUpProjectArgs(UseCaseArgsBase):
     catch_up_project_ref_id: EntityId
 
 
-@mutation_use_case([WorkspaceFeature.PERSONS, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.PERSONS, WorkspaceFeature.LIFE_PLAN])
 class PersonChangeCatchUpProjectUseCase(
     JupiterTransactionalLoggedInMutationUseCase[PersonChangeCatchUpProjectArgs, None],
 ):

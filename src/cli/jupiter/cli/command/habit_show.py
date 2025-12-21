@@ -105,7 +105,7 @@ class HabitShow(JupiterLoggedInReadonlyCommand[HabitFindUseCase, HabitFindResult
                 )
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 habit_info_text.append(" ")
                 habit_info_text.append(project_to_rich_text(project.name))

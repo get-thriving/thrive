@@ -83,10 +83,10 @@ class ChoreCreateUseCase(
         workspace = context.workspace
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.project_ref_id is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
             workspace.ref_id,

@@ -98,7 +98,7 @@ class WorkspaceFeature(EnumValue):
     JOURNALS = "journals"
     DOCS = "docs"
     VACATIONS = "vacations"
-    PROJECTS = "projects"
+    LIFE_PLAN = "life-plan"
     SMART_LISTS = "smart-lists"
     METRICS = "metrics"
     PERSONS = "persons"
@@ -171,7 +171,7 @@ BASIC_WORKSPACE_FEATURE_FLAGS = {
     WorkspaceFeature.JOURNALS: False,
     WorkspaceFeature.DOCS: True,
     WorkspaceFeature.VACATIONS: False,
-    WorkspaceFeature.PROJECTS: False,
+    WorkspaceFeature.LIFE_PLAN: False,
     WorkspaceFeature.SMART_LISTS: False,
     WorkspaceFeature.METRICS: False,
     WorkspaceFeature.PERSONS: False,
@@ -195,7 +195,7 @@ HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.JOURNALS: FeatureControl.USER,
         WorkspaceFeature.DOCS: FeatureControl.USER,
         WorkspaceFeature.VACATIONS: FeatureControl.USER,
-        WorkspaceFeature.PROJECTS: FeatureControl.USER,
+        WorkspaceFeature.LIFE_PLAN: FeatureControl.USER,
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
         WorkspaceFeature.PERSONS: FeatureControl.USER,
@@ -217,7 +217,7 @@ LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.JOURNALS: FeatureControl.USER,
         WorkspaceFeature.DOCS: FeatureControl.USER,
         WorkspaceFeature.VACATIONS: FeatureControl.USER,
-        WorkspaceFeature.PROJECTS: FeatureControl.USER,
+        WorkspaceFeature.LIFE_PLAN: FeatureControl.USER,
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
         WorkspaceFeature.PERSONS: FeatureControl.USER,

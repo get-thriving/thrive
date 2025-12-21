@@ -478,7 +478,7 @@ export default function BigPlan() {
 
           {isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,
-            WorkspaceFeature.PROJECTS,
+            WorkspaceFeature.LIFE_PLAN,
           ) && (
             <FormControl fullWidth>
               <ProjectSelect
@@ -495,7 +495,7 @@ export default function BigPlan() {
           )}
           {!isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,
-            WorkspaceFeature.PROJECTS,
+            WorkspaceFeature.LIFE_PLAN,
           ) && <input type="hidden" name="project" value={selectedProject} />}
 
           <FormControl fullWidth>

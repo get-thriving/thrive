@@ -203,7 +203,7 @@ class Workspace(RootEntity):
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.PROJECT and self.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SMART_LIST and self.is_feature_available(

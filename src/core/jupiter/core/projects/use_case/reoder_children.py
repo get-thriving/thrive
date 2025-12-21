@@ -24,7 +24,7 @@ class ProjectReorderChildrenArgs(UseCaseArgsBase):
     new_order_of_child_projects: list[EntityId]
 
 
-@mutation_use_case(WorkspaceFeature.PROJECTS)
+@mutation_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectReorderChildrenUseCase(
     JupiterTransactionalLoggedInMutationUseCase[ProjectReorderChildrenArgs, None]
 ):

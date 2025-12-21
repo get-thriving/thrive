@@ -98,7 +98,7 @@ export default function PersonsSettings() {
       <GlobalError actionResult={actionData} />
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       ) && (
         <SectionCard
           id="persons-settings"

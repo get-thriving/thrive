@@ -49,7 +49,7 @@ class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
     cleanup_project_ref_id: UpdateAction[EntityId]
 
 
-@mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.LIFE_PLAN])
 class WorkingMemUpdateSettingsUseCase(
     JupiterTransactionalLoggedInMutationUseCase[WorkingMemUpdateSettingsArgs, None],
 ):

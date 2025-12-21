@@ -32,7 +32,7 @@ class MetricChangeCollectionProjectArgs(UseCaseArgsBase):
     collection_project_ref_id: EntityId
 
 
-@mutation_use_case([WorkspaceFeature.METRICS, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.METRICS, WorkspaceFeature.LIFE_PLAN])
 class MetricChangeCollectionProjectUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         MetricChangeCollectionProjectArgs, None

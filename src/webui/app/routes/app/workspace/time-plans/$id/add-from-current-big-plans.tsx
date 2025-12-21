@@ -294,7 +294,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     value: View.LIST_BY_PROJECT,
                     text: "List By Project",
                     icon: <FlareIcon />,
-                    gatedOn: WorkspaceFeature.PROJECTS,
+                    gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                   {
                     value: View.TIMELINE_MERGED,
@@ -305,7 +305,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     value: View.TIMELINE_BY_PROJECT,
                     text: "Timeline By Project",
                     icon: <ViewTimelineIcon />,
-                    gatedOn: WorkspaceFeature.PROJECTS,
+                    gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                 ],
                 (selected) => setSelectedView(selected),
@@ -619,7 +619,7 @@ function toggleBigPlanRefIds(
 }
 
 function inferDefaultSelectedView(workspace: Workspace) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
     return View.TIMELINE_MERGED;
   }
 

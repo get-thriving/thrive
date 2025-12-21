@@ -50,7 +50,7 @@ class ProjectFindResult(UseCaseResultBase):
     entries: list[ProjectFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.PROJECTS)
+@readonly_use_case(WorkspaceFeature.LIFE_PLAN)
 class ProjectFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[ProjectFindArgs, ProjectFindResult]
 ):
