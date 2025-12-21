@@ -13,7 +13,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";

@@ -32,13 +32,13 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     BigPlanWorkSummary,
@@ -164,11 +164,11 @@ class ReportService:
             )
 
         async with self._storage_engine.get_unit_of_work() as uow:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=True,
                 ref_id=filter_project_ref_ids or NoFilter(),
             )

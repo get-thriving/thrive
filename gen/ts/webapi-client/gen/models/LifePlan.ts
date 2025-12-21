@@ -7,7 +7,7 @@ import type { Timestamp } from './Timestamp';
 /**
  * A project collection.
  */
-export type ProjectCollection = {
+export type LifePlan = {
     ref_id: EntityId;
     version: number;
     archived: boolean;

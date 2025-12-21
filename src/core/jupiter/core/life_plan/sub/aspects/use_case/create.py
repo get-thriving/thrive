@@ -5,9 +5,9 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -53,13 +53,13 @@ class ProjectCreateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+        life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
 
         new_project = Project.new_project(
             ctx=context.domain_context,
-            project_collection_ref_id=project_collection.ref_id,
+            life_plan_ref_id=life_plan.ref_id,
             parent_project_ref_id=args.parent_project_ref_id,
             name=args.name,
         )

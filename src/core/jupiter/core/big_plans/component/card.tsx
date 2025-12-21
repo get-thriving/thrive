@@ -15,7 +15,7 @@ import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
-import { ProjectTag } from "#/core/projects/component/tag";
+import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
 import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";

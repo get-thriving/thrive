@@ -15,7 +15,7 @@ import type { ProjectReorderChildrenArgs } from '../models/ProjectReorderChildre
 import type { ProjectUpdateArgs } from '../models/ProjectUpdateArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class ProjectsService {
+export class LifePlanService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
      * The command for archiving a project.

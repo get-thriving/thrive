@@ -6,7 +6,7 @@ import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
-from jupiter_webapi_client.api.projects.project_create import (
+from jupiter_webapi_client.api.life_plan.project_create import (
     sync_detailed as project_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
@@ -33,7 +33,9 @@ def _enable_projects_feature(logged_in_client: AuthenticatedClient):
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.LIFE_PLAN, value=True),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=True
+            ),
         )
         yield
     finally:

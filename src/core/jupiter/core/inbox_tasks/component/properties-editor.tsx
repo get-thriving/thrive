@@ -44,7 +44,7 @@ import {
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
-import { ProjectSelect } from "#/core/projects/component/select";
+import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import {
   constructFieldErrorName,

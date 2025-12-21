@@ -17,7 +17,7 @@ export type Project = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     name: ProjectName;
-    project_collection_ref_id: string;
+    life_plan_ref_id: string;
     parent_project_ref_id?: (EntityId | null);
     order_of_child_projects: Array<EntityId>;
 };

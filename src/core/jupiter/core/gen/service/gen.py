@@ -49,13 +49,13 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -195,14 +195,14 @@ class GenService:
             all_vacations = await uow.get_for(Vacation).find_all(
                 parent_ref_id=vacation_collection.ref_id,
             )
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             all_projects = await uow.get_for(Project).find_all(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
             )
             all_syncable_projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
                 ref_id=filter_project_ref_ids or NoFilter(),
             )

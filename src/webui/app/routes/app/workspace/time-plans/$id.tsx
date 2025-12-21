@@ -32,7 +32,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
-import { sortProjectsByTreeOrder } from "@jupiter/core/projects/root";
+import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";

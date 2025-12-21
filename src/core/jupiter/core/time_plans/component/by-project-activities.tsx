@@ -11,7 +11,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { TimePlanActivityTarget } from "@jupiter/webapi-client";
 
-import { computeProjectHierarchicalNameFromRoot } from "#/core/projects/root";
+import { computeProjectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";

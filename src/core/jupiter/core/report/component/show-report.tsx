@@ -35,7 +35,7 @@ import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "#/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,

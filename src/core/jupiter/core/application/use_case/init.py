@@ -36,11 +36,11 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -212,17 +212,17 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_vacation_collection,
             )
 
-            new_project_collection = ProjectCollection.new_project_collection(
+            new_life_plan = LifePlan.new_life_plan(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
             )
-            new_project_collection = await uow.get_for(ProjectCollection).create(
-                new_project_collection,
+            new_life_plan = await uow.get_for(LifePlan).create(
+                new_life_plan,
             )
 
             new_root_project = Project.new_root_project(
                 ctx=context.domain_context,
-                project_collection_ref_id=new_project_collection.ref_id,
+                life_plan_ref_id=new_life_plan.ref_id,
                 name=args.workspace_root_project_name,
             )
             new_root_project = await uow.get_for(Project).create(

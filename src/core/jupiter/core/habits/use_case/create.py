@@ -23,8 +23,8 @@ from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )
 from jupiter.core.habits.root import Habit
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -94,11 +94,11 @@ class HabitCreateUseCase(
         )
 
         if args.project_ref_id is None:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             root_project = await uow.get(ProjectRepository).load_root_project(
-                project_collection.ref_id
+                life_plan.ref_id
             )
             project_ref_id = root_project.ref_id
         else:

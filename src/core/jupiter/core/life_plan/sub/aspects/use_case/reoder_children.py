@@ -5,7 +5,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -40,7 +40,7 @@ class ProjectReorderChildrenUseCase(
         """Execute the command's action."""
         project = await uow.get_for(Project).load_by_id(args.ref_id)
         child_projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=project.project_collection.ref_id,
+            parent_ref_id=project.life_plan.ref_id,
             allow_archived=False,
             parent_project_ref_id=args.ref_id,
         )

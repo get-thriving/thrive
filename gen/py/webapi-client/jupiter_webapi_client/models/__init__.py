@@ -298,6 +298,7 @@ from .journal_update_settings_args_writing_task_difficulty import JournalUpdateS
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .journal_update_settings_args_writing_task_project_ref_id import JournalUpdateSettingsArgsWritingTaskProjectRefId
 from .jupiter_archival_reason import JupiterArchivalReason
+from .life_plan import LifePlan
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
 from .list_item import ListItem
@@ -413,7 +414,6 @@ from .planned_time_and_effort_summary_score_by_feasability import PlannedTimeAnd
 from .project import Project
 from .project_archive_args import ProjectArchiveArgs
 from .project_change_parent_args import ProjectChangeParentArgs
-from .project_collection import ProjectCollection
 from .project_create_args import ProjectCreateArgs
 from .project_create_result import ProjectCreateResult
 from .project_find_args import ProjectFindArgs
@@ -1013,6 +1013,7 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JournalUpdateSettingsArgsWritingTaskProjectRefId",
     "JupiterArchivalReason",
+    "LifePlan",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",
@@ -1124,7 +1125,6 @@ __all__ = (
     "Project",
     "ProjectArchiveArgs",
     "ProjectChangeParentArgs",
-    "ProjectCollection",
     "ProjectCreateArgs",
     "ProjectCreateResult",
     "ProjectFindArgs",

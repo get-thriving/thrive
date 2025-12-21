@@ -25,8 +25,8 @@ from jupiter.core.journals.generation_approach import (
 )
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.source import JournalSource
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
@@ -73,9 +73,7 @@ class JournalUpdateSettingsUseCase(
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
-                workspace.ref_id
-            )
+            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
             if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
                 if args.writing_task_project_ref_id.test(lambda x: x is None):
@@ -89,7 +87,7 @@ class JournalUpdateSettingsUseCase(
                     writing_task_project_ref_id = UpdateAction.do_nothing()
             else:
                 root_project = await uow.get_for(Project).find_all_generic(
-                    parent_ref_id=project_collection.ref_id,
+                    parent_ref_id=life_plan.ref_id,
                     allow_archived=False,
                     parent_project_ref_id=None,
                 )

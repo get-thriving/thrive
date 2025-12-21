@@ -8,11 +8,11 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="ProjectCollection")
+T = TypeVar("T", bound="LifePlan")
 
 
 @_attrs_define
-class ProjectCollection:
+class LifePlan:
     """A project collection.
 
     Attributes:
@@ -113,7 +113,7 @@ class ProjectCollection:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        project_collection = cls(
+        life_plan = cls(
             ref_id=ref_id,
             version=version,
             archived=archived,
@@ -124,8 +124,8 @@ class ProjectCollection:
             archived_time=archived_time,
         )
 
-        project_collection.additional_properties = d
-        return project_collection
+        life_plan.additional_properties = d
+        return life_plan
 
     @property
     def additional_keys(self) -> list[str]:

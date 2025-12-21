@@ -32,7 +32,7 @@ from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.hosting import Hosting
-from jupiter.core.projects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,

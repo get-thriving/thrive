@@ -26,10 +26,10 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import ProjectRepository
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
@@ -115,7 +115,7 @@ class GetSummariesUseCase(
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
             workspace.ref_id
         )
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+        life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
@@ -163,7 +163,7 @@ class GetSummariesUseCase(
             )
 
         root_project_real = await uow.get(ProjectRepository).load_root_project(
-            project_collection.ref_id
+            life_plan.ref_id
         )
         root_project = ProjectSummary(
             ref_id=root_project_real.ref_id,
@@ -177,7 +177,7 @@ class GetSummariesUseCase(
             and args.include_projects
         ):
             projects = await uow.get(FastInfoRepository).find_all_project_summaries(
-                parent_ref_id=project_collection.workspace.ref_id,
+                parent_ref_id=life_plan.workspace.ref_id,
                 allow_archived=allow_archived,
             )
         inbox_tasks = None

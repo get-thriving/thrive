@@ -52,7 +52,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";

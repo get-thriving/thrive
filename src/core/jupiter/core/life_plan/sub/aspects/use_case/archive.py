@@ -1,22 +1,23 @@
-"""Use case for removing a project."""
+"""Use case for archiving a project."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.journals.collection import JournalCollection
-from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
-from jupiter.core.projects.service.check_cycles import (
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.service.archive import (
+    ProjectArchiveService,
+)
+from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
     ProjectCheckCyclesService,
     ProjectTreeHasCyclesError,
 )
-from jupiter.core.projects.service.remove import (
-    ProjectRemoveService,
-)
+from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -42,25 +43,25 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class ProjectRemoveArgs(UseCaseArgsBase):
-    """Project remove args."""
+class ProjectArchiveArgs(UseCaseArgsBase):
+    """Project archive args."""
 
     ref_id: EntityId
     backup_project_ref_id: EntityId | None
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectRemoveUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ProjectRemoveArgs, None]
+class ProjectArchiveUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[ProjectArchiveArgs, None]
 ):
-    """The command for removing a project."""
+    """The command for archiving a project."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: ProjectRemoveArgs,
+        args: ProjectArchiveArgs,
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
@@ -162,11 +163,9 @@ class ProjectRemoveUseCase(
                 )
                 await uow.get_for(WorkingMemCollection).save(working_mem_collection)
 
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
-                workspace.ref_id
-            )
+            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
             child_projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=True,
                 parent_project_ref_id=args.ref_id,
             )
@@ -185,7 +184,12 @@ class ProjectRemoveUseCase(
                 except ProjectTreeHasCyclesError as err:
                     raise InputValidationError("The project tree has cycles.") from err
 
-        project_remove_service = ProjectRemoveService()
-        await project_remove_service.do_it(
-            context.domain_context, uow, progress_reporter, context.workspace, project
+        project_archive_service = ProjectArchiveService()
+        await project_archive_service.do_it(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            workspace,
+            project,
+            JupiterArchivalReason.USER,
         )

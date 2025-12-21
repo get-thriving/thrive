@@ -8,7 +8,7 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.projects.use_case.find import (
+from jupiter.core.life_plan.sub.aspects.use_case.find import (
     ProjectFindResult,
     ProjectFindResultEntry,
     ProjectFindUseCase,

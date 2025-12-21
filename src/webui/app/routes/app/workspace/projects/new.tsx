@@ -12,7 +12,7 @@ import { useContext } from "react";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import {
@@ -57,7 +57,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, CreateFormSchema);
 
   try {
-    const response = await apiClient.projects.projectCreate({
+    const response = await apiClient.lifePlan.projectCreate({
       parent_project_ref_id: form.parentProjectRefId,
       name: form.name,
     });

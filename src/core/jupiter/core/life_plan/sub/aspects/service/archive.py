@@ -1,32 +1,37 @@
-"""Shared logic for removing a project."""
+"""Shared logic for archiving a project."""
 
+from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
-from jupiter.core.big_plans.service.remove import (
-    BigPlanRemoveService,
+from jupiter.core.big_plans.service.archive import (
+    BigPlanArchiveService,
 )
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.chores.service.remove import ChoreRemoveService
+from jupiter.core.chores.service.archive import (
+    ChoreArchiveService,
+)
 from jupiter.core.common.sub.notes.domain import NoteDomain
-from jupiter.core.common.sub.notes.service.remove import (
-    NoteRemoveService,
+from jupiter.core.common.sub.notes.service.archive import (
+    NoteArchiveService,
 )
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.habits.service.remove import HabitRemoveService
+from jupiter.core.habits.service.archive import (
+    HabitArchiveService,
+)
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
+from jupiter.core.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.errors import ProjectInSignificantUseError
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.errors import ProjectInSignificantUseError
-from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -46,8 +51,8 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
-class ProjectRemoveService:
-    """Shared logic for removing a project."""
+class ProjectArchiveService:
+    """Shared logic for archiving a project."""
 
     async def do_it(
         self,
@@ -56,10 +61,11 @@ class ProjectRemoveService:
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         project: Project,
+        archival_reason: JupiterArchivalReason,
     ) -> None:
-        """Remove the project."""
+        """Archive the project."""
         if project.is_root:
-            raise Exception("The root project cannot be removed")
+            raise Exception("The root project cannot be archived")
 
         # test it's not the workspace default project nor a metric collection project nor a person catchup one
         time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
@@ -122,77 +128,83 @@ class ProjectRemoveService:
                 "The project is being used as the working memory cleanup tasks default one"
             )
 
-        # remove inbox tasks
+        # archive inbox tasks
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
         )
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=True,
+            allow_archived=False,
             project_ref_id=[project.ref_id],
         )
-        inbox_task_remove_service = InboxTaskRemoveService()
+        inbox_task_archive_service = InboxTaskArchiveService()
         for it in inbox_tasks:
-            await inbox_task_remove_service.do_it(ctx, uow, progress_reporter, it)
+            await inbox_task_archive_service.do_it(
+                ctx, uow, progress_reporter, it, archival_reason
+            )
 
-        # remove chores
+        # archive chores
         chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
             workspace.ref_id
         )
         chores = await uow.get_for(Chore).find_all_generic(
             parent_ref_id=chore_collection.ref_id,
-            allow_archived=True,
-            projedct_ref_id=[project.ref_id],
+            allow_archived=False,
+            project_ref_id=[project.ref_id],
         )
-        chore_remove_service = ChoreRemoveService()
+        chore_archive_service = ChoreArchiveService()
         for chore in chores:
-            await chore_remove_service.remove(ctx, uow, progress_reporter, chore.ref_id)
+            await chore_archive_service.do_it(
+                ctx, uow, progress_reporter, chore, archival_reason
+            )
 
-        # remove habits
+        # archive habits
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id
         )
         habits = await uow.get_for(Habit).find_all_generic(
             parent_ref_id=habit_collection.ref_id,
-            allow_archived=True,
+            allow_archived=False,
             project_ref_id=[project.ref_id],
         )
-        habit_remove_service = HabitRemoveService()
+        habit_archive_service = HabitArchiveService()
         for habit in habits:
-            await habit_remove_service.remove(ctx, uow, progress_reporter, habit.ref_id)
+            await habit_archive_service.do_it(
+                ctx, uow, progress_reporter, habit, archival_reason
+            )
 
-        # remove big plans
+        # archive big plans
         big_plan_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id
         )
         big_plans = await uow.get_for(BigPlan).find_all_generic(
             parent_ref_id=big_plan_collection.ref_id,
-            allow_archived=True,
+            allow_archived=False,
             project_ref_id=[project.ref_id],
         )
-        big_plan_remove_service = BigPlanRemoveService()
+        big_plan_archive_service = BigPlanArchiveService()
         for big_plan in big_plans:
-            await big_plan_remove_service.remove(
-                ctx, uow, progress_reporter, workspace, big_plan.ref_id
+            await big_plan_archive_service.do_it(
+                ctx, uow, progress_reporter, big_plan, archival_reason
             )
 
-        # remove note
-        note_remove_service = NoteRemoveService()
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.PROJECT, project.ref_id
+        # archive note
+        note_archive_service = NoteArchiveService()
+        await note_archive_service.archive_for_source(
+            ctx, uow, NoteDomain.PROJECT, project.ref_id, archival_reason
         )
 
-        # remove child projects
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
-            workspace.ref_id
-        )
+        # archive child projects
+        life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
         child_projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=project_collection.ref_id,
-            allow_archived=True,
-            parent_project_ref_id=project.ref_id,
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=False,
+            parent_project_ref_id=[project.ref_id],
         )
         for child_project in child_projects:
-            await self.do_it(ctx, uow, progress_reporter, workspace, child_project)
+            await self.do_it(
+                ctx, uow, progress_reporter, workspace, child_project, archival_reason
+            )
 
         # remove from parent project list
         parent_project = await uow.get_for(Project).load_by_id(
@@ -201,6 +213,7 @@ class ProjectRemoveService:
         parent_project = parent_project.remove_child_project(ctx, project.ref_id)
         await uow.get_for(Project).save(parent_project)
 
-        # remove project
-        await uow.get_for(Project).remove(project.ref_id)
-        await progress_reporter.mark_removed(project)
+        # archive project
+        project = project.mark_archived(ctx, archival_reason)
+        await uow.get_for(Project).save(project)
+        await progress_reporter.mark_updated(project)

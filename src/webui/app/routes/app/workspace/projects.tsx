@@ -16,7 +16,7 @@ import {
   shiftProjectDownInListOfChildren,
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
-} from "@jupiter/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -48,7 +48,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.projects.projectFind({
+  const response = await apiClient.lifePlan.projectFind({
     allow_archived: false,
     include_notes: false,
   });
@@ -71,7 +71,7 @@ export async function action({ request }: ActionFunctionArgs) {
           throw new Error("Missing required arguments!");
         }
 
-        await apiClient.projects.projectReorderChildren({
+        await apiClient.lifePlan.projectReorderChildren({
           ref_id: args?.refId,
           new_order_of_child_projects: args?.newOrderOfChildProjects,
         });

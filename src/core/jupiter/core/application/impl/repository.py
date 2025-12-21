@@ -22,9 +22,9 @@ from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
-from jupiter.core.projects.name import ProjectName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -119,7 +119,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[ProjectSummary]:
         """Find all summaries about projects."""
-        query = """select ref_id, parent_project_ref_id, name, order_of_child_projects from project where project_collection_ref_id = :parent_ref_id"""
+        query = """select ref_id, parent_project_ref_id, name, order_of_child_projects from project where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (

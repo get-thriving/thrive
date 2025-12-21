@@ -19,7 +19,7 @@ from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.use_case.find import HabitFindResult, HabitFindUseCase
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text

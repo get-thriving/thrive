@@ -7,8 +7,8 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.root import Project
-from jupiter.core.projects.service.check_cycles import (
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
     ProjectCheckCyclesService,
     ProjectTreeHasCyclesError,
 )

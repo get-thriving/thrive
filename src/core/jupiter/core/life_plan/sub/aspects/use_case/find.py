@@ -10,8 +10,8 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -65,11 +65,11 @@ class ProjectFindUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+        life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
         projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=project_collection.ref_id,
+            parent_ref_id=life_plan.ref_id,
             allow_archived=args.allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )

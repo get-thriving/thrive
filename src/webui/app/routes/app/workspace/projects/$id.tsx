@@ -9,12 +9,12 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { isRootProject } from "@jupiter/core/projects/root";
+import { isRootProject } from "#/core/life_plan/sub/aspects/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -65,7 +65,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
-    const response = await apiClient.projects.projectLoad({
+    const response = await apiClient.lifePlan.projectLoad({
       ref_id: id,
       allow_archived: true,
     });
@@ -96,7 +96,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     switch (form.intent) {
       case "update": {
-        await apiClient.projects.projectUpdate({
+        await apiClient.lifePlan.projectUpdate({
           ref_id: id,
           name: {
             should_change: true,
@@ -108,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "change-parent": {
-        await apiClient.projects.projectChangeParent({
+        await apiClient.lifePlan.projectChangeParent({
           ref_id: id,
           parent_project_ref_id: form.parentProjectRefId,
         });
@@ -127,7 +127,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "archive": {
-        await apiClient.projects.projectArchive({
+        await apiClient.lifePlan.projectArchive({
           ref_id: id,
         });
 
@@ -135,7 +135,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "remove": {
-        await apiClient.projects.projectRemove({
+        await apiClient.lifePlan.projectRemove({
           ref_id: id,
         });
 

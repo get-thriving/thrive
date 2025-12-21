@@ -17,8 +17,8 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -118,11 +118,11 @@ class InboxTaskCreateUseCase(
             )
 
         if args.project_ref_id is None:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             root_project = await uow.get(ProjectRepository).load_root_project(
-                project_collection.ref_id
+                life_plan.ref_id
             )
             project_ref_id = root_project.ref_id
         else:

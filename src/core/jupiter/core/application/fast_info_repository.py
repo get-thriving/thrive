@@ -8,9 +8,9 @@ from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
-from jupiter.core.projects.name import ProjectName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )

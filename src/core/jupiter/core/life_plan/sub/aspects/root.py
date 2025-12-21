@@ -8,7 +8,7 @@ from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.projects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -29,7 +29,7 @@ from jupiter.framework.update_action import UpdateAction
 class Project(LeafEntity):
     """The project."""
 
-    project_collection: ParentLink
+    life_plan: ParentLink
     parent_project_ref_id: EntityId | None
     name: ProjectName
     order_of_child_projects: list[EntityId]
@@ -47,13 +47,13 @@ class Project(LeafEntity):
     @create_entity_action
     def new_root_project(
         ctx: MutationContext,
-        project_collection_ref_id: EntityId,
+        life_plan_ref_id: EntityId,
         name: ProjectName,
     ) -> "Project":
         """Create a root project."""
         return Project._create(
             ctx,
-            project_collection=ParentLink(project_collection_ref_id),
+            life_plan=ParentLink(life_plan_ref_id),
             parent_project_ref_id=None,
             name=name,
             order_of_child_projects=[],
@@ -63,14 +63,14 @@ class Project(LeafEntity):
     @create_entity_action
     def new_project(
         ctx: MutationContext,
-        project_collection_ref_id: EntityId,
+        life_plan_ref_id: EntityId,
         parent_project_ref_id: EntityId,
         name: ProjectName,
     ) -> "Project":
         """Create a project."""
         return Project._create(
             ctx,
-            project_collection=ParentLink(project_collection_ref_id),
+            life_plan=ParentLink(life_plan_ref_id),
             parent_project_ref_id=parent_project_ref_id,
             name=name,
             order_of_child_projects=[],

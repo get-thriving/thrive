@@ -22,11 +22,11 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project, ProjectRepository
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -97,9 +97,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     workspace.ref_id,
                 )
 
-                project_collection = await uow.get_for(
-                    ProjectCollection
-                ).load_by_parent(
+                life_plan = await uow.get_for(LifePlan).load_by_parent(
                     workspace.ref_id,
                 )
                 metric_collection = await uow.get_for(MetricCollection).load_by_parent(
@@ -186,7 +184,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     await uow.get_for(Workspace).save(workspace)
 
                     root_project = await uow.get(ProjectRepository).load_root_project(
-                        project_collection.ref_id
+                        life_plan.ref_id
                     )
                     root_project = root_project.update(
                         ctx=context.domain_context,

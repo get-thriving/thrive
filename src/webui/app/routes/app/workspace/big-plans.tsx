@@ -12,7 +12,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "@jupiter/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import {
   bigPlanFindEntryToParent,
   sortBigPlansNaturally,

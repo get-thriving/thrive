@@ -22,10 +22,10 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -76,7 +76,7 @@ class Workspace(RootEntity):
     journal_collection = ContainsOne(JournalCollection, workspace_ref_id=IsRefId())
     doc_collection = ContainsOne(DocCollection, workspace_ref_id=IsRefId())
     vacation_collection = ContainsOne(VacationCollection, workspace_ref_id=IsRefId())
-    project_collection = ContainsOne(ProjectCollection, workspace_ref_id=IsRefId())
+    life_plan = ContainsOne(LifePlan, workspace_ref_id=IsRefId())
     smart_list_collection = ContainsOne(SmartListCollection, workspace_ref_id=IsRefId())
     metric_collection = ContainsOne(MetricCollection, workspace_ref_id=IsRefId())
     person_collection = ContainsOne(PersonCollection, workspace_ref_id=IsRefId())

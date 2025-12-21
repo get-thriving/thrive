@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   computeProjectDistanceFromRoot,
   sortProjectsByTreeOrder,
-} from "#/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 
 interface ProjectSelectProps {
   name: string;
