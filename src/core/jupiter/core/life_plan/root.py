@@ -1,6 +1,7 @@
 """A life plan."""
 
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -20,6 +21,7 @@ class LifePlan(TrunkEntity):
     workspace: ParentLink
 
     projects = ContainsMany(Project, life_plan_ref_id=IsRefId())
+    chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action
