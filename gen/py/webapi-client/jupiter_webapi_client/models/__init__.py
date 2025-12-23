@@ -71,6 +71,7 @@ from .calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
 from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriodArgs
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
 from .change_password_args import ChangePasswordArgs
+from .chapter import Chapter
 from .checklist_block import ChecklistBlock
 from .checklist_block_kind import ChecklistBlockKind
 from .checklist_item import ChecklistItem
@@ -299,6 +300,9 @@ from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettin
 from .journal_update_settings_args_writing_task_project_ref_id import JournalUpdateSettingsArgsWritingTaskProjectRefId
 from .jupiter_archival_reason import JupiterArchivalReason
 from .life_plan import LifePlan
+from .life_plan_update_args import LifePlanUpdateArgs
+from .life_plan_update_args_birth_year import LifePlanUpdateArgsBirthYear
+from .life_plan_update_args_birthday import LifePlanUpdateArgsBirthday
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
 from .list_item import ListItem
@@ -371,6 +375,7 @@ from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
+from .partial_date_type import PartialDateType
 from .per_big_plan_breakdown_item import PerBigPlanBreakdownItem
 from .per_chore_breakdown_item import PerChoreBreakdownItem
 from .per_habit_breakdown_item import PerHabitBreakdownItem
@@ -788,6 +793,7 @@ __all__ = (
     "CalendarLoadForDateAndPeriodArgs",
     "CalendarLoadForDateAndPeriodResult",
     "ChangePasswordArgs",
+    "Chapter",
     "ChecklistBlock",
     "ChecklistBlockKind",
     "ChecklistItem",
@@ -1014,6 +1020,9 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskProjectRefId",
     "JupiterArchivalReason",
     "LifePlan",
+    "LifePlanUpdateArgs",
+    "LifePlanUpdateArgsBirthday",
+    "LifePlanUpdateArgsBirthYear",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",
@@ -1084,6 +1093,7 @@ __all__ = (
     "NumberedListBlockKind",
     "ParagraphBlock",
     "ParagraphBlockKind",
+    "PartialDateType",
     "PerBigPlanBreakdownItem",
     "PerChoreBreakdownItem",
     "PerHabitBreakdownItem",

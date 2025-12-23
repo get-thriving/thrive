@@ -7,6 +7,7 @@ from typing import Final, Sequence, cast
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
@@ -53,7 +54,6 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
 from jupiter.core.push_integrations.group import (
@@ -1808,7 +1808,7 @@ class GenService:
         project: Project,
         today: ADate,
         person: Person,
-        birthday: PersonBirthday,
+        birthday: Birthday,
         all_inbox_tasks_by_person_ref_id_and_timeline: dict[
             tuple[EntityId, str],
             InboxTask,

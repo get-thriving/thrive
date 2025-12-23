@@ -4,6 +4,7 @@ import typing
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -36,7 +37,6 @@ from jupiter.core.inbox_tasks.service.archive import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
@@ -67,7 +67,7 @@ class PersonUpdateArgs(UseCaseArgsBase):
     catch_up_actionable_from_month: UpdateAction[RecurringTaskDueAtMonth | None]
     catch_up_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     catch_up_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
-    birthday: UpdateAction[PersonBirthday | None]
+    birthday: UpdateAction[Birthday | None]
 
 
 @mutation_use_case(WorkspaceFeature.PERSONS)

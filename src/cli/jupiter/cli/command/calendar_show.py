@@ -16,8 +16,8 @@ from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodResult,
     CalendarLoadForDateAndPeriodUseCase,
 )
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.persons.birthday import PersonBirthday
 from rich.console import Console
 from rich.text import Text
 from rich.tree import Tree
@@ -91,7 +91,7 @@ class CalendarShow(
             person_text.append(entity_name_to_rich_text(person.name))
             person_text.append(" ")
             person_text.append(
-                person_birthday_to_rich_text(cast(PersonBirthday, person.birthday))
+                person_birthday_to_rich_text(cast(Birthday, person.birthday))
             )
 
             full_day_events_tree.add(person_text)

@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * The birthday of a person.
+ * The name of a chapter in a life plan.
  */
-export type PersonBirthday = string;
+export type ChapterName = string;

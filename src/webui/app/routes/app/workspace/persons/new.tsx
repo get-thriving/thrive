@@ -1,4 +1,4 @@
-import type { RecurringTaskPeriod } from "@jupiter/webapi-client";
+import type { Birthday, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -11,7 +11,6 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  Stack,
 } from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -22,10 +21,10 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { useContext } from "react";
 import { personRelationshipName } from "@jupiter/core/persons/relationship";
-import { birthdayFromParts } from "@jupiter/core/persons/birthday";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -48,8 +47,7 @@ const ParamsSchema = z.object({});
 const CreateFormSchema = z.object({
   name: z.string(),
   relationship: z.string(),
-  birthdayDay: z.string(),
-  birthdayMonth: z.string(),
+  birthday: z.string().optional(),
   catchUpPeriod: z.string(),
   catchUpEisen: z.nativeEnum(Eisen).optional(),
   catchUpDifficulty: z.nativeEnum(Difficulty).optional(),
@@ -111,12 +109,9 @@ export async function action({ request }: ActionFunctionArgs) {
             ? undefined
             : parseInt(form.catchUpDueAtMonth),
       birthday:
-        form.birthdayDay === "N/A" || form.birthdayMonth === "N/A"
+        form.birthday === undefined || form.birthday === ""
           ? undefined
-          : birthdayFromParts(
-              parseInt(form.birthdayDay),
-              parseInt(form.birthdayMonth),
-            ),
+          : (form.birthday as Birthday),
     });
 
     return redirect(`/app/workspace/persons/${result.new_person.ref_id}`);
@@ -192,81 +187,12 @@ export default function NewPerson() {
           <FieldError actionResult={actionData} fieldName="/relationship" />
         </FormControl>
 
-        <Stack spacing={2} useFlexGap direction="row">
-          <FormControl fullWidth>
-            <InputLabel id="birthdayDay">Birthday Day [Optional]</InputLabel>
-            <Select
-              labelId="birthdayDay"
-              name="birthdayDay"
-              readOnly={!inputsEnabled}
-              defaultValue={"N/A"}
-              label="Birthday Day"
-            >
-              <MenuItem value={"N/A"}>N/A</MenuItem>
-              <MenuItem value={1}>1st</MenuItem>
-              <MenuItem value={2}>2nd</MenuItem>
-              <MenuItem value={3}>3rd</MenuItem>
-              <MenuItem value={4}>4th</MenuItem>
-              <MenuItem value={5}>5th</MenuItem>
-              <MenuItem value={6}>6th</MenuItem>
-              <MenuItem value={7}>7th</MenuItem>
-              <MenuItem value={8}>8th</MenuItem>
-              <MenuItem value={9}>9th</MenuItem>
-              <MenuItem value={10}>10th</MenuItem>
-              <MenuItem value={11}>11th</MenuItem>
-              <MenuItem value={12}>12th</MenuItem>
-              <MenuItem value={13}>13th</MenuItem>
-              <MenuItem value={14}>14th</MenuItem>
-              <MenuItem value={15}>15th</MenuItem>
-              <MenuItem value={16}>16th</MenuItem>
-              <MenuItem value={17}>17th</MenuItem>
-              <MenuItem value={18}>18th</MenuItem>
-              <MenuItem value={19}>19th</MenuItem>
-              <MenuItem value={20}>20th</MenuItem>
-              <MenuItem value={21}>21st</MenuItem>
-              <MenuItem value={22}>22nd</MenuItem>
-              <MenuItem value={23}>23rd</MenuItem>
-              <MenuItem value={24}>24th</MenuItem>
-              <MenuItem value={25}>25th</MenuItem>
-              <MenuItem value={26}>26th</MenuItem>
-              <MenuItem value={27}>27th</MenuItem>
-              <MenuItem value={28}>28th</MenuItem>
-              <MenuItem value={29}>29th</MenuItem>
-              <MenuItem value={30}>30th</MenuItem>
-              <MenuItem value={31}>31st</MenuItem>
-            </Select>
-
-            <FieldError actionResult={actionData} fieldName="/birthday" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel id="birthdayMonth">
-              Birthday Month [Optional]
-            </InputLabel>
-            <Select
-              labelId="birthdayMonth"
-              name="birthdayMonth"
-              readOnly={!inputsEnabled}
-              defaultValue={"N/A"}
-              label="Birthday Month"
-            >
-              <MenuItem value={"N/A"}>N/A</MenuItem>
-              <MenuItem value={1}>January</MenuItem>
-              <MenuItem value={2}>February</MenuItem>
-              <MenuItem value={3}>March</MenuItem>
-              <MenuItem value={4}>April</MenuItem>
-              <MenuItem value={5}>May</MenuItem>
-              <MenuItem value={6}>June</MenuItem>
-              <MenuItem value={7}>July</MenuItem>
-              <MenuItem value={8}>August</MenuItem>
-              <MenuItem value={9}>September</MenuItem>
-              <MenuItem value={10}>October</MenuItem>
-              <MenuItem value={11}>November</MenuItem>
-              <MenuItem value={12}>December</MenuItem>
-            </Select>
-            <FieldError actionResult={actionData} fieldName="/birthday" />
-          </FormControl>
-        </Stack>
+        <BirthdaySelect
+          name="birthday"
+          initialValue={null}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/birthday" />
 
         <StandardDivider title="Catch Up" size="small" />
 

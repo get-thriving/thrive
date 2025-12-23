@@ -571,7 +571,71 @@ class _StandardPrimitiveDatabaseDecoder(
                 f"Expected value for {self._the_type.__name__} in {self.__class__} to be primitive"
             )
 
-        return cast(_PrimitiveT, value)
+        if self._the_type is type(None):
+            if value is None:
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be None"
+                )
+        elif self._the_type is bool:
+            if isinstance(value, bool):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a bool"
+                )
+        elif self._the_type is int:
+            if isinstance(value, int):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be an int"
+                )
+        elif self._the_type is float:
+            if isinstance(value, float):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a float"
+                )
+        elif self._the_type is str:
+            if isinstance(value, str):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a str"
+                )
+        elif self._the_type is date:
+            if isinstance(value, date):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a date"
+                )
+        elif self._the_type is datetime:
+            if isinstance(value, datetime):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a datetime"
+                )
+        elif self._the_type is Date:
+            if isinstance(value, Date):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a Date"
+                )
+        elif self._the_type is DateTime:
+            if isinstance(value, DateTime):
+                return cast(_PrimitiveT, value)
+            else:
+                raise RealmDecodingError(
+                    f"Expected value for {self._the_type.__name__} in {self.__class__} to be a DateTime"
+                )
+        else:
+            raise Exception("Off the beaten codepath")
 
 
 class PrimitiveAtomicValueDatabaseEncoder(

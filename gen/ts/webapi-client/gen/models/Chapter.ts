@@ -2,14 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Birthday } from './Birthday';
-import type { BirthYear } from './BirthYear';
+import type { ChapterName } from './ChapterName';
 import type { EntityId } from './EntityId';
+import type { PartialDate } from './PartialDate';
 import type { Timestamp } from './Timestamp';
 /**
- * A project collection.
+ * A chapter in a life plan.
  */
-export type LifePlan = {
+export type Chapter = {
     ref_id: EntityId;
     version: number;
     archived: boolean;
@@ -17,8 +17,9 @@ export type LifePlan = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
-    workspace_ref_id: string;
-    birthday: Birthday;
-    birth_year: BirthYear;
+    name: ChapterName;
+    life_plan_ref_id: string;
+    start_date: PartialDate;
+    end_date: PartialDate;
 };
 

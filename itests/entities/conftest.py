@@ -45,6 +45,8 @@ def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[Init
             user_feature_flags=[UserFeature.GAMIFICATION],
             auth_password=new_user.password,
             auth_password_repeat=new_user.password,
+            user_birthday="12 Sep",
+            user_birth_year=1990,
             workspace_name="Test Workspace",
             workspace_root_project_name="Root Project",
             workspace_first_schedule_stream_name="Life",

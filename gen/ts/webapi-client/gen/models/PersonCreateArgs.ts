@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Birthday } from './Birthday';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
-import type { PersonBirthday } from './PersonBirthday';
 import type { PersonName } from './PersonName';
 import type { PersonRelationship } from './PersonRelationship';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
@@ -23,6 +23,6 @@ export type PersonCreateArgs = {
     catch_up_actionable_from_month?: (RecurringTaskDueAtMonth | null);
     catch_up_due_at_day?: (RecurringTaskDueAtDay | null);
     catch_up_due_at_month?: (RecurringTaskDueAtMonth | null);
-    birthday?: (PersonBirthday | null);
+    birthday?: (Birthday | null);
 };
 

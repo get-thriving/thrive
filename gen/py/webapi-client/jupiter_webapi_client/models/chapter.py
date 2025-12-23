@@ -8,12 +8,12 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="LifePlan")
+T = TypeVar("T", bound="Chapter")
 
 
 @_attrs_define
-class LifePlan:
-    """A project collection.
+class Chapter:
+    """A chapter in a life plan.
 
     Attributes:
         ref_id (str): A generic entity id.
@@ -21,9 +21,10 @@ class LifePlan:
         archived (bool):
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        workspace_ref_id (str):
-        birthday (str): The birthday of a person.
-        birth_year (int): The birth year of a person.
+        name (str): The name of a chapter in a life plan.
+        life_plan_ref_id (str):
+        start_date (str): A date in the life plan.
+        end_date (str): A date in the life plan.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -33,9 +34,10 @@ class LifePlan:
     archived: bool
     created_time: str
     last_modified_time: str
-    workspace_ref_id: str
-    birthday: str
-    birth_year: int
+    name: str
+    life_plan_ref_id: str
+    start_date: str
+    end_date: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -51,11 +53,13 @@ class LifePlan:
 
         last_modified_time = self.last_modified_time
 
-        workspace_ref_id = self.workspace_ref_id
+        name = self.name
 
-        birthday = self.birthday
+        life_plan_ref_id = self.life_plan_ref_id
 
-        birth_year = self.birth_year
+        start_date = self.start_date
+
+        end_date = self.end_date
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -78,9 +82,10 @@ class LifePlan:
                 "archived": archived,
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "workspace_ref_id": workspace_ref_id,
-                "birthday": birthday,
-                "birth_year": birth_year,
+                "name": name,
+                "life_plan_ref_id": life_plan_ref_id,
+                "start_date": start_date,
+                "end_date": end_date,
             }
         )
         if archival_reason is not UNSET:
@@ -103,11 +108,13 @@ class LifePlan:
 
         last_modified_time = d.pop("last_modified_time")
 
-        workspace_ref_id = d.pop("workspace_ref_id")
+        name = d.pop("name")
 
-        birthday = d.pop("birthday")
+        life_plan_ref_id = d.pop("life_plan_ref_id")
 
-        birth_year = d.pop("birth_year")
+        start_date = d.pop("start_date")
+
+        end_date = d.pop("end_date")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -127,21 +134,22 @@ class LifePlan:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
-        life_plan = cls(
+        chapter = cls(
             ref_id=ref_id,
             version=version,
             archived=archived,
             created_time=created_time,
             last_modified_time=last_modified_time,
-            workspace_ref_id=workspace_ref_id,
-            birthday=birthday,
-            birth_year=birth_year,
+            name=name,
+            life_plan_ref_id=life_plan_ref_id,
+            start_date=start_date,
+            end_date=end_date,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )
 
-        life_plan.additional_properties = d
-        return life_plan
+        chapter.additional_properties = d
+        return chapter
 
     @property
     def additional_keys(self) -> list[str]:

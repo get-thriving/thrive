@@ -1,7 +1,4 @@
-import type {
-  PersonBirthday,
-  RecurringTaskDueAtMonth,
-} from "@jupiter/webapi-client";
+import type { Birthday, RecurringTaskDueAtMonth } from "@jupiter/webapi-client";
 
 const MONTH_NAME_INDEX = [
   "Jan",
@@ -18,7 +15,7 @@ const MONTH_NAME_INDEX = [
   "Dec",
 ];
 
-export function extractBirthday(birthday: PersonBirthday): {
+export function extractBirthday(birthday: Birthday): {
   day: number;
   month: number;
 } {
@@ -28,8 +25,8 @@ export function extractBirthday(birthday: PersonBirthday): {
   return { day, month };
 }
 
-export function birthdayFromParts(day: number, month: number): PersonBirthday {
-  return `${day} ${MONTH_NAME_INDEX[month - 1]}` as PersonBirthday;
+export function birthdayFromParts(day: number, month: number): Birthday {
+  return `${day} ${MONTH_NAME_INDEX[month - 1]}` as Birthday;
 }
 
 export function dueMonthToStr(dueMonth: RecurringTaskDueAtMonth): string {

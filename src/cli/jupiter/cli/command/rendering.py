@@ -2,6 +2,7 @@
 
 from jupiter.core.app import AppComponent
 from jupiter.core.big_plans.status import BigPlanStatus
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
@@ -23,7 +24,6 @@ from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.core.push_integrations.sub.email.user_name import (
     EmailUserName,
@@ -180,7 +180,7 @@ def person_relationship_to_rich_text(person_relationship: PersonRelationship) ->
     return Text(str(person_relationship.value).capitalize(), style="underline yellow")
 
 
-def person_birthday_to_rich_text(birthday: PersonBirthday) -> Text:
+def person_birthday_to_rich_text(birthday: Birthday) -> Text:
     """Transform birthday into text."""
     return Text(f"Birthday on {birthday}", style="italic")
 

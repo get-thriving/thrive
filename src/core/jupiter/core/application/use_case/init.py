@@ -7,6 +7,8 @@ from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.auth.root import Auth
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.birth_year import BirthYear
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
@@ -102,6 +104,8 @@ class InitArgs(UseCaseArgsBase):
     user_feature_flags: set[UserFeature]
     auth_password: PasswordNewPlain
     auth_password_repeat: PasswordNewPlain
+    user_birthday: Birthday
+    user_birth_year: BirthYear
     workspace_name: WorkspaceName
     workspace_first_schedule_stream_name: ScheduleStreamName
     workspace_root_project_name: ProjectName
@@ -215,6 +219,8 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_life_plan = LifePlan.new_life_plan(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
+                birthday=args.user_birthday,
+                birth_year=args.user_birth_year,
             )
             new_life_plan = await uow.get_for(LifePlan).create(
                 new_life_plan,

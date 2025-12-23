@@ -7,4 +7,3 @@ from jupiter.framework.value import hashable_value
 @hashable_value
 class ChapterName(EntityName):
     """The name of a chapter in a life plan."""
-    
