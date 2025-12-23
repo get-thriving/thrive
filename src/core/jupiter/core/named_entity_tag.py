@@ -30,6 +30,7 @@ class NamedEntityTag(EnumValue):
     BIG_PLAN_MILESTONE = "BigPlanMilestone"  # BigPlanMilestone.__name__
     DOC = "Doc"  # Doc.__name__
     JOURNAL = "Journal"  # Journal.__name__
+    CHAPTER = "Chapter"  # Chapter.__name__
     VACATION = "Vacation"  # Vacation.__name__
     PROJECT = "Project"  # Project.__name__
     SMART_LIST = "SmartList"  # SmartList.__name__

@@ -60,7 +60,17 @@ export type { CalendarLoadForDateAndPeriodArgs } from './models/CalendarLoadForD
 export type { CalendarLoadForDateAndPeriodResult } from './models/CalendarLoadForDateAndPeriodResult';
 export type { ChangePasswordArgs } from './models/ChangePasswordArgs';
 export type { Chapter } from './models/Chapter';
+export type { ChapterArchiveArgs } from './models/ChapterArchiveArgs';
+export type { ChapterCreateArgs } from './models/ChapterCreateArgs';
+export type { ChapterCreateResult } from './models/ChapterCreateResult';
+export type { ChapterFindArgs } from './models/ChapterFindArgs';
+export type { ChapterFindResult } from './models/ChapterFindResult';
+export type { ChapterFindResultEntry } from './models/ChapterFindResultEntry';
+export type { ChapterLoadArgs } from './models/ChapterLoadArgs';
+export type { ChapterLoadResult } from './models/ChapterLoadResult';
 export type { ChapterName } from './models/ChapterName';
+export type { ChapterRemoveArgs } from './models/ChapterRemoveArgs';
+export type { ChapterUpdateArgs } from './models/ChapterUpdateArgs';
 export { ChecklistBlock } from './models/ChecklistBlock';
 export type { ChecklistItem } from './models/ChecklistItem';
 export type { Chore } from './models/Chore';

@@ -72,6 +72,19 @@ from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriod
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
 from .change_password_args import ChangePasswordArgs
 from .chapter import Chapter
+from .chapter_archive_args import ChapterArchiveArgs
+from .chapter_create_args import ChapterCreateArgs
+from .chapter_create_result import ChapterCreateResult
+from .chapter_find_args import ChapterFindArgs
+from .chapter_find_result import ChapterFindResult
+from .chapter_find_result_entry import ChapterFindResultEntry
+from .chapter_load_args import ChapterLoadArgs
+from .chapter_load_result import ChapterLoadResult
+from .chapter_remove_args import ChapterRemoveArgs
+from .chapter_update_args import ChapterUpdateArgs
+from .chapter_update_args_end_date import ChapterUpdateArgsEndDate
+from .chapter_update_args_name import ChapterUpdateArgsName
+from .chapter_update_args_start_date import ChapterUpdateArgsStartDate
 from .checklist_block import ChecklistBlock
 from .checklist_block_kind import ChecklistBlockKind
 from .checklist_item import ChecklistItem
@@ -794,6 +807,19 @@ __all__ = (
     "CalendarLoadForDateAndPeriodResult",
     "ChangePasswordArgs",
     "Chapter",
+    "ChapterArchiveArgs",
+    "ChapterCreateArgs",
+    "ChapterCreateResult",
+    "ChapterFindArgs",
+    "ChapterFindResult",
+    "ChapterFindResultEntry",
+    "ChapterLoadArgs",
+    "ChapterLoadResult",
+    "ChapterRemoveArgs",
+    "ChapterUpdateArgs",
+    "ChapterUpdateArgsEndDate",
+    "ChapterUpdateArgsName",
+    "ChapterUpdateArgsStartDate",
     "ChecklistBlock",
     "ChecklistBlockKind",
     "ChecklistItem",

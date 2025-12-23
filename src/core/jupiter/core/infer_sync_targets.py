@@ -60,6 +60,10 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.LIFE_PLAN
         ):
             inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.CHAPTERS and workspace.is_feature_available(
+            WorkspaceFeature.LIFE_PLAN
+        ):
+            inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.PERSONS and workspace.is_feature_available(
             WorkspaceFeature.PERSONS
         ):

@@ -74,6 +74,11 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
+      syncTarget === SyncTarget.CHAPTERS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
       syncTarget === SyncTarget.PERSONS &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
     ) {

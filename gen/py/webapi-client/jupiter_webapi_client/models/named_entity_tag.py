@@ -4,6 +4,7 @@ from enum import Enum
 class NamedEntityTag(str, Enum):
     BIGPLAN = "BigPlan"
     BIGPLANMILESTONE = "BigPlanMilestone"
+    CHAPTER = "Chapter"
     CHORE = "Chore"
     DOC = "Doc"
     EMAILTASK = "EmailTask"

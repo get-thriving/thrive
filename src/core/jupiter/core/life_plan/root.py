@@ -4,6 +4,7 @@ from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -58,4 +59,11 @@ class LifePlan(TrunkEntity):
         final_birth_year = birth_year.or_else(self.birth_year)
         return self._new_version(
             ctx, birthday=final_birthday, birth_year=final_birth_year
+        )
+
+    @property
+    def birthday_date(self) -> ADate:
+        """Get the birthday date."""
+        return ADate.from_components(
+            self.birth_year.the_year, self.birthday.month, self.birthday.day
         )
