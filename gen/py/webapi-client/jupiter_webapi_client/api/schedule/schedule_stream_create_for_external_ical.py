@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.schedule_stream_create_for_external_ical_args import ScheduleStreamCreateForExternalIcalArgs
 from ...models.schedule_stream_create_for_external_ical_result import ScheduleStreamCreateForExternalIcalResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: ScheduleStreamCreateForExternalIcalArgs,
+    body: ScheduleStreamCreateForExternalIcalArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/schedule-stream-create-for-external-ical",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: ScheduleStreamCreateForExternalIcalArgs,
+    body: ScheduleStreamCreateForExternalIcalArgs | Unset = UNSET,
 ) -> Response[Any | ScheduleStreamCreateForExternalIcalResult]:
     """Use case for creating a schedule stream from an external iCal.
 
     Args:
-        body (ScheduleStreamCreateForExternalIcalArgs): Args.
+        body (ScheduleStreamCreateForExternalIcalArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: ScheduleStreamCreateForExternalIcalArgs,
+    body: ScheduleStreamCreateForExternalIcalArgs | Unset = UNSET,
 ) -> Any | ScheduleStreamCreateForExternalIcalResult | None:
     """Use case for creating a schedule stream from an external iCal.
 
     Args:
-        body (ScheduleStreamCreateForExternalIcalArgs): Args.
+        body (ScheduleStreamCreateForExternalIcalArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: ScheduleStreamCreateForExternalIcalArgs,
+    body: ScheduleStreamCreateForExternalIcalArgs | Unset = UNSET,
 ) -> Response[Any | ScheduleStreamCreateForExternalIcalResult]:
     """Use case for creating a schedule stream from an external iCal.
 
     Args:
-        body (ScheduleStreamCreateForExternalIcalArgs): Args.
+        body (ScheduleStreamCreateForExternalIcalArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: ScheduleStreamCreateForExternalIcalArgs,
+    body: ScheduleStreamCreateForExternalIcalArgs | Unset = UNSET,
 ) -> Any | ScheduleStreamCreateForExternalIcalResult | None:
     """Use case for creating a schedule stream from an external iCal.
 
     Args:
-        body (ScheduleStreamCreateForExternalIcalArgs): Args.
+        body (ScheduleStreamCreateForExternalIcalArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

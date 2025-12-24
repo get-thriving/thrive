@@ -33,7 +33,7 @@ import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
@@ -411,7 +411,7 @@ export default function Habit() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
             <ProjectSelect

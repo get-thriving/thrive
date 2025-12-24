@@ -20,9 +20,9 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.root import Journal
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.root import Person
-from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan

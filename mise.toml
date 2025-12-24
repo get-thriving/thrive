@@ -14,7 +14,6 @@ python = "3.13.0"
 rust = "latest"
 uv = "latest"
 pnpm = "latest"
-shellcheck = "latest"
 
 [env]
 UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"

@@ -34,7 +34,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { ProjectTag } from "@jupiter/core/projects/component/tag";
+import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
@@ -186,7 +186,7 @@ export default function Habits() {
                   <EntityNameComponent name={habit.name} />
                   {isWorkspaceFeatureAvailable(
                     topLevelInfo.workspace,
-                    WorkspaceFeature.PROJECTS,
+                    WorkspaceFeature.LIFE_PLAN,
                   ) && <ProjectTag project={entry.project as Project} />}
                   {habit.suspended && <span className="tag">Suspended</span>}
                   <PeriodTag period={habit.gen_params.period} />

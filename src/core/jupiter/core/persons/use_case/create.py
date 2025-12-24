@@ -1,5 +1,6 @@
 """Create a person."""
 
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -14,7 +15,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
@@ -46,7 +46,7 @@ class PersonCreateArgs(UseCaseArgsBase):
     catch_up_actionable_from_month: RecurringTaskDueAtMonth | None
     catch_up_due_at_day: RecurringTaskDueAtDay | None
     catch_up_due_at_month: RecurringTaskDueAtMonth | None
-    birthday: PersonBirthday | None
+    birthday: Birthday | None
 
 
 @use_case_result

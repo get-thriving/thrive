@@ -1,6 +1,7 @@
-import type { InboxTask } from "@jupiter/webapi-client";
 import {
+  InboxTask,
   ApiError,
+  Birthday,
   Difficulty,
   Eisen,
   InboxTaskStatus,
@@ -15,7 +16,6 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  Stack,
 } from "@mui/material";
 import {
   ActionFunctionArgs,
@@ -32,10 +32,7 @@ import { parseForm, parseParams, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortBirthdayTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { personRelationshipName } from "@jupiter/core/persons/relationship";
-import {
-  birthdayFromParts,
-  extractBirthday,
-} from "@jupiter/core/persons/birthday";
+import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
@@ -78,8 +75,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     relationship: z.nativeEnum(PersonRelationship),
-    birthdayDay: z.string().optional(),
-    birthdayMonth: z.string().optional(),
+    birthday: z.string().optional(),
     catchUpPeriod: z
       .union([z.nativeEnum(RecurringTaskPeriod), z.literal("none")])
       .optional(),
@@ -147,6 +143,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
   const form = await parseForm(request, UpdateFormSchema);
+  console.log("form", form);
 
   try {
     switch (form.intent) {
@@ -225,15 +222,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
           birthday: {
             should_change: true,
             value:
-              form.birthdayDay === undefined ||
-              form.birthdayDay === "N/A" ||
-              form.birthdayMonth === undefined ||
-              form.birthdayMonth === "N/A"
+              form.birthday === undefined || form.birthday === ""
                 ? undefined
-                : birthdayFromParts(
-                    parseInt(form.birthdayDay, 10),
-                    parseInt(form.birthdayMonth, 10),
-                  ),
+                : (form.birthday as Birthday),
           },
         });
 
@@ -299,9 +290,6 @@ export default function Person() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const person = loaderData.person;
-  const personBirthday = person.birthday
-    ? extractBirthday(person.birthday)
-    : undefined;
 
   const sortedBirthdayTasks = sortInboxTasksNaturally(
     loaderData.birthdayTasks,
@@ -417,81 +405,12 @@ export default function Person() {
           <FieldError actionResult={actionData} fieldName="/relationship" />
         </FormControl>
 
-        <Stack spacing={2} useFlexGap direction="row">
-          <FormControl fullWidth>
-            <InputLabel id="birthdayDay">Birthday Day [Optional]</InputLabel>
-            <Select
-              labelId="birthdayDay"
-              name="birthdayDay"
-              readOnly={!inputsEnabled}
-              defaultValue={personBirthday?.day ?? "N/A"}
-              label="Birthday Day"
-            >
-              <MenuItem value={"N/A"}>N/A</MenuItem>
-              <MenuItem value={1}>1st</MenuItem>
-              <MenuItem value={2}>2nd</MenuItem>
-              <MenuItem value={3}>3rd</MenuItem>
-              <MenuItem value={4}>4th</MenuItem>
-              <MenuItem value={5}>5th</MenuItem>
-              <MenuItem value={6}>6th</MenuItem>
-              <MenuItem value={7}>7th</MenuItem>
-              <MenuItem value={8}>8th</MenuItem>
-              <MenuItem value={9}>9th</MenuItem>
-              <MenuItem value={10}>10th</MenuItem>
-              <MenuItem value={11}>11th</MenuItem>
-              <MenuItem value={12}>12th</MenuItem>
-              <MenuItem value={13}>13th</MenuItem>
-              <MenuItem value={14}>14th</MenuItem>
-              <MenuItem value={15}>15th</MenuItem>
-              <MenuItem value={16}>16th</MenuItem>
-              <MenuItem value={17}>17th</MenuItem>
-              <MenuItem value={18}>18th</MenuItem>
-              <MenuItem value={19}>19th</MenuItem>
-              <MenuItem value={20}>20th</MenuItem>
-              <MenuItem value={21}>21st</MenuItem>
-              <MenuItem value={22}>22nd</MenuItem>
-              <MenuItem value={23}>23rd</MenuItem>
-              <MenuItem value={24}>24th</MenuItem>
-              <MenuItem value={25}>25th</MenuItem>
-              <MenuItem value={26}>26th</MenuItem>
-              <MenuItem value={27}>27th</MenuItem>
-              <MenuItem value={28}>28th</MenuItem>
-              <MenuItem value={29}>29th</MenuItem>
-              <MenuItem value={30}>30th</MenuItem>
-              <MenuItem value={31}>31st</MenuItem>
-            </Select>
-
-            <FieldError actionResult={actionData} fieldName="/birthday" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel id="birthdayMonth">
-              Birthday Month [Optional]
-            </InputLabel>
-            <Select
-              labelId="birthdayMonth"
-              name="birthdayMonth"
-              readOnly={!inputsEnabled}
-              defaultValue={personBirthday?.month ?? "N/A"}
-              label="Birthday Month"
-            >
-              <MenuItem value={"N/A"}>N/A</MenuItem>
-              <MenuItem value={1}>January</MenuItem>
-              <MenuItem value={2}>February</MenuItem>
-              <MenuItem value={3}>March</MenuItem>
-              <MenuItem value={4}>April</MenuItem>
-              <MenuItem value={5}>May</MenuItem>
-              <MenuItem value={6}>June</MenuItem>
-              <MenuItem value={7}>July</MenuItem>
-              <MenuItem value={8}>August</MenuItem>
-              <MenuItem value={9}>September</MenuItem>
-              <MenuItem value={10}>October</MenuItem>
-              <MenuItem value={11}>November</MenuItem>
-              <MenuItem value={12}>December</MenuItem>
-            </Select>
-            <FieldError actionResult={actionData} fieldName="/birthday" />
-          </FormControl>
-        </Stack>
+        <BirthdaySelect
+          name="birthday"
+          initialValue={person.birthday}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/birthday" />
 
         <StandardDivider title="Catch Up" size="small" />
 

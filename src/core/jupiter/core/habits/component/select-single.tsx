@@ -13,7 +13,7 @@ import {
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "#/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import { PeriodTag } from "#/core/common/component/period-tag";
 
 interface HabitSelectSingleProps {

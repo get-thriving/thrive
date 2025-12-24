@@ -10,7 +10,7 @@ from jupiter.core.big_plans.sub.milestones.root import (
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
-from jupiter.core.projects.errors import ProjectInSignificantUseError
+from jupiter.core.life_plan.sub.aspects.errors import ProjectInSignificantUseError
 from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )

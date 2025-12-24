@@ -19,8 +19,8 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
@@ -76,11 +76,9 @@ class TimePlanUpdateSettingsUseCase(
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
-                workspace.ref_id
-            )
+            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
-            if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
                 if args.planning_task_project_ref_id.test(lambda x: x is None):
                     raise Exception("Planning task project ref id is required")
                 if args.planning_task_project_ref_id.should_change:
@@ -94,7 +92,7 @@ class TimePlanUpdateSettingsUseCase(
                     planning_task_project_ref_id = UpdateAction.do_nothing()
             else:
                 root_project = await uow.get_for(Project).find_all_generic(
-                    parent_ref_id=project_collection.ref_id,
+                    parent_ref_id=life_plan.ref_id,
                     allow_archived=False,
                     parent_project_ref_id=None,
                 )

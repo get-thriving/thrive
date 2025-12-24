@@ -235,16 +235,16 @@ export default function Sidebar(props: SidebarProps) {
 
             {isWorkspaceFeatureAvailable(
               topLevelInfo.workspace,
-              WorkspaceFeature.PROJECTS,
+              WorkspaceFeature.LIFE_PLAN,
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/projects"
+                  to="/app/workspace/life-plan"
                   component={Link}
                   onClick={onClickNavigation}
                 >
                   <ListItemIcon>💡</ListItemIcon>
-                  <ListItemText primary="Projects" />
+                  <ListItemText primary="Life Plan" />
                 </ListItemButton>
               </ListItem>
             )}

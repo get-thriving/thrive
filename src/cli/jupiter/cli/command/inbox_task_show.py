@@ -138,7 +138,7 @@ class InboxTaskShow(
                 inbox_task_info_text.append(due_date_to_rich_text(inbox_task.due_date))
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(project_to_rich_text(project.name))

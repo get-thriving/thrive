@@ -4,6 +4,7 @@ import json
 
 from jupiter.core.application.fast_info_repository import (
     BigPlanSummary,
+    ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
     HabitSummary,
@@ -22,9 +23,11 @@ from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
-from jupiter.core.projects.name import ProjectName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -43,6 +46,8 @@ _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)
 _VACATION_NAME_DECODER = EntityNameDatabaseDecoder(VacationName)
 _INBOX_TASK_NAME_DECODER = EntityNameDatabaseDecoder(InboxTaskName)
 _PROJECT_NAME_DECODER = EntityNameDatabaseDecoder(ProjectName)
+_CHAPTER_NAME_DECODER = EntityNameDatabaseDecoder(ChapterName)
+_PARTIAL_DATE_DECODER = PartialDateDatabaseDecoder()
 _HABIT_NAME_DECODER = EntityNameDatabaseDecoder(HabitName)
 _CHORE_NAME_DECODER = EntityNameDatabaseDecoder(ChoreName)
 _BIG_PLAN_NAME_DECODER = EntityNameDatabaseDecoder(BigPlanName)
@@ -119,7 +124,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[ProjectSummary]:
         """Find all summaries about projects."""
-        query = """select ref_id, parent_project_ref_id, name, order_of_child_projects from project where project_collection_ref_id = :parent_ref_id"""
+        query = """select ref_id, parent_project_ref_id, name, order_of_child_projects from project where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (
@@ -144,6 +149,35 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                     _ENTITY_ID_DECODER.decode(idx)
                     for idx in json.loads(row["order_of_child_projects"])
                 ],
+            )
+            for row in result
+        ]
+
+    async def find_all_chapter_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[ChapterSummary]:
+        """Find all summaries about chapters."""
+        query = """select ref_id, name, start_date, end_date from chapter where life_plan_ref_id = :parent_ref_id"""
+        if not allow_archived:
+            query += " and archived=0"
+
+        result = (
+            (
+                await self._connection.execute(
+                    text(query), {"parent_ref_id": parent_ref_id.as_int()}
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return [
+            ChapterSummary(
+                ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
+                name=_CHAPTER_NAME_DECODER.decode(row["name"]),
+                start_date=_PARTIAL_DATE_DECODER.decode(row["start_date"]),
+                end_date=_PARTIAL_DATE_DECODER.decode(row["end_date"]),
             )
             for row in result
         ]

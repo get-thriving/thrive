@@ -21,7 +21,7 @@ from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.chores.use_case.find import ChoreFindResult, ChoreFindUseCase
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -115,7 +115,7 @@ class ChoreShow(JupiterLoggedInReadonlyCommand[ChoreFindUseCase, ChoreFindResult
                 chore_info_text.append(end_date_to_rich_text(chore.end_at_date))
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 chore_info_text.append(" ")
                 chore_info_text.append(project_to_rich_text(project.name))

@@ -42,7 +42,7 @@ class SlackTaskShow(
 
         rich_tree = Tree("💬 Slack Tasks", guide_style="bold bright_blue")
 
-        if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             generation_project_text = Text(
                 f"The generation project is {result.generation_project.name}",
             )

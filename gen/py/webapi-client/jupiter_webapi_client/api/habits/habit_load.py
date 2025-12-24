@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.habit_load_args import HabitLoadArgs
 from ...models.habit_load_result import HabitLoadResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: HabitLoadArgs,
+    body: HabitLoadArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/habit-load",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -87,12 +88,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitLoadArgs,
+    body: HabitLoadArgs | Unset = UNSET,
 ) -> Response[Any | HabitLoadResult]:
     """Use case for loading a particular habit.
 
     Args:
-        body (HabitLoadArgs): HabitLoadArgs.
+        body (HabitLoadArgs | Unset): HabitLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -116,12 +117,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: HabitLoadArgs,
+    body: HabitLoadArgs | Unset = UNSET,
 ) -> Any | HabitLoadResult | None:
     """Use case for loading a particular habit.
 
     Args:
-        body (HabitLoadArgs): HabitLoadArgs.
+        body (HabitLoadArgs | Unset): HabitLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,12 +141,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitLoadArgs,
+    body: HabitLoadArgs | Unset = UNSET,
 ) -> Response[Any | HabitLoadResult]:
     """Use case for loading a particular habit.
 
     Args:
-        body (HabitLoadArgs): HabitLoadArgs.
+        body (HabitLoadArgs | Unset): HabitLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,12 +168,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: HabitLoadArgs,
+    body: HabitLoadArgs | Unset = UNSET,
 ) -> Any | HabitLoadResult | None:
     """Use case for loading a particular habit.
 
     Args:
-        body (HabitLoadArgs): HabitLoadArgs.
+        body (HabitLoadArgs | Unset): HabitLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

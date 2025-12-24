@@ -74,7 +74,7 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
                 global_tree.add(big_plan_tree)
 
         if (
-            context.workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and ReportBreakdown.PROJECTS in result.period_result.breakdowns
         ):
             global_text = Text("💡 By Projects:")

@@ -1,0 +1,285 @@
+import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+} from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { useActionData, useNavigation } from "@remix-run/react";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
+import { useContext } from "react";
+import { z } from "zod";
+import { parseForm, parseParams } from "zodix";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import {
+  SectionActions,
+  ActionSingle,
+} from "@jupiter/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
+import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+
+import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({
+  id: z.string(),
+});
+
+const UpdateFormSchema = z.discriminatedUnion("intent", [
+  z.object({
+    intent: z.literal("update"),
+    name: z.string(),
+    project: z.string(),
+    startDate: z.string(),
+    endDate: z.string(),
+  }),
+  z.object({
+    intent: z.literal("create-note"),
+  }),
+  z.object({
+    intent: z.literal("archive"),
+  }),
+  z.object({
+    intent: z.literal("remove"),
+  }),
+]);
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_projects: true,
+  });
+
+  try {
+    const response = await apiClient.lifePlan.chapterLoad({
+      ref_id: id,
+      allow_archived: true,
+    });
+
+    return json({
+      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      rootProject: summaryResponse.root_project as ProjectSummary,
+      chapter: response.chapter,
+      note: response.note ?? null,
+    });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
+      throw new Response(ReasonPhrases.NOT_FOUND, {
+        status: StatusCodes.NOT_FOUND,
+        statusText: ReasonPhrases.NOT_FOUND,
+      });
+    }
+
+    throw error;
+  }
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const { id } = parseParams(params, ParamsSchema);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    switch (form.intent) {
+      case "update": {
+        await apiClient.lifePlan.chapterUpdate({
+          ref_id: id,
+          name: {
+            should_change: true,
+            value: form.name,
+          },
+          project_ref_id: {
+            should_change: true,
+            value: form.project,
+          },
+          start_date: {
+            should_change: true,
+            value: form.startDate,
+          },
+          end_date: {
+            should_change: true,
+            value: form.endDate,
+          },
+        });
+
+        return redirect(`/app/workspace/life-plan/chapters/${id}`);
+      }
+
+      case "create-note": {
+        await apiClient.notes.noteCreate({
+          domain: NoteDomain.CHAPTER,
+          source_entity_ref_id: id,
+          content: [],
+        });
+
+        return redirect(`/app/workspace/life-plan/chapters/${id}`);
+      }
+
+      case "archive": {
+        await apiClient.lifePlan.chapterArchive({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/life-plan`);
+      }
+
+      case "remove": {
+        await apiClient.lifePlan.chapterRemove({
+          ref_id: id,
+        });
+
+        return redirect(`/app/workspace/life-plan`);
+      }
+
+      default:
+        throw new Response("Bad Intent", { status: 500 });
+    }
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function Chapter() {
+  const loaderData = useLoaderDataForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+  const navigation = useNavigation();
+
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.chapter.archived;
+
+  return (
+    <LeafPanel
+      key={`chapter-${loaderData.chapter.ref_id}`}
+      fakeKey={`chapters-${loaderData.chapter.ref_id}`}
+      showArchiveAndRemoveButton
+      inputsEnabled={inputsEnabled}
+      entityArchived={loaderData.chapter.archived}
+      returnLocation="/app/workspace/life-plan"
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        title="Properties"
+        actions={
+          <SectionActions
+            id="chapter-properties"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="name"
+            name="name"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.chapter.name}
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <ProjectSelect
+            name="project"
+            label="Project"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allProjects={loaderData.allProjects}
+            defaultValue={loaderData.chapter.project_ref_id}
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="startDate">Start Date</FormLabel>
+          <PartialDateSelect
+            name="startDate"
+            initialDate={loaderData.chapter.start_date}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/start_date" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="endDate">End Date</FormLabel>
+          <PartialDateSelect
+            name="endDate"
+            initialDate={loaderData.chapter.end_date}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/end_date" />
+        </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        title="Note"
+        actions={
+          <SectionActions
+            id="chapter-note"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create Note",
+                value: "create-note",
+                highlight: false,
+                disabled: loaderData.note !== null,
+              }),
+            ]}
+          />
+        }
+      >
+        {loaderData.note && (
+          <EntityNoteEditor
+            initialNote={loaderData.note}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/life-plan",
+  ParamsSchema,
+  {
+    notFound: (params) => `Could not find chapter with ID ${params.id}!`,
+    error: (params) =>
+      `There was an error loading chapter with ID ${params.id}! Please try again!`,
+  },
+);

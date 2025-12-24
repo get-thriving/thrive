@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.person_regen_args import PersonRegenArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: PersonRegenArgs,
+    body: PersonRegenArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/person-regen",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: PersonRegenArgs,
+    body: PersonRegenArgs | Unset = UNSET,
 ) -> Response[Any]:
     """A use case for regenerating tasks associated with persons.
 
     Args:
-        body (PersonRegenArgs): The arguments for the person regen use case.
+        body (PersonRegenArgs | Unset): The arguments for the person regen use case.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: PersonRegenArgs,
+    body: PersonRegenArgs | Unset = UNSET,
 ) -> Response[Any]:
     """A use case for regenerating tasks associated with persons.
 
     Args:
-        body (PersonRegenArgs): The arguments for the person regen use case.
+        body (PersonRegenArgs | Unset): The arguments for the person regen use case.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

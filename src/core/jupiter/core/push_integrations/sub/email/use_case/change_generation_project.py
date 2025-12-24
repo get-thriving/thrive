@@ -10,7 +10,7 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -34,7 +34,7 @@ class EmailTaskChangeGenerationProjectArgs(UseCaseArgsBase):
     generation_project_ref_id: EntityId
 
 
-@mutation_use_case([WorkspaceFeature.EMAIL_TASKS, WorkspaceFeature.PROJECTS])
+@mutation_use_case([WorkspaceFeature.EMAIL_TASKS, WorkspaceFeature.LIFE_PLAN])
 class EmailTaskChangeGenerationProjectUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         EmailTaskChangeGenerationProjectArgs, None

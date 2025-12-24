@@ -34,7 +34,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "@jupiter/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import {
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
@@ -315,7 +315,7 @@ export default function TimePlanAddFromCurrentInboxTasks() {
                     value: View.BY_PROJECT,
                     text: "By Project",
                     icon: <FlareIcon />,
-                    gatedOn: WorkspaceFeature.PROJECTS,
+                    gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                 ],
                 (selected) => setSelectedView(selected),
@@ -575,7 +575,7 @@ function toggleInboxTaskRefIds(
 }
 
 function inferDefaultSelectedView(workspace: Workspace) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
     return View.MERGED;
   }
 

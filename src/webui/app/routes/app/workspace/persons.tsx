@@ -19,7 +19,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { PersonBirthdayTag } from "@jupiter/core/persons/component/birthday-tag";
+import { BirthdayTag } from "@jupiter/core/common/component/birthday-tag";
 import { PersonRelationshipTag } from "@jupiter/core/persons/component/relationship-tag";
 import {
   DisplayType,
@@ -110,7 +110,7 @@ export default function Persons() {
                   relationship={entry.person.relationship}
                 />
                 {entry.person.birthday && (
-                  <PersonBirthdayTag birthday={entry.person.birthday} />
+                  <BirthdayTag birthday={entry.person.birthday} />
                 )}
                 {entry.person.catch_up_params && (
                   <>

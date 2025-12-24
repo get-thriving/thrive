@@ -16,6 +16,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { BirthYearSelect } from "#/core/common/component/birth-year-select";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
@@ -53,6 +54,7 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
+import { BirthdaySelect } from "#/core/common/component/birthday-select";
 
 import { commitSession, getSession } from "~/sessions";
 import { getGuestApiClient } from "~/api-clients.server";
@@ -66,6 +68,8 @@ const WorkspaceInitFormSchema = z.object({
     .or(z.nativeEnum(UserFeature).transform((v) => [v])),
   authPassword: z.string(),
   authPasswordRepeat: z.string(),
+  userBirthday: z.string(),
+  userBirthYear: z.string().transform((v) => parseInt(v, 10)),
   workspaceName: z.string(),
   workspaceRootProjectName: z.string(),
   workspaceFirstScheduleStreamName: z.string(),
@@ -97,7 +101,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const apiClient = await getGuestApiClient(request);
   const form = await parseForm(request, WorkspaceInitFormSchema);
-
   try {
     const result = await apiClient.application.init({
       user_email_address: form.userEmailAddress,
@@ -106,6 +109,8 @@ export async function action({ request }: ActionFunctionArgs) {
       user_feature_flags: form.userFeatureFlags,
       auth_password: form.authPassword,
       auth_password_repeat: form.authPasswordRepeat,
+      user_birthday: form.userBirthday,
+      user_birth_year: form.userBirthYear,
       workspace_name: form.workspaceName,
       workspace_root_project_name: form.workspaceRootProjectName,
       workspace_first_schedule_stream_name:
@@ -125,6 +130,8 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     );
   } catch (error) {
+    console.log("Here 3");
+    console.log(error);
     if (
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY
@@ -246,6 +253,25 @@ export default function WorkspaceInit() {
               fieldName="/auth_password_repeat"
             />
           </FormControl>
+
+          <Stack spacing={2} useFlexGap direction="row">
+            <BirthdaySelect
+              name="userBirthday"
+              allowNoneBirthday={false}
+              inputsEnabled={inputsEnabled}
+              initialValue={null}
+            />
+            <FormControl fullWidth>
+              <BirthYearSelect
+                label="Your Birth Year"
+                name="userBirthYear"
+                inputsEnabled={inputsEnabled}
+                allowNoneBirthYear={false}
+              />
+            </FormControl>
+          </Stack>
+          <FieldError actionResult={actionData} fieldName="/user_birthday" />
+          <FieldError actionResult={actionData} fieldName="/user_birth_year" />
 
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

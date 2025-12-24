@@ -6,8 +6,8 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.root import Project
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,

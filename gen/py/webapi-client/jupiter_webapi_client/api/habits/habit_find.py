@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.habit_find_args import HabitFindArgs
 from ...models.habit_find_result import HabitFindResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: HabitFindArgs,
+    body: HabitFindArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/habit-find",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -87,12 +88,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitFindArgs,
+    body: HabitFindArgs | Unset = UNSET,
 ) -> Response[Any | HabitFindResult]:
     """The command for finding a habit.
 
     Args:
-        body (HabitFindArgs): PersonFindArgs.
+        body (HabitFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -116,12 +117,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: HabitFindArgs,
+    body: HabitFindArgs | Unset = UNSET,
 ) -> Any | HabitFindResult | None:
     """The command for finding a habit.
 
     Args:
-        body (HabitFindArgs): PersonFindArgs.
+        body (HabitFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,12 +141,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitFindArgs,
+    body: HabitFindArgs | Unset = UNSET,
 ) -> Response[Any | HabitFindResult]:
     """The command for finding a habit.
 
     Args:
-        body (HabitFindArgs): PersonFindArgs.
+        body (HabitFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,12 +168,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: HabitFindArgs,
+    body: HabitFindArgs | Unset = UNSET,
 ) -> Any | HabitFindResult | None:
     """The command for finding a habit.
 
     Args:
-        body (HabitFindArgs): PersonFindArgs.
+        body (HabitFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

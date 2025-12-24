@@ -22,7 +22,7 @@ class Project:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         name (str): The project name.
-        project_collection_ref_id (str):
+        life_plan_ref_id (str):
         order_of_child_projects (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -35,7 +35,7 @@ class Project:
     created_time: str
     last_modified_time: str
     name: str
-    project_collection_ref_id: str
+    life_plan_ref_id: str
     order_of_child_projects: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -55,7 +55,7 @@ class Project:
 
         name = self.name
 
-        project_collection_ref_id = self.project_collection_ref_id
+        life_plan_ref_id = self.life_plan_ref_id
 
         order_of_child_projects = self.order_of_child_projects
 
@@ -87,7 +87,7 @@ class Project:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "name": name,
-                "project_collection_ref_id": project_collection_ref_id,
+                "life_plan_ref_id": life_plan_ref_id,
                 "order_of_child_projects": order_of_child_projects,
             }
         )
@@ -115,7 +115,7 @@ class Project:
 
         name = d.pop("name")
 
-        project_collection_ref_id = d.pop("project_collection_ref_id")
+        life_plan_ref_id = d.pop("life_plan_ref_id")
 
         order_of_child_projects = cast(list[str], d.pop("order_of_child_projects"))
 
@@ -153,7 +153,7 @@ class Project:
             created_time=created_time,
             last_modified_time=last_modified_time,
             name=name,
-            project_collection_ref_id=project_collection_ref_id,
+            life_plan_ref_id=life_plan_ref_id,
             order_of_child_projects=order_of_child_projects,
             archival_reason=archival_reason,
             archived_time=archived_time,

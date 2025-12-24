@@ -54,7 +54,7 @@ import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
 import { PersonTag } from "#/core/persons/component/tag";
-import { ProjectTag } from "#/core/projects/component/tag";
+import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 
@@ -203,7 +203,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             )}
             {isWorkspaceFeatureAvailable(
               props.topLevelInfo.workspace,
-              WorkspaceFeature.PROJECTS,
+              WorkspaceFeature.LIFE_PLAN,
             ) &&
               props.showOptions.showProject &&
               props.parent?.project && (

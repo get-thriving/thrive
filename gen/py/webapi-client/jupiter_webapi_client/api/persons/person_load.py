@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.person_load_args import PersonLoadArgs
 from ...models.person_load_result import PersonLoadResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: PersonLoadArgs,
+    body: PersonLoadArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/person-load",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -87,12 +88,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: PersonLoadArgs,
+    body: PersonLoadArgs | Unset = UNSET,
 ) -> Response[Any | PersonLoadResult]:
     """Use case for loading a person.
 
     Args:
-        body (PersonLoadArgs): PersonLoadArgs.
+        body (PersonLoadArgs | Unset): PersonLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -116,12 +117,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: PersonLoadArgs,
+    body: PersonLoadArgs | Unset = UNSET,
 ) -> Any | PersonLoadResult | None:
     """Use case for loading a person.
 
     Args:
-        body (PersonLoadArgs): PersonLoadArgs.
+        body (PersonLoadArgs | Unset): PersonLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,12 +141,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: PersonLoadArgs,
+    body: PersonLoadArgs | Unset = UNSET,
 ) -> Response[Any | PersonLoadResult]:
     """Use case for loading a person.
 
     Args:
-        body (PersonLoadArgs): PersonLoadArgs.
+        body (PersonLoadArgs | Unset): PersonLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,12 +168,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: PersonLoadArgs,
+    body: PersonLoadArgs | Unset = UNSET,
 ) -> Any | PersonLoadResult | None:
     """Use case for loading a person.
 
     Args:
-        body (PersonLoadArgs): PersonLoadArgs.
+        body (PersonLoadArgs | Unset): PersonLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -299,7 +299,7 @@ export default function InboxTasks() {
                   value: View.KANBAN_BY_EISEN,
                   text: "Kanban by Eisen",
                   icon: <ViewKanbanIcon />,
-                  gatedOn: WorkspaceFeature.PROJECTS,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
                   value: View.KANBAN,

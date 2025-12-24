@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.metric_find_args import MetricFindArgs
 from ...models.metric_find_result import MetricFindResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: MetricFindArgs,
+    body: MetricFindArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/metric-find",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -87,12 +88,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: MetricFindArgs,
+    body: MetricFindArgs | Unset = UNSET,
 ) -> Response[Any | MetricFindResult]:
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs): PersonFindArgs.
+        body (MetricFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -116,12 +117,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: MetricFindArgs,
+    body: MetricFindArgs | Unset = UNSET,
 ) -> Any | MetricFindResult | None:
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs): PersonFindArgs.
+        body (MetricFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,12 +141,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: MetricFindArgs,
+    body: MetricFindArgs | Unset = UNSET,
 ) -> Response[Any | MetricFindResult]:
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs): PersonFindArgs.
+        body (MetricFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -167,12 +168,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: MetricFindArgs,
+    body: MetricFindArgs | Unset = UNSET,
 ) -> Any | MetricFindResult | None:
     """The command for finding metrics.
 
     Args:
-        body (MetricFindArgs): PersonFindArgs.
+        body (MetricFindArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

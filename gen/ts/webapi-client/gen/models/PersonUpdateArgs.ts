@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Birthday } from './Birthday';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
-import type { PersonBirthday } from './PersonBirthday';
 import type { PersonName } from './PersonName';
 import type { PersonRelationship } from './PersonRelationship';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
@@ -54,7 +54,7 @@ export type PersonUpdateArgs = {
     };
     birthday: {
         should_change: boolean;
-        value?: (PersonBirthday | null);
+        value?: (Birthday | null);
     };
 };
 

@@ -41,7 +41,7 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -324,7 +324,7 @@ export default function JournalsSettings() {
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
                   {isWorkspaceFeatureAvailable(
                     topLevelInfo.workspace,
-                    WorkspaceFeature.PROJECTS,
+                    WorkspaceFeature.LIFE_PLAN,
                   ) && (
                     <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                       <ProjectSelect

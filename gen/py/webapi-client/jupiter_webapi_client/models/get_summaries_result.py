@@ -10,10 +10,12 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.big_plan_summary import BigPlanSummary
+    from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
     from ..models.habit_summary import HabitSummary
     from ..models.inbox_task_summary import InboxTaskSummary
     from ..models.journal_summary import JournalSummary
+    from ..models.life_plan import LifePlan
     from ..models.metric_summary import MetricSummary
     from ..models.person_summary import PersonSummary
     from ..models.project_summary import ProjectSummary
@@ -34,10 +36,12 @@ class GetSummariesResult:
     Attributes:
         user (None | Unset | User):
         workspace (None | Unset | Workspace):
+        life_plan (LifePlan | None | Unset):
         vacations (list[VacationSummary] | None | Unset):
         schedule_streams (list[ScheduleStreamSummary] | None | Unset):
         root_project (None | ProjectSummary | Unset):
         projects (list[ProjectSummary] | None | Unset):
+        chapters (list[ChapterSummary] | None | Unset):
         inbox_tasks (list[InboxTaskSummary] | None | Unset):
         journals_last_year (list[JournalSummary] | None | Unset):
         habits (list[HabitSummary] | None | Unset):
@@ -50,10 +54,12 @@ class GetSummariesResult:
 
     user: None | Unset | User = UNSET
     workspace: None | Unset | Workspace = UNSET
+    life_plan: LifePlan | None | Unset = UNSET
     vacations: list[VacationSummary] | None | Unset = UNSET
     schedule_streams: list[ScheduleStreamSummary] | None | Unset = UNSET
     root_project: None | ProjectSummary | Unset = UNSET
     projects: list[ProjectSummary] | None | Unset = UNSET
+    chapters: list[ChapterSummary] | None | Unset = UNSET
     inbox_tasks: list[InboxTaskSummary] | None | Unset = UNSET
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
     habits: list[HabitSummary] | None | Unset = UNSET
@@ -65,6 +71,7 @@ class GetSummariesResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.life_plan import LifePlan
         from ..models.project_summary import ProjectSummary
         from ..models.user import User
         from ..models.workspace import Workspace
@@ -84,6 +91,14 @@ class GetSummariesResult:
             workspace = self.workspace.to_dict()
         else:
             workspace = self.workspace
+
+        life_plan: dict[str, Any] | None | Unset
+        if isinstance(self.life_plan, Unset):
+            life_plan = UNSET
+        elif isinstance(self.life_plan, LifePlan):
+            life_plan = self.life_plan.to_dict()
+        else:
+            life_plan = self.life_plan
 
         vacations: list[dict[str, Any]] | None | Unset
         if isinstance(self.vacations, Unset):
@@ -128,6 +143,18 @@ class GetSummariesResult:
 
         else:
             projects = self.projects
+
+        chapters: list[dict[str, Any]] | None | Unset
+        if isinstance(self.chapters, Unset):
+            chapters = UNSET
+        elif isinstance(self.chapters, list):
+            chapters = []
+            for chapters_type_0_item_data in self.chapters:
+                chapters_type_0_item = chapters_type_0_item_data.to_dict()
+                chapters.append(chapters_type_0_item)
+
+        else:
+            chapters = self.chapters
 
         inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.inbox_tasks, Unset):
@@ -232,6 +259,8 @@ class GetSummariesResult:
             field_dict["user"] = user
         if workspace is not UNSET:
             field_dict["workspace"] = workspace
+        if life_plan is not UNSET:
+            field_dict["life_plan"] = life_plan
         if vacations is not UNSET:
             field_dict["vacations"] = vacations
         if schedule_streams is not UNSET:
@@ -240,6 +269,8 @@ class GetSummariesResult:
             field_dict["root_project"] = root_project
         if projects is not UNSET:
             field_dict["projects"] = projects
+        if chapters is not UNSET:
+            field_dict["chapters"] = chapters
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
         if journals_last_year is not UNSET:
@@ -262,10 +293,12 @@ class GetSummariesResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan_summary import BigPlanSummary
+        from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
         from ..models.habit_summary import HabitSummary
         from ..models.inbox_task_summary import InboxTaskSummary
         from ..models.journal_summary import JournalSummary
+        from ..models.life_plan import LifePlan
         from ..models.metric_summary import MetricSummary
         from ..models.person_summary import PersonSummary
         from ..models.project_summary import ProjectSummary
@@ -310,6 +343,23 @@ class GetSummariesResult:
             return cast(None | Unset | Workspace, data)
 
         workspace = _parse_workspace(d.pop("workspace", UNSET))
+
+        def _parse_life_plan(data: object) -> LifePlan | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                life_plan_type_0 = LifePlan.from_dict(data)
+
+                return life_plan_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(LifePlan | None | Unset, data)
+
+        life_plan = _parse_life_plan(d.pop("life_plan", UNSET))
 
         def _parse_vacations(data: object) -> list[VacationSummary] | None | Unset:
             if data is None:
@@ -393,6 +443,28 @@ class GetSummariesResult:
             return cast(list[ProjectSummary] | None | Unset, data)
 
         projects = _parse_projects(d.pop("projects", UNSET))
+
+        def _parse_chapters(data: object) -> list[ChapterSummary] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                chapters_type_0 = []
+                _chapters_type_0 = data
+                for chapters_type_0_item_data in _chapters_type_0:
+                    chapters_type_0_item = ChapterSummary.from_dict(chapters_type_0_item_data)
+
+                    chapters_type_0.append(chapters_type_0_item)
+
+                return chapters_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[ChapterSummary] | None | Unset, data)
+
+        chapters = _parse_chapters(d.pop("chapters", UNSET))
 
         def _parse_inbox_tasks(data: object) -> list[InboxTaskSummary] | None | Unset:
             if data is None:
@@ -573,10 +645,12 @@ class GetSummariesResult:
         get_summaries_result = cls(
             user=user,
             workspace=workspace,
+            life_plan=life_plan,
             vacations=vacations,
             schedule_streams=schedule_streams,
             root_project=root_project,
             projects=projects,
+            chapters=chapters,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,
             habits=habits,

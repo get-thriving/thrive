@@ -84,7 +84,12 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.PROJECT &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.CHAPTER &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredEntityTags.push(entityTag);
     } else if (

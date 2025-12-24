@@ -2,6 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Birthday } from './Birthday';
+import type { BirthYear } from './BirthYear';
 import type { EmailAddress } from './EmailAddress';
 import type { PasswordNewPlain } from './PasswordNewPlain';
 import type { ProjectName } from './ProjectName';
@@ -21,6 +23,8 @@ export type InitArgs = {
     user_feature_flags: Array<UserFeature>;
     auth_password: PasswordNewPlain;
     auth_password_repeat: PasswordNewPlain;
+    user_birthday: Birthday;
+    user_birth_year: BirthYear;
     workspace_name: WorkspaceName;
     workspace_first_schedule_stream_name: ScheduleStreamName;
     workspace_root_project_name: ProjectName;

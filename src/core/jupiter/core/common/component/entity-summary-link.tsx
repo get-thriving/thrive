@@ -156,8 +156,15 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.PROJECT:
       return (
-        <EntityLink to={`/app/workspace/projects/${summary.ref_id}`}>
-          <SlimChip label={"Inbox Task"} color={"primary"} />
+        <EntityLink to={`/app/workspace/life-plan/projects/${summary.ref_id}`}>
+          <SlimChip label={"Project"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.CHAPTER:
+      return (
+        <EntityLink to={`/app/workspace/life-plan/chapters/${summary.ref_id}`}>
+          <SlimChip label={"Chapter"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );

@@ -1,5 +1,6 @@
 """A person."""
 
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
@@ -11,7 +12,6 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.name import PersonName
 from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.framework.base.adate import ADate
@@ -38,7 +38,7 @@ class Person(LeafEntity):
     name: PersonName
     relationship: PersonRelationship
     catch_up_params: RecurringTaskGenParams | None
-    birthday: PersonBirthday | None
+    birthday: Birthday | None
 
     note = OwnsAtMostOne(Note, domain=NoteDomain.PERSON, source_entity_ref_id=IsRefId())
     birthday_time_event_blocks = OwnsMany(
@@ -65,7 +65,7 @@ class Person(LeafEntity):
         name: PersonName,
         relationship: PersonRelationship,
         catch_up_params: RecurringTaskGenParams | None,
-        birthday: PersonBirthday | None,
+        birthday: Birthday | None,
     ) -> "Person":
         """Create a person."""
         return Person._create(
@@ -84,7 +84,7 @@ class Person(LeafEntity):
         name: UpdateAction[PersonName],
         relationship: UpdateAction[PersonRelationship],
         catch_up_params: UpdateAction[RecurringTaskGenParams | None],
-        birthday: UpdateAction[PersonBirthday | None],
+        birthday: UpdateAction[Birthday | None],
     ) -> "Person":
         """Update info about the of the person."""
         return self._new_version(

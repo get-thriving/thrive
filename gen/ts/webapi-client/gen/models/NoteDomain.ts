@@ -19,6 +19,7 @@ export enum NoteDomain {
     JOURNAL = 'journal',
     VACATION = 'vacation',
     PROJECT = 'project',
+    CHAPTER = 'chapter',
     SMART_LIST = 'smart-list',
     SMART_LIST_ITEM = 'smart-list-item',
     METRIC = 'metric',

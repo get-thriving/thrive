@@ -7,6 +7,7 @@ from typing import Final, Sequence, cast
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import (
     RecurringTaskDueAtMonth,
@@ -49,13 +50,12 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.birthday import PersonBirthday
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -135,10 +135,10 @@ class GenService:
             )
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
@@ -195,14 +195,14 @@ class GenService:
             all_vacations = await uow.get_for(Vacation).find_all(
                 parent_ref_id=vacation_collection.ref_id,
             )
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             all_projects = await uow.get_for(Project).find_all(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
             )
             all_syncable_projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
                 ref_id=filter_project_ref_ids or NoFilter(),
             )
@@ -1808,7 +1808,7 @@ class GenService:
         project: Project,
         today: ADate,
         person: Person,
-        birthday: PersonBirthday,
+        birthday: Birthday,
         all_inbox_tasks_by_person_ref_id_and_timeline: dict[
             tuple[EntityId, str],
             InboxTask,

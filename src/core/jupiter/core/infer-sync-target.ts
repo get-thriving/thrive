@@ -70,7 +70,12 @@ export function inferSyncTargetsForEnabledFeatures(
       inferredSyncTargets.push(syncTarget);
     } else if (
       syncTarget === SyncTarget.PROJECTS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.CHAPTERS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (

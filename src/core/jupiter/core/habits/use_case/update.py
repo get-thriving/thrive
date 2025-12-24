@@ -34,7 +34,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -89,11 +89,11 @@ class HabitUpdateUseCase(
         initial_period = habit.gen_params.period
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.project_ref_id.should_change
             and args.project_ref_id.just_the_value != habit.project_ref_id
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         need_to_change_inbox_tasks = (
             args.name.should_change

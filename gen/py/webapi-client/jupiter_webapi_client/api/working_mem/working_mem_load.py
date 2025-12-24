@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.working_mem_load_args import WorkingMemLoadArgs
 from ...models.working_mem_load_result import WorkingMemLoadResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: WorkingMemLoadArgs,
+    body: WorkingMemLoadArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/working-mem-load",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemLoadArgs,
+    body: WorkingMemLoadArgs | Unset = UNSET,
 ) -> Response[Any | WorkingMemLoadResult]:
     """The command for loading the working mem.
 
     Args:
-        body (WorkingMemLoadArgs): Working mem find args.
+        body (WorkingMemLoadArgs | Unset): Working mem find args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemLoadArgs,
+    body: WorkingMemLoadArgs | Unset = UNSET,
 ) -> Any | WorkingMemLoadResult | None:
     """The command for loading the working mem.
 
     Args:
-        body (WorkingMemLoadArgs): Working mem find args.
+        body (WorkingMemLoadArgs | Unset): Working mem find args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemLoadArgs,
+    body: WorkingMemLoadArgs | Unset = UNSET,
 ) -> Response[Any | WorkingMemLoadResult]:
     """The command for loading the working mem.
 
     Args:
-        body (WorkingMemLoadArgs): Working mem find args.
+        body (WorkingMemLoadArgs | Unset): Working mem find args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: WorkingMemLoadArgs,
+    body: WorkingMemLoadArgs | Unset = UNSET,
 ) -> Any | WorkingMemLoadResult | None:
     """The command for loading the working mem.
 
     Args:
-        body (WorkingMemLoadArgs): Working mem find args.
+        body (WorkingMemLoadArgs | Unset): Working mem find args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

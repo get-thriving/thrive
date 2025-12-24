@@ -17,7 +17,7 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -71,7 +71,7 @@ class JournalLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             writing_task_project = await uow.get_for(Project).load_by_id(
                 journal_collection.writing_task_project_ref_id,
             )
