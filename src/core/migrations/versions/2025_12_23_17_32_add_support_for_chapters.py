@@ -5,19 +5,20 @@ Revises: cd1631847530
 Create Date: 2025-12-23 17:32:35.207136
 
 """
+
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b24745baaaa4'
-down_revision = 'cd1631847530'
+revision = "b24745baaaa4"
+down_revision = "cd1631847530"
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE chapter (
             ref_id INTEGER NOT NULL,
             version INTEGER NOT NULL,
@@ -33,12 +34,16 @@ def upgrade() -> None:
             PRIMARY KEY (ref_id),
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id)
         )
-    """)
-    op.execute("""
+    """
+    )
+    op.execute(
+        """
         CREATE INDEX ix_chapter_life_plan_ref_id ON chapter (life_plan_ref_id)
-    """)
+    """
+    )
 
-    op.execute("""
+    op.execute(
+        """
         CREATE TABLE chapter_event (
             owner_ref_id INTEGER NOT NULL,
             timestamp DATETIME NOT NULL,
@@ -51,7 +56,9 @@ def upgrade() -> None:
             PRIMARY KEY (owner_ref_id, timestamp, session_index, name),
             FOREIGN KEY (owner_ref_id) REFERENCES chapter (ref_id)
         )
-    """)
+    """
+    )
+
 
 def downgrade():
     pass

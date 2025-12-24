@@ -2,6 +2,7 @@
 
 from jupiter.core.application.fast_info_repository import (
     BigPlanSummary,
+    ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
     HabitSummary,
@@ -56,9 +57,11 @@ class GetSummariesArgs(UseCaseArgsBase):
     allow_archived: bool | None
     include_user: bool | None
     include_workspace: bool | None
+    include_life_plan: bool | None
     include_schedule_streams: bool | None
     include_vacations: bool | None
     include_projects: bool | None
+    include_chapters: bool | None
     include_inbox_tasks: bool | None
     include_journals_last_year: bool | None
     include_habits: bool | None
@@ -75,10 +78,12 @@ class GetSummariesResult(UseCaseResultBase):
 
     user: User | None
     workspace: Workspace | None
+    life_plan: LifePlan | None
     vacations: list[VacationSummary] | None
     schedule_streams: list[ScheduleStreamSummary] | None
     root_project: ProjectSummary | None
     projects: list[ProjectSummary] | None
+    chapters: list[ChapterSummary] | None
     inbox_tasks: list[InboxTaskSummary] | None
     journals_last_year: list[JournalSummary] | None
     habits: list[HabitSummary] | None
@@ -192,6 +197,16 @@ class GetSummariesUseCase(
                 allow_archived=allow_archived,
             )
 
+        chapters = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_chapters
+        ):
+            chapters = await uow.get(FastInfoRepository).find_all_chapter_summaries(
+                parent_ref_id=life_plan.workspace.ref_id,
+                allow_archived=allow_archived,
+            )
+
         journals_last_year = None
         if (
             workspace.is_feature_available(WorkspaceFeature.JOURNALS)
@@ -268,10 +283,12 @@ class GetSummariesUseCase(
         return GetSummariesResult(
             user=user if args.include_user else None,
             workspace=workspace if args.include_workspace else None,
+            life_plan=life_plan if args.include_life_plan else None,
             schedule_streams=schedule_streams,
             vacations=vacations,
             root_project=root_project,
             projects=projects,
+            chapters=chapters,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,
             habits=habits,

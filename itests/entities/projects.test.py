@@ -88,7 +88,7 @@ def create_project(
 
 
 def test_project_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/projects")
+    page.goto("/app/workspace/life-plan")
 
     # Projects always has at least the root project, so we check for the root project instead
     expect(page.locator("#trunk-panel")).to_contain_text("Root Project")
@@ -99,7 +99,7 @@ def test_project_view_all(page: Page, create_project) -> None:
     project2 = create_project("Project 2")
     project3 = create_project("Project 3", project1.ref_id)
 
-    page.goto("/app/workspace/projects")
+    page.goto("/app/workspace/life-plan")
 
     expect(page.locator(f"#project-{project1.ref_id}")).to_contain_text("Project 1")
     expect(page.locator(f"#project-{project2.ref_id}")).to_contain_text("Project 2")

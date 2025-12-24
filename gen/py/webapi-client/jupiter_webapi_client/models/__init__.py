@@ -81,6 +81,7 @@ from .chapter_find_result_entry import ChapterFindResultEntry
 from .chapter_load_args import ChapterLoadArgs
 from .chapter_load_result import ChapterLoadResult
 from .chapter_remove_args import ChapterRemoveArgs
+from .chapter_summary import ChapterSummary
 from .chapter_update_args import ChapterUpdateArgs
 from .chapter_update_args_end_date import ChapterUpdateArgsEndDate
 from .chapter_update_args_name import ChapterUpdateArgsName
@@ -816,6 +817,7 @@ __all__ = (
     "ChapterLoadArgs",
     "ChapterLoadResult",
     "ChapterRemoveArgs",
+    "ChapterSummary",
     "ChapterUpdateArgs",
     "ChapterUpdateArgsEndDate",
     "ChapterUpdateArgsName",

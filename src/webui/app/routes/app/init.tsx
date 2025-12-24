@@ -23,7 +23,7 @@ import { useActionData, useLoaderData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
-import { parseForm, parseFormSafe } from "zodix";
+import { parseForm } from "zodix";
 import { CommunityLink } from "@jupiter/core/infra/component/community-link";
 import { DocsHelp } from "@jupiter/core/infra/component/docs-help";
 import {

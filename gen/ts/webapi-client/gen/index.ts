@@ -70,6 +70,7 @@ export type { ChapterLoadArgs } from './models/ChapterLoadArgs';
 export type { ChapterLoadResult } from './models/ChapterLoadResult';
 export type { ChapterName } from './models/ChapterName';
 export type { ChapterRemoveArgs } from './models/ChapterRemoveArgs';
+export type { ChapterSummary } from './models/ChapterSummary';
 export type { ChapterUpdateArgs } from './models/ChapterUpdateArgs';
 export { ChecklistBlock } from './models/ChecklistBlock';
 export type { ChecklistItem } from './models/ChecklistItem';

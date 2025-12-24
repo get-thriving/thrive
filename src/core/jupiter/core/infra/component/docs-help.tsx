@@ -62,8 +62,12 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/journals";
     case DocsHelpSubject.VACATIONS:
       return "concepts/vacations";
+    case DocsHelpSubject.LIFE_PLAN:
+      return "concepts/life-plan";
     case DocsHelpSubject.PROJECTS:
-      return "concepts/projects";
+      return "concepts/life-plan/projects";
+    case DocsHelpSubject.CHAPTERS:
+      return "concepts/life-plan/chapters";
     case DocsHelpSubject.SMART_LISTS:
       return "concepts/smart-lists";
     case DocsHelpSubject.METRICS:

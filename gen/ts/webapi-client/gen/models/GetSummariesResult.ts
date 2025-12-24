@@ -3,10 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlanSummary } from './BigPlanSummary';
+import type { ChapterSummary } from './ChapterSummary';
 import type { ChoreSummary } from './ChoreSummary';
 import type { HabitSummary } from './HabitSummary';
 import type { InboxTaskSummary } from './InboxTaskSummary';
 import type { JournalSummary } from './JournalSummary';
+import type { LifePlan } from './LifePlan';
 import type { MetricSummary } from './MetricSummary';
 import type { PersonSummary } from './PersonSummary';
 import type { ProjectSummary } from './ProjectSummary';
@@ -21,10 +23,12 @@ import type { Workspace } from './Workspace';
 export type GetSummariesResult = {
     user?: (User | null);
     workspace?: (Workspace | null);
+    life_plan?: (LifePlan | null);
     vacations?: (Array<VacationSummary> | null);
     schedule_streams?: (Array<ScheduleStreamSummary> | null);
     root_project?: (ProjectSummary | null);
     projects?: (Array<ProjectSummary> | null);
+    chapters?: (Array<ChapterSummary> | null);
     inbox_tasks?: (Array<InboxTaskSummary> | null);
     journals_last_year?: (Array<JournalSummary> | null);
     habits?: (Array<HabitSummary> | null);

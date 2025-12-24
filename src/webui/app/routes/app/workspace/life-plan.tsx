@@ -5,7 +5,7 @@ import { IconButton } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Form, Outlet, useActionData } from "@remix-run/react";
+import { Form, Outlet, useActionData, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
@@ -37,6 +37,10 @@ import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { NavMultipleSpread, NavSingle, SectionActions } from "#/core/infra/component/section-actions";
+import AddIcon from "@mui/icons-material/Add";
+import { TopLevelInfo, TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useContext } from "react";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),
@@ -48,11 +52,18 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await apiClient.lifePlan.projectFind({
+  const projectsResponse = await apiClient.lifePlan.projectFind({
     allow_archived: false,
     include_notes: false,
   });
-  return json(response.entries);
+  const chaptersResponse = await apiClient.lifePlan.chapterFind({
+    allow_archived: false,
+    include_notes: false,
+  });
+  return json({
+    projects: projectsResponse.entries,
+    chapters: chaptersResponse.entries,
+  });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -76,7 +87,7 @@ export async function action({ request }: ActionFunctionArgs) {
           new_order_of_child_projects: args?.newOrderOfChildProjects,
         });
 
-        return redirect("/app/workspace/projects");
+        return redirect("/app/workspace/life-plan");
       }
 
       default: {
@@ -98,23 +109,52 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function Projects() {
-  const projects = useLoaderDataSafeForAnimation<typeof loader>();
+export default function LifePlan() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const topLevelInfo = useContext<TopLevelInfo>(TopLevelInfoContext);
+  const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const inputsEnabled = navigation.state === "idle";
 
   const sortedProjects = sortProjectsByTreeOrder(
-    projects.map((entry) => entry.project),
+    loaderData.projects.map((entry) => entry.project),
   );
+  const sortedChapters = loaderData.chapters.map((entry) => entry.chapter);
   const allProjectsByRefId = new Map(
-    projects.map((entry) => [entry.project.ref_id, entry.project]),
+    loaderData.projects.map((entry) => [entry.project.ref_id, entry.project]),
+  );
+  const allChaptersByRefId = new Map(
+    loaderData.chapters.map((entry) => [entry.chapter.ref_id, entry.chapter]),
   );
 
   return (
     <TrunkPanel
       key={"projects"}
-      createLocation="/app/workspace/projects/new"
       returnLocation="/app/workspace"
+      actions={
+        <SectionActions
+          id="life-plan"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          actions={[
+            NavMultipleSpread({
+              navs: [
+                NavSingle({
+                  text: "New Project",
+                  link: `/app/workspace/life-plan/projects/new`,
+                  icon: <AddIcon />,
+                }),
+                NavSingle({
+                  text: "New Chapter",
+                  link: `/app/workspace/life-plan/chapters/new`,
+                  icon: <AddIcon />,
+                }),
+              ],
+            })
+          ]}
+        />
+      }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <GlobalError actionResult={actionData} />
@@ -172,8 +212,25 @@ export default function Projects() {
                     )
                   }
                 >
-                  <EntityLink to={`/app/workspace/projects/${project.ref_id}`}>
+                  <EntityLink
+                    to={`/app/workspace/life-plan/projects/${project.ref_id}`}
+                  >
                     <EntityNameComponent name={project.name} />
+                  </EntityLink>
+                </EntityCard>
+              );
+            })}
+
+            {sortedChapters.map((chapter) => {
+              return (
+                <EntityCard
+                  entityId={`chapter-${chapter.ref_id}`}
+                  key={`chapter-${chapter.ref_id}`}
+                >
+                  <EntityLink
+                    to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
+                  >
+                    <EntityNameComponent name={chapter.name} />
                   </EntityLink>
                 </EntityCard>
               );
@@ -190,5 +247,5 @@ export default function Projects() {
 }
 
 export const ErrorBoundary = makeTrunkErrorBoundary("/app/workspace", {
-  error: () => `There was an error loading the projects! Please try again!`,
+  error: () => `There was an error loading the life plan! Please try again!`,
 });

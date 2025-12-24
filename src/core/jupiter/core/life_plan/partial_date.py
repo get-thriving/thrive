@@ -155,7 +155,7 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
         """Decode a partial date from a database realm."""
         if not isinstance(value, str):
             raise RealmDecodingError(
-                f"Expected value for {self.__class__} to be a string but was {value.__class__}"
+                f"Invalid partial date: {value}"
             )
 
         parts = value.split(" ")
@@ -181,9 +181,9 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
                     return PartialDate.from_relative_decade(year=int(parts[1]))
                 case _:
                     raise RealmDecodingError(
-                        f"Expected value for {self.__class__} to be a valid partial date type but was {parts[0]}"
+                        f"Invalid partial date type: {value}"
                     )
         except ValueError as err:
             raise RealmDecodingError(
-                f"Expected value for {self.__class__} to be a valid partial date but was {value}"
+                f"Invalid partial date: {value}"
             ) from err

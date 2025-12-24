@@ -83,7 +83,7 @@ export function workspaceFeatureToDocsHelpSubject(
     case WorkspaceFeature.VACATIONS:
       return DocsHelpSubject.VACATIONS;
     case WorkspaceFeature.LIFE_PLAN:
-      return DocsHelpSubject.PROJECTS;
+      return DocsHelpSubject.LIFE_PLAN;
     case WorkspaceFeature.SMART_LISTS:
       return DocsHelpSubject.SMART_LISTS;
     case WorkspaceFeature.METRICS:

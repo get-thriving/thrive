@@ -104,7 +104,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/projects`);
+        return redirect(`/app/workspace/life-plan`);
       }
 
       case "change-parent": {
@@ -113,7 +113,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           parent_project_ref_id: form.parentProjectRefId,
         });
 
-        return redirect(`/app/workspace/projects`);
+        return redirect(`/app/workspace/life-plan`);
       }
 
       case "create-note": {
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           content: [],
         });
 
-        return redirect(`/app/workspace/projects/${id}`);
+        return redirect(`/app/workspace/life-plan/projects/${id}`);
       }
 
       case "archive": {
@@ -131,7 +131,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/projects`);
+        return redirect(`/app/workspace/life-plan`);
       }
 
       case "remove": {
@@ -139,7 +139,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/projects`);
+        return redirect(`/app/workspace/life-plan`);
       }
 
       default:
@@ -196,7 +196,7 @@ export default function Project() {
       showArchiveAndRemoveButton={!isRootProject(loaderData.project)}
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.project.archived}
-      returnLocation="/app/workspace/projects"
+      returnLocation="/app/workspace/life-plan"
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -282,7 +282,7 @@ export default function Project() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/projects",
+  "/app/workspace/life-plan",
   ParamsSchema,
   {
     notFound: (params) => `Could not find project with ID ${params.id}!`,
