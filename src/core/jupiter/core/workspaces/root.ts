@@ -88,6 +88,11 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
+      entityTag === NamedEntityTag.CHAPTER &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
       entityTag === NamedEntityTag.SMART_LIST &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SMART_LISTS)
     ) {
