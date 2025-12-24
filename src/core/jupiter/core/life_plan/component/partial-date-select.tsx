@@ -15,7 +15,10 @@ import {
   partialDateEncode,
   partialDateExtract,
 } from "#/core/life_plan/partial-date";
-import { LeafPanelExpansionState, useLeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
+import {
+  LeafPanelExpansionState,
+  useLeafPanelExpansionState,
+} from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 const DEFAULT_YEAR_ABSOLUTE = 1990;
@@ -71,7 +74,10 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
 
   const leafPanelExpansionState = useLeafPanelExpansionState();
   const bigScreen = useBigScreen();
-  const bigStuff = bigScreen && (leafPanelExpansionState !== LeafPanelExpansionState.SMALL && leafPanelExpansionState !== null);
+  const bigStuff =
+    bigScreen &&
+    leafPanelExpansionState !== LeafPanelExpansionState.SMALL &&
+    leafPanelExpansionState !== null;
 
   useEffect(() => {
     setPartialDate(

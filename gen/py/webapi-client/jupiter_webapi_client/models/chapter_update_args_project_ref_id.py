@@ -6,68 +6,54 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="ChapterCreateArgs")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="ChapterUpdateArgsProjectRefId")
 
 
 @_attrs_define
-class ChapterCreateArgs:
-    """Chapter create args.
-
+class ChapterUpdateArgsProjectRefId:
+    """
     Attributes:
-        name (str): The name of a chapter in a life plan.
-        project_ref_id (str): A generic entity id.
-        start_date (str): A date in the life plan.
-        end_date (str): A date in the life plan.
+        should_change (bool):
+        value (str | Unset): A generic entity id.
     """
 
-    name: str
-    project_ref_id: str
-    start_date: str
-    end_date: str
+    should_change: bool
+    value: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name = self.name
+        should_change = self.should_change
 
-        project_ref_id = self.project_ref_id
-
-        start_date = self.start_date
-
-        end_date = self.end_date
+        value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "name": name,
-                "project_ref_id": project_ref_id,
-                "start_date": start_date,
-                "end_date": end_date,
+                "should_change": should_change,
             }
         )
+        if value is not UNSET:
+            field_dict["value"] = value
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        name = d.pop("name")
+        should_change = d.pop("should_change")
 
-        project_ref_id = d.pop("project_ref_id")
+        value = d.pop("value", UNSET)
 
-        start_date = d.pop("start_date")
-
-        end_date = d.pop("end_date")
-
-        chapter_create_args = cls(
-            name=name,
-            project_ref_id=project_ref_id,
-            start_date=start_date,
-            end_date=end_date,
+        chapter_update_args_project_ref_id = cls(
+            should_change=should_change,
+            value=value,
         )
 
-        chapter_create_args.additional_properties = d
-        return chapter_create_args
+        chapter_update_args_project_ref_id.additional_properties = d
+        return chapter_update_args_project_ref_id
 
     @property
     def additional_keys(self) -> list[str]:

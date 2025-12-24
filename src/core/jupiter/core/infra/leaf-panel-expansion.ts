@@ -27,7 +27,8 @@ export function loadLeafPanelExpansion(
   return z.nativeEnum(LeafPanelExpansionState).or(z.null()).parse(expansionStr);
 }
 
-export const LeafPanelExpansionStateContext = createContext<LeafPanelExpansionState | null>(null);
+export const LeafPanelExpansionStateContext =
+  createContext<LeafPanelExpansionState | null>(null);
 
 export function useLeafPanelExpansionState(): LeafPanelExpansionState | null {
   return useContext(LeafPanelExpansionStateContext);

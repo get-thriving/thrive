@@ -14,6 +14,10 @@ export type ChapterUpdateArgs = {
         should_change: boolean;
         value?: ChapterName;
     };
+    project_ref_id: {
+        should_change: boolean;
+        value?: EntityId;
+    };
     start_date: {
         should_change: boolean;
         value?: PartialDate;

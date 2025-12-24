@@ -7,6 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.framework.base.entity_id import EntityId
@@ -23,6 +24,7 @@ class ChapterUpdateArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     name: UpdateAction[ChapterName]
+    project_ref_id: UpdateAction[EntityId]
     start_date: UpdateAction[PartialDate]
     end_date: UpdateAction[PartialDate]
 
@@ -48,10 +50,14 @@ class ChapterUpdateUseCase(
         )
 
         chapter = await uow.get_for(Chapter).load_by_id(args.ref_id)
+        _ = await uow.get_for(Project).load_by_id(
+            args.project_ref_id.or_else(chapter.project_ref_id)
+        )
         chapter = chapter.update(
             ctx=context.domain_context,
             birthday=life_plan.birthday_date,
             name=args.name,
+            project_ref_id=args.project_ref_id,
             start_date=args.start_date,
             end_date=args.end_date,
         )

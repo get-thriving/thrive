@@ -1,4 +1,4 @@
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -26,6 +26,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
+import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -39,6 +40,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
+    project: z.string(),
     startDate: z.string(),
     endDate: z.string(),
   }),
@@ -61,6 +63,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_projects: true,
+  });
+
   try {
     const response = await apiClient.lifePlan.chapterLoad({
       ref_id: id,
@@ -68,6 +74,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      rootProject: summaryResponse.root_project as ProjectSummary,
       chapter: response.chapter,
       note: response.note ?? null,
     });
@@ -96,6 +104,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           name: {
             should_change: true,
             value: form.name,
+          },
+          project_ref_id: {
+            should_change: true,
+            value: form.project,
           },
           start_date: {
             should_change: true,
@@ -199,6 +211,17 @@ export default function Chapter() {
             defaultValue={loaderData.chapter.name}
           />
           <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <ProjectSelect
+            name="project"
+            label="Project"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allProjects={loaderData.allProjects}
+            defaultValue={loaderData.chapter.project_ref_id}
+          />
         </FormControl>
 
         <FormControl fullWidth>

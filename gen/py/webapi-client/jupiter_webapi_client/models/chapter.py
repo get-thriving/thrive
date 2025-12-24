@@ -23,6 +23,7 @@ class Chapter:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a chapter in a life plan.
         life_plan_ref_id (str):
+        project_ref_id (str): A generic entity id.
         start_date (str): A date in the life plan.
         end_date (str): A date in the life plan.
         archival_reason (None | str | Unset):
@@ -36,6 +37,7 @@ class Chapter:
     last_modified_time: str
     name: str
     life_plan_ref_id: str
+    project_ref_id: str
     start_date: str
     end_date: str
     archival_reason: None | str | Unset = UNSET
@@ -56,6 +58,8 @@ class Chapter:
         name = self.name
 
         life_plan_ref_id = self.life_plan_ref_id
+
+        project_ref_id = self.project_ref_id
 
         start_date = self.start_date
 
@@ -84,6 +88,7 @@ class Chapter:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "life_plan_ref_id": life_plan_ref_id,
+                "project_ref_id": project_ref_id,
                 "start_date": start_date,
                 "end_date": end_date,
             }
@@ -111,6 +116,8 @@ class Chapter:
         name = d.pop("name")
 
         life_plan_ref_id = d.pop("life_plan_ref_id")
+
+        project_ref_id = d.pop("project_ref_id")
 
         start_date = d.pop("start_date")
 
@@ -142,6 +149,7 @@ class Chapter:
             last_modified_time=last_modified_time,
             name=name,
             life_plan_ref_id=life_plan_ref_id,
+            project_ref_id=project_ref_id,
             start_date=start_date,
             end_date=end_date,
             archival_reason=archival_reason,

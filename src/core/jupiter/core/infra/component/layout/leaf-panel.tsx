@@ -409,8 +409,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       )}
 
       {/* Ugly hhandling here! */}
-      <LeafPanelExpansionStateContext.Provider value={normalizeExpansionState(expansionState)}>
-
+      <LeafPanelExpansionStateContext.Provider
+        value={normalizeExpansionState(expansionState)}
+      >
         {(isBigScreen || !props.shouldShowALeaflet) && (
           <LeafPanelContent
             id="leaf-panel-content"
@@ -423,7 +424,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
         )}
 
         {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
-
       </LeafPanelExpansionStateContext.Provider>
     </LeafPanelFrame>
   );
@@ -499,7 +499,9 @@ function cycleExpansionState(
   }
 }
 
-function normalizeExpansionState(expansionState: LeafPanelExpansionState | "shrunk" | "exit"): LeafPanelExpansionState {
+function normalizeExpansionState(
+  expansionState: LeafPanelExpansionState | "shrunk" | "exit",
+): LeafPanelExpansionState {
   if (expansionState === "shrunk" || expansionState === "exit") {
     return LeafPanelExpansionState.SMALL;
   }

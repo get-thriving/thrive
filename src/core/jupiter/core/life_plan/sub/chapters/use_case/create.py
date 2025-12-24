@@ -9,6 +9,7 @@ from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
@@ -25,6 +26,7 @@ class ChapterCreateArgs(UseCaseArgsBase):
     """Chapter create args."""
 
     name: ChapterName
+    project_ref_id: EntityId
     start_date: PartialDate
     end_date: PartialDate
 
@@ -61,6 +63,7 @@ class ChapterCreateUseCase(
             life_plan_ref_id=life_plan.ref_id,
             birthday=life_plan.birthday_date,
             name=args.name,
+            project_ref_id=args.project_ref_id,
             start_date=args.start_date,
             end_date=args.end_date,
         )

@@ -1,11 +1,11 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, ProjectSummary } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
   InputLabel,
   OutlinedInput,
 } from "@mui/material";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
@@ -28,14 +28,17 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "@jupiter/core/life_plan/component/partial-date-select";
+import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
   name: z.string(),
+  project: z.string(),
   startDate: z.string(),
   endDate: z.string(),
 });
@@ -44,6 +47,17 @@ export const handle = {
   displayType: DisplayType.LEAF,
 };
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_projects: true,
+  });
+  return json({
+    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    rootProject: summaryResponse.root_project as ProjectSummary,
+  });
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const form = await parseForm(request, CreateFormSchema);
@@ -51,6 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await apiClient.lifePlan.chapterCreate({
       name: form.name,
+      project_ref_id: form.project,
       start_date: form.startDate,
       end_date: form.endDate,
     });
@@ -74,6 +89,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function NewChapter() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
@@ -117,6 +133,17 @@ export default function NewChapter() {
             placeholder="Chapter name"
           />
           <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <ProjectSelect
+            name="project"
+            label="Project"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allProjects={loaderData.allProjects}
+            defaultValue={loaderData.rootProject.ref_id}
+          />
         </FormControl>
 
         <FormControl fullWidth>

@@ -85,6 +85,7 @@ from .chapter_summary import ChapterSummary
 from .chapter_update_args import ChapterUpdateArgs
 from .chapter_update_args_end_date import ChapterUpdateArgsEndDate
 from .chapter_update_args_name import ChapterUpdateArgsName
+from .chapter_update_args_project_ref_id import ChapterUpdateArgsProjectRefId
 from .chapter_update_args_start_date import ChapterUpdateArgsStartDate
 from .checklist_block import ChecklistBlock
 from .checklist_block_kind import ChecklistBlockKind
@@ -821,6 +822,7 @@ __all__ = (
     "ChapterUpdateArgs",
     "ChapterUpdateArgsEndDate",
     "ChapterUpdateArgsName",
+    "ChapterUpdateArgsProjectRefId",
     "ChapterUpdateArgsStartDate",
     "ChecklistBlock",
     "ChecklistBlockKind",
