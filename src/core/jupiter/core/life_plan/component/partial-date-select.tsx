@@ -15,6 +15,8 @@ import {
   partialDateEncode,
   partialDateExtract,
 } from "#/core/life_plan/partial-date";
+import { LeafPanelExpansionState, useLeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 const DEFAULT_YEAR_ABSOLUTE = 1990;
 const DEFAULT_YEAR_RELATIVE = 20;
@@ -67,6 +69,10 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     props.initialDate ?? "",
   );
 
+  const leafPanelExpansionState = useLeafPanelExpansionState();
+  const bigScreen = useBigScreen();
+  const bigStuff = bigScreen && (leafPanelExpansionState !== LeafPanelExpansionState.SMALL && leafPanelExpansionState !== null);
+
   useEffect(() => {
     setPartialDate(
       partialDateEncode({
@@ -94,10 +100,11 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
 
   return (
     <>
-      <Stack direction="row" useFlexGap spacing={1}>
+      <Stack direction={bigStuff ? "row" : "column"} useFlexGap spacing={1}>
         <ToggleButtonGroup
           id={`${props.name}-baseType`}
           exclusive
+          fullWidth
           value={grossType}
           onChange={(event, newGrossType) => setGrossType(newGrossType)}
         >
@@ -106,7 +113,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
         </ToggleButtonGroup>
 
         {grossType === "absolute" && (
-          <>
+          <Stack direction="row" useFlexGap spacing={1} sx={{ width: "100%" }}>
             <FormControl fullWidth>
               <InputLabel
                 id={`${props.name}-Day`}
@@ -196,11 +203,11 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                 onChange={(year) => setYearAbsolute(year)}
               />
             </FormControl>
-          </>
+          </Stack>
         )}
 
         {grossType === "relative" && (
-          <>
+          <Stack direction="row" useFlexGap spacing={1} sx={{ width: "100%" }}>
             <ToggleButtonGroup
               id={`${props.name}-relativeType`}
               exclusive
@@ -209,8 +216,8 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                 setRelativeType(newRelativeType)
               }
             >
-              <ToggleButton value="year">Yr</ToggleButton>
-              <ToggleButton value="decade">Dec</ToggleButton>
+              <ToggleButton value="year">Year</ToggleButton>
+              <ToggleButton value="decade">Decade</ToggleButton>
             </ToggleButtonGroup>
             {relativeType === "year" && (
               <FormControl fullWidth>
@@ -270,7 +277,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                 </Select>
               </FormControl>
             )}
-          </>
+          </Stack>
         )}
       </Stack>
       <input type="hidden" name={props.name} value={partialDate} />

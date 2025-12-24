@@ -27,6 +27,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   LeafPanelExpansionState,
+  LeafPanelExpansionStateContext,
   loadLeafPanelExpansion,
   saveLeafPanelExpansion,
 } from "#/core/infra/leaf-panel-expansion";
@@ -408,19 +409,22 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
       )}
 
       {/* Ugly hhandling here! */}
+      <LeafPanelExpansionStateContext.Provider value={normalizeExpansionState(expansionState)}>
 
-      {(isBigScreen || !props.shouldShowALeaflet) && (
-        <LeafPanelContent
-          id="leaf-panel-content"
-          ref={containerRef}
-          isbigscreen={isBigScreen ? "true" : "false"}
-        >
-          <Stack spacing={2}>{props.children}</Stack>
-          <Box sx={{ height: "4rem" }}></Box>
-        </LeafPanelContent>
-      )}
+        {(isBigScreen || !props.shouldShowALeaflet) && (
+          <LeafPanelContent
+            id="leaf-panel-content"
+            ref={containerRef}
+            isbigscreen={isBigScreen ? "true" : "false"}
+          >
+            <Stack spacing={2}>{props.children}</Stack>
+            <Box sx={{ height: "4rem" }}></Box>
+          </LeafPanelContent>
+        )}
 
-      {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
+        {!isBigScreen && props.shouldShowALeaflet && <>{props.children}</>}
+
+      </LeafPanelExpansionStateContext.Provider>
     </LeafPanelFrame>
   );
 }
@@ -493,4 +497,12 @@ function cycleExpansionState(
     case LeafPanelExpansionState.FULL:
       return LeafPanelExpansionState.SMALL;
   }
+}
+
+function normalizeExpansionState(expansionState: LeafPanelExpansionState | "shrunk" | "exit"): LeafPanelExpansionState {
+  if (expansionState === "shrunk" || expansionState === "exit") {
+    return LeafPanelExpansionState.SMALL;
+  }
+
+  return expansionState;
 }
