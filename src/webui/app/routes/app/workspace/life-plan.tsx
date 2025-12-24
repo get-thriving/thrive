@@ -32,15 +32,22 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  NavMultipleSpread,
+  NavSingle,
+  SectionActions,
+} from "#/core/infra/component/section-actions";
+import AddIcon from "@mui/icons-material/Add";
+import {
+  TopLevelInfo,
+  TopLevelInfoContext,
+} from "@jupiter/core/infra/top-level-context";
+import { useContext } from "react";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { NavMultipleSpread, NavSingle, SectionActions } from "#/core/infra/component/section-actions";
-import AddIcon from "@mui/icons-material/Add";
-import { TopLevelInfo, TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { useContext } from "react";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),
@@ -151,7 +158,7 @@ export default function LifePlan() {
                   icon: <AddIcon />,
                 }),
               ],
-            })
+            }),
           ]}
         />
       }

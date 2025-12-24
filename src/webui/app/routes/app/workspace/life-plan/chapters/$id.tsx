@@ -1,5 +1,10 @@
 import { ApiError, NoteDomain } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -20,6 +25,7 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -154,7 +160,8 @@ export default function Chapter() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
 
-  const inputsEnabled = navigation.state === "idle" && !loaderData.chapter.archived;
+  const inputsEnabled =
+    navigation.state === "idle" && !loaderData.chapter.archived;
 
   return (
     <LeafPanel
@@ -195,25 +202,21 @@ export default function Chapter() {
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="startDate">Start Date</InputLabel>
-          <OutlinedInput
-            label="startDate"
+          <FormLabel id="startDate">Start Date</FormLabel>
+          <PartialDateSelect
             name="startDate"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.chapter.start_date}
-            placeholder="absolute-year-month-day 2025 12 24"
+            initialDate={loaderData.chapter.start_date}
+            inputsEnabled={inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/start_date" />
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="endDate">End Date</InputLabel>
-          <OutlinedInput
-            label="endDate"
+          <FormLabel id="endDate">End Date</FormLabel>
+          <PartialDateSelect
             name="endDate"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.chapter.end_date}
-            placeholder="relative-year 30"
+            initialDate={loaderData.chapter.end_date}
+            inputsEnabled={inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
@@ -257,5 +260,3 @@ export const ErrorBoundary = makeLeafErrorBoundary(
       `There was an error loading chapter with ID ${params.id}! Please try again!`,
   },
 );
-
-

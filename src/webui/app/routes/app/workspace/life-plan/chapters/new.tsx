@@ -1,5 +1,10 @@
 import { ApiError } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+} from "@mui/material";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -22,6 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { PartialDateSelect } from "@jupiter/core/life_plan/component/partial-date-select";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -114,25 +120,21 @@ export default function NewChapter() {
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="startDate">Start Date</InputLabel>
-          <OutlinedInput
-            label="Start Date"
+          <FormLabel id="startDate">Start Date</FormLabel>
+          <PartialDateSelect
             name="startDate"
-            readOnly={!inputsEnabled}
-            type="text"
-            placeholder="absolute-year-month-day 2025 12 24"
+            initialDate={null}
+            inputsEnabled={inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/start_date" />
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="endDate">End Date</InputLabel>
-          <OutlinedInput
-            label="End Date"
+          <FormLabel id="endDate">End Date</FormLabel>
+          <PartialDateSelect
             name="endDate"
-            readOnly={!inputsEnabled}
-            type="text"
-            placeholder="relative-year 30"
+            initialDate={null}
+            inputsEnabled={inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
@@ -149,5 +151,3 @@ export const ErrorBoundary = makeLeafErrorBoundary(
     error: () => `There was an error creating the chapter! Please try again!`,
   },
 );
-
-

@@ -80,7 +80,7 @@ class PartialDate(AtomicValue[str]):
         """Construct a partial date from its components."""
         if year < 1 or year > 100:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1 and 10 but was {year}"
+                f"Expected year to be a valid year between 1 and 100 but was {year}"
             )
         return PartialDate(
             type=PartialDateType.RELATIVE_YEAR, year=year, month=None, day=None
@@ -91,11 +91,11 @@ class PartialDate(AtomicValue[str]):
         """Construct a partial date from its components."""
         if year < 1 or year > 100:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1 and 100 but was {year}"
+                f"Expected decade to be a valid year between 1 and 100 but was {year}"
             )
         if year % 10 != 0:
             raise InputValidationError(
-                f"Expected year to be a multiple of 10 but was {year}"
+                f"Expected decade to be a multiple of 10 but was {year}"
             )
         return PartialDate(
             type=PartialDateType.RELATIVE_DECADE, year=year, month=None, day=None
@@ -154,36 +154,30 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
     def decode(self, value: RealmThing) -> PartialDate:
         """Decode a partial date from a database realm."""
         if not isinstance(value, str):
-            raise RealmDecodingError(
-                f"Invalid partial date: {value}"
-            )
+            raise RealmDecodingError(f"Invalid partial date: {value}")
 
         parts = value.split(" ")
 
         try:
             match parts[0]:
-                case "absolute-year-month-day":
+                case PartialDateType.ABSOLUTE_YMD.value:
                     return PartialDate.from_absolute_ymd(
                         year=int(parts[1]),
                         month=int(parts[2]),
                         day=int(parts[3]),
                     )
-                case "absolute-year-month":
+                case PartialDateType.ABSOLUTE_YM.value:
                     return PartialDate.from_absolute_ym(
                         year=int(parts[1]),
                         month=int(parts[2]),
                     )
-                case "absolute-year":
+                case PartialDateType.ABSOLUTE_Y.value:
                     return PartialDate.from_absolute_y(year=int(parts[1]))
-                case "relative-year":
+                case PartialDateType.RELATIVE_YEAR.value:
                     return PartialDate.from_relative_year(year=int(parts[1]))
-                case "relative-decade":
+                case PartialDateType.RELATIVE_DECADE.value:
                     return PartialDate.from_relative_decade(year=int(parts[1]))
                 case _:
-                    raise RealmDecodingError(
-                        f"Invalid partial date type: {value}"
-                    )
+                    raise RealmDecodingError(f"Invalid partial date type: {value}")
         except ValueError as err:
-            raise RealmDecodingError(
-                f"Invalid partial date: {value}"
-            ) from err
+            raise RealmDecodingError(f"Invalid partial date: {value}") from err

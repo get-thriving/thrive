@@ -17,10 +17,13 @@ interface BirthYearOption {
 interface BirthYearSelectProps {
   name: string;
   label: string;
-  initialValue?: BirthYear | null;
+  defaultValue?: BirthYear | null;
+  value?: BirthYear | null;
+  filter?: (year: number) => boolean;
   inputsEnabled: boolean;
   disabled?: boolean;
   allowNoneBirthYear?: boolean;
+  onChange?: (year: number) => void;
 }
 
 const NONE_OPTION: BirthYearOption = { year: null, label: "N/A" };
@@ -49,20 +52,28 @@ export function BirthYearSelect(props: BirthYearSelectProps) {
   const allYearsAsOptions = Array.from(
     { length: MAX_BIRTH_YEAR - MIN_BIRTH_YEAR + 1 },
     (_, i) => MIN_BIRTH_YEAR + i,
-  ).map(yearToOption);
+  )
+    .filter(props.filter ?? (() => true))
+    .map(yearToOption);
   if (allowNoneBirthYear) {
     allYearsAsOptions.unshift(NONE_OPTION);
   }
 
   const [selectedBirthYear, setSelectedBirthYear] = useState<BirthYearOption>(
-    optionFromInitialValue(props.initialValue, allowNoneBirthYear),
+    optionFromInitialValue(
+      props.defaultValue ?? props.value,
+      allowNoneBirthYear,
+    ),
   );
 
   useEffect(() => {
     setSelectedBirthYear(
-      optionFromInitialValue(props.initialValue, allowNoneBirthYear),
+      optionFromInitialValue(
+        props.defaultValue ?? props.value,
+        allowNoneBirthYear,
+      ),
     );
-  }, [props.initialValue, allowNoneBirthYear]);
+  }, [props.defaultValue, props.value, allowNoneBirthYear]);
 
   const encodedBirthYearValue: BirthYearSelectValue = useMemo(() => {
     if (selectedBirthYear.year === null) {
@@ -89,6 +100,7 @@ export function BirthYearSelect(props: BirthYearSelectProps) {
             return;
           }
           setSelectedBirthYear(v);
+          props.onChange?.(v.year ?? DEFAULT_BIRTH_YEAR);
         }}
         isOptionEqualToValue={(o, v) => o.year === v.year}
         renderOption={(props, option) => {
@@ -102,7 +114,9 @@ export function BirthYearSelect(props: BirthYearSelectProps) {
         }}
         renderInput={(params) => <TextField {...params} label={props.label} />}
       />
-      <input name={props.name} type="hidden" value={encodedBirthYearValue} />
+      {!props.onChange && (
+        <input name={props.name} type="hidden" value={encodedBirthYearValue} />
+      )}
     </>
   );
 }
