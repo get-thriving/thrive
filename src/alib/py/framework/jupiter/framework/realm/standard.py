@@ -581,6 +581,24 @@ class _StandardPrimitiveDatabaseDecoder(
         elif self._the_type is bool:
             if isinstance(value, bool):
                 return cast(_PrimitiveT, value)
+            elif isinstance(value, str):
+                if value.lower() == "true":
+                    return cast(_PrimitiveT, True)
+                elif value.lower() == "false":
+                    return cast(_PrimitiveT, False)
+                else:
+                    raise RealmDecodingError(
+                        f"Expected value for {self._the_type.__name__} in {self.__class__} to be a bool or a string 'true' or 'false'"
+                    )
+            elif isinstance(value, int):
+                if value == 1:
+                    return cast(_PrimitiveT, True)
+                elif value == 0:
+                    return cast(_PrimitiveT, False)
+                else:
+                    raise RealmDecodingError(
+                        f"Expected value for {self._the_type.__name__} in {self.__class__} to be a bool or a string 'true' or 'false'"
+                    )
             else:
                 raise RealmDecodingError(
                     f"Expected value for {self._the_type.__name__} in {self.__class__} to be a bool"

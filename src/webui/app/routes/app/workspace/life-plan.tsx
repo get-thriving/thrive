@@ -5,7 +5,13 @@ import { Box, Divider, IconButton, Stack, styled } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Form, Link, Outlet, useActionData, useNavigation } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  Outlet,
+  useActionData,
+  useNavigation,
+} from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
@@ -46,12 +52,12 @@ import { useContext } from "react";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { midDate } from "#/core/life_plan/partial-date";
 import { DateTime } from "luxon";
+import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 
 const UpdateFormSchema = z.object({
   intent: z.string(),
@@ -191,7 +197,10 @@ export default function LifePlanView() {
 
               const chapters =
                 allChaptersByProjectRefId.get(project.ref_id) ?? [];
-              const sortedChapters = sortChaptersNaturally(lifePlanBirthdayDate(loaderData.lifePlan), chapters);
+              const sortedChapters = sortChaptersNaturally(
+                lifePlanBirthdayDate(loaderData.lifePlan),
+                chapters,
+              );
               const chapterPositions = computeChapterPosition(
                 loaderData.lifePlan,
                 sortedChapters,
@@ -242,35 +251,40 @@ export default function LifePlanView() {
                   }
                 >
                   <Stack direction="column">
-                  <EntityLink
-                    to={`/app/workspace/life-plan/projects/${project.ref_id}`}
-                  >
-                    <EntityNameComponent name={project.name} />
-                  </EntityLink>
+                    <EntityLink
+                      to={`/app/workspace/life-plan/projects/${project.ref_id}`}
+                    >
+                      <EntityNameComponent name={project.name} />
+                    </EntityLink>
 
-                  {sortedChapters && (
-                    <>
-                      <Divider />
-                      <Box sx={{ position: "relative", height: `${0.25 + sortedChapters.length * 2.25}rem` }}>
-                      {sortedChapters.map((chapter) => {
-                          const position = chapterPositions.get(
-                            chapter.ref_id,
-                          )!;
-                          return (
-                            <ChapterTimelineLink
-                              key={`chapter-${chapter.ref_id}`}
-                              to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
-                              left={position.left}
-                              width={position.width}
-                              top={position.top}
-                            >
-                              <EntityNameComponent name={chapter.name} />
-                            </ChapterTimelineLink>
-                          );
-                        })}
+                    {sortedChapters && (
+                      <>
+                        <Divider />
+                        <Box
+                          sx={{
+                            position: "relative",
+                            height: `${0.25 + sortedChapters.length * 2.25}rem`,
+                          }}
+                        >
+                          {sortedChapters.map((chapter) => {
+                            const position = chapterPositions.get(
+                              chapter.ref_id,
+                            )!;
+                            return (
+                              <ChapterTimelineLink
+                                key={`chapter-${chapter.ref_id}`}
+                                to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
+                                left={position.left}
+                                width={position.width}
+                                top={position.top}
+                              >
+                                <EntityNameComponent name={chapter.name} />
+                              </ChapterTimelineLink>
+                            );
+                          })}
                         </Box>
-                    </>
-                  )}
+                      </>
+                    )}
                   </Stack>
                 </EntityCard>
               );
@@ -290,19 +304,23 @@ export const ErrorBoundary = makeTrunkErrorBoundary("/app/workspace", {
   error: () => `There was an error loading the life plan! Please try again!`,
 });
 
-const ChapterTimelineLink = styled(Link)<{ left: number; width: number; top: number }>(({ theme,left, width, top }) => ({
+const ChapterTimelineLink = styled(Link)<{
+  left: number;
+  width: number;
+  top: number;
+}>(({ theme, left, width, top }) => ({
   position: "absolute",
   textDecoration: "none",
   color: theme.palette.info.dark,
-    ":visited": {
-      color: theme.palette.info.dark,
-    },
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    display: "inline-flex",
-    alignItems: "center",
-    paddingLeft: "0.5rem",
+  ":visited": {
+    color: theme.palette.info.dark,
+  },
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  whiteSpace: "nowrap",
+  display: "inline-flex",
+  alignItems: "center",
+  paddingLeft: "0.5rem",
   left: `${left * 100}%`,
   width: `${width * 100}%`,
   height: "2rem",
@@ -339,8 +357,14 @@ function computeChapterPosition(
   } {
     const startDate = midDate(birthdayDate, chapter.start_date);
     const endDate = midDate(birthdayDate, chapter.end_date);
-    const left = Math.max(0, startDate.diff(birthdayDate, "days").days / maxWidth);
-    const width = Math.max(0.05, endDate.diff(startDate, "days").days / maxWidth);
+    const left = Math.max(
+      0,
+      startDate.diff(birthdayDate, "days").days / maxWidth,
+    );
+    const width = Math.max(
+      0.05,
+      endDate.diff(startDate, "days").days / maxWidth,
+    );
     return { left, width };
   }
 
