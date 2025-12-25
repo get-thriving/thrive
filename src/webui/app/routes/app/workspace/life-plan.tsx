@@ -154,6 +154,12 @@ export default function LifePlanView() {
       .push(entry.chapter);
   }
 
+  const maxIndent = Math.max(
+    ...sortedProjects.map((project) =>
+      computeProjectDistanceFromRoot(project, allProjectsByRefId),
+    ),
+  );
+
   return (
     <TrunkPanel
       key={"projects"}
@@ -201,7 +207,7 @@ export default function LifePlanView() {
                 lifePlanBirthdayDate(loaderData.lifePlan),
                 chapters,
               );
-              const {totalRows, chapterPositions} = computeChapterPosition(
+              const { totalRows, chapterPositions } = computeChapterPosition(
                 loaderData.lifePlan,
                 sortedChapters,
               );
@@ -211,57 +217,59 @@ export default function LifePlanView() {
                   entityId={`project-${project.ref_id}`}
                   key={`project-${project.ref_id}`}
                   indent={indent}
-                  extraControls={
-                    isRootProject(project) ||
-                    parentProject === undefined ? undefined : (
-                      <>
-                        <IconButton
-                          size="medium"
-                          type="submit"
-                          name="intent"
-                          value={makeIntent("reorder", {
-                            refId: parentProject.ref_id,
-                            newOrderOfChildProjects:
-                              shiftProjectUpInListOfChildren(
-                                project,
-                                parentProject.order_of_child_projects,
-                              ),
-                          })}
-                        >
-                          <ArrowUpwardIcon fontSize="medium" />
-                        </IconButton>
-
-                        <IconButton
-                          size="medium"
-                          type="submit"
-                          name="intent"
-                          value={makeIntent("reorder", {
-                            refId: parentProject.ref_id,
-                            newOrderOfChildProjects:
-                              shiftProjectDownInListOfChildren(
-                                project,
-                                parentProject.order_of_child_projects,
-                              ),
-                          })}
-                        >
-                          <ArrowDownwardIcon fontSize="medium" />
-                        </IconButton>
-                      </>
-                    )
-                  }
                 >
                   <Stack direction="column">
-                    <EntityLink
-                      to={`/app/workspace/life-plan/projects/${project.ref_id}`}
-                    >
-                      <EntityNameComponent name={project.name} />
-                    </EntityLink>
+                    <Stack direction="row">
+                      <EntityLink
+                        to={`/app/workspace/life-plan/projects/${project.ref_id}`}
+                      >
+                        <EntityNameComponent name={project.name} />
+                      </EntityLink>
+
+                      {isRootProject(project) ||
+                      parentProject === undefined ? undefined : (
+                        <>
+                          <IconButton
+                            size="medium"
+                            type="submit"
+                            name="intent"
+                            value={makeIntent("reorder", {
+                              refId: parentProject.ref_id,
+                              newOrderOfChildProjects:
+                                shiftProjectUpInListOfChildren(
+                                  project,
+                                  parentProject.order_of_child_projects,
+                                ),
+                            })}
+                          >
+                            <ArrowUpwardIcon fontSize="medium" />
+                          </IconButton>
+
+                          <IconButton
+                            size="medium"
+                            type="submit"
+                            name="intent"
+                            value={makeIntent("reorder", {
+                              refId: parentProject.ref_id,
+                              newOrderOfChildProjects:
+                                shiftProjectDownInListOfChildren(
+                                  project,
+                                  parentProject.order_of_child_projects,
+                                ),
+                            })}
+                          >
+                            <ArrowDownwardIcon fontSize="medium" />
+                          </IconButton>
+                        </>
+                      )}
+                    </Stack>
 
                     {sortedChapters.length > 0 && (
                       <>
                         <Divider />
                         <Box
                           sx={{
+                            marginLeft: `${maxIndent - indent + 1}rem`,
                             position: "relative",
                             height: `${0.25 + totalRows * 2.25}rem`,
                           }}
@@ -336,7 +344,10 @@ const ChapterTimelineLink = styled(Link)<{
 function computeChapterPosition(
   lifePlan: LifePlan,
   chapters: Chapter[],
-): { totalRows: number; chapterPositions: Map<string, { left: number; top: number; width: number }> } {
+): {
+  totalRows: number;
+  chapterPositions: Map<string, { left: number; top: number; width: number }>;
+} {
   const chapterPositions = new Map<
     string,
     { left: number; top: number; width: number }
@@ -370,21 +381,34 @@ function computeChapterPosition(
     return { left, width, startDate, endDate };
   }
 
-  let lastEndDate = birthdayDate;
+  const rows: Array<DateTime> = [];
   let rowIdx = 0;
+  rows[rowIdx] = birthdayDate;
 
   for (const chapter of chapters) {
     const chapterPosition = computerChapterPosition(chapter);
-    if (chapterPosition.startDate < lastEndDate) {
-      rowIdx++;
+    let usefulRowIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (chapterPosition.startDate >= rows[i]) {
+        usefulRowIdx = i;
+        break;
+      }
     }
-    lastEndDate = chapterPosition.endDate;
+
+    if (usefulRowIdx === -1) {
+      rowIdx++;
+      rows[rowIdx] = chapterPosition.endDate;
+      usefulRowIdx = rowIdx;
+    } else {
+      rows[usefulRowIdx] = chapterPosition.endDate;
+    }
+
     chapterPositions.set(chapter.ref_id, {
       left: chapterPosition.left,
-      top: 0.25 + rowIdx * 2.25,
+      top: 0.25 + usefulRowIdx * 2.25,
       width: chapterPosition.width,
     });
   }
 
-  return {totalRows: rowIdx + 1, chapterPositions: chapterPositions};
+  return { totalRows: rowIdx + 1, chapterPositions: chapterPositions };
 }
