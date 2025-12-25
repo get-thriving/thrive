@@ -354,6 +354,8 @@ function computeChapterPosition(
   function computerChapterPosition(chapter: Chapter): {
     left: number;
     width: number;
+    startDate: DateTime;
+    endDate: DateTime;
   } {
     const startDate = midDate(birthdayDate, chapter.start_date);
     const endDate = midDate(birthdayDate, chapter.end_date);
@@ -365,14 +367,21 @@ function computeChapterPosition(
       0.05,
       endDate.diff(startDate, "days").days / maxWidth,
     );
-    return { left, width };
+    return { left, width, startDate, endDate };
   }
 
-  for (const [idx, chapter] of chapters.entries()) {
+  let lastEndDate = birthdayDate;
+  let rowIdx = 0;
+
+  for (const chapter of chapters) {
     const chapterPosition = computerChapterPosition(chapter);
+    if (chapterPosition.startDate < lastEndDate) {
+      rowIdx++;
+    }
+    lastEndDate = chapterPosition.endDate;
     chapterPositions.set(chapter.ref_id, {
       left: chapterPosition.left,
-      top: 0.25 + idx * 2.25,
+      top: 0.25 + rowIdx * 2.25,
       width: chapterPosition.width,
     });
   }
