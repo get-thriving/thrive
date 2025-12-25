@@ -53,6 +53,7 @@ import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { midDate } from "#/core/life_plan/partial-date";
 import { DateTime } from "luxon";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -133,6 +134,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function LifePlanView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext<TopLevelInfo>(TopLevelInfoContext);
+  const today = aDateToDate(topLevelInfo.today);
   const navigation = useNavigation();
   const actionData = useActionData<typeof action>();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
@@ -205,9 +207,11 @@ export default function LifePlanView() {
                 allChaptersByProjectRefId.get(project.ref_id) ?? [];
               const sortedChapters = sortChaptersNaturally(
                 lifePlanBirthdayDate(loaderData.lifePlan),
+                today,
                 chapters,
               );
               const { totalRows, chapterPositions } = computeChapterPosition(
+                today,
                 loaderData.lifePlan,
                 sortedChapters,
               );
@@ -342,6 +346,7 @@ const ChapterTimelineLink = styled(Link)<{
 }));
 
 function computeChapterPosition(
+  today: DateTime,
   lifePlan: LifePlan,
   chapters: Chapter[],
 ): {
@@ -368,8 +373,8 @@ function computeChapterPosition(
     startDate: DateTime;
     endDate: DateTime;
   } {
-    const startDate = midDate(birthdayDate, chapter.start_date);
-    const endDate = midDate(birthdayDate, chapter.end_date);
+    const startDate = midDate(chapter.start_date, birthdayDate, today);
+    const endDate = midDate(chapter.end_date, birthdayDate, today);
     const left = Math.max(
       0,
       startDate.diff(birthdayDate, "days").days / maxWidth,

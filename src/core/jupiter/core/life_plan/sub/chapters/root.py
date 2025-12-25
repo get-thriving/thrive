@@ -46,8 +46,12 @@ class Chapter(LeafEntity):
         end_date: PartialDate,
     ) -> "Chapter":
         """Create a chapter."""
-        earliest_start_date = start_date.earliest_relative_to(birthday)
-        latest_end_date = end_date.latest_relative_to(birthday)
+        earliest_start_date = start_date.earliest_relative_to(
+            birthday, ADate.from_timestamp(ctx.action_timestamp)
+        )
+        latest_end_date = end_date.latest_relative_to(
+            birthday, ADate.from_timestamp(ctx.action_timestamp)
+        )
 
         if earliest_start_date >= latest_end_date:
             raise InputValidationError(
@@ -75,9 +79,11 @@ class Chapter(LeafEntity):
     ) -> "Chapter":
         """Update a chapter."""
         earliest_start_date = start_date.or_else(self.start_date).earliest_relative_to(
-            birthday
+            birthday, ADate.from_timestamp(ctx.action_timestamp)
         )
-        latest_end_date = end_date.or_else(self.end_date).latest_relative_to(birthday)
+        latest_end_date = end_date.or_else(self.end_date).latest_relative_to(
+            birthday, ADate.from_timestamp(ctx.action_timestamp)
+        )
 
         if earliest_start_date >= latest_end_date:
             raise InputValidationError(

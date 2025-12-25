@@ -21,6 +21,7 @@ class PartialDateType(EnumValue):
     ABSOLUTE_Y = "absolute-year"
     RELATIVE_YEAR = "relative-year"
     RELATIVE_DECADE = "relative-decade"
+    PERSENT = "present"
 
 
 @value
@@ -28,7 +29,7 @@ class PartialDate(AtomicValue[str]):
     """A date in the life plan."""
 
     type: PartialDateType
-    year: int
+    year: int | None
     month: int | None
     day: int | None
 
@@ -78,7 +79,7 @@ class PartialDate(AtomicValue[str]):
     @staticmethod
     def from_relative_year(year: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 1 or year > 100:
+        if year < 0 or year > 100:
             raise InputValidationError(
                 f"Expected year to be a valid year between 1 and 100 but was {year}"
             )
@@ -89,7 +90,7 @@ class PartialDate(AtomicValue[str]):
     @staticmethod
     def from_relative_decade(year: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 1 or year > 100:
+        if year < 0 or year > 100:
             raise InputValidationError(
                 f"Expected decade to be a valid year between 1 and 100 but was {year}"
             )
@@ -101,35 +102,49 @@ class PartialDate(AtomicValue[str]):
             type=PartialDateType.RELATIVE_DECADE, year=year, month=None, day=None
         )
 
-    def earliest_relative_to(self, birthday: ADate) -> ADate:
+    @staticmethod
+    def from_present() -> "PartialDate":
+        return PartialDate(
+            type=PartialDateType.PERSENT, year=None, month=None, day=None
+        )
+
+    def earliest_relative_to(self, birthday: ADate, today: ADate) -> ADate:
         """Get the earliest relative date to the birthday."""
         match self.type:
             case PartialDateType.ABSOLUTE_YMD:
-                return ADate.from_components(self.year, self.month or 1, self.day or 1)
+                return ADate.from_components(
+                    self.year or 1990, self.month or 1, self.day or 1
+                )
             case PartialDateType.ABSOLUTE_YM:
-                return ADate.from_components(self.year, self.month or 1, 1)
+                return ADate.from_components(self.year or 1990, self.month or 1, 1)
             case PartialDateType.ABSOLUTE_Y:
-                return ADate.from_components(self.year, 1, 1)
+                return ADate.from_components(self.year or 1990, 1, 1)
             case PartialDateType.RELATIVE_YEAR:
-                return birthday.add_years(self.year)
+                return birthday.add_years(self.year or 0)
             case PartialDateType.RELATIVE_DECADE:
-                return birthday.add_years(self.year)
+                return birthday.add_years(self.year or 0)
+            case PartialDateType.PERSENT:
+                return today
 
-    def latest_relative_to(self, birthday: ADate) -> ADate:
+    def latest_relative_to(self, birthday: ADate, today: ADate) -> ADate:
         """Get the latest relative date to the birthday."""
         match self.type:
             case PartialDateType.ABSOLUTE_YMD:
-                return ADate.from_components(self.year, self.month or 1, self.day or 1)
-            case PartialDateType.ABSOLUTE_YM:
-                return ADate.from_components(self.year, self.month or 1, 1).end_of(
-                    "month"
+                return ADate.from_components(
+                    self.year or 1990, self.month or 1, self.day or 1
                 )
+            case PartialDateType.ABSOLUTE_YM:
+                return ADate.from_components(
+                    self.year or 1990, self.month or 1, 1
+                ).end_of("month")
             case PartialDateType.ABSOLUTE_Y:
-                return ADate.from_components(self.year, 1, 1).end_of("year")
+                return ADate.from_components(self.year or 1990, 1, 1).end_of("year")
             case PartialDateType.RELATIVE_YEAR:
-                return birthday.add_years(self.year).end_of("year")
+                return birthday.add_years(self.year or 0).end_of("year")
             case PartialDateType.RELATIVE_DECADE:
-                return birthday.add_years(self.year + 9).end_of("year")
+                return birthday.add_years(self.year or 0 + 9).end_of("year")
+            case PartialDateType.PERSENT:
+                return today
 
 
 class PartialDateDatabaseEncoder(RealmEncoder[PartialDate, DatabaseRealm]):
@@ -137,7 +152,10 @@ class PartialDateDatabaseEncoder(RealmEncoder[PartialDate, DatabaseRealm]):
 
     def encode(self, value: PartialDate) -> RealmThing:
         """Encode a partial date to a database realm."""
-        res = f"{value.type.value} {value.year}"
+        res = f"{value.type.value}"
+
+        if value.year is not None:
+            res += f" {value.year}"
 
         if value.month is not None:
             res += f" {value.month}"
@@ -177,6 +195,8 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
                     return PartialDate.from_relative_year(year=int(parts[1]))
                 case PartialDateType.RELATIVE_DECADE.value:
                     return PartialDate.from_relative_decade(year=int(parts[1]))
+                case PartialDateType.PERSENT.value:
+                    return PartialDate.from_present()
                 case _:
                     raise RealmDecodingError(f"Invalid partial date type: {value}")
         except ValueError as err:

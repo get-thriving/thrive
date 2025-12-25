@@ -5,12 +5,13 @@ import { midDate } from "#/core/life_plan/partial-date";
 
 export function sortChaptersNaturally(
   birthday: DateTime,
+  today: DateTime,
   chapters: Chapter[],
 ): Chapter[] {
   return [...chapters].sort((a, b) => {
     return (
-      midDate(birthday, a.start_date).toMillis() -
-      midDate(birthday, b.start_date).toMillis()
+      midDate(a.start_date, birthday, today).toMillis() -
+      midDate(b.start_date, birthday, today).toMillis()
     );
   });
 }

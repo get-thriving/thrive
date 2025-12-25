@@ -37,9 +37,9 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     ? partialDateExtract(props.initialDate)
     : undefined;
 
-  const [grossType, setGrossType] = useState<"absolute" | "relative">(
-    partialDateExtracted?.grossType ?? "absolute",
-  );
+  const [grossType, setGrossType] = useState<
+    "absolute" | "relative" | "present"
+  >(partialDateExtracted?.grossType ?? "absolute");
   const [relativeType, setRelativeType] = useState<"year" | "decade">(
     partialDateExtracted?.relativeType ?? "year",
   );
@@ -116,6 +116,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
         >
           <ToggleButton value="absolute">Absolute</ToggleButton>
           <ToggleButton value="relative">Relative</ToggleButton>
+          <ToggleButton value="present">Present</ToggleButton>
         </ToggleButtonGroup>
 
         {grossType === "absolute" && (

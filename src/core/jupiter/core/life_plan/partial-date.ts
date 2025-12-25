@@ -9,6 +9,7 @@ interface PartialDateAbsoluteYMD {
   month: number;
   day: number;
 }
+
 interface PartialDateAbsoluteYM {
   type: PartialDateType.ABSOLUTE_YEAR_MONTH;
   grossType: "absolute";
@@ -17,6 +18,7 @@ interface PartialDateAbsoluteYM {
   month: number;
   day: "N/A";
 }
+
 interface PartialDateAbsoluteY {
   type: PartialDateType.ABSOLUTE_YEAR;
   grossType: "absolute";
@@ -25,6 +27,7 @@ interface PartialDateAbsoluteY {
   month: "N/A";
   day: "N/A";
 }
+
 interface PartialDateRelativeYear {
   type: PartialDateType.RELATIVE_YEAR;
   grossType: "relative";
@@ -33,6 +36,7 @@ interface PartialDateRelativeYear {
   month: "N/A";
   day: "N/A";
 }
+
 interface PartialDateRelativeDecade {
   type: PartialDateType.RELATIVE_DECADE;
   grossType: "relative";
@@ -42,12 +46,22 @@ interface PartialDateRelativeDecade {
   day: "N/A";
 }
 
+interface PartialDatePresent {
+  type: PartialDateType.PRESENT;
+  grossType: "present";
+  relativeType?: undefined;
+  year: "N/A";
+  month: "N/A";
+  day: "N/A";
+}
+
 type PartialDateExtracted =
   | PartialDateAbsoluteYMD
   | PartialDateAbsoluteYM
   | PartialDateAbsoluteY
   | PartialDateRelativeYear
-  | PartialDateRelativeDecade;
+  | PartialDateRelativeDecade
+  | PartialDatePresent;
 
 export function partialDateExtract(
   partialDate: PartialDate,
@@ -141,6 +155,17 @@ export function partialDateExtract(
       };
     }
 
+    case PartialDateType.PRESENT: {
+      return {
+        type: PartialDateType.PRESENT,
+        grossType: "present",
+        relativeType: undefined,
+        year: "N/A",
+        month: "N/A",
+        day: "N/A",
+      };
+    }
+
     default:
       throw new Error(`Invalid partial date type: ${type}`);
   }
@@ -165,6 +190,9 @@ export function partialDateEncode(
       }
       return `${PartialDateType.RELATIVE_DECADE} ${partialDate.year}`;
     }
+    case "present": {
+      return PartialDateType.PRESENT;
+    }
     default:
       throw new Error(
         `Invalid partial date gross type: ${partialDate.grossType}`,
@@ -173,8 +201,9 @@ export function partialDateEncode(
 }
 
 export function midDate(
-  birthday: DateTime<true>,
   partialDate: PartialDate,
+  birthday: DateTime<true>,
+  today: DateTime<true>,
 ): DateTime<true> {
   const extracted = partialDateExtract(partialDate);
   let date: DateTimeMaybeValid;
@@ -225,6 +254,10 @@ export function midDate(
         });
       }
       break;
+    case PartialDateType.PRESENT: {
+      date = today;
+      break;
+    }
   }
 
   if (!date.isValid) {
