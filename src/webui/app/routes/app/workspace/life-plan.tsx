@@ -201,7 +201,7 @@ export default function LifePlanView() {
                 lifePlanBirthdayDate(loaderData.lifePlan),
                 chapters,
               );
-              const chapterPositions = computeChapterPosition(
+              const {totalRows, chapterPositions} = computeChapterPosition(
                 loaderData.lifePlan,
                 sortedChapters,
               );
@@ -257,13 +257,13 @@ export default function LifePlanView() {
                       <EntityNameComponent name={project.name} />
                     </EntityLink>
 
-                    {sortedChapters && (
+                    {sortedChapters.length > 0 && (
                       <>
                         <Divider />
                         <Box
                           sx={{
                             position: "relative",
-                            height: `${0.25 + sortedChapters.length * 2.25}rem`,
+                            height: `${0.25 + totalRows * 2.25}rem`,
                           }}
                         >
                           {sortedChapters.map((chapter) => {
@@ -336,7 +336,7 @@ const ChapterTimelineLink = styled(Link)<{
 function computeChapterPosition(
   lifePlan: LifePlan,
   chapters: Chapter[],
-): Map<string, { left: number; top: number; width: number }> {
+): { totalRows: number; chapterPositions: Map<string, { left: number; top: number; width: number }> } {
   const chapterPositions = new Map<
     string,
     { left: number; top: number; width: number }
@@ -386,5 +386,5 @@ function computeChapterPosition(
     });
   }
 
-  return chapterPositions;
+  return {totalRows: rowIdx + 1, chapterPositions: chapterPositions};
 }
