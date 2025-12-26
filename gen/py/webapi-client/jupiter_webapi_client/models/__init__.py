@@ -187,6 +187,20 @@ from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
 from .get_summaries_args import GetSummariesArgs
 from .get_summaries_result import GetSummariesResult
+from .goal import Goal
+from .goal_archive_args import GoalArchiveArgs
+from .goal_create_args import GoalCreateArgs
+from .goal_create_result import GoalCreateResult
+from .goal_find_args import GoalFindArgs
+from .goal_find_result import GoalFindResult
+from .goal_find_result_entry import GoalFindResultEntry
+from .goal_load_args import GoalLoadArgs
+from .goal_load_result import GoalLoadResult
+from .goal_remove_args import GoalRemoveArgs
+from .goal_summary import GoalSummary
+from .goal_update_args import GoalUpdateArgs
+from .goal_update_args_name import GoalUpdateArgsName
+from .goal_update_args_project_ref_id import GoalUpdateArgsProjectRefId
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -939,6 +953,20 @@ __all__ = (
     "GenLogEntry",
     "GetSummariesArgs",
     "GetSummariesResult",
+    "Goal",
+    "GoalArchiveArgs",
+    "GoalCreateArgs",
+    "GoalCreateResult",
+    "GoalFindArgs",
+    "GoalFindResult",
+    "GoalFindResultEntry",
+    "GoalLoadArgs",
+    "GoalLoadResult",
+    "GoalRemoveArgs",
+    "GoalSummary",
+    "GoalUpdateArgs",
+    "GoalUpdateArgsName",
+    "GoalUpdateArgsProjectRefId",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",

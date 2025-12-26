@@ -1,4 +1,4 @@
-import type { PartialDate } from "@jupiter/webapi-client";
+import type { MilestoneSummary, PartialDate } from "@jupiter/webapi-client";
 import {
   FormControl,
   InputLabel,
@@ -20,12 +20,15 @@ import {
   useLeafPanelExpansionState,
 } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { MilestoneSelect } from "#/core/life_plan/sub/milestone/components/select";
 
 const DEFAULT_YEAR_ABSOLUTE = 1990;
 const DEFAULT_YEAR_RELATIVE = 20;
 const DEFAULT_DECADE_RELATIVE = 20;
 
 interface PartialDateSelectProps {
+  maxAge: number;
+  allMilestones: MilestoneSummary[];
   name: string;
   initialDate?: PartialDate | null;
   disabled?: boolean;
@@ -38,7 +41,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     : undefined;
 
   const [grossType, setGrossType] = useState<
-    "absolute" | "relative" | "present"
+    "absolute" | "relative" | "milestone" | "present"
   >(partialDateExtracted?.grossType ?? "absolute");
   const [relativeType, setRelativeType] = useState<"year" | "decade">(
     partialDateExtracted?.relativeType ?? "year",
@@ -68,6 +71,9 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
       ? partialDateExtracted.year
       : DEFAULT_DECADE_RELATIVE,
   );
+  const [milestoneRefId, setMilestoneRefId] = useState<string | undefined>(
+    partialDateExtracted?.milestoneRefId ?? undefined,
+  );
   const [partialDate, setPartialDate] = useState<PartialDate>(
     props.initialDate ?? "",
   );
@@ -92,6 +98,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
               : decadeRelative,
         month,
         day,
+        milestoneRefId,
       }),
     );
   }, [
@@ -102,6 +109,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     yearAbsolute,
     yearRelative,
     decadeRelative,
+    milestoneRefId,
   ]);
 
   return (
@@ -116,6 +124,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
         >
           <ToggleButton value="absolute">Absolute</ToggleButton>
           <ToggleButton value="relative">Relative</ToggleButton>
+          <ToggleButton value="milestone">Milestone</ToggleButton>
           <ToggleButton value="present">Present</ToggleButton>
         </ToggleButtonGroup>
 
@@ -244,7 +253,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                     setYearRelative(parseInt(event.target.value, 10))
                   }
                 >
-                  {Array.from({ length: 99 }, (_, i) => (
+                  {Array.from({ length: props.maxAge }, (_, i) => (
                     <MenuItem key={i} value={i}>
                       {i}
                     </MenuItem>
@@ -272,19 +281,33 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                   }
                 >
                   <MenuItem value={0}>0s</MenuItem>
-                  <MenuItem value={10}>10s</MenuItem>
-                  <MenuItem value={20}>20s</MenuItem>
-                  <MenuItem value={30}>30s</MenuItem>
-                  <MenuItem value={40}>40s</MenuItem>
-                  <MenuItem value={50}>50s</MenuItem>
-                  <MenuItem value={60}>60s</MenuItem>
-                  <MenuItem value={70}>70s</MenuItem>
-                  <MenuItem value={80}>80s</MenuItem>
-                  <MenuItem value={90}>90s</MenuItem>
+                  {Array.from(
+                    { length: props.maxAge / 10 },
+                    (_, i) => i * 10,
+                  ).map((decade) => (
+                    <MenuItem key={decade} value={decade}>
+                      {decade}s
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             )}
           </Stack>
+        )}
+
+        {grossType === "milestone" && (
+          <FormControl fullWidth>
+            <MilestoneSelect
+              name={`${props.name}-Milestone`}
+              label="Milestone"
+              inputsEnabled={props.inputsEnabled}
+              disabled={false}
+              allMilestones={props.allMilestones}
+              defaultValue={milestoneRefId}
+              value={milestoneRefId}
+              onChange={(milestoneRefId) => setMilestoneRefId(milestoneRefId)}
+            />
+          </FormControl>
         )}
       </Stack>
       <input type="hidden" name={props.name} value={partialDate} />

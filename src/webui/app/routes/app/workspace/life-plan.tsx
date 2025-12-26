@@ -1,4 +1,11 @@
-import { ApiError, Chapter, LifePlan, Milestone } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  Chapter,
+  LifePlan,
+  Goal,
+  Milestone,
+  MilestoneSummary,
+} from "@jupiter/webapi-client";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
@@ -55,9 +62,9 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
-import { useContext } from "react";
+import { Fragment, useContext } from "react";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { midDate } from "#/core/life_plan/partial-date";
+import { isMilestonePartialDate, midDate } from "#/core/life_plan/partial-date";
 import { DateTime } from "luxon";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 import { aDateToDate } from "#/core/common/adate";
@@ -90,6 +97,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
   });
+  const goalsResponse = await apiClient.lifePlan.goalFind({
+    allow_archived: false,
+    include_notes: false,
+  });
   const milestonesResponse = await apiClient.lifePlan.milestoneFind({
     allow_archived: false,
     include_notes: false,
@@ -98,6 +109,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     lifePlan: summaryResponse.life_plan as LifePlan,
     projects: projectsResponse.entries,
     chapters: chaptersResponse.entries,
+    goals: goalsResponse.entries,
     milestones: milestonesResponse.entries,
   });
 }
@@ -170,6 +182,13 @@ export default function LifePlanView() {
       .get(entry.chapter.project_ref_id)!
       .push(entry.chapter);
   }
+  const allGoalsByProjectRefId = new Map<string, Goal[]>();
+  for (const entry of loaderData.goals) {
+    if (!allGoalsByProjectRefId.has(entry.goal.project_ref_id)) {
+      allGoalsByProjectRefId.set(entry.goal.project_ref_id, []);
+    }
+    allGoalsByProjectRefId.get(entry.goal.project_ref_id)!.push(entry.goal);
+  }
   const sortedMilestones = sortMilestonesNaturally(
     loaderData.milestones.map((entry) => entry.milestone),
   );
@@ -210,6 +229,11 @@ export default function LifePlanView() {
                 NavSingle({
                   text: "New Chapter",
                   link: `/app/workspace/life-plan/chapters/new`,
+                  icon: <AddIcon />,
+                }),
+                NavSingle({
+                  text: "New Goal",
+                  link: `/app/workspace/life-plan/goals/new`,
                   icon: <AddIcon />,
                 }),
                 NavSingle({
@@ -302,15 +326,18 @@ export default function LifePlanView() {
 
               const chapters =
                 allChaptersByProjectRefId.get(project.ref_id) ?? [];
+              const goals = allGoalsByProjectRefId.get(project.ref_id) ?? [];
               const sortedChapters = sortChaptersNaturally(
                 lifePlanBirthdayDate(loaderData.lifePlan),
                 today,
                 chapters,
+                sortedMilestones,
               );
               const { totalRows, chapterPositions } = computeChapterPositions(
                 today,
                 loaderData.lifePlan,
                 sortedChapters,
+                sortedMilestones,
               );
 
               return (
@@ -380,18 +407,54 @@ export default function LifePlanView() {
                               chapter.ref_id,
                             )!;
                             return (
-                              <ChapterTimelineLink
-                                key={`chapter-${chapter.ref_id}`}
-                                to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
-                                left={position.left}
-                                width={position.width}
-                                top={position.top}
-                              >
-                                <EntityNameComponent name={chapter.name} />
-                              </ChapterTimelineLink>
+                              <Fragment key={`chapter-${chapter.ref_id}`}>
+                                {isMilestonePartialDate(chapter.start_date) && (
+                                  <ChapterMilestoneLink
+                                    left={position.left}
+                                    top={position.top}
+                                  />
+                                )}
+                                <ChapterTimelineLink
+                                  to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
+                                  left={position.left}
+                                  width={position.width}
+                                  top={position.top}
+                                >
+                                  <EntityNameComponent
+                                    name={`📖 ${chapter.name}`}
+                                  />
+                                </ChapterTimelineLink>
+                                {isMilestonePartialDate(chapter.end_date) && (
+                                  <ChapterMilestoneLink
+                                    left={position.left + position.width}
+                                    top={position.top}
+                                  />
+                                )}
+                              </Fragment>
                             );
                           })}
                         </Box>
+                      </>
+                    )}
+
+                    {goals.length > 0 && (
+                      <>
+                        <Divider />
+                        <Stack direction="row" 
+                          spacing={2} 
+                          sx={{ paddingTop: "0.5rem", 
+                          paddingBottom: "0.5rem", paddingLeft: "1rem", paddingRight: "1rem"}}>
+                          {goals.map((goal) => (
+                            <EntityLink
+                              inline
+                              singleLine
+                              key={`goal-${goal.ref_id}`}
+                              to={`/app/workspace/life-plan/goals/${goal.ref_id}`}
+                            >
+                              <EntityNameComponent name={`🎯 ${goal.name}`} />
+                            </EntityLink>
+                          ))}
+                        </Stack>
                       </>
                     )}
                   </Stack>
@@ -443,6 +506,25 @@ const ChapterTimelineLink = styled(Link)<TimelineLinkProps>(
     backgroundColor: theme.palette.action.hover,
     borderRadius: "0.25rem",
     border: `1px solid ${theme.palette.divider}`,
+  }),
+);
+
+interface ChapterMilestoneLinkProps {
+  left: number;
+  top: number;
+}
+
+const ChapterMilestoneLink = styled("div")<ChapterMilestoneLinkProps>(
+  ({ theme, left, top }) => ({
+    position: "absolute",
+    textDecoration: "none",
+    left: `${left * 100}%`,
+    top: `${top + 0.8}rem`,
+    width: "0.4rem",
+    height: "0.4rem",
+    backgroundColor: theme.palette.error.light,
+    zIndex: theme.zIndex.tooltip,
+    borderRadius: "0.15rem",
   }),
 );
 
@@ -509,6 +591,7 @@ function computeChapterPositions(
   today: DateTime,
   lifePlan: LifePlan,
   chapters: Chapter[],
+  milestones: MilestoneSummary[],
 ): {
   totalRows: number;
   chapterPositions: Map<string, { left: number; top: number; width: number }>;
@@ -520,7 +603,7 @@ function computeChapterPositions(
   const birthdayDate = lifePlanBirthdayDate(lifePlan);
 
   const maxDate = DateTime.fromObject({
-    year: lifePlan.birth_year + 100,
+    year: lifePlan.birth_year + lifePlan.max_age,
     month: 12,
     day: 31,
   });
@@ -533,8 +616,11 @@ function computeChapterPositions(
     startDate: DateTime;
     endDate: DateTime;
   } {
-    const startDate = midDate(chapter.start_date, birthdayDate, today);
-    const endDate = midDate(chapter.end_date, birthdayDate, today);
+    const startDate = DateTime.max(
+      birthdayDate,
+      midDate(chapter.start_date, birthdayDate, today, milestones),
+    );
+    const endDate = midDate(chapter.end_date, birthdayDate, today, milestones);
     const left = Math.max(
       0,
       startDate.diff(birthdayDate, "days").days / maxWidth,
@@ -594,7 +680,7 @@ function computeMilestonePositions(
   >();
   const birthdayDate = lifePlanBirthdayDate(lifePlan);
   const maxDate = DateTime.fromObject({
-    year: lifePlan.birth_year + 100,
+    year: lifePlan.birth_year + lifePlan.max_age,
     month: 12,
     day: 31,
   });

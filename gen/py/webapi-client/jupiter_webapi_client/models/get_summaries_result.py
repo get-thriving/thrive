@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.big_plan_summary import BigPlanSummary
     from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
+    from ..models.goal_summary import GoalSummary
     from ..models.habit_summary import HabitSummary
     from ..models.inbox_task_summary import InboxTaskSummary
     from ..models.journal_summary import JournalSummary
@@ -43,6 +44,7 @@ class GetSummariesResult:
         root_project (None | ProjectSummary | Unset):
         projects (list[ProjectSummary] | None | Unset):
         chapters (list[ChapterSummary] | None | Unset):
+        goals (list[GoalSummary] | None | Unset):
         milestones (list[MilestoneSummary] | None | Unset):
         inbox_tasks (list[InboxTaskSummary] | None | Unset):
         journals_last_year (list[JournalSummary] | None | Unset):
@@ -62,6 +64,7 @@ class GetSummariesResult:
     root_project: None | ProjectSummary | Unset = UNSET
     projects: list[ProjectSummary] | None | Unset = UNSET
     chapters: list[ChapterSummary] | None | Unset = UNSET
+    goals: list[GoalSummary] | None | Unset = UNSET
     milestones: list[MilestoneSummary] | None | Unset = UNSET
     inbox_tasks: list[InboxTaskSummary] | None | Unset = UNSET
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
@@ -158,6 +161,18 @@ class GetSummariesResult:
 
         else:
             chapters = self.chapters
+
+        goals: list[dict[str, Any]] | None | Unset
+        if isinstance(self.goals, Unset):
+            goals = UNSET
+        elif isinstance(self.goals, list):
+            goals = []
+            for goals_type_0_item_data in self.goals:
+                goals_type_0_item = goals_type_0_item_data.to_dict()
+                goals.append(goals_type_0_item)
+
+        else:
+            goals = self.goals
 
         milestones: list[dict[str, Any]] | None | Unset
         if isinstance(self.milestones, Unset):
@@ -286,6 +301,8 @@ class GetSummariesResult:
             field_dict["projects"] = projects
         if chapters is not UNSET:
             field_dict["chapters"] = chapters
+        if goals is not UNSET:
+            field_dict["goals"] = goals
         if milestones is not UNSET:
             field_dict["milestones"] = milestones
         if inbox_tasks is not UNSET:
@@ -312,6 +329,7 @@ class GetSummariesResult:
         from ..models.big_plan_summary import BigPlanSummary
         from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
+        from ..models.goal_summary import GoalSummary
         from ..models.habit_summary import HabitSummary
         from ..models.inbox_task_summary import InboxTaskSummary
         from ..models.journal_summary import JournalSummary
@@ -483,6 +501,28 @@ class GetSummariesResult:
             return cast(list[ChapterSummary] | None | Unset, data)
 
         chapters = _parse_chapters(d.pop("chapters", UNSET))
+
+        def _parse_goals(data: object) -> list[GoalSummary] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                goals_type_0 = []
+                _goals_type_0 = data
+                for goals_type_0_item_data in _goals_type_0:
+                    goals_type_0_item = GoalSummary.from_dict(goals_type_0_item_data)
+
+                    goals_type_0.append(goals_type_0_item)
+
+                return goals_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[GoalSummary] | None | Unset, data)
+
+        goals = _parse_goals(d.pop("goals", UNSET))
 
         def _parse_milestones(data: object) -> list[MilestoneSummary] | None | Unset:
             if data is None:
@@ -691,6 +731,7 @@ class GetSummariesResult:
             root_project=root_project,
             projects=projects,
             chapters=chapters,
+            goals=goals,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,

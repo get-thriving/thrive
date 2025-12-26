@@ -10,6 +10,7 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -37,6 +38,7 @@ class Project(LeafEntity):
     order_of_child_projects: list[EntityId]
 
     chapters = RefsMany(Chapter, project_ref_id=IsRefId())
+    goals = RefsMany(Goal, project_ref_id=IsRefId())
     milestones = RefsMany(Milestone, project_ref_id=IsRefId())
 
     inbox_tasks = RefsMany(InboxTask, project_ref_id=IsRefId())

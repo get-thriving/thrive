@@ -1,4 +1,9 @@
-import { ApiError, ProjectSummary } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -50,9 +55,13 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_milestones: true,
   });
   return json({
+    lifePlan: summaryResponse.life_plan as LifePlan,
+    allMilestones: summaryResponse.milestones as MilestoneSummary[],
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     rootProject: summaryResponse.root_project as ProjectSummary,
   });
@@ -149,9 +158,11 @@ export default function NewChapter() {
         <FormControl fullWidth>
           <FormLabel id="startDate">Start Date</FormLabel>
           <PartialDateSelect
+            maxAge={loaderData.lifePlan.max_age}
             name="startDate"
             initialDate={null}
             inputsEnabled={inputsEnabled}
+            allMilestones={loaderData.allMilestones}
           />
           <FieldError actionResult={actionData} fieldName="/start_date" />
         </FormControl>
@@ -159,9 +170,11 @@ export default function NewChapter() {
         <FormControl fullWidth>
           <FormLabel id="endDate">End Date</FormLabel>
           <PartialDateSelect
+            maxAge={loaderData.lifePlan.max_age}
             name="endDate"
             initialDate={null}
             inputsEnabled={inputsEnabled}
+            allMilestones={loaderData.allMilestones}
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>

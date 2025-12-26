@@ -26,6 +26,8 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Projects";
     case SyncTarget.CHAPTERS:
       return "Chapters";
+    case SyncTarget.GOALS:
+      return "Goals";
     case SyncTarget.MILESTONES:
       return "Milestones";
     case SyncTarget.SMART_LISTS:

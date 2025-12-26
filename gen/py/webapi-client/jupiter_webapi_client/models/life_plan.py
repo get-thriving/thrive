@@ -24,6 +24,7 @@ class LifePlan:
         workspace_ref_id (str):
         birthday (str): The birthday of a person.
         birth_year (int): The birth year of a person.
+        max_age (int):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -36,6 +37,7 @@ class LifePlan:
     workspace_ref_id: str
     birthday: str
     birth_year: int
+    max_age: int
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -56,6 +58,8 @@ class LifePlan:
         birthday = self.birthday
 
         birth_year = self.birth_year
+
+        max_age = self.max_age
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -81,6 +85,7 @@ class LifePlan:
                 "workspace_ref_id": workspace_ref_id,
                 "birthday": birthday,
                 "birth_year": birth_year,
+                "max_age": max_age,
             }
         )
         if archival_reason is not UNSET:
@@ -109,6 +114,8 @@ class LifePlan:
 
         birth_year = d.pop("birth_year")
 
+        max_age = d.pop("max_age")
+
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -136,6 +143,7 @@ class LifePlan:
             workspace_ref_id=workspace_ref_id,
             birthday=birthday,
             birth_year=birth_year,
+            max_age=max_age,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

@@ -24,6 +24,7 @@ class GetSummariesArgs:
         include_vacations (bool | None | Unset):
         include_projects (bool | None | Unset):
         include_chapters (bool | None | Unset):
+        include_goals (bool | None | Unset):
         include_milestones (bool | None | Unset):
         include_inbox_tasks (bool | None | Unset):
         include_journals_last_year (bool | None | Unset):
@@ -43,6 +44,7 @@ class GetSummariesArgs:
     include_vacations: bool | None | Unset = UNSET
     include_projects: bool | None | Unset = UNSET
     include_chapters: bool | None | Unset = UNSET
+    include_goals: bool | None | Unset = UNSET
     include_milestones: bool | None | Unset = UNSET
     include_inbox_tasks: bool | None | Unset = UNSET
     include_journals_last_year: bool | None | Unset = UNSET
@@ -102,6 +104,12 @@ class GetSummariesArgs:
             include_chapters = UNSET
         else:
             include_chapters = self.include_chapters
+
+        include_goals: bool | None | Unset
+        if isinstance(self.include_goals, Unset):
+            include_goals = UNSET
+        else:
+            include_goals = self.include_goals
 
         include_milestones: bool | None | Unset
         if isinstance(self.include_milestones, Unset):
@@ -176,6 +184,8 @@ class GetSummariesArgs:
             field_dict["include_projects"] = include_projects
         if include_chapters is not UNSET:
             field_dict["include_chapters"] = include_chapters
+        if include_goals is not UNSET:
+            field_dict["include_goals"] = include_goals
         if include_milestones is not UNSET:
             field_dict["include_milestones"] = include_milestones
         if include_inbox_tasks is not UNSET:
@@ -273,6 +283,15 @@ class GetSummariesArgs:
 
         include_chapters = _parse_include_chapters(d.pop("include_chapters", UNSET))
 
+        def _parse_include_goals(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_goals = _parse_include_goals(d.pop("include_goals", UNSET))
+
         def _parse_include_milestones(data: object) -> bool | None | Unset:
             if data is None:
                 return data
@@ -363,6 +382,7 @@ class GetSummariesArgs:
             include_vacations=include_vacations,
             include_projects=include_projects,
             include_chapters=include_chapters,
+            include_goals=include_goals,
             include_milestones=include_milestones,
             include_inbox_tasks=include_inbox_tasks,
             include_journals_last_year=include_journals_last_year,

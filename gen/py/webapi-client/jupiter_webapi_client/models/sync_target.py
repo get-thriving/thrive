@@ -8,6 +8,7 @@ class SyncTarget(str, Enum):
     DOCS = "docs"
     EMAIL_TASKS = "email-tasks"
     GAMIFICATION = "gamification"
+    GOALS = "goals"
     HABITS = "habits"
     INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"

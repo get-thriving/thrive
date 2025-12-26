@@ -1,6 +1,10 @@
 """A date in the life plan."""
 
+from typing import Final
+
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
@@ -10,6 +14,11 @@ from jupiter.framework.realm.realm import (
     RealmThing,
 )
 from jupiter.framework.value import AtomicValue, EnumValue, enum_value, value
+
+MIN_YEAR: Final[int] = 1900
+MAX_YEAR: Final[int] = 2100
+MIN_AGE: Final[int] = 0
+MAX_AGE: Final[int] = 100
 
 
 @enum_value
@@ -21,6 +30,7 @@ class PartialDateType(EnumValue):
     ABSOLUTE_Y = "absolute-year"
     RELATIVE_YEAR = "relative-year"
     RELATIVE_DECADE = "relative-decade"
+    MILESTONE = "milestone"
     PERSENT = "present"
 
 
@@ -32,13 +42,14 @@ class PartialDate(AtomicValue[str]):
     year: int | None
     month: int | None
     day: int | None
+    milestone_ref_id: EntityId | None
 
     @staticmethod
     def from_absolute_ymd(year: int, month: int, day: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 1900 or year > 2100:
+        if year < MIN_YEAR or year > MAX_YEAR:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1900 and 2100 but was {year}"
+                f"Expected year to be a valid year between {MIN_YEAR} and {MAX_YEAR} but was {year}"
             )
         if month < 1 or month > 12:
             raise InputValidationError(
@@ -47,69 +58,106 @@ class PartialDate(AtomicValue[str]):
         if day < 1 or day > 31:
             raise InputValidationError(f"Expected day to be a valid day but was {day}")
         return PartialDate(
-            type=PartialDateType.ABSOLUTE_YMD, year=year, month=month, day=day
+            type=PartialDateType.ABSOLUTE_YMD,
+            year=year,
+            month=month,
+            day=day,
+            milestone_ref_id=None,
         )
 
     @staticmethod
     def from_absolute_ym(year: int, month: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 1900 or year > 2100:
+        if year < MIN_YEAR or year > MAX_YEAR:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1900 and 2100 but was {year}"
+                f"Expected year to be a valid year between {MIN_YEAR} and {MAX_YEAR} but was {year}"
             )
         if month < 1 or month > 12:
             raise InputValidationError(
                 f"Expected month to be a valid month but was {month}"
             )
         return PartialDate(
-            type=PartialDateType.ABSOLUTE_YM, year=year, month=month, day=None
+            type=PartialDateType.ABSOLUTE_YM,
+            year=year,
+            month=month,
+            day=None,
+            milestone_ref_id=None,
         )
 
     @staticmethod
     def from_absolute_y(year: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 1900 or year > 2100:
+        if year < MIN_YEAR or year > MAX_YEAR:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1900 and 2100 but was {year}"
+                f"Expected year to be a valid year between {MIN_YEAR} and {MAX_YEAR} but was {year}"
             )
         return PartialDate(
-            type=PartialDateType.ABSOLUTE_Y, year=year, month=None, day=None
+            type=PartialDateType.ABSOLUTE_Y,
+            year=year,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
         )
 
     @staticmethod
     def from_relative_year(year: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 0 or year > 100:
+        if year < MIN_AGE or year > MAX_AGE:
             raise InputValidationError(
-                f"Expected year to be a valid year between 1 and 100 but was {year}"
+                f"Expected year to be a valid year between {MIN_AGE} and {MAX_AGE} but was {year}"
             )
         return PartialDate(
-            type=PartialDateType.RELATIVE_YEAR, year=year, month=None, day=None
+            type=PartialDateType.RELATIVE_YEAR,
+            year=year,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
         )
 
     @staticmethod
     def from_relative_decade(year: int) -> "PartialDate":
         """Construct a partial date from its components."""
-        if year < 0 or year > 100:
+        if year < MIN_AGE or year > MAX_AGE:
             raise InputValidationError(
-                f"Expected decade to be a valid year between 1 and 100 but was {year}"
+                f"Expected decade to be a valid year between {MIN_AGE} and {MAX_AGE} but was {year}"
             )
         if year % 10 != 0:
             raise InputValidationError(
                 f"Expected decade to be a multiple of 10 but was {year}"
             )
         return PartialDate(
-            type=PartialDateType.RELATIVE_DECADE, year=year, month=None, day=None
+            type=PartialDateType.RELATIVE_DECADE,
+            year=year,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
         )
 
     @staticmethod
     def from_present() -> "PartialDate":
         """Construct a partial date from the present."""
         return PartialDate(
-            type=PartialDateType.PERSENT, year=None, month=None, day=None
+            type=PartialDateType.PERSENT,
+            year=None,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
         )
 
-    def earliest_relative_to(self, birthday: ADate, today: ADate) -> ADate:
+    @staticmethod
+    def from_milestone(milestone_ref_id: EntityId) -> "PartialDate":
+        """Construct a partial date from a milestone."""
+        return PartialDate(
+            type=PartialDateType.MILESTONE,
+            year=None,
+            month=None,
+            day=None,
+            milestone_ref_id=milestone_ref_id,
+        )
+
+    def earliest_relative_to(
+        self, birthday: ADate, today: ADate, milestones: list[Milestone]
+    ) -> ADate:
         """Get the earliest relative date to the birthday."""
         match self.type:
             case PartialDateType.ABSOLUTE_YMD:
@@ -124,10 +172,16 @@ class PartialDate(AtomicValue[str]):
                 return birthday.add_years(self.year or 0)
             case PartialDateType.RELATIVE_DECADE:
                 return birthday.add_years(self.year or 0)
+            case PartialDateType.MILESTONE:
+                return next(
+                    m for m in milestones if m.ref_id == self.milestone_ref_id
+                ).date
             case PartialDateType.PERSENT:
                 return today
 
-    def latest_relative_to(self, birthday: ADate, today: ADate) -> ADate:
+    def latest_relative_to(
+        self, birthday: ADate, today: ADate, milestones: list[Milestone]
+    ) -> ADate:
         """Get the latest relative date to the birthday."""
         match self.type:
             case PartialDateType.ABSOLUTE_YMD:
@@ -144,8 +198,19 @@ class PartialDate(AtomicValue[str]):
                 return birthday.add_years(self.year or 0).end_of("year")
             case PartialDateType.RELATIVE_DECADE:
                 return birthday.add_years(self.year or 0 + 9).end_of("year")
+            case PartialDateType.MILESTONE:
+                return next(
+                    m for m in milestones if m.ref_id == self.milestone_ref_id
+                ).date
             case PartialDateType.PERSENT:
                 return today
+
+    def contains_milestone(self, milestone_ref_id: EntityId) -> bool:
+        """Check if the partial date contains a milestone."""
+        return (
+            self.type == PartialDateType.MILESTONE
+            and self.milestone_ref_id == milestone_ref_id
+        )
 
 
 class PartialDateDatabaseEncoder(RealmEncoder[PartialDate, DatabaseRealm]):
@@ -163,6 +228,9 @@ class PartialDateDatabaseEncoder(RealmEncoder[PartialDate, DatabaseRealm]):
 
         if value.day is not None:
             res += f" {value.day}"
+
+        if value.milestone_ref_id is not None:
+            res += f" {value.milestone_ref_id.as_int()}"
 
         return res
 
@@ -198,6 +266,10 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
                     return PartialDate.from_relative_decade(year=int(parts[1]))
                 case PartialDateType.PERSENT.value:
                     return PartialDate.from_present()
+                case PartialDateType.MILESTONE.value:
+                    return PartialDate.from_milestone(
+                        milestone_ref_id=EntityId(parts[1])
+                    )
                 case _:
                     raise RealmDecodingError(f"Invalid partial date type: {value}")
         except ValueError as err:

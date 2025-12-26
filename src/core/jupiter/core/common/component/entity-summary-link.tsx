@@ -168,6 +168,13 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
+    case NamedEntityTag.GOAL:
+      return (
+        <EntityLink to={`/app/workspace/life-plan/goals/${summary.ref_id}`}>
+          <SlimChip label={"Goal"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
     case NamedEntityTag.MILESTONE:
       return (
         <EntityLink

@@ -10,6 +10,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -59,12 +60,18 @@ class ChapterCreateUseCase(
             workspace.ref_id,
         )
 
+        milestones = await uow.get_for(Milestone).find_all(
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=False,
+        )
+
         project = await uow.get_for(Project).load_by_id(args.project_ref_id)
 
         new_chapter = Chapter.new_chapter(
             ctx=context.domain_context,
             life_plan_ref_id=life_plan.ref_id,
             birthday=life_plan.birthday_date,
+            milestones=milestones,
             name=args.name,
             project_ref_id=project.ref_id,
             start_date=args.start_date,

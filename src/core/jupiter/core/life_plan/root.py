@@ -2,8 +2,10 @@
 
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
+from jupiter.core.life_plan.partial_date import MAX_AGE
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -28,9 +30,11 @@ class LifePlan(TrunkEntity):
 
     birthday: Birthday
     birth_year: BirthYear
+    max_age: int
 
     projects = ContainsMany(Project, life_plan_ref_id=IsRefId())
     chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
+    goals = ContainsMany(Goal, life_plan_ref_id=IsRefId())
     milestones = ContainsMany(Milestone, life_plan_ref_id=IsRefId())
 
     @staticmethod
@@ -47,6 +51,7 @@ class LifePlan(TrunkEntity):
             workspace=ParentLink(workspace_ref_id),
             birthday=birthday,
             birth_year=birth_year,
+            max_age=MAX_AGE,
         )
 
     @update_entity_action
@@ -69,3 +74,8 @@ class LifePlan(TrunkEntity):
         return ADate.from_components(
             self.birth_year.the_year, self.birthday.month, self.birthday.day
         )
+
+    @property
+    def end_date(self) -> ADate:
+        """Get the end date."""
+        return self.birthday_date.add_years(self.max_age)

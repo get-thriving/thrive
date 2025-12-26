@@ -5,6 +5,7 @@ from jupiter.core.application.fast_info_repository import (
     ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
+    GoalSummary,
     HabitSummary,
     InboxTaskSummary,
     JournalSummary,
@@ -63,6 +64,7 @@ class GetSummariesArgs(UseCaseArgsBase):
     include_vacations: bool | None
     include_projects: bool | None
     include_chapters: bool | None
+    include_goals: bool | None
     include_milestones: bool | None
     include_inbox_tasks: bool | None
     include_journals_last_year: bool | None
@@ -86,6 +88,7 @@ class GetSummariesResult(UseCaseResultBase):
     root_project: ProjectSummary | None
     projects: list[ProjectSummary] | None
     chapters: list[ChapterSummary] | None
+    goals: list[GoalSummary] | None
     milestones: list[MilestoneSummary] | None
     inbox_tasks: list[InboxTaskSummary] | None
     journals_last_year: list[JournalSummary] | None
@@ -220,6 +223,16 @@ class GetSummariesUseCase(
                 allow_archived=allow_archived,
             )
 
+        goals = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_goals
+        ):
+            goals = await uow.get(FastInfoRepository).find_all_goal_summaries(
+                parent_ref_id=life_plan.workspace.ref_id,
+                allow_archived=allow_archived,
+            )
+
         journals_last_year = None
         if (
             workspace.is_feature_available(WorkspaceFeature.JOURNALS)
@@ -302,6 +315,7 @@ class GetSummariesUseCase(
             root_project=root_project,
             projects=projects,
             chapters=chapters,
+            goals=goals,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,

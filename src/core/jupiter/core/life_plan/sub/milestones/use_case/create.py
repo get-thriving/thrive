@@ -11,6 +11,7 @@ from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import mutation_use_case
@@ -59,6 +60,15 @@ class MilestoneCreateUseCase(
         life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
+
+        if args.date < life_plan.birthday_date:
+            raise InputValidationError(
+                f"Milestone date {args.date} must be after life plan's birthday {life_plan.birthday_date}"
+            )
+        if args.date > life_plan.end_date:
+            raise InputValidationError(
+                f"Milestone date {args.date} must be before life plan's end date {life_plan.end_date}"
+            )
 
         project = await uow.get_for(Project).load_by_id(args.project_ref_id)
 

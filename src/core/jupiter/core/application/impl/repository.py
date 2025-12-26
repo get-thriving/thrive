@@ -7,6 +7,7 @@ from jupiter.core.application.fast_info_repository import (
     ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
+    GoalSummary,
     HabitSummary,
     InboxTaskSummary,
     JournalSummary,
@@ -27,6 +28,7 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
@@ -49,6 +51,7 @@ _VACATION_NAME_DECODER = EntityNameDatabaseDecoder(VacationName)
 _INBOX_TASK_NAME_DECODER = EntityNameDatabaseDecoder(InboxTaskName)
 _PROJECT_NAME_DECODER = EntityNameDatabaseDecoder(ProjectName)
 _CHAPTER_NAME_DECODER = EntityNameDatabaseDecoder(ChapterName)
+_GOAL_NAME_DECODER = EntityNameDatabaseDecoder(GoalName)
 _MILESTONE_NAME_DECODER = EntityNameDatabaseDecoder(MilestoneName)
 _PARTIAL_DATE_DECODER = PartialDateDatabaseDecoder()
 _ADATE_DECODER = ADateDatabaseDecoder()
@@ -210,6 +213,34 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_MILESTONE_NAME_DECODER.decode(row["name"]),
                 date=_ADATE_DECODER.decode(row["date"]),
+                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+            )
+            for row in result
+        ]
+
+    async def find_all_goal_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[GoalSummary]:
+        """Find all summaries about goals."""
+        query = """select ref_id, name, project_ref_id from goal where life_plan_ref_id = :parent_ref_id"""
+        if not allow_archived:
+            query += " and archived=0"
+
+        result = (
+            (
+                await self._connection.execute(
+                    text(query), {"parent_ref_id": parent_ref_id.as_int()}
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return [
+            GoalSummary(
+                ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
+                name=_GOAL_NAME_DECODER.decode(row["name"]),
                 project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
             )
             for row in result

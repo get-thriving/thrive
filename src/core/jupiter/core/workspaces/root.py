@@ -210,6 +210,10 @@ class Workspace(RootEntity):
                 WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.GOAL and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
+            ):
+                inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SMART_LIST and self.is_feature_available(
                 WorkspaceFeature.SMART_LISTS
             ):

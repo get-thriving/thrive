@@ -4,6 +4,7 @@ from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -40,6 +41,7 @@ class Chapter(LeafEntity):
         ctx: MutationContext,
         life_plan_ref_id: EntityId,
         birthday: ADate,
+        milestones: list[Milestone],
         name: ChapterName,
         project_ref_id: EntityId,
         start_date: PartialDate,
@@ -47,10 +49,10 @@ class Chapter(LeafEntity):
     ) -> "Chapter":
         """Create a chapter."""
         earliest_start_date = start_date.earliest_relative_to(
-            birthday, ADate.from_timestamp(ctx.action_timestamp)
+            birthday, ADate.from_timestamp(ctx.action_timestamp), milestones
         )
         latest_end_date = end_date.latest_relative_to(
-            birthday, ADate.from_timestamp(ctx.action_timestamp)
+            birthday, ADate.from_timestamp(ctx.action_timestamp), milestones
         )
 
         if earliest_start_date >= latest_end_date:
@@ -72,17 +74,20 @@ class Chapter(LeafEntity):
         self,
         ctx: MutationContext,
         birthday: ADate,
+        milestones: list[Milestone],
         project_ref_id: UpdateAction[EntityId],
         name: UpdateAction[ChapterName],
         start_date: UpdateAction[PartialDate],
         end_date: UpdateAction[PartialDate],
     ) -> "Chapter":
         """Update a chapter."""
+        print(f"Updating {start_date} {start_date.or_else(self.start_date)}")
+        print(f"Updating {end_date} {end_date.or_else(self.end_date)}")
         earliest_start_date = start_date.or_else(self.start_date).earliest_relative_to(
-            birthday, ADate.from_timestamp(ctx.action_timestamp)
+            birthday, ADate.from_timestamp(ctx.action_timestamp), milestones
         )
         latest_end_date = end_date.or_else(self.end_date).latest_relative_to(
-            birthday, ADate.from_timestamp(ctx.action_timestamp)
+            birthday, ADate.from_timestamp(ctx.action_timestamp), milestones
         )
 
         if earliest_start_date >= latest_end_date:

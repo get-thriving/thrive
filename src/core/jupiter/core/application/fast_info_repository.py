@@ -11,6 +11,7 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
@@ -73,6 +74,15 @@ class MilestoneSummary(CompositeValue):
     ref_id: EntityId
     name: MilestoneName
     date: ADate
+    project_ref_id: EntityId
+
+
+@value
+class GoalSummary(CompositeValue):
+    """Summary information about a goal."""
+
+    ref_id: EntityId
+    name: GoalName
     project_ref_id: EntityId
 
 
@@ -190,6 +200,14 @@ class FastInfoRepository(Repository, abc.ABC):
         allow_archived: bool,
     ) -> list[MilestoneSummary]:
         """Find all summaries about milestones."""
+
+    @abc.abstractmethod
+    async def find_all_goal_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[GoalSummary]:
+        """Find all summaries about goals."""
 
     @abc.abstractmethod
     async def find_all_inbox_task_summaries(

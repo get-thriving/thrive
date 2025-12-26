@@ -1,4 +1,10 @@
-import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  LifePlan,
+  MilestoneSummary,
+  NoteDomain,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -64,7 +70,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_milestones: true,
   });
 
   try {
@@ -74,6 +82,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
+      lifePlan: summaryResponse.life_plan as LifePlan,
+      allMilestones: summaryResponse.milestones as MilestoneSummary[],
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
       rootProject: summaryResponse.root_project as ProjectSummary,
       chapter: response.chapter,
@@ -227,9 +237,11 @@ export default function Chapter() {
         <FormControl fullWidth>
           <FormLabel id="startDate">Start Date</FormLabel>
           <PartialDateSelect
+            maxAge={loaderData.lifePlan.max_age}
             name="startDate"
             initialDate={loaderData.chapter.start_date}
             inputsEnabled={inputsEnabled}
+            allMilestones={loaderData.allMilestones}
           />
           <FieldError actionResult={actionData} fieldName="/start_date" />
         </FormControl>
@@ -237,9 +249,11 @@ export default function Chapter() {
         <FormControl fullWidth>
           <FormLabel id="endDate">End Date</FormLabel>
           <PartialDateSelect
+            maxAge={loaderData.lifePlan.max_age}
             name="endDate"
             initialDate={loaderData.chapter.end_date}
             inputsEnabled={inputsEnabled}
+            allMilestones={loaderData.allMilestones}
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>

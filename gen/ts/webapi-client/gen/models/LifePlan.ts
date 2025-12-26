@@ -20,5 +20,6 @@ export type LifePlan = {
     workspace_ref_id: string;
     birthday: Birthday;
     birth_year: BirthYear;
+    max_age: number;
 };
 

@@ -8,6 +8,7 @@ class NamedEntityTag(str, Enum):
     CHORE = "Chore"
     DOC = "Doc"
     EMAILTASK = "EmailTask"
+    GOAL = "Goal"
     HABIT = "Habit"
     HOMETAB = "HomeTab"
     HOMEWIDGET = "HomeWidget"

@@ -21,6 +21,7 @@ class NoteDomain(EnumValue):
     VACATION = "vacation"
     PROJECT = "project"
     CHAPTER = "chapter"
+    GOAL = "goal"
     MILESTONE = "milestone"
     SMART_LIST = "smart-list"
     SMART_LIST_ITEM = "smart-list-item"

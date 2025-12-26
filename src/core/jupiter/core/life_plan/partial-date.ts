@@ -1,5 +1,11 @@
-import { PartialDate, PartialDateType } from "@jupiter/webapi-client";
+import {
+  MilestoneSummary,
+  PartialDate,
+  PartialDateType,
+} from "@jupiter/webapi-client";
 import { DateTime, DateTimeMaybeValid } from "luxon";
+
+import { aDateToDate } from "#/core/common/adate";
 
 interface PartialDateAbsoluteYMD {
   type: PartialDateType.ABSOLUTE_YEAR_MONTH_DAY;
@@ -8,6 +14,7 @@ interface PartialDateAbsoluteYMD {
   year: number;
   month: number;
   day: number;
+  milestoneRefId: undefined;
 }
 
 interface PartialDateAbsoluteYM {
@@ -17,6 +24,7 @@ interface PartialDateAbsoluteYM {
   year: number;
   month: number;
   day: "N/A";
+  milestoneRefId: undefined;
 }
 
 interface PartialDateAbsoluteY {
@@ -26,6 +34,7 @@ interface PartialDateAbsoluteY {
   year: number;
   month: "N/A";
   day: "N/A";
+  milestoneRefId: undefined;
 }
 
 interface PartialDateRelativeYear {
@@ -35,6 +44,7 @@ interface PartialDateRelativeYear {
   year: number;
   month: "N/A";
   day: "N/A";
+  milestoneRefId: undefined;
 }
 
 interface PartialDateRelativeDecade {
@@ -44,6 +54,17 @@ interface PartialDateRelativeDecade {
   year: number;
   month: "N/A";
   day: "N/A";
+  milestoneRefId: undefined;
+}
+
+interface PartialDateMilestone {
+  type: PartialDateType.MILESTONE;
+  grossType: "milestone";
+  relativeType?: undefined;
+  year: "N/A";
+  month: "N/A";
+  day: "N/A";
+  milestoneRefId: string;
 }
 
 interface PartialDatePresent {
@@ -53,6 +74,7 @@ interface PartialDatePresent {
   year: "N/A";
   month: "N/A";
   day: "N/A";
+  milestoneRefId: undefined;
 }
 
 type PartialDateExtracted =
@@ -61,7 +83,12 @@ type PartialDateExtracted =
   | PartialDateAbsoluteY
   | PartialDateRelativeYear
   | PartialDateRelativeDecade
+  | PartialDateMilestone
   | PartialDatePresent;
+
+export function isMilestonePartialDate(partialDate: PartialDate): boolean {
+  return partialDate.startsWith(PartialDateType.MILESTONE);
+}
 
 export function partialDateExtract(
   partialDate: PartialDate,
@@ -85,6 +112,7 @@ export function partialDateExtract(
         year,
         month,
         day,
+        milestoneRefId: undefined,
       };
     }
 
@@ -102,6 +130,7 @@ export function partialDateExtract(
         year,
         month,
         day: "N/A",
+        milestoneRefId: undefined,
       };
     }
 
@@ -118,6 +147,7 @@ export function partialDateExtract(
         year,
         month: "N/A",
         day: "N/A",
+        milestoneRefId: undefined,
       };
     }
 
@@ -135,6 +165,7 @@ export function partialDateExtract(
         year,
         month: "N/A",
         day: "N/A",
+        milestoneRefId: undefined,
       };
     }
 
@@ -152,6 +183,24 @@ export function partialDateExtract(
         year,
         month: "N/A",
         day: "N/A",
+        milestoneRefId: undefined,
+      };
+    }
+
+    case PartialDateType.MILESTONE: {
+      const milestoneRefId = parts[1];
+
+      if (milestoneRefId === undefined) {
+        throw new Error(`Invalid partial date: ${partialDate}`);
+      }
+
+      return {
+        type: PartialDateType.MILESTONE,
+        grossType: "milestone",
+        year: "N/A",
+        month: "N/A",
+        day: "N/A",
+        milestoneRefId: milestoneRefId,
       };
     }
 
@@ -163,6 +212,7 @@ export function partialDateExtract(
         year: "N/A",
         month: "N/A",
         day: "N/A",
+        milestoneRefId: undefined,
       };
     }
 
@@ -190,6 +240,9 @@ export function partialDateEncode(
       }
       return `${PartialDateType.RELATIVE_DECADE} ${partialDate.year}`;
     }
+    case "milestone": {
+      return `${PartialDateType.MILESTONE} ${partialDate.milestoneRefId}`;
+    }
     case "present": {
       return PartialDateType.PRESENT;
     }
@@ -204,6 +257,7 @@ export function midDate(
   partialDate: PartialDate,
   birthday: DateTime<true>,
   today: DateTime<true>,
+  milestones: MilestoneSummary[],
 ): DateTime<true> {
   const extracted = partialDateExtract(partialDate);
   let date: DateTimeMaybeValid;
@@ -254,6 +308,16 @@ export function midDate(
         });
       }
       break;
+    case PartialDateType.MILESTONE: {
+      const milestone = milestones.find(
+        (m) => m.ref_id === extracted.milestoneRefId,
+      );
+      if (!milestone) {
+        throw new Error(`Milestone not found: ${extracted.milestoneRefId}`);
+      }
+      date = aDateToDate(milestone.date);
+      break;
+    }
     case PartialDateType.PRESENT: {
       date = today;
       break;

@@ -5,7 +5,11 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.milestones.root import Milestone
+from jupiter.core.life_plan.sub.milestones.service.unlink_entities import (
+    MilestoneUnlinkEntitiesService,
+)
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -35,6 +39,17 @@ class MilestoneRemoveUseCase(
         args: MilestoneRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
+        milestone = await uow.get_for(Milestone).load_by_id(args.ref_id)
+
+        await MilestoneUnlinkEntitiesService().unlink_entities(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            life_plan,
+            milestone,
+        )
+
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, Milestone, args.ref_id
         )
