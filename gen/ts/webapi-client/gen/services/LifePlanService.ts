@@ -12,6 +12,15 @@ import type { ChapterLoadResult } from '../models/ChapterLoadResult';
 import type { ChapterRemoveArgs } from '../models/ChapterRemoveArgs';
 import type { ChapterUpdateArgs } from '../models/ChapterUpdateArgs';
 import type { LifePlanUpdateArgs } from '../models/LifePlanUpdateArgs';
+import type { MilestoneArchiveArgs } from '../models/MilestoneArchiveArgs';
+import type { MilestoneCreateArgs } from '../models/MilestoneCreateArgs';
+import type { MilestoneCreateResult } from '../models/MilestoneCreateResult';
+import type { MilestoneFindArgs } from '../models/MilestoneFindArgs';
+import type { MilestoneFindResult } from '../models/MilestoneFindResult';
+import type { MilestoneLoadArgs } from '../models/MilestoneLoadArgs';
+import type { MilestoneLoadResult } from '../models/MilestoneLoadResult';
+import type { MilestoneRemoveArgs } from '../models/MilestoneRemoveArgs';
+import type { MilestoneUpdateArgs } from '../models/MilestoneUpdateArgs';
 import type { ProjectArchiveArgs } from '../models/ProjectArchiveArgs';
 import type { ProjectChangeParentArgs } from '../models/ProjectChangeParentArgs';
 import type { ProjectCreateArgs } from '../models/ProjectCreateArgs';
@@ -377,6 +386,162 @@ export class LifePlanService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/chapter-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for archiving a milestone.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public milestoneArchive(
+        requestBody?: MilestoneArchiveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-archive',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for creating a milestone.
+     * @param requestBody The input data
+     * @returns MilestoneCreateResult Successful response
+     * @throws ApiError
+     */
+    public milestoneCreate(
+        requestBody?: MilestoneCreateArgs,
+    ): CancelablePromise<MilestoneCreateResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-create',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for finding milestones.
+     * @param requestBody The input data
+     * @returns MilestoneFindResult Successful response
+     * @throws ApiError
+     */
+    public milestoneFind(
+        requestBody?: MilestoneFindArgs,
+    ): CancelablePromise<MilestoneFindResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for loading a particular milestone.
+     * @param requestBody The input data
+     * @returns MilestoneLoadResult Successful response
+     * @throws ApiError
+     */
+    public milestoneLoad(
+        requestBody?: MilestoneLoadArgs,
+    ): CancelablePromise<MilestoneLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for removing a milestone.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public milestoneRemove(
+        requestBody?: MilestoneRemoveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-remove',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for updating a milestone.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public milestoneUpdate(
+        requestBody?: MilestoneUpdateArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/milestone-update',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

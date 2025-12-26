@@ -168,6 +168,15 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
+    case NamedEntityTag.MILESTONE:
+      return (
+        <EntityLink
+          to={`/app/workspace/life-plan/milestones/${summary.ref_id}`}
+        >
+          <SlimChip label={"Milestone"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
     case NamedEntityTag.SMART_LIST:
       return (
         <EntityLink to={`/app/workspace/smart-lists/${summary.ref_id}/items`}>

@@ -36,6 +36,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Journal";
     case NamedEntityTag.CHAPTER:
       return "Chapter";
+    case NamedEntityTag.MILESTONE:
+      return "Milestone";
     case NamedEntityTag.DOC:
       return "Doc";
     case NamedEntityTag.VACATION:

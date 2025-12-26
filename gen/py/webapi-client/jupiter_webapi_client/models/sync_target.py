@@ -12,6 +12,7 @@ class SyncTarget(str, Enum):
     INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     METRICS = "metrics"
+    MILESTONES = "milestones"
     PERSONS = "persons"
     PROJECTS = "projects"
     SCHEDULE = "schedule"

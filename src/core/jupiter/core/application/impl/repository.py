@@ -11,6 +11,7 @@ from jupiter.core.application.fast_info_repository import (
     InboxTaskSummary,
     JournalSummary,
     MetricSummary,
+    MilestoneSummary,
     PersonSummary,
     ProjectSummary,
     ScheduleStreamSummary,
@@ -26,6 +27,7 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.persons.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
@@ -35,7 +37,7 @@ from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.vacations.name import VacationName
-from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
 from jupiter.framework.base.entity_name import EntityNameDatabaseDecoder
 from jupiter.framework.storage.sqlite.repository import SqliteRepository
@@ -47,7 +49,9 @@ _VACATION_NAME_DECODER = EntityNameDatabaseDecoder(VacationName)
 _INBOX_TASK_NAME_DECODER = EntityNameDatabaseDecoder(InboxTaskName)
 _PROJECT_NAME_DECODER = EntityNameDatabaseDecoder(ProjectName)
 _CHAPTER_NAME_DECODER = EntityNameDatabaseDecoder(ChapterName)
+_MILESTONE_NAME_DECODER = EntityNameDatabaseDecoder(MilestoneName)
 _PARTIAL_DATE_DECODER = PartialDateDatabaseDecoder()
+_ADATE_DECODER = ADateDatabaseDecoder()
 _HABIT_NAME_DECODER = EntityNameDatabaseDecoder(HabitName)
 _CHORE_NAME_DECODER = EntityNameDatabaseDecoder(ChoreName)
 _BIG_PLAN_NAME_DECODER = EntityNameDatabaseDecoder(BigPlanName)
@@ -178,6 +182,35 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 name=_CHAPTER_NAME_DECODER.decode(row["name"]),
                 start_date=_PARTIAL_DATE_DECODER.decode(row["start_date"]),
                 end_date=_PARTIAL_DATE_DECODER.decode(row["end_date"]),
+            )
+            for row in result
+        ]
+
+    async def find_all_milestone_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[MilestoneSummary]:
+        """Find all summaries about milestones."""
+        query = """select ref_id, name, date, project_ref_id from milestone where life_plan_ref_id = :parent_ref_id"""
+        if not allow_archived:
+            query += " and archived=0"
+
+        result = (
+            (
+                await self._connection.execute(
+                    text(query), {"parent_ref_id": parent_ref_id.as_int()}
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return [
+            MilestoneSummary(
+                ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
+                name=_MILESTONE_NAME_DECODER.decode(row["name"]),
+                date=_ADATE_DECODER.decode(row["date"]),
+                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
             )
             for row in result
         ]

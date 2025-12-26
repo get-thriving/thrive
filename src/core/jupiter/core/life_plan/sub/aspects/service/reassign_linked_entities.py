@@ -8,6 +8,7 @@ from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
     ProjectTreeHasCyclesError,
 )
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.push_integrations.group import PushIntegrationGroup
@@ -151,3 +152,18 @@ class ProjectReassignLinkedEntitiesService:
             )
             await uow.get_for(Chapter).save(chapter)
             await progress_reporter.mark_updated(chapter)
+
+        milestones = await uow.get_for(
+            Milestone
+        ).find_all_generic(  # pyright: ignore[reportUndefinedVariable]
+            project_ref_id=old_project.ref_id,
+        )
+        for milestone in milestones:
+            milestone = milestone.update(
+                ctx,
+                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                name=UpdateAction.do_nothing(),
+                date=UpdateAction.do_nothing(),
+            )
+            await uow.get_for(Milestone).save(milestone)
+            await progress_reporter.mark_updated(milestone)

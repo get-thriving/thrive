@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.journal_summary import JournalSummary
     from ..models.life_plan import LifePlan
     from ..models.metric_summary import MetricSummary
+    from ..models.milestone_summary import MilestoneSummary
     from ..models.person_summary import PersonSummary
     from ..models.project_summary import ProjectSummary
     from ..models.schedule_stream_summary import ScheduleStreamSummary
@@ -42,6 +43,7 @@ class GetSummariesResult:
         root_project (None | ProjectSummary | Unset):
         projects (list[ProjectSummary] | None | Unset):
         chapters (list[ChapterSummary] | None | Unset):
+        milestones (list[MilestoneSummary] | None | Unset):
         inbox_tasks (list[InboxTaskSummary] | None | Unset):
         journals_last_year (list[JournalSummary] | None | Unset):
         habits (list[HabitSummary] | None | Unset):
@@ -60,6 +62,7 @@ class GetSummariesResult:
     root_project: None | ProjectSummary | Unset = UNSET
     projects: list[ProjectSummary] | None | Unset = UNSET
     chapters: list[ChapterSummary] | None | Unset = UNSET
+    milestones: list[MilestoneSummary] | None | Unset = UNSET
     inbox_tasks: list[InboxTaskSummary] | None | Unset = UNSET
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
     habits: list[HabitSummary] | None | Unset = UNSET
@@ -155,6 +158,18 @@ class GetSummariesResult:
 
         else:
             chapters = self.chapters
+
+        milestones: list[dict[str, Any]] | None | Unset
+        if isinstance(self.milestones, Unset):
+            milestones = UNSET
+        elif isinstance(self.milestones, list):
+            milestones = []
+            for milestones_type_0_item_data in self.milestones:
+                milestones_type_0_item = milestones_type_0_item_data.to_dict()
+                milestones.append(milestones_type_0_item)
+
+        else:
+            milestones = self.milestones
 
         inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.inbox_tasks, Unset):
@@ -271,6 +286,8 @@ class GetSummariesResult:
             field_dict["projects"] = projects
         if chapters is not UNSET:
             field_dict["chapters"] = chapters
+        if milestones is not UNSET:
+            field_dict["milestones"] = milestones
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
         if journals_last_year is not UNSET:
@@ -300,6 +317,7 @@ class GetSummariesResult:
         from ..models.journal_summary import JournalSummary
         from ..models.life_plan import LifePlan
         from ..models.metric_summary import MetricSummary
+        from ..models.milestone_summary import MilestoneSummary
         from ..models.person_summary import PersonSummary
         from ..models.project_summary import ProjectSummary
         from ..models.schedule_stream_summary import ScheduleStreamSummary
@@ -465,6 +483,28 @@ class GetSummariesResult:
             return cast(list[ChapterSummary] | None | Unset, data)
 
         chapters = _parse_chapters(d.pop("chapters", UNSET))
+
+        def _parse_milestones(data: object) -> list[MilestoneSummary] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                milestones_type_0 = []
+                _milestones_type_0 = data
+                for milestones_type_0_item_data in _milestones_type_0:
+                    milestones_type_0_item = MilestoneSummary.from_dict(milestones_type_0_item_data)
+
+                    milestones_type_0.append(milestones_type_0_item)
+
+                return milestones_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[MilestoneSummary] | None | Unset, data)
+
+        milestones = _parse_milestones(d.pop("milestones", UNSET))
 
         def _parse_inbox_tasks(data: object) -> list[InboxTaskSummary] | None | Unset:
             if data is None:
@@ -651,6 +691,7 @@ class GetSummariesResult:
             root_project=root_project,
             projects=projects,
             chapters=chapters,
+            milestones=milestones,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,
             habits=habits,

@@ -7,6 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.framework.base.entity_id import EntityId
@@ -58,12 +59,14 @@ class ChapterCreateUseCase(
             workspace.ref_id,
         )
 
+        project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+
         new_chapter = Chapter.new_chapter(
             ctx=context.domain_context,
             life_plan_ref_id=life_plan.ref_id,
             birthday=life_plan.birthday_date,
             name=args.name,
-            project_ref_id=args.project_ref_id,
+            project_ref_id=project.ref_id,
             start_date=args.start_date,
             end_date=args.end_date,
         )

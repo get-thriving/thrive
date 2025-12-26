@@ -13,6 +13,7 @@ class DocsHelpSubject(str, Enum):
     JOURNALS = "journals"
     LIFE_PLAN = "life-plan"
     LIFE_PLANCHAPTERS = "life-plan/chapters"
+    LIFE_PLANMILESTONES = "life-plan/milestones"
     LIFE_PLANPROJECTS = "life-plan/projects"
     METRICS = "metrics"
     PERSONS = "persons"

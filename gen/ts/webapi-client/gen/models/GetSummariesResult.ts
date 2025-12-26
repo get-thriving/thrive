@@ -10,6 +10,7 @@ import type { InboxTaskSummary } from './InboxTaskSummary';
 import type { JournalSummary } from './JournalSummary';
 import type { LifePlan } from './LifePlan';
 import type { MetricSummary } from './MetricSummary';
+import type { MilestoneSummary } from './MilestoneSummary';
 import type { PersonSummary } from './PersonSummary';
 import type { ProjectSummary } from './ProjectSummary';
 import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
@@ -29,6 +30,7 @@ export type GetSummariesResult = {
     root_project?: (ProjectSummary | null);
     projects?: (Array<ProjectSummary> | null);
     chapters?: (Array<ChapterSummary> | null);
+    milestones?: (Array<MilestoneSummary> | null);
     inbox_tasks?: (Array<InboxTaskSummary> | null);
     journals_last_year?: (Array<JournalSummary> | null);
     habits?: (Array<HabitSummary> | null);

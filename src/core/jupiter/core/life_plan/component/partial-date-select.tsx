@@ -245,8 +245,8 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
                   }
                 >
                   {Array.from({ length: 99 }, (_, i) => (
-                    <MenuItem key={i + 1} value={i + 1}>
-                      {i + 1}
+                    <MenuItem key={i} value={i}>
+                      {i}
                     </MenuItem>
                   ))}
                 </Select>

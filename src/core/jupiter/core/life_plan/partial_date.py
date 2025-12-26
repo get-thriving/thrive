@@ -104,6 +104,7 @@ class PartialDate(AtomicValue[str]):
 
     @staticmethod
     def from_present() -> "PartialDate":
+        """Construct a partial date from the present."""
         return PartialDate(
             type=PartialDateType.PERSENT, year=None, month=None, day=None
         )

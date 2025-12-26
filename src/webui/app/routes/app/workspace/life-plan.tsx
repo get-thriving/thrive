@@ -1,7 +1,14 @@
-import { ApiError, Chapter, LifePlan } from "@jupiter/webapi-client";
+import { ApiError, Chapter, LifePlan, Milestone } from "@jupiter/webapi-client";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import { Box, Divider, IconButton, Stack, styled } from "@mui/material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Stack,
+  styled,
+  Tooltip,
+} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -54,6 +61,8 @@ import { midDate } from "#/core/life_plan/partial-date";
 import { DateTime } from "luxon";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 import { aDateToDate } from "#/core/common/adate";
+import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -81,10 +90,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
   });
+  const milestonesResponse = await apiClient.lifePlan.milestoneFind({
+    allow_archived: false,
+    include_notes: false,
+  });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     projects: projectsResponse.entries,
     chapters: chaptersResponse.entries,
+    milestones: milestonesResponse.entries,
   });
 }
 
@@ -136,6 +150,7 @@ export default function LifePlanView() {
   const topLevelInfo = useContext<TopLevelInfo>(TopLevelInfoContext);
   const today = aDateToDate(topLevelInfo.today);
   const navigation = useNavigation();
+  const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const inputsEnabled = navigation.state === "idle";
@@ -155,6 +170,19 @@ export default function LifePlanView() {
       .get(entry.chapter.project_ref_id)!
       .push(entry.chapter);
   }
+  const sortedMilestones = sortMilestonesNaturally(
+    loaderData.milestones.map((entry) => entry.milestone),
+  );
+  const { totalRows, milestonePositions } = computeMilestonePositions(
+    loaderData.lifePlan,
+    sortedMilestones,
+  );
+  const yearMarkers = Array.from({ length: 10 }, (_, idx) => {
+    return {
+      year: loaderData.lifePlan.birth_year + idx * 10,
+      left: idx * 10,
+    };
+  });
 
   const maxIndent = Math.max(
     ...sortedProjects.map((project) =>
@@ -184,6 +212,11 @@ export default function LifePlanView() {
                   link: `/app/workspace/life-plan/chapters/new`,
                   icon: <AddIcon />,
                 }),
+                NavSingle({
+                  text: "New Milestone",
+                  link: `/app/workspace/life-plan/milestones/new`,
+                  icon: <AddIcon />,
+                }),
               ],
             }),
           ]}
@@ -193,7 +226,71 @@ export default function LifePlanView() {
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <GlobalError actionResult={actionData} />
         <EntityStack>
-          <Form method="post">
+          <Form method="post" style={{ position: "relative" }}>
+            {isBigScreen && (
+              <>
+                <Box
+                  sx={{
+                    marginLeft: `${maxIndent}rem`,
+                    position: "relative",
+                    height: `${0.25 + totalRows * 1.25 + 1}rem`,
+                  }}
+                >
+                  {sortedMilestones.map((milestone) => {
+                    return (
+                      <MilestoneTimelineLink
+                        to={`/app/workspace/life-plan/milestones/${milestone.ref_id}`}
+                        key={`milestone-${milestone.ref_id}`}
+                        left={milestonePositions.get(milestone.ref_id)!.left}
+                        width={milestonePositions.get(milestone.ref_id)!.width}
+                        top={milestonePositions.get(milestone.ref_id)!.top}
+                      >
+                        {milestone.name}
+                      </MilestoneTimelineLink>
+                    );
+                  })}
+
+                  {yearMarkers.map((yearMarker) => {
+                    return (
+                      <YearMarker
+                        key={`year-marker-${yearMarker.year}`}
+                        left={yearMarker.left}
+                        top={0.25 + totalRows * 1.25}
+                      >
+                        {yearMarker.year}
+                      </YearMarker>
+                    );
+                  })}
+                </Box>
+
+                <Box
+                  sx={{
+                    position: "absolute",
+                    marginLeft: `${maxIndent}rem`,
+                    width: `calc(100% - ${maxIndent}rem)`,
+                    height: "100%",
+                  }}
+                >
+                  {sortedMilestones.map((milestone) => {
+                    return (
+                      <Tooltip
+                        key={`milestone-tooltip-${milestone.ref_id}`}
+                        title={`${milestone.name} on ${milestone.date}`}
+                        placement="top"
+                      >
+                        <MilestoneVertical
+                          middle={
+                            milestonePositions.get(milestone.ref_id)!.middle
+                          }
+                          top={0}
+                        />
+                      </Tooltip>
+                    );
+                  })}
+                </Box>
+              </>
+            )}
+
             {sortedProjects.map((project) => {
               const parentProject = project.parent_project_ref_id
                 ? allProjectsByRefId.get(project.parent_project_ref_id)
@@ -210,7 +307,7 @@ export default function LifePlanView() {
                 today,
                 chapters,
               );
-              const { totalRows, chapterPositions } = computeChapterPosition(
+              const { totalRows, chapterPositions } = computeChapterPositions(
                 today,
                 loaderData.lifePlan,
                 sortedChapters,
@@ -273,7 +370,7 @@ export default function LifePlanView() {
                         <Divider />
                         <Box
                           sx={{
-                            marginLeft: `${maxIndent - indent + 1}rem`,
+                            marginLeft: `${maxIndent - indent}rem`,
                             position: "relative",
                             height: `${0.25 + totalRows * 2.25}rem`,
                           }}
@@ -316,36 +413,99 @@ export const ErrorBoundary = makeTrunkErrorBoundary("/app/workspace", {
   error: () => `There was an error loading the life plan! Please try again!`,
 });
 
-const ChapterTimelineLink = styled(Link)<{
+interface TimelineLinkProps {
   left: number;
   width: number;
   top: number;
-}>(({ theme, left, width, top }) => ({
-  position: "absolute",
-  textDecoration: "none",
-  color: theme.palette.info.dark,
-  ":visited": {
+}
+
+const ChapterTimelineLink = styled(Link)<TimelineLinkProps>(
+  ({ theme, left, width, top }) => ({
+    position: "absolute",
+    textDecoration: "none",
     color: theme.palette.info.dark,
-  },
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
-  display: "inline-flex",
-  alignItems: "center",
-  paddingLeft: "0.5rem",
-  left: `${left * 100}%`,
-  width: `${width * 100}%`,
-  height: "2rem",
+    ":visited": {
+      color: theme.palette.info.dark,
+    },
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    display: "inline-flex",
+    alignItems: "center",
+    paddingLeft: "0.5rem",
+    left: `${left * 100}%`,
+    width: `${width * 100}%`,
+    height: "2rem",
+    top: `${top}rem`,
+    marginLeft: "0.25rem",
+    marginRight: "0.25rem",
+    marginBottom: "0.25rem",
+    backgroundColor: theme.palette.action.hover,
+    borderRadius: "0.25rem",
+    border: `1px solid ${theme.palette.divider}`,
+  }),
+);
+
+const MilestoneTimelineLink = styled(Link)<TimelineLinkProps>(
+  ({ theme, left, width, top }) => ({
+    position: "absolute",
+    textDecoration: "none",
+    color: theme.palette.info.dark,
+    ":visited": {
+      color: theme.palette.info.dark,
+    },
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+    fontSize: "0.75rem",
+    lineHeight: "1rem",
+    textAlign: "center",
+    left: `${left * 100}%`,
+    width: `${width * 100}%`,
+    height: "1rem",
+    top: `${top}rem`,
+    marginLeft: "0.25rem",
+    marginRight: "0.25rem",
+    marginBottom: "0.25rem",
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: "0.1rem",
+  }),
+);
+
+interface MilestoneVerticalProps {
+  middle: number;
+  top: number;
+}
+
+const MilestoneVertical = styled("div")<MilestoneVerticalProps>(
+  ({ theme, middle, top }) => ({
+    position: "absolute",
+    left: `${middle * 100}%`,
+    top: `${top}rem`,
+    width: "2px",
+    height: "100%",
+    zIndex: theme.zIndex.tooltip,
+    backgroundColor: theme.palette.action.selected,
+  }),
+);
+
+interface YearMarkerProps {
+  left: number;
+  top: number;
+}
+
+const YearMarker = styled("div")<YearMarkerProps>(({ theme, left, top }) => ({
+  position: "absolute",
+  left: `${left}%`,
   top: `${top}rem`,
-  marginLeft: "0.25rem",
-  marginRight: "0.25rem",
-  marginBottom: "0.25rem",
-  backgroundColor: theme.palette.action.hover,
-  borderRadius: "0.25rem",
-  border: `1px solid ${theme.palette.divider}`,
+  lineHeigh: "1rem",
+  height: "1rem",
+  textAlign: "center",
+  fontSize: "0.75rem",
+  color: theme.palette.text.secondary,
 }));
 
-function computeChapterPosition(
+function computeChapterPositions(
   today: DateTime,
   lifePlan: LifePlan,
   chapters: Chapter[],
@@ -367,7 +527,7 @@ function computeChapterPosition(
 
   const maxWidth = maxDate.diff(birthdayDate, "days").days;
 
-  function computerChapterPosition(chapter: Chapter): {
+  function computeForOne(chapter: Chapter): {
     left: number;
     width: number;
     startDate: DateTime;
@@ -391,7 +551,7 @@ function computeChapterPosition(
   rows[rowIdx] = birthdayDate;
 
   for (const chapter of chapters) {
-    const chapterPosition = computerChapterPosition(chapter);
+    const chapterPosition = computeForOne(chapter);
     let usefulRowIdx = -1;
     for (let i = 0; i < rows.length; i++) {
       if (chapterPosition.startDate >= rows[i]) {
@@ -416,4 +576,73 @@ function computeChapterPosition(
   }
 
   return { totalRows: rowIdx + 1, chapterPositions: chapterPositions };
+}
+
+function computeMilestonePositions(
+  lifePlan: LifePlan,
+  milestones: Milestone[],
+): {
+  totalRows: number;
+  milestonePositions: Map<
+    string,
+    { left: number; middle: number; top: number; width: number }
+  >;
+} {
+  const milestonePositions = new Map<
+    string,
+    { left: number; middle: number; top: number; width: number }
+  >();
+  const birthdayDate = lifePlanBirthdayDate(lifePlan);
+  const maxDate = DateTime.fromObject({
+    year: lifePlan.birth_year + 100,
+    month: 12,
+    day: 31,
+  });
+  const maxWidth = maxDate.diff(birthdayDate, "days").days;
+
+  function computeForOne(milestone: Milestone): {
+    left: number;
+    width: number;
+    middle: number;
+  } {
+    const middle =
+      aDateToDate(milestone.date).diff(birthdayDate, "days").days / maxWidth;
+    const left = Math.max(0, middle - 0.075 / 2);
+    const width = Math.max(0.075 / 2, 0.075);
+    return {
+      left: left,
+      width: width,
+      middle: middle,
+    };
+  }
+
+  const rows: Array<number> = [];
+  let rowIdx = -1;
+
+  for (const milestone of milestones) {
+    const milestonePosition = computeForOne(milestone);
+    let usefulRowIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (milestonePosition.left >= rows[i]) {
+        usefulRowIdx = i;
+        break;
+      }
+    }
+
+    if (usefulRowIdx === -1) {
+      rowIdx++;
+      rows[rowIdx] = milestonePosition.left + milestonePosition.width;
+      usefulRowIdx = rowIdx;
+    } else {
+      rows[usefulRowIdx] = milestonePosition.left + milestonePosition.width;
+    }
+
+    milestonePositions.set(milestone.ref_id, {
+      left: milestonePosition.left,
+      middle: milestonePosition.middle,
+      top: 0.25 + usefulRowIdx * 1.25,
+      width: milestonePosition.width,
+    });
+  }
+  return { totalRows: rowIdx + 1, milestonePositions: milestonePositions };
 }

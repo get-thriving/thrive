@@ -369,6 +369,21 @@ from .metric_update_args_collection_period import MetricUpdateArgsCollectionPeri
 from .metric_update_args_icon import MetricUpdateArgsIcon
 from .metric_update_args_is_key import MetricUpdateArgsIsKey
 from .metric_update_args_name import MetricUpdateArgsName
+from .milestone import Milestone
+from .milestone_archive_args import MilestoneArchiveArgs
+from .milestone_create_args import MilestoneCreateArgs
+from .milestone_create_result import MilestoneCreateResult
+from .milestone_find_args import MilestoneFindArgs
+from .milestone_find_result import MilestoneFindResult
+from .milestone_find_result_entry import MilestoneFindResultEntry
+from .milestone_load_args import MilestoneLoadArgs
+from .milestone_load_result import MilestoneLoadResult
+from .milestone_remove_args import MilestoneRemoveArgs
+from .milestone_summary import MilestoneSummary
+from .milestone_update_args import MilestoneUpdateArgs
+from .milestone_update_args_date import MilestoneUpdateArgsDate
+from .milestone_update_args_name import MilestoneUpdateArgsName
+from .milestone_update_args_project_ref_id import MilestoneUpdateArgsProjectRefId
 from .motd import MOTD
 from .motd_get_for_today_args import MOTDGetForTodayArgs
 from .motd_get_for_today_result import MOTDGetForTodayResult
@@ -1102,6 +1117,21 @@ __all__ = (
     "MetricUpdateArgsIcon",
     "MetricUpdateArgsIsKey",
     "MetricUpdateArgsName",
+    "Milestone",
+    "MilestoneArchiveArgs",
+    "MilestoneCreateArgs",
+    "MilestoneCreateResult",
+    "MilestoneFindArgs",
+    "MilestoneFindResult",
+    "MilestoneFindResultEntry",
+    "MilestoneLoadArgs",
+    "MilestoneLoadResult",
+    "MilestoneRemoveArgs",
+    "MilestoneSummary",
+    "MilestoneUpdateArgs",
+    "MilestoneUpdateArgsDate",
+    "MilestoneUpdateArgsName",
+    "MilestoneUpdateArgsProjectRefId",
     "MOTD",
     "MOTDGetForTodayArgs",
     "MOTDGetForTodayResult",

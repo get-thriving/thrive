@@ -18,6 +18,7 @@ export enum SyncTarget {
     VACATIONS = 'vacations',
     PROJECTS = 'projects',
     CHAPTERS = 'chapters',
+    MILESTONES = 'milestones',
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
     PERSONS = 'persons',

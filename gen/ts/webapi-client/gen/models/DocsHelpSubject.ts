@@ -22,6 +22,7 @@ export enum DocsHelpSubject {
     LIFE_PLAN = 'life-plan',
     LIFE_PLAN_PROJECTS = 'life-plan/projects',
     LIFE_PLAN_CHAPTERS = 'life-plan/chapters',
+    LIFE_PLAN_MILESTONES = 'life-plan/milestones',
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
     PERSONS = 'persons',
