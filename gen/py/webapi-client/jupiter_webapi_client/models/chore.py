@@ -35,6 +35,8 @@ class Chore:
         start_at_date (str): A date or possibly a datetime for the application.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        chapter_ref_id (None | str | Unset):
+        goal_ref_id (None | str | Unset):
         end_at_date (None | str | Unset):
     """
 
@@ -53,6 +55,8 @@ class Chore:
     start_at_date: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    chapter_ref_id: None | str | Unset = UNSET
+    goal_ref_id: None | str | Unset = UNSET
     end_at_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -95,6 +99,18 @@ class Chore:
         else:
             archived_time = self.archived_time
 
+        chapter_ref_id: None | str | Unset
+        if isinstance(self.chapter_ref_id, Unset):
+            chapter_ref_id = UNSET
+        else:
+            chapter_ref_id = self.chapter_ref_id
+
+        goal_ref_id: None | str | Unset
+        if isinstance(self.goal_ref_id, Unset):
+            goal_ref_id = UNSET
+        else:
+            goal_ref_id = self.goal_ref_id
+
         end_at_date: None | str | Unset
         if isinstance(self.end_at_date, Unset):
             end_at_date = UNSET
@@ -124,6 +140,10 @@ class Chore:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if chapter_ref_id is not UNSET:
+            field_dict["chapter_ref_id"] = chapter_ref_id
+        if goal_ref_id is not UNSET:
+            field_dict["goal_ref_id"] = goal_ref_id
         if end_at_date is not UNSET:
             field_dict["end_at_date"] = end_at_date
 
@@ -178,6 +198,24 @@ class Chore:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
+        def _parse_chapter_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        chapter_ref_id = _parse_chapter_ref_id(d.pop("chapter_ref_id", UNSET))
+
+        def _parse_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
+
         def _parse_end_at_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -203,6 +241,8 @@ class Chore:
             start_at_date=start_at_date,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             end_at_date=end_at_date,
         )
 

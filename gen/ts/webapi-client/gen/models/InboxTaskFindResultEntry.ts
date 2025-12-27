@@ -3,8 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlan } from './BigPlan';
+import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
 import type { EmailTask } from './EmailTask';
+import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
@@ -23,6 +25,8 @@ export type InboxTaskFindResultEntry = {
     inbox_task: InboxTask;
     note?: (Note | null);
     project: Project;
+    chapter?: (Chapter | null);
+    goal?: (Goal | null);
     time_event_blocks?: (Array<TimeEventInDayBlock> | null);
     working_mem?: (WorkingMem | null);
     time_plan?: (TimePlan | null);

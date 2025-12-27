@@ -18,12 +18,14 @@ class ChapterSummary:
         name (str): The name of a chapter in a life plan.
         start_date (str): A date in the life plan.
         end_date (str): A date in the life plan.
+        project_ref_id (str): A generic entity id.
     """
 
     ref_id: str
     name: str
     start_date: str
     end_date: str
+    project_ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,6 +37,8 @@ class ChapterSummary:
 
         end_date = self.end_date
 
+        project_ref_id = self.project_ref_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -43,6 +47,7 @@ class ChapterSummary:
                 "name": name,
                 "start_date": start_date,
                 "end_date": end_date,
+                "project_ref_id": project_ref_id,
             }
         )
 
@@ -59,11 +64,14 @@ class ChapterSummary:
 
         end_date = d.pop("end_date")
 
+        project_ref_id = d.pop("project_ref_id")
+
         chapter_summary = cls(
             ref_id=ref_id,
             name=name,
             start_date=start_date,
             end_date=end_date,
+            project_ref_id=project_ref_id,
         )
 
         chapter_summary.additional_properties = d

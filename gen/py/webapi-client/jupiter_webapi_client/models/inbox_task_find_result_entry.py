@@ -10,8 +10,10 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
+    from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.email_task import EmailTask
+    from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
@@ -36,6 +38,8 @@ class InboxTaskFindResultEntry:
         inbox_task (InboxTask): An inbox task.
         project (Project): The project.
         note (None | Note | Unset):
+        chapter (Chapter | None | Unset):
+        goal (Goal | None | Unset):
         time_event_blocks (list[TimeEventInDayBlock] | None | Unset):
         working_mem (None | Unset | WorkingMem):
         time_plan (None | TimePlan | Unset):
@@ -52,6 +56,8 @@ class InboxTaskFindResultEntry:
     inbox_task: InboxTask
     project: Project
     note: None | Note | Unset = UNSET
+    chapter: Chapter | None | Unset = UNSET
+    goal: Goal | None | Unset = UNSET
     time_event_blocks: list[TimeEventInDayBlock] | None | Unset = UNSET
     working_mem: None | Unset | WorkingMem = UNSET
     time_plan: None | TimePlan | Unset = UNSET
@@ -67,8 +73,10 @@ class InboxTaskFindResultEntry:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.big_plan import BigPlan
+        from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
+        from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.journal import Journal
         from ..models.metric import Metric
@@ -89,6 +97,22 @@ class InboxTaskFindResultEntry:
             note = self.note.to_dict()
         else:
             note = self.note
+
+        chapter: dict[str, Any] | None | Unset
+        if isinstance(self.chapter, Unset):
+            chapter = UNSET
+        elif isinstance(self.chapter, Chapter):
+            chapter = self.chapter.to_dict()
+        else:
+            chapter = self.chapter
+
+        goal: dict[str, Any] | None | Unset
+        if isinstance(self.goal, Unset):
+            goal = UNSET
+        elif isinstance(self.goal, Goal):
+            goal = self.goal.to_dict()
+        else:
+            goal = self.goal
 
         time_event_blocks: list[dict[str, Any]] | None | Unset
         if isinstance(self.time_event_blocks, Unset):
@@ -192,6 +216,10 @@ class InboxTaskFindResultEntry:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if chapter is not UNSET:
+            field_dict["chapter"] = chapter
+        if goal is not UNSET:
+            field_dict["goal"] = goal
         if time_event_blocks is not UNSET:
             field_dict["time_event_blocks"] = time_event_blocks
         if working_mem is not UNSET:
@@ -220,8 +248,10 @@ class InboxTaskFindResultEntry:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan import BigPlan
+        from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
+        from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
@@ -255,6 +285,40 @@ class InboxTaskFindResultEntry:
             return cast(None | Note | Unset, data)
 
         note = _parse_note(d.pop("note", UNSET))
+
+        def _parse_chapter(data: object) -> Chapter | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chapter_type_0 = Chapter.from_dict(data)
+
+                return chapter_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Chapter | None | Unset, data)
+
+        chapter = _parse_chapter(d.pop("chapter", UNSET))
+
+        def _parse_goal(data: object) -> Goal | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                goal_type_0 = Goal.from_dict(data)
+
+                return goal_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Goal | None | Unset, data)
+
+        goal = _parse_goal(d.pop("goal", UNSET))
 
         def _parse_time_event_blocks(data: object) -> list[TimeEventInDayBlock] | None | Unset:
             if data is None:
@@ -452,6 +516,8 @@ class InboxTaskFindResultEntry:
             inbox_task=inbox_task,
             project=project,
             note=note,
+            chapter=chapter,
+            goal=goal,
             time_event_blocks=time_event_blocks,
             working_mem=working_mem,
             time_plan=time_plan,

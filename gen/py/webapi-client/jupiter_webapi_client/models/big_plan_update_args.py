@@ -8,9 +8,11 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+    from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
     from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
     from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
     from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
+    from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
     from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
     from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
     from ..models.big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
@@ -29,6 +31,8 @@ class BigPlanUpdateArgs:
         name (BigPlanUpdateArgsName):
         status (BigPlanUpdateArgsStatus):
         project_ref_id (BigPlanUpdateArgsProjectRefId):
+        chapter_ref_id (BigPlanUpdateArgsChapterRefId):
+        goal_ref_id (BigPlanUpdateArgsGoalRefId):
         is_key (BigPlanUpdateArgsIsKey):
         eisen (BigPlanUpdateArgsEisen):
         difficulty (BigPlanUpdateArgsDifficulty):
@@ -40,6 +44,8 @@ class BigPlanUpdateArgs:
     name: BigPlanUpdateArgsName
     status: BigPlanUpdateArgsStatus
     project_ref_id: BigPlanUpdateArgsProjectRefId
+    chapter_ref_id: BigPlanUpdateArgsChapterRefId
+    goal_ref_id: BigPlanUpdateArgsGoalRefId
     is_key: BigPlanUpdateArgsIsKey
     eisen: BigPlanUpdateArgsEisen
     difficulty: BigPlanUpdateArgsDifficulty
@@ -55,6 +61,10 @@ class BigPlanUpdateArgs:
         status = self.status.to_dict()
 
         project_ref_id = self.project_ref_id.to_dict()
+
+        chapter_ref_id = self.chapter_ref_id.to_dict()
+
+        goal_ref_id = self.goal_ref_id.to_dict()
 
         is_key = self.is_key.to_dict()
 
@@ -74,6 +84,8 @@ class BigPlanUpdateArgs:
                 "name": name,
                 "status": status,
                 "project_ref_id": project_ref_id,
+                "chapter_ref_id": chapter_ref_id,
+                "goal_ref_id": goal_ref_id,
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
@@ -87,9 +99,11 @@ class BigPlanUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+        from ..models.big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
         from ..models.big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
         from ..models.big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
         from ..models.big_plan_update_args_eisen import BigPlanUpdateArgsEisen
+        from ..models.big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
         from ..models.big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
         from ..models.big_plan_update_args_name import BigPlanUpdateArgsName
         from ..models.big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
@@ -103,6 +117,10 @@ class BigPlanUpdateArgs:
         status = BigPlanUpdateArgsStatus.from_dict(d.pop("status"))
 
         project_ref_id = BigPlanUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+
+        chapter_ref_id = BigPlanUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
+
+        goal_ref_id = BigPlanUpdateArgsGoalRefId.from_dict(d.pop("goal_ref_id"))
 
         is_key = BigPlanUpdateArgsIsKey.from_dict(d.pop("is_key"))
 
@@ -119,6 +137,8 @@ class BigPlanUpdateArgs:
             name=name,
             status=status,
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,

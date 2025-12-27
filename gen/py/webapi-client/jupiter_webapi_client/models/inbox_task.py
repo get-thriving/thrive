@@ -35,6 +35,8 @@ class InboxTask:
         difficulty (Difficulty): The difficulty of a particular task.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        chapter_ref_id (None | str | Unset):
+        goal_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
         notes (None | str | Unset):
@@ -61,6 +63,8 @@ class InboxTask:
     difficulty: Difficulty
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    chapter_ref_id: None | str | Unset = UNSET
+    goal_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
     notes: None | str | Unset = UNSET
@@ -110,6 +114,18 @@ class InboxTask:
             archived_time = UNSET
         else:
             archived_time = self.archived_time
+
+        chapter_ref_id: None | str | Unset
+        if isinstance(self.chapter_ref_id, Unset):
+            chapter_ref_id = UNSET
+        else:
+            chapter_ref_id = self.chapter_ref_id
+
+        goal_ref_id: None | str | Unset
+        if isinstance(self.goal_ref_id, Unset):
+            goal_ref_id = UNSET
+        else:
+            goal_ref_id = self.goal_ref_id
 
         actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
@@ -188,6 +204,10 @@ class InboxTask:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if chapter_ref_id is not UNSET:
+            field_dict["chapter_ref_id"] = chapter_ref_id
+        if goal_ref_id is not UNSET:
+            field_dict["goal_ref_id"] = goal_ref_id
         if actionable_date is not UNSET:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
@@ -255,6 +275,24 @@ class InboxTask:
             return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
+
+        def _parse_chapter_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        chapter_ref_id = _parse_chapter_ref_id(d.pop("chapter_ref_id", UNSET))
+
+        def _parse_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
 
         def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
@@ -353,6 +391,8 @@ class InboxTask:
             difficulty=difficulty,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
             notes=notes,

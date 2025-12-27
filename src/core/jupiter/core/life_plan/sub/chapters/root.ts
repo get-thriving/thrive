@@ -1,14 +1,14 @@
-import { Chapter, MilestoneSummary } from "@jupiter/webapi-client";
+import type { ChapterSummary, MilestoneSummary } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
 import { midDate } from "#/core/life_plan/partial-date";
 
-export function sortChaptersNaturally(
+export function sortChaptersNaturally<T extends ChapterSummary>(
   birthday: DateTime,
   today: DateTime,
-  chapters: Chapter[],
+  chapters: T[],
   milestones: MilestoneSummary[],
-): Chapter[] {
+): T[] {
   return [...chapters].sort((a, b) => {
     return (
       midDate(a.start_date, birthday, today, milestones).toMillis() -

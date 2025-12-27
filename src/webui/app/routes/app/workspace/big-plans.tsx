@@ -53,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   const response = await apiClient.bigPlans.bigPlanFind({
     allow_archived: false,
-    include_project: true,
+    include_life_plan: true,
     include_milestones: true,
     include_stats: true,
     include_inbox_tasks: false,

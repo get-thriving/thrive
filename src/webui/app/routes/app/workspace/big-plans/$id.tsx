@@ -1,5 +1,9 @@
 import type {
+  ChapterSummary,
+  GoalSummary,
   InboxTask,
+  LifePlan,
+  MilestoneSummary,
   ProjectSummary,
   Workspace,
 } from "@jupiter/webapi-client";
@@ -77,6 +81,9 @@ import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
+import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -86,6 +93,8 @@ const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(BigPlanStatus),
   project: z.string(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
@@ -150,7 +159,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   try {
@@ -175,11 +188,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlan: result.big_plan,
       stats: result.stats,
       project: result.project,
+      chapter: result.chapter,
+      goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
       note: result.note,
       timePlanEntries: timePlanEntries,
+      lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -237,6 +256,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: true,
             value: form.project,
+          },
+          chapter_ref_id: {
+            should_change: true,
+            value: form.chapter !== undefined && form.chapter !== "" ? form.chapter : undefined,
+          },
+          goal_ref_id: {
+            should_change: true,
+            value: form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
           },
           is_key: {
             should_change: true,
@@ -480,6 +507,7 @@ export default function BigPlan() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) && (
+            <Stack direction="row" spacing={2}>
             <FormControl fullWidth>
               <ProjectSelect
                 name="project"
@@ -492,6 +520,34 @@ export default function BigPlan() {
               />
               <FieldError actionResult={actionData} fieldName="/project" />
             </FormControl>
+            <FormControl fullWidth>
+              <ChapterSelect
+                name="chapter"
+                label="Chapter"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                onlyForProject={selectedProject}
+                allChapters={loaderData.allChapters}
+                defaultValue={loaderData.chapter?.ref_id}
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
+              />
+              <FieldError actionResult={actionData} fieldName="/chapter" />
+            </FormControl>
+            <FormControl fullWidth>
+              <GoalSelect
+                name="goal"
+                label="Goal"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                onlyForProject={selectedProject}
+                allGoals={loaderData.allGoals}
+                defaultValue={loaderData.goal?.ref_id}
+              />
+              <FieldError actionResult={actionData} fieldName="/goal" />
+            </FormControl>
+            </Stack>
           )}
           {!isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,

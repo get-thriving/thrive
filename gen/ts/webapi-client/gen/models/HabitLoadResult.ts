@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
+import type { Chapter } from './Chapter';
+import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
@@ -14,6 +16,8 @@ import type { Project } from './Project';
 export type HabitLoadResult = {
     habit: Habit;
     project: Project;
+    chapter?: (Chapter | null);
+    goal?: (Goal | null);
     inbox_tasks: Array<InboxTask>;
     inbox_tasks_total_cnt: number;
     inbox_tasks_page_size: number;

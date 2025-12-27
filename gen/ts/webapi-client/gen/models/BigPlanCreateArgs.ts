@@ -21,6 +21,8 @@ export type BigPlanCreateArgs = {
     eisen: Eisen;
     difficulty: Difficulty;
     project_ref_id?: (EntityId | null);
+    chapter_ref_id?: (EntityId | null);
+    goal_ref_id?: (EntityId | null);
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
 };

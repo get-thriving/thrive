@@ -18,7 +18,7 @@ class HabitFindArgs:
     Attributes:
         allow_archived (bool):
         include_notes (bool):
-        include_project (bool):
+        include_life_plan (bool):
         include_inbox_tasks (bool):
         filter_ref_ids (list[str] | None | Unset):
         filter_project_ref_ids (list[str] | None | Unset):
@@ -26,7 +26,7 @@ class HabitFindArgs:
 
     allow_archived: bool
     include_notes: bool
-    include_project: bool
+    include_life_plan: bool
     include_inbox_tasks: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     filter_project_ref_ids: list[str] | None | Unset = UNSET
@@ -37,7 +37,7 @@ class HabitFindArgs:
 
         include_notes = self.include_notes
 
-        include_project = self.include_project
+        include_life_plan = self.include_life_plan
 
         include_inbox_tasks = self.include_inbox_tasks
 
@@ -65,7 +65,7 @@ class HabitFindArgs:
             {
                 "allow_archived": allow_archived,
                 "include_notes": include_notes,
-                "include_project": include_project,
+                "include_life_plan": include_life_plan,
                 "include_inbox_tasks": include_inbox_tasks,
             }
         )
@@ -83,7 +83,7 @@ class HabitFindArgs:
 
         include_notes = d.pop("include_notes")
 
-        include_project = d.pop("include_project")
+        include_life_plan = d.pop("include_life_plan")
 
         include_inbox_tasks = d.pop("include_inbox_tasks")
 
@@ -124,7 +124,7 @@ class HabitFindArgs:
         habit_find_args = cls(
             allow_archived=allow_archived,
             include_notes=include_notes,
-            include_project=include_project,
+            include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,
             filter_ref_ids=filter_ref_ids,
             filter_project_ref_ids=filter_project_ref_ids,
