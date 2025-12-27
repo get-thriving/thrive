@@ -29,6 +29,8 @@ class Chore(LeafEntity):
 
     chore_collection: ParentLink
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     name: ChoreName
     is_key: bool
     gen_params: RecurringTaskGenParams
@@ -48,6 +50,8 @@ class Chore(LeafEntity):
         ctx: MutationContext,
         chore_collection_ref_id: EntityId,
         project_ref_id: EntityId,
+        chapter_ref_id: EntityId | None,
+        goal_ref_id: EntityId | None,
         name: ChoreName,
         is_key: bool,
         gen_params: RecurringTaskGenParams,
@@ -74,6 +78,8 @@ class Chore(LeafEntity):
             ctx,
             chore_collection=ParentLink(chore_collection_ref_id),
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             name=name,
             is_key=is_key,
             gen_params=gen_params,
@@ -89,6 +95,8 @@ class Chore(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[ChoreName],
         project_ref_id: UpdateAction[EntityId],
+        chapter_ref_id: UpdateAction[EntityId | None],
+        goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         gen_params: UpdateAction[RecurringTaskGenParams],
         must_do: UpdateAction[bool],

@@ -28,9 +28,12 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -48,6 +51,8 @@ class ChoreUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[ChoreName]
     project_ref_id: UpdateAction[EntityId]
+    chapter_ref_id: UpdateAction[EntityId | None]
+    goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     period: UpdateAction[RecurringTaskPeriod]
     eisen: UpdateAction[Eisen]
@@ -80,16 +85,28 @@ class ChoreUpdateUseCase(
 
         chore = await uow.get_for(Chore).load_by_id(args.ref_id)
 
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.project_ref_id.should_change
-            and args.project_ref_id.just_the_value != chore.project_ref_id
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if (
+                args.project_ref_id.should_change
+                and args.project_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.chapter_ref_id.should_change
+                and args.chapter_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.goal_ref_id.should_change
+                and args.goal_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         need_to_change_inbox_tasks = (
             args.name.should_change
             or args.project_ref_id.should_change
+            or args.chapter_ref_id.should_change
+            or args.goal_ref_id.should_change
             or args.period.should_change
             or args.eisen.should_change
             or args.difficulty.should_change
@@ -132,9 +149,34 @@ class ChoreUpdateUseCase(
         else:
             chore_gen_params = UpdateAction.do_nothing()
 
+        if (
+            args.project_ref_id.should_change
+            or args.chapter_ref_id.should_change
+            or args.goal_ref_id.should_change
+        ):
+            project = await uow.get_for(Project).load_by_id(
+                args.project_ref_id.or_else(chore.project_ref_id)
+            )
+            chapter_ref_id = args.chapter_ref_id.or_else(chore.chapter_ref_id)
+            goal_ref_id = args.goal_ref_id.or_else(chore.goal_ref_id)
+            if chapter_ref_id and chapter_ref_id != chore.chapter_ref_id:
+                chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
+                if chapter.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Chapter does not belong to project '{project.name}'"
+                    )
+            if goal_ref_id and goal_ref_id != chore.goal_ref_id:
+                goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
+                if goal.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Goal does not belong to project '{project.name}'"
+                    )
+
         chore = chore.update(
             ctx=context.domain_context,
             project_ref_id=args.project_ref_id,
+            chapter_ref_id=args.chapter_ref_id,
+            goal_ref_id=args.goal_ref_id,
             name=args.name,
             is_key=args.is_key,
             gen_params=chore_gen_params,
@@ -178,6 +220,8 @@ class ChoreUpdateUseCase(
                 inbox_task = inbox_task.update_link_to_chore(
                     ctx=context.domain_context,
                     project_ref_id=project.ref_id,
+                    chapter_ref_id=chore.chapter_ref_id,
+                    goal_ref_id=chore.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=chore.is_key,

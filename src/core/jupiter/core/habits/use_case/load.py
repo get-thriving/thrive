@@ -21,6 +21,8 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -53,6 +55,8 @@ class HabitLoadResult(UseCaseResultBase):
 
     habit: Habit
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
@@ -95,6 +99,16 @@ class HabitLoadUseCase(
             args.ref_id, allow_archived=args.allow_archived
         )
         project = await uow.get_for(Project).load_by_id(habit.project_ref_id)
+        chapter = (
+            await uow.get_for(Chapter).load_by_id(habit.chapter_ref_id)
+            if habit.chapter_ref_id
+            else None
+        )
+        goal = (
+            await uow.get_for(Goal).load_by_id(habit.goal_ref_id)
+            if habit.goal_ref_id
+            else None
+        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -140,6 +154,8 @@ class HabitLoadUseCase(
         return HabitLoadResult(
             habit=habit,
             project=project,
+            chapter=chapter,
+            goal=goal,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,

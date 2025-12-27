@@ -41,6 +41,8 @@ class BigPlan(LeafEntity):
 
     big_plan_collection: ParentLink
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     name: BigPlanName
     status: BigPlanStatus
     is_key: bool
@@ -66,6 +68,8 @@ class BigPlan(LeafEntity):
         ctx: MutationContext,
         big_plan_collection_ref_id: EntityId,
         project_ref_id: EntityId,
+        chapter_ref_id: EntityId | None,
+        goal_ref_id: EntityId | None,
         name: BigPlanName,
         status: BigPlanStatus,
         is_key: bool,
@@ -83,6 +87,8 @@ class BigPlan(LeafEntity):
             ctx,
             big_plan_collection=ParentLink(big_plan_collection_ref_id),
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             name=name,
             status=status,
             is_key=is_key,
@@ -101,6 +107,8 @@ class BigPlan(LeafEntity):
         name: UpdateAction[BigPlanName],
         status: UpdateAction[BigPlanStatus],
         project_ref_id: UpdateAction[EntityId],
+        chapter_ref_id: UpdateAction[EntityId | None],
+        goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         eisen: UpdateAction[Eisen],
         difficulty: UpdateAction[Difficulty],
@@ -146,6 +154,8 @@ class BigPlan(LeafEntity):
             name=new_name,
             status=new_status,
             project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
+            goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
             eisen=new_eisen,
             difficulty=new_difficulty,

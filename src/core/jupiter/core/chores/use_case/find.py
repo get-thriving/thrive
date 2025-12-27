@@ -21,6 +21,8 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -42,7 +44,7 @@ class ChoreFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool
-    include_project: bool
+    include_life_plan: bool
     include_inbox_tasks: bool
     include_notes: bool
     filter_ref_ids: list[EntityId] | None
@@ -56,6 +58,8 @@ class ChoreFindResultEntry(UseCaseResultBase):
     chore: Chore
     note: Note | None
     project: Project | None
+    chapter: Chapter | None
+    goal: Goal | None
     inbox_tasks: list[InboxTask] | None
 
 
@@ -91,15 +95,29 @@ class ChoreFindUseCase(
             workspace.ref_id,
         )
 
-        if args.include_project:
+        if args.include_life_plan:
             projects = await uow.get_for(Project).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=args.allow_archived,
                 ref_id=args.filter_project_ref_ids or NoFilter(),
             )
             project_by_ref_id = {p.ref_id: p for p in projects}
+            chapters = await uow.get_for(Chapter).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=args.allow_archived,
+                ref_id=NoFilter(),
+            )
+            chapter_by_ref_id = {c.ref_id: c for c in chapters}
+            goals = await uow.get_for(Goal).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=args.allow_archived,
+                ref_id=NoFilter(),
+            )
+            goal_by_ref_id = {g.ref_id: g for g in goals}
         else:
             project_by_ref_id = None
+            chapter_by_ref_id = None
+            goal_by_ref_id = None
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -143,6 +161,16 @@ class ChoreFindUseCase(
             entries=[
                 ChoreFindResultEntry(
                     chore=rt,
+                    chapter=(
+                        chapter_by_ref_id[rt.chapter_ref_id]
+                        if rt.chapter_ref_id and chapter_by_ref_id is not None
+                        else None
+                    ),
+                    goal=(
+                        goal_by_ref_id[rt.goal_ref_id]
+                        if rt.goal_ref_id and goal_by_ref_id is not None
+                        else None
+                    ),
                     project=(
                         project_by_ref_id[rt.project_ref_id]
                         if project_by_ref_id is not None

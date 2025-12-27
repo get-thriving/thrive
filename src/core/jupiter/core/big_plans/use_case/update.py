@@ -23,6 +23,9 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -30,6 +33,7 @@ from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
+    UnavailableForContextError,
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
@@ -48,6 +52,8 @@ class BigPlanUpdateArgs(UseCaseArgsBase):
     name: UpdateAction[BigPlanName]
     status: UpdateAction[BigPlanStatus]
     project_ref_id: UpdateAction[EntityId]
+    chapter_ref_id: UpdateAction[EntityId | None]
+    goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     eisen: UpdateAction[Eisen]
     difficulty: UpdateAction[Difficulty]
@@ -79,6 +85,23 @@ class BigPlanUpdateUseCase(
         workspace = context.workspace
         big_plan = await uow.get_for(BigPlan).load_by_id(args.ref_id)
 
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if (
+                args.project_ref_id.should_change
+                and args.project_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.chapter_ref_id.should_change
+                and args.chapter_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.goal_ref_id.should_change
+                and args.goal_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+
         # Check each milestone is within the new date bounds
         if args.actionable_date.should_change or args.due_date.should_change:
             # Get the new dates, falling back to existing ones if not changing
@@ -100,11 +123,36 @@ class BigPlanUpdateUseCase(
                         f"Milestone {m.name} date {m.date} is after new due date {new_due}"
                     )
 
+        if (
+            args.project_ref_id.should_change
+            or args.chapter_ref_id.should_change
+            or args.goal_ref_id.should_change
+        ):
+            project = await uow.get_for(Project).load_by_id(
+                args.project_ref_id.or_else(big_plan.project_ref_id)
+            )
+            chapter_ref_id = args.chapter_ref_id.or_else(big_plan.chapter_ref_id)
+            goal_ref_id = args.goal_ref_id.or_else(big_plan.goal_ref_id)
+            if chapter_ref_id and chapter_ref_id != big_plan.chapter_ref_id:
+                chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
+                if chapter.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Chapter does not belong to project '{project.name}'"
+                    )
+            if goal_ref_id and goal_ref_id != big_plan.goal_ref_id:
+                goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
+                if goal.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Goal does not belong to project '{project.name}'"
+                    )
+
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
             status=args.status,
             project_ref_id=args.project_ref_id,
+            chapter_ref_id=args.chapter_ref_id,
+            goal_ref_id=args.goal_ref_id,
             is_key=args.is_key,
             eisen=args.eisen,
             difficulty=args.difficulty,
@@ -134,6 +182,8 @@ class BigPlanUpdateUseCase(
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
                     big_plan.project_ref_id,
+                    big_plan.chapter_ref_id,
+                    big_plan.goal_ref_id,
                     big_plan.ref_id,
                 )
                 await uow.get_for(InboxTask).save(inbox_task)

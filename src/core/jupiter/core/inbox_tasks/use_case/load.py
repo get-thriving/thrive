@@ -21,6 +21,8 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.root import Journal
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.root import Person
 from jupiter.core.push_integrations.sub.email.task import EmailTask
@@ -54,6 +56,8 @@ class InboxTaskLoadResult(UseCaseResultBase):
 
     inbox_task: InboxTask
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     working_mem: WorkingMem | None
     time_plan: TimePlan | None
     habit: Habit | None
@@ -88,7 +92,14 @@ class InboxTaskLoadUseCase(
         inbox_task = await uow.get_for(InboxTask).load_by_id(
             args.ref_id, allow_archived=args.allow_archived
         )
+
         project = await uow.get_for(Project).load_by_id(inbox_task.project_ref_id)
+        chapter = None
+        if inbox_task.chapter_ref_id:
+            chapter = await uow.get_for(Chapter).load_by_id(inbox_task.chapter_ref_id)
+        goal = None
+        if inbox_task.goal_ref_id:
+            goal = await uow.get_for(Goal).load_by_id(inbox_task.goal_ref_id)
 
         if inbox_task.source is InboxTaskSource.WORKING_MEM_CLEANUP:
             working_mem = await uow.get_for(WorkingMem).load_by_id(
@@ -178,6 +189,8 @@ class InboxTaskLoadUseCase(
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
             project=project,
+            chapter=chapter,
+            goal=goal,
             working_mem=working_mem,
             time_plan=time_plan,
             habit=habit,
