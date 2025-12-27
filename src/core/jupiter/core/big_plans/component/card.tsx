@@ -131,10 +131,8 @@ export function BigPlanCard(props: BigPlanCardProps) {
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          props.parent?.goal && (
-            <GoalTag goal={props.parent.goal as Goal} />
-          )}
-      
+          props.parent?.goal && <GoalTag goal={props.parent.goal as Goal} />}
+
         {props.showOptions.showEisen && (
           <EisenTag eisen={props.bigPlan.eisen} />
         )}

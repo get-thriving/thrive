@@ -224,9 +224,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               WorkspaceFeature.LIFE_PLAN,
             ) &&
               props.showOptions.showLifePlan &&
-              props.parent?.goal && (
-                <GoalTag goal={props.parent?.goal} />
-              )}
+              props.parent?.goal && <GoalTag goal={props.parent?.goal} />}
             {props.showOptions.showEisen && (
               <EisenTag
                 eisen={props.optimisticState?.eisen ?? props.inboxTask.eisen}

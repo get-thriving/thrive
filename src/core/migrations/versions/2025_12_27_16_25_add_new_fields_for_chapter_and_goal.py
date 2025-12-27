@@ -21,6 +21,14 @@ def upgrade() -> None:
     with op.batch_alter_table("inbox_task") as batch_op:
         batch_op.add_column(sa.Column("chapter_ref_id", sa.Integer(), nullable=True))
         batch_op.add_column(sa.Column("goal_ref_id", sa.Integer(), nullable=True))
+        batch_op.create_index(
+            "ix_inbox_task_chapter_ref_id",
+            ["chapter_ref_id"],
+        )
+        batch_op.create_index(
+            "ix_inbox_task_goal_ref_id",
+            ["goal_ref_id"],
+        )
         batch_op.create_foreign_key(
             "fk_inbox_task_chapter_ref_id_chapter",
             "chapter",
@@ -37,6 +45,14 @@ def upgrade() -> None:
     with op.batch_alter_table("big_plan") as batch_op:
         batch_op.add_column(sa.Column("chapter_ref_id", sa.Integer(), nullable=True))
         batch_op.add_column(sa.Column("goal_ref_id", sa.Integer(), nullable=True))
+        batch_op.create_index(
+            "ix_big_plan_chapter_ref_id",
+            ["chapter_ref_id"],
+        )
+        batch_op.create_index(
+            "ix_big_plan_goal_ref_id",
+            ["goal_ref_id"],
+        )
         batch_op.create_foreign_key(
             "fk_big_plan_chapter_ref_id_chapter",
             "chapter",
@@ -53,6 +69,14 @@ def upgrade() -> None:
     with op.batch_alter_table("habit") as batch_op:
         batch_op.add_column(sa.Column("chapter_ref_id", sa.Integer(), nullable=True))
         batch_op.add_column(sa.Column("goal_ref_id", sa.Integer(), nullable=True))
+        batch_op.create_index(
+            "ix_habit_chapter_ref_id",
+            ["chapter_ref_id"],
+        )
+        batch_op.create_index(
+            "ix_habit_goal_ref_id",
+            ["goal_ref_id"],
+        )
         batch_op.create_foreign_key(
             "fk_habit_chapter_ref_id_chapter",
             "chapter",
@@ -70,6 +94,14 @@ def upgrade() -> None:
     with op.batch_alter_table("chore") as batch_op:
         batch_op.add_column(sa.Column("chapter_ref_id", sa.Integer(), nullable=True))
         batch_op.add_column(sa.Column("goal_ref_id", sa.Integer(), nullable=True))
+        batch_op.create_index(
+            "ix_chore_chapter_ref_id",
+            ["chapter_ref_id"],
+        )
+        batch_op.create_index(
+            "ix_chore_goal_ref_id",
+            ["goal_ref_id"],
+        )
         batch_op.create_foreign_key(
             "fk_chore_chapter_ref_id_chapter",
             "chapter",
