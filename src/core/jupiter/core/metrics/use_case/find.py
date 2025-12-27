@@ -80,128 +80,134 @@ class MetricFindUseCase(
         args: MetricFindArgs,
     ) -> MetricFindResult:
         """Execute the command's action."""
-        workspace = context.workspace
+        try:
+            workspace = context.workspace
 
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        metrics = await uow.get_for(Metric).find_all(
-            parent_ref_id=metric_collection.ref_id,
-            allow_archived=args.allow_archived,
-            filter_ref_ids=args.filter_ref_ids,
-        )
-
-        collection_project = await uow.get_for(Project).load_by_id(
-            metric_collection.collection_project_ref_id,
-        )
-
-        all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            all_notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.METRIC,
-                allow_archived=True,
-                source_entity_ref_id=[m.ref_id for m in metrics],
-            )
-            for n in all_notes:
-                all_notes_by_metric_ref_id[n.source_entity_ref_id] = n
-
-        if args.include_entries:
-            metric_entries_raw = []
-            for metric in metrics:
-                metric_entries_raw.append(
-                    await uow.get_for(MetricEntry).find_all(
-                        parent_ref_id=metric.ref_id,
-                        allow_archived=args.allow_archived,
-                        filter_ref_ids=args.filter_entry_ref_ids,
-                    ),
-                )
-            metric_entries = itertools.chain(*metric_entries_raw)
-
-            metric_entries_by_ref_ids: dict[EntityId, list[MetricEntry]] = {}
-
-            for metric_entry in metric_entries:
-                if metric_entry.metric.ref_id not in metric_entries_by_ref_ids:
-                    metric_entries_by_ref_ids[metric_entry.metric.ref_id] = [
-                        metric_entry,
-                    ]
-                else:
-                    metric_entries_by_ref_ids[metric_entry.metric.ref_id].append(
-                        metric_entry,
-                    )
-        else:
-            metric_entries_by_ref_ids = {}
-
-        if args.include_collection_inbox_tasks:
-            metric_collection_inbox_tasks_by_ref_id: defaultdict[
-                EntityId,
-                list[InboxTask],
-            ] = defaultdict(list)
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(
+            metric_collection = await uow.get_for(MetricCollection).load_by_parent(
                 workspace.ref_id,
             )
-            all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
-                allow_archived=True,
-                source=[InboxTaskSource.METRIC],
-                source_entity_ref_id=[m.ref_id for m in metrics],
+            metrics = await uow.get_for(Metric).find_all(
+                parent_ref_id=metric_collection.ref_id,
+                allow_archived=args.allow_archived,
+                filter_ref_ids=args.filter_ref_ids,
             )
 
-            for inbox_task in all_inbox_tasks:
-                metric_collection_inbox_tasks_by_ref_id[
-                    inbox_task.source_entity_ref_id_for_sure
-                ].append(inbox_task)
-        else:
-            metric_collection_inbox_tasks_by_ref_id = defaultdict(list)
-
-        all_notes_by_metric_entry_ref_id: defaultdict[EntityId, Note] = defaultdict(
-            None
-        )
-        if args.include_metric_entry_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
+            collection_project = await uow.get_for(Project).load_by_id(
+                metric_collection.collection_project_ref_id,
             )
-            all_notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.METRIC_ENTRY,
-                allow_archived=True,
-                source_entity_ref_id=[me.ref_id for me in metric_entries],
-            )
-            for n in all_notes:
-                all_notes_by_metric_entry_ref_id[
-                    cast(EntityId, n.source_entity_ref_id)
-                ] = n
 
-        return MetricFindResult(
-            collection_project=collection_project,
-            entries=[
-                MetricFindResponseEntry(
-                    metric=m,
-                    note=all_notes_by_metric_ref_id.get(m.ref_id, None),
-                    metric_entries=(
-                        metric_entries_by_ref_ids.get(m.ref_id, [])
-                        if len(metric_entries_by_ref_ids) > 0
-                        else None
-                    ),
-                    metric_collection_inbox_tasks=(
-                        metric_collection_inbox_tasks_by_ref_id.get(
-                            m.ref_id,
-                            [],
-                        )
-                        if len(metric_collection_inbox_tasks_by_ref_id) > 0
-                        else None
-                    ),
-                    metric_entry_notes=[
-                        all_notes_by_metric_entry_ref_id[me.ref_id]
-                        for me in metric_entries_by_ref_ids.get(m.ref_id, [])
-                        if (me.ref_id in all_notes_by_metric_entry_ref_id)
-                    ],
+            all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
+            if args.include_notes:
+                note_collection = await uow.get_for(NoteCollection).load_by_parent(
+                    workspace.ref_id
                 )
-                for m in metrics
-            ],
-        )
+                all_notes = await uow.get_for(Note).find_all_generic(
+                    parent_ref_id=note_collection.ref_id,
+                    domain=NoteDomain.METRIC,
+                    allow_archived=True,
+                    source_entity_ref_id=[m.ref_id for m in metrics],
+                )
+                for n in all_notes:
+                    all_notes_by_metric_ref_id[n.source_entity_ref_id] = n
+
+            if args.include_entries:
+                metric_entries_raw = []
+                for metric in metrics:
+                    metric_entries_raw.append(
+                        await uow.get_for(MetricEntry).find_all(
+                            parent_ref_id=metric.ref_id,
+                            allow_archived=args.allow_archived,
+                            filter_ref_ids=args.filter_entry_ref_ids,
+                        ),
+                    )
+                metric_entries = itertools.chain(*metric_entries_raw)
+
+                metric_entries_by_ref_ids: dict[EntityId, list[MetricEntry]] = {}
+
+                for metric_entry in metric_entries:
+                    if metric_entry.metric.ref_id not in metric_entries_by_ref_ids:
+                        metric_entries_by_ref_ids[metric_entry.metric.ref_id] = [
+                            metric_entry,
+                        ]
+                    else:
+                        metric_entries_by_ref_ids[metric_entry.metric.ref_id].append(
+                            metric_entry,
+                        )
+            else:
+                metric_entries_by_ref_ids = {}
+
+            if args.include_collection_inbox_tasks:
+                metric_collection_inbox_tasks_by_ref_id: defaultdict[
+                    EntityId,
+                    list[InboxTask],
+                ] = defaultdict(list)
+                inbox_task_collection = await uow.get_for(
+                    InboxTaskCollection
+                ).load_by_parent(
+                    workspace.ref_id,
+                )
+                all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                    parent_ref_id=inbox_task_collection.ref_id,
+                    allow_archived=True,
+                    source=[InboxTaskSource.METRIC],
+                    source_entity_ref_id=[m.ref_id for m in metrics],
+                )
+
+                for inbox_task in all_inbox_tasks:
+                    metric_collection_inbox_tasks_by_ref_id[
+                        inbox_task.source_entity_ref_id_for_sure
+                    ].append(inbox_task)
+            else:
+                metric_collection_inbox_tasks_by_ref_id = defaultdict(list)
+
+            all_notes_by_metric_entry_ref_id: defaultdict[EntityId, Note] = defaultdict(
+                None
+            )
+            if args.include_metric_entry_notes:
+                note_collection = await uow.get_for(NoteCollection).load_by_parent(
+                    workspace.ref_id
+                )
+                all_notes = await uow.get_for(Note).find_all_generic(
+                    parent_ref_id=note_collection.ref_id,
+                    domain=NoteDomain.METRIC_ENTRY,
+                    allow_archived=True,
+                    source_entity_ref_id=[me.ref_id for me in metric_entries],
+                )
+                for n in all_notes:
+                    all_notes_by_metric_entry_ref_id[
+                        cast(EntityId, n.source_entity_ref_id)
+                    ] = n
+
+            return MetricFindResult(
+                collection_project=collection_project,
+                entries=[
+                    MetricFindResponseEntry(
+                        metric=m,
+                        note=all_notes_by_metric_ref_id.get(m.ref_id, None),
+                        metric_entries=(
+                            metric_entries_by_ref_ids.get(m.ref_id, [])
+                            if len(metric_entries_by_ref_ids) > 0
+                            else None
+                        ),
+                        metric_collection_inbox_tasks=(
+                            metric_collection_inbox_tasks_by_ref_id.get(
+                                m.ref_id,
+                                [],
+                            )
+                            if len(metric_collection_inbox_tasks_by_ref_id) > 0
+                            else None
+                        ),
+                        metric_entry_notes=[
+                            all_notes_by_metric_entry_ref_id[me.ref_id]
+                            for me in metric_entries_by_ref_ids.get(m.ref_id, [])
+                            if (me.ref_id in all_notes_by_metric_entry_ref_id)
+                        ],
+                    )
+                    for m in metrics
+                ],
+            )
+        except Exception as err:
+            print(f"Error finding metrics: {err}")
+            from rich import print as rprint
+            rprint(err)
+            raise err

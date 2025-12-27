@@ -574,6 +574,8 @@ class _StandardPrimitiveDatabaseDecoder(
         if self._the_type is type(None):
             if value is None:
                 return cast(_PrimitiveT, value)
+            elif isinstance(value, str) and value == "":
+                return cast(_PrimitiveT, None)
             else:
                 raise RealmDecodingError(
                     f"Expected value for {self._the_type.__name__} in {self.__class__} to be None"
