@@ -5,7 +5,6 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  Project,
   ProjectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
