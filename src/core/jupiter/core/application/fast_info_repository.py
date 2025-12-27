@@ -129,6 +129,8 @@ class BigPlanSummary(CompositeValue):
     ref_id: EntityId
     name: BigPlanName
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     is_key: bool
 
 

@@ -63,7 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const response = await apiClient.habits.habitFind({
     allow_archived: false,
     include_notes: false,
-    include_project: true,
+    include_life_plan: true,
     include_inbox_tasks: false,
   });
 

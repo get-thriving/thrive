@@ -11,13 +11,13 @@ interface GoalSelectProps {
   disabled: boolean;
   onlyForProject?: EntityId;
   allGoals: GoalSummary[];
-  defaultValue?: string;
-  value?: string;
-  onChange?: (value: string | null) => void;
+  defaultValue?: EntityId | null;
+  value?: EntityId | null;
+  onChange?: (value: EntityId | null) => void;
 }
 
 interface GoalOption {
-  goal_ref_id: string;
+  goal_ref_id: EntityId;
   label: string;
   bigName: string;
 }
@@ -36,16 +36,16 @@ export function GoalSelect(props: GoalSelectProps) {
   const allGoalsAsOptions: GoalOption[] = useMemo(
     () =>
       sortedGoals
-          .filter(
-            (goal) =>
-              !props.onlyForProject ||
-              goal.project_ref_id === props.onlyForProject,
-          )
-          .map((goal) => ({
-            goal_ref_id: goal.ref_id,
-            label: String(goal.name),
-            bigName: fullGoalName(goal),
-          })),
+        .filter(
+          (goal) =>
+            !props.onlyForProject ||
+            goal.project_ref_id === props.onlyForProject,
+        )
+        .map((goal) => ({
+          goal_ref_id: goal.ref_id,
+          label: String(goal.name),
+          bigName: fullGoalName(goal),
+        })),
     [sortedGoals, props.onlyForProject],
   );
 

@@ -5,13 +5,14 @@ Revises: f1a2b3c4d5e6
 Create Date: 2025-12-27 16:25:36.750498
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'fec9e643177f'
-down_revision = 'f1a2b3c4d5e6'
+revision = "fec9e643177f"
+down_revision = "f1a2b3c4d5e6"
 branch_labels = None
 depends_on = None
 
@@ -65,7 +66,6 @@ def upgrade() -> None:
             ["goal_ref_id"],
             ["ref_id"],
         )
-
 
     with op.batch_alter_table("chore") as batch_op:
         batch_op.add_column(sa.Column("chapter_ref_id", sa.Integer(), nullable=True))

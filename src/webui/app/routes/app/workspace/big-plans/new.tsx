@@ -1,4 +1,11 @@
-import type { ChapterSummary, GoalSummary, LifePlan, MilestoneSummary, ProjectSummary, TimePlan } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+  TimePlan,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -50,12 +57,12 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
 import { ChapterSelect } from "@jupiter/core/life_plan/sub/chapters/components/select";
 import { GoalSelect } from "@jupiter/core/life_plan/sub/goals/components/select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { aDateToDate } from "#/core/common/adate";
 
 const ParamsSchema = z.object({});
 
@@ -144,8 +151,12 @@ export async function action({ request }: ActionFunctionArgs) {
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
       project_ref_id: form.project !== undefined ? form.project : undefined,
-      chapter_ref_id: form.chapter !== undefined && form.chapter !== "" ? form.chapter : undefined,
-      goal_ref_id: form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
       is_key: form.isKey,
       eisen: form.eisen,
       difficulty: form.difficulty,
@@ -195,7 +206,9 @@ export default function NewBigPlan() {
   const inputsEnabled = navigation.state === "idle";
 
   const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
-  const [selectedProject, setSelectedProject] = useState<string>(loaderData.rootProject.ref_id);
+  const [selectedProject, setSelectedProject] = useState<string>(
+    loaderData.rootProject.ref_id,
+  );
 
   return (
     <LeafPanel
@@ -246,31 +259,31 @@ export default function NewBigPlan() {
           WorkspaceFeature.LIFE_PLAN,
         ) && (
           <Stack direction="row" useFlexGap spacing={1}>
-          <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
-              inputsEnabled={inputsEnabled}
-              disabled={false}
-              allProjects={loaderData.allProjects}
-              value={selectedProject}
-              onChange={setSelectedProject}
-            />
-            <FieldError actionResult={actionData} fieldName="/project" />
-          </FormControl>
+            <FormControl fullWidth>
+              <ProjectSelect
+                name="project"
+                label="Project"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                allProjects={loaderData.allProjects}
+                value={selectedProject}
+                onChange={setSelectedProject}
+              />
+              <FieldError actionResult={actionData} fieldName="/project" />
+            </FormControl>
 
-          <FormControl fullWidth>
-            <ChapterSelect
-              name="chapter"
-              label="Chapter"
-              inputsEnabled={inputsEnabled}
-              disabled={false}
-              onlyForProject={selectedProject}
-              allChapters={loaderData.allChapters}
-              defaultValue={undefined}
-              birthday={birthdayDate}
-              today={aDateToDate(topLevelInfo.today)}
-              milestones={loaderData.allMilestones}
+            <FormControl fullWidth>
+              <ChapterSelect
+                name="chapter"
+                label="Chapter"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                onlyForProject={selectedProject}
+                allChapters={loaderData.allChapters}
+                defaultValue={undefined}
+                birthday={birthdayDate}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
               />
               <FieldError actionResult={actionData} fieldName="/chapter" />
             </FormControl>

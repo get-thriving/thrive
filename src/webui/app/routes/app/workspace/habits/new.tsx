@@ -1,4 +1,10 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -35,6 +41,10 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { ChapterSelect } from "@jupiter/core/life_plan/sub/chapters/components/select";
+import { GoalSelect } from "@jupiter/core/life_plan/sub/goals/components/select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -45,6 +55,8 @@ const ParamsSchema = z.object({});
 const CreateFormSchema = z.object({
   name: z.string(),
   project: z.string().optional(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   period: z.nativeEnum(RecurringTaskPeriod),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
@@ -69,12 +81,20 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   return json({
     rootProject: summaryResponse.root_project as ProjectSummary,
+    lifePlan: summaryResponse.life_plan as LifePlan,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
   });
 }
 
@@ -86,6 +106,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.habits.habitCreate({
       name: form.name,
       project_ref_id: form.project !== undefined ? form.project : undefined,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
       period: form.period,
       is_key: form.isKey,
       eisen: form.eisen,
@@ -133,6 +159,11 @@ export default function NewHabit() {
   const navigation = useNavigation();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const [selectedProject, setSelectedProject] = useState<string>(
+    loaderData.rootProject.ref_id,
+  );
 
   const [selectedPeriod, setSelectedPeriod] = useState<RecurringTaskPeriod>(
     RecurringTaskPeriod.DAILY,
@@ -196,17 +227,49 @@ export default function NewHabit() {
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
-              inputsEnabled={inputsEnabled}
-              disabled={false}
-              allProjects={loaderData.allProjects}
-              defaultValue={loaderData.rootProject.ref_id}
-            />
-            <FieldError actionResult={actionData} fieldName="/project" />
-          </FormControl>
+          <Stack direction="row" useFlexGap spacing={1}>
+            <FormControl fullWidth>
+              <ProjectSelect
+                name="project"
+                label="Project"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                allProjects={loaderData.allProjects}
+                value={selectedProject}
+                onChange={setSelectedProject}
+              />
+              <FieldError actionResult={actionData} fieldName="/project" />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <ChapterSelect
+                name="chapter"
+                label="Chapter"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                onlyForProject={selectedProject}
+                allChapters={loaderData.allChapters}
+                defaultValue={undefined}
+                birthday={birthdayDate}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
+              />
+              <FieldError actionResult={actionData} fieldName="/chapter" />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <GoalSelect
+                name="goal"
+                label="Goal"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                onlyForProject={selectedProject}
+                allGoals={loaderData.allGoals}
+                defaultValue={undefined}
+              />
+              <FieldError actionResult={actionData} fieldName="/goal" />
+            </FormControl>
+          </Stack>
         )}
 
         <RecurringTaskGenParamsBlock

@@ -42,7 +42,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.chores.choreFind({
     allow_archived: false,
-    include_project: true,
+    include_life_plan: true,
     include_inbox_tasks: false,
     include_notes: false,
   });

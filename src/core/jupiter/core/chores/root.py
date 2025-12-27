@@ -124,6 +124,8 @@ class Chore(LeafEntity):
             ctx,
             name=name.or_else(self.name),
             project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
+            goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
             gen_params=the_gen_params,
             must_do=must_do.or_else(self.must_do),

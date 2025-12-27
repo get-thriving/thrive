@@ -106,6 +106,7 @@ class InboxTaskUpdateUseCase(
         args: InboxTaskUpdateArgs,
     ) -> InboxTaskUpdateResult:
         """Execute the command's action."""
+        print(args)
         workspace = context.workspace
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
 

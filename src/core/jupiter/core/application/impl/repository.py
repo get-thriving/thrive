@@ -378,7 +378,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[BigPlanSummary]:
         """Find all summaries about big plans."""
-        query = """select ref_id, name, project_ref_id, is_key from big_plan where big_plan_collection_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, project_ref_id, chapter_ref_id, goal_ref_id, is_key from big_plan where big_plan_collection_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (
@@ -395,6 +395,8 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_BIG_PLAN_NAME_DECODER.decode(row["name"]),
                 project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                chapter_ref_id=_ENTITY_ID_DECODER.decode(str(row["chapter_ref_id"])),
+                goal_ref_id=_ENTITY_ID_DECODER.decode(str(row["goal_ref_id"])),
                 is_key=row["is_key"],
             )
             for row in result

@@ -77,13 +77,13 @@ import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-inp
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
+import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
+import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -259,11 +259,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
           chapter_ref_id: {
             should_change: true,
-            value: form.chapter !== undefined && form.chapter !== "" ? form.chapter : undefined,
+            value:
+              form.chapter !== undefined && form.chapter !== ""
+                ? form.chapter
+                : undefined,
           },
           goal_ref_id: {
             should_change: true,
-            value: form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
+            value:
+              form.goal !== undefined && form.goal !== ""
+                ? form.goal
+                : undefined,
           },
           is_key: {
             should_change: true,
@@ -508,45 +514,45 @@ export default function BigPlan() {
             WorkspaceFeature.LIFE_PLAN,
           ) && (
             <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <ProjectSelect
-                name="project"
-                label="Project"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allProjects={loaderData.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
-              />
-              <FieldError actionResult={actionData} fieldName="/project" />
-            </FormControl>
-            <FormControl fullWidth>
-              <ChapterSelect
-                name="chapter"
-                label="Chapter"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allChapters={loaderData.allChapters}
-                defaultValue={loaderData.chapter?.ref_id}
-                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
-              />
-              <FieldError actionResult={actionData} fieldName="/chapter" />
-            </FormControl>
-            <FormControl fullWidth>
-              <GoalSelect
-                name="goal"
-                label="Goal"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allGoals={loaderData.allGoals}
-                defaultValue={loaderData.goal?.ref_id}
-              />
-              <FieldError actionResult={actionData} fieldName="/goal" />
-            </FormControl>
+              <FormControl fullWidth>
+                <ProjectSelect
+                  name="project"
+                  label="Project"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  allProjects={loaderData.allProjects}
+                  value={selectedProject}
+                  onChange={setSelectedProject}
+                />
+                <FieldError actionResult={actionData} fieldName="/project" />
+              </FormControl>
+              <FormControl fullWidth>
+                <ChapterSelect
+                  name="chapter"
+                  label="Chapter"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  onlyForProject={selectedProject}
+                  allChapters={loaderData.allChapters}
+                  defaultValue={loaderData.chapter?.ref_id}
+                  birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                  today={aDateToDate(topLevelInfo.today)}
+                  milestones={loaderData.allMilestones}
+                />
+                <FieldError actionResult={actionData} fieldName="/chapter" />
+              </FormControl>
+              <FormControl fullWidth>
+                <GoalSelect
+                  name="goal"
+                  label="Goal"
+                  inputsEnabled={inputsEnabled}
+                  disabled={false}
+                  onlyForProject={selectedProject}
+                  allGoals={loaderData.allGoals}
+                  defaultValue={loaderData.goal?.ref_id}
+                />
+                <FieldError actionResult={actionData} fieldName="/goal" />
+              </FormControl>
             </Stack>
           )}
           {!isWorkspaceFeatureAvailable(

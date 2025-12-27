@@ -934,11 +934,27 @@ class InboxTask(LeafEntity):
             ):
                 raise CannotModifyGeneratedTaskError("project")
             the_project = project_ref_id.just_the_value
-            the_chapter = chapter_ref_id.just_the_value
-            the_goal = goal_ref_id.just_the_value
         else:
             the_project = self.project_ref_id
+
+        if chapter_ref_id.should_change:
+            if (
+                not self.source.allow_user_changes
+                and chapter_ref_id.just_the_value != self.chapter_ref_id
+            ):
+                raise CannotModifyGeneratedTaskError("chapter")
+            the_chapter = chapter_ref_id.just_the_value
+        else:
             the_chapter = self.chapter_ref_id
+
+        if goal_ref_id.should_change:
+            if (
+                not self.source.allow_user_changes
+                and goal_ref_id.just_the_value != self.goal_ref_id
+            ):
+                raise CannotModifyGeneratedTaskError("goal")
+            the_goal = goal_ref_id.just_the_value
+        else:
             the_goal = self.goal_ref_id
 
         if big_plan_ref_id.should_change:

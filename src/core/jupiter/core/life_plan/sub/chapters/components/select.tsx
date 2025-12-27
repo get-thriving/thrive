@@ -17,16 +17,16 @@ interface ChapterSelectProps {
   disabled: boolean;
   onlyForProject?: EntityId;
   allChapters: ChapterSummary[];
-  defaultValue?: string;
-  value?: string;
-  onChange?: (value: string | null) => void;
+  defaultValue?: EntityId | null;
+  value?: EntityId | null;
+  onChange?: (value: EntityId | null) => void;
   birthday: DateTime;
   today: DateTime;
   milestones: MilestoneSummary[];
 }
 
 interface ChapterOption {
-  chapter_ref_id: string;
+  chapter_ref_id: EntityId;
   label: string;
   bigName: string;
 }
@@ -96,9 +96,9 @@ export function ChapterSelect(props: ChapterSelectProps) {
     };
   }
 
-  const [selectedChapter, setSelectedChapter] = useState<
-    ChapterOption | null
-  >(selectedChapterToOption());
+  const [selectedChapter, setSelectedChapter] = useState<ChapterOption | null>(
+    selectedChapterToOption(),
+  );
 
   useEffect(() => {
     const selectedChapterRefId = props.value || props.defaultValue;
