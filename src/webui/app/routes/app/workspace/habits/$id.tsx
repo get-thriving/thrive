@@ -1,4 +1,11 @@
-import type { InboxTask, Project } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  InboxTask,
+  LifePlan,
+  MilestoneSummary,
+  Project,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -45,6 +52,10 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { ChapterSelect } from "@jupiter/core/life_plan/sub/chapters/components/select";
+import { GoalSelect } from "@jupiter/core/life_plan/sub/goals/components/select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -69,6 +80,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     project: z.string().optional(),
+    chapter: z.string().optional(),
+    goal: z.string().optional(),
     period: z.nativeEnum(RecurringTaskPeriod),
     isKey: CheckboxAsString,
     eisen: z.nativeEnum(Eisen),
@@ -108,7 +121,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema); // Parse the query parameters
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   let earliestDate = query.viewOneIncludeStreakMarksEarliestDate;
@@ -134,10 +151,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       streakMarkEarliestDate: result.streak_mark_earliest_date,
       streakMarkLatestDate: result.streak_mark_latest_date,
       project: result.project,
+      chapter: result.chapter,
+      goal: result.goal,
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
+      lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<Project>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -167,6 +190,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: form.project ? true : false,
             value: form.project,
+          },
+          chapter_ref_id: {
+            should_change: form.chapter !== undefined,
+            value:
+              form.chapter !== undefined && form.chapter !== ""
+                ? form.chapter
+                : null,
+          },
+          goal_ref_id: {
+            should_change: form.goal !== undefined,
+            value:
+              form.goal !== undefined && form.goal !== "" ? form.goal : null,
           },
           period: {
             should_change: true,
@@ -298,6 +333,7 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.habit.archived;
@@ -413,18 +449,47 @@ export default function Habit() {
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
-              inputsEnabled={inputsEnabled}
-              disabled={!inputsEnabled}
-              allProjects={loaderData.allProjects}
-              value={selectedProject}
-              onChange={setSelectedProject}
-            />
-            <FieldError actionResult={actionData} fieldName="/project" />
-          </FormControl>
+          <Stack direction="row" spacing={2}>
+            <FormControl fullWidth>
+              <ProjectSelect
+                name="project"
+                label="Project"
+                inputsEnabled={inputsEnabled}
+                disabled={!inputsEnabled}
+                allProjects={loaderData.allProjects}
+                value={selectedProject}
+                onChange={setSelectedProject}
+              />
+              <FieldError actionResult={actionData} fieldName="/project" />
+            </FormControl>
+            <FormControl fullWidth>
+              <ChapterSelect
+                name="chapter"
+                label="Chapter"
+                inputsEnabled={inputsEnabled}
+                disabled={!inputsEnabled}
+                onlyForProject={selectedProject}
+                allChapters={loaderData.allChapters}
+                defaultValue={loaderData.chapter?.ref_id}
+                birthday={birthdayDate}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
+              />
+              <FieldError actionResult={actionData} fieldName="/chapter" />
+            </FormControl>
+            <FormControl fullWidth>
+              <GoalSelect
+                name="goal"
+                label="Goal"
+                inputsEnabled={inputsEnabled}
+                disabled={!inputsEnabled}
+                onlyForProject={selectedProject}
+                allGoals={loaderData.allGoals}
+                defaultValue={loaderData.goal?.ref_id}
+              />
+              <FieldError actionResult={actionData} fieldName="/goal" />
+            </FormControl>
+          </Stack>
         )}
 
         <RecurringTaskGenParamsBlock

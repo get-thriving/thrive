@@ -1093,8 +1093,6 @@ class GenService:
                     found_time_plan = time_plan
 
             if time_plan_domain.generation_approach.should_generate_a_planning_task:
-                if time_plan_domain.planning_task_project_ref_id is None:
-                    raise Exception("Planning task project ref id is not set")
                 if time_plan_domain.planning_task_gen_params is None:
                     raise Exception("Planning task gen params is not set")
                 project = all_projects_by_ref_id[
@@ -1225,6 +1223,8 @@ class GenService:
                 found_task = found_task.update_link_to_habit(
                     ctx,
                     project_ref_id=project.ref_id,
+                    chapter_ref_id=habit.chapter_ref_id,
+                    goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=habit.is_key,
@@ -1250,7 +1250,9 @@ class GenService:
                     ctx,
                     inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                     name=schedule.full_name,
-                    project_ref_id=project.ref_id,
+                    habit_project_ref_id=project.ref_id,
+                    habit_chapter_ref_id=habit.chapter_ref_id,
+                    habit_goal_ref_id=habit.goal_ref_id,
                     habit_ref_id=habit.ref_id,
                     recurring_task_timeline=schedule.timeline,
                     recurring_task_repeat_index=task_idx,
@@ -1363,6 +1365,8 @@ class GenService:
             found_task = found_task.update_link_to_chore(
                 ctx,
                 project_ref_id=project.ref_id,
+                chapter_ref_id=chore.chapter_ref_id,
+                goal_ref_id=chore.goal_ref_id,
                 name=schedule.full_name,
                 timeline=schedule.timeline,
                 is_key=chore.is_key,
@@ -1385,7 +1389,9 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                project_ref_id=project.ref_id,
+                chore_project_ref_id=project.ref_id,
+                chore_chapter_ref_id=chore.chapter_ref_id,
+                chore_goal_ref_id=chore.goal_ref_id,
                 chore_ref_id=chore.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),

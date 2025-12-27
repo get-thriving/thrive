@@ -19,6 +19,8 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -46,6 +48,8 @@ class BigPlanLoadResult(UseCaseResultBase):
 
     big_plan: BigPlan
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
     note: Note | None
@@ -71,7 +75,16 @@ class BigPlanLoadUseCase(
             args.ref_id, allow_archived=args.allow_archived
         )
         project = await uow.get_for(Project).load_by_id(big_plan.project_ref_id)
-
+        chapter = (
+            await uow.get_for(Chapter).load_by_id(big_plan.chapter_ref_id)
+            if big_plan.chapter_ref_id
+            else None
+        )
+        goal = (
+            await uow.get_for(Goal).load_by_id(big_plan.goal_ref_id)
+            if big_plan.goal_ref_id
+            else None
+        )
         milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
             parent_ref_id=big_plan.ref_id,
             allow_archived=False,
@@ -102,6 +115,8 @@ class BigPlanLoadUseCase(
         return BigPlanLoadResult(
             big_plan=big_plan,
             project=project,
+            chapter=chapter,
+            goal=goal,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             note=note,

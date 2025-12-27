@@ -45,7 +45,7 @@ export function KeyBigPlansProgressWidget(props: WidgetProps) {
           showDonePct: true,
           showMilestonesLeft: true,
           showStatus: true,
-          showProject: true,
+          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showActionableDate: true,

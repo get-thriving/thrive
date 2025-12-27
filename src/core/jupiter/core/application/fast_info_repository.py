@@ -65,6 +65,7 @@ class ChapterSummary(CompositeValue):
     name: ChapterName
     start_date: PartialDate
     end_date: PartialDate
+    project_ref_id: EntityId
 
 
 @value
@@ -128,6 +129,8 @@ class BigPlanSummary(CompositeValue):
     ref_id: EntityId
     name: BigPlanName
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     is_key: bool
 
 

@@ -1,5 +1,7 @@
 import type {
   ADate,
+  Chapter,
+  Goal,
   HabitFindResultEntry,
   HabitLoadResult,
   Project,
@@ -42,6 +44,8 @@ import {
 import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
 import { WidgetProps } from "@jupiter/core/home/component/common";
+import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -63,7 +67,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const response = await apiClient.habits.habitFind({
     allow_archived: false,
     include_notes: false,
-    include_project: true,
+    include_life_plan: true,
     include_inbox_tasks: false,
   });
 
@@ -188,6 +192,18 @@ export default function Habits() {
                     topLevelInfo.workspace,
                     WorkspaceFeature.LIFE_PLAN,
                   ) && <ProjectTag project={entry.project as Project} />}
+                  {isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  ) &&
+                    entry.chapter && (
+                      <ChapterTag chapter={entry.chapter as Chapter} />
+                    )}
+                  {isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  ) &&
+                    entry.goal && <GoalTag goal={entry.goal as Goal} />}
                   {habit.suspended && <span className="tag">Suspended</span>}
                   <PeriodTag period={habit.gen_params.period} />
                   {habit.gen_params.eisen && (

@@ -9,9 +9,11 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
     from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
+    from ..models.inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
     from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
     from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
     from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
+    from ..models.inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
     from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
     from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName
     from ..models.inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
@@ -30,6 +32,8 @@ class InboxTaskUpdateArgs:
         name (InboxTaskUpdateArgsName):
         status (InboxTaskUpdateArgsStatus):
         project_ref_id (InboxTaskUpdateArgsProjectRefId):
+        chapter_ref_id (InboxTaskUpdateArgsChapterRefId):
+        goal_ref_id (InboxTaskUpdateArgsGoalRefId):
         big_plan_ref_id (InboxTaskUpdateArgsBigPlanRefId):
         is_key (InboxTaskUpdateArgsIsKey):
         eisen (InboxTaskUpdateArgsEisen):
@@ -42,6 +46,8 @@ class InboxTaskUpdateArgs:
     name: InboxTaskUpdateArgsName
     status: InboxTaskUpdateArgsStatus
     project_ref_id: InboxTaskUpdateArgsProjectRefId
+    chapter_ref_id: InboxTaskUpdateArgsChapterRefId
+    goal_ref_id: InboxTaskUpdateArgsGoalRefId
     big_plan_ref_id: InboxTaskUpdateArgsBigPlanRefId
     is_key: InboxTaskUpdateArgsIsKey
     eisen: InboxTaskUpdateArgsEisen
@@ -58,6 +64,10 @@ class InboxTaskUpdateArgs:
         status = self.status.to_dict()
 
         project_ref_id = self.project_ref_id.to_dict()
+
+        chapter_ref_id = self.chapter_ref_id.to_dict()
+
+        goal_ref_id = self.goal_ref_id.to_dict()
 
         big_plan_ref_id = self.big_plan_ref_id.to_dict()
 
@@ -79,6 +89,8 @@ class InboxTaskUpdateArgs:
                 "name": name,
                 "status": status,
                 "project_ref_id": project_ref_id,
+                "chapter_ref_id": chapter_ref_id,
+                "goal_ref_id": goal_ref_id,
                 "big_plan_ref_id": big_plan_ref_id,
                 "is_key": is_key,
                 "eisen": eisen,
@@ -94,9 +106,11 @@ class InboxTaskUpdateArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
         from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
+        from ..models.inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
         from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
         from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
         from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
+        from ..models.inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
         from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
         from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName
         from ..models.inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
@@ -110,6 +124,10 @@ class InboxTaskUpdateArgs:
         status = InboxTaskUpdateArgsStatus.from_dict(d.pop("status"))
 
         project_ref_id = InboxTaskUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+
+        chapter_ref_id = InboxTaskUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
+
+        goal_ref_id = InboxTaskUpdateArgsGoalRefId.from_dict(d.pop("goal_ref_id"))
 
         big_plan_ref_id = InboxTaskUpdateArgsBigPlanRefId.from_dict(d.pop("big_plan_ref_id"))
 
@@ -128,6 +146,8 @@ class InboxTaskUpdateArgs:
             name=name,
             status=status,
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             big_plan_ref_id=big_plan_ref_id,
             is_key=is_key,
             eisen=eisen,

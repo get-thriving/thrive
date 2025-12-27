@@ -17,7 +17,7 @@ class BigPlanFindArgs:
 
     Attributes:
         allow_archived (bool):
-        include_project (bool):
+        include_life_plan (bool):
         include_inbox_tasks (bool):
         include_notes (bool):
         include_milestones (bool):
@@ -28,7 +28,7 @@ class BigPlanFindArgs:
     """
 
     allow_archived: bool
-    include_project: bool
+    include_life_plan: bool
     include_inbox_tasks: bool
     include_notes: bool
     include_milestones: bool
@@ -41,7 +41,7 @@ class BigPlanFindArgs:
     def to_dict(self) -> dict[str, Any]:
         allow_archived = self.allow_archived
 
-        include_project = self.include_project
+        include_life_plan = self.include_life_plan
 
         include_inbox_tasks = self.include_inbox_tasks
 
@@ -80,7 +80,7 @@ class BigPlanFindArgs:
         field_dict.update(
             {
                 "allow_archived": allow_archived,
-                "include_project": include_project,
+                "include_life_plan": include_life_plan,
                 "include_inbox_tasks": include_inbox_tasks,
                 "include_notes": include_notes,
                 "include_milestones": include_milestones,
@@ -101,7 +101,7 @@ class BigPlanFindArgs:
         d = dict(src_dict)
         allow_archived = d.pop("allow_archived")
 
-        include_project = d.pop("include_project")
+        include_life_plan = d.pop("include_life_plan")
 
         include_inbox_tasks = d.pop("include_inbox_tasks")
 
@@ -156,7 +156,7 @@ class BigPlanFindArgs:
 
         big_plan_find_args = cls(
             allow_archived=allow_archived,
-            include_project=include_project,
+            include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,
             include_notes=include_notes,
             include_milestones=include_milestones,

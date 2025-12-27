@@ -110,7 +110,6 @@ export function MilestoneSelect(props: MilestoneSelectProps) {
           o.milestone_ref_id === v.milestone_ref_id
         }
         renderOption={(optionProps, option) => {
-          // eslint-disable-next-line react/prop-types
           const { key, ...restProps } = optionProps;
           return (
             <li {...restProps} key={key}>

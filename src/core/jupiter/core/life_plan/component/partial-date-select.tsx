@@ -20,7 +20,7 @@ import {
   useLeafPanelExpansionState,
 } from "#/core/infra/leaf-panel-expansion";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
-import { MilestoneSelect } from "#/core/life_plan/sub/milestone/components/select";
+import { MilestoneSelect } from "#/core/life_plan/sub/milestones/components/select";
 
 const DEFAULT_YEAR_ABSOLUTE = 1990;
 const DEFAULT_YEAR_RELATIVE = 20;

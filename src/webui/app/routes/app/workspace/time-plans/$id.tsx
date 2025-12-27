@@ -583,7 +583,7 @@ export default function TimePlanView() {
                 showOptions={{
                   showDonePct: true,
                   showStatus: true,
-                  showProject: true,
+                  showLifePlan: true,
                   showEisen: true,
                   showDifficulty: true,
                   showActionableDate: true,

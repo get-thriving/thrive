@@ -613,6 +613,8 @@ class _StandardPrimitiveDatabaseDecoder(
         elif self._the_type is float:
             if isinstance(value, float):
                 return cast(_PrimitiveT, value)
+            elif isinstance(value, int):
+                return cast(_PrimitiveT, float(value))
             else:
                 raise RealmDecodingError(
                     f"Expected value for {self._the_type.__name__} in {self.__class__} to be a float"

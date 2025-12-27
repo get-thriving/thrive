@@ -5,6 +5,8 @@
 import type { BigPlan } from './BigPlan';
 import type { BigPlanMilestone } from './BigPlanMilestone';
 import type { BigPlanStats } from './BigPlanStats';
+import type { Chapter } from './Chapter';
+import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
@@ -17,6 +19,8 @@ export type BigPlanFindResultEntry = {
     milestones?: (Array<BigPlanMilestone> | null);
     stats?: (BigPlanStats | null);
     project?: (Project | null);
+    chapter?: (Chapter | null);
+    goal?: (Goal | null);
     inbox_tasks?: (Array<InboxTask> | null);
 };
 

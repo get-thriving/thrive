@@ -1,4 +1,11 @@
-import type { BigPlanSummary, ProjectSummary } from "@jupiter/webapi-client";
+import type {
+  BigPlanSummary,
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -65,6 +72,8 @@ const UpdateFormInboxTaskSchema = {
   inboxTaskSource: z.nativeEnum(InboxTaskSource),
   inboxTaskName: z.string(),
   inboxTaskProject: z.string().optional(),
+  inboxTaskChapter: z.string().optional(),
+  inboxTaskGoal: z.string().optional(),
   inboxTaskBigPlan: z.string().optional(),
   inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
   inboxTaskIsKey: CheckboxAsString,
@@ -132,6 +141,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
+    include_life_plan: true,
+    include_chapters: true,
+    include_goals: true,
     include_workspace: true,
     include_projects: true,
     include_big_plans: true,
@@ -153,7 +165,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       rootProject: summaryResponse.root_project as ProjectSummary,
+      lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
       inDayBlock: response.in_day_block,
       scheduleEvent: response.schedule_event,
@@ -265,6 +281,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: true,
             value: form.inboxTaskProject,
+          },
+          chapter_ref_id: {
+            should_change: form.inboxTaskChapter !== undefined,
+            value:
+              form.inboxTaskChapter !== undefined &&
+              form.inboxTaskChapter !== "none"
+                ? form.inboxTaskChapter
+                : null,
+          },
+          goal_ref_id: {
+            should_change: form.inboxTaskGoal !== undefined,
+            value:
+              form.inboxTaskGoal !== undefined && form.inboxTaskGoal !== "none"
+                ? form.inboxTaskGoal
+                : null,
           },
           big_plan_ref_id: {
             should_change: form.inboxTaskBigPlan !== undefined,
@@ -563,8 +594,12 @@ export default function TimeEventInDayBlockViewOne() {
           intentPrefix="inbox-task"
           namePrefix="inboxTask"
           topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
           rootProject={loaderData.rootProject}
           allProjects={loaderData.allProjects}
+          allChapters={loaderData.allChapters}
+          allGoals={loaderData.allGoals}
+          allMilestones={loaderData.allMilestones}
           allBigPlans={loaderData.allBigPlans}
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
           inboxTask={loaderData.inboxTask}

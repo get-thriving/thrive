@@ -25,6 +25,14 @@ export type InboxTaskUpdateArgs = {
         should_change: boolean;
         value?: EntityId;
     };
+    chapter_ref_id: {
+        should_change: boolean;
+        value?: (EntityId | null);
+    };
+    goal_ref_id: {
+        should_change: boolean;
+        value?: (EntityId | null);
+    };
     big_plan_ref_id: {
         should_change: boolean;
         value?: (EntityId | null);

@@ -351,7 +351,7 @@ export default function LifePlanView() {
                       <EntityLink
                         to={`/app/workspace/life-plan/projects/${project.ref_id}`}
                       >
-                        <EntityNameComponent name={project.name} />
+                        <EntityNameComponent name={`⭐ ${project.name}`} />
                       </EntityLink>
 
                       {isRootProject(project) ||
@@ -440,10 +440,16 @@ export default function LifePlanView() {
                     {goals.length > 0 && (
                       <>
                         <Divider />
-                        <Stack direction="row" 
-                          spacing={2} 
-                          sx={{ paddingTop: "0.5rem", 
-                          paddingBottom: "0.5rem", paddingLeft: "1rem", paddingRight: "1rem"}}>
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          sx={{
+                            paddingTop: "0.5rem",
+                            paddingBottom: "0.5rem",
+                            paddingLeft: "1rem",
+                            paddingRight: "1rem",
+                          }}
+                        >
                           {goals.map((goal) => (
                             <EntityLink
                               inline

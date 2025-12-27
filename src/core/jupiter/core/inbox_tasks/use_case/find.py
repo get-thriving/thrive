@@ -35,6 +35,8 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.persons.collection import PersonCollection
@@ -96,6 +98,8 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     inbox_task: InboxTask
     note: Note | None
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     time_event_blocks: list[TimeEventInDayBlock] | None
     working_mem: WorkingMem | None
     time_plan: TimePlan | None
@@ -215,6 +219,20 @@ class InboxTaskFindUseCase(
             ref_id=args.filter_project_ref_ids or NoFilter(),
         )
         project_by_ref_id = {p.ref_id: p for p in projects}
+
+        chapters = await uow.get_for(Chapter).find_all_generic(
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=args.allow_archived,
+            ref_id=NoFilter(),
+        )
+        chapter_by_ref_id = {c.ref_id: c for c in chapters}
+
+        goals = await uow.get_for(Goal).find_all_generic(
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=args.allow_archived,
+            ref_id=NoFilter(),
+        )
+        goal_by_ref_id = {g.ref_id: g for g in goals}
 
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
@@ -374,6 +392,12 @@ class InboxTaskFindUseCase(
                 InboxTaskFindResultEntry(
                     inbox_task=it,
                     project=project_by_ref_id[it.project_ref_id],
+                    chapter=(
+                        chapter_by_ref_id[it.chapter_ref_id]
+                        if it.chapter_ref_id
+                        else None
+                    ),
+                    goal=goal_by_ref_id[it.goal_ref_id] if it.goal_ref_id else None,
                     working_mem=(
                         working_mems_by_ref_id[it.source_entity_ref_id_for_sure]
                         if it.source == InboxTaskSource.WORKING_MEM_CLEANUP

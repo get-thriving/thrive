@@ -5,6 +5,8 @@ import {
   type BigPlanFindResultEntry,
   type Project,
   type BigPlanMilestone,
+  Chapter,
+  Goal,
 } from "@jupiter/webapi-client";
 
 import { compareADate } from "#/core/common/adate";
@@ -15,6 +17,8 @@ import { compareIsKey } from "#/core/common/is-key";
 
 export interface BigPlanParent {
   project?: Project;
+  chapter?: Chapter;
+  goal?: Goal;
 }
 
 export function bigPlanFindEntryToParent(
@@ -22,6 +26,8 @@ export function bigPlanFindEntryToParent(
 ): BigPlanParent {
   return {
     project: entry.project || undefined,
+    chapter: entry.chapter || undefined,
+    goal: entry.goal || undefined,
   };
 }
 

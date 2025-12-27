@@ -9,11 +9,13 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
     from ..models.chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
+    from ..models.chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
     from ..models.chore_update_args_difficulty import ChoreUpdateArgsDifficulty
     from ..models.chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
     from ..models.chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth
     from ..models.chore_update_args_eisen import ChoreUpdateArgsEisen
     from ..models.chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate
+    from ..models.chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
     from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey
     from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo
     from ..models.chore_update_args_name import ChoreUpdateArgsName
@@ -34,6 +36,8 @@ class ChoreUpdateArgs:
         ref_id (str): A generic entity id.
         name (ChoreUpdateArgsName):
         project_ref_id (ChoreUpdateArgsProjectRefId):
+        chapter_ref_id (ChoreUpdateArgsChapterRefId):
+        goal_ref_id (ChoreUpdateArgsGoalRefId):
         is_key (ChoreUpdateArgsIsKey):
         period (ChoreUpdateArgsPeriod):
         eisen (ChoreUpdateArgsEisen):
@@ -51,6 +55,8 @@ class ChoreUpdateArgs:
     ref_id: str
     name: ChoreUpdateArgsName
     project_ref_id: ChoreUpdateArgsProjectRefId
+    chapter_ref_id: ChoreUpdateArgsChapterRefId
+    goal_ref_id: ChoreUpdateArgsGoalRefId
     is_key: ChoreUpdateArgsIsKey
     period: ChoreUpdateArgsPeriod
     eisen: ChoreUpdateArgsEisen
@@ -71,6 +77,10 @@ class ChoreUpdateArgs:
         name = self.name.to_dict()
 
         project_ref_id = self.project_ref_id.to_dict()
+
+        chapter_ref_id = self.chapter_ref_id.to_dict()
+
+        goal_ref_id = self.goal_ref_id.to_dict()
 
         is_key = self.is_key.to_dict()
 
@@ -103,6 +113,8 @@ class ChoreUpdateArgs:
                 "ref_id": ref_id,
                 "name": name,
                 "project_ref_id": project_ref_id,
+                "chapter_ref_id": chapter_ref_id,
+                "goal_ref_id": goal_ref_id,
                 "is_key": is_key,
                 "period": period,
                 "eisen": eisen,
@@ -124,11 +136,13 @@ class ChoreUpdateArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
         from ..models.chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
+        from ..models.chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
         from ..models.chore_update_args_difficulty import ChoreUpdateArgsDifficulty
         from ..models.chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
         from ..models.chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth
         from ..models.chore_update_args_eisen import ChoreUpdateArgsEisen
         from ..models.chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate
+        from ..models.chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
         from ..models.chore_update_args_is_key import ChoreUpdateArgsIsKey
         from ..models.chore_update_args_must_do import ChoreUpdateArgsMustDo
         from ..models.chore_update_args_name import ChoreUpdateArgsName
@@ -143,6 +157,10 @@ class ChoreUpdateArgs:
         name = ChoreUpdateArgsName.from_dict(d.pop("name"))
 
         project_ref_id = ChoreUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+
+        chapter_ref_id = ChoreUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
+
+        goal_ref_id = ChoreUpdateArgsGoalRefId.from_dict(d.pop("goal_ref_id"))
 
         is_key = ChoreUpdateArgsIsKey.from_dict(d.pop("is_key"))
 
@@ -172,6 +190,8 @@ class ChoreUpdateArgs:
             ref_id=ref_id,
             name=name,
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             is_key=is_key,
             period=period,
             eisen=eisen,

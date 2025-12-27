@@ -122,7 +122,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_milestones: true,
       include_stats: true,
       filter_just_workable: true,
-      include_project: true,
+      include_life_plan: true,
       include_inbox_tasks: false,
     });
 
@@ -510,7 +510,7 @@ function BigPlanList(props: BigPlanListProps) {
       showOptions={{
         showDonePct: true,
         showDueDate: true,
-        showProject: true,
+        showLifePlan: true,
       }}
       onClick={(it) => {
         props.onSelected(it);

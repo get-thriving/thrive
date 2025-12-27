@@ -52,9 +52,11 @@ from .big_plan_status import BigPlanStatus
 from .big_plan_summary import BigPlanSummary
 from .big_plan_update_args import BigPlanUpdateArgs
 from .big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+from .big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
 from .big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
 from .big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
 from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
+from .big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
 from .big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
 from .big_plan_update_args_name import BigPlanUpdateArgsName
 from .big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
@@ -108,11 +110,13 @@ from .chore_unsuspend_args import ChoreUnsuspendArgs
 from .chore_update_args import ChoreUpdateArgs
 from .chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
 from .chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
+from .chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
 from .chore_update_args_difficulty import ChoreUpdateArgsDifficulty
 from .chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
 from .chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth
 from .chore_update_args_eisen import ChoreUpdateArgsEisen
 from .chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate
+from .chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
 from .chore_update_args_is_key import ChoreUpdateArgsIsKey
 from .chore_update_args_must_do import ChoreUpdateArgsMustDo
 from .chore_update_args_name import ChoreUpdateArgsName
@@ -222,10 +226,12 @@ from .habit_unsuspend_args import HabitUnsuspendArgs
 from .habit_update_args import HabitUpdateArgs
 from .habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
 from .habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
+from .habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
 from .habit_update_args_difficulty import HabitUpdateArgsDifficulty
 from .habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
 from .habit_update_args_due_at_month import HabitUpdateArgsDueAtMonth
 from .habit_update_args_eisen import HabitUpdateArgsEisen
+from .habit_update_args_goal_ref_id import HabitUpdateArgsGoalRefId
 from .habit_update_args_is_key import HabitUpdateArgsIsKey
 from .habit_update_args_name import HabitUpdateArgsName
 from .habit_update_args_period import HabitUpdateArgsPeriod
@@ -280,9 +286,11 @@ from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
 from .inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
 from .inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
+from .inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
 from .inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
 from .inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
 from .inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
+from .inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
 from .inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
 from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
@@ -818,9 +826,11 @@ __all__ = (
     "BigPlanSummary",
     "BigPlanUpdateArgs",
     "BigPlanUpdateArgsActionableDate",
+    "BigPlanUpdateArgsChapterRefId",
     "BigPlanUpdateArgsDifficulty",
     "BigPlanUpdateArgsDueDate",
     "BigPlanUpdateArgsEisen",
+    "BigPlanUpdateArgsGoalRefId",
     "BigPlanUpdateArgsIsKey",
     "BigPlanUpdateArgsName",
     "BigPlanUpdateArgsProjectRefId",
@@ -874,11 +884,13 @@ __all__ = (
     "ChoreUpdateArgs",
     "ChoreUpdateArgsActionableFromDay",
     "ChoreUpdateArgsActionableFromMonth",
+    "ChoreUpdateArgsChapterRefId",
     "ChoreUpdateArgsDifficulty",
     "ChoreUpdateArgsDueAtDay",
     "ChoreUpdateArgsDueAtMonth",
     "ChoreUpdateArgsEisen",
     "ChoreUpdateArgsEndAtDate",
+    "ChoreUpdateArgsGoalRefId",
     "ChoreUpdateArgsIsKey",
     "ChoreUpdateArgsMustDo",
     "ChoreUpdateArgsName",
@@ -988,10 +1000,12 @@ __all__ = (
     "HabitUpdateArgs",
     "HabitUpdateArgsActionableFromDay",
     "HabitUpdateArgsActionableFromMonth",
+    "HabitUpdateArgsChapterRefId",
     "HabitUpdateArgsDifficulty",
     "HabitUpdateArgsDueAtDay",
     "HabitUpdateArgsDueAtMonth",
     "HabitUpdateArgsEisen",
+    "HabitUpdateArgsGoalRefId",
     "HabitUpdateArgsIsKey",
     "HabitUpdateArgsName",
     "HabitUpdateArgsPeriod",
@@ -1047,9 +1061,11 @@ __all__ = (
     "InboxTaskUpdateArgs",
     "InboxTaskUpdateArgsActionableDate",
     "InboxTaskUpdateArgsBigPlanRefId",
+    "InboxTaskUpdateArgsChapterRefId",
     "InboxTaskUpdateArgsDifficulty",
     "InboxTaskUpdateArgsDueDate",
     "InboxTaskUpdateArgsEisen",
+    "InboxTaskUpdateArgsGoalRefId",
     "InboxTaskUpdateArgsIsKey",
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsProjectRefId",
