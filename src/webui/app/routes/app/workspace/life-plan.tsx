@@ -351,7 +351,7 @@ export default function LifePlanView() {
                       <EntityLink
                         to={`/app/workspace/life-plan/projects/${project.ref_id}`}
                       >
-                        <EntityNameComponent name={project.name} />
+                        <EntityNameComponent name={`⭐ ${project.name}`} />
                       </EntityLink>
 
                       {isRootProject(project) ||

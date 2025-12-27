@@ -1,4 +1,4 @@
-import type { ChoreFindResultEntry, Project } from "@jupiter/webapi-client";
+import type { Chapter, ChoreFindResultEntry, Goal, Project } from "@jupiter/webapi-client";
 import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -33,6 +33,8 @@ import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -97,6 +99,14 @@ export default function Chores() {
                     topLevelInfo.workspace,
                     WorkspaceFeature.LIFE_PLAN,
                   ) && <ProjectTag project={entry.project as Project} />}
+                  {isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  ) && entry.chapter &&<ChapterTag chapter={entry.chapter as Chapter} />}
+                  {isWorkspaceFeatureAvailable(
+                    topLevelInfo.workspace,
+                    WorkspaceFeature.LIFE_PLAN,
+                  ) && entry.goal && <GoalTag goal={entry.goal as Goal} />}
                   <Check isDone={!chore.suspended} label="Active" />
                   <PeriodTag period={chore.gen_params.period} />
                   {chore.gen_params.eisen && (

@@ -531,7 +531,7 @@ function InboxTaskList(props: InboxTaskListProps) {
             props.targetInboxTaskRefIds.has(inboxTask.ref_id)
           }
           showOptions={{
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,

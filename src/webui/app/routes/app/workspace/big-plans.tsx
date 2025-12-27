@@ -264,7 +264,7 @@ export default function BigPlans() {
             showOptions={{
               showDonePct: true,
               showMilestonesLeft: true,
-              showProject: true,
+              showLifePlan: true,
               showEisen: true,
               showDifficulty: true,
               showActionableDate: true,

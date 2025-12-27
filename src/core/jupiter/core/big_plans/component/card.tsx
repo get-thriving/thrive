@@ -2,6 +2,8 @@ import type {
   BigPlan,
   BigPlanMilestone,
   BigPlanStats,
+  Chapter,
+  Goal,
   Project,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
@@ -21,12 +23,14 @@ import { EisenTag } from "#/core/common/component/eisen-tag";
 import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { BigPlanMilestonesLeftTag } from "#/core/big_plans/sub/milestones/component/left-tag";
+import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 
 export interface BigPlanShowOptions {
   showDonePct?: boolean;
   showMilestonesLeft?: boolean;
   showStatus?: boolean;
-  showProject?: boolean;
+  showLifePlan?: boolean;
   showEisen?: boolean;
   showDifficulty?: boolean;
   showActionableDate?: boolean;
@@ -105,7 +109,7 @@ export function BigPlanCard(props: BigPlanCardProps) {
         {props.showOptions.showStatus && (
           <BigPlanStatusTag status={props.bigPlan.status} />
         )}
-        {props.showOptions.showProject &&
+        {props.showOptions.showLifePlan &&
           isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
@@ -113,7 +117,24 @@ export function BigPlanCard(props: BigPlanCardProps) {
           props.parent && (
             <ProjectTag project={props.parent.project as Project} />
           )}
+        {props.showOptions.showLifePlan &&
+          isWorkspaceFeatureAvailable(
+            props.topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) &&
+          props.parent?.chapter && (
+            <ChapterTag chapter={props.parent.chapter as Chapter} />
+          )}
 
+        {props.showOptions.showLifePlan &&
+          isWorkspaceFeatureAvailable(
+            props.topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) &&
+          props.parent?.goal && (
+            <GoalTag goal={props.parent.goal as Goal} />
+          )}
+      
         {props.showOptions.showEisen && (
           <EisenTag eisen={props.bigPlan.eisen} />
         )}

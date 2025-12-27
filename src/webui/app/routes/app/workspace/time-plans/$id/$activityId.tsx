@@ -548,7 +548,7 @@ export default function TimePlanActivity() {
               showOptions={{
                 showDonePct: true,
                 showStatus: true,
-                showProject: true,
+                showLifePlan: true,
                 showEisen: true,
                 showDifficulty: true,
                 showActionableDate: true,

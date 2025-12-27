@@ -15,6 +15,8 @@ import {
   Difficulty,
   InboxTaskSource,
   InboxTaskStatus,
+  Chapter,
+  Goal,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
@@ -30,6 +32,8 @@ export interface InboxTaskOptimisticState {
 
 export interface InboxTaskParent {
   project?: Project;
+  chapter?: Chapter;
+  goal?: Goal;
   bigPlan?: BigPlan;
   habit?: Habit;
   chore?: Chore;
@@ -44,6 +48,8 @@ export function inboxTaskFindEntryToParent(
 ): InboxTaskParent {
   return {
     project: entry.project,
+    chapter: entry.chapter ?? undefined,
+    goal: entry.goal ?? undefined,
     bigPlan: entry.big_plan ?? undefined,
     habit: entry.habit ?? undefined,
     chore: entry.chore ?? undefined,

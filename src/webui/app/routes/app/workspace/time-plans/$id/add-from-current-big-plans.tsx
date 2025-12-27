@@ -510,7 +510,7 @@ function BigPlanList(props: BigPlanListProps) {
       showOptions={{
         showDonePct: true,
         showDueDate: true,
-        showProject: true,
+        showLifePlan: true,
       }}
       onClick={(it) => {
         props.onSelected(it);
