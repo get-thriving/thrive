@@ -2,9 +2,13 @@
 
 from typing import cast
 
+from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
+from jupiter.core.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
@@ -32,9 +36,12 @@ class ChapterUnlinkEntitiesService:
     ) -> None:
         """Unlink the chapter from associated inbox tasks, big plans, chores, and habits."""
         # Unlink from BigPlans
+        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+            life_plan.workspace.ref_id
+        )
         big_plans = await uow.get_for(BigPlan).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=False,
+            parent_ref_id=big_plan_collection.ref_id,
+            allow_archived=True,
             chapter_ref_id=chapter.ref_id,
         )
         big_plans_by_ref_id = {big_plan.ref_id: big_plan for big_plan in big_plans}
@@ -54,11 +61,15 @@ class ChapterUnlinkEntitiesService:
             )
             await uow.get_for(BigPlan).save(updated_big_plan)
             await progress_reporter.mark_updated(updated_big_plan)
+            big_plans_by_ref_id[big_plan.ref_id] = updated_big_plan
 
         # Unlink from Chores
+        chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
+            life_plan.workspace.ref_id
+        )
         chores = await uow.get_for(Chore).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=False,
+            parent_ref_id=chore_collection.ref_id,
+            allow_archived=True,
             chapter_ref_id=chapter.ref_id,
         )
         chores_by_ref_id = {chore.ref_id: chore for chore in chores}
@@ -77,11 +88,15 @@ class ChapterUnlinkEntitiesService:
             )
             await uow.get_for(Chore).save(updated_chore)
             await progress_reporter.mark_updated(updated_chore)
+            chores_by_ref_id[chore.ref_id] = updated_chore
 
         # Unlink from Habits
+        habit_collection = await uow.get_for(HabitCollection).load_by_parent(
+            life_plan.workspace.ref_id
+        )
         habits = await uow.get_for(Habit).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=False,
+            parent_ref_id=habit_collection.ref_id,
+            allow_archived=True,
             chapter_ref_id=chapter.ref_id,
         )
         habits_by_ref_id = {habit.ref_id: habit for habit in habits}
@@ -99,11 +114,15 @@ class ChapterUnlinkEntitiesService:
             )
             await uow.get_for(Habit).save(updated_habit)
             await progress_reporter.mark_updated(updated_habit)
+            habits_by_ref_id[habit.ref_id] = updated_habit
 
         # Unlink from InboxTasks
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+            life_plan.workspace.ref_id
+        )
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=False,
+            parent_ref_id=inbox_task_collection.ref_id,
+            allow_archived=True,
             chapter_ref_id=chapter.ref_id,
         )
 

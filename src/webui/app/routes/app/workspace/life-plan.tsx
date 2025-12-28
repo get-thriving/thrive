@@ -70,6 +70,7 @@ import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 import { aDateToDate } from "#/core/common/adate";
 import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -441,8 +442,8 @@ export default function LifePlanView() {
                       <>
                         <Divider />
                         <Stack
-                          direction="row"
-                          spacing={2}
+                          direction="column"
+                          spacing={0.5}
                           sx={{
                             paddingTop: "0.5rem",
                             paddingBottom: "0.5rem",
@@ -450,16 +451,9 @@ export default function LifePlanView() {
                             paddingRight: "1rem",
                           }}
                         >
-                          {goals.map((goal) => (
-                            <EntityLink
-                              inline
-                              singleLine
-                              key={`goal-${goal.ref_id}`}
-                              to={`/app/workspace/life-plan/goals/${goal.ref_id}`}
-                            >
-                              <EntityNameComponent name={`🎯 ${goal.name}`} />
-                            </EntityLink>
-                          ))}
+                          {buildGoalForest(goals).map((node) =>
+                            renderGoalNode(node, 0),
+                          )}
                         </Stack>
                       </>
                     )}
@@ -737,4 +731,56 @@ function computeMilestonePositions(
     });
   }
   return { totalRows: rowIdx + 1, milestonePositions: milestonePositions };
+}
+
+type GoalNode = {
+  goal: Goal;
+  children: GoalNode[];
+};
+
+function buildGoalForest(goals: Goal[]): GoalNode[] {
+  const sortedGoals = sortGoalsNaturally(goals);
+  const nodesByRefId = new Map<string, GoalNode>();
+  for (const goal of sortedGoals) {
+    nodesByRefId.set(goal.ref_id, { goal, children: [] });
+  }
+
+  const roots: GoalNode[] = [];
+  for (const goal of sortedGoals) {
+    const node = nodesByRefId.get(goal.ref_id)!;
+    const parentRefId = goal.parent_goal_ref_id ?? null;
+    const parent = parentRefId ? nodesByRefId.get(parentRefId) : undefined;
+    if (!parent || parentRefId === goal.ref_id) {
+      roots.push(node);
+      continue;
+    }
+    parent.children.push(node);
+  }
+
+  return roots;
+}
+
+function renderGoalNode(node: GoalNode, depth: number): JSX.Element {
+  return (
+    <Box
+      key={`goal-${node.goal.ref_id}`}
+      sx={{
+        paddingLeft: `${depth * 1}rem`,
+        paddingBottom: "0.25rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.25rem",
+      }}
+    >
+      <EntityLink
+        inline
+        singleLine
+        to={`/app/workspace/life-plan/goals/${node.goal.ref_id}`}
+      >
+        <EntityNameComponent name={`🎯 ${node.goal.name}`} />
+      </EntityLink>
+      {node.children.length > 0 &&
+        node.children.map((child) => renderGoalNode(child, depth + 1))}
+    </Box>
+  );
 }

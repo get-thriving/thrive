@@ -225,7 +225,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[GoalSummary]:
         """Find all summaries about goals."""
-        query = """select ref_id, name, project_ref_id from goal where life_plan_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, project_ref_id, parent_goal_ref_id from goal where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
 
@@ -243,6 +243,11 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_GOAL_NAME_DECODER.decode(row["name"]),
                 project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                parent_goal_ref_id=(
+                    _ENTITY_ID_DECODER.decode(str(row["parent_goal_ref_id"]))
+                    if row["parent_goal_ref_id"]
+                    else None
+                ),
             )
             for row in result
         ]

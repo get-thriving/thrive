@@ -24,6 +24,7 @@ class Goal(LeafEntity):
     life_plan: ParentLink
     name: GoalName
     project_ref_id: EntityId
+    parent_goal_ref_id: EntityId | None
 
     note = OwnsAtMostOne(Note, domain=NoteDomain.GOAL, source_entity_ref_id=IsRefId())
 
@@ -34,6 +35,7 @@ class Goal(LeafEntity):
         life_plan_ref_id: EntityId,
         name: GoalName,
         project_ref_id: EntityId,
+        parent_goal_ref_id: EntityId | None,
     ) -> "Goal":
         """Create a goal."""
         return Goal._create(
@@ -41,6 +43,7 @@ class Goal(LeafEntity):
             life_plan=ParentLink(life_plan_ref_id),
             name=name,
             project_ref_id=project_ref_id,
+            parent_goal_ref_id=parent_goal_ref_id,
         )
 
     @update_entity_action
@@ -49,10 +52,12 @@ class Goal(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[GoalName],
         project_ref_id: UpdateAction[EntityId],
+        parent_goal_ref_id: UpdateAction[EntityId | None],
     ) -> "Goal":
         """Update a goal."""
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
             project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            parent_goal_ref_id=parent_goal_ref_id.or_else(self.parent_goal_ref_id),
         )

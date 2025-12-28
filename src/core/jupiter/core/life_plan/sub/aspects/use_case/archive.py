@@ -6,7 +6,11 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.service.reassign_child_projects import (
+    ProjectReassignChildProjectsService,
+)
 from jupiter.core.life_plan.sub.aspects.service.reassign_linked_entities import (
     ProjectReassignLinkedEntitiesService,
 )
@@ -26,7 +30,6 @@ class ProjectArchiveArgs(UseCaseArgsBase):
     """Project archive args."""
 
     ref_id: EntityId
-    backup_project_ref_id: EntityId | None
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
@@ -44,14 +47,22 @@ class ProjectArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
+        life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
         project = await uow.get_for(Project).load_by_id(args.ref_id)
 
         if project.is_root:
             raise InputValidationError("The root project cannot be archived")
 
-        new_project = await uow.get_for(Project).load_by_id(
-            args.backup_project_ref_id or project.surely_parent_project_ref_id
+        new_parent_project_ref_id = project.surely_parent_project_ref_id
+        new_project = await uow.get_for(Project).load_by_id(new_parent_project_ref_id)
+
+        await ProjectReassignChildProjectsService().reassign_child_projects(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            life_plan,
+            project,
         )
 
         await ProjectReassignLinkedEntitiesService().reassign_linked_entities(

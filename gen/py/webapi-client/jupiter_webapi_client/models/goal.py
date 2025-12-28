@@ -26,6 +26,7 @@ class Goal:
         project_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
+        parent_goal_ref_id (None | str | Unset):
     """
 
     ref_id: str
@@ -38,6 +39,7 @@ class Goal:
     project_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
+    parent_goal_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,6 +71,12 @@ class Goal:
         else:
             archived_time = self.archived_time
 
+        parent_goal_ref_id: None | str | Unset
+        if isinstance(self.parent_goal_ref_id, Unset):
+            parent_goal_ref_id = UNSET
+        else:
+            parent_goal_ref_id = self.parent_goal_ref_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -87,6 +95,8 @@ class Goal:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
+        if parent_goal_ref_id is not UNSET:
+            field_dict["parent_goal_ref_id"] = parent_goal_ref_id
 
         return field_dict
 
@@ -127,6 +137,15 @@ class Goal:
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
 
+        def _parse_parent_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        parent_goal_ref_id = _parse_parent_goal_ref_id(d.pop("parent_goal_ref_id", UNSET))
+
         goal = cls(
             ref_id=ref_id,
             version=version,
@@ -138,6 +157,7 @@ class Goal:
             project_ref_id=project_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
+            parent_goal_ref_id=parent_goal_ref_id,
         )
 
         goal.additional_properties = d

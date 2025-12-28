@@ -1,12 +1,19 @@
 """Service for reassigning linked entities."""
 
+from typing import cast
+
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
+from jupiter.core.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
-from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
-    ProjectCheckCyclesService,
-    ProjectTreeHasCyclesError,
-)
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -21,8 +28,8 @@ from jupiter.core.time_plans.life_plan_links import (
 )
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.context import MutationContext
-from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -126,23 +133,163 @@ class ProjectReassignLinkedEntitiesService:
             )
             await uow.get_for(WorkingMemCollection).save(working_mem_collection)
 
-        life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
-
-        child_projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=True,
-            parent_project_ref_id=old_project.ref_id,
+        # Unlink from BigPlans
+        big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+            workspace.ref_id
         )
-        for child_project in child_projects:
-            child_project = child_project.change_parent(ctx, new_project.ref_id)
+        big_plans = await uow.get_for(BigPlan).find_all_generic(
+            parent_ref_id=big_plan_collection.ref_id,
+            allow_archived=True,
+            project_ref_id=old_project.ref_id,
+        )
+        big_plans_by_ref_id = {big_plan.ref_id: big_plan for big_plan in big_plans}
+        for big_plan in big_plans:
+            updated_big_plan = big_plan.update(
+                ctx,
+                name=UpdateAction.do_nothing(),
+                status=UpdateAction.do_nothing(),
+                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                chapter_ref_id=UpdateAction.do_nothing(),
+                goal_ref_id=UpdateAction.do_nothing(),
+                is_key=UpdateAction.do_nothing(),
+                eisen=UpdateAction.do_nothing(),
+                difficulty=UpdateAction.do_nothing(),
+                actionable_date=UpdateAction.do_nothing(),
+                due_date=UpdateAction.do_nothing(),
+            )
+            await uow.get_for(BigPlan).save(updated_big_plan)
+            await progress_reporter.mark_updated(updated_big_plan)
+            big_plans_by_ref_id[big_plan.ref_id] = updated_big_plan
 
-            await uow.get_for(Project).save(child_project)
-            await progress_reporter.mark_updated(child_project)
+        # Unlink from Chores
+        chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
+            workspace.ref_id
+        )
+        chores = await uow.get_for(Chore).find_all_generic(
+            parent_ref_id=chore_collection.ref_id,
+            allow_archived=True,
+            project_ref_id=old_project.ref_id,
+        )
+        chores_by_ref_id = {chore.ref_id: chore for chore in chores}
+        for chore in chores:
+            updated_chore = chore.update(
+                ctx,
+                name=UpdateAction.do_nothing(),
+                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                chapter_ref_id=UpdateAction.do_nothing(),
+                goal_ref_id=UpdateAction.do_nothing(),
+                is_key=UpdateAction.do_nothing(),
+                gen_params=UpdateAction.do_nothing(),
+                start_at_date=UpdateAction.do_nothing(),
+                end_at_date=UpdateAction.do_nothing(),
+                must_do=UpdateAction.do_nothing(),
+            )
+            await uow.get_for(Chore).save(updated_chore)
+            await progress_reporter.mark_updated(updated_chore)
+            chores_by_ref_id[chore.ref_id] = updated_chore
 
-            try:
-                await ProjectCheckCyclesService().check_for_cycles(uow, child_project)
-            except ProjectTreeHasCyclesError as err:
-                raise InputValidationError("The project tree has cycles.") from err
+        # Unlink from Habits
+        habit_collection = await uow.get_for(HabitCollection).load_by_parent(
+            workspace.ref_id
+        )
+        habits = await uow.get_for(Habit).find_all_generic(
+            parent_ref_id=habit_collection.ref_id,
+            allow_archived=True,
+            project_ref_id=old_project.ref_id,
+        )
+        habits_by_ref_id = {habit.ref_id: habit for habit in habits}
+        for habit in habits:
+            updated_habit = habit.update(
+                ctx,
+                name=UpdateAction.do_nothing(),
+                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                chapter_ref_id=UpdateAction.do_nothing(),
+                goal_ref_id=UpdateAction.do_nothing(),
+                is_key=UpdateAction.do_nothing(),
+                gen_params=UpdateAction.do_nothing(),
+                repeats_in_period_count=UpdateAction.do_nothing(),
+                repeats_strategy=UpdateAction.do_nothing(),
+            )
+            await uow.get_for(Habit).save(updated_habit)
+            await progress_reporter.mark_updated(updated_habit)
+            habits_by_ref_id[habit.ref_id] = updated_habit
+
+        # Unlink from InboxTasks
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+            workspace.ref_id
+        )
+        inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+            parent_ref_id=inbox_task_collection.ref_id,
+            allow_archived=True,
+            project_ref_id=old_project.ref_id,
+        )
+
+        for inbox_task in inbox_tasks:
+            match inbox_task.source:
+                case InboxTaskSource.USER:
+                    updated_inbox_task = inbox_task.update(
+                        ctx,
+                        name=UpdateAction.do_nothing(),
+                        status=UpdateAction.do_nothing(),
+                        big_plan_ref_id=UpdateAction.do_nothing(),
+                        is_key=UpdateAction.do_nothing(),
+                        project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                        chapter_ref_id=UpdateAction.do_nothing(),
+                        goal_ref_id=UpdateAction.do_nothing(),
+                        eisen=UpdateAction.do_nothing(),
+                        difficulty=UpdateAction.do_nothing(),
+                        actionable_date=UpdateAction.do_nothing(),
+                        due_date=UpdateAction.do_nothing(),
+                    )
+                case InboxTaskSource.BIG_PLAN:
+                    big_plan = big_plans_by_ref_id[
+                        inbox_task.source_entity_ref_id_for_sure
+                    ]
+                    updated_inbox_task = inbox_task.update_link_to_big_plan(
+                        ctx,
+                        project_ref_id=new_project.ref_id,
+                        chapter_ref_id=big_plan.chapter_ref_id,
+                        goal_ref_id=big_plan.goal_ref_id,
+                        big_plan_ref_id=big_plan.ref_id,
+                    )
+                case InboxTaskSource.CHORE:
+                    chore = chores_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
+                    updated_inbox_task = inbox_task.update_link_to_chore(
+                        ctx,
+                        project_ref_id=new_project.ref_id,
+                        chapter_ref_id=big_plan.chapter_ref_id,
+                        goal_ref_id=big_plan.goal_ref_id,
+                        name=inbox_task.name,
+                        timeline=cast(str, inbox_task.recurring_timeline),
+                        is_key=inbox_task.is_key,
+                        actionable_date=inbox_task.actionable_date,
+                        due_date=cast(ADate, inbox_task.due_date),
+                        eisen=inbox_task.eisen,
+                        difficulty=inbox_task.difficulty,
+                    )
+                case InboxTaskSource.HABIT:
+                    habit = habits_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
+                    updated_inbox_task = inbox_task.update_link_to_habit(
+                        ctx,
+                        project_ref_id=new_project.ref_id,
+                        chapter_ref_id=habit.chapter_ref_id,
+                        goal_ref_id=habit.goal_ref_id,
+                        name=inbox_task.name,
+                        timeline=cast(str, inbox_task.recurring_timeline),
+                        repeat_index=cast(int, inbox_task.recurring_repeat_index),
+                        repeats_in_period_count=habit.repeats_in_period_count,
+                        is_key=inbox_task.is_key,
+                        actionable_date=inbox_task.actionable_date,
+                        due_date=cast(ADate, inbox_task.due_date),
+                        eisen=inbox_task.eisen,
+                        difficulty=inbox_task.difficulty,
+                    )
+                case _:
+                    raise Exception(f"Unknown inbox task source: {inbox_task.source}")
+            await uow.get_for(InboxTask).save(updated_inbox_task)
+            await progress_reporter.mark_updated(updated_inbox_task)
+
+        life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
         milestones = await uow.get_for(
             Milestone
@@ -187,6 +334,7 @@ class ProjectReassignLinkedEntitiesService:
                 ctx,
                 project_ref_id=UpdateAction.change_to(new_project.ref_id),
                 name=UpdateAction.do_nothing(),
+                parent_goal_ref_id=UpdateAction.do_nothing(),
             )
             await uow.get_for(Goal).save(goal)
             await progress_reporter.mark_updated(goal)

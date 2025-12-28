@@ -10,5 +10,6 @@ import type { GoalName } from './GoalName';
 export type GoalCreateArgs = {
     name: GoalName;
     project_ref_id: EntityId;
+    parent_goal_ref_id?: (EntityId | null);
 };
 

@@ -204,6 +204,7 @@ from .goal_remove_args import GoalRemoveArgs
 from .goal_summary import GoalSummary
 from .goal_update_args import GoalUpdateArgs
 from .goal_update_args_name import GoalUpdateArgsName
+from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
 from .goal_update_args_project_ref_id import GoalUpdateArgsProjectRefId
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
@@ -984,6 +985,7 @@ __all__ = (
     "GoalSummary",
     "GoalUpdateArgs",
     "GoalUpdateArgsName",
+    "GoalUpdateArgsParentGoalRefId",
     "GoalUpdateArgsProjectRefId",
     "Habit",
     "HabitArchiveArgs",

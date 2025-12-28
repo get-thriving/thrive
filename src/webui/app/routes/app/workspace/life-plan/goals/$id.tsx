@@ -1,11 +1,16 @@
-import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  GoalSummary,
+  NoteDomain,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -21,6 +26,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -35,6 +41,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     project: z.string(),
+    parent_goal: z.string().optional().default(""),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -57,6 +64,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
+    include_goals: true,
   });
 
   try {
@@ -68,6 +76,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
       rootProject: summaryResponse.root_project as ProjectSummary,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
       goal: response.goal,
       note: response.note ?? null,
     });
@@ -100,6 +109,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: true,
             value: form.project,
+          },
+          parent_goal_ref_id: {
+            should_change: true,
+            value: form.parent_goal === "" ? null : form.parent_goal,
           },
         });
 
@@ -159,6 +172,17 @@ export default function GoalView() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.goal.archived;
 
+  const [selectedProjectRefId, setSelectedProjectRefId] = useState<string>(
+    loaderData.goal.project_ref_id,
+  );
+  const [selectedParentGoalRefId, setSelectedParentGoalRefId] = useState<
+    string | null
+  >(loaderData.goal.parent_goal_ref_id ?? null);
+
+  const parentGoalCandidates = loaderData.allGoals.filter(
+    (g) => g.ref_id !== loaderData.goal.ref_id,
+  );
+
   return (
     <LeafPanel
       key={`goal-${loaderData.goal.ref_id}`}
@@ -205,9 +229,30 @@ export default function GoalView() {
             inputsEnabled={inputsEnabled}
             disabled={false}
             allProjects={loaderData.allProjects}
-            defaultValue={loaderData.goal.project_ref_id}
+            value={selectedProjectRefId}
+            onChange={(newProjectRefId) => {
+              setSelectedProjectRefId(newProjectRefId);
+              setSelectedParentGoalRefId(null);
+            }}
           />
           <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <GoalSelect
+            name="parent_goal"
+            label="Parent Goal"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            onlyForProject={selectedProjectRefId}
+            allGoals={parentGoalCandidates}
+            value={selectedParentGoalRefId}
+            onChange={(newValue) => setSelectedParentGoalRefId(newValue)}
+          />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/parent_goal_ref_id"
+          />
         </FormControl>
       </SectionCard>
 

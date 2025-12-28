@@ -17,5 +17,9 @@ export type GoalUpdateArgs = {
         should_change: boolean;
         value?: EntityId;
     };
+    parent_goal_ref_id: {
+        should_change: boolean;
+        value?: (EntityId | null);
+    };
 };
 

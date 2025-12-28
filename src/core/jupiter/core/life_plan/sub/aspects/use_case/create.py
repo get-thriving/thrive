@@ -8,7 +8,12 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.service.check_cycles import (
+    ProjectCheckCyclesService,
+    ProjectTreeHasCyclesError,
+)
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -75,5 +80,10 @@ class ProjectCreateUseCase(
             child_project_ref_id=new_project.ref_id,
         )
         await uow.get_for(Project).save(parent_project)
+
+        try:
+            await ProjectCheckCyclesService().check_for_cycles(uow, new_project)
+        except ProjectTreeHasCyclesError as err:
+            raise InputValidationError("The project tree has cycles.") from err
 
         return ProjectCreateResult(new_project=new_project)

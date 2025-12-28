@@ -44,9 +44,9 @@ export function GoalSelect(props: GoalSelectProps) {
         .map((goal) => ({
           goal_ref_id: goal.ref_id,
           label: String(goal.name),
-          bigName: fullGoalName(goal),
+          bigName: fullGoalName(goal, allGoalsByRefId),
         })),
-    [sortedGoals, props.onlyForProject],
+    [sortedGoals, props.onlyForProject, allGoalsByRefId],
   );
 
   function selectedGoalToOption(): GoalOption | null {
@@ -64,7 +64,7 @@ export function GoalSelect(props: GoalSelectProps) {
     return {
       goal_ref_id: selectedGoalRefId,
       label: String(goal.name),
-      bigName: fullGoalName(goal),
+      bigName: fullGoalName(goal, allGoalsByRefId),
     };
   }
 
@@ -88,7 +88,7 @@ export function GoalSelect(props: GoalSelectProps) {
     setSelectedGoal({
       goal_ref_id: selectedGoalRefId,
       label: String(goal.name),
-      bigName: fullGoalName(goal),
+      bigName: fullGoalName(goal, allGoalsByRefId),
     });
   }, [
     props.value,
@@ -134,6 +134,38 @@ export function GoalSelect(props: GoalSelectProps) {
   );
 }
 
-function fullGoalName(goal: GoalSummary): string {
-  return String(goal.name);
+function fullGoalName(
+  goal: GoalSummary,
+  allGoalsByRefId: Map<EntityId, GoalSummary>,
+): string {
+  const indent = computeGoalDistanceFromRoot(goal, allGoalsByRefId);
+  return `${"-".repeat(indent)} ${String(goal.name)}`;
+}
+
+function computeGoalDistanceFromRoot(
+  goal: GoalSummary,
+  allGoalsByRefId: Map<EntityId, GoalSummary>,
+): number {
+  const visited = new Set<EntityId>();
+  let distance = 0;
+
+  let current: GoalSummary | undefined = goal;
+  while (current) {
+    const parentGoalRefId = current.parent_goal_ref_id;
+    if (!parentGoalRefId) {
+      break;
+    }
+    if (visited.has(parentGoalRefId)) {
+      break;
+    }
+    visited.add(parentGoalRefId);
+    const parent = allGoalsByRefId.get(parentGoalRefId);
+    if (!parent) {
+      break;
+    }
+    distance += 1;
+    current = parent;
+  }
+
+  return distance;
 }

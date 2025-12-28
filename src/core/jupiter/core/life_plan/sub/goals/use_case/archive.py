@@ -8,6 +8,9 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.life_plan.sub.goals.service.reassign_child_goals import (
+    GoalReassignChildGoalsService,
+)
 from jupiter.core.life_plan.sub.goals.service.unlink_entities import (
     GoalUnlinkEntitiesService,
 )
@@ -42,6 +45,14 @@ class GoalArchiveUseCase(
         """Execute the command's action."""
         life_plan = await uow.get_for(LifePlan).load_by_parent(context.workspace.ref_id)
         goal = await uow.get_for(Goal).load_by_id(args.ref_id)
+
+        await GoalReassignChildGoalsService().reassign_child_goals(
+            context.domain_context,
+            uow,
+            progress_reporter,
+            life_plan,
+            goal,
+        )
 
         await GoalUnlinkEntitiesService().unlink_entities(
             context.domain_context,
