@@ -29,10 +29,7 @@ import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { ShowReport } from "@jupiter/core/report/component/show-report";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -171,7 +168,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;

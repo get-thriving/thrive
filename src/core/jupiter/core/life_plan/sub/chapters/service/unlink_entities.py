@@ -9,6 +9,9 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanChapterLinkRepository,
+)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -168,3 +171,8 @@ class ChapterUnlinkEntitiesService:
                     raise Exception(f"Unknown inbox task source: {inbox_task.source}")
             await uow.get_for(InboxTask).save(updated_inbox_task)
             await progress_reporter.mark_updated(updated_inbox_task)
+
+        # Unlink from TimePlans
+        await uow.get(TimePlanChapterLinkRepository).remove_all_for_chapter(
+            chapter.ref_id
+        )

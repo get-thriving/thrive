@@ -1,9 +1,9 @@
-import type { Chapter } from "@jupiter/webapi-client";
+import type { Chapter, ChapterSummary } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 
 interface Props {
-  chapter: Chapter;
+  chapter: Chapter | ChapterSummary;
 }
 
 export function ChapterTag(props: Props) {

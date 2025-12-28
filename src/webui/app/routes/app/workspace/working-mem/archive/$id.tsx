@@ -26,10 +26,7 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -115,7 +112,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;

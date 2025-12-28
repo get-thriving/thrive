@@ -18,10 +18,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
@@ -67,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;

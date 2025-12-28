@@ -1,9 +1,9 @@
-import type { Goal } from "@jupiter/webapi-client";
+import type { Goal, GoalSummary } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 
 interface Props {
-  goal: Goal;
+  goal: Goal | GoalSummary;
 }
 
 export function GoalTag(props: Props) {

@@ -680,8 +680,12 @@ from .time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigP
 from .time_plan_associate_with_inbox_tasks_args import TimePlanAssociateWithInboxTasksArgs
 from .time_plan_associate_with_inbox_tasks_result import TimePlanAssociateWithInboxTasksResult
 from .time_plan_change_time_config_args import TimePlanChangeTimeConfigArgs
+from .time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
+from .time_plan_change_time_config_args_goal_ref_ids import TimePlanChangeTimeConfigArgsGoalRefIds
 from .time_plan_change_time_config_args_period import TimePlanChangeTimeConfigArgsPeriod
+from .time_plan_change_time_config_args_project_ref_ids import TimePlanChangeTimeConfigArgsProjectRefIds
 from .time_plan_change_time_config_args_right_now import TimePlanChangeTimeConfigArgsRightNow
+from .time_plan_chapter_link import TimePlanChapterLink
 from .time_plan_create_args import TimePlanCreateArgs
 from .time_plan_create_result import TimePlanCreateResult
 from .time_plan_domain import TimePlanDomain
@@ -691,6 +695,7 @@ from .time_plan_find_result import TimePlanFindResult
 from .time_plan_find_result_entry import TimePlanFindResultEntry
 from .time_plan_gen_for_time_plan_args import TimePlanGenForTimePlanArgs
 from .time_plan_generation_approach import TimePlanGenerationApproach
+from .time_plan_goal_link import TimePlanGoalLink
 from .time_plan_load_args import TimePlanLoadArgs
 from .time_plan_load_for_date_and_period_args import TimePlanLoadForDateAndPeriodArgs
 from .time_plan_load_for_date_and_period_result import TimePlanLoadForDateAndPeriodResult
@@ -699,6 +704,7 @@ from .time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultAc
 from .time_plan_load_settings_args import TimePlanLoadSettingsArgs
 from .time_plan_load_settings_result import TimePlanLoadSettingsResult
 from .time_plan_load_settings_result_generation_in_advance_days import TimePlanLoadSettingsResultGenerationInAdvanceDays
+from .time_plan_project_link import TimePlanProjectLink
 from .time_plan_regen_args import TimePlanRegenArgs
 from .time_plan_remove_args import TimePlanRemoveArgs
 from .time_plan_source import TimePlanSource
@@ -1448,8 +1454,12 @@ __all__ = (
     "TimePlanAssociateWithInboxTasksArgs",
     "TimePlanAssociateWithInboxTasksResult",
     "TimePlanChangeTimeConfigArgs",
+    "TimePlanChangeTimeConfigArgsChapterRefIds",
+    "TimePlanChangeTimeConfigArgsGoalRefIds",
     "TimePlanChangeTimeConfigArgsPeriod",
+    "TimePlanChangeTimeConfigArgsProjectRefIds",
     "TimePlanChangeTimeConfigArgsRightNow",
+    "TimePlanChapterLink",
     "TimePlanCreateArgs",
     "TimePlanCreateResult",
     "TimePlanDomain",
@@ -1459,6 +1469,7 @@ __all__ = (
     "TimePlanFindResultEntry",
     "TimePlanGenerationApproach",
     "TimePlanGenForTimePlanArgs",
+    "TimePlanGoalLink",
     "TimePlanLoadArgs",
     "TimePlanLoadForDateAndPeriodArgs",
     "TimePlanLoadForDateAndPeriodResult",
@@ -1467,6 +1478,7 @@ __all__ = (
     "TimePlanLoadSettingsArgs",
     "TimePlanLoadSettingsResult",
     "TimePlanLoadSettingsResultGenerationInAdvanceDays",
+    "TimePlanProjectLink",
     "TimePlanRegenArgs",
     "TimePlanRemoveArgs",
     "TimePlanSource",

@@ -1,9 +1,9 @@
-import type { Project } from "@jupiter/webapi-client";
+import type { Project, ProjectSummary } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 
 interface Props {
-  project: Project;
+  project: Project | ProjectSummary;
 }
 
 export function ProjectTag(props: Props) {

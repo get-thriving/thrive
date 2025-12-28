@@ -1,8 +1,19 @@
 """The SQLite based time plans repository."""
 
+from sqlite3 import IntegrityError
+from typing import Final, Mapping, cast
+
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanChapterLink,
+    TimePlanChapterLinkRepository,
+    TimePlanGoalLink,
+    TimePlanGoalLinkRepository,
+    TimePlanProjectLink,
+    TimePlanProjectLinkRepository,
+)
 from jupiter.core.time_plans.root import (
     TimePlan,
     TimePlanExistsForDatePeriodCombinationError,
@@ -19,12 +30,27 @@ from jupiter.core.time_plans.sub.activity.target import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.realm.realm import RealmCodecRegistry
+from jupiter.framework.realm.realm import RealmCodecRegistry, RealmThing
+from jupiter.framework.storage.repository import (
+    RecordAlreadyExistsError,
+    RecordNotFoundError,
+)
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
+    SqliteRecordRepository,
 )
+from jupiter.framework.storage.sqlite.row import RowType
 from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
     MetaData,
+    Table,
+    delete,
+    insert,
+    select,
+    update,
 )
 from sqlalchemy.ext.asyncio import AsyncConnection
 
@@ -250,3 +276,473 @@ class SqliteTimePlanActivityRepository(
         results = await self._connection.execute(query_stmt)
 
         return [self._row_to_entity(row).parent_ref_id for row in results]
+
+
+class SqliteTimePlanChapterLinkRepository(
+    SqliteRecordRepository[TimePlanChapterLink, tuple[EntityId, EntityId]],
+    TimePlanChapterLinkRepository,
+):
+    """A SQLite repository for time plan chapter links."""
+
+    _time_plan_chapter_link_table: Final[Table]
+
+    def __init__(
+        self,
+        realm_codec_registry: RealmCodecRegistry,
+        connection: AsyncConnection,
+        metadata: MetaData,
+    ) -> None:
+        """Constructor."""
+        super().__init__(realm_codec_registry, connection, metadata)
+        self._time_plan_chapter_link_table = Table(
+            "time_plan_chapter_link",
+            metadata,
+            Column(
+                "time_plan_ref_id",
+                Integer,
+                ForeignKey("time_plan.ref_id"),
+                nullable=False,
+            ),
+            Column(
+                "chapter_ref_id",
+                Integer,
+                ForeignKey("chapter.ref_id"),
+                nullable=False,
+            ),
+            Column("created_time", DateTime, nullable=False),
+            Column("last_modified_time", DateTime, nullable=False),
+            keep_existing=True,
+        )
+
+    async def create(self, record: TimePlanChapterLink) -> TimePlanChapterLink:
+        """Create a new time plan chapter link."""
+        try:
+            await self._connection.execute(
+                insert(self._time_plan_chapter_link_table).values(
+                    **(
+                        cast(
+                            Mapping[str, RealmThing],
+                            self._realm_codec_registry.db_encode(record),
+                        )
+                    )
+                )
+            )
+        except IntegrityError as err:
+            raise RecordAlreadyExistsError(
+                f"Time plan chapter link for time plan {record.time_plan.ref_id} and chapter {record.chapter_ref_id} already exists",
+            ) from err
+        return record
+
+    async def save(self, record: TimePlanChapterLink) -> TimePlanChapterLink:
+        """Save a time plan chapter link."""
+        result = await self._connection.execute(
+            update(self._time_plan_chapter_link_table)
+            .where(
+                self._time_plan_chapter_link_table.c.time_plan_ref_id
+                == record.time_plan.as_int()
+            )
+            .where(
+                self._time_plan_chapter_link_table.c.chapter_ref_id
+                == record.chapter_ref_id.as_int()
+            )
+            .values(
+                **(
+                    cast(
+                        Mapping[str, RealmThing],
+                        self._realm_codec_registry.db_encode(record),
+                    )
+                )
+            )
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan chapter link for time plan {record.time_plan.ref_id} and chapter {record.chapter_ref_id} does not exist",
+            )
+        return record
+
+    async def remove(self, key: tuple[EntityId, EntityId]) -> None:
+        """Remove a time plan chapter link."""
+        result = await self._connection.execute(
+            delete(self._time_plan_chapter_link_table)
+            .where(
+                self._time_plan_chapter_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(
+                self._time_plan_chapter_link_table.c.chapter_ref_id == key[1].as_int()
+            )
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan chapter link for time plan {key[0]} and chapter {key[1]} does not exist",
+            )
+
+    async def load_by_key_optional(
+        self, key: tuple[EntityId, EntityId]
+    ) -> TimePlanChapterLink | None:
+        """Load a time plan chapter link by its unique key."""
+        result = await self._connection.execute(
+            select(self._time_plan_chapter_link_table)
+            .where(
+                self._time_plan_chapter_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(
+                self._time_plan_chapter_link_table.c.chapter_ref_id == key[1].as_int()
+            )
+        )
+        row = result.first()
+        if row is None:
+            return None
+        return self._row_to_entity(row)
+
+    async def find_all(
+        self, parent_ref_id: EntityId | list[EntityId]
+    ) -> list[TimePlanChapterLink]:
+        """Find all time plan chapter links for one or more time plans."""
+        parent_ref_ids = (
+            [parent_ref_id.as_int()]
+            if isinstance(parent_ref_id, EntityId)
+            else [p.as_int() for p in parent_ref_id]
+        )
+        result = await self._connection.execute(
+            select(self._time_plan_chapter_link_table).where(
+                self._time_plan_chapter_link_table.c.time_plan_ref_id.in_(
+                    parent_ref_ids
+                )
+            )
+        )
+        results = result.fetchall()
+        return [self._row_to_entity(row) for row in results]
+
+    async def remove_all_for_time_plan(self, time_plan_ref_id: EntityId) -> None:
+        """Remove all links for a particular time plan."""
+        await self._connection.execute(
+            delete(self._time_plan_chapter_link_table).where(
+                self._time_plan_chapter_link_table.c.time_plan_ref_id
+                == time_plan_ref_id.as_int()
+            )
+        )
+
+    async def remove_all_for_chapter(self, chapter_ref_id: EntityId) -> None:
+        """Remove all links for a particular chapter."""
+        await self._connection.execute(
+            delete(self._time_plan_chapter_link_table).where(
+                self._time_plan_chapter_link_table.c.chapter_ref_id
+                == chapter_ref_id.as_int()
+            )
+        )
+
+    def _row_to_entity(self, row: RowType) -> TimePlanChapterLink:
+        return self._realm_codec_registry.db_decode(
+            TimePlanChapterLink, cast(Mapping[str, RealmThing], row._mapping)
+        )
+
+
+class SqliteTimePlanProjectLinkRepository(
+    SqliteRecordRepository[TimePlanProjectLink, tuple[EntityId, EntityId]],
+    TimePlanProjectLinkRepository,
+):
+    """A SQLite repository for time plan project links."""
+
+    _time_plan_project_link_table: Final[Table]
+
+    def __init__(
+        self,
+        realm_codec_registry: RealmCodecRegistry,
+        connection: AsyncConnection,
+        metadata: MetaData,
+    ) -> None:
+        """Constructor."""
+        super().__init__(realm_codec_registry, connection, metadata)
+        self._time_plan_project_link_table = Table(
+            "time_plan_project_link",
+            metadata,
+            Column(
+                "time_plan_ref_id",
+                Integer,
+                ForeignKey("time_plan.ref_id"),
+                nullable=False,
+            ),
+            Column(
+                "project_ref_id",
+                Integer,
+                ForeignKey("project.ref_id"),
+                nullable=False,
+            ),
+            Column("created_time", DateTime, nullable=False),
+            Column("last_modified_time", DateTime, nullable=False),
+            keep_existing=True,
+        )
+
+    async def create(self, record: TimePlanProjectLink) -> TimePlanProjectLink:
+        """Create a new time plan project link."""
+        try:
+            await self._connection.execute(
+                insert(self._time_plan_project_link_table).values(
+                    **(
+                        cast(
+                            Mapping[str, RealmThing],
+                            self._realm_codec_registry.db_encode(record),
+                        )
+                    )
+                )
+            )
+        except IntegrityError as err:
+            raise RecordAlreadyExistsError(
+                f"Time plan project link for time plan {record.time_plan.ref_id} and project {record.project_ref_id} already exists",
+            ) from err
+        return record
+
+    async def save(self, record: TimePlanProjectLink) -> TimePlanProjectLink:
+        """Save a time plan project link."""
+        result = await self._connection.execute(
+            update(self._time_plan_project_link_table)
+            .where(
+                self._time_plan_project_link_table.c.time_plan_ref_id
+                == record.time_plan.as_int()
+            )
+            .where(
+                self._time_plan_project_link_table.c.project_ref_id
+                == record.project_ref_id.as_int()
+            )
+            .values(
+                **(
+                    cast(
+                        Mapping[str, RealmThing],
+                        self._realm_codec_registry.db_encode(record),
+                    )
+                )
+            )
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan project link for time plan {record.time_plan.ref_id} and project {record.project_ref_id} does not exist",
+            )
+        return record
+
+    async def remove(self, key: tuple[EntityId, EntityId]) -> None:
+        """Remove a time plan project link."""
+        result = await self._connection.execute(
+            delete(self._time_plan_project_link_table)
+            .where(
+                self._time_plan_project_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(
+                self._time_plan_project_link_table.c.project_ref_id == key[1].as_int()
+            )
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan project link for time plan {key[0]} and project {key[1]} does not exist",
+            )
+
+    async def load_by_key_optional(
+        self, key: tuple[EntityId, EntityId]
+    ) -> TimePlanProjectLink | None:
+        """Load a time plan project link by its unique key."""
+        result = await self._connection.execute(
+            select(self._time_plan_project_link_table)
+            .where(
+                self._time_plan_project_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(
+                self._time_plan_project_link_table.c.project_ref_id == key[1].as_int()
+            )
+        )
+        row = result.first()
+        if row is None:
+            return None
+        return self._row_to_entity(row)
+
+    async def find_all(
+        self, parent_ref_id: EntityId | list[EntityId]
+    ) -> list[TimePlanProjectLink]:
+        """Find all time plan project links for one or more time plans."""
+        parent_ref_ids = (
+            [parent_ref_id.as_int()]
+            if isinstance(parent_ref_id, EntityId)
+            else [p.as_int() for p in parent_ref_id]
+        )
+        result = await self._connection.execute(
+            select(self._time_plan_project_link_table).where(
+                self._time_plan_project_link_table.c.time_plan_ref_id.in_(
+                    parent_ref_ids
+                )
+            )
+        )
+        results = result.fetchall()
+        return [self._row_to_entity(row) for row in results]
+
+    async def remove_all_for_time_plan(self, time_plan_ref_id: EntityId) -> None:
+        """Remove all links for a particular time plan."""
+        await self._connection.execute(
+            delete(self._time_plan_project_link_table).where(
+                self._time_plan_project_link_table.c.time_plan_ref_id
+                == time_plan_ref_id.as_int()
+            )
+        )
+
+    async def remove_all_for_project(self, project_ref_id: EntityId) -> None:
+        """Remove all links for a particular project."""
+        await self._connection.execute(
+            delete(self._time_plan_project_link_table).where(
+                self._time_plan_project_link_table.c.project_ref_id
+                == project_ref_id.as_int()
+            )
+        )
+
+    def _row_to_entity(self, row: RowType) -> TimePlanProjectLink:
+        return self._realm_codec_registry.db_decode(
+            TimePlanProjectLink, cast(Mapping[str, RealmThing], row._mapping)
+        )
+
+
+class SqliteTimePlanGoalLinkRepository(
+    SqliteRecordRepository[TimePlanGoalLink, tuple[EntityId, EntityId]],
+    TimePlanGoalLinkRepository,
+):
+    """A SQLite repository for time plan goal links."""
+
+    _time_plan_goal_link_table: Final[Table]
+
+    def __init__(
+        self,
+        realm_codec_registry: RealmCodecRegistry,
+        connection: AsyncConnection,
+        metadata: MetaData,
+    ) -> None:
+        """Constructor."""
+        super().__init__(realm_codec_registry, connection, metadata)
+        self._time_plan_goal_link_table = Table(
+            "time_plan_goal_link",
+            metadata,
+            Column(
+                "time_plan_ref_id",
+                Integer,
+                ForeignKey("time_plan.ref_id"),
+                nullable=False,
+            ),
+            Column(
+                "goal_ref_id",
+                Integer,
+                ForeignKey("goal.ref_id"),
+                nullable=False,
+            ),
+            Column("created_time", DateTime, nullable=False),
+            Column("last_modified_time", DateTime, nullable=False),
+            keep_existing=True,
+        )
+
+    async def create(self, record: TimePlanGoalLink) -> TimePlanGoalLink:
+        """Create a new time plan goal link."""
+        try:
+            await self._connection.execute(
+                insert(self._time_plan_goal_link_table).values(
+                    **(
+                        cast(
+                            Mapping[str, RealmThing],
+                            self._realm_codec_registry.db_encode(record),
+                        )
+                    )
+                )
+            )
+        except IntegrityError as err:
+            raise RecordAlreadyExistsError(
+                f"Time plan goal link for time plan {record.time_plan.ref_id} and goal {record.goal_ref_id} already exists",
+            ) from err
+        return record
+
+    async def save(self, record: TimePlanGoalLink) -> TimePlanGoalLink:
+        """Save a time plan goal link."""
+        result = await self._connection.execute(
+            update(self._time_plan_goal_link_table)
+            .where(
+                self._time_plan_goal_link_table.c.time_plan_ref_id
+                == record.time_plan.as_int()
+            )
+            .where(
+                self._time_plan_goal_link_table.c.goal_ref_id
+                == record.goal_ref_id.as_int()
+            )
+            .values(
+                **(
+                    cast(
+                        Mapping[str, RealmThing],
+                        self._realm_codec_registry.db_encode(record),
+                    )
+                )
+            )
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan goal link for time plan {record.time_plan.ref_id} and goal {record.goal_ref_id} does not exist",
+            )
+        return record
+
+    async def remove(self, key: tuple[EntityId, EntityId]) -> None:
+        """Remove a time plan goal link."""
+        result = await self._connection.execute(
+            delete(self._time_plan_goal_link_table)
+            .where(
+                self._time_plan_goal_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(self._time_plan_goal_link_table.c.goal_ref_id == key[1].as_int())
+        )
+        if result.rowcount == 0:
+            raise RecordNotFoundError(
+                f"Time plan goal link for time plan {key[0]} and goal {key[1]} does not exist",
+            )
+
+    async def load_by_key_optional(
+        self, key: tuple[EntityId, EntityId]
+    ) -> TimePlanGoalLink | None:
+        """Load a time plan goal link by its unique key."""
+        result = await self._connection.execute(
+            select(self._time_plan_goal_link_table)
+            .where(
+                self._time_plan_goal_link_table.c.time_plan_ref_id == key[0].as_int()
+            )
+            .where(self._time_plan_goal_link_table.c.goal_ref_id == key[1].as_int())
+        )
+        row = result.first()
+        if row is None:
+            return None
+        return self._row_to_entity(row)
+
+    async def find_all(
+        self, parent_ref_id: EntityId | list[EntityId]
+    ) -> list[TimePlanGoalLink]:
+        """Find all time plan goal links for one or more time plans."""
+        parent_ref_ids = (
+            [parent_ref_id.as_int()]
+            if isinstance(parent_ref_id, EntityId)
+            else [p.as_int() for p in parent_ref_id]
+        )
+        result = await self._connection.execute(
+            select(self._time_plan_goal_link_table).where(
+                self._time_plan_goal_link_table.c.time_plan_ref_id.in_(parent_ref_ids)
+            )
+        )
+        results = result.fetchall()
+        return [self._row_to_entity(row) for row in results]
+
+    async def remove_all_for_time_plan(self, time_plan_ref_id: EntityId) -> None:
+        """Remove all links for a particular time plan."""
+        await self._connection.execute(
+            delete(self._time_plan_goal_link_table).where(
+                self._time_plan_goal_link_table.c.time_plan_ref_id
+                == time_plan_ref_id.as_int()
+            )
+        )
+
+    async def remove_all_for_goal(self, goal_ref_id: EntityId) -> None:
+        """Remove all links for a particular goal."""
+        await self._connection.execute(
+            delete(self._time_plan_goal_link_table).where(
+                self._time_plan_goal_link_table.c.goal_ref_id == goal_ref_id.as_int()
+            )
+        )
+
+    def _row_to_entity(self, row: RowType) -> TimePlanGoalLink:
+        return self._realm_codec_registry.db_decode(
+            TimePlanGoalLink, cast(Mapping[str, RealmThing], row._mapping)
+        )

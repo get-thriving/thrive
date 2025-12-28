@@ -7,7 +7,10 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
+    from ..models.time_plan_change_time_config_args_goal_ref_ids import TimePlanChangeTimeConfigArgsGoalRefIds
     from ..models.time_plan_change_time_config_args_period import TimePlanChangeTimeConfigArgsPeriod
+    from ..models.time_plan_change_time_config_args_project_ref_ids import TimePlanChangeTimeConfigArgsProjectRefIds
     from ..models.time_plan_change_time_config_args_right_now import TimePlanChangeTimeConfigArgsRightNow
 
 
@@ -22,11 +25,17 @@ class TimePlanChangeTimeConfigArgs:
         ref_id (str): A generic entity id.
         right_now (TimePlanChangeTimeConfigArgsRightNow):
         period (TimePlanChangeTimeConfigArgsPeriod):
+        chapter_ref_ids (TimePlanChangeTimeConfigArgsChapterRefIds):
+        project_ref_ids (TimePlanChangeTimeConfigArgsProjectRefIds):
+        goal_ref_ids (TimePlanChangeTimeConfigArgsGoalRefIds):
     """
 
     ref_id: str
     right_now: TimePlanChangeTimeConfigArgsRightNow
     period: TimePlanChangeTimeConfigArgsPeriod
+    chapter_ref_ids: TimePlanChangeTimeConfigArgsChapterRefIds
+    project_ref_ids: TimePlanChangeTimeConfigArgsProjectRefIds
+    goal_ref_ids: TimePlanChangeTimeConfigArgsGoalRefIds
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,6 +45,12 @@ class TimePlanChangeTimeConfigArgs:
 
         period = self.period.to_dict()
 
+        chapter_ref_ids = self.chapter_ref_ids.to_dict()
+
+        project_ref_ids = self.project_ref_ids.to_dict()
+
+        goal_ref_ids = self.goal_ref_ids.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -43,6 +58,9 @@ class TimePlanChangeTimeConfigArgs:
                 "ref_id": ref_id,
                 "right_now": right_now,
                 "period": period,
+                "chapter_ref_ids": chapter_ref_ids,
+                "project_ref_ids": project_ref_ids,
+                "goal_ref_ids": goal_ref_ids,
             }
         )
 
@@ -50,7 +68,10 @@ class TimePlanChangeTimeConfigArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
+        from ..models.time_plan_change_time_config_args_goal_ref_ids import TimePlanChangeTimeConfigArgsGoalRefIds
         from ..models.time_plan_change_time_config_args_period import TimePlanChangeTimeConfigArgsPeriod
+        from ..models.time_plan_change_time_config_args_project_ref_ids import TimePlanChangeTimeConfigArgsProjectRefIds
         from ..models.time_plan_change_time_config_args_right_now import TimePlanChangeTimeConfigArgsRightNow
 
         d = dict(src_dict)
@@ -60,10 +81,19 @@ class TimePlanChangeTimeConfigArgs:
 
         period = TimePlanChangeTimeConfigArgsPeriod.from_dict(d.pop("period"))
 
+        chapter_ref_ids = TimePlanChangeTimeConfigArgsChapterRefIds.from_dict(d.pop("chapter_ref_ids"))
+
+        project_ref_ids = TimePlanChangeTimeConfigArgsProjectRefIds.from_dict(d.pop("project_ref_ids"))
+
+        goal_ref_ids = TimePlanChangeTimeConfigArgsGoalRefIds.from_dict(d.pop("goal_ref_ids"))
+
         time_plan_change_time_config_args = cls(
             ref_id=ref_id,
             right_now=right_now,
             period=period,
+            chapter_ref_ids=chapter_ref_ids,
+            project_ref_ids=project_ref_ids,
+            goal_ref_ids=goal_ref_ids,
         )
 
         time_plan_change_time_config_args.additional_properties = d

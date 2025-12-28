@@ -25,11 +25,17 @@ class TimePlanFindResultEntry:
         time_plan (TimePlan): A plan for a particular period of time.
         note (None | Note | Unset):
         planning_task (InboxTask | None | Unset):
+        chapter_ref_ids (list[str] | None | Unset):
+        project_ref_ids (list[str] | None | Unset):
+        goal_ref_ids (list[str] | None | Unset):
     """
 
     time_plan: TimePlan
     note: None | Note | Unset = UNSET
     planning_task: InboxTask | None | Unset = UNSET
+    chapter_ref_ids: list[str] | None | Unset = UNSET
+    project_ref_ids: list[str] | None | Unset = UNSET
+    goal_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,6 +60,33 @@ class TimePlanFindResultEntry:
         else:
             planning_task = self.planning_task
 
+        chapter_ref_ids: list[str] | None | Unset
+        if isinstance(self.chapter_ref_ids, Unset):
+            chapter_ref_ids = UNSET
+        elif isinstance(self.chapter_ref_ids, list):
+            chapter_ref_ids = self.chapter_ref_ids
+
+        else:
+            chapter_ref_ids = self.chapter_ref_ids
+
+        project_ref_ids: list[str] | None | Unset
+        if isinstance(self.project_ref_ids, Unset):
+            project_ref_ids = UNSET
+        elif isinstance(self.project_ref_ids, list):
+            project_ref_ids = self.project_ref_ids
+
+        else:
+            project_ref_ids = self.project_ref_ids
+
+        goal_ref_ids: list[str] | None | Unset
+        if isinstance(self.goal_ref_ids, Unset):
+            goal_ref_ids = UNSET
+        elif isinstance(self.goal_ref_ids, list):
+            goal_ref_ids = self.goal_ref_ids
+
+        else:
+            goal_ref_ids = self.goal_ref_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -65,6 +98,12 @@ class TimePlanFindResultEntry:
             field_dict["note"] = note
         if planning_task is not UNSET:
             field_dict["planning_task"] = planning_task
+        if chapter_ref_ids is not UNSET:
+            field_dict["chapter_ref_ids"] = chapter_ref_ids
+        if project_ref_ids is not UNSET:
+            field_dict["project_ref_ids"] = project_ref_ids
+        if goal_ref_ids is not UNSET:
+            field_dict["goal_ref_ids"] = goal_ref_ids
 
         return field_dict
 
@@ -111,10 +150,64 @@ class TimePlanFindResultEntry:
 
         planning_task = _parse_planning_task(d.pop("planning_task", UNSET))
 
+        def _parse_chapter_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                chapter_ref_ids_type_0 = cast(list[str], data)
+
+                return chapter_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        chapter_ref_ids = _parse_chapter_ref_ids(d.pop("chapter_ref_ids", UNSET))
+
+        def _parse_project_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                project_ref_ids_type_0 = cast(list[str], data)
+
+                return project_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        project_ref_ids = _parse_project_ref_ids(d.pop("project_ref_ids", UNSET))
+
+        def _parse_goal_ref_ids(data: object) -> list[str] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                goal_ref_ids_type_0 = cast(list[str], data)
+
+                return goal_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        goal_ref_ids = _parse_goal_ref_ids(d.pop("goal_ref_ids", UNSET))
+
         time_plan_find_result_entry = cls(
             time_plan=time_plan,
             note=note,
             planning_task=planning_task,
+            chapter_ref_ids=chapter_ref_ids,
+            project_ref_ids=project_ref_ids,
+            goal_ref_ids=goal_ref_ids,
         )
 
         time_plan_find_result_entry.additional_properties = d

@@ -56,6 +56,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { ProjectMultiSelect } from "@jupiter/core/life_plan/sub/aspects/component/multi-select";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -65,11 +66,6 @@ import {
   selectZod,
 } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
-
-interface ProjectOption {
-  refId: string;
-  label: string;
-}
 
 interface HabitOptions {
   refId: string;
@@ -175,13 +171,6 @@ export default function Gen() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled = navigation.state === "idle";
-
-  const [selectedProjects, setSelectedProjects] = useState<ProjectOption[]>([]);
-  const projectOptions =
-    loaderData.summaries.projects?.map((p) => ({
-      refId: p.ref_id,
-      label: p.name,
-    })) ?? [];
 
   const [selectedHabits, setSelectedHabits] = useState<HabitOptions[]>([]);
   const habitOptions =
@@ -308,27 +297,12 @@ export default function Gen() {
                 WorkspaceFeature.LIFE_PLAN,
               ) && (
                 <FormControl fullWidth>
-                  <Autocomplete
-                    disablePortal
-                    id="filter_project_ref_ids"
-                    options={projectOptions}
-                    readOnly={!inputsEnabled}
-                    disabled={!inputsEnabled}
-                    multiple
-                    onChange={(e, vol) => setSelectedProjects(vol)}
-                    isOptionEqualToValue={(o, v) => o.refId === v.refId}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        name="filter_project_ref_ids"
-                        label="Generate Only For Projects"
-                      />
-                    )}
-                  />
-                  <input
-                    type="hidden"
+                  <ProjectMultiSelect
                     name="filter_project_ref_ids"
-                    value={selectedProjects.map((p) => p.refId).join(",")}
+                    label="Generate Only For Projects"
+                    inputsEnabled={inputsEnabled}
+                    disabled={!inputsEnabled}
+                    allProjects={loaderData.summaries.projects ?? []}
                   />
                   <FieldError
                     actionResult={actionData}

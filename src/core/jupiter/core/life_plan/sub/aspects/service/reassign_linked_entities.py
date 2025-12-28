@@ -16,6 +16,9 @@ from jupiter.core.push_integrations.group import PushIntegrationGroup
 from jupiter.core.push_integrations.sub.email.task_collection import EmailTaskCollection
 from jupiter.core.push_integrations.sub.slack.task_collection import SlackTaskCollection
 from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanProjectLinkRepository,
+)
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
@@ -49,6 +52,10 @@ class ProjectReassignLinkedEntitiesService:
                 )
             )
             await uow.get_for(TimePlanDomain).save(time_plan_domain)
+
+        await uow.get(TimePlanProjectLinkRepository).remove_all_for_project(
+            old_project.ref_id
+        )
 
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id

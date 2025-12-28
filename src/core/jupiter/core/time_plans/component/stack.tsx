@@ -1,4 +1,10 @@
-import type { TimePlan } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  EntityId,
+  GoalSummary,
+  ProjectSummary,
+  TimePlan,
+} from "@jupiter/webapi-client";
 
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { EntityStack2 } from "#/core/infra/component/entity-stack";
@@ -10,6 +16,12 @@ interface TimePlanStackProps {
   label?: string;
   topLevelInfo: TopLevelInfo;
   timePlans: Array<TimePlan>;
+  timePlanProjectRefIds?: Map<string, Array<EntityId>>;
+  timePlanGoalRefIds?: Map<string, Array<EntityId>>;
+  timePlanChapterRefIds?: Map<string, Array<EntityId>>;
+  allProjectsByRefId?: Map<string, ProjectSummary>;
+  allGoalsByRefId?: Map<string, GoalSummary>;
+  allChaptersByRefId?: Map<string, ChapterSummary>;
   selectedPredicate?: (timePlan: TimePlan) => boolean;
   allowSwipe?: boolean;
   allowSelect?: boolean;
@@ -29,6 +41,24 @@ export function TimePlanStack(props: TimePlanStackProps) {
           key={`time-plan-${timePlan.ref_id}`}
           topLevelInfo={props.topLevelInfo}
           timePlan={timePlan}
+          projects={
+            props.timePlanProjectRefIds
+              ?.get(timePlan.ref_id)
+              ?.map((refId) => props.allProjectsByRefId?.get(refId))
+              .filter((project) => project !== undefined) ?? []
+          }
+          goals={
+            props.timePlanGoalRefIds
+              ?.get(timePlan.ref_id)
+              ?.map((refId) => props.allGoalsByRefId?.get(refId))
+              .filter((goal) => goal !== undefined) ?? []
+          }
+          chapters={
+            props.timePlanChapterRefIds
+              ?.get(timePlan.ref_id)
+              ?.map((refId) => props.allChaptersByRefId?.get(refId))
+              .filter((chapter) => chapter !== undefined) ?? []
+          }
           showOptions={{
             showSource: true,
             showPeriod: true,

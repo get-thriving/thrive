@@ -1,10 +1,15 @@
 import type {
   BigPlan,
+  ChapterSummary,
   InboxTask,
+  LifePlan,
+  ProjectSummary,
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
   Workspace,
+  GoalSummary,
+  MilestoneSummary,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -55,10 +60,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
@@ -68,10 +70,16 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanMergedActivities } from "@jupiter/core/time_plans/component/merged-activities";
 import { TimePlanByProjectActivities } from "@jupiter/core/time_plans/component/by-project-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
+import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
+import { aDateToDate } from "#/core/common/adate";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
 
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 enum View {
   MERGED = "merged",
@@ -87,6 +95,9 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("change-time-config"),
     rightNow: z.string(),
     period: z.nativeEnum(RecurringTaskPeriod),
+    chapterRefIds: selectZod(z.string()),
+    projectRefIds: selectZod(z.string()),
+    goalRefIds: selectZod(z.string()),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -106,7 +117,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   try {
@@ -138,10 +153,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      lifePlan: summaryResponse.life_plan as LifePlan,
+      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       timePlan: result.time_plan,
       note: result.note,
       activities: result.activities,
+      projects: result.projects,
+      chapters: result.chapters,
+      goals: result.goals,
       targetInboxTasks: result.target_inbox_tasks as Array<InboxTask>,
       targetBigPlans: result.target_big_plans,
       activityDoneness: result.activity_doneness as Record<
@@ -190,6 +212,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.period,
           },
+          chapter_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+          },
+          project_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.projectRefIds) || [],
+          },
+          goal_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.goalRefIds) || [],
+          },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -222,7 +256,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;
@@ -361,7 +395,7 @@ export default function TimePlanView() {
             spacing={2}
             useFlexGap
           >
-            <FormControl fullWidth>
+            <FormControl fullWidth={!isBigScreen}>
               <InputLabel id="rightNow" shrink margin="dense">
                 The Date
               </InputLabel>
@@ -378,7 +412,7 @@ export default function TimePlanView() {
               <FieldError actionResult={actionData} fieldName="/rightNow" />
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth={!isBigScreen}>
               <PeriodSelect
                 labelId="period"
                 label="Period"
@@ -388,6 +422,60 @@ export default function TimePlanView() {
               />
               <FieldError actionResult={actionData} fieldName="/period" />
               <FieldError actionResult={actionData} fieldName="/status" />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <ProjectMultiSelect
+                name="projectRefIds"
+                label="Project"
+                inputsEnabled={inputsEnabled && corePropertyEditable}
+                disabled={false}
+                allProjects={loaderData.allProjects}
+                defaultValue={loaderData.projects.map((p) => p.ref_id)}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/projectRefIds"
+              />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <ChapterMultiSelect
+                name="chapterRefIds"
+                label="Chapter"
+                inputsEnabled={inputsEnabled && corePropertyEditable}
+                disabled={false}
+                allChapters={loaderData.allChapters}
+                defaultValue={loaderData.chapters.map((c) => c.ref_id)}
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/chapterRefIds"
+              />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <GoalMultiSelect
+                name="goalRefIds"
+                label="Goal"
+                inputsEnabled={inputsEnabled && corePropertyEditable}
+                disabled={false}
+                allGoals={loaderData.allGoals}
+                defaultValue={loaderData.goals.map((g) => g.ref_id)}
+              />
+              <FieldError actionResult={actionData} fieldName="/goalRefIds" />
             </FormControl>
           </Stack>
         </SectionCard>
