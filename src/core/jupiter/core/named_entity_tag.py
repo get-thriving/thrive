@@ -33,6 +33,7 @@ class NamedEntityTag(EnumValue):
     CHAPTER = "Chapter"  # Chapter.__name__
     GOAL = "Goal"  # Goal.__name__
     MILESTONE = "Milestone"  # Milestone.__name__
+    VISION = "Vision"  # Vision.__name__
     VACATION = "Vacation"  # Vacation.__name__
     PROJECT = "Project"  # Project.__name__
     SMART_LIST = "SmartList"  # SmartList.__name__

@@ -755,6 +755,20 @@ from .vacation_update_args import VacationUpdateArgs
 from .vacation_update_args_end_date import VacationUpdateArgsEndDate
 from .vacation_update_args_name import VacationUpdateArgsName
 from .vacation_update_args_start_date import VacationUpdateArgsStartDate
+from .vision import Vision
+from .vision_archive_args import VisionArchiveArgs
+from .vision_create_draft_args import VisionCreateDraftArgs
+from .vision_create_draft_result import VisionCreateDraftResult
+from .vision_find_args import VisionFindArgs
+from .vision_find_result import VisionFindResult
+from .vision_find_result_entry import VisionFindResultEntry
+from .vision_load_active_args import VisionLoadActiveArgs
+from .vision_load_active_result import VisionLoadActiveResult
+from .vision_load_args import VisionLoadArgs
+from .vision_load_result import VisionLoadResult
+from .vision_mark_draft_as_active_args import VisionMarkDraftAsActiveArgs
+from .vision_remove_args import VisionRemoveArgs
+from .vision_status import VisionStatus
 from .widget_dimension import WidgetDimension
 from .widget_geometry import WidgetGeometry
 from .widget_type import WidgetType
@@ -1526,6 +1540,20 @@ __all__ = (
     "VacationUpdateArgsEndDate",
     "VacationUpdateArgsName",
     "VacationUpdateArgsStartDate",
+    "Vision",
+    "VisionArchiveArgs",
+    "VisionCreateDraftArgs",
+    "VisionCreateDraftResult",
+    "VisionFindArgs",
+    "VisionFindResult",
+    "VisionFindResultEntry",
+    "VisionLoadActiveArgs",
+    "VisionLoadActiveResult",
+    "VisionLoadArgs",
+    "VisionLoadResult",
+    "VisionMarkDraftAsActiveArgs",
+    "VisionRemoveArgs",
+    "VisionStatus",
     "WidgetDimension",
     "WidgetGeometry",
     "WidgetType",

@@ -16,6 +16,7 @@ class DocsHelpSubject(str, Enum):
     LIFE_PLANGOALS = "life-plan/goals"
     LIFE_PLANMILESTONES = "life-plan/milestones"
     LIFE_PLANPROJECTS = "life-plan/projects"
+    LIFE_PLANVISIONS = "life-plan/visions"
     METRICS = "metrics"
     PERSONS = "persons"
     ROOT = "root"

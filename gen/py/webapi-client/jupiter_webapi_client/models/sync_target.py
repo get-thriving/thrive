@@ -21,6 +21,7 @@ class SyncTarget(str, Enum):
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
     VACATIONS = "vacations"
+    VISIONS = "visions"
     WORKING_MEM = "working-mem"
 
     def __str__(self) -> str:

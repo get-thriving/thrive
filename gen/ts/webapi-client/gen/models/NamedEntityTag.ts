@@ -26,6 +26,7 @@ export enum NamedEntityTag {
     CHAPTER = 'Chapter',
     GOAL = 'Goal',
     MILESTONE = 'Milestone',
+    VISION = 'Vision',
     VACATION = 'Vacation',
     PROJECT = 'Project',
     SMART_LIST = 'SmartList',

@@ -7,6 +7,7 @@ from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
+from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -36,6 +37,7 @@ class LifePlan(TrunkEntity):
     chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
     goals = ContainsMany(Goal, life_plan_ref_id=IsRefId())
     milestones = ContainsMany(Milestone, life_plan_ref_id=IsRefId())
+    visions = ContainsMany(Vision, life_plan_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

@@ -40,6 +40,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Goal";
     case NamedEntityTag.MILESTONE:
       return "Milestone";
+    case NamedEntityTag.VISION:
+      return "Vision";
     case NamedEntityTag.DOC:
       return "Doc";
     case NamedEntityTag.VACATION:

@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ProjectArchiveArgs")
 
@@ -17,21 +15,13 @@ class ProjectArchiveArgs:
 
     Attributes:
         ref_id (str): A generic entity id.
-        backup_project_ref_id (None | str | Unset):
     """
 
     ref_id: str
-    backup_project_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         ref_id = self.ref_id
-
-        backup_project_ref_id: None | str | Unset
-        if isinstance(self.backup_project_ref_id, Unset):
-            backup_project_ref_id = UNSET
-        else:
-            backup_project_ref_id = self.backup_project_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -40,8 +30,6 @@ class ProjectArchiveArgs:
                 "ref_id": ref_id,
             }
         )
-        if backup_project_ref_id is not UNSET:
-            field_dict["backup_project_ref_id"] = backup_project_ref_id
 
         return field_dict
 
@@ -50,18 +38,8 @@ class ProjectArchiveArgs:
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        def _parse_backup_project_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        backup_project_ref_id = _parse_backup_project_ref_id(d.pop("backup_project_ref_id", UNSET))
-
         project_archive_args = cls(
             ref_id=ref_id,
-            backup_project_ref_id=backup_project_ref_id,
         )
 
         project_archive_args.additional_properties = d
