@@ -50,9 +50,11 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
+  useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import {
+  NavMultipleCompact,
   NavMultipleSpread,
   NavSingle,
   SectionActions,
@@ -62,6 +64,7 @@ import {
   TopLevelInfo,
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
+import TuneIcon from "@mui/icons-material/Tune";
 import { Fragment, useContext } from "react";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { isMilestonePartialDate, midDate } from "#/core/life_plan/partial-date";
@@ -71,6 +74,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
+import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -90,6 +94,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
   });
+  const activeVision = await apiClient.lifePlan.visionLoadActive({});
   const projectsResponse = await apiClient.lifePlan.projectFind({
     allow_archived: false,
     include_notes: false,
@@ -108,6 +113,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
+    activeVision: activeVision.vision,
+    activeVisionNote: activeVision.note,
     projects: projectsResponse.entries,
     chapters: chaptersResponse.entries,
     goals: goalsResponse.entries,
@@ -166,6 +173,7 @@ export default function LifePlanView() {
   const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const shouldShowABranch = useTrunkNeedsToShowBranch();
   const inputsEnabled = navigation.state === "idle";
 
   const sortedProjects = sortProjectsByTreeOrder(
@@ -223,6 +231,11 @@ export default function LifePlanView() {
             NavMultipleSpread({
               navs: [
                 NavSingle({
+                  text: "New Vision",
+                  link: `/app/workspace/life-plan/visions/new-draft`,
+                  icon: <AddIcon />,
+                }),
+                NavSingle({
                   text: "New Project",
                   link: `/app/workspace/life-plan/projects/new`,
                   icon: <AddIcon />,
@@ -244,14 +257,58 @@ export default function LifePlanView() {
                 }),
               ],
             }),
+            NavMultipleCompact({
+              navs: [
+                NavSingle({
+                  text: "",
+                  link: `/app/workspace/life-plan/settings`,
+                  icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "Vision History",
+                  link: `/app/workspace/life-plan/visions`,
+                  icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "Projects",
+                  link: `/app/workspace/life-plan/projects`,
+                  icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "Chapters",
+                  link: `/app/workspace/life-plan/chapters`,
+                  icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "Goals",
+                  link: `/app/workspace/life-plan/goals`,
+                  icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "Milestones",
+                  link: `/app/workspace/life-plan/milestones`,
+                  icon: <TuneIcon />,
+                }),
+              ],
+            }),
           ]}
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf}>
+      <NestingAwareBlock
+        branchForceHide={shouldShowABranch}
+        shouldHide={shouldShowABranch || shouldShowALeaf}
+      >
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>
+            {loaderData.activeVision && loaderData.activeVisionNote && (
+              <VisionSnippet
+                vision={loaderData.activeVision}
+                note={loaderData.activeVisionNote}
+              />
+            )}
+
             {isBigScreen && (
               <>
                 <Box

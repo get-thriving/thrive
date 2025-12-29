@@ -72,6 +72,8 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/life-plan/goals";
     case DocsHelpSubject.LIFE_PLAN_MILESTONES:
       return "concepts/life-plan/milestones";
+    case DocsHelpSubject.LIFE_PLAN_VISIONS:
+      return "concepts/life-plan/visions";
     case DocsHelpSubject.SMART_LISTS:
       return "concepts/smart-lists";
     case DocsHelpSubject.METRICS:

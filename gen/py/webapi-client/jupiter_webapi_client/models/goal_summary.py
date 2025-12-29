@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="GoalSummary")
 
@@ -17,11 +19,13 @@ class GoalSummary:
         ref_id (str): A generic entity id.
         name (str): The name of a goal in a life plan.
         project_ref_id (str): A generic entity id.
+        parent_goal_ref_id (None | str | Unset):
     """
 
     ref_id: str
     name: str
     project_ref_id: str
+    parent_goal_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -30,6 +34,12 @@ class GoalSummary:
         name = self.name
 
         project_ref_id = self.project_ref_id
+
+        parent_goal_ref_id: None | str | Unset
+        if isinstance(self.parent_goal_ref_id, Unset):
+            parent_goal_ref_id = UNSET
+        else:
+            parent_goal_ref_id = self.parent_goal_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -40,6 +50,8 @@ class GoalSummary:
                 "project_ref_id": project_ref_id,
             }
         )
+        if parent_goal_ref_id is not UNSET:
+            field_dict["parent_goal_ref_id"] = parent_goal_ref_id
 
         return field_dict
 
@@ -52,10 +64,20 @@ class GoalSummary:
 
         project_ref_id = d.pop("project_ref_id")
 
+        def _parse_parent_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        parent_goal_ref_id = _parse_parent_goal_ref_id(d.pop("parent_goal_ref_id", UNSET))
+
         goal_summary = cls(
             ref_id=ref_id,
             name=name,
             project_ref_id=project_ref_id,
+            parent_goal_ref_id=parent_goal_ref_id,
         )
 
         goal_summary.additional_properties = d

@@ -21,6 +21,7 @@ class SyncTarget(EnumValue):
     CHAPTERS = "chapters"
     GOALS = "goals"
     MILESTONES = "milestones"
+    VISIONS = "visions"
     SMART_LISTS = "smart-lists"
     METRICS = "metrics"
     PERSONS = "persons"

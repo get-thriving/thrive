@@ -22,6 +22,7 @@ class NoteDomain(str, Enum):
     SMART_LIST_ITEM = "smart-list-item"
     TIME_PLAN = "time-plan"
     VACATION = "vacation"
+    VISION = "vision"
     WORKING_MEM = "working-mem"
 
     def __str__(self) -> str:

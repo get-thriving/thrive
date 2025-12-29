@@ -25,6 +25,7 @@ class DocsHelpSubject(EnumValue):
     CHAPTERS = "life-plan/chapters"
     GOALS = "life-plan/goals"
     MILESTONES = "life-plan/milestones"
+    VISIONS = "life-plan/visions"
     SMART_LISTS = "smart-lists"
     METRICS = "metrics"
     PERSONS = "persons"

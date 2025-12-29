@@ -31,6 +31,8 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
+from jupiter.core.life_plan.sub.visions.root import Vision
+from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
 from jupiter.core.schedule.domain import ScheduleDomain
@@ -60,6 +62,7 @@ class GetSummariesArgs(UseCaseArgsBase):
     include_user: bool | None
     include_workspace: bool | None
     include_life_plan: bool | None
+    include_active_visions: bool | None
     include_schedule_streams: bool | None
     include_vacations: bool | None
     include_projects: bool | None
@@ -83,6 +86,7 @@ class GetSummariesResult(UseCaseResultBase):
     user: User | None
     workspace: Workspace | None
     life_plan: LifePlan | None
+    active_vision: Vision | None
     vacations: list[VacationSummary] | None
     schedule_streams: list[ScheduleStreamSummary] | None
     root_project: ProjectSummary | None
@@ -160,6 +164,19 @@ class GetSummariesUseCase(
                 parent_ref_id=vacation_collection.workspace.ref_id,
                 allow_archived=allow_archived,
             )
+
+        active_vision = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_active_visions
+        ):
+            active_visions = await uow.get_for(Vision).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+                status=VisionStatus.ACTIVE,
+            )
+            if len(active_visions) > 0:
+                active_vision = active_visions[0]
 
         schedule_streams = None
         if (
@@ -310,6 +327,7 @@ class GetSummariesUseCase(
             user=user if args.include_user else None,
             workspace=workspace if args.include_workspace else None,
             life_plan=life_plan if args.include_life_plan else None,
+            active_vision=active_vision,
             schedule_streams=schedule_streams,
             vacations=vacations,
             root_project=root_project,

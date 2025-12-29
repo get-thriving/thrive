@@ -31,6 +31,7 @@ class NamedEntityTag(str, Enum):
     TIMEPLAN = "TimePlan"
     TIMEPLANACTIVITY = "TimePlanActivity"
     VACATION = "Vacation"
+    VISION = "Vision"
     WORKINGMEM = "WorkingMem"
 
     def __str__(self) -> str:
