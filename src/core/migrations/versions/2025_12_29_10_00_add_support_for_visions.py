@@ -26,6 +26,7 @@ def upgrade() -> None:
             created_time DATETIME NOT NULL,
             last_modified_time DATETIME NOT NULL,
             archived_time DATETIME,
+            name VARCHAR NOT NULL,
             life_plan_ref_id INTEGER NOT NULL,
             status VARCHAR NOT NULL,
             PRIMARY KEY (ref_id),

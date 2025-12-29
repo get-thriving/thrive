@@ -71,6 +71,7 @@ import { aDateToDate } from "#/core/common/adate";
 import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
+import { VisionSnippet } from "#/core/life_plan/sub/visions/components/vision-snippet";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -90,6 +91,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
   });
+  const activeVision = await apiClient.lifePlan.visionLoadActive({
+  });
   const projectsResponse = await apiClient.lifePlan.projectFind({
     allow_archived: false,
     include_notes: false,
@@ -108,6 +111,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
+    activeVision: activeVision.vision,
+    activeVisionNote: activeVision.note,
     projects: projectsResponse.entries,
     chapters: chaptersResponse.entries,
     goals: goalsResponse.entries,
@@ -223,6 +228,11 @@ export default function LifePlanView() {
             NavMultipleSpread({
               navs: [
                 NavSingle({
+                  text: "New Vision",
+                  link: `/app/workspace/life-plan/visions/new-draft`,
+                  icon: <AddIcon />,
+                }),
+                NavSingle({
                   text: "New Project",
                   link: `/app/workspace/life-plan/projects/new`,
                   icon: <AddIcon />,
@@ -252,6 +262,14 @@ export default function LifePlanView() {
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>
+
+            {loaderData.activeVision && loaderData.activeVisionNote && (
+              <VisionSnippet
+                vision={loaderData.activeVision}
+                note={loaderData.activeVisionNote}
+              />
+            )}
+
             {isBigScreen && (
               <>
                 <Box

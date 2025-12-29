@@ -4,6 +4,7 @@ from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     IsRefId,
@@ -39,6 +40,7 @@ class Vision(LeafEntity):
         return Vision._create(
             ctx,
             life_plan=ParentLink(life_plan_ref_id),
+            name=EntityName(f"Vision for ${ctx.action_timestamp.as_date().format('YYYY-MM-DD')}`"),
             status=VisionStatus.DRAFT,
         )
 
