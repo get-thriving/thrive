@@ -16,6 +16,7 @@ import {
   styled,
   Tooltip,
 } from "@mui/material";
+import { lighten, useTheme } from "@mui/material/styles";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -167,6 +168,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function LifePlanView() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const theme = useTheme();
   const topLevelInfo = useContext<TopLevelInfo>(TopLevelInfoContext);
   const today = aDateToDate(topLevelInfo.today);
   const navigation = useNavigation();
@@ -205,10 +207,13 @@ export default function LifePlanView() {
     loaderData.lifePlan,
     sortedMilestones,
   );
+  const todayMiddle = computeTodayMiddle(loaderData.lifePlan, today);
+
   const yearMarkers = Array.from({ length: 10 }, (_, idx) => {
     return {
       year: loaderData.lifePlan.birth_year + idx * 10,
       left: idx * 10,
+      age: idx * 10,
     };
   });
 
@@ -340,6 +345,7 @@ export default function LifePlanView() {
                         top={0.25 + totalRows * 1.25}
                       >
                         {yearMarker.year}
+                        {yearMarker.age > 0 ? ` (${yearMarker.age}s)` : ""}
                       </YearMarker>
                     );
                   })}
@@ -353,6 +359,9 @@ export default function LifePlanView() {
                     height: "100%",
                   }}
                 >
+                  <Tooltip title="Today" placement="top">
+                    <TodayVertical middle={todayMiddle} top={0} blur={0} />
+                  </Tooltip>
                   {sortedMilestones.map((milestone) => {
                     return (
                       <Tooltip
@@ -365,6 +374,11 @@ export default function LifePlanView() {
                             milestonePositions.get(milestone.ref_id)!.middle
                           }
                           top={0}
+                          blur={computeFutureBlurForPoint(
+                            milestonePositions.get(milestone.ref_id)!.middle,
+                            todayMiddle,
+                            loaderData.lifePlan.max_age,
+                          )}
                         />
                       </Tooltip>
                     );
@@ -464,6 +478,17 @@ export default function LifePlanView() {
                             const position = chapterPositions.get(
                               chapter.ref_id,
                             )!;
+                            const { fadeStart, fadeEnd } =
+                              computeFutureFuzzinessForInterval(
+                                position.left,
+                                position.left + position.width,
+                                todayMiddle,
+                                loaderData.lifePlan.max_age,
+                              );
+                            const chapterTextColor = lighten(
+                              theme.palette.info.dark,
+                              fadeStart,
+                            );
                             return (
                               <Fragment key={`chapter-${chapter.ref_id}`}>
                                 {isMilestonePartialDate(chapter.start_date) && (
@@ -477,9 +502,12 @@ export default function LifePlanView() {
                                   left={position.left}
                                   width={position.width}
                                   top={position.top}
+                                  fadestart={fadeStart}
+                                  fadeend={fadeEnd}
                                 >
                                   <EntityNameComponent
                                     name={`📖 ${chapter.name}`}
+                                    color={chapterTextColor}
                                   />
                                 </ChapterTimelineLink>
                                 {isMilestonePartialDate(chapter.end_date) && (
@@ -539,8 +567,13 @@ interface TimelineLinkProps {
   top: number;
 }
 
-const ChapterTimelineLink = styled(Link)<TimelineLinkProps>(
-  ({ theme, left, width, top }) => ({
+interface ChapterTimelineLinkProps extends TimelineLinkProps {
+  fadestart: number;
+  fadeend: number;
+}
+
+const ChapterTimelineLink = styled(Link)<ChapterTimelineLinkProps>(
+  ({ theme, left, width, top, fadestart: fadeStart, fadeend: fadeEnd }) => ({
     position: "absolute",
     textDecoration: "none",
     color: theme.palette.info.dark,
@@ -560,9 +593,28 @@ const ChapterTimelineLink = styled(Link)<TimelineLinkProps>(
     marginLeft: "0.25rem",
     marginRight: "0.25rem",
     marginBottom: "0.25rem",
-    backgroundColor: theme.palette.action.hover,
+    background: `linear-gradient(90deg, ${lighten(
+      theme.palette.action.hover,
+      fadeStart,
+    )} 0%, ${lighten(theme.palette.action.hover, fadeEnd)} 100%)`,
     borderRadius: "0.25rem",
-    border: `1px solid ${theme.palette.divider}`,
+    border: `1px solid transparent`,
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      inset: 0,
+      borderRadius: "inherit",
+      padding: "1px",
+      background: `linear-gradient(90deg, ${lighten(
+        theme.palette.divider,
+        fadeStart,
+      )} 0%, ${lighten(theme.palette.divider, fadeEnd)} 100%)`,
+      WebkitMask:
+        "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+      WebkitMaskComposite: "xor",
+      maskComposite: "exclude",
+      pointerEvents: "none",
+    },
   }),
 );
 
@@ -614,10 +666,11 @@ const MilestoneTimelineLink = styled(Link)<TimelineLinkProps>(
 interface MilestoneVerticalProps {
   middle: number;
   top: number;
+  blur: number;
 }
 
 const MilestoneVertical = styled("div")<MilestoneVerticalProps>(
-  ({ theme, middle, top }) => ({
+  ({ theme, middle, top, blur }) => ({
     position: "absolute",
     left: `${middle * 100}%`,
     top: `${top}rem`,
@@ -625,6 +678,20 @@ const MilestoneVertical = styled("div")<MilestoneVerticalProps>(
     height: "100%",
     zIndex: theme.zIndex.tooltip,
     backgroundColor: theme.palette.action.selected,
+    filter: `blur(${blur}px)`,
+  }),
+);
+
+const TodayVertical = styled("div")<MilestoneVerticalProps>(
+  ({ theme, middle, top, blur }) => ({
+    position: "absolute",
+    left: `${middle * 100}%`,
+    top: `${top}rem`,
+    width: "2px",
+    height: "100%",
+    zIndex: theme.zIndex.tooltip,
+    backgroundColor: theme.palette.error.main,
+    filter: `blur(${blur}px)`,
   }),
 );
 
@@ -788,6 +855,82 @@ function computeMilestonePositions(
     });
   }
   return { totalRows: rowIdx + 1, milestonePositions: milestonePositions };
+}
+
+function computeTodayMiddle(lifePlan: LifePlan, today: DateTime): number {
+  const birthdayDate = lifePlanBirthdayDate(lifePlan);
+  const maxDate = DateTime.fromObject({
+    year: lifePlan.birth_year + lifePlan.max_age,
+    month: 12,
+    day: 31,
+  });
+  const maxWidth = maxDate.diff(birthdayDate, "days").days;
+  if (maxWidth <= 0) {
+    return 0;
+  }
+  return Math.min(
+    1,
+    Math.max(0, today.diff(birthdayDate, "days").days / maxWidth),
+  );
+}
+
+const FUTURE_FUZZINESS_HORIZON_YEARS = 20;
+const FUTURE_FUZZINESS_MIN_COLOR_STRENGTH = 0.3;
+
+function computeFutureFuzzinessForInterval(
+  left: number,
+  right: number,
+  todayMiddle: number,
+  maxAge: number,
+): { fadeStart: number; fadeEnd: number } {
+  const futureFuzzinessHorizon = Math.min(
+    1,
+    FUTURE_FUZZINESS_HORIZON_YEARS / maxAge,
+  );
+
+  if (futureFuzzinessHorizon <= 0) {
+    return { fadeStart: 0, fadeEnd: 0 };
+  }
+
+  const computeOne = (x: number) => {
+    const distanceIntoFuture = x - todayMiddle;
+    if (distanceIntoFuture <= 0) {
+      return 0;
+    }
+    const normalized = Math.min(1, distanceIntoFuture / futureFuzzinessHorizon);
+    // Interpret "minimum 30%" as minimum remaining "color strength" (how much of the
+    // original color remains). So:
+    // - At today: 100% strength -> 0% fade-to-white
+    // - At horizon: 30% strength -> 70% fade-to-white
+    return (1 - FUTURE_FUZZINESS_MIN_COLOR_STRENGTH) * normalized;
+  };
+
+  return {
+    fadeStart: computeOne(left),
+    fadeEnd: computeOne(right),
+  };
+}
+
+function computeFutureBlurForPoint(
+  middle: number,
+  todayMiddle: number,
+  maxAge: number,
+): number {
+  const futureFuzzinessHorizon = Math.min(
+    1,
+    FUTURE_FUZZINESS_HORIZON_YEARS / maxAge,
+  );
+  if (futureFuzzinessHorizon <= 0) {
+    return 0;
+  }
+
+  const distanceIntoFuture = middle - todayMiddle;
+  if (distanceIntoFuture <= 0) {
+    return 0;
+  }
+
+  const normalized = Math.min(1, distanceIntoFuture / futureFuzzinessHorizon);
+  return 2 * normalized;
 }
 
 type GoalNode = {
