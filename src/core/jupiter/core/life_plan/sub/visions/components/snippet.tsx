@@ -18,23 +18,23 @@ import { Link } from "@remix-run/react";
 import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
 
 export interface VisionSnippetProps {
-  vision: Vision;
-  note: Note;
+  vision?: Vision;
+  note?: Note;
 }
 
 export function VisionSnippet({ vision, note }: VisionSnippetProps) {
-  const content = (note.content ?? []) as Array<OneOfNoteContentBlock>;
+  const content = (note?.content ?? []) as Array<OneOfNoteContentBlock>;
 
   const extracted = extractSnippetFromNoteContent(content);
 
   return (
     <Box
-      id={`vision-snippet-${vision.ref_id}`}
+      id={`vision-snippet-${vision?.ref_id ?? "empty"}`}
       sx={{
-        border: (theme) => `2px dotted ${theme.palette.primary.main}`,
+        border: (theme) => `2px dotted ${theme.palette.divider}`,
         borderRadius: "4px",
         padding: "0.4rem",
-        marginBottom: "1rem",
+        height: "-webkit-fill-available",
         display: "flex",
         gap: "0.75rem",
         alignItems: "center",
@@ -42,9 +42,6 @@ export function VisionSnippet({ vision, note }: VisionSnippetProps) {
       }}
     >
       <Typography variant="body2" sx={{ minWidth: 0 }}>
-        <Typography component="span" fontWeight="bold">
-          Life Vision:{" "}
-        </Typography>
         {extracted.kind === "text" && (
           <>{truncateToSingleLine(extracted.text)}</>
         )}
@@ -61,7 +58,7 @@ export function VisionSnippet({ vision, note }: VisionSnippetProps) {
           to="/app/workspace/life-plan/visions/new-draft"
           sx={{ flexShrink: 0 }}
         >
-          Create new draft
+          Create Vision
         </Button>
       )}
     </Box>
@@ -78,7 +75,7 @@ function extractSnippetFromNoteContent(
   if (!content || content.length === 0) {
     return {
       kind: "warning",
-      message: "You need some content for this vision.",
+      message: "You need to create a vision first.",
       showCreateDraftCta: true,
     };
   }

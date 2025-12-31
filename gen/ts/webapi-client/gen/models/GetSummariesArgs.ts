@@ -10,6 +10,7 @@ export type GetSummariesArgs = {
     include_user?: (boolean | null);
     include_workspace?: (boolean | null);
     include_life_plan?: (boolean | null);
+    include_active_visions?: (boolean | null);
     include_schedule_streams?: (boolean | null);
     include_vacations?: (boolean | null);
     include_projects?: (boolean | null);

@@ -41,7 +41,7 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
     : undefined;
 
   const [grossType, setGrossType] = useState<
-    "absolute" | "relative" | "milestone" | "present"
+    "absolute" | "relative" | "milestone" | "present" | "start" | "end"
   >(partialDateExtracted?.grossType ?? "absolute");
   const [relativeType, setRelativeType] = useState<"year" | "decade">(
     partialDateExtracted?.relativeType ?? "year",
@@ -87,19 +87,30 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
 
   useEffect(() => {
     setPartialDate(
-      partialDateEncode({
-        grossType: grossType,
-        relativeType: relativeType,
-        year:
-          grossType === "absolute"
-            ? yearAbsolute
-            : grossType === "relative" && relativeType === "year"
-              ? yearRelative
-              : decadeRelative,
-        month,
-        day,
-        milestoneRefId,
-      }),
+      partialDateEncode(
+        grossType === "present" || grossType === "start" || grossType === "end"
+          ? {
+              grossType,
+              relativeType: undefined,
+              year: "N/A",
+              month: "N/A",
+              day: "N/A",
+              milestoneRefId: undefined,
+            }
+          : {
+              grossType: grossType,
+              relativeType: relativeType,
+              year:
+                grossType === "absolute"
+                  ? yearAbsolute
+                  : grossType === "relative" && relativeType === "year"
+                    ? yearRelative
+                    : decadeRelative,
+              month,
+              day,
+              milestoneRefId,
+            },
+      ),
     );
   }, [
     grossType,
@@ -122,10 +133,12 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
           value={grossType}
           onChange={(event, newGrossType) => setGrossType(newGrossType)}
         >
-          <ToggleButton value="absolute">Absolute</ToggleButton>
-          <ToggleButton value="relative">Relative</ToggleButton>
+          <ToggleButton value="absolute">Abs</ToggleButton>
+          <ToggleButton value="relative">Rel</ToggleButton>
           <ToggleButton value="milestone">Milestone</ToggleButton>
           <ToggleButton value="present">Present</ToggleButton>
+          <ToggleButton value="start">Start</ToggleButton>
+          <ToggleButton value="end">End</ToggleButton>
         </ToggleButtonGroup>
 
         {grossType === "absolute" && (

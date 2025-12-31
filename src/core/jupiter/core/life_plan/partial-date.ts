@@ -77,6 +77,26 @@ interface PartialDatePresent {
   milestoneRefId: undefined;
 }
 
+interface PartialDateStart {
+  type: PartialDateType.START;
+  grossType: "start";
+  relativeType?: undefined;
+  year: "N/A";
+  month: "N/A";
+  day: "N/A";
+  milestoneRefId: undefined;
+}
+
+interface PartialDateEnd {
+  type: PartialDateType.END;
+  grossType: "end";
+  relativeType?: undefined;
+  year: "N/A";
+  month: "N/A";
+  day: "N/A";
+  milestoneRefId: undefined;
+}
+
 type PartialDateExtracted =
   | PartialDateAbsoluteYMD
   | PartialDateAbsoluteYM
@@ -84,7 +104,9 @@ type PartialDateExtracted =
   | PartialDateRelativeYear
   | PartialDateRelativeDecade
   | PartialDateMilestone
-  | PartialDatePresent;
+  | PartialDatePresent
+  | PartialDateStart
+  | PartialDateEnd;
 
 export function isMilestonePartialDate(partialDate: PartialDate): boolean {
   return partialDate.startsWith(PartialDateType.MILESTONE);
@@ -216,6 +238,30 @@ export function partialDateExtract(
       };
     }
 
+    case PartialDateType.START: {
+      return {
+        type: PartialDateType.START,
+        grossType: "start",
+        relativeType: undefined,
+        year: "N/A",
+        month: "N/A",
+        day: "N/A",
+        milestoneRefId: undefined,
+      };
+    }
+
+    case PartialDateType.END: {
+      return {
+        type: PartialDateType.END,
+        grossType: "end",
+        relativeType: undefined,
+        year: "N/A",
+        month: "N/A",
+        day: "N/A",
+        milestoneRefId: undefined,
+      };
+    }
+
     default:
       throw new Error(`Invalid partial date type: ${type}`);
   }
@@ -245,6 +291,12 @@ export function partialDateEncode(
     }
     case "present": {
       return PartialDateType.PRESENT;
+    }
+    case "start": {
+      return PartialDateType.START;
+    }
+    case "end": {
+      return PartialDateType.END;
     }
     default:
       throw new Error(
@@ -320,6 +372,14 @@ export function midDate(
     }
     case PartialDateType.PRESENT: {
       date = today;
+      break;
+    }
+    case PartialDateType.START: {
+      date = birthday;
+      break;
+    }
+    case PartialDateType.END: {
+      date = birthday.plus({ years: 100 });
       break;
     }
   }

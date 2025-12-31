@@ -13,4 +13,6 @@ export enum PartialDateType {
     RELATIVE_DECADE = 'relative-decade',
     MILESTONE = 'milestone',
     PRESENT = 'present',
+    START = 'start',
+    END = 'end',
 }

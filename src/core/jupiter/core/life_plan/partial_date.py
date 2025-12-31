@@ -32,6 +32,8 @@ class PartialDateType(EnumValue):
     RELATIVE_DECADE = "relative-decade"
     MILESTONE = "milestone"
     PERSENT = "present"
+    START = "start"
+    END = "end"
 
 
 @value
@@ -145,6 +147,28 @@ class PartialDate(AtomicValue[str]):
         )
 
     @staticmethod
+    def from_start() -> "PartialDate":
+        """Construct a partial date from the start of life."""
+        return PartialDate(
+            type=PartialDateType.START,
+            year=None,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
+        )
+
+    @staticmethod
+    def from_end() -> "PartialDate":
+        """Construct a partial date from the end of life."""
+        return PartialDate(
+            type=PartialDateType.END,
+            year=None,
+            month=None,
+            day=None,
+            milestone_ref_id=None,
+        )
+
+    @staticmethod
     def from_milestone(milestone_ref_id: EntityId) -> "PartialDate":
         """Construct a partial date from a milestone."""
         return PartialDate(
@@ -178,6 +202,10 @@ class PartialDate(AtomicValue[str]):
                 ).date
             case PartialDateType.PERSENT:
                 return today
+            case PartialDateType.START:
+                return birthday
+            case PartialDateType.END:
+                return birthday.add_years(MAX_AGE).end_of("year")
 
     def latest_relative_to(
         self, birthday: ADate, today: ADate, milestones: list[Milestone]
@@ -204,6 +232,10 @@ class PartialDate(AtomicValue[str]):
                 ).date
             case PartialDateType.PERSENT:
                 return today
+            case PartialDateType.START:
+                return birthday
+            case PartialDateType.END:
+                return birthday.add_years(MAX_AGE).end_of("year")
 
     def contains_milestone(self, milestone_ref_id: EntityId) -> bool:
         """Check if the partial date contains a milestone."""
@@ -266,6 +298,10 @@ class PartialDateDatabaseDecoder(RealmDecoder[PartialDate, DatabaseRealm]):
                     return PartialDate.from_relative_decade(year=int(parts[1]))
                 case PartialDateType.PERSENT.value:
                     return PartialDate.from_present()
+                case PartialDateType.START.value:
+                    return PartialDate.from_start()
+                case PartialDateType.END.value:
+                    return PartialDate.from_end()
                 case PartialDateType.MILESTONE.value:
                     return PartialDate.from_milestone(
                         milestone_ref_id=EntityId(parts[1])

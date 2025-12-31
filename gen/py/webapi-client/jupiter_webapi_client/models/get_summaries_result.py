@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from ..models.smart_list_summary import SmartListSummary
     from ..models.user import User
     from ..models.vacation_summary import VacationSummary
+    from ..models.vision import Vision
     from ..models.workspace import Workspace
 
 
@@ -39,6 +40,7 @@ class GetSummariesResult:
         user (None | Unset | User):
         workspace (None | Unset | Workspace):
         life_plan (LifePlan | None | Unset):
+        active_vision (None | Unset | Vision):
         vacations (list[VacationSummary] | None | Unset):
         schedule_streams (list[ScheduleStreamSummary] | None | Unset):
         root_project (None | ProjectSummary | Unset):
@@ -59,6 +61,7 @@ class GetSummariesResult:
     user: None | Unset | User = UNSET
     workspace: None | Unset | Workspace = UNSET
     life_plan: LifePlan | None | Unset = UNSET
+    active_vision: None | Unset | Vision = UNSET
     vacations: list[VacationSummary] | None | Unset = UNSET
     schedule_streams: list[ScheduleStreamSummary] | None | Unset = UNSET
     root_project: None | ProjectSummary | Unset = UNSET
@@ -80,6 +83,7 @@ class GetSummariesResult:
         from ..models.life_plan import LifePlan
         from ..models.project_summary import ProjectSummary
         from ..models.user import User
+        from ..models.vision import Vision
         from ..models.workspace import Workspace
 
         user: dict[str, Any] | None | Unset
@@ -105,6 +109,14 @@ class GetSummariesResult:
             life_plan = self.life_plan.to_dict()
         else:
             life_plan = self.life_plan
+
+        active_vision: dict[str, Any] | None | Unset
+        if isinstance(self.active_vision, Unset):
+            active_vision = UNSET
+        elif isinstance(self.active_vision, Vision):
+            active_vision = self.active_vision.to_dict()
+        else:
+            active_vision = self.active_vision
 
         vacations: list[dict[str, Any]] | None | Unset
         if isinstance(self.vacations, Unset):
@@ -291,6 +303,8 @@ class GetSummariesResult:
             field_dict["workspace"] = workspace
         if life_plan is not UNSET:
             field_dict["life_plan"] = life_plan
+        if active_vision is not UNSET:
+            field_dict["active_vision"] = active_vision
         if vacations is not UNSET:
             field_dict["vacations"] = vacations
         if schedule_streams is not UNSET:
@@ -342,6 +356,7 @@ class GetSummariesResult:
         from ..models.smart_list_summary import SmartListSummary
         from ..models.user import User
         from ..models.vacation_summary import VacationSummary
+        from ..models.vision import Vision
         from ..models.workspace import Workspace
 
         d = dict(src_dict)
@@ -396,6 +411,23 @@ class GetSummariesResult:
             return cast(LifePlan | None | Unset, data)
 
         life_plan = _parse_life_plan(d.pop("life_plan", UNSET))
+
+        def _parse_active_vision(data: object) -> None | Unset | Vision:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                active_vision_type_0 = Vision.from_dict(data)
+
+                return active_vision_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Unset | Vision, data)
+
+        active_vision = _parse_active_vision(d.pop("active_vision", UNSET))
 
         def _parse_vacations(data: object) -> list[VacationSummary] | None | Unset:
             if data is None:
@@ -726,6 +758,7 @@ class GetSummariesResult:
             user=user,
             workspace=workspace,
             life_plan=life_plan,
+            active_vision=active_vision,
             vacations=vacations,
             schedule_streams=schedule_streams,
             root_project=root_project,

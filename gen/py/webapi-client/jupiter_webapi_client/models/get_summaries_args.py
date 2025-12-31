@@ -20,6 +20,7 @@ class GetSummariesArgs:
         include_user (bool | None | Unset):
         include_workspace (bool | None | Unset):
         include_life_plan (bool | None | Unset):
+        include_active_visions (bool | None | Unset):
         include_schedule_streams (bool | None | Unset):
         include_vacations (bool | None | Unset):
         include_projects (bool | None | Unset):
@@ -40,6 +41,7 @@ class GetSummariesArgs:
     include_user: bool | None | Unset = UNSET
     include_workspace: bool | None | Unset = UNSET
     include_life_plan: bool | None | Unset = UNSET
+    include_active_visions: bool | None | Unset = UNSET
     include_schedule_streams: bool | None | Unset = UNSET
     include_vacations: bool | None | Unset = UNSET
     include_projects: bool | None | Unset = UNSET
@@ -80,6 +82,12 @@ class GetSummariesArgs:
             include_life_plan = UNSET
         else:
             include_life_plan = self.include_life_plan
+
+        include_active_visions: bool | None | Unset
+        if isinstance(self.include_active_visions, Unset):
+            include_active_visions = UNSET
+        else:
+            include_active_visions = self.include_active_visions
 
         include_schedule_streams: bool | None | Unset
         if isinstance(self.include_schedule_streams, Unset):
@@ -176,6 +184,8 @@ class GetSummariesArgs:
             field_dict["include_workspace"] = include_workspace
         if include_life_plan is not UNSET:
             field_dict["include_life_plan"] = include_life_plan
+        if include_active_visions is not UNSET:
+            field_dict["include_active_visions"] = include_active_visions
         if include_schedule_streams is not UNSET:
             field_dict["include_schedule_streams"] = include_schedule_streams
         if include_vacations is not UNSET:
@@ -246,6 +256,15 @@ class GetSummariesArgs:
             return cast(bool | None | Unset, data)
 
         include_life_plan = _parse_include_life_plan(d.pop("include_life_plan", UNSET))
+
+        def _parse_include_active_visions(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_active_visions = _parse_include_active_visions(d.pop("include_active_visions", UNSET))
 
         def _parse_include_schedule_streams(data: object) -> bool | None | Unset:
             if data is None:
@@ -378,6 +397,7 @@ class GetSummariesArgs:
             include_user=include_user,
             include_workspace=include_workspace,
             include_life_plan=include_life_plan,
+            include_active_visions=include_active_visions,
             include_schedule_streams=include_schedule_streams,
             include_vacations=include_vacations,
             include_projects=include_projects,

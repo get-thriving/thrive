@@ -10,13 +10,15 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
   Box,
+  Button,
   Divider,
   IconButton,
   Stack,
   styled,
   Tooltip,
+  Typography,
 } from "@mui/material";
-import { lighten, useTheme } from "@mui/material/styles";
+import { alpha, lighten, useTheme } from "@mui/material/styles";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -66,7 +68,7 @@ import {
   TopLevelInfoContext,
 } from "@jupiter/core/infra/top-level-context";
 import TuneIcon from "@mui/icons-material/Tune";
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useState } from "react";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { isMilestonePartialDate, midDate } from "#/core/life_plan/partial-date";
 import { DateTime } from "luxon";
@@ -177,6 +179,9 @@ export default function LifePlanView() {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const inputsEnabled = navigation.state === "idle";
+  const [hoveredMilestoneRefId, setHoveredMilestoneRefId] = useState<
+    string | null
+  >(null);
 
   const sortedProjects = sortProjectsByTreeOrder(
     loaderData.projects.map((entry) => entry.project),
@@ -307,245 +312,320 @@ export default function LifePlanView() {
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>
-            {loaderData.activeVision && loaderData.activeVisionNote && (
+            <SectionLabeled label="Vision">
               <VisionSnippet
-                vision={loaderData.activeVision}
-                note={loaderData.activeVisionNote}
+                vision={loaderData.activeVision ?? undefined}
+                note={loaderData.activeVisionNote ?? undefined}
               />
-            )}
+            </SectionLabeled>
 
             {isBigScreen && (
-              <>
-                <Box
-                  sx={{
-                    marginLeft: `${maxIndent}rem`,
-                    position: "relative",
-                    height: `${0.25 + totalRows * 1.25 + 1}rem`,
-                  }}
-                >
-                  {sortedMilestones.map((milestone) => {
-                    return (
-                      <MilestoneTimelineLink
-                        to={`/app/workspace/life-plan/milestones/${milestone.ref_id}`}
-                        key={`milestone-${milestone.ref_id}`}
-                        left={milestonePositions.get(milestone.ref_id)!.left}
-                        width={milestonePositions.get(milestone.ref_id)!.width}
-                        top={milestonePositions.get(milestone.ref_id)!.top}
-                      >
-                        {milestone.name}
-                      </MilestoneTimelineLink>
-                    );
-                  })}
+              <SectionLabeled label="Milestones">
+                <>
+                  <Box
+                    sx={{
+                      border: (theme) => `2px dotted ${theme.palette.divider}`,
+                      borderRadius: "4px",
+                      position: "relative",
+                      paddingLeft: "0.5rem",
+                      height: `${0.25 + totalRows * 1.25 + 1}rem`,
+                      minHeight: "3rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    {sortedMilestones.length == 0 && (
+                      <>
+                        <Typography variant="body2">
+                          You need to create some milestones
+                        </Typography>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          component={Link}
+                          to="/app/workspace/life-plan/milestones/new"
+                          sx={{ flexShrink: 0 }}
+                        >
+                          Create New Milestone
+                        </Button>
+                      </>
+                    )}
 
-                  {yearMarkers.map((yearMarker) => {
-                    return (
-                      <YearMarker
-                        key={`year-marker-${yearMarker.year}`}
-                        left={yearMarker.left}
-                        top={0.25 + totalRows * 1.25}
-                      >
-                        {yearMarker.year}
-                        {yearMarker.age > 0 ? ` (${yearMarker.age}s)` : ""}
-                      </YearMarker>
-                    );
-                  })}
-                </Box>
+                    {sortedMilestones.map((milestone) => {
+                      const isHighlighted =
+                        hoveredMilestoneRefId === milestone.ref_id;
+                      return (
+                        <Tooltip
+                          key={`milestone-${milestone.ref_id}`}
+                          title={milestone.name}
+                          placement="top"
+                        >
+                          <MilestoneTimelineLink
+                            to={`/app/workspace/life-plan/milestones/${milestone.ref_id}`}
+                            indent={maxIndent}
+                            left={
+                              milestonePositions.get(milestone.ref_id)!.left
+                            }
+                            width={
+                              milestonePositions.get(milestone.ref_id)!.width
+                            }
+                            top={milestonePositions.get(milestone.ref_id)!.top}
+                            highlighted={isHighlighted}
+                            onMouseEnter={() =>
+                              setHoveredMilestoneRefId(milestone.ref_id)
+                            }
+                            onMouseLeave={() => setHoveredMilestoneRefId(null)}
+                          >
+                            {milestone.name}
+                          </MilestoneTimelineLink>
+                        </Tooltip>
+                      );
+                    })}
+                  </Box>
 
-                <Box
-                  sx={{
-                    position: "absolute",
-                    marginLeft: `${maxIndent}rem`,
-                    width: `calc(100% - ${maxIndent}rem)`,
-                    height: "100%",
-                  }}
-                >
-                  <Tooltip title="Today" placement="top">
-                    <TodayVertical middle={todayMiddle} top={0} blur={0} />
-                  </Tooltip>
-                  {sortedMilestones.map((milestone) => {
-                    return (
-                      <Tooltip
-                        key={`milestone-tooltip-${milestone.ref_id}`}
-                        title={`${milestone.name} on ${milestone.date}`}
-                        placement="top"
-                      >
-                        <MilestoneVertical
-                          middle={
-                            milestonePositions.get(milestone.ref_id)!.middle
-                          }
-                          top={0}
-                          blur={computeFutureBlurForPoint(
-                            milestonePositions.get(milestone.ref_id)!.middle,
-                            todayMiddle,
-                            loaderData.lifePlan.max_age,
-                          )}
-                        />
-                      </Tooltip>
-                    );
-                  })}
-                </Box>
-              </>
+                  <Box
+                    sx={{
+                      marginLeft: `${maxIndent}rem`,
+                      position: "relative",
+                      height: "1.5rem",
+                    }}
+                  >
+                    {yearMarkers.map((yearMarker) => {
+                      return (
+                        <YearMarker
+                          key={`year-marker-${yearMarker.year}`}
+                          left={yearMarker.left}
+                          top={0.25}
+                        >
+                          {yearMarker.year}
+                          {yearMarker.age > 0 ? ` (${yearMarker.age}s)` : ""}
+                        </YearMarker>
+                      );
+                    })}
+                  </Box>
+
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      marginLeft: `${maxIndent}rem`,
+                      width: `calc(100% - ${maxIndent}rem)`,
+                      height: "-webkit-fill-available",
+                    }}
+                  >
+                    <Tooltip title="Today" placement="top">
+                      <TodayVertical middle={todayMiddle} top={0} blur={0} />
+                    </Tooltip>
+                    {sortedMilestones.map((milestone) => {
+                      const isHighlighted =
+                        hoveredMilestoneRefId === milestone.ref_id;
+                      return (
+                        <Tooltip
+                          key={`milestone-tooltip-${milestone.ref_id}`}
+                          title={`${milestone.name} on ${milestone.date}`}
+                          placement="top"
+                        >
+                          <MilestoneVertical
+                            middle={
+                              milestonePositions.get(milestone.ref_id)!.middle
+                            }
+                            top={0}
+                            blur={computeFutureBlurForPoint(
+                              milestonePositions.get(milestone.ref_id)!.middle,
+                              todayMiddle,
+                              loaderData.lifePlan.max_age,
+                            )}
+                            highlighted={isHighlighted}
+                            onMouseEnter={() =>
+                              setHoveredMilestoneRefId(milestone.ref_id)
+                            }
+                            onMouseLeave={() => setHoveredMilestoneRefId(null)}
+                          />
+                        </Tooltip>
+                      );
+                    })}
+                  </Box>
+                </>
+              </SectionLabeled>
             )}
 
-            {sortedProjects.map((project) => {
-              const parentProject = project.parent_project_ref_id
-                ? allProjectsByRefId.get(project.parent_project_ref_id)
-                : undefined;
-              const indent = computeProjectDistanceFromRoot(
-                project,
-                allProjectsByRefId,
-              );
+            <SectionLabeled label="Projects, Chapters, and Goals">
+              <>
+                {sortedProjects.map((project) => {
+                  const parentProject = project.parent_project_ref_id
+                    ? allProjectsByRefId.get(project.parent_project_ref_id)
+                    : undefined;
+                  const indent = computeProjectDistanceFromRoot(
+                    project,
+                    allProjectsByRefId,
+                  );
 
-              const chapters =
-                allChaptersByProjectRefId.get(project.ref_id) ?? [];
-              const goals = allGoalsByProjectRefId.get(project.ref_id) ?? [];
-              const sortedChapters = sortChaptersNaturally(
-                lifePlanBirthdayDate(loaderData.lifePlan),
-                today,
-                chapters,
-                sortedMilestones,
-              );
-              const { totalRows, chapterPositions } = computeChapterPositions(
-                today,
-                loaderData.lifePlan,
-                sortedChapters,
-                sortedMilestones,
-              );
+                  const chapters =
+                    allChaptersByProjectRefId.get(project.ref_id) ?? [];
+                  const goals =
+                    allGoalsByProjectRefId.get(project.ref_id) ?? [];
+                  const sortedChapters = sortChaptersNaturally(
+                    lifePlanBirthdayDate(loaderData.lifePlan),
+                    today,
+                    chapters,
+                    sortedMilestones,
+                  );
+                  const { totalRows, chapterPositions } =
+                    computeChapterPositions(
+                      today,
+                      loaderData.lifePlan,
+                      sortedChapters,
+                      sortedMilestones,
+                    );
 
-              return (
-                <EntityCard
-                  entityId={`project-${project.ref_id}`}
-                  key={`project-${project.ref_id}`}
-                  indent={indent}
-                >
-                  <Stack direction="column">
-                    <Stack direction="row">
-                      <EntityLink
-                        to={`/app/workspace/life-plan/projects/${project.ref_id}`}
-                      >
-                        <EntityNameComponent name={`⭐ ${project.name}`} />
-                      </EntityLink>
-
-                      {isRootProject(project) ||
-                      parentProject === undefined ? undefined : (
-                        <>
-                          <IconButton
-                            size="medium"
-                            type="submit"
-                            name="intent"
-                            value={makeIntent("reorder", {
-                              refId: parentProject.ref_id,
-                              newOrderOfChildProjects:
-                                shiftProjectUpInListOfChildren(
-                                  project,
-                                  parentProject.order_of_child_projects,
-                                ),
-                            })}
+                  return (
+                    <EntityCard
+                      entityId={`project-${project.ref_id}`}
+                      key={`project-${project.ref_id}`}
+                      indent={indent}
+                    >
+                      <Stack direction="column">
+                        <Stack direction="row">
+                          <EntityLink
+                            to={`/app/workspace/life-plan/projects/${project.ref_id}`}
                           >
-                            <ArrowUpwardIcon fontSize="medium" />
-                          </IconButton>
+                            <EntityNameComponent name={`⭐ ${project.name}`} />
+                          </EntityLink>
 
-                          <IconButton
-                            size="medium"
-                            type="submit"
-                            name="intent"
-                            value={makeIntent("reorder", {
-                              refId: parentProject.ref_id,
-                              newOrderOfChildProjects:
-                                shiftProjectDownInListOfChildren(
-                                  project,
-                                  parentProject.order_of_child_projects,
-                                ),
-                            })}
-                          >
-                            <ArrowDownwardIcon fontSize="medium" />
-                          </IconButton>
-                        </>
-                      )}
-                    </Stack>
+                          {isRootProject(project) ||
+                          parentProject === undefined ? undefined : (
+                            <>
+                              <IconButton
+                                size="medium"
+                                type="submit"
+                                name="intent"
+                                value={makeIntent("reorder", {
+                                  refId: parentProject.ref_id,
+                                  newOrderOfChildProjects:
+                                    shiftProjectUpInListOfChildren(
+                                      project,
+                                      parentProject.order_of_child_projects,
+                                    ),
+                                })}
+                              >
+                                <ArrowUpwardIcon fontSize="medium" />
+                              </IconButton>
 
-                    {sortedChapters.length > 0 && (
-                      <>
-                        <Divider />
-                        <Box
-                          sx={{
-                            marginLeft: `${maxIndent - indent}rem`,
-                            position: "relative",
-                            height: `${0.25 + totalRows * 2.25}rem`,
-                          }}
-                        >
-                          {sortedChapters.map((chapter) => {
-                            const position = chapterPositions.get(
-                              chapter.ref_id,
-                            )!;
-                            const { fadeStart, fadeEnd } =
-                              computeFutureFuzzinessForInterval(
-                                position.left,
-                                position.left + position.width,
-                                todayMiddle,
-                                loaderData.lifePlan.max_age,
-                              );
-                            const chapterTextColor = lighten(
-                              theme.palette.info.dark,
-                              fadeStart,
-                            );
-                            return (
-                              <Fragment key={`chapter-${chapter.ref_id}`}>
-                                {isMilestonePartialDate(chapter.start_date) && (
-                                  <ChapterMilestoneLink
-                                    left={position.left}
-                                    top={position.top}
-                                  />
-                                )}
-                                <ChapterTimelineLink
-                                  to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
-                                  left={position.left}
-                                  width={position.width}
-                                  top={position.top}
-                                  fadestart={fadeStart}
-                                  fadeend={fadeEnd}
-                                >
-                                  <EntityNameComponent
-                                    name={`📖 ${chapter.name}`}
-                                    color={chapterTextColor}
-                                  />
-                                </ChapterTimelineLink>
-                                {isMilestonePartialDate(chapter.end_date) && (
-                                  <ChapterMilestoneLink
-                                    left={position.left + position.width}
-                                    top={position.top}
-                                  />
-                                )}
-                              </Fragment>
-                            );
-                          })}
-                        </Box>
-                      </>
-                    )}
-
-                    {goals.length > 0 && (
-                      <>
-                        <Divider />
-                        <Stack
-                          direction="column"
-                          spacing={0.5}
-                          sx={{
-                            paddingTop: "0.5rem",
-                            paddingBottom: "0.5rem",
-                            paddingLeft: "1rem",
-                            paddingRight: "1rem",
-                          }}
-                        >
-                          {buildGoalForest(goals).map((node) =>
-                            renderGoalNode(node, 0),
+                              <IconButton
+                                size="medium"
+                                type="submit"
+                                name="intent"
+                                value={makeIntent("reorder", {
+                                  refId: parentProject.ref_id,
+                                  newOrderOfChildProjects:
+                                    shiftProjectDownInListOfChildren(
+                                      project,
+                                      parentProject.order_of_child_projects,
+                                    ),
+                                })}
+                              >
+                                <ArrowDownwardIcon fontSize="medium" />
+                              </IconButton>
+                            </>
                           )}
                         </Stack>
-                      </>
-                    )}
-                  </Stack>
-                </EntityCard>
-              );
-            })}
+
+                        {sortedChapters.length > 0 && (
+                          <>
+                            <Divider />
+                            <Box
+                              sx={{
+                                marginLeft: `${maxIndent - indent}rem`,
+                                position: "relative",
+                                height: `${0.25 + totalRows * 2.25}rem`,
+                              }}
+                            >
+                              {sortedChapters.map((chapter) => {
+                                const position = chapterPositions.get(
+                                  chapter.ref_id,
+                                )!;
+                                const { fadeStart, fadeEnd } =
+                                  computeFutureFuzzinessForInterval(
+                                    position.left,
+                                    position.left + position.width,
+                                    todayMiddle,
+                                    loaderData.lifePlan.max_age,
+                                  );
+                                const chapterTextColor = lighten(
+                                  theme.palette.info.dark,
+                                  fadeStart,
+                                );
+                                return (
+                                  <Fragment key={`chapter-${chapter.ref_id}`}>
+                                    {isMilestonePartialDate(
+                                      chapter.start_date,
+                                    ) && (
+                                      <ChapterMilestoneLink
+                                        left={position.left}
+                                        top={position.top}
+                                      />
+                                    )}
+                                    <Tooltip
+                                      title={chapter.name}
+                                      placement="top"
+                                    >
+                                      <ChapterTimelineLink
+                                        to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
+                                        left={position.left}
+                                        width={position.width}
+                                        top={position.top}
+                                        indent={0}
+                                        fadestart={fadeStart}
+                                        fadeend={fadeEnd}
+                                      >
+                                        <EntityNameComponent
+                                          name={`📖 ${chapter.name}`}
+                                          color={chapterTextColor}
+                                        />
+                                      </ChapterTimelineLink>
+                                    </Tooltip>
+                                    {isMilestonePartialDate(
+                                      chapter.end_date,
+                                    ) && (
+                                      <ChapterMilestoneLink
+                                        left={position.left + position.width}
+                                        top={position.top}
+                                      />
+                                    )}
+                                  </Fragment>
+                                );
+                              })}
+                            </Box>
+                          </>
+                        )}
+
+                        {goals.length > 0 && (
+                          <>
+                            <Divider />
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              useFlexGap
+                              flexWrap="wrap"
+                              sx={{
+                                paddingTop: "0.5rem",
+                                paddingBottom: "0.5rem",
+                                paddingLeft: "1rem",
+                                paddingRight: "1rem",
+                              }}
+                            >
+                              {buildGoalForest(goals).map((node) =>
+                                renderGoalRoot(node),
+                              )}
+                            </Stack>
+                          </>
+                        )}
+                      </Stack>
+                    </EntityCard>
+                  );
+                })}
+              </>
+            </SectionLabeled>
           </Form>
         </EntityStack>
       </NestingAwareBlock>
@@ -565,6 +645,7 @@ interface TimelineLinkProps {
   left: number;
   width: number;
   top: number;
+  indent: number;
 }
 
 interface ChapterTimelineLinkProps extends TimelineLinkProps {
@@ -632,13 +713,15 @@ const ChapterMilestoneLink = styled("div")<ChapterMilestoneLinkProps>(
     width: "0.4rem",
     height: "0.4rem",
     backgroundColor: theme.palette.error.light,
-    zIndex: theme.zIndex.tooltip,
+    zIndex: theme.zIndex.appBar,
     borderRadius: "0.15rem",
   }),
 );
 
-const MilestoneTimelineLink = styled(Link)<TimelineLinkProps>(
-  ({ theme, left, width, top }) => ({
+const MilestoneTimelineLink = styled(Link, {
+  shouldForwardProp: (prop) => prop !== "highlighted",
+})<TimelineLinkProps & { highlighted?: boolean }>(
+  ({ theme, left, width, top, indent, highlighted }) => ({
     position: "absolute",
     textDecoration: "none",
     color: theme.palette.info.dark,
@@ -651,7 +734,7 @@ const MilestoneTimelineLink = styled(Link)<TimelineLinkProps>(
     fontSize: "0.75rem",
     lineHeight: "1rem",
     textAlign: "center",
-    left: `${left * 100}%`,
+    left: `calc(${indent}rem + ${left * 100}%)`,
     width: `${width * 100}%`,
     height: "1rem",
     top: `${top}rem`,
@@ -660,6 +743,15 @@ const MilestoneTimelineLink = styled(Link)<TimelineLinkProps>(
     marginBottom: "0.25rem",
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: "0.1rem",
+    backgroundColor: highlighted
+      ? alpha(theme.palette.info.main, 0.12)
+      : "transparent",
+    borderColor: highlighted ? theme.palette.info.main : theme.palette.divider,
+    "&:hover": {
+      borderColor: theme.palette.info.main,
+      backgroundColor: alpha(theme.palette.info.main, 0.12),
+      color: theme.palette.info.main,
+    },
   }),
 );
 
@@ -669,18 +761,36 @@ interface MilestoneVerticalProps {
   blur: number;
 }
 
-const MilestoneVertical = styled("div")<MilestoneVerticalProps>(
-  ({ theme, middle, top, blur }) => ({
+const MilestoneVertical = styled("div", {
+  shouldForwardProp: (prop) => prop !== "highlighted",
+})<MilestoneVerticalProps & { highlighted?: boolean }>(({
+  theme,
+  middle,
+  top,
+  blur,
+  highlighted,
+}) => {
+  const dimColor = alpha(theme.palette.info.main, 0.1);
+  return {
     position: "absolute",
     left: `${middle * 100}%`,
     top: `${top}rem`,
     width: "2px",
     height: "100%",
-    zIndex: theme.zIndex.tooltip,
-    backgroundColor: theme.palette.action.selected,
+    zIndex: theme.zIndex.appBar,
+    transform: "scaleY(1.05)",
     filter: `blur(${blur}px)`,
-  }),
-);
+    cursor: "pointer",
+    backgroundColor: highlighted ? theme.palette.info.main : "transparent",
+    backgroundImage: highlighted
+      ? "none"
+      : `repeating-linear-gradient(to bottom, ${dimColor} 0, ${dimColor} 8px, transparent 8px, transparent 14px)`,
+    "&:hover": {
+      backgroundColor: theme.palette.info.main,
+      backgroundImage: "none",
+    },
+  };
+});
 
 const TodayVertical = styled("div")<MilestoneVerticalProps>(
   ({ theme, middle, top, blur }) => ({
@@ -689,8 +799,8 @@ const TodayVertical = styled("div")<MilestoneVerticalProps>(
     top: `${top}rem`,
     width: "2px",
     height: "100%",
-    zIndex: theme.zIndex.tooltip,
-    backgroundColor: theme.palette.error.main,
+    zIndex: theme.zIndex.appBar,
+    backgroundColor: theme.palette.info.main,
     filter: `blur(${blur}px)`,
   }),
 );
@@ -710,6 +820,35 @@ const YearMarker = styled("div")<YearMarkerProps>(({ theme, left, top }) => ({
   fontSize: "0.75rem",
   color: theme.palette.text.secondary,
 }));
+
+const SectionLabel = styled("div")(({ theme }) => ({
+  width: "1.5rem",
+  maxWidth: "1.5rem",
+  minHeight: "3rem",
+  display: "flex",
+  alignItems: "center",
+  paddingBottom: "0.25rem",
+  justifyContent: "flex-end",
+  borderRadius: "0.25rem",
+  border: `1px solid ${theme.palette.divider}`,
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.secondary,
+  fontSize: "0.75rem",
+  letterSpacing: "0.05rem",
+  writingMode: "vertical-rl",
+  textOrientation: "mixed",
+  transform: "rotate(180deg)",
+  userSelect: "none",
+}));
+
+function SectionLabeled(props: { label: string; children: React.ReactNode }) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "stretch", gap: 1, width: "100%" }}>
+      <SectionLabel>{props.label}</SectionLabel>
+      <Box sx={{ flex: 1, minWidth: 0 }}>{props.children}</Box>
+    </Box>
+  );
+}
 
 function computeChapterPositions(
   today: DateTime,
@@ -737,8 +876,7 @@ function computeChapterPositions(
   function computeForOne(chapter: Chapter): {
     left: number;
     width: number;
-    startDate: DateTime;
-    endDate: DateTime;
+    right: number;
   } {
     const startDate = DateTime.max(
       birthdayDate,
@@ -753,18 +891,20 @@ function computeChapterPositions(
       0.05,
       endDate.diff(startDate, "days").days / maxWidth,
     );
-    return { left, width, startDate, endDate };
+    const right = Math.min(1, left + width);
+    return { left, width, right };
   }
 
-  const rows: Array<DateTime> = [];
-  let rowIdx = 0;
-  rows[rowIdx] = birthdayDate;
+  // We pack chapters into rows based on their position on the 0..1 life timeline,
+  // not on their dates directly. This behaves much better for tiny-width elements.
+  const rows: Array<number> = [];
+  let rowIdx = -1;
 
   for (const chapter of chapters) {
     const chapterPosition = computeForOne(chapter);
     let usefulRowIdx = -1;
     for (let i = 0; i < rows.length; i++) {
-      if (chapterPosition.startDate >= rows[i]) {
+      if (chapterPosition.left >= rows[i]) {
         usefulRowIdx = i;
         break;
       }
@@ -772,10 +912,10 @@ function computeChapterPositions(
 
     if (usefulRowIdx === -1) {
       rowIdx++;
-      rows[rowIdx] = chapterPosition.endDate;
+      rows[rowIdx] = chapterPosition.right;
       usefulRowIdx = rowIdx;
     } else {
-      rows[usefulRowIdx] = chapterPosition.endDate;
+      rows[usefulRowIdx] = chapterPosition.right;
     }
 
     chapterPositions.set(chapter.ref_id, {
@@ -958,6 +1098,31 @@ function buildGoalForest(goals: Goal[]): GoalNode[] {
   }
 
   return roots;
+}
+
+function renderGoalRoot(node: GoalNode): JSX.Element {
+  return (
+    <Box
+      key={`goal-root-${node.goal.ref_id}`}
+      sx={{
+        flexBasis: "16rem",
+        paddingRight: "0.5rem",
+      }}
+    >
+      <EntityLink
+        inline
+        singleLine
+        to={`/app/workspace/life-plan/goals/${node.goal.ref_id}`}
+      >
+        <EntityNameComponent name={`🎯 ${node.goal.name}`} />
+      </EntityLink>
+      {node.children.length > 0 && (
+        <Box sx={{ paddingTop: "0.25rem" }}>
+          {node.children.map((child) => renderGoalNode(child, 1))}
+        </Box>
+      )}
+    </Box>
+  );
 }
 
 function renderGoalNode(node: GoalNode, depth: number): JSX.Element {
