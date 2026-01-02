@@ -21,6 +21,7 @@ import {
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import FlareIcon from "@mui/icons-material/Flare";
+import FlagIcon from "@mui/icons-material/Flag";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -38,6 +39,7 @@ import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
 import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -69,6 +71,7 @@ import {
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TimePlanMergedActivities } from "@jupiter/core/time_plans/component/merged-activities";
 import { TimePlanByProjectActivities } from "@jupiter/core/time_plans/component/by-project-activities";
+import { TimePlanByProjectAndGoalsActivities } from "@jupiter/core/time_plans/component/by-project-and-goals-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
 import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
 import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
@@ -84,6 +87,7 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 enum View {
   MERGED = "merged",
   BY_PROJECT = "by-project",
+  BY_PROJECT_AND_GOALS = "by-project-and-goals",
 }
 
 const ParamsSchema = z.object({
@@ -353,6 +357,11 @@ export default function TimePlanView() {
     loaderData.allProjects?.map((p) => [p.ref_id, p]),
   );
 
+  const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
+  const allGoalsByRefId = new Map(
+    loaderData.allGoals?.map((g) => [g.ref_id, g]),
+  );
+
   const sortedSubJournals = sortJournalsNaturally(loaderData.subPeriodJournals);
 
   const timeAndEffortSummary = computeTimeAndEffortSummary({
@@ -556,6 +565,12 @@ export default function TimePlanView() {
                       icon: <FlareIcon />,
                       gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
+                    {
+                      value: View.BY_PROJECT_AND_GOALS,
+                      text: "By Project & Goals",
+                      icon: <FlagIcon />,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
+                    },
                   ],
                   (selected) => setSelectedView(selected),
                 ),
@@ -639,6 +654,24 @@ export default function TimePlanView() {
               selectedDoneness={selectedDoneness}
               projects={sortedProjects}
               projectsByRefId={allProjectsByRefId}
+            />
+          )}
+
+          {selectedView === View.BY_PROJECT_AND_GOALS && (
+            <TimePlanByProjectAndGoalsActivities
+              mustDoActivities={mustDoActivities}
+              otherActivities={otherActivities}
+              targetInboxTasksByRefId={targetInboxTasksByRefId}
+              targetBigPlansByRefId={targetBigPlansByRefId}
+              activityDoneness={loaderData.activityDoneness}
+              timeEventsByRefId={timeEventsByRefId}
+              selectedKinds={selectedKinds}
+              selectedFeasabilities={selectedFeasabilities}
+              selectedDoneness={selectedDoneness}
+              projects={sortedProjects}
+              projectsByRefId={allProjectsByRefId}
+              goals={sortedGoals}
+              goalsByRefId={allGoalsByRefId}
             />
           )}
         </SectionCard>
@@ -761,8 +794,9 @@ function inferDefaultSelectedView(workspace: Workspace, timePlan: TimePlan) {
     case RecurringTaskPeriod.WEEKLY:
       return View.MERGED;
     case RecurringTaskPeriod.MONTHLY:
+      return View.BY_PROJECT;
     case RecurringTaskPeriod.QUARTERLY:
     case RecurringTaskPeriod.YEARLY:
-      return View.BY_PROJECT;
+      return View.BY_PROJECT_AND_GOALS;
   }
 }

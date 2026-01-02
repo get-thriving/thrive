@@ -40,6 +40,7 @@ import {
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
+import HistoryIcon from "@mui/icons-material/History";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
   EntityCard,
@@ -298,6 +299,11 @@ export default function LifePlanView() {
                   text: "Milestones",
                   link: `/app/workspace/life-plan/milestones`,
                   icon: <TuneIcon />,
+                }),
+                NavSingle({
+                  text: "History of Work",
+                  link: `/app/workspace/life-plan/history-of-work`,
+                  icon: <HistoryIcon />,
                 }),
               ],
             }),
