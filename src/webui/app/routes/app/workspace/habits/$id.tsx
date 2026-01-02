@@ -40,7 +40,7 @@ import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
@@ -52,8 +52,6 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ChapterSelect } from "@jupiter/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "@jupiter/core/life_plan/sub/goals/components/select";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 
@@ -449,47 +447,24 @@ export default function Habit() {
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <ProjectSelect
-                name="project"
-                label="Project"
-                inputsEnabled={inputsEnabled}
-                disabled={!inputsEnabled}
-                allProjects={loaderData.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
-              />
-              <FieldError actionResult={actionData} fieldName="/project" />
-            </FormControl>
-            <FormControl fullWidth>
-              <ChapterSelect
-                name="chapter"
-                label="Chapter"
-                inputsEnabled={inputsEnabled}
-                disabled={!inputsEnabled}
-                onlyForProject={selectedProject}
-                allChapters={loaderData.allChapters}
-                defaultValue={loaderData.chapter?.ref_id}
-                birthday={birthdayDate}
-                today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
-              />
-              <FieldError actionResult={actionData} fieldName="/chapter" />
-            </FormControl>
-            <FormControl fullWidth>
-              <GoalSelect
-                name="goal"
-                label="Goal"
-                inputsEnabled={inputsEnabled}
-                disabled={!inputsEnabled}
-                onlyForProject={selectedProject}
-                allGoals={loaderData.allGoals}
-                defaultValue={loaderData.goal?.ref_id}
-              />
-              <FieldError actionResult={actionData} fieldName="/goal" />
-            </FormControl>
-          </Stack>
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={inputsEnabled}
+              allProjects={loaderData.allProjects}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={loaderData.allChapters}
+              chapterDefaultValue={loaderData.chapter?.ref_id}
+              allGoals={loaderData.allGoals}
+              goalDefaultValue={loaderData.goal?.ref_id}
+              birthday={birthdayDate}
+              today={aDateToDate(topLevelInfo.today)}
+              milestones={loaderData.allMilestones}
+            />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
+          </FormControl>
         )}
 
         <RecurringTaskGenParamsBlock

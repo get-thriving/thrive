@@ -27,6 +27,8 @@ from jupiter.framework.entity import (
 from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
+MAX_PROJECT_DEPTH_FROM_ROOT = 5
+
 
 @entity
 class Project(LeafEntity):
@@ -84,29 +86,21 @@ class Project(LeafEntity):
         )
 
     @update_entity_action
-    def change_parent(
-        self,
-        ctx: MutationContext,
-        parent_project_ref_id: EntityId,
-    ) -> "Project":
-        """Change the parent project of the project."""
-        if self.is_root:
-            raise Exception("Cannot change the parent of a root project.")
-        return self._new_version(
-            ctx,
-            parent_project_ref_id=parent_project_ref_id,
-        )
-
-    @update_entity_action
     def update(
         self,
         ctx: MutationContext,
         name: UpdateAction[ProjectName],
+        parent_project_ref_id: UpdateAction[EntityId | None],
     ) -> "Project":
         """Change the project."""
+        if self.is_root and parent_project_ref_id.should_change:
+            raise Exception("Cannot change the parent of a root project.")
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
+            parent_project_ref_id=parent_project_ref_id.or_else(
+                self.parent_project_ref_id
+            ),
         )
 
     @update_entity_action

@@ -30,8 +30,11 @@ export function HabitRepeatStrategySelect(
 
   function handleChangeStrategy(
     event: React.MouseEvent<HTMLElement>,
-    newStrategy: HabitRepeatsStrategy | "none",
+    newStrategy: HabitRepeatsStrategy | "none" | null,
   ) {
+    if (newStrategy === null) {
+      return;
+    }
     setStrategy(newStrategy);
     if (props.onChange) {
       props.onChange(newStrategy);

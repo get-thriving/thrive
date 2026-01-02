@@ -32,6 +32,9 @@ class MilestoneUnlinkEntitiesService:
             parent_ref_id=life_plan.ref_id,
             allow_archived=False,
         )
+        milestone_dates_by_ref_id = {
+            milestone.ref_id: milestone.date for milestone in all_milestones
+        }
 
         # For each chapter, update the milestone
         for chapter in chapters:
@@ -39,7 +42,7 @@ class MilestoneUnlinkEntitiesService:
                 chapter = chapter.update(
                     ctx,
                     birthday=life_plan.birthday_date,
-                    milestones=all_milestones,
+                    milestone_dates_by_ref_id=milestone_dates_by_ref_id,
                     project_ref_id=UpdateAction.do_nothing(),
                     name=UpdateAction.do_nothing(),
                     start_date=UpdateAction.change_to(
@@ -56,7 +59,7 @@ class MilestoneUnlinkEntitiesService:
                 chapter = chapter.update(
                     ctx,
                     birthday=life_plan.birthday_date,
-                    milestones=all_milestones,
+                    milestone_dates_by_ref_id=milestone_dates_by_ref_id,
                     project_ref_id=UpdateAction.change_to(chapter.project_ref_id),
                     name=UpdateAction.do_nothing(),
                     start_date=UpdateAction.do_nothing(),

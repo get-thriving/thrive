@@ -36,10 +36,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-  }),
-  z.object({
-    intent: z.literal("change-parent"),
-    parentProjectRefId: z.string(),
+    parentProjectRefId: z.string().optional(),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -102,15 +99,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-        });
-
-        return redirect(`/app/workspace/life-plan`);
-      }
-
-      case "change-parent": {
-        await apiClient.lifePlan.projectChangeParent({
-          ref_id: id,
-          parent_project_ref_id: form.parentProjectRefId,
+          parent_project_ref_id: {
+            should_change: form.parentProjectRefId !== undefined,
+            value: form.parentProjectRefId ?? null,
+          },
         });
 
         return redirect(`/app/workspace/life-plan`);
@@ -212,31 +204,28 @@ export default function Project() {
                 value: "update",
                 highlight: true,
               }),
-              ActionSingle({
-                text: "Change Parent",
-                value: "change-parent",
-                highlight: false,
-              }),
             ]}
           />
         }
       >
-        <FormControl fullWidth>
-          <ProjectSelect
-            name="parentProjectRefId"
-            label="Parent Project"
-            inputsEnabled={inputsEnabled && !isRootProject(loaderData.project)}
-            disabled={false}
-            allProjects={loaderData.allProjects}
-            value={selectedProject}
-            onChange={setSelectedProject}
-          />
+        {!isRootProject(loaderData.project) && (
+          <FormControl fullWidth>
+            <ProjectSelect
+              name="parentProjectRefId"
+              label="Parent Project"
+              inputsEnabled={inputsEnabled}
+              disabled={false}
+              allProjects={loaderData.allProjects}
+              value={selectedProject}
+              onChange={setSelectedProject}
+            />
 
-          <FieldError
-            actionResult={actionData}
-            fieldName="/parent_project_ref_id"
-          />
-        </FormControl>
+            <FieldError
+              actionResult={actionData}
+              fieldName="/parent_project_ref_id"
+            />
+          </FormControl>
+        )}
 
         <FormControl fullWidth>
           <InputLabel id="name">Name</InputLabel>

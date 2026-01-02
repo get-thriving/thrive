@@ -19,19 +19,15 @@ class LifePlanUpdateArgs:
     """Life plan update args.
 
     Attributes:
-        ref_id (str): A generic entity id.
         birthday (LifePlanUpdateArgsBirthday):
         birth_year (LifePlanUpdateArgsBirthYear):
     """
 
-    ref_id: str
     birthday: LifePlanUpdateArgsBirthday
     birth_year: LifePlanUpdateArgsBirthYear
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        ref_id = self.ref_id
-
         birthday = self.birthday.to_dict()
 
         birth_year = self.birth_year.to_dict()
@@ -40,7 +36,6 @@ class LifePlanUpdateArgs:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "ref_id": ref_id,
                 "birthday": birthday,
                 "birth_year": birth_year,
             }
@@ -54,14 +49,11 @@ class LifePlanUpdateArgs:
         from ..models.life_plan_update_args_birthday import LifePlanUpdateArgsBirthday
 
         d = dict(src_dict)
-        ref_id = d.pop("ref_id")
-
         birthday = LifePlanUpdateArgsBirthday.from_dict(d.pop("birthday"))
 
         birth_year = LifePlanUpdateArgsBirthYear.from_dict(d.pop("birth_year"))
 
         life_plan_update_args = cls(
-            ref_id=ref_id,
             birthday=birthday,
             birth_year=birth_year,
         )

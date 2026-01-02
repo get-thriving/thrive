@@ -269,9 +269,12 @@ export default function WorkspaceInit() {
                 allowNoneBirthYear={false}
               />
             </FormControl>
+            <FieldError actionResult={actionData} fieldName="/user_birthday" />
+            <FieldError
+              actionResult={actionData}
+              fieldName="/user_birth_year"
+            />
           </Stack>
-          <FieldError actionResult={actionData} fieldName="/user_birthday" />
-          <FieldError actionResult={actionData} fieldName="/user_birth_year" />
 
           <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

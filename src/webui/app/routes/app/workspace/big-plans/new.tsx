@@ -26,7 +26,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
@@ -47,7 +47,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -55,8 +55,6 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
-import { ChapterSelect } from "@jupiter/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "@jupiter/core/life_plan/sub/goals/components/select";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 
@@ -206,9 +204,6 @@ export default function NewBigPlan() {
   const inputsEnabled = navigation.state === "idle";
 
   const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
-  const [selectedProject, setSelectedProject] = useState<string>(
-    loaderData.rootProject.ref_id,
-  );
 
   return (
     <LeafPanel
@@ -258,49 +253,21 @@ export default function NewBigPlan() {
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <Stack direction="row" useFlexGap spacing={1}>
-            <FormControl fullWidth>
-              <ProjectSelect
-                name="project"
-                label="Project"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allProjects={loaderData.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
-              />
-              <FieldError actionResult={actionData} fieldName="/project" />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <ChapterSelect
-                name="chapter"
-                label="Chapter"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allChapters={loaderData.allChapters}
-                defaultValue={undefined}
-                birthday={birthdayDate}
-                today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
-              />
-              <FieldError actionResult={actionData} fieldName="/chapter" />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <GoalSelect
-                name="goal"
-                label="Goal"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allGoals={loaderData.allGoals}
-                defaultValue={undefined}
-              />
-              <FieldError actionResult={actionData} fieldName="/goal" />
-            </FormControl>
-          </Stack>
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={inputsEnabled}
+              allProjects={loaderData.allProjects}
+              projectDefaultValue={loaderData.rootProject.ref_id}
+              allChapters={loaderData.allChapters}
+              allGoals={loaderData.allGoals}
+              birthday={birthdayDate}
+              today={aDateToDate(topLevelInfo.today)}
+              milestones={loaderData.allMilestones}
+            />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
+          </FormControl>
         )}
 
         <FormControl fullWidth>

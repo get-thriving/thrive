@@ -189,6 +189,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                     root_project = root_project.update(
                         ctx=context.domain_context,
                         name=UpdateAction.change_to(args.workspace_root_project_name),
+                        parent_project_ref_id=UpdateAction.do_nothing(),
                     ).reorder_child_projects(
                         ctx=context.domain_context,
                         new_order=[],

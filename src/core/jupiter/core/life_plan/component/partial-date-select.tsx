@@ -36,6 +36,7 @@ interface PartialDateSelectProps {
 }
 
 export function PartialDateSelect(props: PartialDateSelectProps) {
+  const isBigScreen = useBigScreen();
   const partialDateExtracted = props.initialDate
     ? partialDateExtract(props.initialDate)
     : undefined;
@@ -131,14 +132,37 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
           exclusive
           fullWidth
           value={grossType}
-          onChange={(event, newGrossType) => setGrossType(newGrossType)}
+          onChange={(_, newGrossType) =>
+            newGrossType !== null && setGrossType(newGrossType)
+          }
         >
-          <ToggleButton value="absolute">Abs</ToggleButton>
-          <ToggleButton value="relative">Rel</ToggleButton>
-          <ToggleButton value="milestone">Milestone</ToggleButton>
-          <ToggleButton value="present">Present</ToggleButton>
-          <ToggleButton value="start">Start</ToggleButton>
-          <ToggleButton value="end">End</ToggleButton>
+          <ToggleButton
+            value="absolute"
+            size={isBigScreen ? "medium" : "small"}
+          >
+            Abs
+          </ToggleButton>
+          <ToggleButton
+            value="relative"
+            size={isBigScreen ? "medium" : "small"}
+          >
+            Rel
+          </ToggleButton>
+          <ToggleButton
+            value="milestone"
+            size={isBigScreen ? "medium" : "small"}
+          >
+            Milestone
+          </ToggleButton>
+          <ToggleButton value="present" size={isBigScreen ? "medium" : "small"}>
+            Present
+          </ToggleButton>
+          <ToggleButton value="start" size={isBigScreen ? "medium" : "small"}>
+            Start
+          </ToggleButton>
+          <ToggleButton value="end" size={isBigScreen ? "medium" : "small"}>
+            End
+          </ToggleButton>
         </ToggleButtonGroup>
 
         {grossType === "absolute" && (
@@ -241,8 +265,8 @@ export function PartialDateSelect(props: PartialDateSelectProps) {
               id={`${props.name}-relativeType`}
               exclusive
               value={relativeType}
-              onChange={(event, newRelativeType) =>
-                setRelativeType(newRelativeType)
+              onChange={(_, newRelativeType) =>
+                newRelativeType !== null && setRelativeType(newRelativeType)
               }
             >
               <ToggleButton value="year">Year</ToggleButton>

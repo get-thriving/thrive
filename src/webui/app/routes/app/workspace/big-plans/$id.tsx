@@ -37,7 +37,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
@@ -56,7 +56,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
@@ -77,8 +77,6 @@ import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-inp
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
-import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -389,10 +387,6 @@ export default function BigPlan() {
 
   const timeEventsByRefId = new Map();
 
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.project.ref_id,
-  );
-
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
@@ -427,13 +421,6 @@ export default function BigPlan() {
       },
     );
   }
-
-  useEffect(() => {
-    // Update states based on loader data. This is necessary because these
-    // two are not otherwise updated when the loader data changes. Which happens
-    // on a navigation event.
-    setSelectedProject(loaderData.project.ref_id);
-  }, [loaderData]);
 
   return (
     <LeafPanel
@@ -513,52 +500,30 @@ export default function BigPlan() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) && (
-            <Stack direction="row" spacing={2}>
-              <FormControl fullWidth>
-                <ProjectSelect
-                  name="project"
-                  label="Project"
-                  inputsEnabled={inputsEnabled}
-                  disabled={false}
-                  allProjects={loaderData.allProjects}
-                  value={selectedProject}
-                  onChange={setSelectedProject}
-                />
-                <FieldError actionResult={actionData} fieldName="/project" />
-              </FormControl>
-              <FormControl fullWidth>
-                <ChapterSelect
-                  name="chapter"
-                  label="Chapter"
-                  inputsEnabled={inputsEnabled}
-                  disabled={false}
-                  onlyForProject={selectedProject}
-                  allChapters={loaderData.allChapters}
-                  defaultValue={loaderData.chapter?.ref_id}
-                  birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                  today={aDateToDate(topLevelInfo.today)}
-                  milestones={loaderData.allMilestones}
-                />
-                <FieldError actionResult={actionData} fieldName="/chapter" />
-              </FormControl>
-              <FormControl fullWidth>
-                <GoalSelect
-                  name="goal"
-                  label="Goal"
-                  inputsEnabled={inputsEnabled}
-                  disabled={false}
-                  onlyForProject={selectedProject}
-                  allGoals={loaderData.allGoals}
-                  defaultValue={loaderData.goal?.ref_id}
-                />
-                <FieldError actionResult={actionData} fieldName="/goal" />
-              </FormControl>
-            </Stack>
+            <FormControl fullWidth>
+              <LifePlanAssociations
+                inputsEnabled={inputsEnabled}
+                allProjects={loaderData.allProjects}
+                projectDefaultValue={loaderData.project.ref_id}
+                allChapters={loaderData.allChapters}
+                chapterDefaultValue={loaderData.chapter?.ref_id}
+                allGoals={loaderData.allGoals}
+                goalDefaultValue={loaderData.goal?.ref_id}
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={aDateToDate(topLevelInfo.today)}
+                milestones={loaderData.allMilestones}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/project_ref_id"
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/chapter_ref_id"
+              />
+              <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
+            </FormControl>
           )}
-          {!isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.LIFE_PLAN,
-          ) && <input type="hidden" name="project" value={selectedProject} />}
 
           <FormControl fullWidth>
             <FormLabel id="eisen">Eisenhower</FormLabel>

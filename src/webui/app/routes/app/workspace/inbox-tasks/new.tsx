@@ -47,7 +47,7 @@ import {
   GlobalError,
 } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -63,8 +63,6 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 import { aDateToDate } from "#/core/common/adate";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
@@ -475,54 +473,26 @@ export default function NewInboxTask() {
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <ProjectSelect
-                name="project"
-                label="Project"
-                inputsEnabled={inputsEnabled && !blockedToSelectProject}
-                disabled={false}
-                allProjects={loaderData.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/project_ref_id"
-              />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <ChapterSelect
-                name="chapter"
-                label="Chapter"
-                inputsEnabled={inputsEnabled && !blockedToSelectProject}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allChapters={loaderData.allChapters}
-                value={selectedChapter}
-                onChange={setSelectedChapter}
-                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
-              />
-              <FieldError actionResult={actionData} fieldName="/chapter" />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <GoalSelect
-                name="goal"
-                label="Goal"
-                inputsEnabled={inputsEnabled && !blockedToSelectProject}
-                disabled={false}
-                onlyForProject={selectedProject}
-                allGoals={loaderData.allGoals}
-                value={selectedGoal}
-                onChange={setSelectedGoal}
-              />
-              <FieldError actionResult={actionData} fieldName="/goal" />
-            </FormControl>
-          </Stack>
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={inputsEnabled && !blockedToSelectProject}
+              allProjects={loaderData.allProjects}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={loaderData.allChapters}
+              chapterValue={selectedChapter}
+              onChapterChange={setSelectedChapter}
+              allGoals={loaderData.allGoals}
+              goalValue={selectedGoal}
+              onGoalChange={setSelectedGoal}
+              birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+              today={aDateToDate(topLevelInfo.today)}
+              milestones={loaderData.allMilestones}
+            />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
+          </FormControl>
         )}
 
         <FormControl fullWidth>

@@ -5,6 +5,7 @@ secrets
 .system.lock
 .idea
 .vscode
+.pycache
 *.map
 .DS_Store
 .sourcemaps

@@ -16,7 +16,6 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
-from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.persons.collection import PersonCollection
@@ -333,30 +332,18 @@ class ProjectReassignLinkedEntitiesService:
         ).find_all_generic(  # pyright: ignore[reportUndefinedVariable]
             project_ref_id=old_project.ref_id,
         )
+        milestone_dates_by_ref_id = {
+            milestone.ref_id: milestone.date for milestone in milestones
+        }
         for chapter in chapters:
             chapter = chapter.update(
                 ctx,
                 birthday=life_plan.birthday_date,
-                milestones=milestones,
-                name=UpdateAction.do_nothing(),
+                milestone_dates_by_ref_id=milestone_dates_by_ref_id,
                 project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                name=UpdateAction.do_nothing(),
                 start_date=UpdateAction.do_nothing(),
                 end_date=UpdateAction.do_nothing(),
             )
             await uow.get_for(Chapter).save(chapter)
             await progress_reporter.mark_updated(chapter)
-
-        goals = await uow.get_for(
-            Goal
-        ).find_all_generic(  # pyright: ignore[reportUndefinedVariable]
-            project_ref_id=old_project.ref_id,
-        )
-        for goal in goals:
-            goal = goal.update(
-                ctx,
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
-                name=UpdateAction.do_nothing(),
-                parent_goal_ref_id=UpdateAction.do_nothing(),
-            )
-            await uow.get_for(Goal).save(goal)
-            await progress_reporter.mark_updated(goal)

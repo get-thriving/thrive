@@ -13,5 +13,9 @@ export type ProjectUpdateArgs = {
         should_change: boolean;
         value?: ProjectName;
     };
+    parent_project_ref_id: {
+        should_change: boolean;
+        value?: (EntityId | null);
+    };
 };
 

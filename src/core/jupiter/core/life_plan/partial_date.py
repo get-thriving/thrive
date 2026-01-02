@@ -1,8 +1,7 @@
 """A date in the life plan."""
 
-from typing import Final
+from typing import Final, cast
 
-from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -180,7 +179,10 @@ class PartialDate(AtomicValue[str]):
         )
 
     def earliest_relative_to(
-        self, birthday: ADate, today: ADate, milestones: list[Milestone]
+        self,
+        birthday: ADate,
+        today: ADate,
+        milestone_dates_by_ref_id: dict[EntityId, ADate],
     ) -> ADate:
         """Get the earliest relative date to the birthday."""
         match self.type:
@@ -197,9 +199,7 @@ class PartialDate(AtomicValue[str]):
             case PartialDateType.RELATIVE_DECADE:
                 return birthday.add_years(self.year or 0)
             case PartialDateType.MILESTONE:
-                return next(
-                    m for m in milestones if m.ref_id == self.milestone_ref_id
-                ).date
+                return milestone_dates_by_ref_id[cast(EntityId, self.milestone_ref_id)]
             case PartialDateType.PERSENT:
                 return today
             case PartialDateType.START:
@@ -208,7 +208,10 @@ class PartialDate(AtomicValue[str]):
                 return birthday.add_years(MAX_AGE).end_of("year")
 
     def latest_relative_to(
-        self, birthday: ADate, today: ADate, milestones: list[Milestone]
+        self,
+        birthday: ADate,
+        today: ADate,
+        milestone_dates_by_ref_id: dict[EntityId, ADate],
     ) -> ADate:
         """Get the latest relative date to the birthday."""
         match self.type:
@@ -227,9 +230,7 @@ class PartialDate(AtomicValue[str]):
             case PartialDateType.RELATIVE_DECADE:
                 return birthday.add_years(self.year or 0 + 9).end_of("year")
             case PartialDateType.MILESTONE:
-                return next(
-                    m for m in milestones if m.ref_id == self.milestone_ref_id
-                ).date
+                return milestone_dates_by_ref_id[cast(EntityId, self.milestone_ref_id)]
             case PartialDateType.PERSENT:
                 return today
             case PartialDateType.START:

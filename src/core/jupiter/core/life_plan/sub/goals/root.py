@@ -16,6 +16,8 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+MAX_GOAL_DEPTH_FROM_ROOT = 5
+
 
 @entity
 class Goal(LeafEntity):

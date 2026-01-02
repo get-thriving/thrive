@@ -8,10 +8,13 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.goals.name import GoalName
-from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.life_plan.sub.goals.root import MAX_GOAL_DEPTH_FROM_ROOT, Goal
 from jupiter.core.life_plan.sub.goals.service.check_cycles import (
     GoalCheckCyclesService,
     GoalTreeHasCyclesError,
+)
+from jupiter.core.life_plan.sub.goals.service.compute_depth_from_root import (
+    GoalComputeDepthFromRootService,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
@@ -65,7 +68,14 @@ class GoalCreateUseCase(
         project = await uow.get_for(Project).load_by_id(args.project_ref_id)
 
         if args.parent_goal_ref_id is not None:
-            _ = await uow.get_for(Goal).load_by_id(args.parent_goal_ref_id)
+            parent_goal = await uow.get_for(Goal).load_by_id(args.parent_goal_ref_id)
+            parent_depth = await GoalComputeDepthFromRootService().do_it(
+                uow, parent_goal
+            )
+            if parent_depth + 1 >= MAX_GOAL_DEPTH_FROM_ROOT:
+                raise InputValidationError(
+                    f"Cannot create a goal deeper than {MAX_GOAL_DEPTH_FROM_ROOT} levels from the root."
+                )
 
         new_goal = Goal.new_goal(
             ctx=context.domain_context,

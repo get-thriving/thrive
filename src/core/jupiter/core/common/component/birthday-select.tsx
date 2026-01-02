@@ -125,7 +125,6 @@ export function BirthdaySelect(props: BirthdaySelectProps) {
             labelId={dayLabelId}
             readOnly={!props.inputsEnabled}
             value={birthdayDay}
-            name={dayLabelId}
             label="Birthday Day"
             onChange={handleDayChange}
           >
@@ -148,7 +147,6 @@ export function BirthdaySelect(props: BirthdaySelectProps) {
             labelId={monthLabelId}
             readOnly={!props.inputsEnabled}
             value={birthdayMonth}
-            name={monthLabelId}
             label="Birthday Month"
             onChange={handleMonthChange}
           >

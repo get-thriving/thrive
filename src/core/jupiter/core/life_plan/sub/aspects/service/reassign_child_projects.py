@@ -10,6 +10,7 @@ from jupiter.framework.context import MutationContext
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
 
 
 class ProjectReassignChildProjectsService:
@@ -38,9 +39,10 @@ class ProjectReassignChildProjectsService:
         )
 
         for child_project in child_projects:
-            child_project = child_project.change_parent(
+            child_project = child_project.update(
                 ctx,
-                parent_project_ref_id=new_parent_project_ref_id,
+                name=UpdateAction.do_nothing(),
+                parent_project_ref_id=UpdateAction.change_to(new_parent_project_ref_id),
             )
 
             await uow.get_for(Project).save(child_project)

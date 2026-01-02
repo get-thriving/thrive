@@ -42,21 +42,19 @@ import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { InboxTaskSourceLink } from "#/core/inbox_tasks/component/source-link";
 import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
+import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import {
   ActionSingle,
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import {
   constructFieldErrorName,
   constructFieldName,
 } from "#/core/infra/field-names";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
-import { ChapterSelect } from "#/core/life_plan/sub/chapters/components/select";
-import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 
@@ -329,68 +327,51 @@ export function InboxTaskPropertiesEditor(
           props.topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && (
-          <Stack direction="row" spacing={2}>
-            <FormControl fullWidth>
-              <ProjectSelect
-                name={constructFieldName(props.namePrefix, "project")}
-                label="Project"
-                inputsEnabled={props.inputsEnabled && corePropertyEditable}
-                disabled={!corePropertyEditable || blockedToSelectProject}
-                allProjects={props.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
-              />
-              <FieldError
-                actionResult={props.actionData}
-                fieldName={constructFieldErrorName(
-                  props.fieldsPrefix,
-                  "project_ref_id",
-                )}
-              />
-            </FormControl>
-
-            <FormControl fullWidth>
-              <ChapterSelect
-                name={constructFieldName(props.namePrefix, "chapter")}
-                label="Chapter"
-                inputsEnabled={props.inputsEnabled && corePropertyEditable}
-                disabled={!corePropertyEditable || blockedToSelectProject}
-                onlyForProject={selectedProject}
-                allChapters={props.allChapters}
-                value={selectedChapter}
-                onChange={setSelectedChapter}
-                birthday={lifePlanBirthdayDate(props.lifePlan)}
-                today={aDateToDate(props.topLevelInfo.today)}
-                milestones={props.allMilestones}
-              />
-              <FieldError
-                actionResult={props.actionData}
-                fieldName={constructFieldErrorName(
-                  props.fieldsPrefix,
-                  "chapter_ref_id",
-                )}
-              />
-            </FormControl>
-            <FormControl fullWidth>
-              <GoalSelect
-                name={constructFieldName(props.namePrefix, "goal")}
-                label="Goal"
-                inputsEnabled={props.inputsEnabled && corePropertyEditable}
-                disabled={!corePropertyEditable || blockedToSelectProject}
-                onlyForProject={selectedProject}
-                allGoals={props.allGoals}
-                value={selectedGoal}
-                onChange={setSelectedGoal}
-              />
-              <FieldError
-                actionResult={props.actionData}
-                fieldName={constructFieldErrorName(
-                  props.fieldsPrefix,
-                  "goal_ref_id",
-                )}
-              />
-            </FormControl>
-          </Stack>
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={
+                props.inputsEnabled &&
+                corePropertyEditable &&
+                !blockedToSelectProject
+              }
+              projectName={constructFieldName(props.namePrefix, "project")}
+              chapterName={constructFieldName(props.namePrefix, "chapter")}
+              goalName={constructFieldName(props.namePrefix, "goal")}
+              allProjects={props.allProjects}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={props.allChapters}
+              chapterValue={selectedChapter}
+              onChapterChange={setSelectedChapter}
+              allGoals={props.allGoals}
+              goalValue={selectedGoal}
+              onGoalChange={setSelectedGoal}
+              birthday={lifePlanBirthdayDate(props.lifePlan)}
+              today={aDateToDate(props.topLevelInfo.today)}
+              milestones={props.allMilestones}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "project_ref_id",
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "chapter_ref_id",
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "goal_ref_id",
+              )}
+            />
+          </FormControl>
         )}
 
         <FormControl fullWidth>

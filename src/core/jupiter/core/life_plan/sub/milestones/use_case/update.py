@@ -65,6 +65,9 @@ class MilestoneUpdateUseCase(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
             )
+            milestone_dates_by_ref_id = {
+                milestone.ref_id: milestone.date for milestone in all_milestones
+            }
             chapters = await uow.get_for(Chapter).find_all(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
@@ -76,7 +79,7 @@ class MilestoneUpdateUseCase(
                         _ = chapter.update(
                             ctx=context.domain_context,
                             birthday=life_plan.birthday_date,
-                            milestones=all_milestones,
+                            milestone_dates_by_ref_id=milestone_dates_by_ref_id,
                             project_ref_id=UpdateAction.do_nothing(),
                             name=UpdateAction.do_nothing(),
                             start_date=args.date.transform(
@@ -90,7 +93,7 @@ class MilestoneUpdateUseCase(
                         _ = chapter.update(
                             ctx=context.domain_context,
                             birthday=life_plan.birthday_date,
-                            milestones=all_milestones,
+                            milestone_dates_by_ref_id=milestone_dates_by_ref_id,
                             project_ref_id=UpdateAction.do_nothing(),
                             name=UpdateAction.do_nothing(),
                             start_date=UpdateAction.do_nothing(),

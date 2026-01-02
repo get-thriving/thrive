@@ -4,12 +4,10 @@
 /* eslint-disable */
 import type { Birthday } from './Birthday';
 import type { BirthYear } from './BirthYear';
-import type { EntityId } from './EntityId';
 /**
  * Life plan update args.
  */
 export type LifePlanUpdateArgs = {
-    ref_id: EntityId;
     birthday: {
         should_change: boolean;
         value?: Birthday;
