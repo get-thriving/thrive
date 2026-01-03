@@ -370,7 +370,9 @@ class WebApiAppForm(
                     name=use_case.__name__,
                     trigger="cron",
                     day="*",
-                    hour=str(min(23, idx)),
+                    hour=min(23, 20+idx),
+                    minute=55,
+                    # hour=str(min(23, idx)),
                 )
             elif isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
