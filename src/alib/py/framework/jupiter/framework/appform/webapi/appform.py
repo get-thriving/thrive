@@ -372,7 +372,7 @@ class WebApiAppForm(
                     trigger="cron",
                     day="*",
                     hour=22,
-                    minute=25+cron_idx*15,
+                    minute=min(59, 28+cron_idx*15),
                     # hour=str(min(23, cron_idx)),
                 )
                 cron_idx += 1
