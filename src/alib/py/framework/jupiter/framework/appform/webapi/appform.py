@@ -371,12 +371,11 @@ class WebApiAppForm(
                     trigger="cron",
                     day="*",
                     hour=min(23, 21+idx),
-                    minute=10,
+                    minute=15,
                     # hour=str(min(23, idx)),
                 )
                 from rich import print
                 print(the_job)
-                print(the_job.next_run_time)
             elif isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
             else:
