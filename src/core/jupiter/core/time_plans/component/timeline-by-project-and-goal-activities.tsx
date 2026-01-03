@@ -6,6 +6,7 @@ import type {
   InboxTask,
   ProjectSummary,
   TimeEventInDayBlock,
+  TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
@@ -15,10 +16,11 @@ import { TimePlanActivityTarget } from "@jupiter/webapi-client";
 
 import { computeProjectHierarchicalNameFromRoot } from "#/core/life_plan/sub/aspects/root";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
+import { TimePlanTimelineActivityBars } from "#/core/time_plans/sub/activity/component/timeline";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
-import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
 
-interface TimePlanByProjectAndGoalsActivitiesProps {
+interface TimePlanTimelineByProjectAndGoalActivitiesProps {
+  timePlan: TimePlan;
   mustDoActivities: TimePlanActivity[];
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
@@ -34,8 +36,8 @@ interface TimePlanByProjectAndGoalsActivitiesProps {
   goalsByRefId: Map<EntityId, GoalSummary>;
 }
 
-export function TimePlanByProjectAndGoalsActivities(
-  props: TimePlanByProjectAndGoalsActivitiesProps,
+export function TimePlanTimelineByProjectAndGoalActivities(
+  props: TimePlanTimelineByProjectAndGoalActivitiesProps,
 ) {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -52,7 +54,6 @@ export function TimePlanByProjectAndGoalsActivities(
             ?.goal_ref_id as EntityId | null | undefined) ?? null
         );
     }
-    throw new Error("Should not get here");
   }
 
   function fullGoalName(goal: GoalSummary): string {
@@ -82,19 +83,17 @@ export function TimePlanByProjectAndGoalsActivities(
       {props.mustDoActivities.length > 0 && (
         <>
           <StandardDivider title="Must Do" size="large" />
-
-          <TimePlanActivityList
-            topLevelInfo={topLevelInfo}
+          <TimePlanTimelineActivityBars
+            timePlan={props.timePlan}
             activities={props.mustDoActivities}
+            topLevelToday={topLevelInfo.today}
             inboxTasksByRefId={props.targetInboxTasksByRefId}
-            timePlansByRefId={new Map()}
             bigPlansByRefId={props.targetBigPlansByRefId}
             activityDoneness={props.activityDoneness}
-            fullInfo
+            timeEventsByRefId={props.timeEventsByRefId}
             filterKind={props.selectedKinds}
             filterFeasability={props.selectedFeasabilities}
             filterDoneness={props.selectedDoneness}
-            timeEventsByRefId={props.timeEventsByRefId}
           />
         </>
       )}
@@ -113,7 +112,6 @@ export function TimePlanByProjectAndGoalsActivities(
                   ?.project_ref_id === project.ref_id
               );
           }
-          throw new Error("Should not get here");
         });
 
         if (projectActivities.length === 0) {
@@ -153,19 +151,17 @@ export function TimePlanByProjectAndGoalsActivities(
               return (
                 <Fragment key={`project-${project.ref_id}-goal-${goal.ref_id}`}>
                   <StandardDivider title={fullGoalName(goal)} size="medium" />
-
-                  <TimePlanActivityList
-                    topLevelInfo={topLevelInfo}
+                  <TimePlanTimelineActivityBars
+                    timePlan={props.timePlan}
                     activities={goalActivities}
+                    topLevelToday={topLevelInfo.today}
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
-                    timePlansByRefId={new Map()}
                     bigPlansByRefId={props.targetBigPlansByRefId}
                     activityDoneness={props.activityDoneness}
-                    fullInfo
+                    timeEventsByRefId={props.timeEventsByRefId}
                     filterKind={props.selectedKinds}
                     filterFeasability={props.selectedFeasabilities}
                     filterDoneness={props.selectedDoneness}
-                    timeEventsByRefId={props.timeEventsByRefId}
                   />
                 </Fragment>
               );
@@ -174,19 +170,17 @@ export function TimePlanByProjectAndGoalsActivities(
             {noGoalActivities.length > 0 && (
               <>
                 <StandardDivider title="No Goal" size="medium" />
-
-                <TimePlanActivityList
-                  topLevelInfo={topLevelInfo}
+                <TimePlanTimelineActivityBars
+                  timePlan={props.timePlan}
                   activities={noGoalActivities}
+                  topLevelToday={topLevelInfo.today}
                   inboxTasksByRefId={props.targetInboxTasksByRefId}
-                  timePlansByRefId={new Map()}
                   bigPlansByRefId={props.targetBigPlansByRefId}
                   activityDoneness={props.activityDoneness}
-                  fullInfo
+                  timeEventsByRefId={props.timeEventsByRefId}
                   filterKind={props.selectedKinds}
                   filterFeasability={props.selectedFeasabilities}
                   filterDoneness={props.selectedDoneness}
-                  timeEventsByRefId={props.timeEventsByRefId}
                 />
               </>
             )}

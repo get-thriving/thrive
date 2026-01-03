@@ -198,6 +198,7 @@ export default function NewTimePlan() {
             inputsEnabled={inputsEnabled}
             disabled={false}
             allProjects={loaderData.allProjects}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
             defaultValue={undefined}
           />
           <FieldError actionResult={actionData} fieldName="/projectRefIds" />
@@ -210,6 +211,7 @@ export default function NewTimePlan() {
             inputsEnabled={inputsEnabled}
             disabled={false}
             allChapters={loaderData.allChapters}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
             defaultValue={undefined}
             birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
             today={aDateToDate(topLevelInfo.today)}
@@ -225,6 +227,7 @@ export default function NewTimePlan() {
             inputsEnabled={inputsEnabled}
             disabled={false}
             allGoals={loaderData.allGoals}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
             defaultValue={undefined}
           />
           <FieldError actionResult={actionData} fieldName="/goalRefIds" />

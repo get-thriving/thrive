@@ -19,6 +19,7 @@ from jupiter.core.time_plans.life_plan_links import (
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -57,11 +58,15 @@ class TimePlanChangeTimeConfigUseCase(
         """Execute the command's action."""
         workspace = context.workspace
         time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
-        time_plan = time_plan.change_time_config(
-            context.domain_context, args.right_now, args.period
-        )
-        await uow.get_for(TimePlan).save(time_plan)
-        await progress_reporter.mark_updated(time_plan)
+        # We allow updating life-plan links even for generated time plans.
+        # But changing the time config (right_now/period) is only allowed when
+        # the time plan source permits user changes.
+        if args.right_now.should_change or args.period.should_change:
+            time_plan = time_plan.change_time_config(
+                context.domain_context, args.right_now, args.period
+            )
+            await uow.get_for(TimePlan).save(time_plan)
+            await progress_reporter.mark_updated(time_plan)
 
         desired_chapter_ref_ids = set(args.chapter_ref_ids.or_else([]))
         desired_project_ref_ids = set(args.project_ref_ids.or_else([]))
@@ -74,6 +79,18 @@ class TimePlanChangeTimeConfigUseCase(
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
+            max_links = life_plan.time_plan_max_life_plan_links
+
+            if len(desired_chapter_ref_ids) > max_links:
+                raise InputValidationError(
+                    f"You can select at most {max_links} chapters."
+                )
+            if len(desired_project_ref_ids) > max_links:
+                raise InputValidationError(
+                    f"You can select at most {max_links} projects."
+                )
+            if len(desired_goal_ref_ids) > max_links:
+                raise InputValidationError(f"You can select at most {max_links} goals.")
 
             if desired_chapter_ref_ids:
                 chapters = await uow.get_for(Chapter).find_all(

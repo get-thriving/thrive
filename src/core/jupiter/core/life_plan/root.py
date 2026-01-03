@@ -22,6 +22,8 @@ from jupiter.framework.entity import (
 )
 from jupiter.framework.update_action import UpdateAction
 
+TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
+
 
 @entity
 class LifePlan(TrunkEntity):
@@ -32,6 +34,7 @@ class LifePlan(TrunkEntity):
     birthday: Birthday
     birth_year: BirthYear
     max_age: int
+    time_plan_max_life_plan_links: int
 
     projects = ContainsMany(Project, life_plan_ref_id=IsRefId())
     chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
@@ -54,6 +57,7 @@ class LifePlan(TrunkEntity):
             birthday=birthday,
             birth_year=birth_year,
             max_age=MAX_AGE,
+            time_plan_max_life_plan_links=TIME_PLAN_MAX_LIFE_PLAN_LINKS,
         )
 
     @update_entity_action

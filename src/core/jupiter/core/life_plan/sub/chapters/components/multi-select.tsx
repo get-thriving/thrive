@@ -26,6 +26,7 @@ interface ChapterMultiSelectProps {
   defaultValue?: EntityId[];
   value?: EntityId[];
   onChange?: (value: EntityId[]) => void;
+  maxSelections?: number;
   birthday: DateTime;
   today: DateTime;
   milestones: MilestoneSummary[];
@@ -106,7 +107,27 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
         multiple
         disableCloseOnSelect
         value={selectedChapters}
+        getOptionDisabled={(o) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (!maxSelections) {
+            return false;
+          }
+          const selectedCount = selectedChapters.length;
+          const alreadySelected = selectedChapters.some(
+            (x) => x.chapter_ref_id === o.chapter_ref_id,
+          );
+          return selectedCount >= maxSelections && !alreadySelected;
+        }}
         onChange={(_, v) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (
+            maxSelections &&
+            v.length > maxSelections &&
+            v.length > selectedChapters.length
+          ) {
+            // User is trying to add more than allowed; ignore.
+            return;
+          }
           setSelectedChapters(v);
           if (props.onChange) {
             props.onChange(v.map((x) => x.chapter_ref_id));
@@ -122,7 +143,17 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
             </li>
           );
         }}
-        renderInput={(params) => <TextField {...params} label={props.label} />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={props.label}
+            helperText={
+              props.maxSelections
+                ? `Select up to ${props.maxSelections}.`
+                : undefined
+            }
+          />
+        )}
       />
 
       <input

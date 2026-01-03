@@ -16,7 +16,7 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
-interface TimePlanByProjectActivitiesProps {
+interface TimePlanListByProjectActivitiesProps {
   mustDoActivities: TimePlanActivity[];
   otherActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
@@ -30,8 +30,8 @@ interface TimePlanByProjectActivitiesProps {
   projectsByRefId: Map<string, ProjectSummary>;
 }
 
-export function TimePlanByProjectActivities(
-  props: TimePlanByProjectActivitiesProps,
+export function TimePlanListByProjectActivities(
+  props: TimePlanListByProjectActivitiesProps,
 ) {
   const topLevelInfo = useContext(TopLevelInfoContext);
 

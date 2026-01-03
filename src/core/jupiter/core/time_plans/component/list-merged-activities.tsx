@@ -13,7 +13,7 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TimePlanActivityList } from "#/core/time_plans/sub/activity/component/list";
 import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
-interface TimePlanMergedActivitiesProps {
+interface TimePlanListMergedActivitiesProps {
   mustDoActivities: TimePlanActivity[];
   niceToHaveActivities: TimePlanActivity[];
   stretchActivities: TimePlanActivity[];
@@ -26,7 +26,9 @@ interface TimePlanMergedActivitiesProps {
   selectedDoneness: boolean[];
 }
 
-export function TimePlanMergedActivities(props: TimePlanMergedActivitiesProps) {
+export function TimePlanListMergedActivities(
+  props: TimePlanListMergedActivitiesProps,
+) {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   return (

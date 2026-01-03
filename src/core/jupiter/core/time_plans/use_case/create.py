@@ -102,6 +102,18 @@ class TimePlanCreateUseCase(
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
+            max_links = life_plan.time_plan_max_life_plan_links
+
+            if len(set(chapter_ref_ids)) > max_links:
+                raise InputValidationError(
+                    f"You can select at most {max_links} chapters."
+                )
+            if len(set(project_ref_ids)) > max_links:
+                raise InputValidationError(
+                    f"You can select at most {max_links} projects."
+                )
+            if len(set(goal_ref_ids)) > max_links:
+                raise InputValidationError(f"You can select at most {max_links} goals.")
 
             if chapter_ref_ids:
                 chapters = await uow.get_for(Chapter).find_all(

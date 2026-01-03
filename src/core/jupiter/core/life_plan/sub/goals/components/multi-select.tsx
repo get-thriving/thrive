@@ -21,6 +21,7 @@ interface GoalMultiSelectProps {
   defaultValue?: EntityId[];
   value?: EntityId[];
   onChange?: (value: EntityId[]) => void;
+  maxSelections?: number;
 }
 
 export function GoalMultiSelect(props: GoalMultiSelectProps) {
@@ -94,7 +95,27 @@ export function GoalMultiSelect(props: GoalMultiSelectProps) {
         multiple
         disableCloseOnSelect
         value={selectedGoals}
+        getOptionDisabled={(o) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (!maxSelections) {
+            return false;
+          }
+          const selectedCount = selectedGoals.length;
+          const alreadySelected = selectedGoals.some(
+            (x) => x.goal_ref_id === o.goal_ref_id,
+          );
+          return selectedCount >= maxSelections && !alreadySelected;
+        }}
         onChange={(_, v) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (
+            maxSelections &&
+            v.length > maxSelections &&
+            v.length > selectedGoals.length
+          ) {
+            // User is trying to add more than allowed; ignore.
+            return;
+          }
           setSelectedGoals(v);
           if (props.onChange) {
             props.onChange(v.map((x) => x.goal_ref_id));
@@ -110,7 +131,17 @@ export function GoalMultiSelect(props: GoalMultiSelectProps) {
             </li>
           );
         }}
-        renderInput={(params) => <TextField {...params} label={props.label} />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={props.label}
+            helperText={
+              props.maxSelections
+                ? `Select up to ${props.maxSelections}.`
+                : undefined
+            }
+          />
+        )}
       />
 
       <input

@@ -23,6 +23,7 @@ interface ProjectMultiSelectProps {
   defaultValue?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
+  maxSelections?: number;
 }
 
 export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
@@ -79,7 +80,27 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
         multiple
         disableCloseOnSelect
         value={selectedProjects}
+        getOptionDisabled={(o) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (!maxSelections) {
+            return false;
+          }
+          const selectedCount = selectedProjects.length;
+          const alreadySelected = selectedProjects.some(
+            (x) => x.project_ref_id === o.project_ref_id,
+          );
+          return selectedCount >= maxSelections && !alreadySelected;
+        }}
         onChange={(e, v) => {
+          const maxSelections = props.maxSelections ?? null;
+          if (
+            maxSelections &&
+            v.length > maxSelections &&
+            v.length > selectedProjects.length
+          ) {
+            // User is trying to add more than allowed; ignore.
+            return;
+          }
           setSelectedProjects(v);
           if (props.onChange) {
             props.onChange(v.map((x) => x.project_ref_id));
@@ -96,7 +117,17 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
             </li>
           );
         }}
-        renderInput={(params) => <TextField {...params} label={props.label} />}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label={props.label}
+            helperText={
+              props.maxSelections
+                ? `Select up to ${props.maxSelections}.`
+                : undefined
+            }
+          />
+        )}
       />
 
       <input

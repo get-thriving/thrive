@@ -21,5 +21,6 @@ export type LifePlan = {
     birthday: Birthday;
     birth_year: BirthYear;
     max_age: number;
+    time_plan_max_life_plan_links: number;
 };
 
