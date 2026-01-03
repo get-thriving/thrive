@@ -371,7 +371,7 @@ class WebApiAppForm(
                     trigger="cron",
                     day="*",
                     hour=min(23, 21+idx),
-                    minute=03,
+                    minute=10,
                     # hour=str(min(23, idx)),
                 )
                 from rich import print
