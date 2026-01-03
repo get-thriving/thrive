@@ -362,6 +362,7 @@ class WebApiAppForm(
                         continue
                     app._add_use_case_type(use_case_type, mr)
 
+        cron_idx = 0
         for idx, (use_case, command) in enumerate(app._use_case_commands.items()):
             if isinstance(command, CronCommand):
                 the_job = app._scheduler.add_job(
@@ -370,12 +371,13 @@ class WebApiAppForm(
                     name=use_case.__name__,
                     trigger="cron",
                     day="*",
-                    hour=min(23, 21+idx),
-                    minute=15,
+                    hour=min(23, 21+cron_idx),
+                    minute=38,
                     # hour=str(min(23, idx)),
                 )
                 from rich import print
                 print(the_job)
+                cron_idx += 1
             elif isinstance(command, UseCaseCommand):
                 command.attach_route(app._fast_app)
             else:
