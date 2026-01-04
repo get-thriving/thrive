@@ -371,9 +371,7 @@ class WebApiAppForm(
                     name=use_case.__name__,
                     trigger="cron",
                     day="*",
-                    hour=22,
-                    minute=min(59, 28 + cron_idx * 15),
-                    # hour=str(min(23, cron_idx)),
+                    hour=min(23, cron_idx),
                 )
                 cron_idx += 1
             elif isinstance(command, UseCaseCommand):
