@@ -28,6 +28,7 @@ interface TimePlanListByProjectActivitiesProps {
   selectedDoneness: boolean[];
   projects: ProjectSummary[];
   projectsByRefId: Map<string, ProjectSummary>;
+  showEmptyGroups?: boolean;
 }
 
 export function TimePlanListByProjectActivities(
@@ -74,7 +75,7 @@ export function TimePlanListByProjectActivities(
           throw new Error("Should not get here");
         });
 
-        if (projectActivities.length === 0) {
+        if (projectActivities.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 

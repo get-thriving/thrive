@@ -305,6 +305,11 @@ class ProjectReassignLinkedEntitiesService:
                         eisen=habit.gen_params.eisen,
                         difficulty=habit.gen_params.difficulty,
                     )
+                case InboxTaskSource.EMAIL_TASK | InboxTaskSource.SLACK_TASK:
+                    updated_inbox_task = inbox_task.just_update_project(
+                        ctx,
+                        project_ref_id=new_project.ref_id,
+                    )
                 case _:
                     raise Exception(f"Unknown inbox task source: {inbox_task.source}")
             await uow.get_for(InboxTask).save(updated_inbox_task)

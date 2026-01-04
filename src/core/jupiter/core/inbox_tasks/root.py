@@ -1022,6 +1022,18 @@ class InboxTask(LeafEntity):
         )
 
     @update_entity_action
+    def just_update_project(
+        self,
+        ctx: MutationContext,
+        project_ref_id: EntityId,
+    ) -> "InboxTask":
+        """Just update the project."""
+        return self._new_version(
+            ctx,
+            project_ref_id=project_ref_id,
+        )
+
+    @update_entity_action
     def change_due_date_via_time_plan(
         self,
         ctx: MutationContext,

@@ -208,6 +208,17 @@ export default function Project() {
           />
         }
       >
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="name"
+            name="name"
+            readOnly={!inputsEnabled}
+            defaultValue={loaderData.project.name}
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
         {!isRootProject(loaderData.project) && (
           <FormControl fullWidth>
             <ProjectSelect
@@ -226,17 +237,6 @@ export default function Project() {
             />
           </FormControl>
         )}
-
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.project.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
       </SectionCard>
 
       <SectionCard

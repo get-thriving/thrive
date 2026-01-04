@@ -99,6 +99,11 @@ enum ViewMode {
   TIMELINE = "timeline",
 }
 
+enum GroupVisibility {
+  NON_EMPTY_ONLY = "non-empty-only",
+  SHOW_ALL = "show-all",
+}
+
 const ParamsSchema = z.object({
   id: z.string(),
 });
@@ -355,6 +360,8 @@ export default function TimePlanView() {
   const [selectedView, setSelectedView] = useState<ViewMode>(
     inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
   );
+  const [selectedGroupVisibility, setSelectedGroupVisibility] =
+    useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
   const [selectedKinds, setSelectedKinds] = useState<TimePlanActivityKind[]>(
     [],
   );
@@ -393,6 +400,7 @@ export default function TimePlanView() {
     setSelectedView(
       inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
     );
+    setSelectedGroupVisibility(GroupVisibility.NON_EMPTY_ONLY);
     setSelectedKinds([]);
     setSelectedFeasabilities([]);
     setSelectedDoneness([]);
@@ -687,6 +695,24 @@ export default function TimePlanView() {
                   ],
                   setSelectedDoneness,
                 ),
+                FilterFewOptionsSpread(
+                  "Groups",
+                  selectedGroupVisibility,
+                  [
+                    {
+                      value: GroupVisibility.NON_EMPTY_ONLY,
+                      text: "Only non-empty",
+                      icon: <ViewListIcon />,
+                    },
+                    {
+                      value: GroupVisibility.SHOW_ALL,
+                      text: "Show all",
+                      icon: <ViewListIcon />,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
+                    },
+                  ],
+                  (selected) => setSelectedGroupVisibility(selected),
+                ),
               ]}
             />
           }
@@ -730,6 +756,9 @@ export default function TimePlanView() {
                 selectedDoneness={selectedDoneness}
                 projects={sortedProjects}
                 projectsByRefId={allProjectsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
               />
             )}
 
@@ -749,6 +778,9 @@ export default function TimePlanView() {
                 projectsByRefId={allProjectsByRefId}
                 goals={sortedGoals}
                 goalsByRefId={allGoalsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
               />
             )}
 
@@ -784,6 +816,9 @@ export default function TimePlanView() {
                 selectedDoneness={selectedDoneness}
                 projects={sortedProjects}
                 projectsByRefId={allProjectsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
               />
             )}
 
@@ -804,6 +839,9 @@ export default function TimePlanView() {
                 projectsByRefId={allProjectsByRefId}
                 goals={sortedGoals}
                 goalsByRefId={allGoalsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
               />
             )}
         </SectionCard>

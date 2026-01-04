@@ -116,6 +116,18 @@ export default function NewProject() {
         }
       >
         <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="Name"
+            name="name"
+            readOnly={!inputsEnabled}
+            type="text"
+            placeholder="Project name"
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <FormControl fullWidth>
           <ProjectSelect
             name="parentProjectRefId"
             label="Parent Project"
@@ -128,18 +140,6 @@ export default function NewProject() {
             actionResult={actionData}
             fieldName="/parent_project_ref_id"
           />
-        </FormControl>
-
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name="name"
-            readOnly={!inputsEnabled}
-            type="text"
-            placeholder="Project name"
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
       </SectionCard>
     </LeafPanel>

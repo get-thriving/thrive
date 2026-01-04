@@ -32,6 +32,7 @@ interface TimePlanListByProjectAndGoalsActivitiesProps {
   projectsByRefId: Map<string, ProjectSummary>;
   goals: GoalSummary[];
   goalsByRefId: Map<EntityId, GoalSummary>;
+  showEmptyGroups?: boolean;
 }
 
 export function TimePlanListByProjectAndGoalsActivities(
@@ -116,13 +117,17 @@ export function TimePlanListByProjectAndGoalsActivities(
           throw new Error("Should not get here");
         });
 
-        if (projectActivities.length === 0) {
+        if (projectActivities.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
         const fullProjectName = computeProjectHierarchicalNameFromRoot(
           project,
           props.projectsByRefId,
+        );
+
+        const projectGoals = props.goals.filter(
+          (g) => g.project_ref_id === project.ref_id,
         );
 
         const activitiesByGoalRefId = new Map<EntityId, TimePlanActivity[]>();
@@ -142,11 +147,14 @@ export function TimePlanListByProjectAndGoalsActivities(
           <Fragment key={`project-${project.ref_id}`}>
             <StandardDivider title={fullProjectName} size="large" />
 
-            {props.goals.map((goal) => {
+            {projectGoals.map((goal) => {
               const goalActivities = activitiesByGoalRefId.get(
                 goal.ref_id as EntityId,
               );
-              if (!goalActivities || goalActivities.length === 0) {
+              if (
+                (!goalActivities || goalActivities.length === 0) &&
+                !props.showEmptyGroups
+              ) {
                 return null;
               }
 
@@ -156,7 +164,7 @@ export function TimePlanListByProjectAndGoalsActivities(
 
                   <TimePlanActivityList
                     topLevelInfo={topLevelInfo}
-                    activities={goalActivities}
+                    activities={goalActivities ?? []}
                     inboxTasksByRefId={props.targetInboxTasksByRefId}
                     timePlansByRefId={new Map()}
                     bigPlansByRefId={props.targetBigPlansByRefId}
@@ -171,7 +179,7 @@ export function TimePlanListByProjectAndGoalsActivities(
               );
             })}
 
-            {noGoalActivities.length > 0 && (
+            {(noGoalActivities.length > 0 || props.showEmptyGroups) && (
               <>
                 <StandardDivider title="No Goal" size="medium" />
 
