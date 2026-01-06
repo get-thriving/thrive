@@ -1,0 +1,149 @@
+import type { ProjectSummary } from "@jupiter/webapi-client";
+import { ApiError, WorkspaceFeature } from "@jupiter/webapi-client";
+import { FormControl } from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { useActionData, useNavigation } from "@remix-run/react";
+import { StatusCodes } from "http-status-codes";
+import { useContext } from "react";
+import { z } from "zod";
+import { parseForm } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
+import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import {
+  SectionActions,
+  ActionSingle,
+} from "@jupiter/core/infra/component/section-actions";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({});
+
+const UpdateFormSchema = z.object({
+  project: z.string().optional(),
+});
+
+export const handle = {
+  displayType: DisplayType.BRANCH,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_projects: true,
+  });
+
+  const personSettingsResponse = await apiClient.prm.personLoadSettings({});
+
+  return json({
+    catchUpProject: personSettingsResponse.catch_up_project,
+    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+  });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const form = await parseForm(request, UpdateFormSchema);
+
+  try {
+    if (form.project === undefined) {
+      throw new Error("Invalid application state");
+    }
+
+    await apiClient.prm.personChangeCatchUpProject({
+      catch_up_project_ref_id: form.project,
+    });
+
+    return redirect(`/app/workspace/prm/settings`);
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function PersonsSettings() {
+  const navigation = useNavigation();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const actionData = useActionData<typeof action>();
+
+  const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const inputsEnabled = navigation.state === "idle";
+
+  return (
+    <BranchPanel
+      key={"persons/settings"}
+      returnLocation="/app/workspace/prm/persons"
+      inputsEnabled={inputsEnabled}
+    >
+      <GlobalError actionResult={actionData} />
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.LIFE_PLAN,
+      ) && (
+        <SectionCard
+          id="persons-settings"
+          title="Catch Up Project"
+          actions={
+            <SectionActions
+              id="persons-settings-actions"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Save",
+                  value: "change",
+                  highlight: true,
+                }),
+              ]}
+            />
+          }
+        >
+          <FormControl fullWidth>
+            <ProjectSelect
+              name="project"
+              label="Catch Up Project"
+              inputsEnabled={inputsEnabled}
+              disabled={false}
+              allProjects={loaderData.allProjects}
+              defaultValue={loaderData.catchUpProject.ref_id}
+            />
+            <FieldError
+              actionResult={actionData}
+              fieldName="/catch_up_project_key"
+            />
+          </FormControl>
+        </SectionCard>
+      )}
+    </BranchPanel>
+  );
+}
+
+export const ErrorBoundary = makeBranchErrorBoundary(
+  "/app/workspace/prm/persons",
+  ParamsSchema,
+  {
+    notFound: () => `Could not find the persons settings!`,
+    error: () =>
+      `There was an error loading the persons settings! Please try again!`,
+  },
+);

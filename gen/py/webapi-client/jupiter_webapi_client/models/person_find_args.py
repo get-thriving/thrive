@@ -17,6 +17,7 @@ class PersonFindArgs:
 
     Attributes:
         allow_archived (bool):
+        include_circle_ref_ids (bool):
         include_notes (bool):
         include_birthday_time_event_blocks (bool):
         include_catch_up_inbox_tasks (bool):
@@ -25,6 +26,7 @@ class PersonFindArgs:
     """
 
     allow_archived: bool
+    include_circle_ref_ids: bool
     include_notes: bool
     include_birthday_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
@@ -34,6 +36,8 @@ class PersonFindArgs:
 
     def to_dict(self) -> dict[str, Any]:
         allow_archived = self.allow_archived
+
+        include_circle_ref_ids = self.include_circle_ref_ids
 
         include_notes = self.include_notes
 
@@ -57,6 +61,7 @@ class PersonFindArgs:
         field_dict.update(
             {
                 "allow_archived": allow_archived,
+                "include_circle_ref_ids": include_circle_ref_ids,
                 "include_notes": include_notes,
                 "include_birthday_time_event_blocks": include_birthday_time_event_blocks,
                 "include_catch_up_inbox_tasks": include_catch_up_inbox_tasks,
@@ -72,6 +77,8 @@ class PersonFindArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         allow_archived = d.pop("allow_archived")
+
+        include_circle_ref_ids = d.pop("include_circle_ref_ids")
 
         include_notes = d.pop("include_notes")
 
@@ -100,6 +107,7 @@ class PersonFindArgs:
 
         person_find_args = cls(
             allow_archived=allow_archived,
+            include_circle_ref_ids=include_circle_ref_ids,
             include_notes=include_notes,
             include_birthday_time_event_blocks=include_birthday_time_event_blocks,
             include_catch_up_inbox_tasks=include_catch_up_inbox_tasks,

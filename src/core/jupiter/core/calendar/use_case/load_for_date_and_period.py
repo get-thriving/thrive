@@ -21,7 +21,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,

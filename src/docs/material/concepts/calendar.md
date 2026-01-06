@@ -33,7 +33,7 @@ You can attach many calendar events to a single [inbox task](./inbox-tasks.md).
 The inboxtask is their source. The events are "in day", and their name is
 identical to the inboxtask that generates them.
 
-Each birthday for a [person](./persons.md) generates a full day event on the
+Each birthday for a [person](./prm/persons.md) generates a full day event on the
 respectivebirthday in that year.
 
 Finally, each [vacation](./vacations.md) has a full day event for the full

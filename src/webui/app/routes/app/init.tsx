@@ -130,8 +130,6 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     );
   } catch (error) {
-    console.log("Here 3");
-    console.log(error);
     if (
       error instanceof ApiError &&
       error.status === StatusCodes.UNPROCESSABLE_ENTITY

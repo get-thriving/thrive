@@ -24,6 +24,7 @@ class PersonFindResultEntry:
 
     Attributes:
         person (Person): A person.
+        circle_ref_ids (list[str]):
         note (None | Note | Unset):
         birthday_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
@@ -31,6 +32,7 @@ class PersonFindResultEntry:
     """
 
     person: Person
+    circle_ref_ids: list[str]
     note: None | Note | Unset = UNSET
     birthday_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
     catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -41,6 +43,8 @@ class PersonFindResultEntry:
         from ..models.note import Note
 
         person = self.person.to_dict()
+
+        circle_ref_ids = self.circle_ref_ids
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -91,6 +95,7 @@ class PersonFindResultEntry:
         field_dict.update(
             {
                 "person": person,
+                "circle_ref_ids": circle_ref_ids,
             }
         )
         if note is not UNSET:
@@ -113,6 +118,8 @@ class PersonFindResultEntry:
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -201,6 +208,7 @@ class PersonFindResultEntry:
 
         person_find_result_entry = cls(
             person=person,
+            circle_ref_ids=circle_ref_ids,
             note=note,
             birthday_time_event_blocks=birthday_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,

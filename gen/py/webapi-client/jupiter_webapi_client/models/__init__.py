@@ -124,6 +124,17 @@ from .chore_update_args_period import ChoreUpdateArgsPeriod
 from .chore_update_args_project_ref_id import ChoreUpdateArgsProjectRefId
 from .chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
 from .chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
+from .circle import Circle
+from .circle_archive_args import CircleArchiveArgs
+from .circle_create_args import CircleCreateArgs
+from .circle_create_result import CircleCreateResult
+from .circle_find_args import CircleFindArgs
+from .circle_find_result import CircleFindResult
+from .circle_load_args import CircleLoadArgs
+from .circle_load_result import CircleLoadResult
+from .circle_remove_args import CircleRemoveArgs
+from .circle_update_args import CircleUpdateArgs
+from .circle_update_args_name import CircleUpdateArgsName
 from .clear_all_args import ClearAllArgs
 from .close_account_args import CloseAccountArgs
 from .code_block import CodeBlock
@@ -437,7 +448,7 @@ from .per_project_breakdown_item import PerProjectBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
 from .person_change_catch_up_project_args import PersonChangeCatchUpProjectArgs
-from .person_collection import PersonCollection
+from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
 from .person_entry import PersonEntry
@@ -449,7 +460,6 @@ from .person_load_result import PersonLoadResult
 from .person_load_settings_args import PersonLoadSettingsArgs
 from .person_load_settings_result import PersonLoadSettingsResult
 from .person_regen_args import PersonRegenArgs
-from .person_relationship import PersonRelationship
 from .person_remove_args import PersonRemoveArgs
 from .person_summary import PersonSummary
 from .person_update_args import PersonUpdateArgs
@@ -461,17 +471,17 @@ from .person_update_args_catch_up_due_at_day import PersonUpdateArgsCatchUpDueAt
 from .person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth
 from .person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
 from .person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
+from .person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
 from .person_update_args_name import PersonUpdateArgsName
-from .person_update_args_relationship import PersonUpdateArgsRelationship
 from .planned_time_and_effort_summary import PlannedTimeAndEffortSummary
 from .planned_time_and_effort_summary_activities_by_feasability import (
     PlannedTimeAndEffortSummaryActivitiesByFeasability,
 )
 from .planned_time_and_effort_summary_hours_by_feasability import PlannedTimeAndEffortSummaryHoursByFeasability
 from .planned_time_and_effort_summary_score_by_feasability import PlannedTimeAndEffortSummaryScoreByFeasability
+from .prm import PRM
 from .project import Project
 from .project_archive_args import ProjectArchiveArgs
-from .project_change_parent_args import ProjectChangeParentArgs
 from .project_create_args import ProjectCreateArgs
 from .project_create_result import ProjectCreateResult
 from .project_find_args import ProjectFindArgs
@@ -484,6 +494,7 @@ from .project_reorder_children_args import ProjectReorderChildrenArgs
 from .project_summary import ProjectSummary
 from .project_update_args import ProjectUpdateArgs
 from .project_update_args_name import ProjectUpdateArgsName
+from .project_update_args_parent_project_ref_id import ProjectUpdateArgsParentProjectRefId
 from .push_generation_extra_info import PushGenerationExtraInfo
 from .push_integration_group import PushIntegrationGroup
 from .quote_block import QuoteBlock
@@ -919,6 +930,17 @@ __all__ = (
     "ChoreUpdateArgsProjectRefId",
     "ChoreUpdateArgsSkipRule",
     "ChoreUpdateArgsStartAtDate",
+    "Circle",
+    "CircleArchiveArgs",
+    "CircleCreateArgs",
+    "CircleCreateResult",
+    "CircleFindArgs",
+    "CircleFindResult",
+    "CircleLoadArgs",
+    "CircleLoadResult",
+    "CircleRemoveArgs",
+    "CircleUpdateArgs",
+    "CircleUpdateArgsName",
     "ClearAllArgs",
     "CloseAccountArgs",
     "CodeBlock",
@@ -1228,7 +1250,7 @@ __all__ = (
     "Person",
     "PersonArchiveArgs",
     "PersonChangeCatchUpProjectArgs",
-    "PersonCollection",
+    "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
     "PersonEntry",
@@ -1240,7 +1262,6 @@ __all__ = (
     "PersonLoadSettingsArgs",
     "PersonLoadSettingsResult",
     "PersonRegenArgs",
-    "PersonRelationship",
     "PersonRemoveArgs",
     "PersonSummary",
     "PersonUpdateArgs",
@@ -1252,15 +1273,15 @@ __all__ = (
     "PersonUpdateArgsCatchUpDueAtMonth",
     "PersonUpdateArgsCatchUpEisen",
     "PersonUpdateArgsCatchUpPeriod",
+    "PersonUpdateArgsCircleRefIds",
     "PersonUpdateArgsName",
-    "PersonUpdateArgsRelationship",
     "PlannedTimeAndEffortSummary",
     "PlannedTimeAndEffortSummaryActivitiesByFeasability",
     "PlannedTimeAndEffortSummaryHoursByFeasability",
     "PlannedTimeAndEffortSummaryScoreByFeasability",
+    "PRM",
     "Project",
     "ProjectArchiveArgs",
-    "ProjectChangeParentArgs",
     "ProjectCreateArgs",
     "ProjectCreateResult",
     "ProjectFindArgs",
@@ -1273,6 +1294,7 @@ __all__ = (
     "ProjectSummary",
     "ProjectUpdateArgs",
     "ProjectUpdateArgsName",
+    "ProjectUpdateArgsParentProjectRefId",
     "PushGenerationExtraInfo",
     "PushIntegrationGroup",
     "QuoteBlock",

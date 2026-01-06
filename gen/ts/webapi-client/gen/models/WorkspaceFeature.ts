@@ -19,7 +19,7 @@ export enum WorkspaceFeature {
     LIFE_PLAN = 'life-plan',
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
-    PERSONS = 'persons',
+    PRM = 'prm',
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
 }

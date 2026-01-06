@@ -10,7 +10,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )

@@ -19,19 +19,24 @@ class PersonLoadSettingsResult:
 
     Attributes:
         catch_up_project (Project): The project.
+        max_circles_per_person (int):
     """
 
     catch_up_project: Project
+    max_circles_per_person: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         catch_up_project = self.catch_up_project.to_dict()
+
+        max_circles_per_person = self.max_circles_per_person
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "catch_up_project": catch_up_project,
+                "max_circles_per_person": max_circles_per_person,
             }
         )
 
@@ -44,8 +49,11 @@ class PersonLoadSettingsResult:
         d = dict(src_dict)
         catch_up_project = Project.from_dict(d.pop("catch_up_project"))
 
+        max_circles_per_person = d.pop("max_circles_per_person")
+
         person_load_settings_result = cls(
             catch_up_project=catch_up_project,
+            max_circles_per_person=max_circles_per_person,
         )
 
         person_load_settings_result.additional_properties = d

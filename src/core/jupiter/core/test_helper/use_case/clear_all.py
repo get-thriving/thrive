@@ -26,7 +26,7 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
 from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.prm.root import PRM
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -103,7 +103,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                 metric_collection = await uow.get_for(MetricCollection).load_by_parent(
                     workspace.ref_id,
                 )
-                person_collection = await uow.get_for(PersonCollection).load_by_parent(
+                prm = await uow.get_for(PRM).load_by_parent(
                     workspace.ref_id,
                 )
                 push_integration_group = await uow.get_for(
@@ -250,7 +250,7 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         collection_project_ref_id=root_project.ref_id,
                     )
 
-                    person_collection = person_collection.change_catch_up_project(
+                    prm = prm.change_catch_up_project(
                         context.domain_context,
                         catch_up_project_ref_id=root_project.ref_id,
                     )

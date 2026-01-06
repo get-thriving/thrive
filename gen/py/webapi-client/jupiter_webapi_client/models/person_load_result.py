@@ -24,6 +24,7 @@ class PersonLoadResult:
 
     Attributes:
         person (Person): A person.
+        circle_ref_ids (list[str]):
         birthday_time_event_blocks (list[TimeEventFullDaysBlock]):
         catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
@@ -35,6 +36,7 @@ class PersonLoadResult:
     """
 
     person: Person
+    circle_ref_ids: list[str]
     birthday_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -49,6 +51,8 @@ class PersonLoadResult:
         from ..models.note import Note
 
         person = self.person.to_dict()
+
+        circle_ref_ids = self.circle_ref_ids
 
         birthday_time_event_blocks = []
         for birthday_time_event_blocks_item_data in self.birthday_time_event_blocks:
@@ -86,6 +90,7 @@ class PersonLoadResult:
         field_dict.update(
             {
                 "person": person,
+                "circle_ref_ids": circle_ref_ids,
                 "birthday_time_event_blocks": birthday_time_event_blocks,
                 "catch_up_tasks": catch_up_tasks,
                 "catch_up_tasks_total_cnt": catch_up_tasks_total_cnt,
@@ -109,6 +114,8 @@ class PersonLoadResult:
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
         birthday_time_event_blocks = []
         _birthday_time_event_blocks = d.pop("birthday_time_event_blocks")
@@ -158,6 +165,7 @@ class PersonLoadResult:
 
         person_load_result = cls(
             person=person,
+            circle_ref_ids=circle_ref_ids,
             birthday_time_event_blocks=birthday_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,

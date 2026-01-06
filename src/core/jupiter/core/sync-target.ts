@@ -38,6 +38,8 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Metrics";
     case SyncTarget.PERSONS:
       return "Persons";
+    case SyncTarget.CIRCLES:
+      return "Circles";
     case SyncTarget.SLACK_TASKS:
       return "Slack Tasks";
     case SyncTarget.EMAIL_TASKS:

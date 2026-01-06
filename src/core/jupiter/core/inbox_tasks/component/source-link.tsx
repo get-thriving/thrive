@@ -126,7 +126,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/persons/${props.inboxTaskResult.person?.ref_id}`}
+          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Person" : "P"}
@@ -141,7 +141,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/persons/${props.inboxTaskResult.person?.ref_id}`}
+          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Person" : "P"}

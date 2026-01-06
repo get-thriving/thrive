@@ -1,0 +1,1 @@
+"""Persons sub-entities."""

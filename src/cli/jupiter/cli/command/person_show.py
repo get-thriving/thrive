@@ -5,13 +5,12 @@ from jupiter.cli.command.rendering import (
     entity_name_to_rich_text,
     period_to_rich_text,
     person_birthday_to_rich_text,
-    person_relationship_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.persons.use_case.find import (
+from jupiter.core.prm.sub.person.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
 )
@@ -33,7 +32,6 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
             result.entries,
             key=lambda p: (
                 p.person.archived,
-                p.person.relationship,
                 (
                     p.person.catch_up_params.period
                     if p.person.catch_up_params
@@ -58,8 +56,6 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
             person_text.append(entity_name_to_rich_text(person.name))
 
             person_text.append(" ")
-            person_text.append(person_relationship_to_rich_text(person.relationship))
-
             if person.catch_up_params:
                 person_text.append(" ")
                 person_text.append(period_to_rich_text(person.catch_up_params.period))

@@ -24,7 +24,6 @@ from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.persons.relationship import PersonRelationship
 from jupiter.core.push_integrations.sub.email.user_name import (
     EmailUserName,
 )
@@ -173,11 +172,6 @@ def period_to_rich_text(period: RecurringTaskPeriod) -> Text:
 def eisen_to_rich_text(eisen: Eisen) -> Text:
     """Transform an eisenhower value into text."""
     return Text(str(eisen.value).capitalize(), style="underline green")
-
-
-def person_relationship_to_rich_text(person_relationship: PersonRelationship) -> Text:
-    """Transform person relationship into text."""
-    return Text(str(person_relationship.value).capitalize(), style="underline yellow")
 
 
 def person_birthday_to_rich_text(birthday: Birthday) -> Text:

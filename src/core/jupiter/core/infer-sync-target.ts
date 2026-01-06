@@ -90,7 +90,12 @@ export function inferSyncTargetsForEnabledFeatures(
       inferredSyncTargets.push(syncTarget);
     } else if (
       syncTarget === SyncTarget.PERSONS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.CIRCLES &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (

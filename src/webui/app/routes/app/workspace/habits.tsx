@@ -649,7 +649,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                     title={`🎯 ${fullGoalName(goal, props.allGoalsByRefId)}`}
                     size="medium"
                   />
-                  {goalHabits.length === 0 && <EmptyHabitsHint />}g{" "}
+                  {goalHabits.length === 0 && <EmptyHabitsHint />}
                   {goalHabits.length > 0 && shouldShowByPeriods && (
                     <HabitsByPeriodsStack
                       habits={goalHabits}

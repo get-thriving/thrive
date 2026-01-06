@@ -129,7 +129,12 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.PERSON &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.CIRCLE &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
@@ -195,12 +200,12 @@ export function inferSourcesForEnabledFeatures(
       inferredSources.push(source);
     } else if (
       source === InboxTaskSource.PERSON_BIRTHDAY &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
       source === InboxTaskSource.PERSON_CATCH_UP &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (

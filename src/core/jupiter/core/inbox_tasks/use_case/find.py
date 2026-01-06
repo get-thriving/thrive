@@ -39,8 +39,8 @@ from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -198,7 +198,7 @@ class InboxTaskFindUseCase(
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
             workspace.ref_id,
         )
-        person_collection = await uow.get_for(PersonCollection).load_by_parent(
+        prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
         push_integrations_group = await uow.get_for(
@@ -322,7 +322,7 @@ class InboxTaskFindUseCase(
         metrics_by_ref_id = {m.ref_id: m for m in metrics}
 
         persons = await uow.get_for(Person).find_all(
-            parent_ref_id=person_collection.ref_id,
+            parent_ref_id=prm.ref_id,
             allow_archived=True,
             filter_ref_ids=[
                 it.source_entity_ref_id_for_sure

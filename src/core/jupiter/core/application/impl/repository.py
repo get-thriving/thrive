@@ -31,7 +31,7 @@ from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
-from jupiter.core.persons.name import PersonName
+from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -468,7 +468,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[PersonSummary]:
         """Find all summaries about persons."""
-        query = """select ref_id, name from person where person_collection_ref_id = :parent_ref_id"""
+        query = """select ref_id, name from person where prm_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (

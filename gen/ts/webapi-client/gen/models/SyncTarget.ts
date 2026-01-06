@@ -24,6 +24,7 @@ export enum SyncTarget {
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
     PERSONS = 'persons',
+    CIRCLES = 'circles',
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
     GAMIFICATION = 'gamification',

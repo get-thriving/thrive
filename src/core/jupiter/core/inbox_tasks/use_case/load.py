@@ -24,7 +24,7 @@ from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan

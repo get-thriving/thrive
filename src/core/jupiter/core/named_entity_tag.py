@@ -42,6 +42,7 @@ class NamedEntityTag(EnumValue):
     METRIC = "Metric"  # Metric.__name__
     METRIC_ENTRY = "MetricEntry"  # MetricEntry.__name__
     PERSON = "Person"  # Person.__name__
+    CIRCLE = "Circle"  # Circle.__name__
     SLACK_TASK = "SlackTask"  # SlackTask.__name__
     EMAIL_TASK = "EmailTask"  # EmailTask.__name__
 

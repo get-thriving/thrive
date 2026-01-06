@@ -14,7 +14,7 @@ from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
-from jupiter.core.persons.name import PersonName
+from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )

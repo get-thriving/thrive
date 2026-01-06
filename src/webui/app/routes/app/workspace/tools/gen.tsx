@@ -415,7 +415,7 @@ export default function Gen() {
 
               {isWorkspaceFeatureAvailable(
                 topLevelInfo.workspace,
-                WorkspaceFeature.PERSONS,
+                WorkspaceFeature.PRM,
               ) && (
                 <FormControl fullWidth>
                   <Autocomplete

@@ -34,7 +34,7 @@ from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.prm.root import PRM
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
@@ -151,7 +151,7 @@ class GetSummariesUseCase(
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
             workspace.ref_id,
         )
-        person_collection = await uow.get_for(PersonCollection).load_by_parent(
+        prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
 
@@ -315,11 +315,11 @@ class GetSummariesUseCase(
             )
         persons = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            workspace.is_feature_available(WorkspaceFeature.PRM)
             and args.include_persons
         ):
             persons = await uow.get(FastInfoRepository).find_all_person_summaries(
-                parent_ref_id=person_collection.workspace.ref_id,
+                parent_ref_id=prm.workspace.ref_id,
                 allow_archived=allow_archived,
             )
 

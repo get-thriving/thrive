@@ -49,8 +49,8 @@ export function workspaceFeatureName(feature: WorkspaceFeature): string {
       return "Smart Lists";
     case WorkspaceFeature.METRICS:
       return "Metrics";
-    case WorkspaceFeature.PERSONS:
-      return "Persons";
+    case WorkspaceFeature.PRM:
+      return "Personal Relationships Management";
     case WorkspaceFeature.SLACK_TASKS:
       return "Slack Tasks";
     case WorkspaceFeature.EMAIL_TASKS:
@@ -88,8 +88,8 @@ export function workspaceFeatureToDocsHelpSubject(
       return DocsHelpSubject.SMART_LISTS;
     case WorkspaceFeature.METRICS:
       return DocsHelpSubject.METRICS;
-    case WorkspaceFeature.PERSONS:
-      return DocsHelpSubject.PERSONS;
+    case WorkspaceFeature.PRM:
+      return DocsHelpSubject.PRM;
     case WorkspaceFeature.SLACK_TASKS:
       return DocsHelpSubject.SLACK_TASKS;
     case WorkspaceFeature.EMAIL_TASKS:

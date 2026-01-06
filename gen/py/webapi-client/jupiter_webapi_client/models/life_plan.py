@@ -25,6 +25,7 @@ class LifePlan:
         birthday (str): The birthday of a person.
         birth_year (int): The birth year of a person.
         max_age (int):
+        time_plan_max_life_plan_links (int):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -38,6 +39,7 @@ class LifePlan:
     birthday: str
     birth_year: int
     max_age: int
+    time_plan_max_life_plan_links: int
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -60,6 +62,8 @@ class LifePlan:
         birth_year = self.birth_year
 
         max_age = self.max_age
+
+        time_plan_max_life_plan_links = self.time_plan_max_life_plan_links
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -86,6 +90,7 @@ class LifePlan:
                 "birthday": birthday,
                 "birth_year": birth_year,
                 "max_age": max_age,
+                "time_plan_max_life_plan_links": time_plan_max_life_plan_links,
             }
         )
         if archival_reason is not UNSET:
@@ -116,6 +121,8 @@ class LifePlan:
 
         max_age = d.pop("max_age")
 
+        time_plan_max_life_plan_links = d.pop("time_plan_max_life_plan_links")
+
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -144,6 +151,7 @@ class LifePlan:
             birthday=birthday,
             birth_year=birth_year,
             max_age=max_age,
+            time_plan_max_life_plan_links=time_plan_max_life_plan_links,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

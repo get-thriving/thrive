@@ -8,6 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type PersonFindArgs = {
     allow_archived: boolean;
+    include_circle_ref_ids: boolean;
     include_notes: boolean;
     include_birthday_time_event_blocks: boolean;
     include_catch_up_inbox_tasks: boolean;

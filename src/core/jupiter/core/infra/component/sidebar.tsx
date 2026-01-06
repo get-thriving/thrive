@@ -283,16 +283,16 @@ export default function Sidebar(props: SidebarProps) {
 
             {isWorkspaceFeatureAvailable(
               topLevelInfo.workspace,
-              WorkspaceFeature.PERSONS,
+              WorkspaceFeature.PRM,
             ) && (
               <ListItem disablePadding>
                 <ListItemButton
-                  to="/app/workspace/persons"
+                  to="/app/workspace/prm/persons"
                   component={Link}
                   onClick={onClickNavigation}
                 >
                   <ListItemIcon>👨</ListItemIcon>
-                  <ListItemText primary="Persons" />
+                  <ListItemText primary="PRM" />
                 </ListItemButton>
               </ListItem>
             )}

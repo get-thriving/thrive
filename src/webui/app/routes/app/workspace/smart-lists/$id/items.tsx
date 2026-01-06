@@ -11,7 +11,7 @@ import { AnimatePresence } from "framer-motion";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Check from "@jupiter/core/infra/component/check";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -32,6 +32,7 @@ import {
 import {
   NavMultipleSpread,
   NavSingle,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -124,10 +125,24 @@ export default function SmartListViewItems() {
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 
+  const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
   const tagsByRefId: { [tag: string]: SmartListTag } = {};
   for (const tag of loaderData.smartListTags) {
     tagsByRefId[tag.ref_id] = tag;
   }
+
+  const filteredSmartListItems = loaderData.smartListItems.filter((item) => {
+    const doneOk =
+      selectedDoneness.length === 0 || selectedDoneness.includes(item.is_done);
+
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      item.tags_ref_id.some((tagRefId) => selectedTagsRefId.includes(tagRefId));
+
+    return doneOk && tagsOk;
+  });
 
   return (
     <BranchPanel
@@ -163,22 +178,38 @@ export default function SmartListViewItems() {
                 }),
               ],
             }),
+            FilterManyOptions(
+              "Done",
+              [
+                { value: true, text: "Is done" },
+                { value: false, text: "Is not done" },
+              ],
+              setSelectedDoneness,
+            ),
+            FilterManyOptions(
+              "Tags",
+              loaderData.smartListTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.tag_name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        {loaderData.smartListItems.length === 0 && (
+        {filteredSmartListItems.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
-            message="There are no items to show. You can create a new item."
+            message="There are no items to show with the current filters. You can create a new item."
             newEntityLocations={`/app/workspace/smart-lists/${loaderData.smartList.ref_id}/items/new`}
             helpSubject={DocsHelpSubject.SMART_LISTS}
           />
         )}
 
         <EntityStack>
-          {loaderData.smartListItems.map((item) => (
+          {filteredSmartListItems.map((item) => (
             <EntityCard
               key={`smart-list-item-${item.ref_id}`}
               entityId={`smart-list-item-${item.ref_id}`}

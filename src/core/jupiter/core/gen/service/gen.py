@@ -54,8 +54,8 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -155,10 +155,10 @@ class GenService:
         ):
             raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            not workspace.is_feature_available(WorkspaceFeature.PRM)
             and filter_person_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PRM)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
@@ -609,18 +609,16 @@ class GenService:
                     )
 
         if (
-            workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            workspace.is_feature_available(WorkspaceFeature.PRM)
             and SyncTarget.PERSONS in gen_targets
         ):
             async with progress_reporter.section("Generating for persons"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    person_collection = await uow.get_for(
-                        PersonCollection
-                    ).load_by_parent(
+                    prm = await uow.get_for(PRM).load_by_parent(
                         workspace.ref_id,
                     )
                     all_persons = await uow.get_for(Person).find_all(
-                        parent_ref_id=person_collection.ref_id,
+                        parent_ref_id=prm.ref_id,
                         filter_ref_ids=filter_person_ref_ids,
                     )
 
@@ -674,9 +672,7 @@ class GenService:
                         (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
-                project = all_projects_by_ref_id[
-                    person_collection.catch_up_project_ref_id
-                ]
+                project = all_projects_by_ref_id[prm.catch_up_project_ref_id]
 
                 for person in all_persons:
                     if person.catch_up_params is None:

@@ -48,7 +48,10 @@ nav:
           - 'Projects': 'concepts/projects.md'
           - 'Smart Lists': 'concepts/smart-lists.md'
           - 'Metrics': 'concepts/metrics.md'
-          - 'Personal Relationship Manager': 'concepts/persons.md'
+          - 'Personal Relationship Manager':
+                - 'Overview': 'concepts/prm/prm.md'
+                - 'Persons': 'concepts/prm/persons.md'
+                - 'Circles': 'concepts/prm/circles.md'
           - 'Gamification': 'concepts/gamification.md'
           - 'Reporting': 'concepts/reporting.md'
           - 'Stats': 'concepts/stats.md'

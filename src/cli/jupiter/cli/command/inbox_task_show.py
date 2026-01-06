@@ -106,7 +106,7 @@ class InboxTaskShow(
                     parent_entity_name_to_rich_text(metric.name),
                 )
             elif person is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PERSONS
+                WorkspaceFeature.PRM
             ):
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(

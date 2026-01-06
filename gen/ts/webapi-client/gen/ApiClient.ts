@@ -21,7 +21,7 @@ import { LifePlanService } from './services/LifePlanService';
 import { MetricsService } from './services/MetricsService';
 import { MotdService } from './services/MotdService';
 import { NotesService } from './services/NotesService';
-import { PersonsService } from './services/PersonsService';
+import { PrmService } from './services/PrmService';
 import { PushIntegrationsService } from './services/PushIntegrationsService';
 import { ReportService } from './services/ReportService';
 import { ScheduleService } from './services/ScheduleService';
@@ -53,7 +53,7 @@ export class ApiClient {
     public readonly metrics: MetricsService;
     public readonly motd: MotdService;
     public readonly notes: NotesService;
-    public readonly persons: PersonsService;
+    public readonly prm: PrmService;
     public readonly pushIntegrations: PushIntegrationsService;
     public readonly report: ReportService;
     public readonly schedule: ScheduleService;
@@ -96,7 +96,7 @@ export class ApiClient {
         this.metrics = new MetricsService(this.request);
         this.motd = new MotdService(this.request);
         this.notes = new NotesService(this.request);
-        this.persons = new PersonsService(this.request);
+        this.prm = new PrmService(this.request);
         this.pushIntegrations = new PushIntegrationsService(this.request);
         this.report = new ReportService(this.request);
         this.schedule = new ScheduleService(this.request);

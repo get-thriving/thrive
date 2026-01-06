@@ -234,8 +234,15 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.PERSON:
       return (
-        <EntityLink to={`/app/workspace/persons/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/prm/persons/${summary.ref_id}`}>
           <SlimChip label={"Persons"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.CIRCLE:
+      return (
+        <EntityLink to={`/app/workspace/prm/circles/${summary.ref_id}`}>
+          <SlimChip label={"Circle"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );

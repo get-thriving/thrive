@@ -7,7 +7,6 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
 import type { PersonName } from './PersonName';
-import type { PersonRelationship } from './PersonRelationship';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
@@ -19,10 +18,6 @@ export type PersonUpdateArgs = {
     name: {
         should_change: boolean;
         value?: PersonName;
-    };
-    relationship: {
-        should_change: boolean;
-        value?: PersonRelationship;
     };
     catch_up_period: {
         should_change: boolean;
@@ -55,6 +50,10 @@ export type PersonUpdateArgs = {
     birthday: {
         should_change: boolean;
         value?: (Birthday | null);
+    };
+    circle_ref_ids: {
+        should_change: boolean;
+        value?: Array<EntityId>;
     };
 };
 

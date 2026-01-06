@@ -31,7 +31,6 @@ import type { MilestoneLoadResult } from '../models/MilestoneLoadResult';
 import type { MilestoneRemoveArgs } from '../models/MilestoneRemoveArgs';
 import type { MilestoneUpdateArgs } from '../models/MilestoneUpdateArgs';
 import type { ProjectArchiveArgs } from '../models/ProjectArchiveArgs';
-import type { ProjectChangeParentArgs } from '../models/ProjectChangeParentArgs';
 import type { ProjectCreateArgs } from '../models/ProjectCreateArgs';
 import type { ProjectCreateResult } from '../models/ProjectCreateResult';
 import type { ProjectFindArgs } from '../models/ProjectFindArgs';
@@ -68,32 +67,6 @@ export class LifePlanService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/project-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for changing the parent project of a project.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public projectChangeParent(
-        requestBody?: ProjectChangeParentArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/project-change-parent',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

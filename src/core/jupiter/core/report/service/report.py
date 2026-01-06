@@ -37,8 +37,8 @@ from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     BigPlanWorkSummary,
@@ -116,10 +116,10 @@ class ReportService:
         ):
             raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            not workspace.is_feature_available(WorkspaceFeature.PRM)
             and filter_person_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PRM)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
@@ -203,11 +203,11 @@ class ReportService:
             )
             metrics_by_ref_id: dict[EntityId, Metric] = {m.ref_id: m for m in metrics}
 
-            person_collection = await uow.get_for(PersonCollection).load_by_parent(
+            prm = await uow.get_for(PRM).load_by_parent(
                 workspace.ref_id,
             )
             persons = await uow.get_for(Person).find_all(
-                parent_ref_id=person_collection.ref_id,
+                parent_ref_id=prm.ref_id,
                 allow_archived=True,
                 filter_ref_ids=filter_person_ref_ids,
             )

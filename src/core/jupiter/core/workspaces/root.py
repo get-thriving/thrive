@@ -25,7 +25,7 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.prm.root import PRM
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -79,7 +79,7 @@ class Workspace(RootEntity):
     life_plan = ContainsOne(LifePlan, workspace_ref_id=IsRefId())
     smart_list_collection = ContainsOne(SmartListCollection, workspace_ref_id=IsRefId())
     metric_collection = ContainsOne(MetricCollection, workspace_ref_id=IsRefId())
-    person_collection = ContainsOne(PersonCollection, workspace_ref_id=IsRefId())
+    prm = ContainsOne(PRM, workspace_ref_id=IsRefId())
     push_integration_group = ContainsOne(
         PushIntegrationGroup, workspace_ref_id=IsRefId()
     )
@@ -242,7 +242,11 @@ class Workspace(RootEntity):
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.PERSON and self.is_feature_available(
-                WorkspaceFeature.PERSONS
+                WorkspaceFeature.PRM
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.CIRCLE and self.is_feature_available(
+                WorkspaceFeature.PRM
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SLACK_TASK and self.is_feature_available(
@@ -300,12 +304,12 @@ class Workspace(RootEntity):
                 inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.PERSON_BIRTHDAY
-                and self.is_feature_available(WorkspaceFeature.PERSONS)
+                and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.PERSON_CATCH_UP
-                and self.is_feature_available(WorkspaceFeature.PERSONS)
+                and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
             elif source is InboxTaskSource.SLACK_TASK and self.is_feature_available(

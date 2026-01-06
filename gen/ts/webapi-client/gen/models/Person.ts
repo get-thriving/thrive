@@ -5,7 +5,6 @@
 import type { Birthday } from './Birthday';
 import type { EntityId } from './EntityId';
 import type { PersonName } from './PersonName';
-import type { PersonRelationship } from './PersonRelationship';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { Timestamp } from './Timestamp';
 /**
@@ -20,8 +19,7 @@ export type Person = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     name: PersonName;
-    person_collection_ref_id: string;
-    relationship: PersonRelationship;
+    prm_ref_id: string;
     catch_up_params?: (RecurringTaskGenParams | null);
     birthday?: (Birthday | null);
 };

@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     from ..models.person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth
     from ..models.person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
     from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
+    from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
     from ..models.person_update_args_name import PersonUpdateArgsName
-    from ..models.person_update_args_relationship import PersonUpdateArgsRelationship
 
 
 T = TypeVar("T", bound="PersonUpdateArgs")
@@ -29,7 +29,6 @@ class PersonUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (PersonUpdateArgsName):
-        relationship (PersonUpdateArgsRelationship):
         catch_up_period (PersonUpdateArgsCatchUpPeriod):
         catch_up_eisen (PersonUpdateArgsCatchUpEisen):
         catch_up_difficulty (PersonUpdateArgsCatchUpDifficulty):
@@ -38,11 +37,11 @@ class PersonUpdateArgs:
         catch_up_due_at_day (PersonUpdateArgsCatchUpDueAtDay):
         catch_up_due_at_month (PersonUpdateArgsCatchUpDueAtMonth):
         birthday (PersonUpdateArgsBirthday):
+        circle_ref_ids (PersonUpdateArgsCircleRefIds):
     """
 
     ref_id: str
     name: PersonUpdateArgsName
-    relationship: PersonUpdateArgsRelationship
     catch_up_period: PersonUpdateArgsCatchUpPeriod
     catch_up_eisen: PersonUpdateArgsCatchUpEisen
     catch_up_difficulty: PersonUpdateArgsCatchUpDifficulty
@@ -51,14 +50,13 @@ class PersonUpdateArgs:
     catch_up_due_at_day: PersonUpdateArgsCatchUpDueAtDay
     catch_up_due_at_month: PersonUpdateArgsCatchUpDueAtMonth
     birthday: PersonUpdateArgsBirthday
+    circle_ref_ids: PersonUpdateArgsCircleRefIds
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         ref_id = self.ref_id
 
         name = self.name.to_dict()
-
-        relationship = self.relationship.to_dict()
 
         catch_up_period = self.catch_up_period.to_dict()
 
@@ -76,13 +74,14 @@ class PersonUpdateArgs:
 
         birthday = self.birthday.to_dict()
 
+        circle_ref_ids = self.circle_ref_ids.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "ref_id": ref_id,
                 "name": name,
-                "relationship": relationship,
                 "catch_up_period": catch_up_period,
                 "catch_up_eisen": catch_up_eisen,
                 "catch_up_difficulty": catch_up_difficulty,
@@ -91,6 +90,7 @@ class PersonUpdateArgs:
                 "catch_up_due_at_day": catch_up_due_at_day,
                 "catch_up_due_at_month": catch_up_due_at_month,
                 "birthday": birthday,
+                "circle_ref_ids": circle_ref_ids,
             }
         )
 
@@ -108,15 +108,13 @@ class PersonUpdateArgs:
         from ..models.person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth
         from ..models.person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
         from ..models.person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
+        from ..models.person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
         from ..models.person_update_args_name import PersonUpdateArgsName
-        from ..models.person_update_args_relationship import PersonUpdateArgsRelationship
 
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
         name = PersonUpdateArgsName.from_dict(d.pop("name"))
-
-        relationship = PersonUpdateArgsRelationship.from_dict(d.pop("relationship"))
 
         catch_up_period = PersonUpdateArgsCatchUpPeriod.from_dict(d.pop("catch_up_period"))
 
@@ -138,10 +136,11 @@ class PersonUpdateArgs:
 
         birthday = PersonUpdateArgsBirthday.from_dict(d.pop("birthday"))
 
+        circle_ref_ids = PersonUpdateArgsCircleRefIds.from_dict(d.pop("circle_ref_ids"))
+
         person_update_args = cls(
             ref_id=ref_id,
             name=name,
-            relationship=relationship,
             catch_up_period=catch_up_period,
             catch_up_eisen=catch_up_eisen,
             catch_up_difficulty=catch_up_difficulty,
@@ -150,6 +149,7 @@ class PersonUpdateArgs:
             catch_up_due_at_day=catch_up_due_at_day,
             catch_up_due_at_month=catch_up_due_at_month,
             birthday=birthday,
+            circle_ref_ids=circle_ref_ids,
         )
 
         person_update_args.additional_properties = d

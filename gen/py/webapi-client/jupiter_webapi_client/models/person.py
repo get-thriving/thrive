@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.person_relationship import PersonRelationship
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,8 +26,7 @@ class Person:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         name (str): The person name.
-        person_collection_ref_id (str):
-        relationship (PersonRelationship): The relationship the user has with a person.
+        prm_ref_id (str):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         catch_up_params (None | RecurringTaskGenParams | Unset):
@@ -41,8 +39,7 @@ class Person:
     created_time: str
     last_modified_time: str
     name: str
-    person_collection_ref_id: str
-    relationship: PersonRelationship
+    prm_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     catch_up_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -64,9 +61,7 @@ class Person:
 
         name = self.name
 
-        person_collection_ref_id = self.person_collection_ref_id
-
-        relationship = self.relationship.value
+        prm_ref_id = self.prm_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -104,8 +99,7 @@ class Person:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "name": name,
-                "person_collection_ref_id": person_collection_ref_id,
-                "relationship": relationship,
+                "prm_ref_id": prm_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -136,9 +130,7 @@ class Person:
 
         name = d.pop("name")
 
-        person_collection_ref_id = d.pop("person_collection_ref_id")
-
-        relationship = PersonRelationship(d.pop("relationship"))
+        prm_ref_id = d.pop("prm_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -191,8 +183,7 @@ class Person:
             created_time=created_time,
             last_modified_time=last_modified_time,
             name=name,
-            person_collection_ref_id=person_collection_ref_id,
-            relationship=relationship,
+            prm_ref_id=prm_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             catch_up_params=catch_up_params,

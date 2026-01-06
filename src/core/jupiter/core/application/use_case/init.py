@@ -42,7 +42,9 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.circle.name import CircleName
+from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -365,14 +367,32 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_metric_collection,
             )
 
-            new_person_collection = PersonCollection.new_person_collection(
+            new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
                 catch_up_project_ref_id=new_root_project.ref_id,
             )
-            new_person_collection = await uow.get_for(PersonCollection).create(
-                new_person_collection,
+            new_prm = await uow.get_for(PRM).create(
+                new_prm,
             )
+
+            # Seed some default circles inspired by the person relationship enum.
+            default_circle_names = [
+                "Family",
+                "Friend",
+                "Work Buddy",
+                "School Buddy",
+                "Colleague",
+                "Acquaintance",
+                "Other",
+            ]
+            for circle_name in default_circle_names:
+                new_circle = Circle.new_circle(
+                    ctx=context.domain_context,
+                    prm_ref_id=new_prm.ref_id,
+                    name=CircleName(circle_name),
+                )
+                await uow.get_for(Circle).create(new_circle)
 
             new_push_integration_group = (
                 PushIntegrationGroup.new_push_integration_group(

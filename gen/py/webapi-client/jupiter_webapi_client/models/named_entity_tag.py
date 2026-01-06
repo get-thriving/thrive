@@ -6,6 +6,7 @@ class NamedEntityTag(str, Enum):
     BIGPLANMILESTONE = "BigPlanMilestone"
     CHAPTER = "Chapter"
     CHORE = "Chore"
+    CIRCLE = "Circle"
     DOC = "Doc"
     EMAILTASK = "EmailTask"
     GOAL = "Goal"
