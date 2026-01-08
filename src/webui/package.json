@@ -36,7 +36,7 @@
     "@nivo/core": "=0.80.0",
     "@nivo/line": "=0.80.0",
     "@remix-run/node": "^2.16.3",
-    "@remix-run/react": "^2.16.3",
+    "@remix-run/react": "^2.17.3",
     "@remix-run/serve": "^2.16.3",
     "buffer-polyfill": "npm:buffer@^6.0.3",
     "dotenv": "^16.6.1",
