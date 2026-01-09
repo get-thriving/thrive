@@ -49,7 +49,7 @@ const CreateFormSchema = z.object({
 });
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -109,7 +109,8 @@ export default function NewChapter() {
     <LeafPanel
       key="chapters/new"
       fakeKey={"chapters/new"}
-      returnLocation="/app/workspace/life-plan"
+      isLeaflet
+      returnLocation="/app/workspace/life-plan/chapters"
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -184,7 +185,7 @@ export default function NewChapter() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/chapters",
   ParamsSchema,
   {
     notFound: () => `Could not find the chapter!`,

@@ -55,7 +55,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -134,7 +134,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/goals`);
       }
 
       case "remove": {
@@ -142,7 +142,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/goals`);
       }
 
       default:
@@ -186,11 +186,12 @@ export default function GoalView() {
   return (
     <LeafPanel
       key={`goal-${loaderData.goal.ref_id}`}
+      isLeaflet
       fakeKey={`goals-${loaderData.goal.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.goal.archived}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/goals"
     >
       <GlobalError actionResult={actionData} />
 
@@ -286,7 +287,7 @@ export default function GoalView() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/goals",
   ParamsSchema,
   {
     notFound: () => `Could not find the goal!`,

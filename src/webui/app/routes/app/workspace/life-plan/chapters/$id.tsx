@@ -62,7 +62,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -147,7 +147,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/chapters`);
       }
 
       case "remove": {
@@ -155,7 +155,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/chapters`);
       }
 
       default:
@@ -188,11 +188,12 @@ export default function Chapter() {
   return (
     <LeafPanel
       key={`chapter-${loaderData.chapter.ref_id}`}
+      isLeaflet
       fakeKey={`chapters-${loaderData.chapter.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.chapter.archived}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/chapters"
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -289,7 +290,7 @@ export default function Chapter() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/chapters",
   ParamsSchema,
   {
     notFound: (params) => `Could not find chapter with ID ${params.id}!`,

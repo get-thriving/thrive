@@ -38,7 +38,7 @@ const CreateFormSchema = z.object({
 });
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -97,8 +97,9 @@ export default function NewGoal() {
   return (
     <LeafPanel
       key="goals/new"
+      isLeaflet
       fakeKey={"goals/new"}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/goals"
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -167,7 +168,7 @@ export default function NewGoal() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/goals",
   ParamsSchema,
   {
     notFound: () => `Could not create the goal!`,

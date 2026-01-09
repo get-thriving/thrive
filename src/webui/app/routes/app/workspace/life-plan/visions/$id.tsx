@@ -39,7 +39,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -131,6 +131,7 @@ export default function Vision() {
       key={`vision-${loaderData.vision.ref_id}`}
       fakeKey={`vision-${loaderData.vision.ref_id}`}
       showArchiveAndRemoveButton
+      isLeaflet
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.vision.archived}
       returnLocation="/app/workspace/life-plan/visions"

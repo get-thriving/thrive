@@ -39,7 +39,7 @@ const CreateFormSchema = z.object({
 });
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -93,8 +93,9 @@ export default function NewMilestone() {
   return (
     <LeafPanel
       key="milestones/new"
+      isLeaflet
       fakeKey={"milestones/new"}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/milestones"
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -162,10 +163,10 @@ export default function NewMilestone() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/milestones",
   ParamsSchema,
   {
-    notFound: () => `Could not find the milestone!`,
+    notFound: () => `Could not create the milestone!`,
     error: () => `There was an error creating the milestone! Please try again!`,
   },
 );

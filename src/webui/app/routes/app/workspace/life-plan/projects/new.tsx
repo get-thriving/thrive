@@ -37,7 +37,7 @@ const CreateFormSchema = z.object({
 });
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -91,8 +91,9 @@ export default function NewProject() {
   return (
     <LeafPanel
       key="projects/new"
+      isLeaflet
       fakeKey={"projects/new"}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/projects"
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
@@ -147,7 +148,7 @@ export default function NewProject() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/projects",
   ParamsSchema,
   {
     notFound: () => `Could not find the project!`,

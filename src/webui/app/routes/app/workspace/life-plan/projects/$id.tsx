@@ -50,7 +50,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -105,7 +105,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/projects/${id}`);
       }
 
       case "create-note": {
@@ -123,7 +123,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/projects`);
       }
 
       case "remove": {
@@ -131,7 +131,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/projects`);
       }
 
       default:
@@ -184,11 +184,12 @@ export default function Project() {
   return (
     <LeafPanel
       key={`project-${loaderData.project.ref_id}`}
+      isLeaflet
       fakeKey={`projects-${loaderData.project.ref_id}`}
       showArchiveAndRemoveButton={!isRootProject(loaderData.project)}
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.project.archived}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/projects"
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -271,7 +272,7 @@ export default function Project() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/projects",
   ParamsSchema,
   {
     notFound: (params) => `Could not find project with ID ${params.id}!`,

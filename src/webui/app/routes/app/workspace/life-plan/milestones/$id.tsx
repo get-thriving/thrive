@@ -51,7 +51,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
 ]);
 
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -128,7 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/milestones`);
       }
 
       case "remove": {
@@ -136,7 +136,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/life-plan`);
+        return redirect(`/app/workspace/life-plan/milestones`);
       }
 
       default:
@@ -169,11 +169,12 @@ export default function MilestoneView() {
   return (
     <LeafPanel
       key={`milestone-${loaderData.milestone.ref_id}`}
+      isLeaflet
       fakeKey={`milestones-${loaderData.milestone.ref_id}`}
       showArchiveAndRemoveButton
       inputsEnabled={inputsEnabled}
       entityArchived={loaderData.milestone.archived}
-      returnLocation="/app/workspace/life-plan"
+      returnLocation="/app/workspace/life-plan/milestones"
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -263,7 +264,7 @@ export default function MilestoneView() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/life-plan",
+  "/app/workspace/life-plan/milestones",
   ParamsSchema,
   {
     notFound: (params) => `Could not find milestone with ID ${params.id}!`,

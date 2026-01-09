@@ -54,7 +54,7 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   DisplayType,
-  useTrunkNeedsToShowBranch,
+  useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import {
@@ -178,7 +178,7 @@ export default function LifePlanView() {
   const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const inputsEnabled = navigation.state === "idle";
   const [hoveredMilestoneRefId, setHoveredMilestoneRefId] = useState<
     string | null
@@ -311,10 +311,7 @@ export default function LifePlanView() {
         />
       }
     >
-      <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeaf}
-      >
+      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>
