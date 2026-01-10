@@ -20,6 +20,7 @@ class DocsHelpSubject(str, Enum):
     METRICS = "metrics"
     PRM = "prm"
     PRMCIRCLES = "prm/circles"
+    PRMOCCASIONS = "prm/occasions"
     PRMPERSONS = "prm/persons"
     ROOT = "root"
     SCHEDULE = "schedule"

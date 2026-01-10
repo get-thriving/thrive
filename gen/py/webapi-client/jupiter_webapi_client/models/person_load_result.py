@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -25,6 +26,7 @@ class PersonLoadResult:
     Attributes:
         person (Person): A person.
         circle_ref_ids (list[str]):
+        occasions (list[Occasion]):
         birthday_time_event_blocks (list[TimeEventFullDaysBlock]):
         catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
@@ -37,6 +39,7 @@ class PersonLoadResult:
 
     person: Person
     circle_ref_ids: list[str]
+    occasions: list[Occasion]
     birthday_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -53,6 +56,11 @@ class PersonLoadResult:
         person = self.person.to_dict()
 
         circle_ref_ids = self.circle_ref_ids
+
+        occasions = []
+        for occasions_item_data in self.occasions:
+            occasions_item = occasions_item_data.to_dict()
+            occasions.append(occasions_item)
 
         birthday_time_event_blocks = []
         for birthday_time_event_blocks_item_data in self.birthday_time_event_blocks:
@@ -91,6 +99,7 @@ class PersonLoadResult:
             {
                 "person": person,
                 "circle_ref_ids": circle_ref_ids,
+                "occasions": occasions,
                 "birthday_time_event_blocks": birthday_time_event_blocks,
                 "catch_up_tasks": catch_up_tasks,
                 "catch_up_tasks_total_cnt": catch_up_tasks_total_cnt,
@@ -109,6 +118,7 @@ class PersonLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -116,6 +126,13 @@ class PersonLoadResult:
         person = Person.from_dict(d.pop("person"))
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
+
+        occasions = []
+        _occasions = d.pop("occasions")
+        for occasions_item_data in _occasions:
+            occasions_item = Occasion.from_dict(occasions_item_data)
+
+            occasions.append(occasions_item)
 
         birthday_time_event_blocks = []
         _birthday_time_event_blocks = d.pop("birthday_time_event_blocks")
@@ -166,6 +183,7 @@ class PersonLoadResult:
         person_load_result = cls(
             person=person,
             circle_ref_ids=circle_ref_ids,
+            occasions=occasions,
             birthday_time_event_blocks=birthday_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,

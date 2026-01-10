@@ -23,8 +23,10 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.entity import NoFilter
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -54,6 +56,7 @@ class PersonLoadResult(UseCaseResultBase):
 
     person: Person
     circle_ref_ids: list[EntityId]
+    occasions: list[Occasion]
     birthday_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -159,8 +162,15 @@ class PersonLoadUseCase(
             if link.person_ref_id == person.ref_id
         ]
 
+        occasions = await uow.get_for(Occasion).find_all_generic(
+            parent_ref_id=person.ref_id,
+            allow_archived=args.allow_archived,
+            ref_id=NoFilter(),
+        )
+
         return PersonLoadResult(
             person=person,
+            occasions=occasions,
             circle_ref_ids=circle_ref_ids,
             note=note,
             birthday_time_event_blocks=birthday_time_event_blocks,

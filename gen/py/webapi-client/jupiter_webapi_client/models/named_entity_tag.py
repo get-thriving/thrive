@@ -18,6 +18,7 @@ class NamedEntityTag(str, Enum):
     METRIC = "Metric"
     METRICENTRY = "MetricEntry"
     MILESTONE = "Milestone"
+    OCCASION = "Occasion"
     PERSON = "Person"
     PROJECT = "Project"
     SCHEDULEEVENTFULLDAYS = "ScheduleEventFullDays"

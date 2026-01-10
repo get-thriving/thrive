@@ -437,6 +437,18 @@ from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
 from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
+from .occasion import Occasion
+from .occasion_archive_args import OccasionArchiveArgs
+from .occasion_create_args import OccasionCreateArgs
+from .occasion_create_result import OccasionCreateResult
+from .occasion_kind import OccasionKind
+from .occasion_load_args import OccasionLoadArgs
+from .occasion_load_result import OccasionLoadResult
+from .occasion_remove_args import OccasionRemoveArgs
+from .occasion_update_args import OccasionUpdateArgs
+from .occasion_update_args_date import OccasionUpdateArgsDate
+from .occasion_update_args_kind import OccasionUpdateArgsKind
+from .occasion_update_args_name import OccasionUpdateArgsName
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
 from .partial_date_type import PartialDateType
@@ -1239,6 +1251,18 @@ __all__ = (
     "NoteUpdateArgsContent",
     "NumberedListBlock",
     "NumberedListBlockKind",
+    "Occasion",
+    "OccasionArchiveArgs",
+    "OccasionCreateArgs",
+    "OccasionCreateResult",
+    "OccasionKind",
+    "OccasionLoadArgs",
+    "OccasionLoadResult",
+    "OccasionRemoveArgs",
+    "OccasionUpdateArgs",
+    "OccasionUpdateArgsDate",
+    "OccasionUpdateArgsKind",
+    "OccasionUpdateArgsName",
     "ParagraphBlock",
     "ParagraphBlockKind",
     "PartialDateType",

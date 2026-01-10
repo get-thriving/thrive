@@ -13,11 +13,13 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.name import PersonName
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
+    ContainsMany,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
@@ -56,6 +58,7 @@ class Person(LeafEntity):
         source=InboxTaskSource.PERSON_BIRTHDAY,
         source_entity_ref_id=IsRefId(),
     )
+    occasions = ContainsMany(Occasion, person_ref_id=IsRefId())
     circle_links = ContainsManyRecords(PersonCircleLink, person_ref_id=IsRefId())
 
     @staticmethod

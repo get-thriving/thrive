@@ -1,0 +1,1 @@
+"""Occasion sub-entity."""
