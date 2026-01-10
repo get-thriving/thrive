@@ -164,7 +164,7 @@ class PersonLoadUseCase(
 
         occasions = await uow.get_for(Occasion).find_all_generic(
             parent_ref_id=person.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=False,
             ref_id=NoFilter(),
         )
 
