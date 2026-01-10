@@ -70,4 +70,3 @@ class OccasionCreateUseCase(
         await progress_reporter.mark_created(new_occasion)
 
         return OccasionCreateResult(new_occasion=new_occasion)
-

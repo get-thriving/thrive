@@ -17,7 +17,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
+import { Outlet, useActionData, useFetcher, useNavigation } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
@@ -35,19 +35,25 @@ import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recu
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
-import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  DisplayType,
+  useLeafNeedsToShowLeaflet,
+} from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
+  NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi-select";
+import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
+import { AnimatePresence } from "framer-motion";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -119,6 +125,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       allCircles: circlesResult.circles,
       person: result.person,
+      occasions: result.occasions,
       circleRefIds: result.circle_ref_ids,
       maxCirclesPerPerson: settings.max_circles_per_person,
       catchUpTasks: result.catch_up_tasks,
@@ -289,6 +296,7 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
 
@@ -353,6 +361,7 @@ export default function Person() {
       inputsEnabled={inputsEnabled}
       entityArchived={person.archived}
       returnLocation="/app/workspace/prm/persons"
+      shouldShowALeaflet={shouldShowALeaflet}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -422,6 +431,25 @@ export default function Person() {
           inputsEnabled={inputsEnabled}
           actionData={actionData}
         />
+      </SectionCard>
+
+      <SectionCard
+        title="Occasions"
+        actions={
+          <SectionActions
+            id="person-occasions"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              NavSingle({
+                text: "New",
+                link: `/app/workspace/prm/persons/${person.ref_id}/occasions/new`,
+              }),
+            ]}
+          />
+        }
+      >
+        <OccasionStack occasions={loaderData.occasions} />
       </SectionCard>
 
       <SectionCard
@@ -506,6 +534,10 @@ export default function Person() {
             entries={sortedBirthdayTimeEventEntries}
           />
         )}
+
+    <AnimatePresence mode="wait" initial={false}>
+        <Outlet />
+      </AnimatePresence>
     </LeafPanel>
   );
 }

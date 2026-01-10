@@ -40,4 +40,3 @@ class OccasionRemoveUseCase(
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, Occasion, args.ref_id
         )
-

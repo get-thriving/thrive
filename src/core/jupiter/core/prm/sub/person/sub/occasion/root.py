@@ -1,6 +1,7 @@
 """An occasion."""
 
 import abc
+
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.sub.notes.domain import NoteDomain
 from jupiter.core.common.sub.notes.root import Note

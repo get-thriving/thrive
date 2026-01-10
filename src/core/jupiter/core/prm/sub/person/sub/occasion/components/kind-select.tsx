@@ -2,7 +2,7 @@ import { OccasionKind } from "@jupiter/webapi-client";
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 
-import { occasionKindName } from "../kind";
+import { occasionKindName } from "#/core/prm/sub/person/sub/occasion/kind";
 
 interface OccasionKindSelectProps {
   name: string;
@@ -23,9 +23,7 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
         value={kind}
         exclusive
         fullWidth
-        onChange={(_, newKind) =>
-          newKind !== null && setKind(newKind)
-        }
+        onChange={(_, newKind) => newKind !== null && setKind(newKind)}
       >
         <ToggleButton
           size="small"
@@ -64,4 +62,3 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
     </>
   );
 }
-

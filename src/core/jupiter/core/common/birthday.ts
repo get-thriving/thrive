@@ -32,3 +32,10 @@ export function birthdayFromParts(day: number, month: number): Birthday {
 export function dueMonthToStr(dueMonth: RecurringTaskDueAtMonth): string {
   return MONTH_NAME_INDEX[dueMonth - 1];
 }
+
+export function compareBirthdaysNaturally(b1: Birthday, b2: Birthday): number {
+  const b1Parts = extractBirthday(b1);
+  const b2Parts = extractBirthday(b2);
+
+  return b1Parts.month - b2Parts.month || b1Parts.day - b2Parts.day;
+}

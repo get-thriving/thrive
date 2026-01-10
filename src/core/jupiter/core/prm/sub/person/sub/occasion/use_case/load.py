@@ -59,4 +59,3 @@ class OccasionLoadUseCase(
         )
 
         return OccasionLoadResult(occasion=occasion, note=note)
-

@@ -1,2 +1,1 @@
 """Use cases for occasions."""
-

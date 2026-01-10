@@ -54,4 +54,3 @@ class OccasionUpdateUseCase(
 
         await uow.get_for(Occasion).save(occasion)
         await progress_reporter.mark_updated(occasion)
-

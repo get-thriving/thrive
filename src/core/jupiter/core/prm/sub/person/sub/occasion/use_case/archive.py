@@ -46,4 +46,3 @@ class OccasionArchiveUseCase(
             args.ref_id,
             JupiterArchivalReason.USER,
         )
-

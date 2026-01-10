@@ -12,4 +12,3 @@ export function occasionKindName(kind: OccasionKind): string {
       return "Other";
   }
 }
-
