@@ -17,35 +17,39 @@ class PersonFindArgs:
 
     Attributes:
         allow_archived (bool):
+        include_occasions (bool):
         include_circle_ref_ids (bool):
         include_notes (bool):
-        include_birthday_time_event_blocks (bool):
+        include_occasion_time_event_blocks (bool):
         include_catch_up_inbox_tasks (bool):
-        include_birthday_inbox_tasks (bool):
+        include_occasion_inbox_tasks (bool):
         filter_person_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
+    include_occasions: bool
     include_circle_ref_ids: bool
     include_notes: bool
-    include_birthday_time_event_blocks: bool
+    include_occasion_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
-    include_birthday_inbox_tasks: bool
+    include_occasion_inbox_tasks: bool
     filter_person_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         allow_archived = self.allow_archived
 
+        include_occasions = self.include_occasions
+
         include_circle_ref_ids = self.include_circle_ref_ids
 
         include_notes = self.include_notes
 
-        include_birthday_time_event_blocks = self.include_birthday_time_event_blocks
+        include_occasion_time_event_blocks = self.include_occasion_time_event_blocks
 
         include_catch_up_inbox_tasks = self.include_catch_up_inbox_tasks
 
-        include_birthday_inbox_tasks = self.include_birthday_inbox_tasks
+        include_occasion_inbox_tasks = self.include_occasion_inbox_tasks
 
         filter_person_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_person_ref_ids, Unset):
@@ -61,11 +65,12 @@ class PersonFindArgs:
         field_dict.update(
             {
                 "allow_archived": allow_archived,
+                "include_occasions": include_occasions,
                 "include_circle_ref_ids": include_circle_ref_ids,
                 "include_notes": include_notes,
-                "include_birthday_time_event_blocks": include_birthday_time_event_blocks,
+                "include_occasion_time_event_blocks": include_occasion_time_event_blocks,
                 "include_catch_up_inbox_tasks": include_catch_up_inbox_tasks,
-                "include_birthday_inbox_tasks": include_birthday_inbox_tasks,
+                "include_occasion_inbox_tasks": include_occasion_inbox_tasks,
             }
         )
         if filter_person_ref_ids is not UNSET:
@@ -78,15 +83,17 @@ class PersonFindArgs:
         d = dict(src_dict)
         allow_archived = d.pop("allow_archived")
 
+        include_occasions = d.pop("include_occasions")
+
         include_circle_ref_ids = d.pop("include_circle_ref_ids")
 
         include_notes = d.pop("include_notes")
 
-        include_birthday_time_event_blocks = d.pop("include_birthday_time_event_blocks")
+        include_occasion_time_event_blocks = d.pop("include_occasion_time_event_blocks")
 
         include_catch_up_inbox_tasks = d.pop("include_catch_up_inbox_tasks")
 
-        include_birthday_inbox_tasks = d.pop("include_birthday_inbox_tasks")
+        include_occasion_inbox_tasks = d.pop("include_occasion_inbox_tasks")
 
         def _parse_filter_person_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -107,11 +114,12 @@ class PersonFindArgs:
 
         person_find_args = cls(
             allow_archived=allow_archived,
+            include_occasions=include_occasions,
             include_circle_ref_ids=include_circle_ref_ids,
             include_notes=include_notes,
-            include_birthday_time_event_blocks=include_birthday_time_event_blocks,
+            include_occasion_time_event_blocks=include_occasion_time_event_blocks,
             include_catch_up_inbox_tasks=include_catch_up_inbox_tasks,
-            include_birthday_inbox_tasks=include_birthday_inbox_tasks,
+            include_occasion_inbox_tasks=include_occasion_inbox_tasks,
             filter_person_ref_ids=filter_person_ref_ids,
         )
 

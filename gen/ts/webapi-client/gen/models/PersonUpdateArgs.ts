@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Birthday } from './Birthday';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
@@ -46,10 +45,6 @@ export type PersonUpdateArgs = {
     catch_up_due_at_month: {
         should_change: boolean;
         value?: (RecurringTaskDueAtMonth | null);
-    };
-    birthday: {
-        should_change: boolean;
-        value?: (Birthday | null);
     };
     circle_ref_ids: {
         should_change: boolean;

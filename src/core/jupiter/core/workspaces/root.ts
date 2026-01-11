@@ -199,7 +199,7 @@ export function inferSourcesForEnabledFeatures(
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_BIRTHDAY &&
+      source === InboxTaskSource.PERSON_OCCASION &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);

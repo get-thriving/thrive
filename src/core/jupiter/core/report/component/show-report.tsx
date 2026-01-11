@@ -57,7 +57,7 @@ const _SOURCES_TO_REPORT = [
   InboxTaskSource.JOURNAL,
   InboxTaskSource.METRIC,
   InboxTaskSource.PERSON_CATCH_UP,
-  InboxTaskSource.PERSON_BIRTHDAY,
+  InboxTaskSource.PERSON_OCCASION,
   InboxTaskSource.SLACK_TASK,
   InboxTaskSource.EMAIL_TASK,
 ];

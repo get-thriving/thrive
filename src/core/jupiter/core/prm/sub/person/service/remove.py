@@ -14,6 +14,7 @@ from jupiter.core.inbox_tasks.service.remove import (
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -40,7 +41,7 @@ class PersonRemoveService:
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_BIRTHDAY,
+            source=InboxTaskSource.PERSON_OCCASION,
             source_entity_ref_id=person.ref_id,
         )
         all_catch_up_inbox_tasks = await uow.get(
@@ -60,6 +61,17 @@ class PersonRemoveService:
             )
 
         note_remove_service = NoteRemoveService()
+
+        all_occasions = await uow.get_for(Occasion).find_all(
+            person.ref_id, allow_archived=True
+        )
+        for occasion in all_occasions:
+            await note_remove_service.remove_for_source(
+                ctx, uow, NoteDomain.OCCASION, occasion.ref_id
+            )
+            await uow.get_for(Occasion).remove(occasion.ref_id)
+            await progress_reporter.mark_removed(occasion)
+
         await note_remove_service.remove_for_source(
             ctx, uow, NoteDomain.PERSON, person.ref_id
         )

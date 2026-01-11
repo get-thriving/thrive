@@ -12,7 +12,6 @@ import { useContext } from "react";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -37,7 +36,6 @@ const ParamsSchema = z.object({});
 const CreateFormSchema = z.object({
   name: z.string(),
   circleRefIds: selectZod(z.string()),
-  birthday: z.string().optional(),
   catchUpPeriod: z.string(),
   catchUpEisen: z.nativeEnum(Eisen).optional(),
   catchUpDifficulty: z.nativeEnum(Difficulty).optional(),
@@ -122,10 +120,6 @@ export async function action({ request }: ActionFunctionArgs) {
               form.catchUpDueAtMonth === ""
             ? undefined
             : parseInt(form.catchUpDueAtMonth),
-      birthday:
-        form.birthday === undefined || form.birthday === ""
-          ? undefined
-          : (form.birthday as Birthday),
     });
 
     return redirect(`/app/workspace/prm/persons/${result.new_person.ref_id}`);
@@ -196,13 +190,6 @@ export default function NewPerson() {
           />
           <FieldError actionResult={actionData} fieldName="/circle_ref_ids" />
         </FormControl>
-
-        <BirthdaySelect
-          name="birthday"
-          initialValue={null}
-          inputsEnabled={inputsEnabled}
-        />
-        <FieldError actionResult={actionData} fieldName="/birthday" />
 
         <StandardDivider title="Catch Up" size="small" />
 

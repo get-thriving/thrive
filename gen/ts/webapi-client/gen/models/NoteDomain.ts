@@ -28,4 +28,5 @@ export enum NoteDomain {
     METRIC = 'metric',
     METRIC_ENTRY = 'metric-entry',
     PERSON = 'person',
+    OCCASION = 'occasion',
 }

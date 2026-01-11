@@ -15,6 +15,8 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.prm.sub.person.name import PersonName
+from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -432,13 +434,15 @@ class InboxTask(LeafEntity):
 
     @staticmethod
     @create_entity_action
-    def new_inbox_task_for_person_birthday(
+    def new_inbox_task_for_person_occasion(
         ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate,
         project_ref_id: EntityId,
-        person_ref_id: EntityId,
+        occasion_kind: OccasionKind,
+        occasion_person_name: PersonName,
+        occasion_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
         preparation_days_cnt: int,
@@ -447,8 +451,10 @@ class InboxTask(LeafEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.PERSON_BIRTHDAY,
-            name=InboxTask._build_name_for_birthday_task(name),
+            source=InboxTaskSource.PERSON_OCCASION,
+            name=InboxTask._build_name_for_occasion_task(
+                name, occasion_kind, occasion_person_name
+            ),
             status=InboxTaskStatus.NOT_STARTED_GEN,
             is_key=False,
             eisen=Eisen.IMPORTANT,
@@ -458,7 +464,7 @@ class InboxTask(LeafEntity):
             project_ref_id=project_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
-            source_entity_ref_id=person_ref_id,
+            source_entity_ref_id=occasion_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,
@@ -778,24 +784,28 @@ class InboxTask(LeafEntity):
         )
 
     @update_entity_action
-    def update_link_to_person_birthday(
+    def update_link_to_person_occasion(
         self,
         ctx: MutationContext,
         project_ref_id: EntityId,
         name: InboxTaskName,
+        occasion_kind: OccasionKind,
+        occasion_person_name: PersonName,
         recurring_timeline: str,
         preparation_days_cnt: int,
         due_time: ADate,
     ) -> "InboxTask":
-        """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.PERSON_BIRTHDAY:
+        """Update all the info associated with a person occasion."""
+        if self.source is not InboxTaskSource.PERSON_OCCASION:
             raise Exception(
-                f"Cannot associate a task which is not for a person birthday '{self.name}'",
+                f"Cannot associate a task which is not for a person occasion '{self.name}'",
             )
         return self._new_version(
             ctx,
             project_ref_id=project_ref_id,
-            name=self._build_name_for_birthday_task(name),
+            name=self._build_name_for_occasion_task(
+                name, occasion_kind, occasion_person_name
+            ),
             actionable_date=due_time.subtract_days(preparation_days_cnt),
             due_date=due_time,
             recurring_timeline=recurring_timeline,
@@ -1108,8 +1118,24 @@ class InboxTask(LeafEntity):
         return InboxTaskName(f"Catch up with {name}")
 
     @staticmethod
-    def _build_name_for_birthday_task(name: InboxTaskName) -> InboxTaskName:
-        return InboxTaskName(f"Wish happy birthday to {name}")
+    def _build_name_for_occasion_task(
+        name: InboxTaskName,
+        occasion_kind: OccasionKind,
+        occasion_person_name: PersonName,
+    ) -> InboxTaskName:
+        match occasion_kind:
+            case OccasionKind.BIRTHDAY:
+                return InboxTaskName(f"Wish {occasion_person_name}'s on their {name}")
+            case OccasionKind.ANNIVERSARY:
+                return InboxTaskName(
+                    f"Wish {occasion_person_name}'s on their anniversary for {name}"
+                )
+            case OccasionKind.HOLIDAY:
+                return InboxTaskName(
+                    f"Wish {occasion_person_name}'s for {name} holidays"
+                )
+            case OccasionKind.OTHER:
+                return InboxTaskName(f"Wish {occasion_person_name}'s on their {name}")
 
     @staticmethod
     def _build_name_for_slack_task(
@@ -1192,7 +1218,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         self,
         parent_ref_id: EntityId,
         source: InboxTaskSource,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
@@ -1204,7 +1230,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         self,
         parent_ref_id: EntityId,
         source: InboxTaskSource,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,

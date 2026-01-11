@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -25,25 +26,27 @@ class PersonLoadResult:
     Attributes:
         person (Person): A person.
         circle_ref_ids (list[str]):
-        birthday_time_event_blocks (list[TimeEventFullDaysBlock]):
+        occasions (list[Occasion]):
+        occasion_time_event_blocks (list[TimeEventFullDaysBlock]):
         catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
         catch_up_tasks_page_size (int):
-        birthday_tasks (list[InboxTask]):
-        birthday_tasks_total_cnt (int):
-        birthday_tasks_page_size (int):
+        occasion_tasks (list[InboxTask]):
+        occasion_tasks_total_cnt (int):
+        occasion_tasks_page_size (int):
         note (None | Note | Unset):
     """
 
     person: Person
     circle_ref_ids: list[str]
-    birthday_time_event_blocks: list[TimeEventFullDaysBlock]
+    occasions: list[Occasion]
+    occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
     catch_up_tasks_page_size: int
-    birthday_tasks: list[InboxTask]
-    birthday_tasks_total_cnt: int
-    birthday_tasks_page_size: int
+    occasion_tasks: list[InboxTask]
+    occasion_tasks_total_cnt: int
+    occasion_tasks_page_size: int
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -54,10 +57,15 @@ class PersonLoadResult:
 
         circle_ref_ids = self.circle_ref_ids
 
-        birthday_time_event_blocks = []
-        for birthday_time_event_blocks_item_data in self.birthday_time_event_blocks:
-            birthday_time_event_blocks_item = birthday_time_event_blocks_item_data.to_dict()
-            birthday_time_event_blocks.append(birthday_time_event_blocks_item)
+        occasions = []
+        for occasions_item_data in self.occasions:
+            occasions_item = occasions_item_data.to_dict()
+            occasions.append(occasions_item)
+
+        occasion_time_event_blocks = []
+        for occasion_time_event_blocks_item_data in self.occasion_time_event_blocks:
+            occasion_time_event_blocks_item = occasion_time_event_blocks_item_data.to_dict()
+            occasion_time_event_blocks.append(occasion_time_event_blocks_item)
 
         catch_up_tasks = []
         for catch_up_tasks_item_data in self.catch_up_tasks:
@@ -68,14 +76,14 @@ class PersonLoadResult:
 
         catch_up_tasks_page_size = self.catch_up_tasks_page_size
 
-        birthday_tasks = []
-        for birthday_tasks_item_data in self.birthday_tasks:
-            birthday_tasks_item = birthday_tasks_item_data.to_dict()
-            birthday_tasks.append(birthday_tasks_item)
+        occasion_tasks = []
+        for occasion_tasks_item_data in self.occasion_tasks:
+            occasion_tasks_item = occasion_tasks_item_data.to_dict()
+            occasion_tasks.append(occasion_tasks_item)
 
-        birthday_tasks_total_cnt = self.birthday_tasks_total_cnt
+        occasion_tasks_total_cnt = self.occasion_tasks_total_cnt
 
-        birthday_tasks_page_size = self.birthday_tasks_page_size
+        occasion_tasks_page_size = self.occasion_tasks_page_size
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -91,13 +99,14 @@ class PersonLoadResult:
             {
                 "person": person,
                 "circle_ref_ids": circle_ref_ids,
-                "birthday_time_event_blocks": birthday_time_event_blocks,
+                "occasions": occasions,
+                "occasion_time_event_blocks": occasion_time_event_blocks,
                 "catch_up_tasks": catch_up_tasks,
                 "catch_up_tasks_total_cnt": catch_up_tasks_total_cnt,
                 "catch_up_tasks_page_size": catch_up_tasks_page_size,
-                "birthday_tasks": birthday_tasks,
-                "birthday_tasks_total_cnt": birthday_tasks_total_cnt,
-                "birthday_tasks_page_size": birthday_tasks_page_size,
+                "occasion_tasks": occasion_tasks,
+                "occasion_tasks_total_cnt": occasion_tasks_total_cnt,
+                "occasion_tasks_page_size": occasion_tasks_page_size,
             }
         )
         if note is not UNSET:
@@ -109,6 +118,7 @@ class PersonLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -117,12 +127,19 @@ class PersonLoadResult:
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
-        birthday_time_event_blocks = []
-        _birthday_time_event_blocks = d.pop("birthday_time_event_blocks")
-        for birthday_time_event_blocks_item_data in _birthday_time_event_blocks:
-            birthday_time_event_blocks_item = TimeEventFullDaysBlock.from_dict(birthday_time_event_blocks_item_data)
+        occasions = []
+        _occasions = d.pop("occasions")
+        for occasions_item_data in _occasions:
+            occasions_item = Occasion.from_dict(occasions_item_data)
 
-            birthday_time_event_blocks.append(birthday_time_event_blocks_item)
+            occasions.append(occasions_item)
+
+        occasion_time_event_blocks = []
+        _occasion_time_event_blocks = d.pop("occasion_time_event_blocks")
+        for occasion_time_event_blocks_item_data in _occasion_time_event_blocks:
+            occasion_time_event_blocks_item = TimeEventFullDaysBlock.from_dict(occasion_time_event_blocks_item_data)
+
+            occasion_time_event_blocks.append(occasion_time_event_blocks_item)
 
         catch_up_tasks = []
         _catch_up_tasks = d.pop("catch_up_tasks")
@@ -135,16 +152,16 @@ class PersonLoadResult:
 
         catch_up_tasks_page_size = d.pop("catch_up_tasks_page_size")
 
-        birthday_tasks = []
-        _birthday_tasks = d.pop("birthday_tasks")
-        for birthday_tasks_item_data in _birthday_tasks:
-            birthday_tasks_item = InboxTask.from_dict(birthday_tasks_item_data)
+        occasion_tasks = []
+        _occasion_tasks = d.pop("occasion_tasks")
+        for occasion_tasks_item_data in _occasion_tasks:
+            occasion_tasks_item = InboxTask.from_dict(occasion_tasks_item_data)
 
-            birthday_tasks.append(birthday_tasks_item)
+            occasion_tasks.append(occasion_tasks_item)
 
-        birthday_tasks_total_cnt = d.pop("birthday_tasks_total_cnt")
+        occasion_tasks_total_cnt = d.pop("occasion_tasks_total_cnt")
 
-        birthday_tasks_page_size = d.pop("birthday_tasks_page_size")
+        occasion_tasks_page_size = d.pop("occasion_tasks_page_size")
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -166,13 +183,14 @@ class PersonLoadResult:
         person_load_result = cls(
             person=person,
             circle_ref_ids=circle_ref_ids,
-            birthday_time_event_blocks=birthday_time_event_blocks,
+            occasions=occasions,
+            occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,
             catch_up_tasks_page_size=catch_up_tasks_page_size,
-            birthday_tasks=birthday_tasks,
-            birthday_tasks_total_cnt=birthday_tasks_total_cnt,
-            birthday_tasks_page_size=birthday_tasks_page_size,
+            occasion_tasks=occasion_tasks,
+            occasion_tasks_total_cnt=occasion_tasks_total_cnt,
+            occasion_tasks_page_size=occasion_tasks_page_size,
             note=note,
         )
 

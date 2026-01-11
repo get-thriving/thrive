@@ -20,7 +20,6 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { BirthdayTag } from "@jupiter/core/common/component/birthday-tag";
 import { CircleTag } from "@jupiter/core/prm/sub/circle/components/tag";
 import {
   DisplayType,
@@ -47,10 +46,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const body = await apiClient.prm.personFind({
     allow_archived: false,
+    include_occasions: false,
     include_circle_ref_ids: true,
     include_catch_up_inbox_tasks: false,
-    include_birthday_inbox_tasks: false,
-    include_birthday_time_event_blocks: false,
+    include_occasion_inbox_tasks: false,
+    include_occasion_time_event_blocks: false,
     include_notes: false,
   });
 
@@ -165,9 +165,7 @@ export default function Persons() {
                       ))}
                   </>
                 )}
-                {entry.person.birthday && (
-                  <BirthdayTag birthday={entry.person.birthday} />
-                )}
+
                 {entry.person.catch_up_params && (
                   <>
                     <PeriodTag period={entry.person.catch_up_params.period} />

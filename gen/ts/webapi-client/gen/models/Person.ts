@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Birthday } from './Birthday';
 import type { EntityId } from './EntityId';
 import type { PersonName } from './PersonName';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
@@ -21,6 +20,5 @@ export type Person = {
     name: PersonName;
     prm_ref_id: string;
     catch_up_params?: (RecurringTaskGenParams | null);
-    birthday?: (Birthday | null);
 };
 

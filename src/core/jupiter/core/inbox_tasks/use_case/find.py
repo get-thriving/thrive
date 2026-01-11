@@ -41,6 +41,7 @@ from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -109,6 +110,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     journal: Journal | None
     metric: Metric | None
     person: Person | None
+    occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
 
@@ -321,15 +323,26 @@ class InboxTaskFindUseCase(
         )
         metrics_by_ref_id = {m.ref_id: m for m in metrics}
 
+        occasions = await uow.get_for(Occasion).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=True,
+            ref_id=[
+                it.source_entity_ref_id_for_sure
+                for it in inbox_tasks
+                if it.source == InboxTaskSource.PERSON_OCCASION
+            ],
+        )
+        occasions_by_ref_id = {o.ref_id: o for o in occasions}
+
         persons = await uow.get_for(Person).find_all(
             parent_ref_id=prm.ref_id,
             allow_archived=True,
             filter_ref_ids=[
                 it.source_entity_ref_id_for_sure
                 for it in inbox_tasks
-                if it.source
-                in {InboxTaskSource.PERSON_BIRTHDAY, InboxTaskSource.PERSON_CATCH_UP}
-            ],
+                if it.source == InboxTaskSource.PERSON_CATCH_UP
+            ]
+            + [o.person.ref_id for o in occasions],
         )
         persons_by_ref_id = {p.ref_id: p for p in persons}
 
@@ -435,8 +448,20 @@ class InboxTaskFindUseCase(
                     ),
                     person=(
                         persons_by_ref_id[it.source_entity_ref_id_for_sure]
-                        if it.source == InboxTaskSource.PERSON_BIRTHDAY
-                        or it.source == InboxTaskSource.PERSON_CATCH_UP
+                        if it.source == InboxTaskSource.PERSON_CATCH_UP
+                        else (
+                            persons_by_ref_id[
+                                occasions_by_ref_id[
+                                    it.source_entity_ref_id_for_sure
+                                ].person.ref_id
+                            ]
+                            if it.source == InboxTaskSource.PERSON_OCCASION
+                            else None
+                        )
+                    ),
+                    occasion=(
+                        occasions_by_ref_id[it.source_entity_ref_id_for_sure]
+                        if it.source == InboxTaskSource.PERSON_OCCASION
                         else None
                     ),
                     slack_task=(

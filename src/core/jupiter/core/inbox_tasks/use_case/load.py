@@ -25,6 +25,7 @@ from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan
@@ -66,6 +67,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     journal: Journal | None
     metric: Metric | None
     person: Person | None
+    occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
     note: Note | None
@@ -150,15 +152,21 @@ class InboxTaskLoadUseCase(
         else:
             metric = None
 
-        if (
-            inbox_task.source is InboxTaskSource.PERSON_BIRTHDAY
-            or inbox_task.source is InboxTaskSource.PERSON_CATCH_UP
-        ):
+        if inbox_task.source is InboxTaskSource.PERSON_OCCASION:
+            occasion = await uow.get_for(Occasion).load_by_id(
+                inbox_task.source_entity_ref_id_for_sure, allow_archived=True
+            )
+            person = await uow.get_for(Person).load_by_id(
+                occasion.person.ref_id, allow_archived=True
+            )
+        elif inbox_task.source is InboxTaskSource.PERSON_CATCH_UP:
             person = await uow.get_for(Person).load_by_id(
                 inbox_task.source_entity_ref_id_for_sure, allow_archived=True
             )
+            occasion = None
         else:
             person = None
+            occasion = None
 
         if inbox_task.source is InboxTaskSource.SLACK_TASK:
             slack_task = await uow.get_for(SlackTask).load_by_id(
@@ -199,6 +207,7 @@ class InboxTaskLoadUseCase(
             metric=metric,
             journal=journal,
             person=person,
+            occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
             note=note,

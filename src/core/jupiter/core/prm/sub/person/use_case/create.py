@@ -1,6 +1,5 @@
 """Create a person."""
 
-from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -48,7 +47,6 @@ class PersonCreateArgs(UseCaseArgsBase):
     catch_up_actionable_from_month: RecurringTaskDueAtMonth | None
     catch_up_due_at_day: RecurringTaskDueAtDay | None
     catch_up_due_at_month: RecurringTaskDueAtMonth | None
-    birthday: Birthday | None
     circle_ref_ids: list[EntityId] | None = None
 
 
@@ -99,7 +97,6 @@ class PersonCreateUseCase(
             prm_ref_id=prm.ref_id,
             name=args.name,
             catch_up_params=catch_up_params,
-            birthday=args.birthday,
         )
         new_person = await uow.get_for(Person).create(new_person)
         await progress_reporter.mark_created(new_person)

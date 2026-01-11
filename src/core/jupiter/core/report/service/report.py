@@ -267,7 +267,7 @@ class ReportService:
                 or (
                     (
                         it.source is InboxTaskSource.PERSON_CATCH_UP
-                        or it.source is InboxTaskSource.PERSON_BIRTHDAY
+                        or it.source is InboxTaskSource.PERSON_OCCASION
                     )
                     and it.source_entity_ref_id_for_sure in persons_by_ref_id
                 )

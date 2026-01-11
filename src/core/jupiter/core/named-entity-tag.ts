@@ -60,6 +60,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Metric Entry";
     case NamedEntityTag.PERSON:
       return "Person";
+    case NamedEntityTag.OCCASION:
+      return "Occasion";
     case NamedEntityTag.CIRCLE:
       return "Circle";
     case NamedEntityTag.SLACK_TASK:

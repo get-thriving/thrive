@@ -13,6 +13,7 @@ class NoteDomain(str, Enum):
     METRIC = "metric"
     METRIC_ENTRY = "metric-entry"
     MILESTONE = "milestone"
+    OCCASION = "occasion"
     PERSON = "person"
     PROJECT = "project"
     SCHEDULE_EVENT_FULL_DAYS = "schedule-event-full-days"

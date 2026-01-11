@@ -437,6 +437,18 @@ from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
 from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
+from .occasion import Occasion
+from .occasion_archive_args import OccasionArchiveArgs
+from .occasion_create_args import OccasionCreateArgs
+from .occasion_create_result import OccasionCreateResult
+from .occasion_kind import OccasionKind
+from .occasion_load_args import OccasionLoadArgs
+from .occasion_load_result import OccasionLoadResult
+from .occasion_remove_args import OccasionRemoveArgs
+from .occasion_update_args import OccasionUpdateArgs
+from .occasion_update_args_date import OccasionUpdateArgsDate
+from .occasion_update_args_kind import OccasionUpdateArgsKind
+from .occasion_update_args_name import OccasionUpdateArgsName
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
 from .partial_date_type import PartialDateType
@@ -451,7 +463,6 @@ from .person_change_catch_up_project_args import PersonChangeCatchUpProjectArgs
 from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
-from .person_entry import PersonEntry
 from .person_find_args import PersonFindArgs
 from .person_find_result import PersonFindResult
 from .person_find_result_entry import PersonFindResultEntry
@@ -459,11 +470,11 @@ from .person_load_args import PersonLoadArgs
 from .person_load_result import PersonLoadResult
 from .person_load_settings_args import PersonLoadSettingsArgs
 from .person_load_settings_result import PersonLoadSettingsResult
+from .person_occasion_entry import PersonOccasionEntry
 from .person_regen_args import PersonRegenArgs
 from .person_remove_args import PersonRemoveArgs
 from .person_summary import PersonSummary
 from .person_update_args import PersonUpdateArgs
-from .person_update_args_birthday import PersonUpdateArgsBirthday
 from .person_update_args_catch_up_actionable_from_day import PersonUpdateArgsCatchUpActionableFromDay
 from .person_update_args_catch_up_actionable_from_month import PersonUpdateArgsCatchUpActionableFromMonth
 from .person_update_args_catch_up_difficulty import PersonUpdateArgsCatchUpDifficulty
@@ -1239,6 +1250,18 @@ __all__ = (
     "NoteUpdateArgsContent",
     "NumberedListBlock",
     "NumberedListBlockKind",
+    "Occasion",
+    "OccasionArchiveArgs",
+    "OccasionCreateArgs",
+    "OccasionCreateResult",
+    "OccasionKind",
+    "OccasionLoadArgs",
+    "OccasionLoadResult",
+    "OccasionRemoveArgs",
+    "OccasionUpdateArgs",
+    "OccasionUpdateArgsDate",
+    "OccasionUpdateArgsKind",
+    "OccasionUpdateArgsName",
     "ParagraphBlock",
     "ParagraphBlockKind",
     "PartialDateType",
@@ -1253,7 +1276,6 @@ __all__ = (
     "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
-    "PersonEntry",
     "PersonFindArgs",
     "PersonFindResult",
     "PersonFindResultEntry",
@@ -1261,11 +1283,11 @@ __all__ = (
     "PersonLoadResult",
     "PersonLoadSettingsArgs",
     "PersonLoadSettingsResult",
+    "PersonOccasionEntry",
     "PersonRegenArgs",
     "PersonRemoveArgs",
     "PersonSummary",
     "PersonUpdateArgs",
-    "PersonUpdateArgsBirthday",
     "PersonUpdateArgsCatchUpActionableFromDay",
     "PersonUpdateArgsCatchUpActionableFromMonth",
     "PersonUpdateArgsCatchUpDifficulty",

@@ -29,6 +29,7 @@ export enum DocsHelpSubject {
     METRICS = 'metrics',
     PRM = 'prm',
     PRM_PERSONS = 'prm/persons',
+    PRM_OCCASIONS = 'prm/occasions',
     PRM_CIRCLES = 'prm/circles',
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',

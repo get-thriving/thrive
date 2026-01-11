@@ -14,8 +14,8 @@ In the workspace, you can see the PRM:
 
 ## Properties
 
-The PRM database contains [people](persons.md) and [circle](circles.md).
-But it has some metadata too.
+The PRM database contains [people](persons.md), [circles](circles.md), and
+[occasions](occasions.md). But it has some metadata too.
 
 Currently this is the catch up project - the project where birthday, catch up
 tasks, etc aregenerated.

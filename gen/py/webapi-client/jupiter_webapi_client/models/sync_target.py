@@ -15,6 +15,7 @@ class SyncTarget(str, Enum):
     JOURNALS = "journals"
     METRICS = "metrics"
     MILESTONES = "milestones"
+    OCCASIONS = "occasions"
     PERSONS = "persons"
     PROJECTS = "projects"
     SCHEDULE = "schedule"

@@ -30,7 +30,6 @@ class Person:
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         catch_up_params (None | RecurringTaskGenParams | Unset):
-        birthday (None | str | Unset):
     """
 
     ref_id: str
@@ -43,7 +42,6 @@ class Person:
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     catch_up_params: None | RecurringTaskGenParams | Unset = UNSET
-    birthday: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -83,12 +81,6 @@ class Person:
         else:
             catch_up_params = self.catch_up_params
 
-        birthday: None | str | Unset
-        if isinstance(self.birthday, Unset):
-            birthday = UNSET
-        else:
-            birthday = self.birthday
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -108,8 +100,6 @@ class Person:
             field_dict["archived_time"] = archived_time
         if catch_up_params is not UNSET:
             field_dict["catch_up_params"] = catch_up_params
-        if birthday is not UNSET:
-            field_dict["birthday"] = birthday
 
         return field_dict
 
@@ -167,15 +157,6 @@ class Person:
 
         catch_up_params = _parse_catch_up_params(d.pop("catch_up_params", UNSET))
 
-        def _parse_birthday(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        birthday = _parse_birthday(d.pop("birthday", UNSET))
-
         person = cls(
             ref_id=ref_id,
             version=version,
@@ -187,7 +168,6 @@ class Person:
             archival_reason=archival_reason,
             archived_time=archived_time,
             catch_up_params=catch_up_params,
-            birthday=birthday,
         )
 
         person.additional_properties = d

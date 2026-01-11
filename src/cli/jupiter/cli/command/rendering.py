@@ -24,6 +24,7 @@ from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
+from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.sub.email.user_name import (
     EmailUserName,
 )
@@ -156,7 +157,7 @@ def event_source_to_rich_text(source: AppComponent) -> Text:
 
 def entity_name_to_rich_text(name: EntityName) -> Text:
     """Transform an entity name into text."""
-    return Text(str(name), style="green underline")
+    return Text(str(name), style="green bold underline")
 
 
 def parent_entity_name_to_rich_text(parent_name: EntityName) -> Text:
@@ -174,9 +175,9 @@ def eisen_to_rich_text(eisen: Eisen) -> Text:
     return Text(str(eisen.value).capitalize(), style="underline green")
 
 
-def person_birthday_to_rich_text(birthday: Birthday) -> Text:
-    """Transform birthday into text."""
-    return Text(f"Birthday on {birthday}", style="italic")
+def occasion_date_to_rich_text(kind: OccasionKind, date: Birthday) -> Text:
+    """Transform an occasion date into text."""
+    return Text(f"{occasion_kind_to_rich_text(kind)} on {date}", style="italic")
 
 
 def metric_unit_to_rich_text(metric_unit: MetricUnit) -> Text:
@@ -403,3 +404,8 @@ def time_plan_activity_feasability_to_rich_text(
 def time_in_day_to_rich_text(time_in_day: TimeInDay) -> Text:
     """Transform a time in day to rich text."""
     return Text(str(time_in_day), style="green")
+
+
+def occasion_kind_to_rich_text(kind: OccasionKind) -> Text:
+    """Transform an occasion kind to rich text."""
+    return Text(str(kind.value).capitalize(), style="green")

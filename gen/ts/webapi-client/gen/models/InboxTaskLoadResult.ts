@@ -12,6 +12,7 @@ import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { Metric } from './Metric';
 import type { Note } from './Note';
+import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
@@ -34,6 +35,7 @@ export type InboxTaskLoadResult = {
     journal?: (Journal | null);
     metric?: (Metric | null);
     person?: (Person | null);
+    occasion?: (Occasion | null);
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);
     note?: (Note | null);

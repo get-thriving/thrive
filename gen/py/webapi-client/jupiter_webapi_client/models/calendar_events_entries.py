@@ -8,7 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.inbox_task_entry import InboxTaskEntry
-    from ..models.person_entry import PersonEntry
+    from ..models.person_occasion_entry import PersonOccasionEntry
     from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
     from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
     from ..models.vacation_entry import VacationEntry
@@ -25,14 +25,14 @@ class CalendarEventsEntries:
         schedule_event_full_days_entries (list[ScheduleFullDaysEventEntry]):
         schedule_event_in_day_entries (list[ScheduleInDayEventEntry]):
         inbox_task_entries (list[InboxTaskEntry]):
-        person_entries (list[PersonEntry]):
+        person_occasion_entries (list[PersonOccasionEntry]):
         vacation_entries (list[VacationEntry]):
     """
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
     inbox_task_entries: list[InboxTaskEntry]
-    person_entries: list[PersonEntry]
+    person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -52,10 +52,10 @@ class CalendarEventsEntries:
             inbox_task_entries_item = inbox_task_entries_item_data.to_dict()
             inbox_task_entries.append(inbox_task_entries_item)
 
-        person_entries = []
-        for person_entries_item_data in self.person_entries:
-            person_entries_item = person_entries_item_data.to_dict()
-            person_entries.append(person_entries_item)
+        person_occasion_entries = []
+        for person_occasion_entries_item_data in self.person_occasion_entries:
+            person_occasion_entries_item = person_occasion_entries_item_data.to_dict()
+            person_occasion_entries.append(person_occasion_entries_item)
 
         vacation_entries = []
         for vacation_entries_item_data in self.vacation_entries:
@@ -69,7 +69,7 @@ class CalendarEventsEntries:
                 "schedule_event_full_days_entries": schedule_event_full_days_entries,
                 "schedule_event_in_day_entries": schedule_event_in_day_entries,
                 "inbox_task_entries": inbox_task_entries,
-                "person_entries": person_entries,
+                "person_occasion_entries": person_occasion_entries,
                 "vacation_entries": vacation_entries,
             }
         )
@@ -79,7 +79,7 @@ class CalendarEventsEntries:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task_entry import InboxTaskEntry
-        from ..models.person_entry import PersonEntry
+        from ..models.person_occasion_entry import PersonOccasionEntry
         from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
         from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
         from ..models.vacation_entry import VacationEntry
@@ -110,12 +110,12 @@ class CalendarEventsEntries:
 
             inbox_task_entries.append(inbox_task_entries_item)
 
-        person_entries = []
-        _person_entries = d.pop("person_entries")
-        for person_entries_item_data in _person_entries:
-            person_entries_item = PersonEntry.from_dict(person_entries_item_data)
+        person_occasion_entries = []
+        _person_occasion_entries = d.pop("person_occasion_entries")
+        for person_occasion_entries_item_data in _person_occasion_entries:
+            person_occasion_entries_item = PersonOccasionEntry.from_dict(person_occasion_entries_item_data)
 
-            person_entries.append(person_entries_item)
+            person_occasion_entries.append(person_occasion_entries_item)
 
         vacation_entries = []
         _vacation_entries = d.pop("vacation_entries")
@@ -128,7 +128,7 @@ class CalendarEventsEntries:
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
             inbox_task_entries=inbox_task_entries,
-            person_entries=person_entries,
+            person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )
 

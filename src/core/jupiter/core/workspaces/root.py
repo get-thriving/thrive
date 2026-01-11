@@ -303,7 +303,7 @@ class Workspace(RootEntity):
             ):
                 inferred_sources.append(source)
             elif (
-                source is InboxTaskSource.PERSON_BIRTHDAY
+                source is InboxTaskSource.PERSON_OCCASION
                 and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)

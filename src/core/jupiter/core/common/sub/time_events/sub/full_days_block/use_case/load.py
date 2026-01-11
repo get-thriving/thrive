@@ -11,6 +11,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
 )
@@ -43,6 +44,7 @@ class TimeEventFullDaysBlockLoadResult(UseCaseResultBase):
     full_days_block: TimeEventFullDaysBlock
     schedule_event: ScheduleEventFullDays | None
     person: Person | None
+    occasion: Occasion | None
     vacation: Vacation | None
 
 
@@ -74,9 +76,14 @@ class TimeEventFullDaysBlockLoadUseCase(
             )
 
         person = None
-        if full_days_block.namespace == TimeEventNamespace.PERSON_BIRTHDAY:
-            person = await uow.get_for(Person).load_by_id(
+        occasion = None
+        if full_days_block.namespace == TimeEventNamespace.PERSON_OCCASION:
+            occasion = await uow.get_for(Occasion).load_by_id(
                 full_days_block.source_entity_ref_id,
+                allow_archived=args.allow_archived,
+            )
+            person = await uow.get_for(Person).load_by_id(
+                occasion.person.ref_id,
                 allow_archived=args.allow_archived,
             )
 
@@ -91,5 +98,6 @@ class TimeEventFullDaysBlockLoadUseCase(
             full_days_block=full_days_block,
             schedule_event=schedule_event,
             person=person,
+            occasion=occasion,
             vacation=vacation,
         )

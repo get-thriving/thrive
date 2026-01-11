@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -24,25 +25,32 @@ class PersonFindResultEntry:
 
     Attributes:
         person (Person): A person.
+        occasions (list[Occasion]):
         circle_ref_ids (list[str]):
         note (None | Note | Unset):
-        birthday_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
+        occasion_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
-        birthday_inbox_tasks (list[InboxTask] | None | Unset):
+        occasion_inbox_tasks (list[InboxTask] | None | Unset):
     """
 
     person: Person
+    occasions: list[Occasion]
     circle_ref_ids: list[str]
     note: None | Note | Unset = UNSET
-    birthday_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
+    occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
     catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
-    birthday_inbox_tasks: list[InboxTask] | None | Unset = UNSET
+    occasion_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.note import Note
 
         person = self.person.to_dict()
+
+        occasions = []
+        for occasions_item_data in self.occasions:
+            occasions_item = occasions_item_data.to_dict()
+            occasions.append(occasions_item)
 
         circle_ref_ids = self.circle_ref_ids
 
@@ -54,17 +62,17 @@ class PersonFindResultEntry:
         else:
             note = self.note
 
-        birthday_time_event_blocks: list[dict[str, Any]] | None | Unset
-        if isinstance(self.birthday_time_event_blocks, Unset):
-            birthday_time_event_blocks = UNSET
-        elif isinstance(self.birthday_time_event_blocks, list):
-            birthday_time_event_blocks = []
-            for birthday_time_event_blocks_type_0_item_data in self.birthday_time_event_blocks:
-                birthday_time_event_blocks_type_0_item = birthday_time_event_blocks_type_0_item_data.to_dict()
-                birthday_time_event_blocks.append(birthday_time_event_blocks_type_0_item)
+        occasion_time_event_blocks: list[dict[str, Any]] | None | Unset
+        if isinstance(self.occasion_time_event_blocks, Unset):
+            occasion_time_event_blocks = UNSET
+        elif isinstance(self.occasion_time_event_blocks, list):
+            occasion_time_event_blocks = []
+            for occasion_time_event_blocks_type_0_item_data in self.occasion_time_event_blocks:
+                occasion_time_event_blocks_type_0_item = occasion_time_event_blocks_type_0_item_data.to_dict()
+                occasion_time_event_blocks.append(occasion_time_event_blocks_type_0_item)
 
         else:
-            birthday_time_event_blocks = self.birthday_time_event_blocks
+            occasion_time_event_blocks = self.occasion_time_event_blocks
 
         catch_up_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.catch_up_inbox_tasks, Unset):
@@ -78,34 +86,35 @@ class PersonFindResultEntry:
         else:
             catch_up_inbox_tasks = self.catch_up_inbox_tasks
 
-        birthday_inbox_tasks: list[dict[str, Any]] | None | Unset
-        if isinstance(self.birthday_inbox_tasks, Unset):
-            birthday_inbox_tasks = UNSET
-        elif isinstance(self.birthday_inbox_tasks, list):
-            birthday_inbox_tasks = []
-            for birthday_inbox_tasks_type_0_item_data in self.birthday_inbox_tasks:
-                birthday_inbox_tasks_type_0_item = birthday_inbox_tasks_type_0_item_data.to_dict()
-                birthday_inbox_tasks.append(birthday_inbox_tasks_type_0_item)
+        occasion_inbox_tasks: list[dict[str, Any]] | None | Unset
+        if isinstance(self.occasion_inbox_tasks, Unset):
+            occasion_inbox_tasks = UNSET
+        elif isinstance(self.occasion_inbox_tasks, list):
+            occasion_inbox_tasks = []
+            for occasion_inbox_tasks_type_0_item_data in self.occasion_inbox_tasks:
+                occasion_inbox_tasks_type_0_item = occasion_inbox_tasks_type_0_item_data.to_dict()
+                occasion_inbox_tasks.append(occasion_inbox_tasks_type_0_item)
 
         else:
-            birthday_inbox_tasks = self.birthday_inbox_tasks
+            occasion_inbox_tasks = self.occasion_inbox_tasks
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "person": person,
+                "occasions": occasions,
                 "circle_ref_ids": circle_ref_ids,
             }
         )
         if note is not UNSET:
             field_dict["note"] = note
-        if birthday_time_event_blocks is not UNSET:
-            field_dict["birthday_time_event_blocks"] = birthday_time_event_blocks
+        if occasion_time_event_blocks is not UNSET:
+            field_dict["occasion_time_event_blocks"] = occasion_time_event_blocks
         if catch_up_inbox_tasks is not UNSET:
             field_dict["catch_up_inbox_tasks"] = catch_up_inbox_tasks
-        if birthday_inbox_tasks is not UNSET:
-            field_dict["birthday_inbox_tasks"] = birthday_inbox_tasks
+        if occasion_inbox_tasks is not UNSET:
+            field_dict["occasion_inbox_tasks"] = occasion_inbox_tasks
 
         return field_dict
 
@@ -113,11 +122,19 @@ class PersonFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        occasions = []
+        _occasions = d.pop("occasions")
+        for occasions_item_data in _occasions:
+            occasions_item = Occasion.from_dict(occasions_item_data)
+
+            occasions.append(occasions_item)
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
@@ -138,7 +155,7 @@ class PersonFindResultEntry:
 
         note = _parse_note(d.pop("note", UNSET))
 
-        def _parse_birthday_time_event_blocks(data: object) -> list[TimeEventFullDaysBlock] | None | Unset:
+        def _parse_occasion_time_event_blocks(data: object) -> list[TimeEventFullDaysBlock] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -146,21 +163,21 @@ class PersonFindResultEntry:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                birthday_time_event_blocks_type_0 = []
-                _birthday_time_event_blocks_type_0 = data
-                for birthday_time_event_blocks_type_0_item_data in _birthday_time_event_blocks_type_0:
-                    birthday_time_event_blocks_type_0_item = TimeEventFullDaysBlock.from_dict(
-                        birthday_time_event_blocks_type_0_item_data
+                occasion_time_event_blocks_type_0 = []
+                _occasion_time_event_blocks_type_0 = data
+                for occasion_time_event_blocks_type_0_item_data in _occasion_time_event_blocks_type_0:
+                    occasion_time_event_blocks_type_0_item = TimeEventFullDaysBlock.from_dict(
+                        occasion_time_event_blocks_type_0_item_data
                     )
 
-                    birthday_time_event_blocks_type_0.append(birthday_time_event_blocks_type_0_item)
+                    occasion_time_event_blocks_type_0.append(occasion_time_event_blocks_type_0_item)
 
-                return birthday_time_event_blocks_type_0
+                return occasion_time_event_blocks_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[TimeEventFullDaysBlock] | None | Unset, data)
 
-        birthday_time_event_blocks = _parse_birthday_time_event_blocks(d.pop("birthday_time_event_blocks", UNSET))
+        occasion_time_event_blocks = _parse_occasion_time_event_blocks(d.pop("occasion_time_event_blocks", UNSET))
 
         def _parse_catch_up_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
@@ -184,7 +201,7 @@ class PersonFindResultEntry:
 
         catch_up_inbox_tasks = _parse_catch_up_inbox_tasks(d.pop("catch_up_inbox_tasks", UNSET))
 
-        def _parse_birthday_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
+        def _parse_occasion_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -192,27 +209,28 @@ class PersonFindResultEntry:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                birthday_inbox_tasks_type_0 = []
-                _birthday_inbox_tasks_type_0 = data
-                for birthday_inbox_tasks_type_0_item_data in _birthday_inbox_tasks_type_0:
-                    birthday_inbox_tasks_type_0_item = InboxTask.from_dict(birthday_inbox_tasks_type_0_item_data)
+                occasion_inbox_tasks_type_0 = []
+                _occasion_inbox_tasks_type_0 = data
+                for occasion_inbox_tasks_type_0_item_data in _occasion_inbox_tasks_type_0:
+                    occasion_inbox_tasks_type_0_item = InboxTask.from_dict(occasion_inbox_tasks_type_0_item_data)
 
-                    birthday_inbox_tasks_type_0.append(birthday_inbox_tasks_type_0_item)
+                    occasion_inbox_tasks_type_0.append(occasion_inbox_tasks_type_0_item)
 
-                return birthday_inbox_tasks_type_0
+                return occasion_inbox_tasks_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[InboxTask] | None | Unset, data)
 
-        birthday_inbox_tasks = _parse_birthday_inbox_tasks(d.pop("birthday_inbox_tasks", UNSET))
+        occasion_inbox_tasks = _parse_occasion_inbox_tasks(d.pop("occasion_inbox_tasks", UNSET))
 
         person_find_result_entry = cls(
             person=person,
+            occasions=occasions,
             circle_ref_ids=circle_ref_ids,
             note=note,
-            birthday_time_event_blocks=birthday_time_event_blocks,
+            occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,
-            birthday_inbox_tasks=birthday_inbox_tasks,
+            occasion_inbox_tasks=occasion_inbox_tasks,
         )
 
         person_find_result_entry.additional_properties = d

@@ -1,7 +1,6 @@
 import {
   InboxTask,
   ApiError,
-  Birthday,
   Difficulty,
   Eisen,
   InboxTaskStatus,
@@ -17,14 +16,18 @@ import {
   redirect,
 } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
+import {
+  Outlet,
+  useActionData,
+  useFetcher,
+  useNavigation,
+} from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortBirthdayTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
-import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
+import { sortBirthdayTimeEventsNaturally as sortOccasionTimeEventsNaturally } from "@jupiter/core/common/sub/time_events/time-event";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
@@ -35,14 +38,20 @@ import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recu
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TimeEventFullDaysBlockStack } from "@jupiter/core/common/sub/time_events/sub/full_days_block/component/stack";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
-import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import {
+  DisplayType,
+  useLeafNeedsToShowLeaflet,
+} from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
   ActionSingle,
+  NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi-select";
+import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
+import { AnimatePresence } from "framer-motion";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -58,7 +67,7 @@ const QuerySchema = z.object({
     .string()
     .transform((s) => parseInt(s, 10))
     .optional(),
-  birthdayTasksRetrieveOffset: z
+  occasionTasksRetrieveOffset: z
     .string()
     .transform((s) => parseInt(s, 10))
     .optional(),
@@ -69,7 +78,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     circleRefIds: selectZod(z.string()),
-    birthday: z.string().optional(),
     catchUpPeriod: z
       .union([z.nativeEnum(RecurringTaskPeriod), z.literal("none")])
       .optional(),
@@ -108,7 +116,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: id,
       allow_archived: true,
       catch_up_task_retrieve_offset: query.catchUpTasksRetrieveOffset,
-      birthday_task_retrieve_offset: query.birthdayTasksRetrieveOffset,
+      occasion_task_retrieve_offset: query.occasionTasksRetrieveOffset,
     });
 
     const circlesResult = await apiClient.prm.circleFind({
@@ -119,16 +127,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       allCircles: circlesResult.circles,
       person: result.person,
+      occasions: result.occasions,
       circleRefIds: result.circle_ref_ids,
       maxCirclesPerPerson: settings.max_circles_per_person,
       catchUpTasks: result.catch_up_tasks,
       catchUpTasksTotalCnt: result.catch_up_tasks_total_cnt,
       catchUpTasksPageSize: result.catch_up_tasks_page_size,
-      birthdayTasks: result.birthday_tasks,
-      birthdayTasksTotalCnt: result.birthday_tasks_total_cnt,
-      birthdayTasksPageSize: result.birthday_tasks_page_size,
+      occasionTasks: result.occasion_tasks,
+      occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
+      occasionTasksPageSize: result.occasion_tasks_page_size,
       note: result.note,
-      birthdayTimeEventBlocks: result.birthday_time_event_blocks,
+      occasionTimeEventBlocks: result.occasion_time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -220,13 +229,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
                   ? undefined
                   : parseInt(form.catchUpDueAtMonth),
           },
-          birthday: {
-            should_change: true,
-            value:
-              form.birthday === undefined || form.birthday === ""
-                ? undefined
-                : (form.birthday as Birthday),
-          },
         });
 
         return redirect(`/app/workspace/prm/persons`);
@@ -289,11 +291,15 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
+  const allOccasionsByRefId = new Map(
+    loaderData.occasions.map((o) => [o.ref_id, o]),
+  );
 
-  const sortedBirthdayTasks = sortInboxTasksNaturally(
-    loaderData.birthdayTasks,
+  const sortedOccasionTasks = sortInboxTasksNaturally(
+    loaderData.occasionTasks,
     {
       dueDateAscending: false,
     },
@@ -302,17 +308,18 @@ export default function Person() {
     dueDateAscending: false,
   });
 
-  const birthdayTimeEventEntries = loaderData.birthdayTimeEventBlocks
+  const occasionTimeEventEntries = loaderData.occasionTimeEventBlocks
     .filter((f) => !f.archived)
     .map((block) => ({
       time_event: block,
       entry: {
         person: person,
-        birthday_time_event: block,
+        occasion: allOccasionsByRefId.get(block.source_entity_ref_id)!,
+        occasion_time_event: block,
       },
     }));
-  const sortedBirthdayTimeEventEntries = sortBirthdayTimeEventsNaturally(
-    birthdayTimeEventEntries,
+  const sortedOccasionTimeEventEntries = sortOccasionTimeEventsNaturally(
+    occasionTimeEventEntries,
   );
 
   const inputsEnabled = navigation.state === "idle" && !person.archived;
@@ -353,6 +360,7 @@ export default function Person() {
       inputsEnabled={inputsEnabled}
       entityArchived={person.archived}
       returnLocation="/app/workspace/prm/persons"
+      shouldShowALeaflet={shouldShowALeaflet}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
@@ -399,13 +407,6 @@ export default function Person() {
         />
         <FieldError actionResult={actionData} fieldName="/circle_ref_ids" />
 
-        <BirthdaySelect
-          name="birthday"
-          initialValue={person.birthday}
-          inputsEnabled={inputsEnabled}
-        />
-        <FieldError actionResult={actionData} fieldName="/birthday" />
-
         <StandardDivider title="Catch Up" size="small" />
 
         <RecurringTaskGenParamsBlock
@@ -422,6 +423,25 @@ export default function Person() {
           inputsEnabled={inputsEnabled}
           actionData={actionData}
         />
+      </SectionCard>
+
+      <SectionCard
+        title="Occasions"
+        actions={
+          <SectionActions
+            id="person-occasions"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              NavSingle({
+                text: "New",
+                link: `/app/workspace/prm/persons/${person.ref_id}/occasions/new`,
+              }),
+            ]}
+          />
+        }
+      >
+        <OccasionStack occasions={loaderData.occasions} />
       </SectionCard>
 
       <SectionCard
@@ -453,7 +473,7 @@ export default function Person() {
       </SectionCard>
 
       <SectionCard title="Birthday Tasks">
-        {sortedBirthdayTasks.length > 0 && (
+        {sortedOccasionTasks.length > 0 && (
           <InboxTaskStack
             topLevelInfo={topLevelInfo}
             showOptions={{
@@ -462,11 +482,11 @@ export default function Person() {
               showHandleMarkDone: true,
               showHandleMarkNotDone: true,
             }}
-            inboxTasks={sortedBirthdayTasks}
+            inboxTasks={sortedOccasionTasks}
             withPages={{
               retrieveOffsetParamName: "birthdayTasksRetrieveOffset",
-              totalCnt: loaderData.birthdayTasksTotalCnt,
-              pageSize: loaderData.birthdayTasksPageSize,
+              totalCnt: loaderData.occasionTasksTotalCnt,
+              pageSize: loaderData.occasionTasksPageSize,
             }}
           />
         )}
@@ -498,14 +518,18 @@ export default function Person() {
         topLevelInfo.workspace,
         WorkspaceFeature.SCHEDULE,
       ) &&
-        sortedBirthdayTimeEventEntries.length > 0 && (
+        sortedOccasionTimeEventEntries.length > 0 && (
           <TimeEventFullDaysBlockStack
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
-            title="Birthday Time Events"
-            entries={sortedBirthdayTimeEventEntries}
+            title="Occasion Time Events"
+            entries={sortedOccasionTimeEventEntries}
           />
         )}
+
+      <AnimatePresence mode="wait" initial={false}>
+        <Outlet />
+      </AnimatePresence>
     </LeafPanel>
   );
 }

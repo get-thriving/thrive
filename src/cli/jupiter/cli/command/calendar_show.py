@@ -1,12 +1,10 @@
 """Command for loading a calendar."""
 
-from typing import cast
-
 from jupiter.cli.command.rendering import (
     date_with_label_to_rich_text,
     entity_name_to_rich_text,
+    occasion_date_to_rich_text,
     period_to_rich_text,
-    person_birthday_to_rich_text,
     time_in_day_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
@@ -16,7 +14,6 @@ from jupiter.core.calendar.use_case.load_for_date_and_period import (
     CalendarLoadForDateAndPeriodResult,
     CalendarLoadForDateAndPeriodUseCase,
 )
-from jupiter.core.common.birthday import Birthday
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from rich.console import Console
 from rich.text import Text
@@ -50,7 +47,7 @@ class CalendarShow(
                 "Full Days Events", guide_style="bold bright_blue"
             )
 
-            self._build_birthdays(result.entries, full_day_events_tree)
+            self._build_occasions(result.entries, full_day_events_tree)
 
             self._build_schedule_full_days(result.entries, full_day_events_tree)
 
@@ -75,24 +72,23 @@ class CalendarShow(
 
         console.print(rich_tree)
 
-    def _build_birthdays(
+    def _build_occasions(
         self, entries: CalendarEventsEntries, full_day_events_tree: Tree
     ) -> None:
         for person_entry in sorted(
-            entries.person_entries,
+            entries.person_occasion_entries,
             key=lambda pe: (
-                pe.birthday_time_event.start_date,
-                pe.birthday_time_event.end_date,
+                pe.occasion_time_event.start_date,
+                pe.occasion_time_event.end_date,
             ),
         ):
             person = person_entry.person
+            occasion = person_entry.occasion
 
-            person_text = Text("Birthday for ")
+            person_text = Text("")
             person_text.append(entity_name_to_rich_text(person.name))
-            person_text.append(" ")
-            person_text.append(
-                person_birthday_to_rich_text(cast(Birthday, person.birthday))
-            )
+            person_text.append(": ")
+            person_text.append(occasion_date_to_rich_text(occasion.kind, occasion.date))
 
             full_day_events_tree.add(person_text)
 

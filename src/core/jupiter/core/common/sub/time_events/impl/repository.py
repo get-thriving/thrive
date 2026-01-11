@@ -165,16 +165,24 @@ class SqliteTimeEventFullDaysBlockRepository(
     async def find_for_namespace(
         self,
         namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> list[TimeEventFullDaysBlock]:
         """Retrieve a time event in full day block via its namespace."""
+        if isinstance(source_entity_ref_id, list):
+            source_entity_ref_ids = source_entity_ref_id
+        else:
+            source_entity_ref_ids = [source_entity_ref_id]
         query_stmt = (
             select(self._table)
             .where(self._table.c.namespace == namespace.value)
-            .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
+            .where(
+                self._table.c.source_entity_ref_id.in_(
+                    [ref_id.as_int() for ref_id in source_entity_ref_ids]
+                )
+            )
         )
         if isinstance(allow_archived, bool):
             if not allow_archived:

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from ..models.journal import Journal
     from ..models.metric import Metric
     from ..models.note import Note
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.project import Project
     from ..models.slack_task import SlackTask
@@ -49,6 +50,7 @@ class InboxTaskFindResultEntry:
         journal (Journal | None | Unset):
         metric (Metric | None | Unset):
         person (None | Person | Unset):
+        occasion (None | Occasion | Unset):
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
     """
@@ -67,6 +69,7 @@ class InboxTaskFindResultEntry:
     journal: Journal | None | Unset = UNSET
     metric: Metric | None | Unset = UNSET
     person: None | Person | Unset = UNSET
+    occasion: None | Occasion | Unset = UNSET
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -81,6 +84,7 @@ class InboxTaskFindResultEntry:
         from ..models.journal import Journal
         from ..models.metric import Metric
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
@@ -190,6 +194,14 @@ class InboxTaskFindResultEntry:
         else:
             person = self.person
 
+        occasion: dict[str, Any] | None | Unset
+        if isinstance(self.occasion, Unset):
+            occasion = UNSET
+        elif isinstance(self.occasion, Occasion):
+            occasion = self.occasion.to_dict()
+        else:
+            occasion = self.occasion
+
         slack_task: dict[str, Any] | None | Unset
         if isinstance(self.slack_task, Unset):
             slack_task = UNSET
@@ -238,6 +250,8 @@ class InboxTaskFindResultEntry:
             field_dict["metric"] = metric
         if person is not UNSET:
             field_dict["person"] = person
+        if occasion is not UNSET:
+            field_dict["occasion"] = occasion
         if slack_task is not UNSET:
             field_dict["slack_task"] = slack_task
         if email_task is not UNSET:
@@ -257,6 +271,7 @@ class InboxTaskFindResultEntry:
         from ..models.journal import Journal
         from ..models.metric import Metric
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.project import Project
         from ..models.slack_task import SlackTask
@@ -478,6 +493,23 @@ class InboxTaskFindResultEntry:
 
         person = _parse_person(d.pop("person", UNSET))
 
+        def _parse_occasion(data: object) -> None | Occasion | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                occasion_type_0 = Occasion.from_dict(data)
+
+                return occasion_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Occasion | Unset, data)
+
+        occasion = _parse_occasion(d.pop("occasion", UNSET))
+
         def _parse_slack_task(data: object) -> None | SlackTask | Unset:
             if data is None:
                 return data
@@ -527,6 +559,7 @@ class InboxTaskFindResultEntry:
             journal=journal,
             metric=metric,
             person=person,
+            occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
         )

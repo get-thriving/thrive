@@ -187,7 +187,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
       ],
     });

@@ -31,7 +31,7 @@ export function UpcomingBirthdaysWidget(props: WidgetProps) {
     personTasks.personEntriesByRefId,
     personTasks.optimisticUpdates,
     {
-      allowSources: [InboxTaskSource.PERSON_BIRTHDAY],
+      allowSources: [InboxTaskSource.PERSON_OCCASION],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,

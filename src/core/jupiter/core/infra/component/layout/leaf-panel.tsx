@@ -78,8 +78,6 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
         ? LeafPanelExpansionState.SMALL
         : (props.initialExpansionState ?? LeafPanelExpansionState.SMALL),
   );
-  console.log("props.initialExpansionState", props.initialExpansionState);
-  console.log("expansionState", expansionState);
   const [previousExpansionState, setPreviousExpansionState] =
     useState<LeafPanelExpansionState | null>(null);
   const [previousLeafletExpansionState, setPreviousLeafletExpansionState] =

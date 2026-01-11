@@ -1,36 +1,32 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="PersonUpdateArgsBirthday")
+T = TypeVar("T", bound="OccasionUpdateArgsName")
 
 
 @_attrs_define
-class PersonUpdateArgsBirthday:
+class OccasionUpdateArgsName:
     """
     Attributes:
         should_change (bool):
-        value (None | str | Unset):
+        value (str | Unset): The name of an occasion.
     """
 
     should_change: bool
-    value: None | str | Unset = UNSET
+    value: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         should_change = self.should_change
 
-        value: None | str | Unset
-        if isinstance(self.value, Unset):
-            value = UNSET
-        else:
-            value = self.value
+        value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -49,22 +45,15 @@ class PersonUpdateArgsBirthday:
         d = dict(src_dict)
         should_change = d.pop("should_change")
 
-        def _parse_value(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+        value = d.pop("value", UNSET)
 
-        value = _parse_value(d.pop("value", UNSET))
-
-        person_update_args_birthday = cls(
+        occasion_update_args_name = cls(
             should_change=should_change,
             value=value,
         )
 
-        person_update_args_birthday.additional_properties = d
-        return person_update_args_birthday
+        occasion_update_args_name.additional_properties = d
+        return occasion_update_args_name
 
     @property
     def additional_keys(self) -> list[str]:

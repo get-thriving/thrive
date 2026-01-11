@@ -2,13 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 /**
  * Result entry.
  */
-export type PersonEntry = {
+export type PersonOccasionEntry = {
     person: Person;
-    birthday_time_event: TimeEventFullDaysBlock;
+    occasion: Occasion;
+    occasion_time_event: TimeEventFullDaysBlock;
 };
 

@@ -20,7 +20,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseParams } from "zodix";
-import { birthdayTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
+import { occasionTimeEventName } from "@jupiter/core/common/sub/time_events/time-event";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -61,6 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       fullDaysBlock: response.full_days_block,
       scheduleEvent: response.schedule_event,
       person: response.person,
+      occasion: response.occasion,
       vacation: response.vacation,
     });
   } catch (error) {
@@ -109,10 +110,11 @@ export default function TimeEventFullDaysBlockViewOne() {
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case TimeEventNamespace.PERSON_BIRTHDAY:
-      name = birthdayTimeEventName(
+    case TimeEventNamespace.PERSON_OCCASION:
+      name = occasionTimeEventName(
         loaderData.fullDaysBlock,
         loaderData.person!,
+        loaderData.occasion!,
       );
       break;
 
@@ -169,7 +171,10 @@ export default function TimeEventFullDaysBlockViewOne() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
-          <TimeEventSourceLink timeEvent={loaderData.fullDaysBlock} />
+          <TimeEventSourceLink
+            timeEvent={loaderData.fullDaysBlock}
+            extraInfo={{ person: loaderData.person ?? undefined }}
+          />
         </Box>
 
         <FormControl fullWidth>

@@ -23,8 +23,10 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.entity import NoFilter
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -45,7 +47,7 @@ class PersonLoadArgs(UseCaseArgsBase):
     ref_id: EntityId
     allow_archived: bool
     catch_up_task_retrieve_offset: int | None
-    birthday_task_retrieve_offset: int | None
+    occasion_task_retrieve_offset: int | None
 
 
 @use_case_result
@@ -54,13 +56,14 @@ class PersonLoadResult(UseCaseResultBase):
 
     person: Person
     circle_ref_ids: list[EntityId]
-    birthday_time_event_blocks: list[TimeEventFullDaysBlock]
+    occasions: list[Occasion]
+    occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
     catch_up_tasks_page_size: int
-    birthday_tasks: list[InboxTask]
-    birthday_tasks_total_cnt: int
-    birthday_tasks_page_size: int
+    occasion_tasks: list[InboxTask]
+    occasion_tasks_total_cnt: int
+    occasion_tasks_page_size: int
     note: Note | None
 
 
@@ -83,18 +86,20 @@ class PersonLoadUseCase(
         ):
             raise InputValidationError("Invalid catch_up_inbox_task_retrieve_offset")
         if (
-            args.birthday_task_retrieve_offset is not None
-            and args.birthday_task_retrieve_offset < 0
+            args.occasion_task_retrieve_offset is not None
+            and args.occasion_task_retrieve_offset < 0
         ):
-            raise InputValidationError("Invalid birthday_inbox_task_retrieve_offset")
+            raise InputValidationError("Invalid occasion_inbox_task_retrieve_offset")
 
         workspace = context.workspace
         person = await uow.get_for(Person).load_by_id(
             args.ref_id, allow_archived=args.allow_archived
         )
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
+        occasions = await uow.get_for(Occasion).find_all_generic(
+            parent_ref_id=person.ref_id,
+            allow_archived=False,
+            ref_id=NoFilter(),
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
@@ -102,12 +107,17 @@ class PersonLoadUseCase(
             person.ref_id,
             allow_archived=args.allow_archived,
         )
-        birthday_time_event_blocks = await uow.get(
+
+        occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
         ).find_for_namespace(
-            TimeEventNamespace.PERSON_BIRTHDAY,
-            person.ref_id,
+            TimeEventNamespace.PERSON_OCCASION,
+            [o.ref_id for o in occasions],
             allow_archived=args.allow_archived,
+        )
+
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+            workspace.ref_id,
         )
 
         catch_up_tasks_total_cnt = await uow.get(
@@ -130,23 +140,23 @@ class PersonLoadUseCase(
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
 
-        birthday_tasks_total_cnt = await uow.get(
+        occasion_tasks_total_cnt = await uow.get(
             InboxTaskRepository
         ).count_all_for_source(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_BIRTHDAY,
-            source_entity_ref_id=args.ref_id,
+            source=InboxTaskSource.PERSON_OCCASION,
+            source_entity_ref_id=[o.ref_id for o in occasions],
         )
 
-        birthday_tasks = await uow.get(
+        occasion_tasks = await uow.get(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.PERSON_BIRTHDAY,
-            source_entity_ref_id=args.ref_id,
-            retrieve_offset=args.birthday_task_retrieve_offset or 0,
+            source=InboxTaskSource.PERSON_OCCASION,
+            source_entity_ref_id=[o.ref_id for o in occasions],
+            retrieve_offset=args.occasion_task_retrieve_offset or 0,
             retrieve_limit=InboxTaskRepository.PAGE_SIZE,
         )
 
@@ -161,13 +171,14 @@ class PersonLoadUseCase(
 
         return PersonLoadResult(
             person=person,
+            occasions=occasions,
             circle_ref_ids=circle_ref_ids,
             note=note,
-            birthday_time_event_blocks=birthday_time_event_blocks,
+            occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,
             catch_up_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
-            birthday_tasks=birthday_tasks,
-            birthday_tasks_total_cnt=birthday_tasks_total_cnt,
-            birthday_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
+            occasion_tasks=occasion_tasks,
+            occasion_tasks_total_cnt=occasion_tasks_total_cnt,
+            occasion_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
         )

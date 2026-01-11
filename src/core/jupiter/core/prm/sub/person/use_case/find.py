@@ -26,6 +26,7 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -46,11 +47,12 @@ class PersonFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool
+    include_occasions: bool
     include_circle_ref_ids: bool
     include_notes: bool
-    include_birthday_time_event_blocks: bool
+    include_occasion_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
-    include_birthday_inbox_tasks: bool
+    include_occasion_inbox_tasks: bool
     filter_person_ref_ids: list[EntityId] | None
 
 
@@ -59,11 +61,12 @@ class PersonFindResultEntry(UseCaseResultBase):
     """A single person result."""
 
     person: Person
+    occasions: list[Occasion]
     circle_ref_ids: list[EntityId]
     note: Note | None
-    birthday_time_event_blocks: list[TimeEventFullDaysBlock] | None
+    occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None
     catch_up_inbox_tasks: list[InboxTask] | None
-    birthday_inbox_tasks: list[InboxTask] | None
+    occasion_inbox_tasks: list[InboxTask] | None
 
 
 @use_case_result
@@ -107,17 +110,32 @@ class PersonFindUseCase(
             filter_ref_ids=args.filter_person_ref_ids,
         )
 
-        circle_ref_ids_by_person_ref_id: defaultdict[EntityId, list[EntityId]] = (
-            defaultdict(list)
-        )
+        if args.include_occasions:
+            occasions = await uow.get_for(Occasion).find_all_generic(
+                person_ref_id=[p.ref_id for p in persons],
+                allow_archived=args.allow_archived,
+            )
+            occasions_by_person_ref_id: dict[EntityId, list[Occasion]] = defaultdict(
+                list
+            )
+            for o in occasions:
+                occasions_by_person_ref_id[o.person.ref_id].append(o)
+        else:
+            occasions_by_person_ref_id = defaultdict(list)
+
         if args.include_circle_ref_ids:
             all_circle_links = await uow.get_for_record(PersonCircleLink).find_all(
                 prm.ref_id
+            )
+            circle_ref_ids_by_person_ref_id: dict[EntityId, list[EntityId]] = (
+                defaultdict(list)
             )
             for link in all_circle_links:
                 circle_ref_ids_by_person_ref_id[link.person_ref_id].append(
                     link.circle_ref_id
                 )
+        else:
+            circle_ref_ids_by_person_ref_id = defaultdict(list)
 
         all_notes_by_person_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if args.include_notes:
@@ -133,17 +151,17 @@ class PersonFindUseCase(
             for n in all_notes:
                 all_notes_by_person_ref_id[cast(EntityId, n.source_entity_ref_id)] = n
 
-        if args.include_birthday_time_event_blocks:
-            birthday_time_event_blocks = await uow.get_for(
+        if args.include_occasion_time_event_blocks and len(occasions) > 0:
+            occasion_time_event_blocks = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=True,
-                namespace=TimeEventNamespace.PERSON_BIRTHDAY,
-                source_entity_ref_id=[p.ref_id for p in persons],
+                namespace=TimeEventNamespace.PERSON_OCCASION,
+                source_entity_ref_id=[p.ref_id for p in occasions],
             )
         else:
-            birthday_time_event_blocks = None
+            occasion_time_event_blocks = None
 
         if args.include_catch_up_inbox_tasks:
             catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
@@ -155,12 +173,12 @@ class PersonFindUseCase(
         else:
             catch_up_inbox_tasks = None
 
-        if args.include_birthday_inbox_tasks:
+        if args.include_occasion_inbox_tasks and len(occasions) > 0:
             birthday_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=[InboxTaskSource.PERSON_BIRTHDAY],
-                source_entity_ref_id=[p.ref_id for p in persons],
+                source=[InboxTaskSource.PERSON_OCCASION],
+                source_entity_ref_id=[o.ref_id for o in occasions],
             )
         else:
             birthday_inbox_tasks = None
@@ -170,15 +188,16 @@ class PersonFindUseCase(
             entries=[
                 PersonFindResultEntry(
                     person=p,
+                    occasions=occasions_by_person_ref_id.get(p.ref_id, []),
                     circle_ref_ids=circle_ref_ids_by_person_ref_id.get(p.ref_id, []),
                     note=all_notes_by_person_ref_id.get(p.ref_id, None),
-                    birthday_time_event_blocks=(
+                    occasion_time_event_blocks=(
                         [
                             it
-                            for it in birthday_time_event_blocks
+                            for it in occasion_time_event_blocks
                             if it.source_entity_ref_id == p.ref_id
                         ]
-                        if birthday_time_event_blocks is not None
+                        if occasion_time_event_blocks is not None
                         else None
                     ),
                     catch_up_inbox_tasks=(
@@ -190,7 +209,7 @@ class PersonFindUseCase(
                         if catch_up_inbox_tasks is not None
                         else None
                     ),
-                    birthday_inbox_tasks=(
+                    occasion_inbox_tasks=(
                         [
                             it
                             for it in birthday_inbox_tasks

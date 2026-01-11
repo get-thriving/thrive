@@ -1,12 +1,12 @@
 import type {
-  PersonEntry,
+  PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   VacationEntry,
 } from "@jupiter/webapi-client";
 import { TimeEventNamespace } from "@jupiter/webapi-client";
 
 import type { CombinedTimeEventFullDaysEntry } from "#/core/common/sub/time_events/time-event";
-import { birthdayTimeEventName } from "#/core/common/sub/time_events/time-event";
+import { occasionTimeEventName } from "#/core/common/sub/time_events/time-event";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 
@@ -25,9 +25,13 @@ export function TimeEventFullDaysBlockCard(
       break;
     }
 
-    case TimeEventNamespace.PERSON_BIRTHDAY: {
-      const entry = props.entry.entry as PersonEntry;
-      name = birthdayTimeEventName(entry.birthday_time_event, entry.person);
+    case TimeEventNamespace.PERSON_OCCASION: {
+      const entry = props.entry.entry as PersonOccasionEntry;
+      name = occasionTimeEventName(
+        entry.occasion_time_event,
+        entry.person,
+        entry.occasion,
+      );
       break;
     }
 

@@ -30,6 +30,7 @@ class DocsHelpSubject(EnumValue):
     METRICS = "metrics"
     PRM = "prm"
     PERSONS = "prm/persons"
+    OCCASIONS = "prm/occasions"
     CIRCLES = "prm/circles"
     SLACK_TASKS = "slack-tasks"
     EMAIL_TASKS = "email-tasks"

@@ -43,9 +43,9 @@ export function ViewAsCalendarDaily(props: ViewAsProps) {
       entry: entry,
     });
   }
-  for (const entry of props.entries.person_entries) {
+  for (const entry of props.entries.person_occasion_entries) {
     combinedTimeEventFullDays.push({
-      time_event: entry.birthday_time_event,
+      time_event: entry.occasion_time_event,
       entry: entry,
     });
   }

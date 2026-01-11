@@ -15,6 +15,7 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -63,21 +64,34 @@ class PersonChangeCatchUpProjectUseCase(
         )
         persons_by_ref_id = {p.ref_id: p for p in persons}
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        all_catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-            parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=True,
-            source=[InboxTaskSource.PERSON_CATCH_UP],
-            source_entity_ref_id=[p.ref_id for p in persons],
-        )
-        all_birthday_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-            parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=True,
-            source=[InboxTaskSource.PERSON_BIRTHDAY],
-            source_entity_ref_id=[p.ref_id for p in persons],
-        )
+        if len(persons) > 0:
+            occasions = await uow.get_for(Occasion).find_all_generic(
+                person_ref_id=[p.ref_id for p in persons],
+                allow_archived=False,
+            )
+            occasions_by_ref_id = {o.ref_id: o for o in occasions}
+
+            inbox_task_collection = await uow.get_for(
+                InboxTaskCollection
+            ).load_by_parent(
+                workspace.ref_id,
+            )
+            all_catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=inbox_task_collection.ref_id,
+                allow_archived=True,
+                source=[InboxTaskSource.PERSON_CATCH_UP],
+                source_entity_ref_id=[p.ref_id for p in persons],
+            )
+            all_occasion_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=inbox_task_collection.ref_id,
+                allow_archived=True,
+                source=[InboxTaskSource.PERSON_OCCASION],
+                source_entity_ref_id=[o.ref_id for o in occasions],
+            )
+        else:
+            occasions_by_ref_id = {}
+            all_catch_up_inbox_tasks = []
+            all_occasion_inbox_tasks = []
 
         if (
             old_catch_up_project_ref_id != args.catch_up_project_ref_id
@@ -98,12 +112,15 @@ class PersonChangeCatchUpProjectUseCase(
                 await uow.get_for(InboxTask).save(inbox_task)
                 await progress_reporter.mark_updated(inbox_task)
 
-            for inbox_task in all_birthday_inbox_tasks:
-                person = persons_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
-                inbox_task = inbox_task.update_link_to_person_birthday(
+            for inbox_task in all_occasion_inbox_tasks:
+                occasion = occasions_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
+                person = persons_by_ref_id[occasion.person.ref_id]
+                inbox_task = inbox_task.update_link_to_person_occasion(
                     ctx=context.domain_context,
                     project_ref_id=args.catch_up_project_ref_id,
                     name=inbox_task.name,
+                    occasion_kind=occasion.kind,
+                    occasion_person_name=person.name,
                     recurring_timeline=cast(str, inbox_task.recurring_timeline),
                     preparation_days_cnt=person.preparation_days_cnt_for_birthday,
                     due_time=cast(ADate, inbox_task.due_date),

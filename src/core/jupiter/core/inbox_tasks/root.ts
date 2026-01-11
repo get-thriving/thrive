@@ -289,7 +289,7 @@ export function canInboxTaskBeInStatus(
     case InboxTaskSource.CHORE:
     case InboxTaskSource.JOURNAL:
     case InboxTaskSource.METRIC:
-    case InboxTaskSource.PERSON_BIRTHDAY:
+    case InboxTaskSource.PERSON_OCCASION:
     case InboxTaskSource.PERSON_CATCH_UP:
     case InboxTaskSource.SLACK_TASK:
     case InboxTaskSource.EMAIL_TASK:

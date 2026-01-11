@@ -59,22 +59,22 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
 
     @staticmethod
     @create_entity_action
-    def new_time_event_for_person_birthday(
+    def new_time_event_for_person_occasion(
         ctx: MutationContext,
         time_event_domain_ref_id: EntityId,
-        person_ref_id: EntityId,
-        birthday_date: ADate,
+        occasion_ref_id: EntityId,
+        occasion_date: ADate,
     ) -> "TimeEventFullDaysBlock":
         """Create a new time event."""
         return TimeEventFullDaysBlock._create(
             ctx,
             name=NOT_USED_NAME,
             time_event_domain=ParentLink(time_event_domain_ref_id),
-            namespace=TimeEventNamespace.PERSON_BIRTHDAY,
-            source_entity_ref_id=person_ref_id,
-            start_date=birthday_date,
+            namespace=TimeEventNamespace.PERSON_OCCASION,
+            source_entity_ref_id=occasion_ref_id,
+            start_date=occasion_date,
             duration_days=1,
-            end_date=birthday_date.add_days(1),
+            end_date=occasion_date.add_days(1),
         )
 
     @staticmethod
@@ -121,17 +121,17 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
         )
 
     @update_entity_action
-    def update_for_person_birthday(
+    def update_for_person_occasion(
         self,
         ctx: MutationContext,
-        birthday_date: ADate,
+        occasion_date: ADate,
     ) -> "TimeEventFullDaysBlock":
         """Update the time event."""
         return self._new_version(
             ctx,
-            start_date=birthday_date,
+            start_date=occasion_date,
             duration_days=1,
-            end_date=birthday_date.add_days(1),
+            end_date=occasion_date.add_days(1),
         )
 
     @update_entity_action
@@ -187,7 +187,7 @@ class TimeEventFullDaysBlockRepository(
     async def find_for_namespace(
         self,
         namespace: TimeEventNamespace,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: bool = False,
     ) -> list[TimeEventFullDaysBlock]:
         """Find all time event full days block for a namespace and source entity."""

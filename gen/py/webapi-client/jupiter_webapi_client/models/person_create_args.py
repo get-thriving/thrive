@@ -27,7 +27,6 @@ class PersonCreateArgs:
         catch_up_actionable_from_month (int | None | Unset):
         catch_up_due_at_day (int | None | Unset):
         catch_up_due_at_month (int | None | Unset):
-        birthday (None | str | Unset):
         circle_ref_ids (list[str] | None | Unset):
     """
 
@@ -39,7 +38,6 @@ class PersonCreateArgs:
     catch_up_actionable_from_month: int | None | Unset = UNSET
     catch_up_due_at_day: int | None | Unset = UNSET
     catch_up_due_at_month: int | None | Unset = UNSET
-    birthday: None | str | Unset = UNSET
     circle_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -94,12 +92,6 @@ class PersonCreateArgs:
         else:
             catch_up_due_at_month = self.catch_up_due_at_month
 
-        birthday: None | str | Unset
-        if isinstance(self.birthday, Unset):
-            birthday = UNSET
-        else:
-            birthday = self.birthday
-
         circle_ref_ids: list[str] | None | Unset
         if isinstance(self.circle_ref_ids, Unset):
             circle_ref_ids = UNSET
@@ -130,8 +122,6 @@ class PersonCreateArgs:
             field_dict["catch_up_due_at_day"] = catch_up_due_at_day
         if catch_up_due_at_month is not UNSET:
             field_dict["catch_up_due_at_month"] = catch_up_due_at_month
-        if birthday is not UNSET:
-            field_dict["birthday"] = birthday
         if circle_ref_ids is not UNSET:
             field_dict["circle_ref_ids"] = circle_ref_ids
 
@@ -231,15 +221,6 @@ class PersonCreateArgs:
 
         catch_up_due_at_month = _parse_catch_up_due_at_month(d.pop("catch_up_due_at_month", UNSET))
 
-        def _parse_birthday(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        birthday = _parse_birthday(d.pop("birthday", UNSET))
-
         def _parse_circle_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
@@ -266,7 +247,6 @@ class PersonCreateArgs:
             catch_up_actionable_from_month=catch_up_actionable_from_month,
             catch_up_due_at_day=catch_up_due_at_day,
             catch_up_due_at_month=catch_up_due_at_month,
-            birthday=birthday,
             circle_ref_ids=circle_ref_ids,
         )
 

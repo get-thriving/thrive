@@ -29,3 +29,4 @@ class NoteDomain(EnumValue):
     METRIC = "metric"
     METRIC_ENTRY = "metric-entry"
     PERSON = "person"
+    OCCASION = "occasion"

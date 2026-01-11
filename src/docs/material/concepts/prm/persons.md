@@ -16,15 +16,9 @@ _catch up project_ much likewith [metrics collection](../metrics.md).
 * If the period is missing, then no generation occurs, and the whole parameter
   set is ignored.
 
-A person can have a birthday. It needs to be specified with the format like `12
-Apr`. Aninbox task is defined yearly for this and also generated.
-
-* If the birthday is missing, the no generation occurs.
-* The birthday has an actionable date so it doesn't clog up the inbox. It
-  becomes visible like:
-  * `28` days in advance for family
-  * `14` days in advance for friends
-  * `2` days in advance for everyone else
+A person can have multiple [occasions](occasions.md) - birthdays, anniversaries,
+holidays,  and other recurring events. Inbox tasks are generated
+yearly for each occasion, with markers in the calendar too.
 
 ## Person Settings
 

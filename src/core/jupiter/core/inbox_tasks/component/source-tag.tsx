@@ -31,7 +31,7 @@ function sourceToClass(source: InboxTaskSource): "info" | "warning" | "error" {
       return "info";
     case InboxTaskSource.METRIC:
       return "warning";
-    case InboxTaskSource.PERSON_BIRTHDAY:
+    case InboxTaskSource.PERSON_OCCASION:
       return "warning";
     case InboxTaskSource.PERSON_CATCH_UP:
       return "warning";

@@ -4,7 +4,6 @@ import typing
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
-from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
@@ -13,12 +12,6 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
-from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
-    TimeEventFullDaysBlockRepository,
-)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -68,7 +61,6 @@ class PersonUpdateArgs(UseCaseArgsBase):
     catch_up_actionable_from_month: UpdateAction[RecurringTaskDueAtMonth | None]
     catch_up_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     catch_up_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
-    birthday: UpdateAction[Birthday | None]
     circle_ref_ids: UpdateAction[list[EntityId]] = UpdateAction.do_nothing()
 
 
@@ -231,26 +223,10 @@ class PersonUpdateUseCase(
             source=InboxTaskSource.PERSON_CATCH_UP,
             source_entity_ref_id=person.ref_id,
         )
-        person_birthday_tasks = await uow.get(
-            InboxTaskRepository
-        ).find_all_for_source_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=True,
-            source=InboxTaskSource.PERSON_BIRTHDAY,
-            source_entity_ref_id=person.ref_id,
-        )
-        birthday_time_event_blocks = await uow.get(
-            TimeEventFullDaysBlockRepository
-        ).find_for_namespace(
-            TimeEventNamespace.PERSON_BIRTHDAY,
-            source_entity_ref_id=person.ref_id,
-            allow_archived=True,
-        )
 
         person = person.update(
             ctx=context.domain_context,
             name=args.name,
-            birthday=args.birthday,
             catch_up_params=catch_up_params,
         )
 
@@ -298,69 +274,6 @@ class PersonUpdateUseCase(
                 # Situation 2a: we're handling the same project.
                 await uow.get_for(InboxTask).save(inbox_task)
                 await progress_reporter.mark_updated(inbox_task)
-
-        # Change the birthday inbox tasks
-        if person.birthday is None:
-            # Situation 1: we need to get rid of any existing catch ups persons because there's no collection catch ups.
-            inbox_task_archive_service = InboxTaskArchiveService()
-            for inbox_task in person_birthday_tasks:
-                await inbox_task_archive_service.do_it(
-                    context.domain_context,
-                    uow,
-                    progress_reporter,
-                    inbox_task,
-                    JupiterArchivalReason.USER,
-                )
-
-            for time_event_block in birthday_time_event_blocks:
-                time_event_block = time_event_block.mark_archived(
-                    context.domain_context, JupiterArchivalReason.USER
-                )
-                await uow.get(TimeEventFullDaysBlockRepository).save(time_event_block)
-        else:
-            # Situation 2: we need to update the existing persons.
-            for inbox_task in person_birthday_tasks:
-                schedule = schedules.get_schedule(
-                    RecurringTaskPeriod.YEARLY,
-                    person.name,
-                    typing.cast(Timestamp, inbox_task.recurring_gen_right_now),
-                    None,
-                    None,
-                    None,
-                    RecurringTaskDueAtDay.build(
-                        RecurringTaskPeriod.YEARLY,
-                        person.birthday.day,
-                    ),
-                    RecurringTaskDueAtMonth.build(
-                        RecurringTaskPeriod.YEARLY,
-                        person.birthday.month,
-                    ),
-                )
-
-                inbox_task = inbox_task.update_link_to_person_birthday(
-                    ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
-                    name=schedule.full_name,
-                    recurring_timeline=schedule.timeline,
-                    preparation_days_cnt=person.preparation_days_cnt_for_birthday,
-                    due_time=schedule.due_date,
-                )
-
-                await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
-
-            for birthday_time_event_block in birthday_time_event_blocks:
-                birthday_time_event_block = (
-                    birthday_time_event_block.update_for_person_birthday(
-                        ctx=context.domain_context,
-                        birthday_date=person.birthday_in_year(
-                            birthday_time_event_block.start_date
-                        ),
-                    )
-                )
-                await uow.get(TimeEventFullDaysBlockRepository).save(
-                    birthday_time_event_block
-                )
 
     async def _perform_post_transactional_mutation_work(
         self,
