@@ -367,15 +367,17 @@ class CalendarLoadForDateAndPeriodUseCase(
             prm = await uow.get_for(PRM).load_by_parent(
                 workspace.ref_id,
             )
-            persons = await uow.get_for(Person).find_all_generic(
+            persons = await uow.get_for(Person).find_all(
                 parent_ref_id=prm.ref_id,
-                allow_archived=False,
-                ref_id=list(time_events_full_days_for_occasions.keys()),
+                allow_archived=True,
             )
+            from rich import print
+
+            print(persons)
             persons_by_ref_id = {p.ref_id: p for p in persons}
             occasions = await uow.get_for(Occasion).find_all_generic(
                 parent_ref_id=None,
-                allow_archived=False,
+                allow_archived=True,
                 ref_id=list(time_events_full_days_for_occasions.keys()),
             )
         person_occasion_entries = [
