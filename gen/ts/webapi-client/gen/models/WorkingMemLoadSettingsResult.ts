@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { InboxTask } from './InboxTask';
 import type { Project } from './Project';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
@@ -10,5 +11,6 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 export type WorkingMemLoadSettingsResult = {
     generation_period: RecurringTaskPeriod;
     cleanup_project: Project;
+    clean_up_inbox_tasks: Array<InboxTask>;
 };
 

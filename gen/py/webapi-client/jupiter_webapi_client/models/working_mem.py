@@ -6,7 +6,6 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.recurring_task_period import RecurringTaskPeriod
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="WorkingMem")
@@ -22,11 +21,7 @@ class WorkingMem:
         archived (bool):
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        name (str): The name for an entity which acts as both name and unique identifier.
         working_mem_collection_ref_id (str):
-        right_now (str): A date or possibly a datetime for the application.
-        period (RecurringTaskPeriod): A period for a particular task.
-        timeline (str):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -36,11 +31,7 @@ class WorkingMem:
     archived: bool
     created_time: str
     last_modified_time: str
-    name: str
     working_mem_collection_ref_id: str
-    right_now: str
-    period: RecurringTaskPeriod
-    timeline: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -56,15 +47,7 @@ class WorkingMem:
 
         last_modified_time = self.last_modified_time
 
-        name = self.name
-
         working_mem_collection_ref_id = self.working_mem_collection_ref_id
-
-        right_now = self.right_now
-
-        period = self.period.value
-
-        timeline = self.timeline
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -87,11 +70,7 @@ class WorkingMem:
                 "archived": archived,
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
-                "name": name,
                 "working_mem_collection_ref_id": working_mem_collection_ref_id,
-                "right_now": right_now,
-                "period": period,
-                "timeline": timeline,
             }
         )
         if archival_reason is not UNSET:
@@ -114,15 +93,7 @@ class WorkingMem:
 
         last_modified_time = d.pop("last_modified_time")
 
-        name = d.pop("name")
-
         working_mem_collection_ref_id = d.pop("working_mem_collection_ref_id")
-
-        right_now = d.pop("right_now")
-
-        period = RecurringTaskPeriod(d.pop("period"))
-
-        timeline = d.pop("timeline")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -148,11 +119,7 @@ class WorkingMem:
             archived=archived,
             created_time=created_time,
             last_modified_time=last_modified_time,
-            name=name,
             working_mem_collection_ref_id=working_mem_collection_ref_id,
-            right_now=right_now,
-            period=period,
-            timeline=timeline,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

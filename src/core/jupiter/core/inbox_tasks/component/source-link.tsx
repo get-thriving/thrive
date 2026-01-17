@@ -21,7 +21,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/working-mem/archive/${props.inboxTaskResult.working_mem?.ref_id}`}
+          to={`/app/workspace/working-mem`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Working Mem" : "WM"}

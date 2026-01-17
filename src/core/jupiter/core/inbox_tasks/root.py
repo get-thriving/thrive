@@ -160,7 +160,7 @@ class InboxTask(LeafEntity):
         name: InboxTaskName,
         due_date: ADate | None,
         project_ref_id: EntityId,
-        working_mem_ref_id: EntityId,
+        working_mem_collection_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
     ) -> "InboxTask":
@@ -179,7 +179,7 @@ class InboxTask(LeafEntity):
             project_ref_id=project_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
-            source_entity_ref_id=working_mem_ref_id,
+            source_entity_ref_id=working_mem_collection_ref_id,
             notes=None,
             recurring_timeline=recurring_task_timeline,
             recurring_repeat_index=None,

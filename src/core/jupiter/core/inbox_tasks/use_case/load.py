@@ -29,7 +29,7 @@ from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.working_mem.root import WorkingMem
+from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -59,7 +59,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     project: Project
     chapter: Chapter | None
     goal: Goal | None
-    working_mem: WorkingMem | None
+    working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
@@ -104,11 +104,11 @@ class InboxTaskLoadUseCase(
             goal = await uow.get_for(Goal).load_by_id(inbox_task.goal_ref_id)
 
         if inbox_task.source is InboxTaskSource.WORKING_MEM_CLEANUP:
-            working_mem = await uow.get_for(WorkingMem).load_by_id(
+            working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_id(
                 inbox_task.source_entity_ref_id_for_sure, allow_archived=True
             )
         else:
-            working_mem = None
+            working_mem_collection = None
 
         if inbox_task.source is InboxTaskSource.TIME_PLAN:
             time_plan = await uow.get_for(TimePlan).load_by_id(
@@ -199,7 +199,7 @@ class InboxTaskLoadUseCase(
             project=project,
             chapter=chapter,
             goal=goal,
-            working_mem=working_mem,
+            working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,
             chore=chore,

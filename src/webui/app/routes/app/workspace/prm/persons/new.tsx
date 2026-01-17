@@ -1,4 +1,4 @@
-import type { Birthday, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import type { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import { ApiError, Difficulty, Eisen } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";

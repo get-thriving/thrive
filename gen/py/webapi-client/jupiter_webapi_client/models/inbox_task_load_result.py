@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from ..models.slack_task import SlackTask
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
-    from ..models.working_mem import WorkingMem
+    from ..models.working_mem_collection import WorkingMemCollection
 
 
 T = TypeVar("T", bound="InboxTaskLoadResult")
@@ -41,7 +41,7 @@ class InboxTaskLoadResult:
         time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
-        working_mem (None | Unset | WorkingMem):
+        working_mem_collection (None | Unset | WorkingMemCollection):
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
         chore (Chore | None | Unset):
@@ -60,7 +60,7 @@ class InboxTaskLoadResult:
     time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
-    working_mem: None | Unset | WorkingMem = UNSET
+    working_mem_collection: None | Unset | WorkingMemCollection = UNSET
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
     chore: Chore | None | Unset = UNSET
@@ -88,7 +88,7 @@ class InboxTaskLoadResult:
         from ..models.person import Person
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
-        from ..models.working_mem import WorkingMem
+        from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
 
@@ -115,13 +115,13 @@ class InboxTaskLoadResult:
         else:
             goal = self.goal
 
-        working_mem: dict[str, Any] | None | Unset
-        if isinstance(self.working_mem, Unset):
-            working_mem = UNSET
-        elif isinstance(self.working_mem, WorkingMem):
-            working_mem = self.working_mem.to_dict()
+        working_mem_collection: dict[str, Any] | None | Unset
+        if isinstance(self.working_mem_collection, Unset):
+            working_mem_collection = UNSET
+        elif isinstance(self.working_mem_collection, WorkingMemCollection):
+            working_mem_collection = self.working_mem_collection.to_dict()
         else:
-            working_mem = self.working_mem
+            working_mem_collection = self.working_mem_collection
 
         time_plan: dict[str, Any] | None | Unset
         if isinstance(self.time_plan, Unset):
@@ -224,8 +224,8 @@ class InboxTaskLoadResult:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
             field_dict["goal"] = goal
-        if working_mem is not UNSET:
-            field_dict["working_mem"] = working_mem
+        if working_mem_collection is not UNSET:
+            field_dict["working_mem_collection"] = working_mem_collection
         if time_plan is not UNSET:
             field_dict["time_plan"] = time_plan
         if habit is not UNSET:
@@ -269,7 +269,7 @@ class InboxTaskLoadResult:
         from ..models.slack_task import SlackTask
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
-        from ..models.working_mem import WorkingMem
+        from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
@@ -317,7 +317,7 @@ class InboxTaskLoadResult:
 
         goal = _parse_goal(d.pop("goal", UNSET))
 
-        def _parse_working_mem(data: object) -> None | Unset | WorkingMem:
+        def _parse_working_mem_collection(data: object) -> None | Unset | WorkingMemCollection:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -325,14 +325,14 @@ class InboxTaskLoadResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                working_mem_type_0 = WorkingMem.from_dict(data)
+                working_mem_collection_type_0 = WorkingMemCollection.from_dict(data)
 
-                return working_mem_type_0
+                return working_mem_collection_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | Unset | WorkingMem, data)
+            return cast(None | Unset | WorkingMemCollection, data)
 
-        working_mem = _parse_working_mem(d.pop("working_mem", UNSET))
+        working_mem_collection = _parse_working_mem_collection(d.pop("working_mem_collection", UNSET))
 
         def _parse_time_plan(data: object) -> None | TimePlan | Unset:
             if data is None:
@@ -527,7 +527,7 @@ class InboxTaskLoadResult:
             time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,
-            working_mem=working_mem,
+            working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,
             chore=chore,

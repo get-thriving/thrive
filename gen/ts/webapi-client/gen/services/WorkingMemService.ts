@@ -2,13 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { WorkingMemArchiveArgs } from '../models/WorkingMemArchiveArgs';
-import type { WorkingMemFindArgs } from '../models/WorkingMemFindArgs';
-import type { WorkingMemFindResult } from '../models/WorkingMemFindResult';
-import type { WorkingMemLoadArgs } from '../models/WorkingMemLoadArgs';
 import type { WorkingMemLoadCurrentArgs } from '../models/WorkingMemLoadCurrentArgs';
 import type { WorkingMemLoadCurrentResult } from '../models/WorkingMemLoadCurrentResult';
-import type { WorkingMemLoadResult } from '../models/WorkingMemLoadResult';
 import type { WorkingMemLoadSettingsArgs } from '../models/WorkingMemLoadSettingsArgs';
 import type { WorkingMemLoadSettingsResult } from '../models/WorkingMemLoadSettingsResult';
 import type { WorkingMemUpdateSettingsArgs } from '../models/WorkingMemUpdateSettingsArgs';
@@ -16,84 +11,6 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class WorkingMemService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
-    /**
-     * The command for archiving a working mem.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public workingMemArchive(
-        requestBody?: WorkingMemArchiveArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/working-mem-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for finding working mems.
-     * @param requestBody The input data
-     * @returns WorkingMemFindResult Successful response
-     * @throws ApiError
-     */
-    public workingMemFind(
-        requestBody?: WorkingMemFindArgs,
-    ): CancelablePromise<WorkingMemFindResult> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/working-mem-find',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for loading the working mem.
-     * @param requestBody The input data
-     * @returns WorkingMemLoadResult Successful response
-     * @throws ApiError
-     */
-    public workingMemLoad(
-        requestBody?: WorkingMemLoadArgs,
-    ): CancelablePromise<WorkingMemLoadResult> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/working-mem-load',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
     /**
      * The command for loading the current working mem.
      * @param requestBody The input data

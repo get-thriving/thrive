@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry
@@ -20,28 +18,22 @@ class WorkingMemLoadCurrentResult:
     """Working mem load current result.
 
     Attributes:
-        entry (None | Unset | WorkingMemLoadCurrentEntry):
+        entry (WorkingMemLoadCurrentEntry): Working mem load current entry.
     """
 
-    entry: None | Unset | WorkingMemLoadCurrentEntry = UNSET
+    entry: WorkingMemLoadCurrentEntry
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry
-
-        entry: dict[str, Any] | None | Unset
-        if isinstance(self.entry, Unset):
-            entry = UNSET
-        elif isinstance(self.entry, WorkingMemLoadCurrentEntry):
-            entry = self.entry.to_dict()
-        else:
-            entry = self.entry
+        entry = self.entry.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
-        if entry is not UNSET:
-            field_dict["entry"] = entry
+        field_dict.update(
+            {
+                "entry": entry,
+            }
+        )
 
         return field_dict
 
@@ -50,23 +42,7 @@ class WorkingMemLoadCurrentResult:
         from ..models.working_mem_load_current_entry import WorkingMemLoadCurrentEntry
 
         d = dict(src_dict)
-
-        def _parse_entry(data: object) -> None | Unset | WorkingMemLoadCurrentEntry:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                entry_type_0 = WorkingMemLoadCurrentEntry.from_dict(data)
-
-                return entry_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Unset | WorkingMemLoadCurrentEntry, data)
-
-        entry = _parse_entry(d.pop("entry", UNSET))
+        entry = WorkingMemLoadCurrentEntry.from_dict(d.pop("entry"))
 
         working_mem_load_current_result = cls(
             entry=entry,

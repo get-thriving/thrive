@@ -799,16 +799,10 @@ from .widget_type_constraints_allowed_dimensions import WidgetTypeConstraintsAll
 from .workable_big_plan import WorkableBigPlan
 from .workable_summary import WorkableSummary
 from .working_mem import WorkingMem
-from .working_mem_archive_args import WorkingMemArchiveArgs
 from .working_mem_collection import WorkingMemCollection
-from .working_mem_find_args import WorkingMemFindArgs
-from .working_mem_find_result import WorkingMemFindResult
-from .working_mem_find_result_entry import WorkingMemFindResultEntry
-from .working_mem_load_args import WorkingMemLoadArgs
 from .working_mem_load_current_args import WorkingMemLoadCurrentArgs
 from .working_mem_load_current_entry import WorkingMemLoadCurrentEntry
 from .working_mem_load_current_result import WorkingMemLoadCurrentResult
-from .working_mem_load_result import WorkingMemLoadResult
 from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
@@ -1606,16 +1600,10 @@ __all__ = (
     "WorkableBigPlan",
     "WorkableSummary",
     "WorkingMem",
-    "WorkingMemArchiveArgs",
     "WorkingMemCollection",
-    "WorkingMemFindArgs",
-    "WorkingMemFindResult",
-    "WorkingMemFindResultEntry",
-    "WorkingMemLoadArgs",
     "WorkingMemLoadCurrentArgs",
     "WorkingMemLoadCurrentEntry",
     "WorkingMemLoadCurrentResult",
-    "WorkingMemLoadResult",
     "WorkingMemLoadSettingsArgs",
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",

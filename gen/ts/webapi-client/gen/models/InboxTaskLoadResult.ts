@@ -18,7 +18,7 @@ import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
-import type { WorkingMem } from './WorkingMem';
+import type { WorkingMemCollection } from './WorkingMemCollection';
 /**
  * InboxTaskLoadResult.
  */
@@ -27,7 +27,7 @@ export type InboxTaskLoadResult = {
     project: Project;
     chapter?: (Chapter | null);
     goal?: (Goal | null);
-    working_mem?: (WorkingMem | null);
+    working_mem_collection?: (WorkingMemCollection | null);
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);
     chore?: (Chore | null);

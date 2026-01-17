@@ -58,7 +58,6 @@ from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
-from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.errors import InputValidationError
@@ -102,7 +101,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     chapter: Chapter | None
     goal: Goal | None
     time_event_blocks: list[TimeEventInDayBlock] | None
-    working_mem: WorkingMem | None
+    working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
@@ -245,17 +244,6 @@ class InboxTaskFindUseCase(
             project_ref_id=args.filter_project_ref_ids or NoFilter(),
             source_entity_ref_id=args.filter_source_entity_ref_ids or NoFilter(),
         )
-
-        working_mems = await uow.get_for(WorkingMem).find_all(
-            parent_ref_id=working_mem_collection.ref_id,
-            allow_archived=True,
-            filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
-                for it in inbox_tasks
-                if it.source == InboxTaskSource.WORKING_MEM_CLEANUP
-            ],
-        )
-        working_mems_by_ref_id = {wm.ref_id: wm for wm in working_mems}
 
         time_plans = await uow.get_for(TimePlan).find_all(
             parent_ref_id=time_plan_domain.ref_id,
@@ -411,8 +399,8 @@ class InboxTaskFindUseCase(
                         else None
                     ),
                     goal=goal_by_ref_id[it.goal_ref_id] if it.goal_ref_id else None,
-                    working_mem=(
-                        working_mems_by_ref_id[it.source_entity_ref_id_for_sure]
+                    working_mem_collection=(
+                        working_mem_collection
                         if it.source == InboxTaskSource.WORKING_MEM_CLEANUP
                         else None
                     ),

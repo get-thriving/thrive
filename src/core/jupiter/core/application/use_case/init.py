@@ -14,6 +14,8 @@ from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
@@ -81,9 +83,11 @@ from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
+from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
@@ -245,6 +249,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_inbox_task_collection,
             )
 
+            new_note_collection = NoteCollection.new_note_collection(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_note_collection = await uow.get_for(NoteCollection).create(
+                new_note_collection
+            )
+
             new_working_mem_collection = (
                 WorkingMemCollection.new_working_mem_collection(
                     ctx=context.domain_context,
@@ -256,6 +268,25 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
                 new_working_mem_collection,
             )
+
+            today = ADate.from_timestamp(context.domain_context.action_timestamp)
+
+            new_working_mem = WorkingMem.new_working_mem(
+                ctx=context.domain_context,
+                working_mem_collection_ref_id=new_working_mem_collection.ref_id,
+                right_now=today,
+                period=new_working_mem_collection.generation_period,
+            )
+            new_working_mem = await uow.get_for(WorkingMem).create(new_working_mem)
+
+            new_working_mem_note = Note.new_note(
+                ctx=context.domain_context,
+                note_collection_ref_id=new_note_collection.ref_id,
+                domain=NoteDomain.WORKING_MEM,
+                source_entity_ref_id=new_working_mem.ref_id,
+                content=[],
+            )
+            await uow.get_for(Note).create(new_working_mem_note)
 
             new_time_plan_domain = TimePlanDomain.new_time_plan_domain(
                 ctx=context.domain_context,
@@ -420,14 +451,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,
-            )
-
-            new_note_collection = NoteCollection.new_note_collection(
-                ctx=context.domain_context,
-                workspace_ref_id=new_workspace.ref_id,
-            )
-            new_note_collection = await uow.get_for(NoteCollection).create(
-                new_note_collection
             )
 
             new_time_event_domain = TimeEventDomain.new_time_event_domain(

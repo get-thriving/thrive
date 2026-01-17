@@ -5,18 +5,17 @@ from jupiter.core.working_mem.root import (
     WorkingMemRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
-    SqliteLeafEntityRepository,
+    SqliteStubEntityRepository,
 )
 
 
 class SqliteWorkingMemRepository(
-    SqliteLeafEntityRepository[WorkingMem], WorkingMemRepository
+    SqliteStubEntityRepository[WorkingMem], WorkingMemRepository
 ):
     """Sqlite implementation of the working mem repository."""
 
-    async def load_latest_working_mem(
+    async def load_the_working_mem(
         self, working_mem_collection_ref_id: EntityId
     ) -> WorkingMem:
         """Retrieve the working mem by the latest date."""
@@ -32,7 +31,7 @@ class SqliteWorkingMemRepository(
         )
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
-            raise EntityNotFoundError(
+            raise Exception(
                 f"Working mem for collection {working_mem_collection_ref_id} does not exist"
             )
         return self._row_to_entity(result)

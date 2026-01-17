@@ -17,22 +17,15 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
-from jupiter.core.working_mem.root import (
-    WorkingMem,
-    WorkingMemRepository,
-)
-from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
-    EntityNotFoundError,
 )
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
@@ -80,19 +73,10 @@ class WorkingMemUpdateSettingsUseCase(
 
         # First update the generation period
 
-        if args.generation_period.should_change:
-            try:
-                current_working_mem = await uow.get(
-                    WorkingMemRepository
-                ).load_latest_working_mem(working_mem_collection.ref_id)
-            except EntityNotFoundError:
-                return
-            current_working_mem = current_working_mem.change_generation_period(
-                context.domain_context, args.generation_period.just_the_value
-            )
-            await uow.get_for(WorkingMem).save(current_working_mem)
-            await progress_reporter.mark_updated(current_working_mem)
-
+        if (
+            args.generation_period.should_change
+            or args.cleanup_project_ref_id.should_change
+        ):
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(
@@ -104,7 +88,7 @@ class WorkingMemUpdateSettingsUseCase(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 source=InboxTaskSource.WORKING_MEM_CLEANUP,
-                source_entity_ref_id=current_working_mem.ref_id,
+                source_entity_ref_id=working_mem_collection.ref_id,
             )
 
             for inbox_task in inbox_tasks:
@@ -128,42 +112,4 @@ class WorkingMemUpdateSettingsUseCase(
                     recurring_timeline=schedule.timeline,
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
-
-        # Then update the cleanup project
-
-        await uow.get_for(Project).load_by_id(
-            args.cleanup_project_ref_id.just_the_value,
-        )
-
-        working_mems = await uow.get_for(WorkingMem).find_all(
-            parent_ref_id=working_mem_collection.ref_id,
-            allow_archived=False,
-        )
-
-        if args.cleanup_project_ref_id.should_change and len(working_mems) > 0:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(
-                workspace.ref_id,
-            )
-            all_collection_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
-                allow_archived=True,
-                source=[InboxTaskSource.WORKING_MEM_CLEANUP],
-                source_entity_ref_id=[m.ref_id for m in working_mems],
-            )
-
-            for inbox_task in all_collection_inbox_tasks:
-                inbox_task = inbox_task.update_link_to_working_mem_cleanup(
-                    context.domain_context,
-                    project_ref_id=args.cleanup_project_ref_id.just_the_value,
-                    name=inbox_task.name,
-                    due_date=cast(ADate, inbox_task.due_date),
-                    recurring_timeline=cast(str, inbox_task.recurring_timeline),
-                )
-
-                inbox_task = await uow.get_for(InboxTask).save(
-                    inbox_task,
-                )
                 await progress_reporter.mark_updated(inbox_task)

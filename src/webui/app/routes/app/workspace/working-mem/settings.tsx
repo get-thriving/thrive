@@ -1,6 +1,7 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { InboxTask, ProjectSummary } from "@jupiter/webapi-client";
 import {
   ApiError,
+  InboxTaskStatus,
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -8,11 +9,13 @@ import { FormControl, FormLabel } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import { useActionData, useFetcher, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -57,6 +60,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     generationPeriod: response.generation_period,
     cleanupProject: response.cleanup_project,
+    cleanUpInboxTasks: response.clean_up_inbox_tasks,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
   });
 }
@@ -101,14 +105,48 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function MetricsSettings() {
+export default function WorkingMemSettings() {
   const navigation = useNavigation();
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
-
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled = navigation.state === "idle";
+
+  const sortedCleanupTasks = sortInboxTasksNaturally(
+    loaderData.cleanUpInboxTasks,
+    {
+      dueDateAscending: false,
+    },
+  );
+
+  const cardActionFetcher = useFetcher();
+
+  function handleCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.NOT_DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
 
   return (
     <LeafPanel
@@ -175,6 +213,23 @@ export default function MetricsSettings() {
               fieldName="/cleanup_project_ref_id"
             />
           </FormControl>
+        )}
+      </SectionCard>
+
+      <SectionCard title="Cleanup Tasks">
+        {sortedCleanupTasks && (
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedCleanupTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
         )}
       </SectionCard>
     </LeafPanel>
