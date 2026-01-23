@@ -371,9 +371,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                 parent_ref_id=prm.ref_id,
                 allow_archived=True,
             )
-            from rich import print
 
-            print(persons)
             persons_by_ref_id = {p.ref_id: p for p in persons}
             occasions = await uow.get_for(Occasion).find_all_generic(
                 parent_ref_id=None,

@@ -79,6 +79,7 @@ class JupiterGlobalProperties(GlobalProperties):
     alembic_ini_path: Path
     alembic_migrations_path: Path
     auth_token_secret: str
+    sentry_dsn: str
     wix_api_key: str
     wix_account_id: str
     wix_site_id: str
@@ -141,6 +142,7 @@ def build_global_properties() -> JupiterGlobalProperties:
     version = AppVersion(cast(str, os.getenv("VERSION")))
     docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
     session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
+    sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
     sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
     alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
     alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
@@ -163,6 +165,7 @@ def build_global_properties() -> JupiterGlobalProperties:
         version=version,
         docs_init_workspace_url=docs_init_workspace_url,
         session_info_path=session_info_path,
+        sentry_dsn=sentry_dsn,
         sqlite_db_url=sqlite_db_url,
         alembic_ini_path=alembic_ini_path,
         alembic_migrations_path=alembic_migrations_path,

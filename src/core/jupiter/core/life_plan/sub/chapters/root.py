@@ -84,8 +84,6 @@ class Chapter(LeafEntity):
         end_date: UpdateAction[PartialDate],
     ) -> "Chapter":
         """Update a chapter."""
-        print(f"Updating {start_date} {start_date.or_else(self.start_date)}")
-        print(f"Updating {end_date} {end_date.or_else(self.end_date)}")
         earliest_start_date = start_date.or_else(self.start_date).earliest_relative_to(
             birthday,
             ADate.from_timestamp(ctx.action_timestamp),

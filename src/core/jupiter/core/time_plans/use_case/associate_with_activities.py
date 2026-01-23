@@ -155,9 +155,6 @@ class TimePlanAssociateWithActivitiesUseCase(
                 )
 
                 try:
-                    print(
-                        f"Creating new big plan time plan activity for big plan: {big_plan.ref_id}"
-                    )
                     new_big_plan_time_plan_activity = (
                         TimePlanActivity.new_activity_for_big_plan(
                             context.domain_context,
