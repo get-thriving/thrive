@@ -19,7 +19,9 @@ module.exports = {
         args: "dev",
         log_file: "{{webuiLogFile}}",
         env: {
-            LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL: "{{webapiServerUrl}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
+            WEBAPI_PROGRESS_REPORTER_URL: "ws://0.0.0.0:{{webapiPort}}/progress-reporter",
             WEBAPI_URL: "{{webapiServerUrl}}",
             DOCS_URL: "{{docsServerUrl}}",
             PORT: "{{webuiPort}}",

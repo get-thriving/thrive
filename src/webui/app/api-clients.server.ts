@@ -1,4 +1,4 @@
-import { ApiClient, Hosting } from "@jupiter/webapi-client";
+import { ApiClient } from "@jupiter/webapi-client";
 import { redirect } from "@remix-run/node";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
@@ -32,17 +32,7 @@ export async function getGuestApiClient(
     return _API_CLIENTS_BY_SESSION.get(token) as ApiClient;
   }
 
-  let base = "";
-  if (
-    GLOBAL_PROPERTIES.hosting === Hosting.LOCAL ||
-    GLOBAL_PROPERTIES.hosting === Hosting.SELF_HOSTED
-  ) {
-    base = GLOBAL_PROPERTIES.localOrSelfHostedWebApiServerUrl;
-  } else if (GLOBAL_PROPERTIES.hosting === Hosting.HOSTED_GLOBAL) {
-    base = GLOBAL_PROPERTIES.hostedGlobalWebApiServerUrl;
-  } else {
-    throw new Error("Unknown hosting: " + GLOBAL_PROPERTIES.hosting);
-  }
+  const base = GLOBAL_PROPERTIES.webApiServerUrl;
 
   const newApiClient = new ApiClient({
     BASE: base,
@@ -81,17 +71,7 @@ export async function getLoggedInApiClient(
     return _API_CLIENTS_BY_SESSION.get(authTokenExtStr) as ApiClient;
   }
 
-  let base = "";
-  if (
-    GLOBAL_PROPERTIES.hosting === Hosting.LOCAL ||
-    GLOBAL_PROPERTIES.hosting === Hosting.SELF_HOSTED
-  ) {
-    base = GLOBAL_PROPERTIES.localOrSelfHostedWebApiServerUrl;
-  } else if (GLOBAL_PROPERTIES.hosting === Hosting.HOSTED_GLOBAL) {
-    base = GLOBAL_PROPERTIES.hostedGlobalWebApiServerUrl;
-  } else {
-    throw new Error("Unknown hosting option: " + GLOBAL_PROPERTIES.hosting);
-  }
+  const base = GLOBAL_PROPERTIES.webApiServerUrl;
 
   const newApiClient = new ApiClient({
     BASE: base,

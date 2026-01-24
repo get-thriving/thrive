@@ -1,4 +1,4 @@
-import type { Env, Hosting } from "@jupiter/webapi-client";
+import { Hosting, type Env } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
 export interface GlobalPropertiesServer {
@@ -9,10 +9,8 @@ export interface GlobalPropertiesServer {
   version: string;
   title: string;
   description: string;
-  localOrSelfHostedWebApiServerUrl: string;
-  localOrSelfHostedWebApiProgressReporterUrl: string;
-  hostedGlobalWebApiServerUrl: string;
-  hostedGlobalWebApiProgressReporterUrl: string;
+  webApiServerUrl: string;
+  webApiProgressReporterUrl: string;
   webApiUrl: string;
   docsUrl: string;
   hostedGlobalWebUiUrl: string;
@@ -37,32 +35,28 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
   config({ path: `${process.cwd()}/Config.project` });
 
-  const hostedGlobalWebApiServerHost = process.env
-    .HOSTED_GLOBAL_WEBAPI_SERVER_HOST as string;
-  const hostedGlobalWebApiServerPort = parseInt(
-    process.env.HOSTED_GLOBAL_WEBAPI_SERVER_PORT as string,
+  const hosting = process.env.HOSTING as Hosting;
+  const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
+  const webApiServerPort = parseInt(
+    process.env.WEBAPI_SERVER_PORT as string,
     10,
   );
 
-  const hostedGlobalWebApiServerUrl = `http://${hostedGlobalWebApiServerHost}:${hostedGlobalWebApiServerPort}`;
-  const hostedGlobalWebApiProgressReporterUrl = `wss://${hostedGlobalWebApiServerHost}:${hostedGlobalWebApiServerPort}/progress-reporter`;
+  const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
+  const webApiProgressReporterUrl = process.env
+    .WEBAPI_PROGRESS_REPORTER_URL as string;
 
   const globalProperties = {
     env: process.env.ENV as Env,
-    hosting: process.env.HOSTING as Hosting,
+    hosting: hosting,
     hostingName: process.env.HOSTING_NAME as string,
     baseName: process.env.BASENAME as string,
     version: process.env.VERSION as string,
     title: process.env.TITLE as string,
     description: process.env.DESCRIPTION as string,
     webApiUrl: process.env.WEBAPI_URL as string,
-    localOrSelfHostedWebApiServerUrl: process.env
-      .LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL as string,
-    localOrSelfHostedWebApiProgressReporterUrl: process.env
-      .LOCAL_OR_SELF_HOSTED_WEBAPI_PROGRESS_REPORTER_URL as string,
-    hostedGlobalWebApiServerUrl: hostedGlobalWebApiServerUrl,
-    hostedGlobalWebApiProgressReporterUrl:
-      hostedGlobalWebApiProgressReporterUrl,
+    webApiServerUrl: webApiServerUrl,
+    webApiProgressReporterUrl: webApiProgressReporterUrl,
     docsUrl: process.env.DOCS_URL as string,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,

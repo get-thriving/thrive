@@ -23,12 +23,12 @@ services:
     - key: ENV
       value: production
       previewValue: staging
-    - key: HOSTED_GLOBAL_WEBAPI_SERVER_HOST
+    - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi
         type: web
         property: host
-    - key: HOSTED_GLOBAL_WEBAPI_SERVER_PORT
+    - key: WEBAPI_SERVER_PORT
       fromService:
         name: jupiter-webapi
         type: web
