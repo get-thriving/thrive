@@ -1,6 +1,8 @@
 import { Hosting, Instance, Universe, type Env } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
+import { newOrGenerateInstance } from "#/core/instance";
+
 export interface GlobalPropertiesServer {
   universe: Universe;
   env: Env;
@@ -50,7 +52,12 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   const globalProperties = {
     universe: process.env.UNIVERSE as Universe,
     env: process.env.ENV as Env,
-    instance: process.env.INSTANCE as Instance,
+    instance: process.env.RENDER
+      ? newOrGenerateInstance(
+          process.env.INSTANCE as string,
+          process.env.RENDER_GIT_BRANCH as string,
+        )
+      : (process.env.INSTANCE as Instance),
     hosting: hosting,
     hostingName: process.env.HOSTING_NAME as string,
     version: process.env.VERSION as string,

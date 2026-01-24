@@ -11,8 +11,9 @@ from jupiter.framework.realm.standard import (
 )
 from jupiter.framework.value import AtomicValue, hashable_value
 
-_INSTANCE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9/- ]+$")
+_INSTANCE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9- ]+$")
 _MAIN_INSTANCE: Final[str] = "Main"
+_TO_FILL_INSTANCE: Final[str] = "TO-FILL"
 
 
 @hashable_value
@@ -20,6 +21,13 @@ class Instance(AtomicValue[str]):
     """An instance for a Thrive application."""
 
     the_instance: str
+
+    @staticmethod
+    def new_or_generate(value: str, branch_name: str) -> "Instance":
+        """Create a new instance or generate a new one."""
+        if value == _TO_FILL_INSTANCE:
+            return Instance(f"{branch_name.replace('/', '-')}")
+        return Instance(value)
 
     def _validate(self) -> None:
         """Validate this instance."""

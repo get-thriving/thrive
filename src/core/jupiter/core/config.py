@@ -140,7 +140,12 @@ def build_global_properties() -> JupiterGlobalProperties:
 
     universe = Universe(cast(str, os.getenv("UNIVERSE")))
     env = Env(cast(str, os.getenv("ENV")))
-    instance = Instance(cast(str, os.getenv("INSTANCE")))
+    if os.getenv("RENDER"):
+        instance = Instance.new_or_generate(
+            cast(str, os.getenv("INSTANCE")), cast(str, os.getenv("RENDER_GIT_BRANCH"))
+        )
+    else:
+        instance = Instance(cast(str, os.getenv("INSTANCE")))
     hosting = Hosting(cast(str, os.getenv("HOSTING")))
     description = cast(str, os.getenv("DESCRIPTION"))
     host = cast(str, os.getenv("HOST"))

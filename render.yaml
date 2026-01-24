@@ -26,8 +26,8 @@ services:
       value: production
       previewValue: staging
     - key: INSTANCE
-      value: main
-      previewValue: ${RENDER_GIT_BRANCH}
+      value: Main
+      previewValue: TO-FILL
     - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi
@@ -75,8 +75,8 @@ services:
       value: production
       previewValue: staging
     - key: INSTANCE
-      value: main
-      previewValue: ${RENDER_GIT_BRANCH}
+      value: Main
+      previewValue: TO-FILL
 - type: web
   name: jupiter-docs
   runtime: static
@@ -93,8 +93,8 @@ services:
       value: production
       previewValue: staging
     - key: INSTANCE
-      value: main
-      previewValue: ${RENDER_GIT_BRANCH}
+      value: Main
+      previewValue: TO-FILL
     - key: UV_VERSION
       value: 0.9.11
     - key: PYTHON_VERSION
