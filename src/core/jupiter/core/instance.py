@@ -5,10 +5,13 @@ from typing import Final
 
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
-from jupiter.framework.realm.standard import PrimitiveAtomicValueDatabaseDecoder, PrimitiveAtomicValueDatabaseEncoder
+from jupiter.framework.realm.standard import (
+    PrimitiveAtomicValueDatabaseDecoder,
+    PrimitiveAtomicValueDatabaseEncoder,
+)
 from jupiter.framework.value import AtomicValue, hashable_value
 
-_INSTANCE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9- ]+$")
+_INSTANCE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9/- ]+$")
 _MAIN_INSTANCE: Final[str] = "Main"
 
 
@@ -37,18 +40,15 @@ class Instance(AtomicValue[str]):
         return self.the_instance == _MAIN_INSTANCE
 
 
-class InstanceDatabaseEncoder(
-    PrimitiveAtomicValueDatabaseEncoder[Instance]
-):
+class InstanceDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[Instance]):
     """Encode to a database primitive."""
 
     def to_primitive(self, value: Instance) -> Primitive:
         """Encode to a primitive."""
         return str(value.the_instance)
 
-class InstanceDatabaseDecoder(
-    PrimitiveAtomicValueDatabaseDecoder[Instance]
-):
+
+class InstanceDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[Instance]):
     """Decode from a database primitive."""
 
     def from_raw_str(self, value: str) -> Instance:

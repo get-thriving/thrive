@@ -17,11 +17,11 @@ from jupiter.core.app import (
 )
 from jupiter.core.application.crm import CRM
 from jupiter.core.env import Env
-from jupiter.core.instance import Instance
-from jupiter.core.universe import Universe
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
+from jupiter.core.instance import Instance
 from jupiter.core.search.storage_engine import SearchStorageEngine
+from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )

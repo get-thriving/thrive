@@ -5,7 +5,10 @@ from typing import Final
 
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
-from jupiter.framework.realm.standard import PrimitiveAtomicValueDatabaseDecoder, PrimitiveAtomicValueDatabaseEncoder
+from jupiter.framework.realm.standard import (
+    PrimitiveAtomicValueDatabaseDecoder,
+    PrimitiveAtomicValueDatabaseEncoder,
+)
 from jupiter.framework.value import AtomicValue, hashable_value
 
 _UNIVERSE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9-]+$")
@@ -37,9 +40,7 @@ class Universe(AtomicValue[str]):
         return self.the_universe == _THRIVE_UNIVERSE
 
 
-class UniverseDatabaseEncoder(
-    PrimitiveAtomicValueDatabaseEncoder[Universe]
-):
+class UniverseDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[Universe]):
     """Encode to a database primitive."""
 
     def to_primitive(self, value: Universe) -> Primitive:
@@ -47,9 +48,7 @@ class UniverseDatabaseEncoder(
         return str(value.the_universe)
 
 
-class UniverseDatabaseDecoder(
-    PrimitiveAtomicValueDatabaseDecoder[Universe]
-):
+class UniverseDatabaseDecoder(PrimitiveAtomicValueDatabaseDecoder[Universe]):
     """Decode from a database primitive."""
 
     def from_raw_str(self, value: str) -> Universe:

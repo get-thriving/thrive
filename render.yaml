@@ -20,9 +20,14 @@ services:
     generation: automatic
     plan: starter
   envVars:
+    - key: UNIVERSE
+      value: thrive
     - key: ENV
       value: production
       previewValue: staging
+    - key: INSTANCE
+      value: main
+      previewValue: ${RENDER_GIT_BRANCH}
     - key: WEBAPI_SERVER_HOST
       fromService:
         name: jupiter-webapi
@@ -64,9 +69,14 @@ services:
       mountPath: /data
       sizeGB: 5
   envVars:
+    - key: UNIVERSE
+      value: thrive
     - key: ENV
       value: production
       previewValue: staging
+    - key: INSTANCE
+      value: main
+      previewValue: ${RENDER_GIT_BRANCH}
 - type: web
   name: jupiter-docs
   runtime: static
@@ -77,11 +87,15 @@ services:
   previews:
     generation: automatic
   envVars:
+    - key: UNIVERSE
+      value: thrive
     - key: ENV
       value: production
       previewValue: staging
+    - key: INSTANCE
+      value: main
+      previewValue: ${RENDER_GIT_BRANCH}
     - key: UV_VERSION
       value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0
-
