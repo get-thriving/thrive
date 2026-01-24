@@ -5,7 +5,6 @@ export interface GlobalPropertiesServer {
   env: Env;
   hosting: Hosting;
   hostingName: string;
-  baseName: string;
   version: string;
   title: string;
   description: string;
@@ -50,7 +49,6 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     env: process.env.ENV as Env,
     hosting: hosting,
     hostingName: process.env.HOSTING_NAME as string,
-    baseName: process.env.BASENAME as string,
     version: process.env.VERSION as string,
     title: process.env.TITLE as string,
     description: process.env.DESCRIPTION as string,

@@ -18,7 +18,6 @@ export interface GlobalPropertiesClient {
   version: string;
   appCore: AppCore;
   frontDoorInfo: FrontDoorInfo;
-  baseName: string;
   title: string;
   description: string;
   webApiProgressReporterUrl: string;
@@ -47,7 +46,6 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
     appDistribution: AppDistribution.WEB,
     initialWindowWidth: undefined,
   },
-  baseName: "FAKE-FAKE",
   title: "FAKE-FAKE",
   description: "FAKE-FAKE",
   webApiProgressReporterUrl: "FAKE-FAKE",
@@ -74,7 +72,6 @@ export function serverToClientGlobalProperties(
     version: globalPropertiesServer.version,
     appCore: AppCore.WEBUI,
     frontDoorInfo: frontDoorInfo,
-    baseName: globalPropertiesServer.baseName,
     title: globalPropertiesServer.title,
     description: globalPropertiesServer.description,
     webApiProgressReporterUrl: globalPropertiesServer.webApiProgressReporterUrl,
