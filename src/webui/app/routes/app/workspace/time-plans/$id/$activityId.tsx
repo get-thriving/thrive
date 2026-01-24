@@ -1,9 +1,5 @@
 import type {
-  BigPlanSummary,
-  ChapterSummary,
-  GoalSummary,
   LifePlan,
-  MilestoneSummary,
   ProjectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
@@ -168,11 +164,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       rootProject: summaryResponse.root_project as ProjectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
-      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
+      allProjects: summaryResponse.projects,
+      allChapters: summaryResponse.chapters,
+      allGoals: summaryResponse.goals,
+      allMilestones: summaryResponse.milestones,
+      allBigPlans: summaryResponse.big_plans,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
@@ -286,7 +282,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: form.targetInboxTaskChapter !== undefined,
             value:
               form.targetInboxTaskChapter !== undefined &&
-              form.targetInboxTaskChapter !== "none"
+              form.targetInboxTaskChapter !== ""
                 ? form.targetInboxTaskChapter
                 : null,
           },
@@ -294,7 +290,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: form.targetInboxTaskGoal !== undefined,
             value:
               form.targetInboxTaskGoal !== undefined &&
-              form.targetInboxTaskGoal !== "none"
+              form.targetInboxTaskGoal !== ""
                 ? form.targetInboxTaskGoal
                 : null,
           },
@@ -484,11 +480,11 @@ export default function TimePlanActivity() {
             topLevelInfo={topLevelInfo}
             lifePlan={loaderData.lifePlan}
             rootProject={loaderData.rootProject}
-            allProjects={loaderData.allProjects}
-            allChapters={loaderData.allChapters}
-            allGoals={loaderData.allGoals}
-            allMilestones={loaderData.allMilestones}
-            allBigPlans={loaderData.allBigPlans}
+            allProjects={loaderData.allProjects ?? []}
+            allChapters={loaderData.allChapters ?? []}
+            allGoals={loaderData.allGoals ?? []}
+            allMilestones={loaderData.allMilestones ?? []}
+            allBigPlans={loaderData.allBigPlans ?? []}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }

@@ -123,13 +123,13 @@ export default function TimePlans() {
   }
 
   const allProjectsByRefId = new Map(
-    loaderData.allProjects.map((p) => [p.ref_id, p]),
+    loaderData.allProjects?.map((p) => [p.ref_id, p]) ?? [],
   );
   const allChaptersByRefId = new Map(
-    loaderData.allChapters.map((c) => [c.ref_id, c]),
+    loaderData.allChapters?.map((c) => [c.ref_id, c]) ?? [],
   );
   const allGoalsByRefId = new Map(
-    loaderData.allGoals.map((g) => [g.ref_id, g]),
+    loaderData.allGoals?.map((g) => [g.ref_id, g]) ?? [],
   );
 
   const timePlanProjectRefIds = new Map<string, Array<EntityId>>();

@@ -1,15 +1,11 @@
 import type {
   BigPlan,
-  ChapterSummary,
   InboxTask,
   LifePlan,
-  ProjectSummary,
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
   Workspace,
-  GoalSummary,
-  MilestoneSummary,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -178,10 +174,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allProjects: summaryResponse.projects,
+      allChapters: summaryResponse.chapters,
+      allGoals: summaryResponse.goals,
+      allMilestones: summaryResponse.milestones,
       timePlan: result.time_plan,
       note: result.note,
       activities: result.activities,
@@ -498,7 +494,7 @@ export default function TimePlanView() {
                 label="Project"
                 inputsEnabled={inputsEnabled}
                 disabled={false}
-                allProjects={loaderData.allProjects}
+                allProjects={loaderData.allProjects ?? []}
                 maxSelections={
                   loaderData.lifePlan.time_plan_max_life_plan_links
                 }
@@ -519,14 +515,15 @@ export default function TimePlanView() {
                 label="Chapter"
                 inputsEnabled={inputsEnabled}
                 disabled={false}
-                allChapters={loaderData.allChapters}
+                allChapters={loaderData.allChapters ?? []}
                 maxSelections={
                   loaderData.lifePlan.time_plan_max_life_plan_links
                 }
                 defaultValue={loaderData.chapters.map((c) => c.ref_id)}
                 birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
                 today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
+                allMilestones={loaderData.allMilestones ?? []}
+                allProjects={loaderData.allProjects ?? []}
               />
               <FieldError
                 actionResult={actionData}
@@ -543,7 +540,7 @@ export default function TimePlanView() {
                 label="Goal"
                 inputsEnabled={inputsEnabled}
                 disabled={false}
-                allGoals={loaderData.allGoals}
+                allGoals={loaderData.allGoals ?? []}
                 maxSelections={
                   loaderData.lifePlan.time_plan_max_life_plan_links
                 }

@@ -511,7 +511,7 @@ export default function BigPlan() {
                 goalDefaultValue={loaderData.goal?.ref_id}
                 birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
                 today={aDateToDate(topLevelInfo.today)}
-                milestones={loaderData.allMilestones}
+                allMilestones={loaderData.allMilestones}
               />
               <FieldError
                 actionResult={actionData}

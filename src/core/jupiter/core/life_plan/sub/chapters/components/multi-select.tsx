@@ -2,6 +2,7 @@ import type {
   ChapterSummary,
   EntityId,
   MilestoneSummary,
+  ProjectSummary,
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
@@ -29,7 +30,8 @@ interface ChapterMultiSelectProps {
   maxSelections?: number;
   birthday: DateTime;
   today: DateTime;
-  milestones: MilestoneSummary[];
+  allMilestones: MilestoneSummary[];
+  allProjects: ProjectSummary[];
 }
 
 export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
@@ -44,9 +46,16 @@ export function ChapterMultiSelect(props: ChapterMultiSelectProps) {
       props.birthday,
       props.today,
       props.allChapters,
-      props.milestones,
+      props.allMilestones,
+      props.allProjects,
     );
-  }, [props.allChapters, props.birthday, props.today, props.milestones]);
+  }, [
+    props.allChapters,
+    props.birthday,
+    props.today,
+    props.allMilestones,
+    props.allProjects,
+  ]);
 
   const allChaptersAsOptions: ChapterOption[] = useMemo(
     () =>

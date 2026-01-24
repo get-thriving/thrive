@@ -2498,7 +2498,6 @@ def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
     expect(page.locator('button[id="period-monthly"]')).to_be_disabled()
     expect(page.locator('button[id="period-quarterly"]')).to_be_disabled()
     expect(page.locator('button[id="period-yearly"]')).to_be_disabled()
-    expect(page.locator("#time-plan-change-time-config")).to_be_disabled()
 
 
 def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:

@@ -286,14 +286,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: form.inboxTaskChapter !== undefined,
             value:
               form.inboxTaskChapter !== undefined &&
-              form.inboxTaskChapter !== "none"
+              form.inboxTaskChapter !== ""
                 ? form.inboxTaskChapter
                 : null,
           },
           goal_ref_id: {
             should_change: form.inboxTaskGoal !== undefined,
             value:
-              form.inboxTaskGoal !== undefined && form.inboxTaskGoal !== "none"
+              form.inboxTaskGoal !== undefined && form.inboxTaskGoal !== ""
                 ? form.inboxTaskGoal
                 : null,
           },

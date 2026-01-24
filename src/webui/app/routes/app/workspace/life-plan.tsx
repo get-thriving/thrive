@@ -472,6 +472,7 @@ export default function LifePlanView() {
                     today,
                     chapters,
                     sortedMilestones,
+                    sortedProjects,
                   );
                   const { totalRows, chapterPositions } =
                     computeChapterPositions(

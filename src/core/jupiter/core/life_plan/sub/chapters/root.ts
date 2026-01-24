@@ -12,13 +12,13 @@ export function sortChaptersNaturally<T extends ChapterSummary>(
   today: DateTime,
   chapters: T[],
   milestones: MilestoneSummary[],
-  sortedProjects?: ProjectSummary[],
+  sortedProjects: ProjectSummary[],
 ): T[] {
   return [...chapters].sort((a, b) => {
-    const projectA = sortedProjects?.find(
+    const projectA = sortedProjects.find(
       (project) => project.ref_id === a.project_ref_id,
     );
-    const projectB = sortedProjects?.find(
+    const projectB = sortedProjects.find(
       (project) => project.ref_id === b.project_ref_id,
     );
     if (projectA && projectB) {

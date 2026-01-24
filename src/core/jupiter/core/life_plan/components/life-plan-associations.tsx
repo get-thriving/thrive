@@ -38,7 +38,7 @@ export interface LifePlanAssociationsProps {
 
   birthday: DateTime;
   today: DateTime;
-  milestones: MilestoneSummary[];
+  allMilestones: MilestoneSummary[];
 }
 
 export function LifePlanAssociations(props: LifePlanAssociationsProps) {
@@ -128,7 +128,8 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
           onChange={onChapterChange}
           birthday={props.birthday}
           today={props.today}
-          milestones={props.milestones}
+          allMilestones={props.allMilestones}
+          allProjects={props.allProjects}
         />
       </Box>
 

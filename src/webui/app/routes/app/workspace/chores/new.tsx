@@ -226,7 +226,7 @@ export default function NewChore() {
               allGoals={loaderData.allGoals}
               birthday={birthdayDate}
               today={aDateToDate(topLevelInfo.today)}
-              milestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones}
             />
             <FieldError actionResult={actionData} fieldName="/project_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />

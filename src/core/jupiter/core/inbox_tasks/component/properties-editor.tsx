@@ -114,26 +114,6 @@ export function InboxTaskPropertiesEditor(
     props.inboxTask.source,
   );
 
-  const allProjectsById: { [k: string]: ProjectSummary } = {};
-  const allChaptersById: { [k: string]: ChapterSummary } = {};
-  const allGoalsById: { [k: string]: GoalSummary } = {};
-  if (
-    isWorkspaceFeatureAvailable(
-      props.topLevelInfo.workspace,
-      WorkspaceFeature.LIFE_PLAN,
-    )
-  ) {
-    for (const project of props.allProjects) {
-      allProjectsById[project.ref_id] = project;
-    }
-    for (const chapter of props.allChapters) {
-      allChaptersById[chapter.ref_id] = chapter;
-    }
-    for (const goal of props.allGoals) {
-      allGoalsById[goal.ref_id] = goal;
-    }
-  }
-
   const allBigPlansById: { [k: string]: BigPlanSummary } = {};
   let allBigPlansAsOptions: Array<{ label: string; big_plan_id: string }> = [];
 
@@ -348,7 +328,7 @@ export function InboxTaskPropertiesEditor(
               onGoalChange={setSelectedGoal}
               birthday={lifePlanBirthdayDate(props.lifePlan)}
               today={aDateToDate(props.topLevelInfo.today)}
-              milestones={props.allMilestones}
+              allMilestones={props.allMilestones}
             />
             <FieldError
               actionResult={props.actionData}
