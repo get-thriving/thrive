@@ -7,7 +7,7 @@ export function newOrGenerateInstance(
   branchName: string,
 ): Instance {
   if (value === TO_FILL_INSTANCE) {
-    return branchName.replace("/", "-");
+    return branchName.replace("/", "--");
   }
 
   return value;

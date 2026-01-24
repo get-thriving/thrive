@@ -26,7 +26,7 @@ class Instance(AtomicValue[str]):
     def new_or_generate(value: str, branch_name: str) -> "Instance":
         """Create a new instance or generate a new one."""
         if value == _TO_FILL_INSTANCE:
-            return Instance(f"{branch_name.replace('/', '-')}")
+            return Instance(f"{branch_name.replace('/', '--')}")
         return Instance(value)
 
     def _validate(self) -> None:
