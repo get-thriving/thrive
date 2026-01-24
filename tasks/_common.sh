@@ -98,7 +98,7 @@ _run_jupiter_webapp_with_pm2() {
     local version=$9
 
     # If source is not local, or version is not local, then we exit
-    if [[ "$source" != "local" ]] || [[ "$version" != "local" ]]; then
+    if [[ "$source" != "local" ]] || [[ "$version" != "latest" ]]; then
         log error "Source or version is not local, exiting"
         exit 1
     fi

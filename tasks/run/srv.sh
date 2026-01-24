@@ -7,7 +7,7 @@
 #USAGE flag "--source <source>" default="local" help="Jupiter source" {
 #USAGE   choices "local" "registry"
 #USAGE }
-#USAGE flag "--version <version>" default="local" help="Jupiter version"
+#USAGE flag "--version <version>" default="latest" help="Jupiter version"
 #USAGE flag "--run-mode <runMode>" default="pm2" help="Run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }

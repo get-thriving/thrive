@@ -56,6 +56,7 @@ def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[Init
             ],
         ),
     )
+
     if init_response.status_code != 200:
         raise Exception(init_response.content)
 

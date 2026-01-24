@@ -37,10 +37,14 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
 
   const hosting = process.env.HOSTING as Hosting;
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
-  const webApiServerPort = parseInt(process.env.WEBAPI_SERVER_PORT as string, 10);
+  const webApiServerPort = parseInt(
+    process.env.WEBAPI_SERVER_PORT as string,
+    10,
+  );
 
   const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
-  const webApiProgressReporterUrl = process.env.WEBAPI_PROGRESS_REPORTER_URL as string; 
+  const webApiProgressReporterUrl = process.env
+    .WEBAPI_PROGRESS_REPORTER_URL as string;
 
   const globalProperties = {
     env: process.env.ENV as Env,

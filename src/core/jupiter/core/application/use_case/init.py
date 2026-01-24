@@ -87,7 +87,6 @@ from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
-from jupiter.framework.base.adate import ADate
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
 )
@@ -269,13 +268,9 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_working_mem_collection,
             )
 
-            today = ADate.from_timestamp(context.domain_context.action_timestamp)
-
             new_working_mem = WorkingMem.new_working_mem(
                 ctx=context.domain_context,
                 working_mem_collection_ref_id=new_working_mem_collection.ref_id,
-                right_now=today,
-                period=new_working_mem_collection.generation_period,
             )
             new_working_mem = await uow.get_for(WorkingMem).create(new_working_mem)
 
