@@ -77,11 +77,7 @@ export function serverToClientGlobalProperties(
     baseName: globalPropertiesServer.baseName,
     title: globalPropertiesServer.title,
     description: globalPropertiesServer.description,
-    webApiProgressReporterUrl:
-      globalPropertiesServer.hosting === Hosting.LOCAL ||
-      globalPropertiesServer.hosting === Hosting.SELF_HOSTED
-        ? globalPropertiesServer.localOrSelfHostedWebApiProgressReporterUrl
-        : globalPropertiesServer.hostedGlobalWebApiProgressReporterUrl,
+    webApiProgressReporterUrl: globalPropertiesServer.webApiProgressReporterUrl,
     webApiUrl: globalPropertiesServer.webApiUrl,
     docsUrl: globalPropertiesServer.docsUrl,
     hostedGlobalDomain: globalPropertiesServer.hostedGlobalWebUiUrl,

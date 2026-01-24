@@ -24,7 +24,9 @@ services:
       - HOSTING=${HOSTING:-self-hosted}
       - HOSTING_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
-      - LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL=http://webapi:2000
+      - WEBAPI_SERVER_HOST=webapi
+      - WEBAPI_SERVER_PORT=2000
+      - WEBAPI_PROGRESS_REPORTER_URL=ws://webapi:2000/progress-reporter
       - WEBAPI_URL=${WEBAPI_SERVER_URL:-http://webapi:2000}
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
