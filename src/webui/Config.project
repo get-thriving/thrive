@@ -1,4 +1,3 @@
-ENV=local
 HOSTING=local
 HOSTING_NAME=Main
 TITLE="Thrive - Dev"

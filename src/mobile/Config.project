@@ -1,4 +1,3 @@
-ENV=local
 HOSTING=local
 HOSTING_NAME=Main
 DESCRIPTION="The Thrive Mobile application"

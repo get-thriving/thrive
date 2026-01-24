@@ -1,4 +1,3 @@
-ENV=staging
 HOSTING=local
 HOSTING_NAME=Main
 DESCRIPTION="The CLI client for Thrive"

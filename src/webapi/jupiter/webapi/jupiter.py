@@ -140,7 +140,9 @@ async def main() -> None:
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI:")
     rich_print(f"  Version: {global_properties.version}")
+    rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
+    rich_print(f"  Instance: {global_properties.instance}")
     rich_print(f"  Hosting: {global_properties.hosting}")
     rich_print("=" * 80)
 

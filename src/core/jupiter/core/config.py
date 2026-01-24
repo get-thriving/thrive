@@ -17,6 +17,8 @@ from jupiter.core.app import (
 )
 from jupiter.core.application.crm import CRM
 from jupiter.core.env import Env
+from jupiter.core.instance import Instance
+from jupiter.core.universe import Universe
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
 from jupiter.core.search.storage_engine import SearchStorageEngine
@@ -67,7 +69,9 @@ class JupiterPorts(DomainPorts):
 class JupiterGlobalProperties(GlobalProperties):
     """UseCase-level properties."""
 
+    universe: Universe
     env: Env
+    instance: Instance
     hosting: Hosting
     description: str
     host: str
@@ -134,7 +138,9 @@ def build_global_properties() -> JupiterGlobalProperties:
     dotenv.load_dotenv(dotenv_path=global_config_path, verbose=True)
     dotenv.load_dotenv(dotenv_path=project_config_path, verbose=True)
 
+    universe = Universe(cast(str, os.getenv("UNIVERSE")))
     env = Env(cast(str, os.getenv("ENV")))
+    instance = Instance(cast(str, os.getenv("INSTANCE")))
     hosting = Hosting(cast(str, os.getenv("HOSTING")))
     description = cast(str, os.getenv("DESCRIPTION"))
     host = cast(str, os.getenv("HOST"))
@@ -157,7 +163,9 @@ def build_global_properties() -> JupiterGlobalProperties:
         alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
 
     return JupiterGlobalProperties(
+        universe=universe,
         env=env,
+        instance=instance,
         hosting=hosting,
         description=description,
         host=host,

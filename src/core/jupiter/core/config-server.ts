@@ -1,8 +1,10 @@
-import { Hosting, type Env } from "@jupiter/webapi-client";
+import { Hosting, Instance, Universe, type Env } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
 export interface GlobalPropertiesServer {
+  universe: Universe;
   env: Env;
+  instance: Instance;
   hosting: Hosting;
   hostingName: string;
   version: string;
@@ -46,7 +48,9 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     .WEBAPI_PROGRESS_REPORTER_URL as string;
 
   const globalProperties = {
+    universe: process.env.UNIVERSE as Universe,
     env: process.env.ENV as Env,
+    instance: process.env.INSTANCE as Instance,
     hosting: hosting,
     hostingName: process.env.HOSTING_NAME as string,
     version: process.env.VERSION as string,
@@ -88,6 +92,8 @@ export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
 console.log("=".repeat(80));
 console.log(`Starting Jupiter WebUI:`);
 console.log(`  Version: ${GLOBAL_PROPERTIES.version}`);
+console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
 console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
+console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
 console.log(`  Hosting: ${GLOBAL_PROPERTIES.hosting}`);
 console.log("=".repeat(80));

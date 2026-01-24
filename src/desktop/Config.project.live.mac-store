@@ -1,4 +1,3 @@
-ENV=production
 HOSTING=hosted-global
 HOSTING_NAME=Main
 DESCRIPTION="The Thrive Desktop application"
