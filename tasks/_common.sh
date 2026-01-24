@@ -3,7 +3,7 @@
 source src/Config.global
 
 export RUN_ROOT=.build-cache/run
-export STANDARD_ENVIRON=dev
+export STANDARD_INSTANCE=dev
 export STANDARD_UNIVERSE=local-dev
 export STANDARD_WEBAPI_PORT=8004
 export STANDARD_WEBUI_PORT=10020
@@ -44,7 +44,7 @@ log() {
 }
 
 run_jupiter_webapp() {
-    local ENVIRON=$1
+    local INSTANCE=$1
     local WEBAPI_PORT=$2
     local WEBUI_PORT=$3
     local DOCS_PORT=$4
@@ -65,27 +65,27 @@ run_jupiter_webapp() {
         SCRIPT_ARGS="-c"
     fi
 
-    mkdir -p "$RUN_ROOT/$ENVIRON"
+    mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi with environ: $ENVIRON, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi with instance: $INSTANCE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
 
     if [[ "$mode" == "pm2" ]]; then
-        _run_jupiter_webapp_with_pm2 "$ENVIRON" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+        _run_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
     else
-        _run_jupiter_webapp_with_docker "$ENVIRON" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+        _run_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
     fi
 }
 
 _run_jupiter_webapp_with_pm2() {
-    local environ=$1
-    local webapiLogFile=../../$RUN_ROOT/$environ/webapi.log
-    local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$environ/jupiter.sqlite
+    local instance=$1
+    local webapiLogFile=../../$RUN_ROOT/$instance/webapi.log
+    local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
     local webapiPort=$2
     local webapiServerUrl=http://0.0.0.0:${webapiPort}
-    local webuiLogFile=../../$RUN_ROOT/$environ/webui.log
+    local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
     local webuiPort=$3
     local webuiServerUrl=http://0.0.0.0:${webuiPort}
-    local docsLogFile=../../$RUN_ROOT/$environ/docs.log
+    local docsLogFile=../../$RUN_ROOT/$instance/docs.log
     local docsPort=$4
     local docsServerUrl=http://0.0.0.0:${docsPort}
     local docsPublicName=$PUBLIC_NAME
@@ -105,21 +105,21 @@ _run_jupiter_webapp_with_pm2() {
     
     # here!
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo namespace="$environ" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
-        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$ENVIRON/pm2.config.js"
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     else
-        data=$(jo namespace="$environ" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
-        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$ENVIRON/pm2.config.js"
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     fi
 
     # shellcheck disable=SC2064
-    trap "npx pm2 delete '$RUN_ROOT/$environ/pm2.config.js'" EXIT
-    log info "Starting Jupiter with pm2 config: $RUN_ROOT/$environ/pm2.config.js"
-    npx pm2 --no-color start "$RUN_ROOT/$environ/pm2.config.js"
+    trap "npx pm2 delete '$RUN_ROOT/$instance/pm2.config.js'" EXIT
+    log info "Starting Jupiter with pm2 config: $RUN_ROOT/$instance/pm2.config.js"
+    npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
-    save_jupiter_url "$environ" "webapi" "$webapiServerUrl"
-    save_jupiter_url "$environ" "webui" "$webuiServerUrl"
-    save_jupiter_url "$environ" "docs" "$docsServerUrl"
+    save_jupiter_url "$instance" "webapi" "$webapiServerUrl"
+    save_jupiter_url "$instance" "webui" "$webuiServerUrl"
+    save_jupiter_url "$instance" "docs" "$docsServerUrl"
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
@@ -145,11 +145,12 @@ _run_jupiter_webapp_with_pm2() {
 }
 
 _run_jupiter_webapp_with_docker() {
-    local environ=$1
-    export ENV=local
-    export HOSTING=local
+    local instance=$1
+    export UNIVERSE=$UNIVERSE
+    export ENV=$ENV
+    export INSTANCE=$instance
+    export HOSTING=$HOSTING
     export DOMAIN=localhost
-    export NAMESPACE=$environ
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3
     export WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
@@ -177,9 +178,9 @@ _run_jupiter_webapp_with_docker() {
     export DOCKER_IMAGE_DOCS
     DOCKER_IMAGE_DOCS=$(get_jupiter_image "docs" "$source" "$version" arm64)
 
-    FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$environ/fullchain.pem
+    FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$instance/fullchain.pem
     export FULLCHAIN_PEM
-    PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$environ/privkey.pem
+    PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$instance/privkey.pem
     export PRIVKEY_PEM
 
     log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
@@ -194,9 +195,9 @@ _run_jupiter_webapp_with_docker() {
 
     trap "docker compose -f infra/self-hosted/compose.yaml down" EXIT
 
-    save_jupiter_url "$environ" "webapi" "$WEBAPI_SERVER_URL"
-    save_jupiter_url "$environ" "webui" "$WEBUI_SERVER_URL"
-    save_jupiter_url "$environ" "docs" "$DOCS_SERVER_URL"
+    save_jupiter_url "$instance" "webapi" "$WEBAPI_SERVER_URL"
+    save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
+    save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
 
     log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
@@ -234,26 +235,26 @@ stop_jupiter_webapp() {
 }
 
 save_jupiter_url() {
-    local environ=$1
+    local instance=$1
     local service=$2
     local url=$3
 
-    echo "$url" > "$RUN_ROOT/$environ/$service.url"
+    echo "$url" > "$RUN_ROOT/$instance/$service.url"
 }
 
 get_jupiter_url() {
-    local environ=$1
+    local instance=$1
     local service=$2
 
-    if ! [[ -f "$RUN_ROOT/$environ/$service.url" ]]; then
-        log info "URL file not found for $service in $environ environ."
-        exit 1
+    if ! [[ -f "$RUN_ROOT/$instance/$service.url" ]]; then
+        echo "N/A"
+        return 0
     fi
 
-    cat "$RUN_ROOT/$environ/$service.url"
+    cat "$RUN_ROOT/$instance/$service.url"
 }
 
-get_environ() {
+get_instance() {
     uvx codename -s '-'
 }
 
@@ -303,14 +304,14 @@ wait_for_service_to_start() {
 
 check_service_is_running() {
     local mode=$1
-    local environ=$2
+    local instance=$2
     local service=$3
     
     if [[ "$mode" == "docker" ]]; then
         log info "Docker mode not supported for service status check"
         exit 1
     elif [[ "$mode" == "pm2" ]]; then
-        if npx pm2 ps | grep -q "$environ:$service"; then
+        if npx pm2 ps | grep -q "$instance:$service"; then
             return 0
         else
             return 1
@@ -323,14 +324,14 @@ check_service_is_running() {
 
 get_logs() {
     local mode=$1
-    local environ=$2
+    local instance=$2
     local service=$3
     
     if [[ "$mode" == "docker" ]]; then
         log info "Docker mode not supported for log retrieval"
         exit 1
     elif [[ "$mode" == "pm2" ]]; then
-        tail -n 100 "$RUN_ROOT/$environ/webapi.log"
+        tail -n 100 "$RUN_ROOT/$instance/webapi.log"
     else
         log info "Unknown mode: $mode"
         exit 1
@@ -354,14 +355,14 @@ get_jupiter_image() {
 }
 
 run_jupiter_cli() {
-    local environ=$1
+    local instance=$1
     local argsString=$2
-    local sessionInfoPath=../../$RUN_ROOT/$environ/session-info
-    local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$environ/jupiter.sqlite
+    local sessionInfoPath=../../$RUN_ROOT/$instance/session-info
+    local sqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
 
-    mkdir -p "$RUN_ROOT/$environ"
+    mkdir -p "$RUN_ROOT/$instance"
 
-    log info "Running Jupiter CLI with environ: ${environ} on ${sqliteDbUrl} with '${argsString}'"
+    log info "Running Jupiter CLI with instance: ${instance} on ${sqliteDbUrl} with '${argsString}'"
 
     export SESSION_INFO_PATH=${sessionInfoPath}
     export SQLITE_DB_URL=${sqliteDbUrl} 

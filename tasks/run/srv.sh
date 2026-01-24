@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-#MISE description="Run Jupiter server with optional environ and mode"
+#MISE description="Run Jupiter server with optional instance and mode"
 #USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
-#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--source <source>" default="local" help="Jupiter source" {
 #USAGE   choices "local" "registry"
 #USAGE }
@@ -16,7 +16,7 @@
 #USAGE }
 
 : "${usage_universe:=}"
-: "${usage_environ:=}"
+: "${usage_instance:=}"
 : "${usage_source:=}"
 : "${usage_version:=}"
 : "${usage_run_mode:=}"
@@ -25,24 +25,24 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-# Set ports based on environ
-if [[ -z "${usage_environ}" ]]; then
-    environ=$STANDARD_ENVIRON
+# Set ports based on instance
+if [[ -z "${usage_instance}" ]]; then
+    instance=$STANDARD_INSTANCE
     webapi_port=$STANDARD_WEBAPI_PORT
     webui_port=$STANDARD_WEBUI_PORT
     docs_port=$STANDARD_DOCS_PORT
-elif [[ "${environ}" == "+gen" ]]; then
-    environ=$(get_environ)
+elif [[ "${usage_instance}" == "+gen" ]]; then
+    instance=$(get_instance)
     webapi_port=$(get_free_port)
     webui_port=$(get_free_port)
     docs_port=$(get_free_port)
 else
-    environ="${usage_environ}"
+    instance="${usage_instance}"
     webapi_port=$(get_free_port)
     webui_port=$(get_free_port)
     docs_port=$(get_free_port)
 fi
 
-echo "environ: $environ"
+echo "instance: $instance"
 
-run_jupiter_webapp "$environ" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode"
+run_jupiter_webapp "$instance" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode"

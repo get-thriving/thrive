@@ -7,7 +7,7 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-# Prepare environment
+# Prepare instancement
 
 # Assume brew, JDK, Android Studio, XCode, and Docker are already present.
 # Will modify globals nonetheless.

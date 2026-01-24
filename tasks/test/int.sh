@@ -2,8 +2,8 @@
 
 #MISE description="Run integration tests for CI"
 #USAGE flag "--universe <universe>" default="local-dev" help="The universe"
-#USAGE flag "--environ <environ>" help="The environ"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--instance <instance>" help="The instance"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--headed" help="Run tests in headed mode"
 #USAGE arg "[pytestArgs]" var=#true help="The pytest args"
 #USAGE flag "--log <log>" default="info" help="Log output" {
@@ -11,6 +11,7 @@
 #USAGE }
 
 : "${usage_universe:=}"
+: "${usage_instance:=}"
 : "${usage_headed:=}"
 : "${usage_pytest_args:=}"
 
@@ -22,20 +23,20 @@ source tasks/test/_common.sh
 mkdir -p .build-cache/itest
 
 if [[ "$usage_universe" == "local-dev" ]]; then
-    if [[ -z "$usage_environ" ]]; then
-        usage_environ=dev
+    if [[ -z "$usage_instance" ]]; then
+        usage_instance=dev
     fi
-    universe_url=$(format_local_dev_universe_url "$usage_environ")
+    universe_url=$(format_local_dev_universe_url "$usage_instance")
     wait_for_service_to_start "universe" "$universe_url"
     webui_url=$universe_url # A small hack
     webapi_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.webApiUrl')
     docs_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.docsUrl')
 elif [[ "$usage_universe" == "thrive" ]]; then
-    if [[ -z "$usage_environ" ]]; then
-        echo "environ is required for thrive universe"
+    if [[ -z "$usage_instance" ]]; then
+        echo "instance is required for thrive universe"
         exit 1
     fi
-    universe_url=$(format_thrive_universe_url "$usage_environ")
+    universe_url=$(format_thrive_universe_url "$usage_instance")
     wait_for_service_to_start "universe" "$universe_url"
     webui_url=$universe_url # A small hack
     webapi_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.webApiUrl')

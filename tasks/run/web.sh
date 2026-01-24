@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 
-#MISE description="Run web app with optional environ"
-#USAGE flag "--environ <environ>" help="Jupiter environ"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#MISE description="Run web app with optional instance"
+#USAGE flag "--instance <instance>" help="Jupiter instance"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_environ:=}"
+: "${usage_instance:=}"
 : "${usage_universe:=local-dev}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-environ="${usage_environ}"
+instance="${usage_instance}"
 
-if [[ -z "$environ" ]]; then
-    environ=$STANDARD_ENVIRON
+if [[ -z "$instance" ]]; then
+    instance=$STANDARD_INSTANCE
 fi
 
-webui_url=$(get_jupiter_url "$environ" "webui")
+webui_url=$(get_jupiter_url "$instance" "webui")
 export HOSTED_GLOBAL_WEBUI_URL="$webui_url"
 
-log info "Running web in the browser app with environ $environ"
+log info "Running web in the browser app with instance $instance"
 
 open "$HOSTED_GLOBAL_WEBUI_URL"

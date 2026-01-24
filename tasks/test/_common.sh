@@ -27,13 +27,13 @@ run_tests() {
 }
 
 format_local_dev_universe_url() {
-    local environ=$1
-    get_jupiter_url "$environ" webui
+    local instance=$1
+    get_jupiter_url "$instance" webui
 }
 
 format_thrive_universe_url() {
-    local environ=$1
-    echo "https://jupiter-webui-${environ}.${GLOBAL_HOSTED_INFRA_ROOT}"
+    local instance=$1
+    echo "https://jupiter-webui-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
 }
 
 format_other_universe_url() {

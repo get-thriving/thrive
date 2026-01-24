@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 
 #MISE description="Open the OpenAPI specification page"
-#USAGE flag "--environ <environ>" help="Jupiter environ"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--instance <instance>" help="Jupiter instance"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_environ:=}"
+: "${usage_instance:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-environ="${usage_environ}"
+instance="${usage_instance}"
 
-if [[ -z "$environ" ]]; then
-    environ=$STANDARD_ENVIRON
+if [[ -z "$instance" ]]; then
+    instance=$STANDARD_INSTANCE
 fi
 
-log info "Opening OpenAPI specification page for environ $environ"
+log info "Opening OpenAPI specification page for instance $instance"
 
-# Check if webapi service is already running for this environ
-if ! check_service_is_running pm2 "$environ" webapi; then
-    log info "WebAPI service is not running for environ: $environ"
+# Check if webapi service is already running for this instance
+if ! check_service_is_running pm2 "$instance" webapi; then
+    log info "WebAPI service is not running for instance: $instance"
     log info "Please start the service first"
     exit 1
 fi
 
-webapi_url=$(get_jupiter_url "$environ" "webapi")
+webapi_url=$(get_jupiter_url "$instance" "webapi")
 
 open "${webapi_url}/openapi.json"
