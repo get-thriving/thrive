@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 #MISE description="Run Jupiter server with optional instance and mode"
-#USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
+#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe" {
+#USAGE   choices "dev" "thrive-sh-test"
+#USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--source <source>" default="local" help="Jupiter source" {
@@ -25,7 +27,6 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-# Set ports based on instance
 if [[ -z "${usage_instance}" ]]; then
     instance=$STANDARD_INSTANCE
     webapi_port=$STANDARD_WEBAPI_PORT
@@ -43,6 +44,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-echo "instance: $instance"
-
-run_jupiter_webapp "$instance" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode"

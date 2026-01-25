@@ -44,39 +44,39 @@ log() {
 }
 
 run_jupiter_webapp() {
-    local INSTANCE=$1
-    local WEBAPI_PORT=$2
-    local WEBUI_PORT=$3
-    local DOCS_PORT=$4
-    local should_wait=$5
-    local should_monit=$6
-    local in_ci=$7
-    local source=$8
-    local version=$9
+    local UNIVERSE=$1
+    local INSTANCE=$2
+    local WEBAPI_PORT=$3
+    local WEBUI_PORT=$4
+    local DOCS_PORT=$5
+    local should_wait=$6
+    local should_monit=$7
+    local in_ci=$9
+    local source=$9
     shift 9
-    local mode=$1
-
-    export SCRIPT_ARGS=
-    platform=$(uname -s | awk '{print tolower($0)}')
-    if [[ "${platform}" == "darwin" ]]
-    then
-        SCRIPT_ARGS="-qF"
-    else
-        SCRIPT_ARGS="-c"
-    fi
+    local version=$1
+    local mode=$2
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi with instance: $INSTANCE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
 
-    if [[ "$mode" == "pm2" ]]; then
-        _run_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+    if [[ "$UNIVERSE" == "dev" ]]; then
+        if [[ "$mode" == "pm2" ]]; then
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+        else
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+        fi
+    elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$version"
+        exit 1
     else
-        _run_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+        log error "Unknown universe: $UNIVERSE"
+        exit 1
     fi
 }
 
-_run_jupiter_webapp_with_pm2() {
+_run_dev_jupiter_webapp_with_pm2() {
     local instance=$1
     local webapiLogFile=../../$RUN_ROOT/$instance/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
@@ -144,7 +144,7 @@ _run_jupiter_webapp_with_pm2() {
     fi
 }
 
-_run_jupiter_webapp_with_docker() {
+_run_dev_jupiter_webapp_with_docker() {
     local instance=$1
     export UNIVERSE=$UNIVERSE
     export ENV=$ENV
@@ -223,6 +223,17 @@ _run_jupiter_webapp_with_docker() {
     if [[ ${should_monit} == "monit" ]]; then
         docker compose -f infra/self-hosted/compose.yaml logs -f
     fi
+}
+
+_run_thrive_sh_test_webapp() {
+    local instance=$1
+    local webapi_port=$2
+    local webui_port=$3
+    local docs_port=$4
+    local should_wait=$5
+    local should_monit=$6
+    local in_ci=$7
+    local version=$8
 }
 
 stop_jupiter_webapp() {
