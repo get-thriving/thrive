@@ -11,96 +11,101 @@ ways to achieve this.
 **Self-hosting** means you are running the Thrive application on your _own
 infrastructure and
 servers_ rather than using the [hosted version](https://get-thriving.com). This
-gives you fullcontrol over your data and the application, but requires managing
-the deploymentand maintenance yourself.
+gives you full control over your data and the application, but requires
+managing the deploymentand maintenance yourself.
 
 We've tried making the experience as smooth as possible, but realistically
-self-hostingrequires a modicum of tech knowledge. Even if you manage to follow
-the instructionsbelow, there are aspects of reliability, data recovery,
-security, etc. that are tricky to get right.If you're unsure, the [hosted
-version](https://get-thriving.com) aims to be respectfulof you and focused on
+self-hosting requires a modicum of tech knowledge. Even if you manage to follow
+the instructions below, there are aspects of reliability, data recovery,
+security, etc. that are tricky to get right. If you're unsure, the [hosted
+version](https://get-thriving.com) aims to be respectful of you and focused on
 privacy.
 
 ## With A Linux VPS Via Docker (Hetzner, DigitalOcean, etc)
 
 There's many ways to self-host Thrive, but running it on a Linux VPS via Docker
-is bothgeneral and flexibile. And also sufficiently high-level that even folks
-that are notsoftware developers can follow along.
+is both general and flexibile. And also sufficiently high-level that even folks
+that are not software developers can follow along.
 
 ### Groundwork
 
-Before we properly begin, there are a couple of steps you need to take: gettinga
-VPS, getting and configuring a domain, getting a certificate for the domain, and
+Before we properly begin, there are a couple of steps you need to take: getting
+a VPS, getting and configuring a domain, getting a certificate for the domain, and
 installing Docker.
 
-If you're actively self hosting other projects, you probably have somesetup
-already done, so you just need to adapt the following to yoursituation. If
-you've self-hosted before, but not anymore, or even if you'venever done it, the
+If you're actively self hosting other projects, you probably have some setup
+already done, so you just need to adapt the following to your situation. If
+you've self-hosted before, but not anymore, or even if you've never done it, the
 setup should be straight-forward.
 
 #### VPS
 
 A VPS (Virtual Private Server) is a virtualized server that you can rent from
-acloud provider. It runs on their hardware but gives you full control over
-theoperating system and software, just like having your own dedicated
-server.Popular VPS providers include
+a cloud provider. It runs on their hardware but gives you full control over
+the operating system and software, just like having your own dedicated
+server. Popular VPS providers include
 [Hetzner](https://www.hetzner.com/),[DigitalOcean](https://www.digitalocean.com/),
-[Linode](https://www.linode.com/), and [Vultr](https://www.vultr.com/).
+[Linode](https://www.linode.com/), and [Vultr](https://www.vultr.com/). The
+_virtual_ part comes from the fact that the provider will typically use a
+large and very powerful machine, that they then split into sections and rent
+out. The main machine might have 128 cores and 256 GB of RAM, but they rent
+it in increments of 2 cores and 4 GB of RAM to their customers. Each customer
+runs a separate OS that is _totally_ separate from any other's on that machine.
 
 For running Thrive, a basic VPS with 1-2 GB RAM and 1 CPU core should be
 sufficientfor personal use. The providers above all offer plans starting around
 $5-10/month.
 
 > The big cloud providers like AWS, GCP or Azure have similar offerings (and
-much> more), but they tend to require a more involved setup and have slightly
-higher> prices for what we'd need.
+much more), but they tend to require a more involved setup and have slightly
+higher prices for what we'd need.
 
-Each provider has their own way of setting things up, but it should befairly
-straightforward to buy a VPS and get SSH and root access to it.
+Each provider has their own way of setting things up, but it should be fairly
+straight forward to buy a VPS and get SSH and root access to it.
 
 #### Docker
 
 You'll also need Docker installed on your VPS. Docker is a platform for
-runningapplications in containers - lightweight, isolated environments that
-package upall the dependencies needed to run the software. Most VPS providers
-offer imageswith Docker pre-installed, but if not, you can follow the[official
-Docker installation guide](https://docs.docker.com/engine/install/)for your
+running applications in containers - lightweight, isolated environments that
+package up all the dependencies needed to run the software. Most VPS providers
+offer OS images with Docker pre-installed, but if not, you can follow the[official
+Docker installation guide](https://docs.docker.com/engine/install/) for your
 Linux distribution.
 
 #### A Domain [Optional]
 
 Your VPS will typically be accessible via an [IP
-Address](https://en.wikipedia.org/wiki/IP_address)such as `32.114.15.21`. You'll
-probably want a domain like `my-thrive-instance.com`so accessing your instance
-is simpler and more secure (because we'll also get acertificate for it).
+Address](https://en.wikipedia.org/wiki/IP_address) such as `32.114.15.21`. You'll
+probably want a domain like `my-thrive-instance.com` so accessing your instance
+is simpler and more secure (because we'll also get a certificate for it).
 
 So instead of going to something like `http://32.114.15.21` to work, you
 canvisit to a much nicer `https://my-thrive-instance.com`.
 
 The standard setup for Thrive requires a domain and a certificate, but it
-alsooffers a way of running things without them. Also, if you've already got a
-VPNand have setup a domain for it, you can adopt to steps to easily make it
-workwith them.
+also offers a way of running things without them. Also, if you've already got a
+VPN and have setup a domain for it, you can adopt to steps to easily make it
+work with them.
 
 You can get a domain from registrars like
-[Namecheap](https://www.namecheap.com/),[GoDaddy](https://www.godaddy.com/), or
-[Google Domains](https://domains.google/).Most domains cost around $10-15 per
+[Namecheap](https://www.namecheap.com/), [GoDaddy](https://www.godaddy.com/), or
+[Google Domains](https://domains.google/). Most domains cost around $10-15 per
 year, but you can find ones for as low as $2 per year.
 
 After purchasing, you'll need to point your domain to your VPS by creating an `A
-record` inyour domain's DNS settings that points to your VPS's IP address. This
-might looksomething like this:
+record` in your domain's DNS settings that points to your VPS's IP address. This
+might look something like this:
 
 ![self hosted domain config](../assets/self-hosted-domain.png)
 
 #### Certificate via LetsEncrypt's Certbot [Optional]
 
 The most common way nowadays to get and use an HTTPs certificate is via[Let's
-Encrypt](https://letsencrypt.org/). And [certbot](https://certbot.eff.org/)is
+Encrypt](https://letsencrypt.org/). And [certbot](https://certbot.eff.org/) is
 _the_ tool for actually obtaining and managing the certificate.
 
-It's instructive to read about the effort, the concepts, and tools. Butin truth,
-you just need to look at the instructions from[other and
+It's instructive to read about the effort, the concepts, and tools. But in truth,
+you just need to look at the instructions from [other and
 pip](https://certbot.eff.org/instructions?ws=other&os=pip&tab=standard).
 
 At some point in that tutorial, you're going to run:
@@ -110,7 +115,7 @@ sudo certbot certonly --standalone
 ```
 
 Which will ask you about the domain name you wish to obtain the certificatefor.
-Enter your domain (say `my-thrive-instance.com`) and, if you've configuredthe
+Enter your domain (say `my-thrive-instance.com`) and, if you've configured the
 DNS settings correctly, you'll get two new files in:
 
 ```bash
@@ -119,12 +124,12 @@ DNS settings correctly, you'll get two new files in:
 ```
 
 Don't forget to setup auto renewal from the instructions! Otherwise
-thecertificate _will expire in 90 days_. This is a low lifespan by design,to
+the certificate _will expire in 90 days_. This is a low lifespan by design,to
 force folks to be _on top of_ domain renewals!
 
 ### Preparation
 
-With the groundwork out of the way, we can actually do something thatis specific
+With the groundwork out of the way, we can actually do something that is specific
 to Thrive.
 
 First, you need to download some configuration files to your machine. Putting
@@ -137,8 +142,9 @@ wget https://github.com/horia141/thrive/releases/latest/download/webui.conf
 wget https://github.com/horia141/thrive/releases/latest/download/webui.nodomain.conf
 ```
 
-It's instructive to inspect them, and you are free to modify them, butthere
-should not be any need.
+It's instructive to inspect them, and you are free to modify them, but there
+should not be any need. These are standard Docker compose configs (a way to
+run  multiple Docker images at once) and Nginx  config (a robust web server).
 
 There is some configuration that's specific to your instance of Thrive
 that you'll need to provide though. You'll need to create and edit an `.env` file
@@ -147,6 +153,9 @@ like so:
 ```bash
 touch .env
 echo "PUBLIC_NAME=Horia's Thrive" >> .env # Use your own name here
+echo "UNIVERSE=my-thrive-instance" >> .env # Use your own name here
+echo "ENV=production" >> .env # Use your own name here
+echo "INSTANCE=Horia's Thrive" >> .env # Use your own name here
 echo "DOMAIN=my-thrive-instance.com" >> .env # Use your own value here
 echo "AUTH_TOKEN_SECRET=$(openssl rand -base64 32)" >> .env
 echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
@@ -154,8 +163,11 @@ echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
 
 When inspecting the `.env` file, it should look something like this:
 
-```bash
+```text
 PUBLIC_NAME=Horia's Thrive
+UNIVERSE=my-thrive-instance
+ENV=production
+INSTANCE=Horia's Thrive
 DOMAIN=my-thrive-instance.com
 AUTH_TOKEN_SECRET=s6cfvG3E3vyzXjtIM/1I6+t9oM9pGBC6GG0O9L7XmiY=
 SESSION_COOKIE_SECRET=FI3X/vjPJCUUeH+tu2OvhCQn7i1HyiVV2Vl4g/ce9DQ=
@@ -167,7 +179,7 @@ run `docker compose config` and check that no errors are reported.
 #### Running Without The Domain [Optional]
 
 If you don't want to use a domain, you can just not provide the
-`DOMAIN`environment value, but also edit `ngnix.conf` and replace
+`DOMAIN` environment value, but also edit `ngnix.conf` and replace
 `webui.conf`with `webui.nodomain.conf` - a one word change!
 
 ### Running Things
@@ -188,22 +200,26 @@ docker compose logs -f
 
 You'll then see some output like:
 
-```bash
+```text
 [+] Running 3/3
 ... docker setting things up!
 Attaching to frontend-1, webapi-1, webui-1
 ... output omitted
 webui-1     | ================================================================================
 webui-1     | Starting Jupiter WebUI:
-webui-1     |   Version: 1.1.4
+webui-1     |   Version: 1.3.1
+webui-1     |   Universe: my-thrive-instance
 webui-1     |   Environment: production
+webui-1     |   Instance: Horia's Thrive
 webui-1     |   Hosting: self-hosted
 webui-1     | ================================================================================
 ... output omitted
 webapi-1    | ================================================================================
 webapi-1    | Starting Jupiter WebAPI:
 webapi-1    |   Version: 1.1.4
+webapi-1    |   Universe: my-thrive-instance
 webapi-1    |   Environment: production
+webapi-1    |   Instance: Horia's Thrive
 webapi-1    |   Hosting: self-hosted
 webapi-1    | ================================================================================
 ... output omitted
@@ -212,10 +228,10 @@ webapi-1    | 2025-03-09 16:17:03 INFO     Uvicorn running ...
 webui-1     | Remix App Server started at http://localhost:2000 (http://0.0.0.0:2000)
 ```
 
-This signals that the services making up Thrive are running and healthy.It
+This signals that the services making up Thrive are running and healthy. It
 should take less than a minute to get to this output. If there's any
-errors,you're free to debug them, or reach out on our channels(GitHub issues,
-Discord,etc) for help.
+errors, you're free to debug them, or reach out on our channels (GitHub issues,
+Discord, etc) for help.
 
 ### Testing & Surfaces
 
@@ -226,8 +242,8 @@ Currently only the webapp, desktop app, and PWA are supported ways of
 interacting with yourself hosted version.
 
 Whereas the webapp and PWA have a straightforward interactin pattern - visit
-your domainand access the app, and optionally install the PWA that is specific
-to this particularinstance - the desktop app is designed to work with multiple
+your domaina nd access the app, and optionally install the PWA that is specific
+to this particular instance - the desktop app is designed to work with multiple
 hosts as a unit.
 
 When you open it, you'll see an option to pick a server on the login or init
@@ -236,8 +252,8 @@ screen,which will take you to something like this:
 ![Pick a server](../assets/self-hosting-pick-server.png)
 
 You can enter the URL of your server (typically `https://your-domain.com`) and
-the appwill reconfigure to speak with it instead of the global hosted server.
-You can alwayscome back to the global one, or switch between several instances.
+the app will reconfigure to speak with it instead of the global hosted server.
+You can always come back to the global one, or switch between several instances.
 
 ### Backups
 
@@ -246,13 +262,13 @@ WIP
 ### Reliability
 
 The current setup will be resilient against machine restarts, service failures,
-etc.With a typical dedicated server or VPS setup this should get you to a cool
+etc. With a typical dedicated server or VPS setup this should get you to a cool
 `3 nines`of availability (or ±8 hours a year of downtime). For self-hosting this
-should bemore than enough.
+should be more than enough.
 
 For any higher level of availability, you'll need to find a provider that offers
-machineswith a higher availability SLA. At this point, the typical
-high-availabilty toolbox ofmultiple machines, replicated storage, etc. is not
+machines with a higher availability SLA. At this point, the typical
+high-availabilty toolbox of multiple machines, replicated storage, etc. is not
 available for the self-hosted version.
 
 ### Updating
@@ -282,6 +298,6 @@ WIP
 ## More Alternatives
 
 Thrive is developed on MacOS with a suite of relatively cross-platform
-technologies,and the hosted service runs on [render.com](https://render.com). If
-you need morethan the VPS setup, it's probably doable, but requires a bit of
+technologies, and the hosted service runs on [render.com](https://render.com). If
+you need more than the VPS setup, it's probably doable, but requires a bit of
 extra elbowgrease. Contact us and we'll get it sorted.
