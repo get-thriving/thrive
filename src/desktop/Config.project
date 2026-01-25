@@ -1,6 +1,5 @@
-HOSTING=local
-HOSTING_NAME=Main
 DESCRIPTION="The Thrive Desktop application"
 INITIAL_WINDOW_WIDTH=1400
 INITIAL_WINDOW_HEIGHT=900
+DISTRIBUTION=mac-store
 FRONTDOOR_PATTERN=/frontdoor?clientVersion=to-fill&appShell=desktop-electron&appPlatform=desktop-macos&appDistribution=mac-store&initialWindowWidth=to-fill

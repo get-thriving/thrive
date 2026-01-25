@@ -13,10 +13,14 @@ loadEnvironment();
 const APP_CONFIG_PATH = "thrive.config";
 const VERSION_HEADER = "X-Jupiter-Version";
 
-const APP_CONFIG = loadAppConfig(APP_CONFIG_PATH);
-
+const FRONTDOOR_PATTERN = process.env.FRONTDOOR_PATTERN;
+const VERSION = process.env.VERSION;
+const HOSTED_GLOBAL_WEBUI_URL = process.env.HOSTED_GLOBAL_WEBUI_URL;
 const INITIAL_WIDTH = parseInt(process.env.INITIAL_WINDOW_WIDTH, 10);
 const INITIAL_HEIGHT = parseInt(process.env.INITIAL_WINDOW_HEIGHT, 10);
+const DISTRIBUTION = process.env.DISTRIBUTION;
+
+const APP_CONFIG = loadAppConfig(APP_CONFIG_PATH);
 
 app.whenReady().then(() => {
   const win = createWindow();
@@ -80,7 +84,7 @@ function loadEnvironment() {
     if (process.platform === "darwin") {
       config({
         path: [
-          app.getAppPath() + "/Config.project.live",
+          app.getAppPath() + "/Config.project",
           app.getAppPath() + "/Config.global",
         ],
       });
@@ -100,9 +104,10 @@ function loadAppConfig(appConfigPath) {
       const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       return {
         version: config.version,
-        webUiUrl: buildFrontdoor(config.remoteHostWebUiUrl),
+        webUiUrl: buildFrontdoor(config.remoteHostWebUiUrl, DISTRIBUTION),
         hostedGlobalWebUiUrl: buildFrontdoor(
-          process.env.HOSTED_GLOBAL_WEBUI_URL,
+          HOSTED_GLOBAL_WEBUI_URL,
+          DISTRIBUTION,
         ),
       };
     }
@@ -110,7 +115,7 @@ function loadAppConfig(appConfigPath) {
     console.error("Invalid config file", error);
   }
 
-  const frontDoorUrl = buildFrontdoor(process.env.HOSTED_GLOBAL_WEBUI_URL);
+  const frontDoorUrl = buildFrontdoor(HOSTED_GLOBAL_WEBUI_URL, DISTRIBUTION);
 
   return {
     version: "v1",
@@ -230,7 +235,7 @@ async function handlePickServer(win, serverUrlString) {
       errorMsg: "The server doesn't appear to be an instance - version format",
     };
   }
-  const localVersion = semver.parse(process.env.VERSION);
+  const localVersion = semver.parse(VERSION);
 
   if (localVersion.major !== remoteVersion.major) {
     return {
@@ -239,7 +244,7 @@ async function handlePickServer(win, serverUrlString) {
     };
   }
 
-  const redirectLocation = buildFrontdoor(urlToUse);
+  const redirectLocation = buildFrontdoor(urlToUse, DISTRIBUTION);
 
   win.loadURL(redirectLocation.toString());
   updateAppConfig(APP_CONFIG_PATH, urlToUse.toString());
@@ -249,15 +254,16 @@ async function handlePickServer(win, serverUrlString) {
   };
 }
 
-function buildFrontdoor(remoteHostWebUiUrl) {
+function buildFrontdoor(remoteHostWebUiUrl, distribution) {
   const frontDoorUrl = new URL(
-    process.env.FRONTDOOR_PATTERN,
+    FRONTDOOR_PATTERN,
     remoteHostWebUiUrl,
   );
-  frontDoorUrl.searchParams.set("clientVersion", process.env.VERSION);
+  frontDoorUrl.searchParams.set("clientVersion", VERSION);
   frontDoorUrl.searchParams.set(
     "initialWindowWidth",
-    process.env.INITIAL_WINDOW_WIDTH,
+    INITIAL_WIDTH,
   );
+  frontDoorUrl.searchParams.set("appDistribution", distribution);
   return frontDoorUrl;
 }

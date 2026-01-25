@@ -25,7 +25,6 @@ revert_package_json() {
   rm -f src/desktop/package.json.1
   rm -f src/desktop/forge.config.cjs
   rm -f src/desktop/LICENSE
-  rm -f src/desktop/Config.project.live
   rm -f src/desktop/Config.global
 
   # if node_modules/@jupiter/webapi-client is not a link, then we should revert it
@@ -83,15 +82,13 @@ log info "Building desktop app for macOS with forge.config.mac-store.cjs"
 
 cp src/desktop/forge.config.mac-store.cjs src/desktop/forge.config.cjs
 cp src/Config.global src/desktop/Config.global
-cp src/desktop/Config.project.live.mac-store  src/desktop/Config.project.live
-(cd src/desktop && npx electron-forge make --platform mas --arch universal)
+(cd src/desktop && ENV=production DISTRIBUTION=mac-store npx electron-forge make --platform mas --arch universal)
 
 log info "Building desktop app for macOS with forge.config.mac-web.cjs"
 
 cp src/desktop/forge.config.mac-web.cjs src/desktop/forge.config.cjs
 cp src/Config.global src/desktop/Config.global
-cp src/desktop/Config.project.live.mac-web  src/desktop/Config.project.live
-(cd src/desktop && npx electron-forge make --platform darwin --arch universal)
+(cd src/desktop && ENV=production DISTRIBUTION=mac-web npx electron-forge make --platform darwin --arch universal)
 
 log info "Desktop app for macOS AppStore built in .build-cache/desktop/make/Thrive-${VERSION}-universal.pkg"
 log info "Desktop app for macOS Web built in .build-cache/desktop/make/Thrive-${VERSION}-universal.dmg"
