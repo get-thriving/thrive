@@ -41,7 +41,7 @@ export function InboxTasksNoNothingCard(props: InboxTasksNoNothingCardProps) {
 
   return (
     <Card>
-      <CardHeader title="No Inbox Tasks" />
+      <CardHeader title="You have to start somewhere" />
       <CardContent>
         <Typography variant="body1">{initialText}</Typography>
       </CardContent>

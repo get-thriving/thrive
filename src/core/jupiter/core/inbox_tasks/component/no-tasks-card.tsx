@@ -17,7 +17,7 @@ interface NoTasksCardProps {
 export function InboxTasksNoTasksCard(props: NoTasksCardProps) {
   return (
     <Card>
-      <CardHeader title="No Inbox Tasks" />
+      <CardHeader title="You have to start somewhere" />
       <CardContent>
         <Typography variant="body1">
           There are no inbox tasks to show. You can generate some new tasks, or

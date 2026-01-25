@@ -40,7 +40,7 @@ def test_inbox_task_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/inbox-tasks")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
-        "There are no inbox tasks to show"
+        "You have to start somewhere"
     )
 
 

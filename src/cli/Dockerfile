@@ -30,7 +30,7 @@ COPY src/core/migrations src/core/migrations
 COPY src/core/jupiter src/core/jupiter
 COPY src/cli/README.md src/cli/README.md
 COPY src/cli/pyproject.toml src/cli/pyproject.toml
-COPY src/cli/Config.project.live src/cli/Config.project
+COPY src/cli/Config.project src/cli/Config.project
 COPY src/cli/jupiter src/cli/jupiter
 
 RUN uv sync --all-packages --active
