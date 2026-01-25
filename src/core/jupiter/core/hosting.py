@@ -11,6 +11,11 @@ class Hosting(EnumValue):
     SELF_HOSTED = "self-hosted"
     LOCAL = "local"
 
+    @property
+    def is_hosted_global(self) -> bool:
+        """Whether this is a hosted global instance."""
+        return self == Hosting.HOSTED_GLOBAL
+
     def __str__(self) -> str:
         """The string representation of the hosting."""
         return self.value

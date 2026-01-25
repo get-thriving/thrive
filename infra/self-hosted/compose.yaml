@@ -48,7 +48,7 @@ services:
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - DEV_ADDR=0.0.0.0:8000
       - SITE_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
-      - PUBLIC_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - PUBLIC_NAME=${PUBLIC_NAME}
     restart: always
     image: ${DOCKER_IMAGE_DOCS:-horia141/jupiter-docs:${VERSION:-latest}}
     healthcheck:

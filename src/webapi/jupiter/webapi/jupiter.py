@@ -50,7 +50,7 @@ async def main() -> None:
 
     if (
         global_properties.env.is_live
-        and global_properties.universe.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting.is_hosted_global
     ):
         telemetry = SentryTelemetry(global_properties.sentry_dsn)
     else:
@@ -90,7 +90,7 @@ async def main() -> None:
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
-        and global_properties.universe.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting.is_hosted_global
     ):
         crm = WixCRM(
             api_key=global_properties.wix_api_key,

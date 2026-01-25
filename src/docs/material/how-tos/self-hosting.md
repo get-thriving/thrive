@@ -152,10 +152,9 @@ like so:
 
 ```bash
 touch .env
-echo "PUBLIC_NAME=Horia's Thrive" >> .env # Use your own name here
 echo "UNIVERSE=my-thrive-instance" >> .env # Use your own name here
 echo "ENV=production" >> .env # Use your own name here
-echo "INSTANCE=Horia's Thrive" >> .env # Use your own name here
+echo "INSTANCE=Horia" >> .env # Use your own name here
 echo "DOMAIN=my-thrive-instance.com" >> .env # Use your own value here
 echo "AUTH_TOKEN_SECRET=$(openssl rand -base64 32)" >> .env
 echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
@@ -164,10 +163,9 @@ echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
 When inspecting the `.env` file, it should look something like this:
 
 ```text
-PUBLIC_NAME=Horia's Thrive
 UNIVERSE=my-thrive-instance
 ENV=production
-INSTANCE=Horia's Thrive
+INSTANCE=Horia
 DOMAIN=my-thrive-instance.com
 AUTH_TOKEN_SECRET=s6cfvG3E3vyzXjtIM/1I6+t9oM9pGBC6GG0O9L7XmiY=
 SESSION_COOKIE_SECRET=FI3X/vjPJCUUeH+tu2OvhCQn7i1HyiVV2Vl4g/ce9DQ=

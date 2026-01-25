@@ -1,6 +1,5 @@
 """An instance for a jupiter application."""
 
-import re
 from typing import Final
 
 from jupiter.framework.errors import InputValidationError
@@ -11,7 +10,6 @@ from jupiter.framework.realm.standard import (
 )
 from jupiter.framework.value import AtomicValue, hashable_value
 
-_INSTANCE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-zA-Z0-9- ]+$")
 _MAIN_INSTANCE: Final[str] = "Main"
 _TO_FILL_INSTANCE: Final[str] = "TO-FILL"
 
@@ -31,13 +29,8 @@ class Instance(AtomicValue[str]):
 
     def _validate(self) -> None:
         """Validate this instance."""
-        if len(self.the_instance) == 0:
+        if len(self.the_instance.strip()) == 0:
             raise InputValidationError("Expected instance to be non-empty")
-
-        if not _INSTANCE_RE.match(self.the_instance):
-            raise InputValidationError(
-                f"Expected instance '{self.the_instance}' to match '{_INSTANCE_RE.pattern}'",
-            )
 
     def __str__(self) -> str:
         """The string representation of the instance."""
