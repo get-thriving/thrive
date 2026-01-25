@@ -30,7 +30,7 @@ COPY src/core/jupiter src/core/jupiter
 COPY src/core/migrations src/core/migrations
 COPY src/webapi/README.md src/webapi/README.md
 COPY src/webapi/pyproject.toml src/webapi/pyproject.toml
-COPY src/webapi/Config.project.live src/webapi/Config.project
+COPY src/webapi/Config.project src/webapi/Config.project
 COPY src/webapi/jupiter src/webapi/jupiter
 
 RUN uv sync --all-packages --active

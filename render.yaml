@@ -48,6 +48,8 @@ services:
         name: jupiter-docs
         type: web
         envVarKey: RENDER_EXTERNAL_URL
+    - key: SESSION_COOKIE_SECURE
+      value: true
 - type: web
   name: jupiter-webapi
   runtime: docker
@@ -77,6 +79,12 @@ services:
     - key: INSTANCE
       value: Main
       previewValue: TO-FILL
+    - key: SQLITE_DB_URL
+      value: sqlite+aiosqlite:////data/jupiter.sqlite
+    - key: ALEMBIC_INI_PATH
+      value: /jupiter/src/core/migrations/alembic.ini
+    - key: ALEMBIC_MIGRATIONS_PATH
+      value: /jupiter/src/core/migrations
 - type: web
   name: jupiter-docs
   runtime: static

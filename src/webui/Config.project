@@ -1,4 +1,4 @@
-TITLE="Thrive - Dev"
+TITLE="Thrive"
 DESCRIPTION="The Thrive Web application"
 WEBAPI_SERVER_HOST=127.0.0.1
 WEBAPI_SERVER_PORT=8010
