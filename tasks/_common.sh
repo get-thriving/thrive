@@ -149,7 +149,6 @@ _run_jupiter_webapp_with_docker() {
     export UNIVERSE=$UNIVERSE
     export ENV=$ENV
     export INSTANCE=$instance
-    export HOSTING=$HOSTING
     export DOMAIN=localhost
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3

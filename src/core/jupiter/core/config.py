@@ -72,7 +72,6 @@ class JupiterGlobalProperties(GlobalProperties):
     universe: Universe
     env: Env
     instance: Instance
-    hosting: Hosting
     description: str
     host: str
     port: int
@@ -103,7 +102,7 @@ class JupiterGlobalProperties(GlobalProperties):
                 if isinstance(filter_val, Env):
                     return self.env == filter_val
                 elif isinstance(filter_val, Hosting):
-                    return self.hosting == filter_val
+                    return self.universe.hosting == filter_val
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         if excluded is not None:
@@ -111,7 +110,7 @@ class JupiterGlobalProperties(GlobalProperties):
                 if isinstance(filter_val, Env):
                     return self.env != filter_val
                 elif isinstance(filter_val, Hosting):
-                    return self.hosting != filter_val
+                    return self.universe.hosting != filter_val
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         return True
@@ -146,7 +145,6 @@ def build_global_properties() -> JupiterGlobalProperties:
         )
     else:
         instance = Instance(cast(str, os.getenv("INSTANCE")))
-    hosting = Hosting(cast(str, os.getenv("HOSTING")))
     description = cast(str, os.getenv("DESCRIPTION"))
     host = cast(str, os.getenv("HOST"))
     port = int(cast(str, os.getenv("PORT")))
@@ -171,7 +169,6 @@ def build_global_properties() -> JupiterGlobalProperties:
         universe=universe,
         env=env,
         instance=instance,
-        hosting=hosting,
         description=description,
         host=host,
         port=port,

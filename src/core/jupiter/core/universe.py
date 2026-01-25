@@ -3,6 +3,7 @@
 import re
 from typing import Final
 
+from jupiter.core.hosting import Hosting
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.realm.standard import (
@@ -13,6 +14,7 @@ from jupiter.framework.value import AtomicValue, hashable_value
 
 _UNIVERSE_RE: Final[re.Pattern[str]] = re.compile(r"^[a-z0-9-]+$")
 _THRIVE_UNIVERSE: Final[str] = "thrive"
+_DEV_UNIVERSE: Final[str] = "dev"
 
 
 @hashable_value
@@ -38,6 +40,19 @@ class Universe(AtomicValue[str]):
     def is_thrive(self) -> bool:
         """Whether this is the Thrive universe."""
         return self.the_universe == _THRIVE_UNIVERSE
+
+    def is_dev(self) -> bool:
+        """Whether this is the dev universe."""
+        return self.the_universe == _DEV_UNIVERSE
+
+    @property
+    def hosting(self) -> Hosting:
+        """The hosting of this universe."""
+        if self.is_thrive():
+            return Hosting.HOSTED_GLOBAL
+        if self.is_dev():
+            return Hosting.LOCAL
+        return Hosting.SELF_HOSTED
 
 
 class UniverseDatabaseEncoder(PrimitiveAtomicValueDatabaseEncoder[Universe]):

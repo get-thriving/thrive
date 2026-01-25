@@ -3,13 +3,14 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { inferPlatformAndDistribution } from "@jupiter/core/frontdoor.server";
+import { getHosting } from "#/core/universe";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   let name = "";
-  if (GLOBAL_PROPERTIES.hosting === Hosting.HOSTED_GLOBAL) {
+  if (getHosting(GLOBAL_PROPERTIES.universe) === Hosting.HOSTED_GLOBAL) {
     name = GLOBAL_PROPERTIES.title;
-  } else if (GLOBAL_PROPERTIES.hosting === Hosting.SELF_HOSTED) {
-    name = `${GLOBAL_PROPERTIES.title} - ${GLOBAL_PROPERTIES.hostingName}`;
+  } else if (getHosting(GLOBAL_PROPERTIES.universe) === Hosting.SELF_HOSTED) {
+    name = `${GLOBAL_PROPERTIES.title} - ${GLOBAL_PROPERTIES.instance}`;
   } else {
     name = GLOBAL_PROPERTIES.title;
   }

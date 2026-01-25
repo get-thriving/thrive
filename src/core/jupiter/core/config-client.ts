@@ -4,7 +4,6 @@ import {
   AppPlatform,
   AppShell,
   Env,
-  Hosting,
   Instance,
   Universe,
 } from "@jupiter/webapi-client";
@@ -17,8 +16,6 @@ export interface GlobalPropertiesClient {
   universe: Universe;
   env: Env;
   instance: Instance;
-  hosting: Hosting;
-  hostingName: string;
   version: string;
   appCore: AppCore;
   frontDoorInfo: FrontDoorInfo;
@@ -41,8 +38,6 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   universe: "dev",
   env: Env.LOCAL,
   instance: "Main",
-  hosting: Hosting.LOCAL,
-  hostingName: "FAKE-FAKE",
   version: "FAKE-FAKE",
   appCore: AppCore.WEBUI,
   frontDoorInfo: {
@@ -75,8 +70,6 @@ export function serverToClientGlobalProperties(
     universe: globalPropertiesServer.universe,
     env: globalPropertiesServer.env,
     instance: globalPropertiesServer.instance,
-    hosting: globalPropertiesServer.hosting,
-    hostingName: globalPropertiesServer.hostingName,
     version: globalPropertiesServer.version,
     appCore: AppCore.WEBUI,
     frontDoorInfo: frontDoorInfo,

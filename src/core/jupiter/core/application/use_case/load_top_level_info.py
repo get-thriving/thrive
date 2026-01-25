@@ -128,7 +128,7 @@ class LoadTopLevelInfoUseCase(
 
         return LoadTopLevelInfoResult(
             env=gp.env,
-            hosting=gp.hosting,
+            hosting=gp.universe.hosting,
             user_feature_flag_controls=user_feature_flags_controls,
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),

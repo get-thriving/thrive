@@ -1,5 +1,3 @@
-HOSTING=local
-HOSTING_NAME=Main
 DESCRIPTION="The CLI client for Thrive"
 DOCS_URL=https://docs.get-thriving.com
 DOCS_INIT_WORKSPACE_URL=${DOCS_URL}/tutorial

@@ -50,7 +50,7 @@ async def main() -> None:
 
     if (
         global_properties.env.is_live
-        and global_properties.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting == Hosting.HOSTED_GLOBAL
     ):
         telemetry = SentryTelemetry(global_properties.sentry_dsn)
     else:
@@ -90,7 +90,7 @@ async def main() -> None:
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
-        and global_properties.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting == Hosting.HOSTED_GLOBAL
     ):
         crm = WixCRM(
             api_key=global_properties.wix_api_key,
@@ -143,7 +143,7 @@ async def main() -> None:
     rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
     rich_print(f"  Instance: {global_properties.instance}")
-    rich_print(f"  Hosting: {global_properties.hosting}")
+    rich_print(f"  Hosting: {global_properties.universe.hosting}")
     rich_print("=" * 80)
 
     try:

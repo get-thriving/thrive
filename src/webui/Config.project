@@ -1,5 +1,3 @@
-HOSTING=local
-HOSTING_NAME=Main
 TITLE="Thrive - Dev"
 DESCRIPTION="The Thrive Web application"
 WEBAPI_SERVER_HOST=127.0.0.1

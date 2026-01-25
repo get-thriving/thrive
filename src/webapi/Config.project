@@ -1,5 +1,3 @@
-HOSTING=local
-HOSTING_NAME=Main
 HOST=127.0.0.1
 PORT=8010
 DESCRIPTION="The Web RPC API client for Thrive"

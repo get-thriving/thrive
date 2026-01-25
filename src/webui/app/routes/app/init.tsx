@@ -55,6 +55,7 @@ import {
 } from "@jupiter/core/infra/component/section-card";
 import { EMPTY_CONTEXT } from "@jupiter/core/infra/top-level-context";
 import { BirthdaySelect } from "#/core/common/component/birthday-select";
+import { getHosting } from "#/core/universe";
 
 import { commitSession, getSession } from "~/sessions";
 import { getGuestApiClient } from "~/api-clients.server";
@@ -357,14 +358,14 @@ export default function WorkspaceInit() {
                 inputsEnabled={inputsEnabled}
                 featureFlagsControls={loaderData.userFeatureFlagControls}
                 defaultFeatureFlags={loaderData.defaultUserFeatureFlags}
-                hosting={globalProperties.hosting}
+                hosting={getHosting(globalProperties.universe)}
               />
               <WorkspaceFeatureFlagsEditor
                 name="workspaceFeatureFlags"
                 inputsEnabled={inputsEnabled}
                 featureFlagsControls={loaderData.workspaceFeatureFlagControls}
                 defaultFeatureFlags={loaderData.defaultWorkspaceFeatureFlags}
-                hosting={globalProperties.hosting}
+                hosting={getHosting(globalProperties.universe)}
               />
             </AccordionDetails>
           </Accordion>

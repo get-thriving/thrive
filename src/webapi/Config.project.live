@@ -1,5 +1,3 @@
-HOSTING=hosted-global
-HOSTING_NAME=Main
 _PORT=WILL-BE-FILLED-BY-RENDER
 DESCRIPTION="The Web RPC API client for Thrive"
 SQLITE_DB_URL=sqlite+aiosqlite:////data/jupiter.sqlite

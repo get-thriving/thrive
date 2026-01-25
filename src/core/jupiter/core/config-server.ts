@@ -1,14 +1,13 @@
-import { Hosting, Instance, Universe, type Env } from "@jupiter/webapi-client";
+import { Instance, Universe, type Env } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
 import { newOrGenerateInstance } from "#/core/instance";
+import { getHosting } from "#/core/universe";
 
 export interface GlobalPropertiesServer {
   universe: Universe;
   env: Env;
   instance: Instance;
-  hosting: Hosting;
-  hostingName: string;
   version: string;
   title: string;
   description: string;
@@ -38,7 +37,6 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
   config({ path: `${process.cwd()}/Config.project` });
 
-  const hosting = process.env.HOSTING as Hosting;
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
   const webApiServerPort = parseInt(
     process.env.WEBAPI_SERVER_PORT as string,
@@ -58,8 +56,6 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
           process.env.RENDER_GIT_BRANCH as string,
         )
       : (process.env.INSTANCE as Instance),
-    hosting: hosting,
-    hostingName: process.env.HOSTING_NAME as string,
     version: process.env.VERSION as string,
     title: process.env.TITLE as string,
     description: process.env.DESCRIPTION as string,
@@ -102,5 +98,5 @@ console.log(`  Version: ${GLOBAL_PROPERTIES.version}`);
 console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
 console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
 console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
-console.log(`  Hosting: ${GLOBAL_PROPERTIES.hosting}`);
+console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
 console.log("=".repeat(80));

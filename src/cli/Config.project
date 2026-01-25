@@ -1,5 +1,3 @@
-HOSTING=local
-HOSTING_NAME=Main
 PORT=0
 DESCRIPTION="The CLI client for Thrive"
 DOCS_URL=https://docs.get-thriving.com

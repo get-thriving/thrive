@@ -15,7 +15,7 @@ def infer_feature_flag_controls(
     global_properties: JupiterGlobalProperties,
 ) -> tuple[UserFeatureFlagsControls, WorkspaceFeatureFlagsControls]:
     """Infer the feature flags controls to use, based on magick."""
-    if global_properties.hosting == Hosting.LOCAL:
+    if global_properties.universe.hosting == Hosting.LOCAL:
         return USER_FEATURE_FLAGS_CONTROLS, LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS
     else:
         return (

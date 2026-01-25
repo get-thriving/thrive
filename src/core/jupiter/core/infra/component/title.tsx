@@ -3,6 +3,7 @@ import { Typography } from "@mui/material";
 import { useContext } from "react";
 
 import { GlobalPropertiesContext } from "#/core/config-client";
+import { getHosting } from "#/core/universe";
 
 interface TitleProps {
   hideOnSmallScreen?: boolean;
@@ -12,10 +13,10 @@ export function Title(props: TitleProps) {
   const globalProperties = useContext(GlobalPropertiesContext);
 
   let name = "";
-  if (globalProperties.hosting === Hosting.HOSTED_GLOBAL) {
+  if (getHosting(globalProperties.universe) === Hosting.HOSTED_GLOBAL) {
     name = globalProperties.title;
-  } else if (globalProperties.hosting === Hosting.SELF_HOSTED) {
-    name = `${globalProperties.title} - ${globalProperties.hostingName}`;
+  } else if (getHosting(globalProperties.universe) === Hosting.SELF_HOSTED) {
+    name = `${globalProperties.title} - ${globalProperties.instance}`;
   } else {
     name = globalProperties.title;
   }

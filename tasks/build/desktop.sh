@@ -66,7 +66,7 @@ log info "Building desktop app for macOS"
 
 cp LICENSE src/desktop/LICENSE
 
-(cd src/desktop && ENV=production HOSTING=hosted-global npx vite build --mode production --config vite.config.ts)
+(cd src/desktop && ENV=production npx vite build --mode production --config vite.config.ts)
 
 # Electron forge is exceedinly stupid wrt symlinks going out of it. So
 # before the build we fix this.

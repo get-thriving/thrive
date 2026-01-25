@@ -1,5 +1,7 @@
 export const AUTH_TOKEN_NAME = "authTokenExt";
+export const UNIVERSE_HEADER = "X-Jupiter-Universe";
 export const ENV_HEADER = "X-Jupiter-Env";
+export const INSTANCE_HEADER = "X-Jupiter-Instance";
 export const HOSTING_HEADER = "X-Jupiter-Hosting";
 export const VERSION_HEADER = "X-Jupiter-Version";
 export const FRONTDOOR_HEADER = "X-Jupiter-FrontDoor";
