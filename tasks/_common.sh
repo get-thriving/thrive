@@ -2,6 +2,11 @@
 
 source src/Config.global
 
+export THRIVE_SH_TEST_UNIVERSE=thrive-sh-test
+export THRIVE_SH_TEST_DNS_ZONE=thrive-sh-test
+export THRIVE_SH_TEST_DOMAIN=.thrive-test.xyz
+export THRIVE_GCP_PROJECT=thrive-449010
+export THRIVE_GCP_ZONE=europe-west1-c
 export RUN_ROOT=.build-cache/run
 export STANDARD_INSTANCE=dev
 export STANDARD_UNIVERSE=local-dev
@@ -56,6 +61,7 @@ run_jupiter_webapp() {
     shift 9
     local version=$1
     local mode=$2
+    local clear_first=$3
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
@@ -63,13 +69,12 @@ run_jupiter_webapp() {
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$version"
-        exit 1
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$version" "$clear_first"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -96,12 +101,20 @@ _run_dev_jupiter_webapp_with_pm2() {
     local in_ci=$7
     local source=$8
     local version=$9
+    shift 9
+    local clear_first=$1
 
     # If source is not local, or version is not local, then we exit
     if [[ "$source" != "local" ]] || [[ "$version" != "latest" ]]; then
         log error "Source or version is not local, exiting"
         exit 1
     fi
+
+    if [[ "$clear_first" == "true" ]]; then
+        clear_jupiter_database "$instance"
+    fi
+
+    create_jupiter_database "$instance"
     
     # here!
     if [[ "$in_ci" == "dev" ]]; then
@@ -164,6 +177,8 @@ _run_dev_jupiter_webapp_with_docker() {
     local in_ci=$7
     local source=$8
     local version=$9
+    shift 9
+    local clear_first=$1
 
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -181,6 +196,13 @@ _run_dev_jupiter_webapp_with_docker() {
     export FULLCHAIN_PEM
     PRIVKEY_PEM=$(pwd)/$RUN_ROOT/$instance/privkey.pem
     export PRIVKEY_PEM
+
+    if [[ "$clear_first" == "true" ]]; then
+        clear_jupiter_database "$instance"
+    fi
+
+    create_jupiter_database "$instance"
+
 
     log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
 
@@ -234,6 +256,157 @@ _run_thrive_sh_test_webapp() {
     local should_monit=$6
     local in_ci=$7
     local version=$8
+    local clear_first=$9
+
+    local gcp_vm_name="thrive-sh-test-${instance}"
+
+    if [[ "$clear_first" == "true" ]]; then
+        log info "Deleting GCP VM: $gcp_vm_name"
+        gcloud compute instances delete "$gcp_vm_name" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --quiet
+    fi
+
+    log info "Creating GCP VM: $gcp_vm_name"
+    if ! gcloud compute instances describe "$gcp_vm_name"    \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" >/dev/null 2>&1
+    then
+        log info "GCP VM does not exist, creating it"
+        gcloud compute instances create "$gcp_vm_name" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --machine-type "e2-medium" \
+            --image-family ubuntu-2204-lts \
+            --image-project ubuntu-os-cloud \
+            --boot-disk-size 20GB \
+            --metadata-from-file startup-script=tasks/_resources/_test-machine-shutdown-after-4hrs.sh \
+            --labels "purpose=testing" \
+            --tags http-server \
+            --tags https-server
+
+        log info "Waiting for GCP VM to be ready..."
+        until gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --command "true" \
+            --quiet >/dev/null 2>&1
+        do
+            log info "GCP VM not ready, waiting..."
+            sleep 5
+        done
+
+        log info "Preparing $gcp_vm_name"
+        gcloud compute scp ./tasks/_resources/_test-machine-startup.sh "$gcp_vm_name":~/startup-script.sh \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --command "chmod +x ~/startup-script.sh && sudo ~/startup-script.sh"
+    fi
+
+    log info "Checking if GCP VM is running"
+    if [[ "$(gcloud compute instances describe "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --format='get(status)')" != "RUNNING" ]];
+    then
+      log info "GCP VM is not running, starting it"
+      gcloud compute instances start "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT"
+    fi
+
+    gcp_ip=$(gcloud compute instances describe "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --format='get(networkInterfaces[0].accessConfigs[0].natIP)')
+
+    log info "VM external IP: $gcp_ip"
+
+    local gcp_dns_name="${instance}${THRIVE_SH_TEST_DOMAIN}"
+
+    existing_ips=$(gcloud dns record-sets list \
+        --zone="$THRIVE_SH_TEST_DNS_ZONE" \
+        --project="$THRIVE_GCP_PROJECT" \
+        --name="$gcp_dns_name" \
+        --format="value(rrdatas)" \
+        --type=A || true)
+
+    gcloud dns record-sets transaction abort --zone="$THRIVE_SH_TEST_DNS_ZONE" --project="$THRIVE_GCP_PROJECT" || true
+    gcloud dns record-sets transaction start --zone="$THRIVE_SH_TEST_DNS_ZONE" --project="$THRIVE_GCP_PROJECT"
+
+    if [[ -n "$existing_ips" ]]; then
+        log info "Removing existing DNS record for $gcp_dns_name"
+        gcloud dns record-sets transaction remove \
+            --zone="$THRIVE_SH_TEST_DNS_ZONE" \
+            --project="$THRIVE_GCP_PROJECT" \
+            --name="$gcp_dns_name" \
+            --type=A \
+            --ttl="60" \
+            "$existing_ips"
+    fi
+
+    gcloud dns record-sets transaction add \
+        --zone="$THRIVE_SH_TEST_DNS_ZONE" \
+        --project="$THRIVE_GCP_PROJECT" \
+        --name="$gcp_dns_name" \
+        --type=A \
+        --ttl="60" \
+        "$gcp_ip"
+
+    gcloud dns record-sets transaction execute --zone="$THRIVE_SH_TEST_DNS_ZONE" --project="$THRIVE_GCP_PROJECT"
+
+    log info "Waiting for DNS record to be propagated"
+    until dig +short "$gcp_dns_name" | grep -q "$gcp_ip"; do
+        log info "DNS record not propagated, waiting..."
+        sleep 5
+    done
+
+    log info "DNS record propagated"
+
+    local gh_prefix
+    if [[ "$version" == "latest" ]]; then
+        gh_prefix="https://github.com/horia141/thrive/releases/latest/download"
+    else
+        gh_prefix="https://github.com/horia141/thrive/releases/download/v${version}"
+    fi
+
+    log info "Preparing Thrive on $gcp_vm_name"
+    gcloud compute ssh "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --ssh-flag="-tt" \
+        --command "bash -c '
+            (sudo docker compose down || true) &&
+            rm -rf compose.yaml &&
+            rm -rf nginx.conf &&
+            rm -rf webui.conf &&
+            rm -rf webui.nodomain.conf &&
+            rm -rf .env &&
+            wget $gh_prefix/compose.yaml &&
+            wget $gh_prefix/nginx.conf &&
+            wget $gh_prefix/webui.conf &&
+            wget $gh_prefix/webui.nodomain.conf &&
+            touch .env &&
+            echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
+            echo \"VERSION=$version\" >> .env &&
+            echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
+            echo \"ENV=production\" >> .env &&
+            echo \"INSTANCE=$instance\" >> .env &&
+            echo \"DOMAIN=$gcp_dns_name\" >> .env &&
+            echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+            echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+            (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
+        '"
+
+    log info "Starting Thrive on $gcp_vm_name"
+    gcloud compute ssh "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --command "sudo docker compose up"
 }
 
 stop_jupiter_webapp() {
@@ -380,4 +553,20 @@ run_jupiter_cli() {
     cd src/cli
     # MISE passes all jupiter args as a single string, so we need to eval it to properly parse quotes
     eval "python -m jupiter.cli.jupiter ${argsString}"
+}
+
+create_jupiter_database() {
+    local instance=$1
+
+    log info "Creating Jupiter database for instance: ${instance}"
+    
+    mkdir -p "$RUN_ROOT/$instance"
+}
+
+clear_jupiter_database() {
+    local instance=$1
+
+    log info "Clearing Jupiter database for instance: ${instance}"
+
+    rm -rf "$RUN_ROOT/$instance"
 }

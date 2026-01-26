@@ -152,6 +152,7 @@ like so:
 
 ```bash
 touch .env
+echo "PUBLIC_NAME=Horia's Thrive" >> .env # Displayed publicly
 echo "UNIVERSE=my-thrive-instance" >> .env # Use your own name here
 echo "ENV=production" >> .env # Use your own name here
 echo "INSTANCE=Horia" >> .env # Use your own name here
@@ -163,6 +164,7 @@ echo "SESSION_COOKIE_SECRET=$(openssl rand -base64 32)" >> .env
 When inspecting the `.env` file, it should look something like this:
 
 ```text
+PUBLIC_NAME=Horia's Thrive
 UNIVERSE=my-thrive-instance
 ENV=production
 INSTANCE=Horia

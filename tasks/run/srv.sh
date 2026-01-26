@@ -13,6 +13,7 @@
 #USAGE flag "--run-mode <runMode>" default="pm2" help="Run mode" {
 #USAGE   choices "pm2" "docker"
 #USAGE }
+#USAGE flag "--clear-first" help="Clear the instance first"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -22,6 +23,7 @@
 : "${usage_source:=}"
 : "${usage_version:=}"
 : "${usage_run_mode:=}"
+: "${usage_clear_first:=}"
 
 set -e -o pipefail
 
@@ -44,4 +46,4 @@ else
     docs_port=$(get_free_port)
 fi
 
-run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode"
+run_jupiter_webapp "$usage_universe" "$instance" "$webapi_port" "$webui_port" "$docs_port" no-wait monit dev "$usage_source" "$usage_version" "$usage_run_mode" "$usage_clear_first"
