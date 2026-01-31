@@ -1,28 +1,32 @@
 terraform {
-    required_providers {
-        google = {
-            source = "hashicorp/google"
-            version = "6.8.0"
-        }
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "6.8.0"
     }
+
+    sentry = {
+      source = "jianyuan/sentry"
+    }
+  }
 }
 
-# Google Configs
+# GCP
 
 ## Setup
 
 provider "google" {
-    project = "thrive-449010"
-    region = "europe-west1"
-    zone = "europe-west1-c"
+  project = "thrive-449010"
+  region  = "europe-west1"
+  zone    = "europe-west1-c"
 }
 
 resource "google_project" "thrive_449010" {
   name       = "Thrive"
   project_id = "thrive-449010"
 
-  org_id     = "123594278143"
-  billing_account     = "011A80-E21205-4F323E"
+  org_id          = "123594278143"
+  billing_account = "011A80-E21205-4F323E"
 
   auto_create_network = true
 }
@@ -34,158 +38,158 @@ data "google_compute_default_service_account" "default" {
 ## APIs
 
 resource "google_project_service" "analyticshub_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "analyticshub.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "analyticshub.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "androidpublisher_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "androidpublisher.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "androidpublisher.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigquery_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigquery.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigquery.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigqueryconnection_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigqueryconnection.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigqueryconnection.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigquerydatapolicy_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigquerydatapolicy.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigquerydatapolicy.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigquerymigration_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigquerymigration.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigquerymigration.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigqueryreservation_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigqueryreservation.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigqueryreservation.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "bigquerystorage_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "bigquerystorage.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "bigquerystorage.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "cloudapis_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "cloudapis.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "cloudapis.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "cloudasset_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "cloudasset.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "cloudasset.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "cloudtrace_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "cloudtrace.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "cloudtrace.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "compute_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "compute.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "compute.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "dataplex_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "dataplex.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "dataplex.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "dataform_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "dataform.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "dataform.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "datastore_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "datastore.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "datastore.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "dns_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "dns.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "dns.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "logging_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "logging.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "logging.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "monitoring_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "monitoring.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "monitoring.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "osconfig_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "osconfig.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "osconfig.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "oslogin_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "oslogin.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "oslogin.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "servicemanagement_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "servicemanagement.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "servicemanagement.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "serviceusage_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "serviceusage.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "serviceusage.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "sql_component_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "sql-component.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "sql-component.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "storage_api_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "storage-api.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "storage-api.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "storage_component_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "storage-component.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "storage-component.googleapis.com"
   disable_on_destroy = true
 }
 
 resource "google_project_service" "storage_googleapis_com" {
-  project = google_project.thrive_449010.project_id
-  service = "storage.googleapis.com"
+  project            = google_project.thrive_449010.project_id
+  service            = "storage.googleapis.com"
   disable_on_destroy = true
 }
 
@@ -202,24 +206,24 @@ resource "google_service_account" "play_store_bundle_uploader" {
 
 resource "google_dns_managed_zone" "thrive_sh_test" {
   project     = google_project.thrive_449010.project_id
-  name = "thrive-sh-test"  # the *managed zone* name, not the DNS name
+  name        = "thrive-sh-test" # the *managed zone* name, not the DNS name
   description = "The test domain for self-hosting"
-  dns_name = "thrive-test.xyz."
-  visibility = "public"
+  dns_name    = "thrive-test.xyz."
+  visibility  = "public"
 }
 
 resource "google_compute_network" "default" {
-  project     = google_project.thrive_449010.project_id
-  name = "default"
-  description = "Default network for the project"
-  auto_create_subnetworks = true
-  delete_default_routes_on_create = false
-  enable_ula_internal_ipv6 = false
-  gateway_ipv4 = null
-  internal_ipv6_range = null
-  mtu = 0
+  project                                   = google_project.thrive_449010.project_id
+  name                                      = "default"
+  description                               = "Default network for the project"
+  auto_create_subnetworks                   = true
+  delete_default_routes_on_create           = false
+  enable_ula_internal_ipv6                  = false
+  gateway_ipv4                              = null
+  internal_ipv6_range                       = null
+  mtu                                       = 0
   network_firewall_policy_enforcement_order = "AFTER_CLASSIC_FIREWALL"
-  routing_mode = "REGIONAL"
+  routing_mode                              = "REGIONAL"
 }
 
 resource "google_compute_firewall" "default_allow_http" {
@@ -326,4 +330,67 @@ resource "google_compute_firewall" "default_allow_ssh" {
   }
 }
 
-## Accounts
+# Sentry
+
+## Setup
+
+variable "sentry_token" {
+  description = "The authentication token for Sentry provider"
+  type        = string
+  sensitive   = true
+}
+
+provider "sentry" {
+  token = var.sentry_token
+}
+
+data "sentry_organization" "main" {
+  slug = "get-thriving"
+}
+
+resource "sentry_team" "thrive" {
+  organization = data.sentry_organization.main.slug
+  name         = "Thrive"
+}
+
+## Projects
+
+resource "sentry_project" "webapi" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webapi"
+  slug         = "webapi"
+  platform   = "python-fastapi"
+}
+
+resource "sentry_project" "webui" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "webui"
+  slug         = "webui"
+  platform   = "javascript-remix"
+}
+
+resource "sentry_project" "cli" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "cli"
+  slug         = "cli"
+  platform   = "python"
+}
+
+resource "sentry_project" "desktop" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "desktop"
+  slug         = "desktop"
+  platform   = "electron"
+}
+
+resource "sentry_project" "mobile" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "mobile"
+  slug         = "mobile"
+  platform   = "capacitor"
+}
