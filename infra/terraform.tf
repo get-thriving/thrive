@@ -26,10 +26,17 @@ terraform {
 
 ## Setup
 
+variable "GCP_LOGIN_FILE" {
+  description = "The GCP login ADC file"
+  type        = string
+  sensitive   = true
+}
+
 provider "google" {
   project = "thrive-449010"
   region  = "europe-west1"
   zone    = "europe-west1-c"
+  credentials = file(var.GCP_LOGIN_FILE)
 }
 
 resource "google_project" "thrive_449010" {
