@@ -34,9 +34,19 @@ sudo gpg --dearmor --batch --yes --no-tty \
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 rm -f /tmp/docker.gpg
 
+if [ -f /etc/os-release ]; then
+  # shellcheck source=/dev/null
+  . /etc/os-release
+elif command -v lsb_release >/dev/null 2>&1; then
+  VERSION_CODENAME=$(lsb_release -cs)
+else
+  echo "Error: /etc/os-release not found and lsb_release command not available." >&2
+  exit 1
+fi
+
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
 https://download.docker.com/linux/ubuntu \
-$(. /etc/os-release && echo $VERSION_CODENAME) stable" \
+$VERSION_CODENAME stable" \
 > /etc/apt/sources.list.d/docker.list
 
 apt-get update

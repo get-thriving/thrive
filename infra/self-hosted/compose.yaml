@@ -3,6 +3,7 @@ name: jupiter
 services:
   webapi:
     environment:
+      - SQLITE_DB_URL=sqlite+aiosqlite:////data/jupiter.sqlite
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
       - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}

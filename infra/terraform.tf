@@ -6,13 +6,13 @@ terraform {
     }
 
     sentry = {
-      source = "jianyuan/sentry"
+      source  = "jianyuan/sentry"
       version = "0.14.8"
     }
 
     render = {
-        source = "registry.terraform.io/render-oss/render"
-        version = "1.8.0"
+      source  = "registry.terraform.io/render-oss/render"
+      version = "1.8.0"
     }
   }
 
@@ -33,9 +33,9 @@ variable "GCP_LOGIN_FILE" {
 }
 
 provider "google" {
-  project = "thrive-449010"
-  region  = "europe-west1"
-  zone    = "europe-west1-c"
+  project     = "thrive-449010"
+  region      = "europe-west1"
+  zone        = "europe-west1-c"
   credentials = file(var.GCP_LOGIN_FILE)
 }
 
@@ -244,6 +244,12 @@ resource "google_compute_network" "default" {
   routing_mode                              = "REGIONAL"
 }
 
+variable "WEBAPI_TESTING_PORT" {
+  description = "On staging machines this http port is accessible for testing"
+  type        = string
+  sensitive   = false
+}
+
 resource "google_compute_firewall" "default_allow_http" {
   project = google_project.thrive_449010.project_id
   name    = "default-allow-http"
@@ -256,7 +262,7 @@ resource "google_compute_firewall" "default_allow_http" {
 
   allow {
     protocol = "tcp"
-    ports    = ["80"]
+    ports    = ["80", var.WEBAPI_TESTING_PORT]
   }
 }
 
@@ -418,21 +424,21 @@ resource "sentry_project" "mobile" {
 ## Setup
 
 variable "RENDER_OWNER_ID" {
-    description = "The owner for the Render provider"
+  description = "The owner for the Render provider"
   type        = string
   sensitive   = true
 }
 
 
 variable "RENDER_AUTH_TOKEN" {
-    description = "The authentication token for Render provider"
+  description = "The authentication token for Render provider"
   type        = string
   sensitive   = true
 }
 
 provider "render" {
-   owner_id = var.RENDER_OWNER_ID
-   api_key = var.RENDER_AUTH_TOKEN
+  owner_id = var.RENDER_OWNER_ID
+  api_key  = var.RENDER_AUTH_TOKEN
 }
 
 ## Project

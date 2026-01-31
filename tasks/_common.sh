@@ -251,9 +251,6 @@ _run_dev_jupiter_webapp_with_docker() {
 
 _run_thrive_sh_test_webapp() {
     local instance=$1
-    local webapi_port=$2
-    local webui_port=$3
-    local docs_port=$4
     local should_wait=$5
     local should_monit=$6
     local in_ci=$7
@@ -331,6 +328,7 @@ _run_thrive_sh_test_webapp() {
     log info "VM external IP: $gcp_ip"
 
     local gcp_dns_name="${instance}${THRIVE_SH_TEST_DOMAIN}"
+    local webapi_server_url="http://${gcp_dns_name}:${WEBAPI_TESTING_PORT}"
 
     existing_ips=$(gcloud dns record-sets list \
         --zone="$THRIVE_SH_TEST_DNS_ZONE" \
@@ -404,6 +402,8 @@ _run_thrive_sh_test_webapp() {
                 echo \"DOMAIN=$gcp_dns_name\" >> .env &&
                 echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
+                echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     else
@@ -411,9 +411,9 @@ _run_thrive_sh_test_webapp() {
 
         trap "rm -f webapi.tar webui.tar docs.tar" EXIT
 
-        docker save -o webapi.tar jupiter/webapi:${version}-arm64
-        docker save -o webui.tar jupiter/webui:${version}-arm64
-        docker save -o docs.tar jupiter/docs:${version}-arm64
+        docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
+        docker save -o webui.tar "jupiter/webui:${version}-arm64"
+        docker save -o docs.tar "jupiter/docs:${version}-arm64"
 
         gcloud compute scp webapi.tar "$gcp_vm_name":~/webapi.tar \
             --project "$THRIVE_GCP_PROJECT" \
@@ -456,7 +456,9 @@ _run_thrive_sh_test_webapp() {
                 echo \"INSTANCE=$instance\" >> .env &&
                 echo \"DOMAIN=$gcp_dns_name\" >> .env &&
                 echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"WEBAPI_SERVER_URL=${webapi_server_url}\" >> .env &&
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
@@ -537,7 +539,7 @@ get_webui_url_for_universe() {
             get_thrive_production_webui_url 
             return 0
         elif [[ "$environment" == "staging" ]]; then
-            get_thrive_staging_webui_url $instance
+            get_thrive_staging_webui_url "$instance"
             return 0
         else
             log error "Environment $environment is not supported for thrive universe"
@@ -686,6 +688,5 @@ clear_jupiter_database() {
     local instance=$1
 
     log info "Clearing Jupiter database for instance: ${instance}"
-
-    rm -rf "$RUN_ROOT/$instance"
+    rm -rf "${RUN_ROOT:?}/$instance"
 }

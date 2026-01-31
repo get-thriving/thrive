@@ -25,3 +25,19 @@ run_tests() {
         --title="Jupiter Integration Tests" \
         $@
 }
+
+check_is_testable_universe() {
+    local universe_url=$1
+
+    log info "Checking if universe at $universe_url is testable"
+
+    set +e
+    http --check-status --ignore-stdin --follow --timeout 10 --verify=no get "${universe_url}/test-manifest" > /dev/null 2>&1
+    local status=$?
+    set -e
+
+    if [[ "$status" -ne 0 ]]; then
+        log error "Universe at $universe_url is not testable: /test-manifest did not return a successful status code"
+        exit 1
+    fi
+}
