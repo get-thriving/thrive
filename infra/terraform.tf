@@ -7,7 +7,18 @@ terraform {
 
     sentry = {
       source = "jianyuan/sentry"
+      version = "0.14.8"
     }
+
+    render = {
+        source = "registry.terraform.io/render-oss/render"
+        version = "1.8.0"
+    }
+  }
+
+  backend "gcs" {
+    bucket = "jupiter-terraform-state"
+    prefix = "envs/prod"
   }
 }
 
@@ -334,14 +345,14 @@ resource "google_compute_firewall" "default_allow_ssh" {
 
 ## Setup
 
-variable "sentry_token" {
+variable "SENTRY_AUTH_TOKEN" {
   description = "The authentication token for Sentry provider"
   type        = string
   sensitive   = true
 }
 
 provider "sentry" {
-  token = var.sentry_token
+  token = var.SENTRY_AUTH_TOKEN
 }
 
 data "sentry_organization" "main" {
@@ -360,7 +371,7 @@ resource "sentry_project" "webapi" {
   teams        = [sentry_team.thrive.slug]
   name         = "webapi"
   slug         = "webapi"
-  platform   = "python-fastapi"
+  platform     = "python-fastapi"
 }
 
 resource "sentry_project" "webui" {
@@ -368,7 +379,7 @@ resource "sentry_project" "webui" {
   teams        = [sentry_team.thrive.slug]
   name         = "webui"
   slug         = "webui"
-  platform   = "javascript-remix"
+  platform     = "javascript-remix"
 }
 
 resource "sentry_project" "cli" {
@@ -376,7 +387,7 @@ resource "sentry_project" "cli" {
   teams        = [sentry_team.thrive.slug]
   name         = "cli"
   slug         = "cli"
-  platform   = "python"
+  platform     = "python"
 }
 
 resource "sentry_project" "desktop" {
@@ -384,7 +395,7 @@ resource "sentry_project" "desktop" {
   teams        = [sentry_team.thrive.slug]
   name         = "desktop"
   slug         = "desktop"
-  platform   = "electron"
+  platform     = "electron"
 }
 
 resource "sentry_project" "mobile" {
@@ -392,5 +403,39 @@ resource "sentry_project" "mobile" {
   teams        = [sentry_team.thrive.slug]
   name         = "mobile"
   slug         = "mobile"
-  platform   = "capacitor"
+  platform     = "capacitor"
+}
+
+# Render
+
+## Setup
+
+variable "RENDER_OWNER_ID" {
+    description = "The owner for the Render provider"
+  type        = string
+  sensitive   = true
+}
+
+
+variable "RENDER_AUTH_TOKEN" {
+    description = "The authentication token for Render provider"
+  type        = string
+  sensitive   = true
+}
+
+provider "render" {
+   owner_id = var.RENDER_OWNER_ID
+   api_key = var.RENDER_AUTH_TOKEN
+}
+
+## Project
+
+resource "render_project" "thrive" {
+  name = "Thrive"
+  environments = {
+    "Production" : {
+      name : "Production",
+      protected_status : "unprotected"
+    },
+  }
 }

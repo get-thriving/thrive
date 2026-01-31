@@ -1,6 +1,8 @@
 #!/bin/bash
 
 source src/Config.global
+source infra/Config.infra
+source secrets/Config.secrets
 
 export THRIVE_SH_TEST_UNIVERSE=thrive-sh-test
 export THRIVE_SH_TEST_DNS_ZONE=thrive-sh-test

@@ -39,9 +39,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
 def test_inbox_task_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/inbox-tasks")
 
-    expect(page.locator("#trunk-panel")).to_contain_text(
-        "You have to start somewhere"
-    )
+    expect(page.locator("#trunk-panel")).to_contain_text("You have to start somewhere")
 
 
 def test_inbox_task_view_all(page: Page, create_inbox_task) -> None:

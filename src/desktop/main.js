@@ -255,15 +255,9 @@ async function handlePickServer(win, serverUrlString) {
 }
 
 function buildFrontdoor(remoteHostWebUiUrl, distribution) {
-  const frontDoorUrl = new URL(
-    FRONTDOOR_PATTERN,
-    remoteHostWebUiUrl,
-  );
+  const frontDoorUrl = new URL(FRONTDOOR_PATTERN, remoteHostWebUiUrl);
   frontDoorUrl.searchParams.set("clientVersion", VERSION);
-  frontDoorUrl.searchParams.set(
-    "initialWindowWidth",
-    INITIAL_WIDTH,
-  );
+  frontDoorUrl.searchParams.set("initialWindowWidth", INITIAL_WIDTH);
   frontDoorUrl.searchParams.set("appDistribution", distribution);
   return frontDoorUrl;
 }

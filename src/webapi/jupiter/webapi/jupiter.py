@@ -12,7 +12,6 @@ from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.env import Env
-from jupiter.core.hosting import Hosting
 from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )

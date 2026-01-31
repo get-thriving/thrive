@@ -9,11 +9,12 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-source src/Config.global
-source secrets/Config.secrets
-
 log info "Planning infrastructure"
 
-cd infra
-terraform init -upgrade
-terraform plan -var="sentry_token=$SENTRY_AUTH_TOKEN"
+trap 'rm -f infra/infra.tfvars infra/secrets.tfvars' EXIT
+
+sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' infra/Config.infra > infra/infra.tfvars
+sed 's/\([^=]*\)=\(.*\)/\1 = "\2"/' secrets/Config.secrets > infra/secrets.tfvars
+
+(cd infra && terraform init -upgrade)
+(cd infra && terraform plan -var-file=infra.tfvars -var-file=secrets.tfvars)
