@@ -20,6 +20,7 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get("Cookie"));
   const params = parseQuery(request, FRONT_DOOR_INFO_SCHEMA);
+  console.log("params: ", params);
 
   if (session.has(AUTH_TOKEN_NAME)) {
     const apiClient = await getGuestApiClient(request, params);
