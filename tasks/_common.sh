@@ -76,7 +76,7 @@ run_jupiter_webapp() {
             _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$version" "$clear_first"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -257,8 +257,10 @@ _run_thrive_sh_test_webapp() {
     local should_wait=$5
     local should_monit=$6
     local in_ci=$7
-    local version=$8
-    local clear_first=$9
+    local source=$8
+    shift 8
+    local version=$1
+    local clear_first=$2
 
     local gcp_vm_name="thrive-sh-test-${instance}"
 
@@ -279,10 +281,10 @@ _run_thrive_sh_test_webapp() {
         gcloud compute instances create "$gcp_vm_name" \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE" \
-            --machine-type "e2-medium" \
-            --image-family ubuntu-2204-lts \
+            --machine-type "c4a-standard-2" \
+            --image-family ubuntu-2204-lts-arm64 \
             --image-project ubuntu-os-cloud \
-            --boot-disk-size 20GB \
+            --boot-disk-size 42GB \
             --metadata-from-file startup-script=tasks/_resources/_test-machine-shutdown-after-4hrs.sh \
             --labels "purpose=testing" \
             --tags http-server \
@@ -369,40 +371,98 @@ _run_thrive_sh_test_webapp() {
 
     log info "DNS record propagated"
 
-    local gh_prefix
-    if [[ "$version" == "latest" ]]; then
-        gh_prefix="https://github.com/horia141/thrive/releases/latest/download"
-    else
-        gh_prefix="https://github.com/horia141/thrive/releases/download/v${version}"
-    fi
+    if [[ "$source" == "registry" ]]; then
+        local gh_prefix
+        if [[ "$version" == "latest" ]]; then
+            gh_prefix="https://github.com/horia141/thrive/releases/latest/download"
+        else
+            gh_prefix="https://github.com/horia141/thrive/releases/download/v${version}"
+        fi
 
-    log info "Preparing Thrive on $gcp_vm_name"
-    gcloud compute ssh "$gcp_vm_name" \
-        --zone "$THRIVE_GCP_ZONE" \
-        --project "$THRIVE_GCP_PROJECT" \
-        --ssh-flag="-tt" \
-        --command "bash -c '
-            (sudo docker compose down || true) &&
-            rm -rf compose.yaml &&
-            rm -rf nginx.conf &&
-            rm -rf webui.conf &&
-            rm -rf webui.nodomain.conf &&
-            rm -rf .env &&
-            wget $gh_prefix/compose.yaml &&
-            wget $gh_prefix/nginx.conf &&
-            wget $gh_prefix/webui.conf &&
-            wget $gh_prefix/webui.nodomain.conf &&
-            touch .env &&
-            echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
-            echo \"VERSION=$version\" >> .env &&
-            echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
-            echo \"ENV=production\" >> .env &&
-            echo \"INSTANCE=$instance\" >> .env &&
-            echo \"DOMAIN=$gcp_dns_name\" >> .env &&
-            echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
-            echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
-            (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
-        '"
+        log info "Preparing Thrive on $gcp_vm_name from registry"
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --ssh-flag="-tt" \
+            --command "bash -c '
+                (sudo docker compose down || true) &&
+                rm -rf compose.yaml &&
+                rm -rf nginx.conf &&
+                rm -rf webui.conf &&
+                rm -rf webui.nodomain.conf &&
+                rm -rf .env &&
+                wget $gh_prefix/compose.yaml &&
+                wget $gh_prefix/nginx.conf &&
+                wget $gh_prefix/webui.conf &&
+                wget $gh_prefix/webui.nodomain.conf &&
+                touch .env &&
+                echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
+                echo \"VERSION=$version\" >> .env &&
+                echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
+                echo \"ENV=production\" >> .env &&
+                echo \"INSTANCE=$instance\" >> .env &&
+                echo \"DOMAIN=$gcp_dns_name\" >> .env &&
+                echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
+            '"
+    else
+        log info "Preparing Thrive on $gcp_vm_name from local"
+
+        trap "rm -f webapi.tar webui.tar docs.tar" EXIT
+
+        docker save -o webapi.tar jupiter/webapi:${version}-arm64
+        docker save -o webui.tar jupiter/webui:${version}-arm64
+        docker save -o docs.tar jupiter/docs:${version}-arm64
+
+        gcloud compute scp webapi.tar "$gcp_vm_name":~/webapi.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp webui.tar "$gcp_vm_name":~/webui.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp docs.tar "$gcp_vm_name":~/docs.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+
+        gcloud compute scp infra/self-hosted/compose.yaml "$gcp_vm_name":~/compose.yaml \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp infra/self-hosted/nginx.conf "$gcp_vm_name":~/nginx.conf \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp infra/self-hosted/webui.conf "$gcp_vm_name":~/webui.conf \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp infra/self-hosted/webui.nodomain.conf "$gcp_vm_name":~/webui.nodomain.conf \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --ssh-flag="-tt" \
+            --command "bash -c '
+                (sudo docker compose down || true) &&
+                rm -rf .env &&
+                sudo docker load -i webapi.tar &&
+                sudo docker load -i webui.tar &&
+                sudo docker load -i docs.tar &&
+                touch .env &&
+                echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
+                echo \"VERSION=$version\" >> .env &&
+                echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
+                echo \"ENV=production\" >> .env &&
+                echo \"INSTANCE=$instance\" >> .env &&
+                echo \"DOMAIN=$gcp_dns_name\" >> .env &&
+                echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
+                (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
+            '"
+    fi
 
     log info "Starting Thrive on $gcp_vm_name"
     gcloud compute ssh "$gcp_vm_name" \
