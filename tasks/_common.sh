@@ -11,7 +11,7 @@ export THRIVE_GCP_PROJECT=thrive-449010
 export THRIVE_GCP_ZONE=europe-west1-c
 export RUN_ROOT=.build-cache/run
 export STANDARD_INSTANCE=dev
-export STANDARD_UNIVERSE=local-dev
+export STANDARD_UNIVERSE=dev
 export STANDARD_WEBAPI_PORT=8004
 export STANDARD_WEBUI_PORT=10020
 export STANDARD_DOCS_PORT=8000
@@ -46,7 +46,7 @@ log() {
     current=$(log_level_num "${usage_log:-info}")
 
     if [ "$target" -ge "$current" ]; then
-        echo "[$level] $*"
+        echo "[$level] $*" >&2
     fi
 }
 
@@ -399,7 +399,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
                 echo \"VERSION=$version\" >> .env &&
                 echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
-                echo \"ENV=production\" >> .env &&
+                echo \"ENV=staging\" >> .env &&
                 echo \"INSTANCE=$instance\" >> .env &&
                 echo \"DOMAIN=$gcp_dns_name\" >> .env &&
                 echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
@@ -452,7 +452,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
                 echo \"VERSION=$version\" >> .env &&
                 echo \"UNIVERSE=$THRIVE_SH_TEST_UNIVERSE\" >> .env &&
-                echo \"ENV=production\" >> .env &&
+                echo \"ENV=staging\" >> .env &&
                 echo \"INSTANCE=$instance\" >> .env &&
                 echo \"DOMAIN=$gcp_dns_name\" >> .env &&
                 echo \"AUTH_TOKEN_SECRET=\$(openssl rand -base64 32)\" >> .env &&
@@ -487,16 +487,73 @@ save_jupiter_url() {
     echo "$url" > "$RUN_ROOT/$instance/$service.url"
 }
 
-get_jupiter_url() {
+get_dev_service_url() {
     local instance=$1
     local service=$2
 
     if ! [[ -f "$RUN_ROOT/$instance/$service.url" ]]; then
-        echo "N/A"
-        return 0
+        log error "Jupiter URL not found for instance: $instance and service: $service"
+        exit 1
     fi
 
     cat "$RUN_ROOT/$instance/$service.url"
+}
+
+get_thrive_sh_test_webui_url() {
+    local instance=$1
+    echo "https://${instance}${THRIVE_SH_TEST_DOMAIN}"
+}
+
+get_thrive_production_webui_url() {
+    echo $HOSTED_GLOBAL_WEBUI_URL
+}
+
+get_thrive_staging_webui_url() {
+    local instance=$1
+    echo "https://jupiter-webui-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_webui_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "webui"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_webui_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_webui_url 
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_webui_url $instance
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
 }
 
 get_instance() {

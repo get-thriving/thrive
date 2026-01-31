@@ -6,14 +6,14 @@
 #USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
-#USAGE flag "--universe <universe>" default="local-dev" help="Jupiter universe"
+#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
 : "${usage_platform:=}"
 : "${usage_instance:=}"
-: "${usage_universe:=local-dev}"
+: "${usage_universe:=dev}"
 
 set -e -o pipefail
 
@@ -26,7 +26,7 @@ if [[ -z "$instance" ]]; then
     instance=$STANDARD_INSTANCE
 fi
 
-webui_url=$(get_jupiter_url "$instance" "webui")
+webui_url=$(get_dev_service_url "$instance" "webui")
 export HOSTED_GLOBAL_WEBUI_URL="$webui_url"
 export BUILD_TARGET=$platform
 

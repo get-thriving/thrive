@@ -25,24 +25,3 @@ run_tests() {
         --title="Jupiter Integration Tests" \
         $@
 }
-
-format_local_dev_universe_url() {
-    local instance=$1
-    get_jupiter_url "$instance" webui
-}
-
-format_thrive_universe_url() {
-    local instance=$1
-    echo "https://jupiter-webui-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
-}
-
-format_other_universe_url() {
-    local universe_url=$1
-    # If the URL starts with http or https return it as is
-    # Otherwise add http as a prefix
-    if [[ "$universe_url" =~ ^https?:// ]]; then
-        echo "$universe_url"
-    else
-        echo "http://$universe_url"
-    fi
-}

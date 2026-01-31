@@ -28,6 +28,6 @@ if ! check_service_is_running pm2 "$instance" webapi; then
     exit 1
 fi
 
-webapi_url=$(get_jupiter_url "$instance" "webapi")
+webapi_url=$(get_dev_service_url "$instance" "webapi")
 
 open "${webapi_url}/openapi.json"

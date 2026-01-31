@@ -12,6 +12,8 @@ hosted instance at `get-thriving.com`. Each self-hosted instance
 is a universe too. It is identified by it's domain name.
 The locally running code for development also lives in a universe
 called `dev` (with semantics similar to `localhost` in networking).
+A last reseverd universe name is `thrive-sh-test` for self-hosted
+testing as part of the development process.
 
 An universe can contain one or more _environments_. An environment
 is useful to delineate certain parts of an universe for particular
@@ -24,7 +26,8 @@ traffic, are exposed to the world. The `staging` environment is used
 in development to test new features, or experiment. Self-hosted
 universes typically have a single environment called `production`,
 though there can be more, as it is a flexible concept. By convention
-`dev` only has the `local` environment.
+`dev` only has the `local` environment, and `thrive-th-test` has the
+`staging` environment.
 
 Finally, environments contain one or more _instances_. An instance
 is a single running copy of all the Thrive software which makes reference

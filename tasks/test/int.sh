@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #MISE description="Run integration tests for CI"
-#USAGE flag "--universe <universe>" default="local-dev" help="The universe"
+#USAGE flag "--universe <universe>" default="dev" help="The universe"
 #USAGE flag "--instance <instance>" help="The instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--headed" help="Run tests in headed mode"
@@ -22,11 +22,11 @@ source tasks/test/_common.sh
 
 mkdir -p .build-cache/itest
 
-if [[ "$usage_universe" == "local-dev" ]]; then
+if [[ "$usage_universe" == "dev" ]]; then
     if [[ -z "$usage_instance" ]]; then
         usage_instance=dev
     fi
-    universe_url=$(format_local_dev_universe_url "$usage_instance")
+    universe_url=$(get_webui_url_for_universe "dev" "local" "$usage_instance")
     wait_for_service_to_start "universe" "$universe_url"
     webui_url=$universe_url # A small hack
     webapi_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.webApiUrl')
@@ -36,13 +36,13 @@ elif [[ "$usage_universe" == "thrive" ]]; then
         echo "instance is required for thrive universe"
         exit 1
     fi
-    universe_url=$(format_thrive_universe_url "$usage_instance")
+    universe_url=$(get_thrive_staging_webui_url "$usage_instance")
     wait_for_service_to_start "universe" "$universe_url"
     webui_url=$universe_url # A small hack
     webapi_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.webApiUrl')
     docs_url=$(http --verify=no get "$universe_url/test-manifest" | jq -r '.docsUrl')
 else 
-    universe_url=$(format_other_universe_url "$usage_universe")
+    universe_url=$(get_webui_url_for_universe "$usage_universe" "$usage_environment" "$usage_instance")
     wait_for_service_to_start "universe" "$universe_url"
     # webui_url=$(http --verify=no get $universe_url/test-manifest | jq -r '.webUiUrl')
     webui_url=$universe_url # A small hack

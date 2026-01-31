@@ -62,9 +62,9 @@ for instance in $instances; do
     instance_path="$RUN_ROOT/$instance"
 
     # Build status info
-    webapi_url=$(get_jupiter_url "$instance" "webapi")
-    webui_url=$(get_jupiter_url "$instance" "webui")
-    docs_url=$(get_jupiter_url "$instance" "docs")
+    webapi_url=$(get_dev_service_url "$instance" "webapi")
+    webui_url=$(get_dev_service_url "$instance" "webui")
+    docs_url=$(get_dev_service_url "$instance" "docs")
     db_file="$instance_path/jupiter.sqlite"
 
     status_info="WebAPI: $webapi_url, WebUI: $webui_url, Docs: $docs_url"

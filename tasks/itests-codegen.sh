@@ -18,9 +18,9 @@ instance="${usage_instance}"
 if [[ -z "$instance" ]]; then
     instance=$STANDARD_INSTANCE
 fi
-webapi_url=$(get_jupiter_url "$instance" webapi)
-webui_url=$(get_jupiter_url "$instance" webui)
-docs_url=$(get_jupiter_url "$instance" docs)
+webapi_url=$(get_dev_service_url "$instance" webapi)
+webui_url=$(get_dev_service_url "$instance" webui)
+docs_url=$(get_dev_service_url "$instance" docs)
 
 wait_for_service_to_start webapi "$webapi_url"
 wait_for_service_to_start webui "$webui_url"
