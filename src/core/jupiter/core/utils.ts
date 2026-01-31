@@ -1,3 +1,7 @@
+import { Hosting, Universe, Instance } from "@jupiter/webapi-client";
+
+import { getHosting } from "#/core/universe";
+
 const STANDARD_WIDTHS = [
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0.2796875, 0.2765625, 0.3546875, 0.5546875, 0.5546875,
@@ -24,4 +28,24 @@ export function measureText(str: string, fontSize: number): number {
       0,
     ) * fontSize
   );
+}
+
+interface GetPublicNameProps {
+  publicName: string;
+  universe: Universe;
+  instance: Instance;
+}
+
+export function getPublicName({
+  publicName,
+  universe,
+  instance,
+}: GetPublicNameProps): string {
+  if (getHosting(universe) === Hosting.HOSTED_GLOBAL) {
+    return publicName;
+  } else if (getHosting(universe) === Hosting.SELF_HOSTED) {
+    return `${publicName} - ${instance}`;
+  } else {
+    return publicName;
+  }
 }

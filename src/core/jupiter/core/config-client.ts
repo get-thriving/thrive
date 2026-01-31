@@ -13,14 +13,13 @@ import type { GlobalPropertiesServer } from "#/core/config-server";
 import type { FrontDoorInfo } from "#/core/frontdoor";
 
 export interface GlobalPropertiesClient {
+  publicName: string;
   universe: Universe;
   env: Env;
   instance: Instance;
   version: string;
   appCore: AppCore;
   frontDoorInfo: FrontDoorInfo;
-  title: string;
-  description: string;
   webApiProgressReporterUrl: string;
   webApiUrl: string;
   docsUrl: string;
@@ -35,6 +34,7 @@ export interface GlobalPropertiesClient {
 }
 
 export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
+  publicName: "FAKE-FAKE",
   universe: "dev",
   env: Env.LOCAL,
   instance: "Main",
@@ -47,8 +47,6 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
     appDistribution: AppDistribution.WEB,
     initialWindowWidth: undefined,
   },
-  title: "FAKE-FAKE",
-  description: "FAKE-FAKE",
   webApiProgressReporterUrl: "FAKE-FAKE",
   webApiUrl: "FAKE-FAKE",
   docsUrl: "FAKE-FAKE",
@@ -67,14 +65,13 @@ export function serverToClientGlobalProperties(
   frontDoorInfo: FrontDoorInfo,
 ): GlobalPropertiesClient {
   return {
+    publicName: globalPropertiesServer.publicName,
     universe: globalPropertiesServer.universe,
     env: globalPropertiesServer.env,
     instance: globalPropertiesServer.instance,
     version: globalPropertiesServer.version,
     appCore: AppCore.WEBUI,
     frontDoorInfo: frontDoorInfo,
-    title: globalPropertiesServer.title,
-    description: globalPropertiesServer.description,
     webApiProgressReporterUrl: globalPropertiesServer.webApiProgressReporterUrl,
     webApiUrl: globalPropertiesServer.webApiUrl,
     docsUrl: globalPropertiesServer.docsUrl,

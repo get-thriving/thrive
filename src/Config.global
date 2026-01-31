@@ -1,11 +1,11 @@
+PUBLIC_NAME=Thrive
+DESCRIPTION="Thrive is a tool for life planning"
 UNIVERSE=dev
 ENV=local
 INSTANCE=TO-FILL
 VERSION=1.3.1
 BUNDLE_ID=io.jupiter.app
-PUBLIC_NAME=Thrive
 GLOBAL_HOSTED_INFRA_ROOT=onrender.com
 HOSTED_GLOBAL_WEBUI_URL=https://app.get-thriving.com
 AUTHOR="Horia Coman"
 COPYRIGHT="2026 Horia Coman"
-DOCKER_REGISTRY_NAME=horia141

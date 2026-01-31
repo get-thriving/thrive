@@ -5,12 +5,11 @@ import { newOrGenerateInstance } from "#/core/instance";
 import { getHosting } from "#/core/universe";
 
 export interface GlobalPropertiesServer {
+  publicName: string;
   universe: Universe;
   env: Env;
   instance: Instance;
   version: string;
-  title: string;
-  description: string;
   webApiServerUrl: string;
   webApiProgressReporterUrl: string;
   webApiUrl: string;
@@ -48,6 +47,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     .WEBAPI_PROGRESS_REPORTER_URL as string;
 
   const globalProperties = {
+    publicName: process.env.PUBLIC_NAME as string,
     universe: process.env.UNIVERSE as Universe,
     env: process.env.ENV as Env,
     instance: process.env.RENDER
@@ -57,8 +57,6 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
         )
       : (process.env.INSTANCE as Instance),
     version: process.env.VERSION as string,
-    title: process.env.TITLE as string,
-    description: process.env.DESCRIPTION as string,
     webApiUrl: process.env.WEBAPI_URL as string,
     webApiServerUrl: webApiServerUrl,
     webApiProgressReporterUrl: webApiProgressReporterUrl,

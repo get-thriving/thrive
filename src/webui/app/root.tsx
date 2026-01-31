@@ -16,6 +16,7 @@ import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
+import { getPublicName } from "#/core/utils";
 
 const THEME = createTheme({
   palette: {
@@ -59,7 +60,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export function meta({ data }: { data: SerializeFrom<typeof loader> }) {
-  return [{ charset: "utf-8" }, { title: data.globalProperties.title }];
+  return [
+    { charset: "utf-8" },
+    { title: getPublicName(data.globalProperties) },
+  ];
 }
 
 export function links() {

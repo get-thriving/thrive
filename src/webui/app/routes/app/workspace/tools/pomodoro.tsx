@@ -14,6 +14,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { getPublicName } from "#/core/utils";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 
@@ -70,7 +71,7 @@ export default function Pomodoro() {
       return;
     }
 
-    new Notification(`${globalProperties.title}} Pomodoro Timer`, {
+    new Notification(`${getPublicName(globalProperties)} Pomodoro Timer`, {
       icon: "/favicon.ico",
       body: `Your ${actualDuration.toFormat(
         "m",

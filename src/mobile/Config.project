@@ -1,3 +1,2 @@
-DESCRIPTION="The Thrive Mobile application"
 BUILD_TARGET=to-fill
 FRONTDOOR_PATTERN=/frontdoor?clientVersion=to-fill&appShell=mobile-capacitor&appPlatform=to-fill&appDistribution=to-fill
