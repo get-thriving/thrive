@@ -1,37 +1,34 @@
 #!/usr/bin/env bash
 
 #MISE description="Run mobile app on iOS or Android with optional instance"
-#USAGE arg "<platform>" required help="Mobile platform (ios or android)" {
-#USAGE   choices "ios" "android"
+#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe"
+#USAGE flag "--environment <environment>" default="local" help="Jupiter environment" {
+#USAGE   choices "production" "staging" "local"
 #USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
-#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe"
+#USAGE flag "--platform <platform>" required help="Mobile platform (ios or android)" {
+#USAGE   choices "ios" "android"
+#USAGE }
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
+: "${usage_universe:=}"
+: "${usage_environment:=}"
 : "${usage_platform:=}"
 : "${usage_instance:=}"
-: "${usage_universe:=dev}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-platform="${usage_platform}"
-instance="${usage_instance}"
-
-if [[ -z "$instance" ]]; then
-    instance=$STANDARD_INSTANCE
-fi
-
-webui_url=$(get_dev_service_url "$instance" "webui")
+webui_url=$(get_webui_url_for_universe "$usage_universe" "$usage_environment" "$usage_instance")
 export HOSTED_GLOBAL_WEBUI_URL="$webui_url"
-export BUILD_TARGET=$platform
+export BUILD_TARGET="$usage_platform"
 
-log info "Running mobile app on $platform with instance $instance"
+log info "Running mobile app on $usage_platform with universe $usage_universe, environment $usage_environment, instance $usage_instance"
 
 cd src/mobile
 npx vite build
-npx cap run "$platform"
+npx cap run "$usage_platform"

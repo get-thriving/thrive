@@ -88,13 +88,13 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapiLogFile=../../$RUN_ROOT/$instance/webapi.log
     local webapiSqliteDbUrl=sqlite+aiosqlite:///../../$RUN_ROOT/$instance/jupiter.sqlite
     local webapiPort=$2
-    local webapiServerUrl=http://0.0.0.0:${webapiPort}
+    local webapiServerUrl=http://localhost:${webapiPort}
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
     local webuiPort=$3
-    local webuiServerUrl=http://0.0.0.0:${webuiPort}
+    local webuiServerUrl=http://localhost:${webuiPort}
     local docsLogFile=../../$RUN_ROOT/$instance/docs.log
     local docsPort=$4
-    local docsServerUrl=http://0.0.0.0:${docsPort}
+    local docsServerUrl=http://localhost:${docsPort}
     local docsPublicName=$PUBLIC_NAME
     local docsAuthor=$AUTHOR
     local docsCopyright=$COPYRIGHT
@@ -167,10 +167,10 @@ _run_dev_jupiter_webapp_with_docker() {
     export DOMAIN=localhost
     export WEBAPI_PORT=$2
     export WEBUI_PORT=$3
-    export WEBAPI_SERVER_URL=http://0.0.0.0:${WEBAPI_PORT}
-    export WEBUI_SERVER_URL=https://0.0.0.0:${WEBUI_PORT}
+    export WEBAPI_SERVER_URL=http://localhost:${WEBAPI_PORT}
+    export WEBUI_SERVER_URL=https://localhost:${WEBUI_PORT}
     export DOCS_PORT=$4
-    export DOCS_SERVER_URL=http://0.0.0.0:${DOCS_PORT}
+    export DOCS_SERVER_URL=http://localhost:${DOCS_PORT}
     export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT

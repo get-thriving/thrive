@@ -5,7 +5,6 @@ python.uv_venv_auto = false
 lockfile = true
 
 [tools]
-cocoapods = "latest"
 gcloud = "latest"
 "github:cli/cli" = "latest"
 jq = "latest"
@@ -15,8 +14,10 @@ rust = "latest"
 uv = "latest"
 pnpm = "latest"
 terraform = "latest"
+ruby = "3.2.10"
 
 [env]
+RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
 UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"
 _.python.venv = { path = ".build-cache/venv", create = true }
 

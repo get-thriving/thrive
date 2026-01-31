@@ -1,5 +1,6 @@
 tap "rest-sh/tap"
 
+brew "libyaml"
 brew "tree"
 brew "cloc"
 brew "create-dmg"
