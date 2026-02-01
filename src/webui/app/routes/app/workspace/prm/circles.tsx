@@ -18,6 +18,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   DisplayType,
+  useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
@@ -55,8 +56,8 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function Circles() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
-  const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
+  const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -90,8 +91,7 @@ export default function Circles() {
       }
     >
       <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeafToo}
+        shouldHide={shouldShowALeaf || shouldShowALeaflet}
       >
         <EntityStack>
           {loaderData.circles.length === 0 && (

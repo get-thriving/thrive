@@ -57,6 +57,7 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
+import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -362,6 +363,9 @@ export default function Person() {
       returnLocation="/app/workspace/prm/persons"
       shouldShowALeaflet={shouldShowALeaflet}
     >
+      <NestingAwareBlock
+        shouldHide={shouldShowALeaflet}
+      >
       <GlobalError actionResult={actionData} />
       <SectionCard
         title="Properties"
@@ -526,6 +530,7 @@ export default function Person() {
             entries={sortedOccasionTimeEventEntries}
           />
         )}
+      </NestingAwareBlock>
 
       <AnimatePresence mode="wait" initial={false}>
         <Outlet />

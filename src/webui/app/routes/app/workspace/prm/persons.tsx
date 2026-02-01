@@ -23,6 +23,7 @@ import { PeriodTag } from "@jupiter/core/common/component/period-tag";
 import { CircleTag } from "@jupiter/core/prm/sub/circle/components/tag";
 import {
   DisplayType,
+  useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
@@ -89,9 +90,8 @@ export default function Persons() {
     );
   });
 
-  const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
-
+  const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   return (
     <TrunkPanel
       key={"persons"}
@@ -130,8 +130,7 @@ export default function Persons() {
       }
     >
       <NestingAwareBlock
-        branchForceHide={shouldShowABranch}
-        shouldHide={shouldShowABranch || shouldShowALeaf}
+        shouldHide={shouldShowALeaf || shouldShowALeaflet}
       >
         {filteredEntries.length === 0 && (
           <EntityNoNothingCard
