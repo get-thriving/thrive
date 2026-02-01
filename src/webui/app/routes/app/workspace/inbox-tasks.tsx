@@ -1416,7 +1416,7 @@ function KanbanBoard({
   draggedInboxTaskId,
 }: KanbanBoardProps) {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
       <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
         <InboxTasksColumn
           topLevelInfo={topLevelInfo}
