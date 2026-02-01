@@ -34,7 +34,6 @@ export function VisionSnippet({ vision, note }: VisionSnippetProps) {
         border: (theme) => `2px dotted ${theme.palette.divider}`,
         borderRadius: "4px",
         padding: "0.4rem",
-        height: "-webkit-fill-available",
         display: "flex",
         gap: "0.75rem",
         alignItems: "center",
