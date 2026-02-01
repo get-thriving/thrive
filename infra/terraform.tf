@@ -14,6 +14,11 @@ terraform {
       source  = "registry.terraform.io/render-oss/render"
       version = "1.8.0"
     }
+
+    docker = {
+      source  = "docker/docker"
+      version = "~> 0.2"
+    }
   }
 
   backend "gcs" {
@@ -451,4 +456,56 @@ resource "render_project" "thrive" {
       protected_status : "unprotected"
     },
   }
+}
+
+# Docker Hub
+
+## Setup
+
+variable "DOCKER_REGISTRY_NAME" {
+    description = "The docker registry name"
+    type = string
+}
+
+variable "DOCKER_REGISTRY_USER" {
+  description = "The user for the Docker registry"
+  type        = string
+  sensitive   = true
+}
+
+variable "DOCKER_REGISTRY_PASS" {
+  description = "The password for the Docker registry"
+  type        = string
+  sensitive   = true
+}
+
+provider "docker" { 
+    username = var.DOCKER_REGISTRY_USER
+    password = var.DOCKER_REGISTRY_PASS
+}
+
+## Repositories
+
+resource "docker_hub_repository" "cli" {
+  namespace        = var.DOCKER_REGISTRY_NAME
+  name = "jupiter-cli"
+  description = "This is the repository for the CLI app"
+}
+
+resource "docker_hub_repository" "webapi" {
+  namespace        = var.DOCKER_REGISTRY_NAME
+  name = "jupiter-webapi"
+  description = "This is the repository for the WebApi"
+}
+
+resource "docker_hub_repository" "webui" {
+  namespace        = var.DOCKER_REGISTRY_NAME
+  name = "jupiter-webui"
+  description = "This is the repository for the WebUI"
+}
+
+resource "docker_hub_repository" "docs" {
+  namespace        = var.DOCKER_REGISTRY_NAME
+  name = "jupiter-docs"
+  description = "This is the repository for the docs server"
 }
