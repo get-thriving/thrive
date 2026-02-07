@@ -53,15 +53,17 @@ import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
 import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
-import { PersonTag } from "#/core/persons/component/tag";
-import { ProjectTag } from "#/core/projects/component/tag";
+import { PersonTag } from "#/core/prm/sub/person/component/tag";
+import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
+import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
   showSource?: boolean;
-  showProject?: boolean;
+  showLifePlan?: boolean;
   showEisen?: boolean;
   showDifficulty?: boolean;
   showActionableDate?: boolean;
@@ -203,12 +205,26 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             )}
             {isWorkspaceFeatureAvailable(
               props.topLevelInfo.workspace,
-              WorkspaceFeature.PROJECTS,
+              WorkspaceFeature.LIFE_PLAN,
             ) &&
-              props.showOptions.showProject &&
+              props.showOptions.showLifePlan &&
               props.parent?.project && (
                 <ProjectTag project={props.parent?.project} />
               )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) &&
+              props.showOptions.showLifePlan &&
+              props.parent?.chapter && (
+                <ChapterTag chapter={props.parent?.chapter} />
+              )}
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) &&
+              props.showOptions.showLifePlan &&
+              props.parent?.goal && <GoalTag goal={props.parent?.goal} />}
             {props.showOptions.showEisen && (
               <EisenTag
                 eisen={props.optimisticState?.eisen ?? props.inboxTask.eisen}
@@ -263,7 +279,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,
-                  WorkspaceFeature.PERSONS,
+                  WorkspaceFeature.PRM,
                 ) &&
                   props.parent &&
                   props.parent.person && (

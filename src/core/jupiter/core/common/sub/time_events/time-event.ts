@@ -3,7 +3,6 @@ import {
   EntityId,
   InboxTaskEntry,
   Person,
-  PersonEntry,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -14,18 +13,31 @@ import {
   VacationEntry,
   ScheduleStreamColor,
   TimeEventNamespace,
+  PersonOccasionEntry,
+  Occasion,
+  OccasionKind,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
 import { measureText } from "#/core/utils";
 
-export function birthdayTimeEventName(
+export function occasionTimeEventName(
   block: TimeEventFullDaysBlock,
   person: Person,
+  occasion: Occasion,
 ) {
   const date = aDateToDate(block.start_date);
-  return `${person.name}'s Birthday '${date.toFormat("yy")}`;
+  switch (occasion.kind) {
+    case OccasionKind.BIRTHDAY:
+      return `${person.name}'s Birthday on '${date.toFormat("yy")}`;
+    case OccasionKind.ANNIVERSARY:
+      return `${person.name}'s Anniversary for ${occasion.name} on '${date.toFormat("yy")}`;
+    case OccasionKind.HOLIDAY:
+      return `${person.name}'s ${occasion.name} holidays on '${date.toFormat("yy")}`;
+    case OccasionKind.OTHER:
+      return `${person.name}'s ${occasion.name} on '${date.toFormat("yy")}`;
+  }
 }
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
@@ -53,7 +65,7 @@ export function sortInboxTaskTimeEventsNaturally(
 
 export interface CombinedTimeEventFullDaysEntry {
   time_event: TimeEventFullDaysBlock;
-  entry: ScheduleFullDaysEventEntry | PersonEntry | VacationEntry;
+  entry: ScheduleFullDaysEventEntry | PersonOccasionEntry | VacationEntry;
 }
 
 export interface CombinedTimeEventInDayEntry {
@@ -63,7 +75,7 @@ export interface CombinedTimeEventInDayEntry {
 
 const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
   TimeEventNamespace.VACATION,
-  TimeEventNamespace.PERSON_BIRTHDAY,
+  TimeEventNamespace.PERSON_OCCASION,
   TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
 ];
 

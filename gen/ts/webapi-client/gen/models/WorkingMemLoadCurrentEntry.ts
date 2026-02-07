@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { WorkingMem } from './WorkingMem';
 /**
@@ -11,6 +10,5 @@ import type { WorkingMem } from './WorkingMem';
 export type WorkingMemLoadCurrentEntry = {
     working_mem: WorkingMem;
     note: Note;
-    cleanup_task: InboxTask;
 };
 

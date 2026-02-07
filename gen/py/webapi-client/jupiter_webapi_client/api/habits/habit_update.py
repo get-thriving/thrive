@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.habit_update_args import HabitUpdateArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: HabitUpdateArgs,
+    body: HabitUpdateArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/habit-update",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitUpdateArgs,
+    body: HabitUpdateArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for updating a habit.
 
     Args:
-        body (HabitUpdateArgs): PersonFindArgs.
+        body (HabitUpdateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: HabitUpdateArgs,
+    body: HabitUpdateArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The command for updating a habit.
 
     Args:
-        body (HabitUpdateArgs): PersonFindArgs.
+        body (HabitUpdateArgs | Unset): PersonFindArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

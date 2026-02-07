@@ -4,9 +4,12 @@ from enum import Enum
 class NamedEntityTag(str, Enum):
     BIGPLAN = "BigPlan"
     BIGPLANMILESTONE = "BigPlanMilestone"
+    CHAPTER = "Chapter"
     CHORE = "Chore"
+    CIRCLE = "Circle"
     DOC = "Doc"
     EMAILTASK = "EmailTask"
+    GOAL = "Goal"
     HABIT = "Habit"
     HOMETAB = "HomeTab"
     HOMEWIDGET = "HomeWidget"
@@ -14,6 +17,8 @@ class NamedEntityTag(str, Enum):
     JOURNAL = "Journal"
     METRIC = "Metric"
     METRICENTRY = "MetricEntry"
+    MILESTONE = "Milestone"
+    OCCASION = "Occasion"
     PERSON = "Person"
     PROJECT = "Project"
     SCHEDULEEVENTFULLDAYS = "ScheduleEventFullDays"
@@ -28,6 +33,7 @@ class NamedEntityTag(str, Enum):
     TIMEPLAN = "TimePlan"
     TIMEPLANACTIVITY = "TimePlanActivity"
     VACATION = "Vacation"
+    VISION = "Vision"
     WORKINGMEM = "WorkingMem"
 
     def __str__(self) -> str:

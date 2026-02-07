@@ -38,7 +38,6 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
 from jupiter.core.sync_target import SyncTarget
-from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -47,7 +46,6 @@ from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
 )
 from jupiter.framework.time_provider import TimeProvider
-from jupiter.framework.utils.generic_crown_archiver import generic_crown_archiver
 
 
 class GCService:
@@ -125,19 +123,6 @@ class GCService:
                         inbox_tasks,
                         gc_log_entry,
                     )
-
-        if (
-            workspace.is_feature_available(WorkspaceFeature.WORKING_MEM)
-            and SyncTarget.WORKING_MEM in gc_targets
-        ):
-            async with progress_reporter.section("Working Mem"):
-                async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    working_mems = await uow.get_for(WorkingMem).find_all(
-                        parent_ref_id=inbox_task_collection.ref_id, allow_archived=False
-                    )
-                gc_log_entry = await self._archive_working_mems_old_enough(
-                    ctx, progress_reporter, working_mems, gc_log_entry
-                )
 
         if (
             workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
@@ -233,30 +218,6 @@ class GCService:
                 inbox_task,
             )
 
-        return gc_log_entry
-
-    async def _archive_working_mems_old_enough(
-        self,
-        ctx: MutationContext,
-        progress_reporter: ProgressReporter,
-        working_mems: Iterable[WorkingMem],
-        gc_log_entry: GCLogEntry,
-    ) -> GCLogEntry:
-        for working_mem in working_mems:
-            if not working_mem.can_be_archived_at(
-                self._time_provider.get_current_time()
-            ):
-                continue
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                await generic_crown_archiver(
-                    ctx,
-                    uow,
-                    progress_reporter,
-                    WorkingMem,
-                    working_mem.ref_id,
-                    JupiterArchivalReason.GC,
-                )
-            gc_log_entry = gc_log_entry.add_entity(ctx, working_mem)
         return gc_log_entry
 
     async def _archive_done_big_plans(

@@ -1,4 +1,5 @@
 import type {
+  Person,
   TimeEventFullDaysBlock,
   TimeEventInDayBlock,
 } from "@jupiter/webapi-client";
@@ -9,6 +10,9 @@ import { Link } from "@remix-run/react";
 
 interface TimeEventSourceLinkProps {
   timeEvent: TimeEventFullDaysBlock | TimeEventInDayBlock;
+  extraInfo?: {
+    person?: Person;
+  };
 }
 
 export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
@@ -41,14 +45,14 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
-    case TimeEventNamespace.PERSON_BIRTHDAY: {
+    case TimeEventNamespace.PERSON_OCCASION: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/persons/${props.timeEvent.source_entity_ref_id}`}
+          to={`/app/workspace/prm/persons/${props.extraInfo?.person?.ref_id}/occasions/${props.timeEvent.source_entity_ref_id}`}
         >
           Link
         </Button>

@@ -16,10 +16,10 @@ export enum WorkspaceFeature {
     JOURNALS = 'journals',
     DOCS = 'docs',
     VACATIONS = 'vacations',
-    PROJECTS = 'projects',
+    LIFE_PLAN = 'life-plan',
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
-    PERSONS = 'persons',
+    PRM = 'prm',
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
 }

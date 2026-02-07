@@ -17,8 +17,10 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -57,6 +59,8 @@ class InboxTaskCreateArgs(UseCaseArgsBase):
     time_plan_activity_kind: TimePlanActivityKind | None
     time_plan_activity_feasability: TimePlanActivityFeasability | None
     project_ref_id: EntityId | None
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     big_plan_ref_id: EntityId | None
     is_key: bool
     eisen: Eisen
@@ -91,21 +95,13 @@ class InboxTaskCreateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
-            and args.time_plan_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
-            and args.project_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS)
-            and args.big_plan_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if args.project_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.chapter_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.goal_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
@@ -118,16 +114,28 @@ class InboxTaskCreateUseCase(
             )
 
         if args.project_ref_id is None:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            root_project = await uow.get(ProjectRepository).load_root_project(
-                project_collection.ref_id
+            the_project = await uow.get(ProjectRepository).load_root_project(
+                life_plan.ref_id
             )
-            project_ref_id = root_project.ref_id
         else:
-            await uow.get_for(Project).load_by_id(args.project_ref_id)
-            project_ref_id = args.project_ref_id
+            the_project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+
+        if args.chapter_ref_id is not None:
+            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            if chapter.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Chapter does not belong to project '{the_project.name}'"
+                )
+
+        if args.goal_ref_id is not None:
+            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            if goal.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Goal does not belong to project '{the_project.name}'"
+                )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -139,13 +147,17 @@ class InboxTaskCreateUseCase(
             name=args.name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=args.is_key,
-            project_ref_id=project_ref_id,
+            project_ref_id=the_project.ref_id,
+            chapter_ref_id=args.chapter_ref_id,
+            goal_ref_id=args.goal_ref_id,
             eisen=args.eisen,
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
             big_plan_ref_id=big_plan.ref_id if big_plan else None,
             big_plan_project_ref_id=big_plan.project_ref_id if big_plan else None,
+            big_plan_chapter_ref_id=big_plan.chapter_ref_id if big_plan else None,
+            big_plan_goal_ref_id=big_plan.goal_ref_id if big_plan else None,
             big_plan_actionable_date=big_plan.actionable_date if big_plan else None,
             big_plan_due_date=big_plan.due_date if big_plan else None,
         )

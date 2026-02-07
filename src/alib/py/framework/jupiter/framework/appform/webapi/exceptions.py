@@ -165,7 +165,13 @@ class RealmDecodingHandler(
         """Get the detail for the exception."""
         return {
             "reason": "Could not decode JSON body",
-            "detail": f"{exception}",
+            "detail": [
+                {
+                    "loc": ["body"],
+                    "msg": f"{exception}",
+                    "type": "value_error.realmdecodingerror",
+                }
+            ],
         }
 
 

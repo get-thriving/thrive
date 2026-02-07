@@ -16,7 +16,7 @@ class InboxTaskSource(EnumValue):
     JOURNAL = "journal"
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
-    PERSON_BIRTHDAY = "person-birthday"
+    PERSON_OCCASION = "person-occasion"
     SLACK_TASK = "slack-task"
     EMAIL_TASK = "email-task"
 

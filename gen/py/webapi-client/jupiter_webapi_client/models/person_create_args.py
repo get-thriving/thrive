@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
-from ..models.person_relationship import PersonRelationship
 from ..models.recurring_task_period import RecurringTaskPeriod
 from ..types import UNSET, Unset
 
@@ -21,7 +20,6 @@ class PersonCreateArgs:
 
     Attributes:
         name (str): The person name.
-        relationship (PersonRelationship): The relationship the user has with a person.
         catch_up_period (None | RecurringTaskPeriod | Unset):
         catch_up_eisen (Eisen | None | Unset):
         catch_up_difficulty (Difficulty | None | Unset):
@@ -29,11 +27,10 @@ class PersonCreateArgs:
         catch_up_actionable_from_month (int | None | Unset):
         catch_up_due_at_day (int | None | Unset):
         catch_up_due_at_month (int | None | Unset):
-        birthday (None | str | Unset):
+        circle_ref_ids (list[str] | None | Unset):
     """
 
     name: str
-    relationship: PersonRelationship
     catch_up_period: None | RecurringTaskPeriod | Unset = UNSET
     catch_up_eisen: Eisen | None | Unset = UNSET
     catch_up_difficulty: Difficulty | None | Unset = UNSET
@@ -41,13 +38,11 @@ class PersonCreateArgs:
     catch_up_actionable_from_month: int | None | Unset = UNSET
     catch_up_due_at_day: int | None | Unset = UNSET
     catch_up_due_at_month: int | None | Unset = UNSET
-    birthday: None | str | Unset = UNSET
+    circle_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
-
-        relationship = self.relationship.value
 
         catch_up_period: None | str | Unset
         if isinstance(self.catch_up_period, Unset):
@@ -97,18 +92,20 @@ class PersonCreateArgs:
         else:
             catch_up_due_at_month = self.catch_up_due_at_month
 
-        birthday: None | str | Unset
-        if isinstance(self.birthday, Unset):
-            birthday = UNSET
+        circle_ref_ids: list[str] | None | Unset
+        if isinstance(self.circle_ref_ids, Unset):
+            circle_ref_ids = UNSET
+        elif isinstance(self.circle_ref_ids, list):
+            circle_ref_ids = self.circle_ref_ids
+
         else:
-            birthday = self.birthday
+            circle_ref_ids = self.circle_ref_ids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "name": name,
-                "relationship": relationship,
             }
         )
         if catch_up_period is not UNSET:
@@ -125,8 +122,8 @@ class PersonCreateArgs:
             field_dict["catch_up_due_at_day"] = catch_up_due_at_day
         if catch_up_due_at_month is not UNSET:
             field_dict["catch_up_due_at_month"] = catch_up_due_at_month
-        if birthday is not UNSET:
-            field_dict["birthday"] = birthday
+        if circle_ref_ids is not UNSET:
+            field_dict["circle_ref_ids"] = circle_ref_ids
 
         return field_dict
 
@@ -134,8 +131,6 @@ class PersonCreateArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         name = d.pop("name")
-
-        relationship = PersonRelationship(d.pop("relationship"))
 
         def _parse_catch_up_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
@@ -226,18 +221,25 @@ class PersonCreateArgs:
 
         catch_up_due_at_month = _parse_catch_up_due_at_month(d.pop("catch_up_due_at_month", UNSET))
 
-        def _parse_birthday(data: object) -> None | str | Unset:
+        def _parse_circle_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                circle_ref_ids_type_0 = cast(list[str], data)
 
-        birthday = _parse_birthday(d.pop("birthday", UNSET))
+                return circle_ref_ids_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[str] | None | Unset, data)
+
+        circle_ref_ids = _parse_circle_ref_ids(d.pop("circle_ref_ids", UNSET))
 
         person_create_args = cls(
             name=name,
-            relationship=relationship,
             catch_up_period=catch_up_period,
             catch_up_eisen=catch_up_eisen,
             catch_up_difficulty=catch_up_difficulty,
@@ -245,7 +247,7 @@ class PersonCreateArgs:
             catch_up_actionable_from_month=catch_up_actionable_from_month,
             catch_up_due_at_day=catch_up_due_at_day,
             catch_up_due_at_month=catch_up_due_at_month,
-            birthday=birthday,
+            circle_ref_ids=circle_ref_ids,
         )
 
         person_create_args.additional_properties = d

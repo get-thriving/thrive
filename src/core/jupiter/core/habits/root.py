@@ -34,6 +34,8 @@ class Habit(LeafEntity):
 
     habit_collection: ParentLink
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     name: HabitName
     is_key: bool
     gen_params: RecurringTaskGenParams
@@ -56,6 +58,8 @@ class Habit(LeafEntity):
         ctx: MutationContext,
         habit_collection_ref_id: EntityId,
         project_ref_id: EntityId,
+        chapter_ref_id: EntityId | None,
+        goal_ref_id: EntityId | None,
         name: HabitName,
         is_key: bool,
         gen_params: RecurringTaskGenParams,
@@ -84,6 +88,8 @@ class Habit(LeafEntity):
             ctx,
             habit_collection=ParentLink(habit_collection_ref_id),
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             name=name,
             is_key=is_key,
             gen_params=gen_params,
@@ -98,6 +104,8 @@ class Habit(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[HabitName],
         project_ref_id: UpdateAction[EntityId],
+        chapter_ref_id: UpdateAction[EntityId | None],
+        goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         gen_params: UpdateAction[RecurringTaskGenParams],
         repeats_in_period_count: UpdateAction[int | None],
@@ -147,6 +155,8 @@ class Habit(LeafEntity):
             ctx,
             name=name.or_else(self.name),
             project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
+            goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),
             gen_params=the_gen_params,
             repeats_strategy=repeats_strategy.or_else(self.repeats_strategy),

@@ -16,7 +16,9 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -46,6 +48,8 @@ class ChoreLoadResult(UseCaseResultBase):
 
     chore: Chore
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
@@ -75,6 +79,16 @@ class ChoreLoadUseCase(
             args.ref_id, allow_archived=args.allow_archived
         )
         project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
+        chapter = (
+            await uow.get_for(Chapter).load_by_id(chore.chapter_ref_id)
+            if chore.chapter_ref_id
+            else None
+        )
+        goal = (
+            await uow.get_for(Goal).load_by_id(chore.goal_ref_id)
+            if chore.goal_ref_id
+            else None
+        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -105,6 +119,8 @@ class ChoreLoadUseCase(
         return ChoreLoadResult(
             chore=chore,
             project=project,
+            chapter=chapter,
+            goal=goal,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,

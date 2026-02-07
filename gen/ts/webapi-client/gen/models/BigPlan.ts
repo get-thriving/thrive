@@ -23,6 +23,8 @@ export type BigPlan = {
     name: BigPlanName;
     big_plan_collection_ref_id: string;
     project_ref_id: EntityId;
+    chapter_ref_id?: (EntityId | null);
+    goal_ref_id?: (EntityId | null);
     status: BigPlanStatus;
     is_key: boolean;
     eisen: Eisen;

@@ -19,12 +19,14 @@ class TimePlanFindArgs:
         allow_archived (bool):
         include_notes (bool):
         include_planning_tasks (bool):
+        include_life_plan_ref_ids (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
     include_notes: bool
     include_planning_tasks: bool
+    include_life_plan_ref_ids: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -34,6 +36,8 @@ class TimePlanFindArgs:
         include_notes = self.include_notes
 
         include_planning_tasks = self.include_planning_tasks
+
+        include_life_plan_ref_ids = self.include_life_plan_ref_ids
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -51,6 +55,7 @@ class TimePlanFindArgs:
                 "allow_archived": allow_archived,
                 "include_notes": include_notes,
                 "include_planning_tasks": include_planning_tasks,
+                "include_life_plan_ref_ids": include_life_plan_ref_ids,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -66,6 +71,8 @@ class TimePlanFindArgs:
         include_notes = d.pop("include_notes")
 
         include_planning_tasks = d.pop("include_planning_tasks")
+
+        include_life_plan_ref_ids = d.pop("include_life_plan_ref_ids")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -88,6 +95,7 @@ class TimePlanFindArgs:
             allow_archived=allow_archived,
             include_notes=include_notes,
             include_planning_tasks=include_planning_tasks,
+            include_life_plan_ref_ids=include_life_plan_ref_ids,
             filter_ref_ids=filter_ref_ids,
         )
 

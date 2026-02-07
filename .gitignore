@@ -5,6 +5,7 @@ secrets
 .system.lock
 .idea
 .vscode
+.pycache
 *.map
 .DS_Store
 .sourcemaps
@@ -23,6 +24,8 @@ session-info
 dist/
 /build/*
 !/build/.npmkeep
+infra/.terraform
+infra/terraform.tfstate*
 
 # Using Android gitignore template: https://github.com/github/gitignore/blob/HEAD/Android.gitignore
 

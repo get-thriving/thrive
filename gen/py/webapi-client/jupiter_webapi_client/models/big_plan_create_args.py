@@ -28,6 +28,8 @@ class BigPlanCreateArgs:
         time_plan_activity_kind (None | TimePlanActivityKind | Unset):
         time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
         project_ref_id (None | str | Unset):
+        chapter_ref_id (None | str | Unset):
+        goal_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
     """
@@ -40,6 +42,8 @@ class BigPlanCreateArgs:
     time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
     time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
     project_ref_id: None | str | Unset = UNSET
+    chapter_ref_id: None | str | Unset = UNSET
+    goal_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -81,6 +85,18 @@ class BigPlanCreateArgs:
         else:
             project_ref_id = self.project_ref_id
 
+        chapter_ref_id: None | str | Unset
+        if isinstance(self.chapter_ref_id, Unset):
+            chapter_ref_id = UNSET
+        else:
+            chapter_ref_id = self.chapter_ref_id
+
+        goal_ref_id: None | str | Unset
+        if isinstance(self.goal_ref_id, Unset):
+            goal_ref_id = UNSET
+        else:
+            goal_ref_id = self.goal_ref_id
+
         actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
             actionable_date = UNSET
@@ -111,6 +127,10 @@ class BigPlanCreateArgs:
             field_dict["time_plan_activity_feasability"] = time_plan_activity_feasability
         if project_ref_id is not UNSET:
             field_dict["project_ref_id"] = project_ref_id
+        if chapter_ref_id is not UNSET:
+            field_dict["chapter_ref_id"] = chapter_ref_id
+        if goal_ref_id is not UNSET:
+            field_dict["goal_ref_id"] = goal_ref_id
         if actionable_date is not UNSET:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
@@ -183,6 +203,24 @@ class BigPlanCreateArgs:
 
         project_ref_id = _parse_project_ref_id(d.pop("project_ref_id", UNSET))
 
+        def _parse_chapter_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        chapter_ref_id = _parse_chapter_ref_id(d.pop("chapter_ref_id", UNSET))
+
+        def _parse_goal_ref_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
+
         def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -210,6 +248,8 @@ class BigPlanCreateArgs:
             time_plan_activity_kind=time_plan_activity_kind,
             time_plan_activity_feasability=time_plan_activity_feasability,
             project_ref_id=project_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
         )

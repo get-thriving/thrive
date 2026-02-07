@@ -1,5 +1,9 @@
 import type {
+  ChapterSummary,
+  GoalSummary,
   InboxTask,
+  LifePlan,
+  MilestoneSummary,
   ProjectSummary,
   Workspace,
 } from "@jupiter/webapi-client";
@@ -33,7 +37,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
@@ -52,7 +56,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
@@ -73,6 +77,7 @@ import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-inp
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -86,6 +91,8 @@ const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(BigPlanStatus),
   project: z.string(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
@@ -150,7 +157,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   try {
@@ -175,11 +186,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlan: result.big_plan,
       stats: result.stats,
       project: result.project,
+      chapter: result.chapter,
+      goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
       note: result.note,
       timePlanEntries: timePlanEntries,
+      lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -237,6 +254,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: true,
             value: form.project,
+          },
+          chapter_ref_id: {
+            should_change: true,
+            value:
+              form.chapter !== undefined && form.chapter !== ""
+                ? form.chapter
+                : undefined,
+          },
+          goal_ref_id: {
+            should_change: true,
+            value:
+              form.goal !== undefined && form.goal !== ""
+                ? form.goal
+                : undefined,
           },
           is_key: {
             should_change: true,
@@ -356,10 +387,6 @@ export default function BigPlan() {
 
   const timeEventsByRefId = new Map();
 
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.project.ref_id,
-  );
-
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
@@ -394,13 +421,6 @@ export default function BigPlan() {
       },
     );
   }
-
-  useEffect(() => {
-    // Update states based on loader data. This is necessary because these
-    // two are not otherwise updated when the loader data changes. Which happens
-    // on a navigation event.
-    setSelectedProject(loaderData.project.ref_id);
-  }, [loaderData]);
 
   return (
     <LeafPanel
@@ -478,25 +498,32 @@ export default function BigPlan() {
 
           {isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,
-            WorkspaceFeature.PROJECTS,
+            WorkspaceFeature.LIFE_PLAN,
           ) && (
             <FormControl fullWidth>
-              <ProjectSelect
-                name="project"
-                label="Project"
+              <LifePlanAssociations
                 inputsEnabled={inputsEnabled}
-                disabled={false}
                 allProjects={loaderData.allProjects}
-                value={selectedProject}
-                onChange={setSelectedProject}
+                projectDefaultValue={loaderData.project.ref_id}
+                allChapters={loaderData.allChapters}
+                chapterDefaultValue={loaderData.chapter?.ref_id}
+                allGoals={loaderData.allGoals}
+                goalDefaultValue={loaderData.goal?.ref_id}
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={aDateToDate(topLevelInfo.today)}
+                allMilestones={loaderData.allMilestones}
               />
-              <FieldError actionResult={actionData} fieldName="/project" />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/project_ref_id"
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/chapter_ref_id"
+              />
+              <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
             </FormControl>
           )}
-          {!isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.PROJECTS,
-          ) && <input type="hidden" name="project" value={selectedProject} />}
 
           <FormControl fullWidth>
             <FormLabel id="eisen">Eisenhower</FormLabel>

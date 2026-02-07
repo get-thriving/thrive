@@ -49,13 +49,13 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.birthday import PersonBirthday
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -79,7 +79,6 @@ from jupiter.core.vacations.root import Vacation
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
-from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -135,10 +134,10 @@ class GenService:
             )
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
@@ -155,10 +154,10 @@ class GenService:
         ):
             raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            not workspace.is_feature_available(WorkspaceFeature.PRM)
             and filter_person_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PRM)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
@@ -195,14 +194,14 @@ class GenService:
             all_vacations = await uow.get_for(Vacation).find_all(
                 parent_ref_id=vacation_collection.ref_id,
             )
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             all_projects = await uow.get_for(Project).find_all(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
             )
             all_syncable_projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
                 ref_id=filter_project_ref_ids or NoFilter(),
             )
@@ -242,32 +241,19 @@ class GenService:
             workspace.is_feature_available(WorkspaceFeature.WORKING_MEM)
             and SyncTarget.WORKING_MEM in gen_targets
         ):
-            async with progress_reporter.section("Generating working mem"):
-                all_working_mem_by_timeline = {}
-                async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_working_mem = await uow.get_for(WorkingMem).find_all_generic(
-                        parent_ref_id=working_mem_collection.ref_id,
-                        allow_archived=False,
-                    )
-                    for working_mem in all_working_mem:
-                        all_working_mem_by_timeline[working_mem.timeline] = working_mem
-
-                all_notes_by_working_mem_ref_id = {}
-                async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_notes = await uow.get_for(Note).find_all_generic(
-                        parent_ref_id=note_collection.ref_id,
-                        allow_archived=False,
-                        domain=NoteDomain.WORKING_MEM,
-                        source_entity_ref_id=(
-                            [wm.ref_id for wm in all_working_mem]
-                            if all_working_mem
-                            else NoFilter()
-                        ),
-                    )
-                    for note in all_notes:
-                        all_notes_by_working_mem_ref_id[note.source_entity_ref_id] = (
-                            note
-                        )
+            async with progress_reporter.section(
+                "Generating working mem cleanup tasks"
+            ):
+                schedule = schedules.get_schedule(
+                    working_mem_collection.generation_period,
+                    EntityName("Cleanup WorkingMem.txt"),
+                    today.to_timestamp_at_end_of_day(),
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
                     all_cleanup_inbox_tasks = await uow.get_for(
@@ -276,41 +262,66 @@ class GenService:
                         parent_ref_id=inbox_task_collection.ref_id,
                         source=[InboxTaskSource.WORKING_MEM_CLEANUP],
                         allow_archived=True,
-                        source_entity_ref_id=(
-                            [rt.ref_id for rt in all_working_mem]
-                            if all_working_mem
-                            else NoFilter()
-                        ),
                     )
 
-                all_inbox_tasks_by_working_mem_ref_id_and_timeline = {}
+                all_inbox_tasks_by_timeline = {}
                 for inbox_task in all_cleanup_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                    if inbox_task.recurring_timeline is None:
                         raise Exception(
                             f"Expected that inbox task with id='{inbox_task.ref_id}'",
                         )
-                    all_inbox_tasks_by_working_mem_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
-                    ] = inbox_task
+                    all_inbox_tasks_by_timeline[inbox_task.recurring_timeline] = (
+                        inbox_task
+                    )
 
-                gen_log_entry = await self._generate_working_mem_and_inbox_task(
-                    ctx,
-                    progress_reporter=progress_reporter,
-                    user=user,
-                    workspace=workspace,
-                    working_mem_collection=working_mem_collection,
-                    note_collection=note_collection,
-                    inbox_task_collection=inbox_task_collection,
-                    all_working_mem_by_timeline=all_working_mem_by_timeline,
-                    all_notes_by_working_mem_ref_id=all_notes_by_working_mem_ref_id,
-                    all_inbox_tasks_by_working_mem_ref_id_and_timeline=all_inbox_tasks_by_working_mem_ref_id_and_timeline,
-                    today=today,
-                    gen_even_if_not_modified=gen_even_if_not_modified,
-                    gen_log_entry=gen_log_entry,
+                found_inbox_task = all_inbox_tasks_by_timeline.get(
+                    schedule.timeline, None
                 )
+
+                if found_inbox_task:
+                    if (
+                        not gen_even_if_not_modified
+                        and found_inbox_task.last_modified_time
+                        >= working_mem_collection.last_modified_time
+                    ):
+                        pass
+                    else:
+                        found_inbox_task = found_inbox_task.update_link_to_working_mem_cleanup(
+                            ctx,
+                            project_ref_id=working_mem_collection.cleanup_project_ref_id,
+                            name=schedule.full_name,
+                            recurring_timeline=schedule.timeline,
+                            due_date=schedule.due_date,
+                        )
+
+                        async with (
+                            self._domain_storage_engine.get_unit_of_work() as uow
+                        ):
+                            await uow.get_for(InboxTask).save(found_inbox_task)
+                            await progress_reporter.mark_updated(found_inbox_task)
+                        gen_log_entry = gen_log_entry.add_entity_updated(
+                            ctx,
+                            found_inbox_task,
+                        )
+                else:
+                    inbox_task = InboxTask.new_inbox_task_for_working_mem_cleanup(
+                        ctx,
+                        inbox_task_collection_ref_id=inbox_task_collection.ref_id,
+                        name=schedule.full_name,
+                        due_date=schedule.due_date,
+                        project_ref_id=working_mem_collection.cleanup_project_ref_id,
+                        working_mem_collection_ref_id=working_mem_collection.ref_id,
+                        recurring_task_timeline=schedule.timeline,
+                        recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
+                    )
+
+                    async with self._domain_storage_engine.get_unit_of_work() as uow:
+                        inbox_task = await uow.get_for(InboxTask).create(inbox_task)
+                        await progress_reporter.mark_created(inbox_task)
+                    gen_log_entry = gen_log_entry.add_entity_created(
+                        ctx,
+                        inbox_task,
+                    )
 
         if (
             workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
@@ -609,18 +620,16 @@ class GenService:
                     )
 
         if (
-            workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            workspace.is_feature_available(WorkspaceFeature.PRM)
             and SyncTarget.PERSONS in gen_targets
         ):
             async with progress_reporter.section("Generating for persons"):
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    person_collection = await uow.get_for(
-                        PersonCollection
-                    ).load_by_parent(
+                    prm = await uow.get_for(PRM).load_by_parent(
                         workspace.ref_id,
                     )
                     all_persons = await uow.get_for(Person).find_all(
-                        parent_ref_id=person_collection.ref_id,
+                        parent_ref_id=prm.ref_id,
                         filter_ref_ids=filter_person_ref_ids,
                     )
 
@@ -636,27 +645,31 @@ class GenService:
                             else NoFilter()
                         ),
                     )
-                    all_birthday_inbox_tasks = await uow.get_for(
+                    all_occasions = await uow.get_for(Occasion).find_all_generic(
+                        person_ref_id=[p.ref_id for p in all_persons] or NoFilter(),
+                        allow_archived=False,
+                    )
+                    all_occasion_inbox_tasks = await uow.get_for(
                         InboxTask
                     ).find_all_generic(
                         parent_ref_id=inbox_task_collection.ref_id,
                         allow_archived=True,
-                        source=[InboxTaskSource.PERSON_BIRTHDAY],
+                        source=[InboxTaskSource.PERSON_OCCASION],
                         source_entity_ref_id=(
-                            [m.ref_id for m in all_persons]
-                            if all_persons
+                            [o.ref_id for o in all_occasions]
+                            if all_occasions
                             else NoFilter()
                         ),
                     )
-                    all_birthday_time_event_blocks = await uow.get_for(
+                    all_occasion_time_event_blocks = await uow.get_for(
                         TimeEventFullDaysBlock
                     ).find_all_generic(
                         parent_ref_id=time_event_domain.ref_id,
                         allow_archived=False,
-                        namespace=TimeEventNamespace.PERSON_BIRTHDAY,
+                        namespace=TimeEventNamespace.PERSON_OCCASION,
                         source_entity_ref_id=(
-                            [m.ref_id for m in all_persons]
-                            if all_persons
+                            [o.ref_id for o in all_occasions]
+                            if all_occasions
                             else NoFilter()
                         ),
                     )
@@ -674,9 +687,7 @@ class GenService:
                         (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
-                project = all_projects_by_ref_id[
-                    person_collection.catch_up_project_ref_id
-                ]
+                project = all_projects_by_ref_id[prm.catch_up_project_ref_id]
 
                 for person in all_persons:
                     if person.catch_up_params is None:
@@ -699,8 +710,8 @@ class GenService:
                         gen_log_entry=gen_log_entry,
                     )
 
-            all_birthday_inbox_tasks_by_person_ref_id_and_timeline = {}
-            for inbox_task in all_birthday_inbox_tasks:
+            all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline = {}
+            for inbox_task in all_occasion_inbox_tasks:
                 if (
                     inbox_task.source_entity_ref_id is None
                     or inbox_task.recurring_timeline is None
@@ -708,33 +719,34 @@ class GenService:
                     raise Exception(
                         f"Expected that inbox task with id='{inbox_task.ref_id}'",
                     )
-                all_birthday_inbox_tasks_by_person_ref_id_and_timeline[
+                all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline[
                     (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
                 ] = inbox_task
 
-            all_birthday_time_event_blocks_by_person_ref_id_and_start_date = {}
-            for time_event_block in all_birthday_time_event_blocks:
-                all_birthday_time_event_blocks_by_person_ref_id_and_start_date[
+            all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date = {}
+            for time_event_block in all_occasion_time_event_blocks:
+                all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date[
                     (time_event_block.source_entity_ref_id, time_event_block.start_date)
                 ] = time_event_block
 
-            for person in all_persons:
-                if person.birthday is None:
-                    continue
+            all_persons_by_ref_id = {p.ref_id: p for p in all_persons}
+
+            for occasion in all_occasions:
+                person = all_persons_by_ref_id[occasion.person.ref_id]
 
                 for idx in range(5):
-                    gen_log_entry = await self._generate_birthday_time_event_block_for_person(
+                    gen_log_entry = await self._generate_time_event_block_for_occasion(
                         ctx,
                         progress_reporter=progress_reporter,
                         time_event_domain=time_event_domain,
                         today=today.add_days(idx * 365),
-                        person=person,
-                        all_birthday_time_event_blocks_by_person_ref_id_and_start_date=all_birthday_time_event_blocks_by_person_ref_id_and_start_date,
+                        occasion=occasion,
+                        all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date=all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date,
                         gen_even_if_not_modified=gen_even_if_not_modified,
                         gen_log_entry=gen_log_entry,
                     )
 
-                    gen_log_entry = await self._generate_birthday_inbox_task_for_person(
+                    gen_log_entry = await self._generate_inbox_task_for_occasion(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
@@ -742,8 +754,8 @@ class GenService:
                         project=project,
                         today=today.add_days(idx * 365),
                         person=person,
-                        birthday=person.birthday,
-                        all_inbox_tasks_by_person_ref_id_and_timeline=all_birthday_inbox_tasks_by_person_ref_id_and_timeline,
+                        occasion=occasion,
+                        all_inbox_tasks_by_occasion_ref_id_and_timeline=all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline,
                         gen_even_if_not_modified=gen_even_if_not_modified,
                         gen_log_entry=gen_log_entry,
                     )
@@ -866,132 +878,6 @@ class GenService:
             gen_log_entry = gen_log_entry.close(ctx)
             gen_log_entry = await uow.get_for(GenLogEntry).save(gen_log_entry)
 
-    async def _generate_working_mem_and_inbox_task(
-        self,
-        ctx: MutationContext,
-        progress_reporter: ProgressReporter,
-        user: User,
-        workspace: Workspace,
-        working_mem_collection: WorkingMemCollection,
-        note_collection: NoteCollection,
-        inbox_task_collection: InboxTaskCollection,
-        all_working_mem_by_timeline: dict[str, WorkingMem],
-        all_notes_by_working_mem_ref_id: dict[EntityId, Note],
-        all_inbox_tasks_by_working_mem_ref_id_and_timeline: dict[
-            tuple[EntityId, str],
-            InboxTask,
-        ],
-        today: ADate,
-        gen_even_if_not_modified: bool,
-        gen_log_entry: GenLogEntry,
-    ) -> GenLogEntry:
-        schedule = schedules.get_schedule(
-            working_mem_collection.generation_period,
-            EntityName("Cleanup WorkingMem.txt"),
-            today.to_timestamp_at_end_of_day(),
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-
-        found_working_mem = all_working_mem_by_timeline.get(schedule.timeline, None)
-
-        if found_working_mem:
-            if (
-                not gen_even_if_not_modified
-                and found_working_mem.last_modified_time
-                >= working_mem_collection.last_modified_time
-            ):
-                pass
-
-            # TODO(horia141): should something be done here?
-
-            working_mem = found_working_mem
-        else:
-            working_mem = WorkingMem.new_working_mem(
-                ctx,
-                working_mem_collection_ref_id=working_mem_collection.ref_id,
-                right_now=today,
-                period=working_mem_collection.generation_period,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                working_mem = await uow.get_for(WorkingMem).create(working_mem)
-                await progress_reporter.mark_created(working_mem)
-
-            gen_log_entry = gen_log_entry.add_entity_created(
-                ctx,
-                working_mem,
-            )
-
-        found_note = all_notes_by_working_mem_ref_id.get(working_mem.ref_id, None)
-
-        if found_note:
-            note = found_note
-        else:
-            note = Note.new_note(
-                ctx,
-                note_collection_ref_id=note_collection.ref_id,
-                domain=NoteDomain.WORKING_MEM,
-                source_entity_ref_id=working_mem.ref_id,
-                content=[],
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                note = await uow.get_for(Note).create(note)
-
-        found_inbox_task = all_inbox_tasks_by_working_mem_ref_id_and_timeline.get(
-            (working_mem.ref_id, schedule.timeline),
-            None,
-        )
-
-        if found_inbox_task:
-            if (
-                not gen_even_if_not_modified
-                and found_inbox_task.last_modified_time
-                >= working_mem.last_modified_time
-            ):
-                return gen_log_entry
-
-            found_inbox_task = found_inbox_task.update_link_to_working_mem_cleanup(
-                ctx,
-                project_ref_id=working_mem_collection.cleanup_project_ref_id,
-                name=schedule.full_name,
-                recurring_timeline=schedule.timeline,
-                due_date=schedule.due_date,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                await uow.get_for(InboxTask).save(found_inbox_task)
-                await progress_reporter.mark_updated(found_inbox_task)
-            gen_log_entry = gen_log_entry.add_entity_updated(
-                ctx,
-                found_inbox_task,
-            )
-        else:
-            inbox_task = InboxTask.new_inbox_task_for_working_mem_cleanup(
-                ctx,
-                inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                name=schedule.full_name,
-                due_date=schedule.due_date,
-                project_ref_id=working_mem_collection.cleanup_project_ref_id,
-                working_mem_ref_id=working_mem.ref_id,
-                recurring_task_timeline=schedule.timeline,
-                recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
-            gen_log_entry = gen_log_entry.add_entity_created(
-                ctx,
-                inbox_task,
-            )
-
-        return gen_log_entry
-
     async def _generate_time_plans_and_planning_tasks_for_time_plan_domain(
         self,
         ctx: MutationContext,
@@ -1093,8 +979,6 @@ class GenService:
                     found_time_plan = time_plan
 
             if time_plan_domain.generation_approach.should_generate_a_planning_task:
-                if time_plan_domain.planning_task_project_ref_id is None:
-                    raise Exception("Planning task project ref id is not set")
                 if time_plan_domain.planning_task_gen_params is None:
                     raise Exception("Planning task gen params is not set")
                 project = all_projects_by_ref_id[
@@ -1225,6 +1109,8 @@ class GenService:
                 found_task = found_task.update_link_to_habit(
                     ctx,
                     project_ref_id=project.ref_id,
+                    chapter_ref_id=habit.chapter_ref_id,
+                    goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=habit.is_key,
@@ -1250,7 +1136,9 @@ class GenService:
                     ctx,
                     inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                     name=schedule.full_name,
-                    project_ref_id=project.ref_id,
+                    habit_project_ref_id=project.ref_id,
+                    habit_chapter_ref_id=habit.chapter_ref_id,
+                    habit_goal_ref_id=habit.goal_ref_id,
                     habit_ref_id=habit.ref_id,
                     recurring_task_timeline=schedule.timeline,
                     recurring_task_repeat_index=task_idx,
@@ -1363,6 +1251,8 @@ class GenService:
             found_task = found_task.update_link_to_chore(
                 ctx,
                 project_ref_id=project.ref_id,
+                chapter_ref_id=chore.chapter_ref_id,
+                goal_ref_id=chore.goal_ref_id,
                 name=schedule.full_name,
                 timeline=schedule.timeline,
                 is_key=chore.is_key,
@@ -1385,7 +1275,9 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                project_ref_id=project.ref_id,
+                chore_project_ref_id=project.ref_id,
+                chore_chapter_ref_id=chore.chapter_ref_id,
+                chore_goal_ref_id=chore.goal_ref_id,
                 chore_ref_id=chore.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -1750,14 +1642,14 @@ class GenService:
 
         return gen_log_entry
 
-    async def _generate_birthday_time_event_block_for_person(
+    async def _generate_time_event_block_for_occasion(
         self,
         ctx: MutationContext,
         progress_reporter: ProgressReporter,
         time_event_domain: TimeEventDomain,
         today: ADate,
-        person: Person,
-        all_birthday_time_event_blocks_by_person_ref_id_and_start_date: dict[
+        occasion: Occasion,
+        all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date: dict[
             tuple[EntityId, ADate],
             TimeEventFullDaysBlock,
         ],
@@ -1765,31 +1657,31 @@ class GenService:
         gen_log_entry: GenLogEntry,
     ) -> GenLogEntry:
         found_block = (
-            all_birthday_time_event_blocks_by_person_ref_id_and_start_date.get(
-                (person.ref_id, person.birthday_in_year(today)), None
+            all_occasion_time_event_blocks_by_occasion_ref_id_and_start_date.get(
+                (occasion.ref_id, occasion.date_in_year(today)), None
             )
         )
 
         if found_block:
             if (
                 not gen_even_if_not_modified
-                and found_block.last_modified_time >= person.last_modified_time
+                and found_block.last_modified_time >= occasion.last_modified_time
             ):
                 return gen_log_entry
 
-            found_block = found_block.update_for_person_birthday(
+            found_block = found_block.update_for_person_occasion(
                 ctx,
-                birthday_date=person.birthday_in_year(today),
+                occasion_date=occasion.date_in_year(today),
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(TimeEventFullDaysBlock).save(found_block)
         else:
-            found_block = TimeEventFullDaysBlock.new_time_event_for_person_birthday(
+            found_block = TimeEventFullDaysBlock.new_time_event_for_person_occasion(
                 ctx,
                 time_event_domain_ref_id=time_event_domain.ref_id,
-                person_ref_id=person.ref_id,
-                birthday_date=person.birthday_in_year(today),
+                occasion_ref_id=occasion.ref_id,
+                occasion_date=occasion.date_in_year(today),
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -1799,7 +1691,7 @@ class GenService:
 
         return gen_log_entry
 
-    async def _generate_birthday_inbox_task_for_person(
+    async def _generate_inbox_task_for_occasion(
         self,
         ctx: MutationContext,
         progress_reporter: ProgressReporter,
@@ -1808,8 +1700,8 @@ class GenService:
         project: Project,
         today: ADate,
         person: Person,
-        birthday: PersonBirthday,
-        all_inbox_tasks_by_person_ref_id_and_timeline: dict[
+        occasion: Occasion,
+        all_inbox_tasks_by_occasion_ref_id_and_timeline: dict[
             tuple[EntityId, str],
             InboxTask,
         ],
@@ -1818,38 +1710,40 @@ class GenService:
     ) -> GenLogEntry:
         schedule = schedules.get_schedule(
             RecurringTaskPeriod.YEARLY,
-            person.name,
+            occasion.name,
             today.to_timestamp_at_end_of_day(),
             None,
             None,
             None,
             RecurringTaskDueAtDay.build(
                 RecurringTaskPeriod.YEARLY,
-                birthday.day,
+                occasion.date.day,
             ),
             RecurringTaskDueAtMonth.build(
                 RecurringTaskPeriod.YEARLY,
-                birthday.month,
+                occasion.date.month,
             ),
         )
 
-        found_task = all_inbox_tasks_by_person_ref_id_and_timeline.get(
-            (person.ref_id, schedule.timeline),
+        found_task = all_inbox_tasks_by_occasion_ref_id_and_timeline.get(
+            (occasion.ref_id, schedule.timeline),
             None,
         )
 
         if found_task:
             if (
                 not gen_even_if_not_modified
-                and found_task.last_modified_time >= person.last_modified_time
+                and found_task.last_modified_time >= occasion.last_modified_time
             ):
                 return gen_log_entry
 
-            found_task = found_task.update_link_to_person_birthday(
+            found_task = found_task.update_link_to_person_occasion(
                 ctx,
                 project_ref_id=project.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
+                occasion_kind=occasion.kind,
+                occasion_person_name=person.name,
                 preparation_days_cnt=person.preparation_days_cnt_for_birthday,
                 due_time=schedule.due_date,
             )
@@ -1863,12 +1757,14 @@ class GenService:
                 found_task,
             )
         else:
-            inbox_task = InboxTask.new_inbox_task_for_person_birthday(
+            inbox_task = InboxTask.new_inbox_task_for_person_occasion(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
                 project_ref_id=project.ref_id,
-                person_ref_id=person.ref_id,
+                occasion_kind=occasion.kind,
+                occasion_person_name=person.name,
+                occasion_ref_id=occasion.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 preparation_days_cnt=person.preparation_days_cnt_for_birthday,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),

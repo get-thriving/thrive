@@ -98,10 +98,10 @@ class WorkspaceFeature(EnumValue):
     JOURNALS = "journals"
     DOCS = "docs"
     VACATIONS = "vacations"
-    PROJECTS = "projects"
+    LIFE_PLAN = "life-plan"
     SMART_LISTS = "smart-lists"
     METRICS = "metrics"
-    PERSONS = "persons"
+    PRM = "prm"
     SLACK_TASKS = "slack-tasks"
     EMAIL_TASKS = "email-tasks"
 
@@ -171,10 +171,10 @@ BASIC_WORKSPACE_FEATURE_FLAGS = {
     WorkspaceFeature.JOURNALS: False,
     WorkspaceFeature.DOCS: True,
     WorkspaceFeature.VACATIONS: False,
-    WorkspaceFeature.PROJECTS: False,
+    WorkspaceFeature.LIFE_PLAN: False,
     WorkspaceFeature.SMART_LISTS: False,
     WorkspaceFeature.METRICS: False,
-    WorkspaceFeature.PERSONS: False,
+    WorkspaceFeature.PRM: False,
     WorkspaceFeature.SLACK_TASKS: False,
     WorkspaceFeature.EMAIL_TASKS: False,
 }
@@ -195,10 +195,10 @@ HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.JOURNALS: FeatureControl.USER,
         WorkspaceFeature.DOCS: FeatureControl.USER,
         WorkspaceFeature.VACATIONS: FeatureControl.USER,
-        WorkspaceFeature.PROJECTS: FeatureControl.USER,
+        WorkspaceFeature.LIFE_PLAN: FeatureControl.USER,
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
-        WorkspaceFeature.PERSONS: FeatureControl.USER,
+        WorkspaceFeature.PRM: FeatureControl.USER,
         WorkspaceFeature.SLACK_TASKS: FeatureControl.ALWAYS_OFF_TECH,
         WorkspaceFeature.EMAIL_TASKS: FeatureControl.ALWAYS_OFF_TECH,
     }
@@ -217,10 +217,10 @@ LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.JOURNALS: FeatureControl.USER,
         WorkspaceFeature.DOCS: FeatureControl.USER,
         WorkspaceFeature.VACATIONS: FeatureControl.USER,
-        WorkspaceFeature.PROJECTS: FeatureControl.USER,
+        WorkspaceFeature.LIFE_PLAN: FeatureControl.USER,
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
-        WorkspaceFeature.PERSONS: FeatureControl.USER,
+        WorkspaceFeature.PRM: FeatureControl.USER,
         WorkspaceFeature.SLACK_TASKS: FeatureControl.ALWAYS_OFF_HOSTING,
         WorkspaceFeature.EMAIL_TASKS: FeatureControl.ALWAYS_OFF_HOSTING,
     }

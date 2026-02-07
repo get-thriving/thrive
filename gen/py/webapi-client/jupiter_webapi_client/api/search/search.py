@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.search_args import SearchArgs
 from ...models.search_result import SearchResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: SearchArgs,
+    body: SearchArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/search",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -85,12 +86,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: SearchArgs,
+    body: SearchArgs | Unset = UNSET,
 ) -> Response[Any | SearchResult]:
     """Use case for free form searching through jupiter.
 
     Args:
-        body (SearchArgs): Search args.
+        body (SearchArgs | Unset): Search args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -114,12 +115,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: SearchArgs,
+    body: SearchArgs | Unset = UNSET,
 ) -> Any | SearchResult | None:
     """Use case for free form searching through jupiter.
 
     Args:
-        body (SearchArgs): Search args.
+        body (SearchArgs | Unset): Search args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,12 +139,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: SearchArgs,
+    body: SearchArgs | Unset = UNSET,
 ) -> Response[Any | SearchResult]:
     """Use case for free form searching through jupiter.
 
     Args:
-        body (SearchArgs): Search args.
+        body (SearchArgs | Unset): Search args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,12 +166,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: SearchArgs,
+    body: SearchArgs | Unset = UNSET,
 ) -> Any | SearchResult | None:
     """Use case for free form searching through jupiter.
 
     Args:
-        body (SearchArgs): Search args.
+        body (SearchArgs | Unset): Search args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

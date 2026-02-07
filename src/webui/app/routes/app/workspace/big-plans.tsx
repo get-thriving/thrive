@@ -12,7 +12,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "@jupiter/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import {
   bigPlanFindEntryToParent,
   sortBigPlansNaturally,
@@ -53,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   const response = await apiClient.bigPlans.bigPlanFind({
     allow_archived: false,
-    include_project: true,
+    include_life_plan: true,
     include_milestones: true,
     include_stats: true,
     include_inbox_tasks: false,
@@ -92,7 +92,7 @@ export default function BigPlans() {
 
   const initialView = isWorkspaceFeatureAvailable(
     topLevelInfo.workspace,
-    WorkspaceFeature.PROJECTS,
+    WorkspaceFeature.LIFE_PLAN,
   )
     ? View.TIMELINE_BY_PROJECT
     : View.TIMELINE;
@@ -131,7 +131,7 @@ export default function BigPlans() {
                   value: View.TIMELINE_BY_PROJECT,
                   text: "Timeline by Project",
                   icon: <ViewTimelineIcon />,
-                  gatedOn: WorkspaceFeature.PROJECTS,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
                   value: View.TIMELINE,
@@ -159,7 +159,7 @@ export default function BigPlans() {
         {sortedBigPlans.length > 0 &&
           isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,
-            WorkspaceFeature.PROJECTS,
+            WorkspaceFeature.LIFE_PLAN,
           ) &&
           selectedView === View.TIMELINE_BY_PROJECT && (
             <>
@@ -264,7 +264,7 @@ export default function BigPlans() {
             showOptions={{
               showDonePct: true,
               showMilestonesLeft: true,
-              showProject: true,
+              showLifePlan: true,
               showEisen: true,
               showDifficulty: true,
               showActionableDate: true,

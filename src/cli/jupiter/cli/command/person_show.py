@@ -3,15 +3,14 @@
 from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     entity_name_to_rich_text,
+    occasion_kind_to_rich_text,
     period_to_rich_text,
-    person_birthday_to_rich_text,
-    person_relationship_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.persons.use_case.find import (
+from jupiter.core.prm.sub.person.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
 )
@@ -33,7 +32,6 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
             result.entries,
             key=lambda p: (
                 p.person.archived,
-                p.person.relationship,
                 (
                     p.person.catch_up_params.period
                     if p.person.catch_up_params
@@ -44,7 +42,7 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
 
         rich_tree = Tree("👨 Persons", guide_style="bold bright_blue")
 
-        if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             catch_up_project_text = Text(
                 f"The catch up project is {result.catch_up_project.name}",
             )
@@ -58,19 +56,23 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
             person_text.append(entity_name_to_rich_text(person.name))
 
             person_text.append(" ")
-            person_text.append(person_relationship_to_rich_text(person.relationship))
-
             if person.catch_up_params:
                 person_text.append(" ")
                 person_text.append(period_to_rich_text(person.catch_up_params.period))
 
-            if person.birthday:
-                person_text.append(" ")
-                person_text.append(person_birthday_to_rich_text(person.birthday))
-
             if person.archived:
                 person_text.stylize("gray62")
 
-            rich_tree.add(person_text)
+            person_tree = Tree(person_text)
+            for occasion in entry.occasions:
+                occasion_text = Text("")
+                occasion_text.append(entity_id_to_rich_text(occasion.ref_id))
+                occasion_text.append(" ")
+                occasion_text.append(entity_name_to_rich_text(occasion.name))
+                occasion_text.append(" ")
+                occasion_text.append(occasion_kind_to_rich_text(occasion.kind))
+                person_tree.add(occasion_text)
+
+            rich_tree.add(person_tree)
 
         console.print(rich_tree)

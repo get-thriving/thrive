@@ -10,19 +10,22 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
+    from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.email_task import EmailTask
+    from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
     from ..models.metric import Metric
     from ..models.note import Note
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.project import Project
     from ..models.slack_task import SlackTask
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
-    from ..models.working_mem import WorkingMem
+    from ..models.working_mem_collection import WorkingMemCollection
 
 
 T = TypeVar("T", bound="InboxTaskFindResultEntry")
@@ -36,8 +39,10 @@ class InboxTaskFindResultEntry:
         inbox_task (InboxTask): An inbox task.
         project (Project): The project.
         note (None | Note | Unset):
+        chapter (Chapter | None | Unset):
+        goal (Goal | None | Unset):
         time_event_blocks (list[TimeEventInDayBlock] | None | Unset):
-        working_mem (None | Unset | WorkingMem):
+        working_mem_collection (None | Unset | WorkingMemCollection):
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
         chore (Chore | None | Unset):
@@ -45,6 +50,7 @@ class InboxTaskFindResultEntry:
         journal (Journal | None | Unset):
         metric (Metric | None | Unset):
         person (None | Person | Unset):
+        occasion (None | Occasion | Unset):
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
     """
@@ -52,8 +58,10 @@ class InboxTaskFindResultEntry:
     inbox_task: InboxTask
     project: Project
     note: None | Note | Unset = UNSET
+    chapter: Chapter | None | Unset = UNSET
+    goal: Goal | None | Unset = UNSET
     time_event_blocks: list[TimeEventInDayBlock] | None | Unset = UNSET
-    working_mem: None | Unset | WorkingMem = UNSET
+    working_mem_collection: None | Unset | WorkingMemCollection = UNSET
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
     chore: Chore | None | Unset = UNSET
@@ -61,22 +69,26 @@ class InboxTaskFindResultEntry:
     journal: Journal | None | Unset = UNSET
     metric: Metric | None | Unset = UNSET
     person: None | Person | Unset = UNSET
+    occasion: None | Occasion | Unset = UNSET
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.big_plan import BigPlan
+        from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
+        from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.journal import Journal
         from ..models.metric import Metric
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
-        from ..models.working_mem import WorkingMem
+        from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
 
@@ -90,6 +102,22 @@ class InboxTaskFindResultEntry:
         else:
             note = self.note
 
+        chapter: dict[str, Any] | None | Unset
+        if isinstance(self.chapter, Unset):
+            chapter = UNSET
+        elif isinstance(self.chapter, Chapter):
+            chapter = self.chapter.to_dict()
+        else:
+            chapter = self.chapter
+
+        goal: dict[str, Any] | None | Unset
+        if isinstance(self.goal, Unset):
+            goal = UNSET
+        elif isinstance(self.goal, Goal):
+            goal = self.goal.to_dict()
+        else:
+            goal = self.goal
+
         time_event_blocks: list[dict[str, Any]] | None | Unset
         if isinstance(self.time_event_blocks, Unset):
             time_event_blocks = UNSET
@@ -102,13 +130,13 @@ class InboxTaskFindResultEntry:
         else:
             time_event_blocks = self.time_event_blocks
 
-        working_mem: dict[str, Any] | None | Unset
-        if isinstance(self.working_mem, Unset):
-            working_mem = UNSET
-        elif isinstance(self.working_mem, WorkingMem):
-            working_mem = self.working_mem.to_dict()
+        working_mem_collection: dict[str, Any] | None | Unset
+        if isinstance(self.working_mem_collection, Unset):
+            working_mem_collection = UNSET
+        elif isinstance(self.working_mem_collection, WorkingMemCollection):
+            working_mem_collection = self.working_mem_collection.to_dict()
         else:
-            working_mem = self.working_mem
+            working_mem_collection = self.working_mem_collection
 
         time_plan: dict[str, Any] | None | Unset
         if isinstance(self.time_plan, Unset):
@@ -166,6 +194,14 @@ class InboxTaskFindResultEntry:
         else:
             person = self.person
 
+        occasion: dict[str, Any] | None | Unset
+        if isinstance(self.occasion, Unset):
+            occasion = UNSET
+        elif isinstance(self.occasion, Occasion):
+            occasion = self.occasion.to_dict()
+        else:
+            occasion = self.occasion
+
         slack_task: dict[str, Any] | None | Unset
         if isinstance(self.slack_task, Unset):
             slack_task = UNSET
@@ -192,10 +228,14 @@ class InboxTaskFindResultEntry:
         )
         if note is not UNSET:
             field_dict["note"] = note
+        if chapter is not UNSET:
+            field_dict["chapter"] = chapter
+        if goal is not UNSET:
+            field_dict["goal"] = goal
         if time_event_blocks is not UNSET:
             field_dict["time_event_blocks"] = time_event_blocks
-        if working_mem is not UNSET:
-            field_dict["working_mem"] = working_mem
+        if working_mem_collection is not UNSET:
+            field_dict["working_mem_collection"] = working_mem_collection
         if time_plan is not UNSET:
             field_dict["time_plan"] = time_plan
         if habit is not UNSET:
@@ -210,6 +250,8 @@ class InboxTaskFindResultEntry:
             field_dict["metric"] = metric
         if person is not UNSET:
             field_dict["person"] = person
+        if occasion is not UNSET:
+            field_dict["occasion"] = occasion
         if slack_task is not UNSET:
             field_dict["slack_task"] = slack_task
         if email_task is not UNSET:
@@ -220,19 +262,22 @@ class InboxTaskFindResultEntry:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan import BigPlan
+        from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.email_task import EmailTask
+        from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
         from ..models.metric import Metric
         from ..models.note import Note
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.project import Project
         from ..models.slack_task import SlackTask
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
-        from ..models.working_mem import WorkingMem
+        from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
@@ -256,6 +301,40 @@ class InboxTaskFindResultEntry:
 
         note = _parse_note(d.pop("note", UNSET))
 
+        def _parse_chapter(data: object) -> Chapter | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chapter_type_0 = Chapter.from_dict(data)
+
+                return chapter_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Chapter | None | Unset, data)
+
+        chapter = _parse_chapter(d.pop("chapter", UNSET))
+
+        def _parse_goal(data: object) -> Goal | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                goal_type_0 = Goal.from_dict(data)
+
+                return goal_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Goal | None | Unset, data)
+
+        goal = _parse_goal(d.pop("goal", UNSET))
+
         def _parse_time_event_blocks(data: object) -> list[TimeEventInDayBlock] | None | Unset:
             if data is None:
                 return data
@@ -278,7 +357,7 @@ class InboxTaskFindResultEntry:
 
         time_event_blocks = _parse_time_event_blocks(d.pop("time_event_blocks", UNSET))
 
-        def _parse_working_mem(data: object) -> None | Unset | WorkingMem:
+        def _parse_working_mem_collection(data: object) -> None | Unset | WorkingMemCollection:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -286,14 +365,14 @@ class InboxTaskFindResultEntry:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                working_mem_type_0 = WorkingMem.from_dict(data)
+                working_mem_collection_type_0 = WorkingMemCollection.from_dict(data)
 
-                return working_mem_type_0
+                return working_mem_collection_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | Unset | WorkingMem, data)
+            return cast(None | Unset | WorkingMemCollection, data)
 
-        working_mem = _parse_working_mem(d.pop("working_mem", UNSET))
+        working_mem_collection = _parse_working_mem_collection(d.pop("working_mem_collection", UNSET))
 
         def _parse_time_plan(data: object) -> None | TimePlan | Unset:
             if data is None:
@@ -414,6 +493,23 @@ class InboxTaskFindResultEntry:
 
         person = _parse_person(d.pop("person", UNSET))
 
+        def _parse_occasion(data: object) -> None | Occasion | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                occasion_type_0 = Occasion.from_dict(data)
+
+                return occasion_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Occasion | Unset, data)
+
+        occasion = _parse_occasion(d.pop("occasion", UNSET))
+
         def _parse_slack_task(data: object) -> None | SlackTask | Unset:
             if data is None:
                 return data
@@ -452,8 +548,10 @@ class InboxTaskFindResultEntry:
             inbox_task=inbox_task,
             project=project,
             note=note,
+            chapter=chapter,
+            goal=goal,
             time_event_blocks=time_event_blocks,
-            working_mem=working_mem,
+            working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,
             chore=chore,
@@ -461,6 +559,7 @@ class InboxTaskFindResultEntry:
             journal=journal,
             metric=metric,
             person=person,
+            occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
         )

@@ -34,6 +34,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { getHosting } from "#/core/universe";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -226,7 +227,7 @@ export default function Account() {
             inputsEnabled={inputsEnabled}
             featureFlagsControls={topLevelInfo.userFeatureFlagControls}
             defaultFeatureFlags={loaderData.user.feature_flags}
-            hosting={globalProperties.hosting}
+            hosting={getHosting(globalProperties.universe)}
           />
         </SectionCard>
 

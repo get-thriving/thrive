@@ -14,8 +14,10 @@ from jupiter.core.config import (
 from jupiter.core.features import (
     WorkspaceFeature,
 )
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -54,6 +56,8 @@ class BigPlanCreateArgs(UseCaseArgsBase):
     eisen: Eisen
     difficulty: Difficulty
     project_ref_id: EntityId | None
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     actionable_date: ADate | None
     due_date: ADate | None
 
@@ -82,32 +86,41 @@ class BigPlanCreateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.TIME_PLANS)
-            and args.time_plan_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.TIME_PLANS)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
-            and args.project_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if args.project_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.chapter_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.goal_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
             time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
 
         if args.project_ref_id is None:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            root_project = await uow.get(ProjectRepository).load_root_project(
-                project_collection.ref_id
+            the_project = await uow.get(ProjectRepository).load_root_project(
+                life_plan.ref_id
             )
-            project_ref_id = root_project.ref_id
         else:
-            await uow.get_for(Project).load_by_id(args.project_ref_id)
-            project_ref_id = args.project_ref_id
+            the_project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+
+        if args.chapter_ref_id is not None:
+            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            if chapter.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Chapter does not belong to project '{the_project.name}'"
+                )
+
+        if args.goal_ref_id is not None:
+            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            if goal.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Goal does not belong to project '{the_project.name}'"
+                )
 
         big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
             workspace.ref_id,
@@ -116,7 +129,9 @@ class BigPlanCreateUseCase(
         new_big_plan = BigPlan.new_big_plan(
             context.domain_context,
             big_plan_collection_ref_id=big_plan_collection.ref_id,
-            project_ref_id=project_ref_id,
+            project_ref_id=the_project.ref_id,
+            chapter_ref_id=args.chapter_ref_id,
+            goal_ref_id=args.goal_ref_id,
             name=args.name,
             status=BigPlanStatus.NOT_STARTED,
             is_key=args.is_key,

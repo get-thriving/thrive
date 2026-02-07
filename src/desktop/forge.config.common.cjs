@@ -9,7 +9,7 @@ require("dotenv").config({
 });
 
 module.exports = {
-  outDir: "../../.build-cache/desktop",
+  outDir: `../../.build-cache/desktop/${process.env.DISTRIBUTION}/v${process.env.VERSION}`,
   packagerConfig: {
     name: process.env.PUBLIC_NAME,
     appBundleId: process.env.BUNDLE_ID,
@@ -22,7 +22,8 @@ module.exports = {
     overwrite: true,
     platform: ["darwin", "mas"],
     extraResource: ["README.md", "LICENSE"],
-    derefSymlinks: false,
+    derefSymlinks: true,
+    prune: false,
   },
   rebuildConfig: {},
   hooks: {

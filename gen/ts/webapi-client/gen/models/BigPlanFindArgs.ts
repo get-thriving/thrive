@@ -8,7 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type BigPlanFindArgs = {
     allow_archived: boolean;
-    include_project: boolean;
+    include_life_plan: boolean;
     include_inbox_tasks: boolean;
     include_notes: boolean;
     include_milestones: boolean;

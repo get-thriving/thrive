@@ -14,8 +14,6 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-source src/Config.global
-
 log info "Setting up Docker buildx builder"
 
 # Create a buildx builder if it doesn't exist

@@ -70,12 +70,37 @@ export function inferSyncTargetsForEnabledFeatures(
       inferredSyncTargets.push(syncTarget);
     } else if (
       syncTarget === SyncTarget.PROJECTS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.CHAPTERS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.MILESTONES &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.VISIONS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
       syncTarget === SyncTarget.PERSONS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.OCCASIONS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.CIRCLES &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (

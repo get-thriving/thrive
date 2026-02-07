@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.time_plan_associate_with_big_plans_args import TimePlanAssociateWithBigPlansArgs
 from ...models.time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigPlansResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: TimePlanAssociateWithBigPlansArgs,
+    body: TimePlanAssociateWithBigPlansArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/time-plan-associate-with-big-plans",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: TimePlanAssociateWithBigPlansArgs,
+    body: TimePlanAssociateWithBigPlansArgs | Unset = UNSET,
 ) -> Response[Any | TimePlanAssociateWithBigPlansResult]:
     """Use case for creating activities starting from big plans.
 
     Args:
-        body (TimePlanAssociateWithBigPlansArgs): Args.
+        body (TimePlanAssociateWithBigPlansArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: TimePlanAssociateWithBigPlansArgs,
+    body: TimePlanAssociateWithBigPlansArgs | Unset = UNSET,
 ) -> Any | TimePlanAssociateWithBigPlansResult | None:
     """Use case for creating activities starting from big plans.
 
     Args:
-        body (TimePlanAssociateWithBigPlansArgs): Args.
+        body (TimePlanAssociateWithBigPlansArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: TimePlanAssociateWithBigPlansArgs,
+    body: TimePlanAssociateWithBigPlansArgs | Unset = UNSET,
 ) -> Response[Any | TimePlanAssociateWithBigPlansResult]:
     """Use case for creating activities starting from big plans.
 
     Args:
-        body (TimePlanAssociateWithBigPlansArgs): Args.
+        body (TimePlanAssociateWithBigPlansArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: TimePlanAssociateWithBigPlansArgs,
+    body: TimePlanAssociateWithBigPlansArgs | Unset = UNSET,
 ) -> Any | TimePlanAssociateWithBigPlansResult | None:
     """Use case for creating activities starting from big plans.
 
     Args:
-        body (TimePlanAssociateWithBigPlansArgs): Args.
+        body (TimePlanAssociateWithBigPlansArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

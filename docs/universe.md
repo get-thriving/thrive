@@ -4,48 +4,51 @@ Jupiter can be used in a number of ways, and it's best to keep these things
 explicitly represented.
 
 A universe is an independent instance of Thrive, running separately from
-all other universes.
+all other universes, under the control of distinct organisations, and with
+absolutely no resources shared between them.
 
 There is a universe called `thrive` which represents the global
 hosted instance at `get-thriving.com`. Each self-hosted instance
 is a universe too. It is identified by it's domain name.
-The locally running code for development is also an universe
-called `dev`.
+The locally running code for development also lives in a universe
+called `dev` (with semantics similar to `localhost` in networking).
+A last reseverd universe name is `thrive-sh-test` for self-hosted
+testing as part of the development process.
+
+An universe can contain one or more _environments_. An environment
+is useful to delineate certain parts of an universe for particular
+uses. It is common for some resources to be specific to a single
+environment, and not to the whole universe.
+
+The `thrive` universe has the `production` and `staging` environments.
+The `production` one represents those instances that serve real user
+traffic, are exposed to the world. The `staging` environment is used
+in development to test new features, or experiment. Self-hosted
+universes typically have a single environment called `production`,
+though there can be more, as it is a flexible concept. By convention
+`dev` only has the `local` environment, and `thrive-th-test` has the
+`staging` environment.
+
+Finally, environments contain one or more _instances_. An instance
+is a single running copy of all the Thrive software which makes reference
+to a distinct copy of data. Depending on the situation this software
+might run on one machine as several processes, or distributed across
+many machines in a large-scale fashion. Certain resources (the core
+databases, search indices, etc.) are segregated in an instance, while
+others are shared with other instances in the environment or in the
+universe.
+
+The `thrive` universe, and the `production` environment has
+the big central instance called `main`. When accessing `get-thriving.com`
+this is the one that is accessed. Presently there are no other
+instances here, but one could imagine more instances for large
+scale customers wanting a separate setup. The `staging` environment
+supports multiple ephemeral instances, created one per PR raised
+on GitHub, and closed when the PR is merged or abandoned. Any
+self-hosted universe will typically have one instance, but it is
+relatively easy to generate more, either for testing or for longer
+term purposes. Finally, in the `dev` universe and `local` environment
+it is very common to generate many instances in the process of
+development and testing, all existing on the local dev machine.
 
 Thus the "hosting" property is very tied to the universe.
-
-## Environments
-
-Each universe can have multiple environments.
-
-The Jupiter infrastructure has a rather crips notion of environments.
-They operate on two levels: system and feature.
-
-System environments are the names we give for the code in various
-distances relative to users and developers. Code can look at the
-`Env` enum to understand what environment they are in.
-
-* There is the `production` environment of which there is only one, and which consists
-  of the totality of machines, cloud resources, SaaS services, etc. which handle
-  the user data, the user interactions, etc. Crucially this also includes the distributed
-  clients that are the `cli` app, the `MacOS` app, the `iOS` and `Android` apps,
-  and the code running in all the browsers where the app is running like that.
-  So it's both machines we own, and ones our customers own! The code running
-  here corresponds to the code at `main:latest` or `main:vX.Y` depending on
-  the distribution model. This is considered a `live` environment because it
-  is accessible for users.
-* There is the `staging` environmenet of which there can be many, and which are used
-  by developers to showcase their work. Every time you create a PR, you also create
-  a `staging` environment that runs the code in your particular branch. You can build
-  and distribute client apps based on this version too. This is also considered a
-  `live` environment because it is accessible to users.
-* There is the `dev` enviroment of which there can be many, and which are the ones
-  developers create when they're running their work on their dev machines. Every
-  time you run `mise run:srv` you're creating/using such an environment.
-  This is not considered `local` environment because it is not accessible to users.
-
-Feature environments are a subset of `dev` and `staging` environments. When you
-specificy a particular name in `mise run:srv --env <your-name>` you create such
-an env for example, or reuse if you created it before. When you open a PR, the
-same happens but in a `live` setting. These environments are separate between
-each other, and start in a blank but valid state.

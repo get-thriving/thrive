@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
+import type { EntityId } from './EntityId';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
  * Args.
@@ -10,5 +11,8 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 export type TimePlanCreateArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
+    chapter_ref_ids?: (Array<EntityId> | null);
+    project_ref_ids?: (Array<EntityId> | null);
+    goal_ref_ids?: (Array<EntityId> | null);
 };
 

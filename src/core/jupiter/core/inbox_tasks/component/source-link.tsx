@@ -21,7 +21,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/working-mem/archive/${props.inboxTaskResult.working_mem?.ref_id}`}
+          to={`/app/workspace/working-mem`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Working Mem" : "WM"}
@@ -126,7 +126,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/persons/${props.inboxTaskResult.person?.ref_id}`}
+          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
           {isBigScreen ? "Person" : "P"}
@@ -134,17 +134,17 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.PERSON_BIRTHDAY: {
+    case InboxTaskSource.PERSON_OCCASION: {
       return (
         <Button
           startIcon={<LaunchIcon />}
           variant="outlined"
           size="small"
           component={Link}
-          to={`/app/workspace/persons/${props.inboxTaskResult.person?.ref_id}`}
+          to={`/app/workspace/prm/persons/${props.inboxTaskResult.person?.ref_id}/occasions/${props.inboxTaskResult.occasion?.ref_id}`}
           sx={{ flexGrow: 1 }}
         >
-          {isBigScreen ? "Person" : "P"}
+          {isBigScreen ? "Occasion" : "O"}
         </Button>
       );
     }

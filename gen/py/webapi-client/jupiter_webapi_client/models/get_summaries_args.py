@@ -19,9 +19,14 @@ class GetSummariesArgs:
         allow_archived (bool | None | Unset):
         include_user (bool | None | Unset):
         include_workspace (bool | None | Unset):
+        include_life_plan (bool | None | Unset):
+        include_active_visions (bool | None | Unset):
         include_schedule_streams (bool | None | Unset):
         include_vacations (bool | None | Unset):
         include_projects (bool | None | Unset):
+        include_chapters (bool | None | Unset):
+        include_goals (bool | None | Unset):
+        include_milestones (bool | None | Unset):
         include_inbox_tasks (bool | None | Unset):
         include_journals_last_year (bool | None | Unset):
         include_habits (bool | None | Unset):
@@ -35,9 +40,14 @@ class GetSummariesArgs:
     allow_archived: bool | None | Unset = UNSET
     include_user: bool | None | Unset = UNSET
     include_workspace: bool | None | Unset = UNSET
+    include_life_plan: bool | None | Unset = UNSET
+    include_active_visions: bool | None | Unset = UNSET
     include_schedule_streams: bool | None | Unset = UNSET
     include_vacations: bool | None | Unset = UNSET
     include_projects: bool | None | Unset = UNSET
+    include_chapters: bool | None | Unset = UNSET
+    include_goals: bool | None | Unset = UNSET
+    include_milestones: bool | None | Unset = UNSET
     include_inbox_tasks: bool | None | Unset = UNSET
     include_journals_last_year: bool | None | Unset = UNSET
     include_habits: bool | None | Unset = UNSET
@@ -67,6 +77,18 @@ class GetSummariesArgs:
         else:
             include_workspace = self.include_workspace
 
+        include_life_plan: bool | None | Unset
+        if isinstance(self.include_life_plan, Unset):
+            include_life_plan = UNSET
+        else:
+            include_life_plan = self.include_life_plan
+
+        include_active_visions: bool | None | Unset
+        if isinstance(self.include_active_visions, Unset):
+            include_active_visions = UNSET
+        else:
+            include_active_visions = self.include_active_visions
+
         include_schedule_streams: bool | None | Unset
         if isinstance(self.include_schedule_streams, Unset):
             include_schedule_streams = UNSET
@@ -84,6 +106,24 @@ class GetSummariesArgs:
             include_projects = UNSET
         else:
             include_projects = self.include_projects
+
+        include_chapters: bool | None | Unset
+        if isinstance(self.include_chapters, Unset):
+            include_chapters = UNSET
+        else:
+            include_chapters = self.include_chapters
+
+        include_goals: bool | None | Unset
+        if isinstance(self.include_goals, Unset):
+            include_goals = UNSET
+        else:
+            include_goals = self.include_goals
+
+        include_milestones: bool | None | Unset
+        if isinstance(self.include_milestones, Unset):
+            include_milestones = UNSET
+        else:
+            include_milestones = self.include_milestones
 
         include_inbox_tasks: bool | None | Unset
         if isinstance(self.include_inbox_tasks, Unset):
@@ -142,12 +182,22 @@ class GetSummariesArgs:
             field_dict["include_user"] = include_user
         if include_workspace is not UNSET:
             field_dict["include_workspace"] = include_workspace
+        if include_life_plan is not UNSET:
+            field_dict["include_life_plan"] = include_life_plan
+        if include_active_visions is not UNSET:
+            field_dict["include_active_visions"] = include_active_visions
         if include_schedule_streams is not UNSET:
             field_dict["include_schedule_streams"] = include_schedule_streams
         if include_vacations is not UNSET:
             field_dict["include_vacations"] = include_vacations
         if include_projects is not UNSET:
             field_dict["include_projects"] = include_projects
+        if include_chapters is not UNSET:
+            field_dict["include_chapters"] = include_chapters
+        if include_goals is not UNSET:
+            field_dict["include_goals"] = include_goals
+        if include_milestones is not UNSET:
+            field_dict["include_milestones"] = include_milestones
         if include_inbox_tasks is not UNSET:
             field_dict["include_inbox_tasks"] = include_inbox_tasks
         if include_journals_last_year is not UNSET:
@@ -198,6 +248,24 @@ class GetSummariesArgs:
 
         include_workspace = _parse_include_workspace(d.pop("include_workspace", UNSET))
 
+        def _parse_include_life_plan(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_life_plan = _parse_include_life_plan(d.pop("include_life_plan", UNSET))
+
+        def _parse_include_active_visions(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_active_visions = _parse_include_active_visions(d.pop("include_active_visions", UNSET))
+
         def _parse_include_schedule_streams(data: object) -> bool | None | Unset:
             if data is None:
                 return data
@@ -224,6 +292,33 @@ class GetSummariesArgs:
             return cast(bool | None | Unset, data)
 
         include_projects = _parse_include_projects(d.pop("include_projects", UNSET))
+
+        def _parse_include_chapters(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_chapters = _parse_include_chapters(d.pop("include_chapters", UNSET))
+
+        def _parse_include_goals(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_goals = _parse_include_goals(d.pop("include_goals", UNSET))
+
+        def _parse_include_milestones(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        include_milestones = _parse_include_milestones(d.pop("include_milestones", UNSET))
 
         def _parse_include_inbox_tasks(data: object) -> bool | None | Unset:
             if data is None:
@@ -301,9 +396,14 @@ class GetSummariesArgs:
             allow_archived=allow_archived,
             include_user=include_user,
             include_workspace=include_workspace,
+            include_life_plan=include_life_plan,
+            include_active_visions=include_active_visions,
             include_schedule_streams=include_schedule_streams,
             include_vacations=include_vacations,
             include_projects=include_projects,
+            include_chapters=include_chapters,
+            include_goals=include_goals,
+            include_milestones=include_milestones,
             include_inbox_tasks=include_inbox_tasks,
             include_journals_last_year=include_journals_last_year,
             include_habits=include_habits,

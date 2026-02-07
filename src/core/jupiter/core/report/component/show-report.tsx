@@ -35,7 +35,7 @@ import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "#/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,
@@ -57,7 +57,7 @@ const _SOURCES_TO_REPORT = [
   InboxTaskSource.JOURNAL,
   InboxTaskSource.METRIC,
   InboxTaskSource.PERSON_CATCH_UP,
-  InboxTaskSource.PERSON_BIRTHDAY,
+  InboxTaskSource.PERSON_OCCASION,
   InboxTaskSource.SLACK_TASK,
   InboxTaskSource.EMAIL_TASK,
 ];
@@ -88,7 +88,7 @@ export function ShowReport({
   if (
     !isWorkspaceFeatureAvailable(
       topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
+      WorkspaceFeature.LIFE_PLAN,
     )
   ) {
     tabIndicesMap["by-habits"] -= 1;
@@ -153,7 +153,7 @@ export function ShowReport({
         <Tab label="⌛ By Periods" />
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && <Tab label="💡 By Projects" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
@@ -194,7 +194,7 @@ export function ShowReport({
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       ) && (
         <TabPanel value={showTab} index={tabIndicesMap["by-projects"]}>
           <Stack spacing={2} useFlexGap>

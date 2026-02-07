@@ -1,5 +1,23 @@
 """Contains all the data models used in inputs/outputs"""
 
+from .achieved_time_and_effort_summary import AchievedTimeAndEffortSummary
+from .achieved_time_and_effort_summary_activities_by_feasability_by_doneness import (
+    AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness,
+)
+from .achieved_time_and_effort_summary_activities_by_feasability_by_doneness_additional_property import (
+    AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDonenessAdditionalProperty,
+)
+from .achieved_time_and_effort_summary_hours_by_feasability import AchievedTimeAndEffortSummaryHoursByFeasability
+from .achieved_time_and_effort_summary_score_by_feasability_by_doneness import (
+    AchievedTimeAndEffortSummaryScoreByFeasabilityByDoneness,
+)
+from .achieved_time_and_effort_summary_score_by_feasability_by_doneness_additional_property import (
+    AchievedTimeAndEffortSummaryScoreByFeasabilityByDonenessAdditionalProperty,
+)
+from .achieved_time_and_effort_summary_total_activities_by_doneness import (
+    AchievedTimeAndEffortSummaryTotalActivitiesByDoneness,
+)
+from .achieved_time_and_effort_summary_total_score_by_doneness import AchievedTimeAndEffortSummaryTotalScoreByDoneness
 from .app_component import AppComponent
 from .app_core import AppCore
 from .app_distribution import AppDistribution
@@ -34,9 +52,11 @@ from .big_plan_status import BigPlanStatus
 from .big_plan_summary import BigPlanSummary
 from .big_plan_update_args import BigPlanUpdateArgs
 from .big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+from .big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
 from .big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
 from .big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
 from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
+from .big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
 from .big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
 from .big_plan_update_args_name import BigPlanUpdateArgsName
 from .big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
@@ -53,6 +73,22 @@ from .calendar_events_stats_per_subperiod import CalendarEventsStatsPerSubperiod
 from .calendar_load_for_date_and_period_args import CalendarLoadForDateAndPeriodArgs
 from .calendar_load_for_date_and_period_result import CalendarLoadForDateAndPeriodResult
 from .change_password_args import ChangePasswordArgs
+from .chapter import Chapter
+from .chapter_archive_args import ChapterArchiveArgs
+from .chapter_create_args import ChapterCreateArgs
+from .chapter_create_result import ChapterCreateResult
+from .chapter_find_args import ChapterFindArgs
+from .chapter_find_result import ChapterFindResult
+from .chapter_find_result_entry import ChapterFindResultEntry
+from .chapter_load_args import ChapterLoadArgs
+from .chapter_load_result import ChapterLoadResult
+from .chapter_remove_args import ChapterRemoveArgs
+from .chapter_summary import ChapterSummary
+from .chapter_update_args import ChapterUpdateArgs
+from .chapter_update_args_end_date import ChapterUpdateArgsEndDate
+from .chapter_update_args_name import ChapterUpdateArgsName
+from .chapter_update_args_project_ref_id import ChapterUpdateArgsProjectRefId
+from .chapter_update_args_start_date import ChapterUpdateArgsStartDate
 from .checklist_block import ChecklistBlock
 from .checklist_block_kind import ChecklistBlockKind
 from .checklist_item import ChecklistItem
@@ -74,11 +110,13 @@ from .chore_unsuspend_args import ChoreUnsuspendArgs
 from .chore_update_args import ChoreUpdateArgs
 from .chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
 from .chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
+from .chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
 from .chore_update_args_difficulty import ChoreUpdateArgsDifficulty
 from .chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
 from .chore_update_args_due_at_month import ChoreUpdateArgsDueAtMonth
 from .chore_update_args_eisen import ChoreUpdateArgsEisen
 from .chore_update_args_end_at_date import ChoreUpdateArgsEndAtDate
+from .chore_update_args_goal_ref_id import ChoreUpdateArgsGoalRefId
 from .chore_update_args_is_key import ChoreUpdateArgsIsKey
 from .chore_update_args_must_do import ChoreUpdateArgsMustDo
 from .chore_update_args_name import ChoreUpdateArgsName
@@ -86,6 +124,17 @@ from .chore_update_args_period import ChoreUpdateArgsPeriod
 from .chore_update_args_project_ref_id import ChoreUpdateArgsProjectRefId
 from .chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
 from .chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
+from .circle import Circle
+from .circle_archive_args import CircleArchiveArgs
+from .circle_create_args import CircleCreateArgs
+from .circle_create_result import CircleCreateResult
+from .circle_find_args import CircleFindArgs
+from .circle_find_result import CircleFindResult
+from .circle_load_args import CircleLoadArgs
+from .circle_load_result import CircleLoadResult
+from .circle_remove_args import CircleRemoveArgs
+from .circle_update_args import CircleUpdateArgs
+from .circle_update_args_name import CircleUpdateArgsName
 from .clear_all_args import ClearAllArgs
 from .close_account_args import CloseAccountArgs
 from .code_block import CodeBlock
@@ -153,6 +202,21 @@ from .gen_log import GenLog
 from .gen_log_entry import GenLogEntry
 from .get_summaries_args import GetSummariesArgs
 from .get_summaries_result import GetSummariesResult
+from .goal import Goal
+from .goal_archive_args import GoalArchiveArgs
+from .goal_create_args import GoalCreateArgs
+from .goal_create_result import GoalCreateResult
+from .goal_find_args import GoalFindArgs
+from .goal_find_result import GoalFindResult
+from .goal_find_result_entry import GoalFindResultEntry
+from .goal_load_args import GoalLoadArgs
+from .goal_load_result import GoalLoadResult
+from .goal_remove_args import GoalRemoveArgs
+from .goal_summary import GoalSummary
+from .goal_update_args import GoalUpdateArgs
+from .goal_update_args_name import GoalUpdateArgsName
+from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
+from .goal_update_args_project_ref_id import GoalUpdateArgsProjectRefId
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -174,10 +238,12 @@ from .habit_unsuspend_args import HabitUnsuspendArgs
 from .habit_update_args import HabitUpdateArgs
 from .habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
 from .habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
+from .habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
 from .habit_update_args_difficulty import HabitUpdateArgsDifficulty
 from .habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
 from .habit_update_args_due_at_month import HabitUpdateArgsDueAtMonth
 from .habit_update_args_eisen import HabitUpdateArgsEisen
+from .habit_update_args_goal_ref_id import HabitUpdateArgsGoalRefId
 from .habit_update_args_is_key import HabitUpdateArgsIsKey
 from .habit_update_args_name import HabitUpdateArgsName
 from .habit_update_args_period import HabitUpdateArgsPeriod
@@ -232,9 +298,11 @@ from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
 from .inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
 from .inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
+from .inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
 from .inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
 from .inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
 from .inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
+from .inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
 from .inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
 from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
@@ -280,6 +348,10 @@ from .journal_update_settings_args_writing_task_difficulty import JournalUpdateS
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .journal_update_settings_args_writing_task_project_ref_id import JournalUpdateSettingsArgsWritingTaskProjectRefId
 from .jupiter_archival_reason import JupiterArchivalReason
+from .life_plan import LifePlan
+from .life_plan_update_args import LifePlanUpdateArgs
+from .life_plan_update_args_birth_year import LifePlanUpdateArgsBirthYear
+from .life_plan_update_args_birthday import LifePlanUpdateArgsBirthday
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
 from .list_item import ListItem
@@ -331,6 +403,21 @@ from .metric_update_args_collection_period import MetricUpdateArgsCollectionPeri
 from .metric_update_args_icon import MetricUpdateArgsIcon
 from .metric_update_args_is_key import MetricUpdateArgsIsKey
 from .metric_update_args_name import MetricUpdateArgsName
+from .milestone import Milestone
+from .milestone_archive_args import MilestoneArchiveArgs
+from .milestone_create_args import MilestoneCreateArgs
+from .milestone_create_result import MilestoneCreateResult
+from .milestone_find_args import MilestoneFindArgs
+from .milestone_find_result import MilestoneFindResult
+from .milestone_find_result_entry import MilestoneFindResultEntry
+from .milestone_load_args import MilestoneLoadArgs
+from .milestone_load_result import MilestoneLoadResult
+from .milestone_remove_args import MilestoneRemoveArgs
+from .milestone_summary import MilestoneSummary
+from .milestone_update_args import MilestoneUpdateArgs
+from .milestone_update_args_date import MilestoneUpdateArgsDate
+from .milestone_update_args_name import MilestoneUpdateArgsName
+from .milestone_update_args_project_ref_id import MilestoneUpdateArgsProjectRefId
 from .motd import MOTD
 from .motd_get_for_today_args import MOTDGetForTodayArgs
 from .motd_get_for_today_result import MOTDGetForTodayResult
@@ -350,8 +437,21 @@ from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
 from .numbered_list_block import NumberedListBlock
 from .numbered_list_block_kind import NumberedListBlockKind
+from .occasion import Occasion
+from .occasion_archive_args import OccasionArchiveArgs
+from .occasion_create_args import OccasionCreateArgs
+from .occasion_create_result import OccasionCreateResult
+from .occasion_kind import OccasionKind
+from .occasion_load_args import OccasionLoadArgs
+from .occasion_load_result import OccasionLoadResult
+from .occasion_remove_args import OccasionRemoveArgs
+from .occasion_update_args import OccasionUpdateArgs
+from .occasion_update_args_date import OccasionUpdateArgsDate
+from .occasion_update_args_kind import OccasionUpdateArgsKind
+from .occasion_update_args_name import OccasionUpdateArgsName
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
+from .partial_date_type import PartialDateType
 from .per_big_plan_breakdown_item import PerBigPlanBreakdownItem
 from .per_chore_breakdown_item import PerChoreBreakdownItem
 from .per_habit_breakdown_item import PerHabitBreakdownItem
@@ -360,10 +460,9 @@ from .per_project_breakdown_item import PerProjectBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
 from .person_change_catch_up_project_args import PersonChangeCatchUpProjectArgs
-from .person_collection import PersonCollection
+from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
-from .person_entry import PersonEntry
 from .person_find_args import PersonFindArgs
 from .person_find_result import PersonFindResult
 from .person_find_result_entry import PersonFindResultEntry
@@ -371,12 +470,11 @@ from .person_load_args import PersonLoadArgs
 from .person_load_result import PersonLoadResult
 from .person_load_settings_args import PersonLoadSettingsArgs
 from .person_load_settings_result import PersonLoadSettingsResult
+from .person_occasion_entry import PersonOccasionEntry
 from .person_regen_args import PersonRegenArgs
-from .person_relationship import PersonRelationship
 from .person_remove_args import PersonRemoveArgs
 from .person_summary import PersonSummary
 from .person_update_args import PersonUpdateArgs
-from .person_update_args_birthday import PersonUpdateArgsBirthday
 from .person_update_args_catch_up_actionable_from_day import PersonUpdateArgsCatchUpActionableFromDay
 from .person_update_args_catch_up_actionable_from_month import PersonUpdateArgsCatchUpActionableFromMonth
 from .person_update_args_catch_up_difficulty import PersonUpdateArgsCatchUpDifficulty
@@ -384,12 +482,17 @@ from .person_update_args_catch_up_due_at_day import PersonUpdateArgsCatchUpDueAt
 from .person_update_args_catch_up_due_at_month import PersonUpdateArgsCatchUpDueAtMonth
 from .person_update_args_catch_up_eisen import PersonUpdateArgsCatchUpEisen
 from .person_update_args_catch_up_period import PersonUpdateArgsCatchUpPeriod
+from .person_update_args_circle_ref_ids import PersonUpdateArgsCircleRefIds
 from .person_update_args_name import PersonUpdateArgsName
-from .person_update_args_relationship import PersonUpdateArgsRelationship
+from .planned_time_and_effort_summary import PlannedTimeAndEffortSummary
+from .planned_time_and_effort_summary_activities_by_feasability import (
+    PlannedTimeAndEffortSummaryActivitiesByFeasability,
+)
+from .planned_time_and_effort_summary_hours_by_feasability import PlannedTimeAndEffortSummaryHoursByFeasability
+from .planned_time_and_effort_summary_score_by_feasability import PlannedTimeAndEffortSummaryScoreByFeasability
+from .prm import PRM
 from .project import Project
 from .project_archive_args import ProjectArchiveArgs
-from .project_change_parent_args import ProjectChangeParentArgs
-from .project_collection import ProjectCollection
 from .project_create_args import ProjectCreateArgs
 from .project_create_result import ProjectCreateResult
 from .project_find_args import ProjectFindArgs
@@ -402,6 +505,7 @@ from .project_reorder_children_args import ProjectReorderChildrenArgs
 from .project_summary import ProjectSummary
 from .project_update_args import ProjectUpdateArgs
 from .project_update_args_name import ProjectUpdateArgsName
+from .project_update_args_parent_project_ref_id import ProjectUpdateArgsParentProjectRefId
 from .push_generation_extra_info import PushGenerationExtraInfo
 from .push_integration_group import PushIntegrationGroup
 from .quote_block import QuoteBlock
@@ -550,6 +654,7 @@ from .suggested_date import SuggestedDate
 from .sync_target import SyncTarget
 from .table_block import TableBlock
 from .table_block_kind import TableBlockKind
+from .time_and_effort_summary import TimeAndEffortSummary
 from .time_event_domain import TimeEventDomain
 from .time_event_full_days_block import TimeEventFullDaysBlock
 from .time_event_full_days_block_load_args import TimeEventFullDaysBlockLoadArgs
@@ -598,8 +703,12 @@ from .time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigP
 from .time_plan_associate_with_inbox_tasks_args import TimePlanAssociateWithInboxTasksArgs
 from .time_plan_associate_with_inbox_tasks_result import TimePlanAssociateWithInboxTasksResult
 from .time_plan_change_time_config_args import TimePlanChangeTimeConfigArgs
+from .time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
+from .time_plan_change_time_config_args_goal_ref_ids import TimePlanChangeTimeConfigArgsGoalRefIds
 from .time_plan_change_time_config_args_period import TimePlanChangeTimeConfigArgsPeriod
+from .time_plan_change_time_config_args_project_ref_ids import TimePlanChangeTimeConfigArgsProjectRefIds
 from .time_plan_change_time_config_args_right_now import TimePlanChangeTimeConfigArgsRightNow
+from .time_plan_chapter_link import TimePlanChapterLink
 from .time_plan_create_args import TimePlanCreateArgs
 from .time_plan_create_result import TimePlanCreateResult
 from .time_plan_domain import TimePlanDomain
@@ -609,6 +718,7 @@ from .time_plan_find_result import TimePlanFindResult
 from .time_plan_find_result_entry import TimePlanFindResultEntry
 from .time_plan_gen_for_time_plan_args import TimePlanGenForTimePlanArgs
 from .time_plan_generation_approach import TimePlanGenerationApproach
+from .time_plan_goal_link import TimePlanGoalLink
 from .time_plan_load_args import TimePlanLoadArgs
 from .time_plan_load_for_date_and_period_args import TimePlanLoadForDateAndPeriodArgs
 from .time_plan_load_for_date_and_period_result import TimePlanLoadForDateAndPeriodResult
@@ -617,6 +727,7 @@ from .time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultAc
 from .time_plan_load_settings_args import TimePlanLoadSettingsArgs
 from .time_plan_load_settings_result import TimePlanLoadSettingsResult
 from .time_plan_load_settings_result_generation_in_advance_days import TimePlanLoadSettingsResultGenerationInAdvanceDays
+from .time_plan_project_link import TimePlanProjectLink
 from .time_plan_regen_args import TimePlanRegenArgs
 from .time_plan_remove_args import TimePlanRemoveArgs
 from .time_plan_source import TimePlanSource
@@ -666,6 +777,20 @@ from .vacation_update_args import VacationUpdateArgs
 from .vacation_update_args_end_date import VacationUpdateArgsEndDate
 from .vacation_update_args_name import VacationUpdateArgsName
 from .vacation_update_args_start_date import VacationUpdateArgsStartDate
+from .vision import Vision
+from .vision_archive_args import VisionArchiveArgs
+from .vision_create_draft_args import VisionCreateDraftArgs
+from .vision_create_draft_result import VisionCreateDraftResult
+from .vision_find_args import VisionFindArgs
+from .vision_find_result import VisionFindResult
+from .vision_find_result_entry import VisionFindResultEntry
+from .vision_load_active_args import VisionLoadActiveArgs
+from .vision_load_active_result import VisionLoadActiveResult
+from .vision_load_args import VisionLoadArgs
+from .vision_load_result import VisionLoadResult
+from .vision_mark_draft_as_active_args import VisionMarkDraftAsActiveArgs
+from .vision_remove_args import VisionRemoveArgs
+from .vision_status import VisionStatus
 from .widget_dimension import WidgetDimension
 from .widget_geometry import WidgetGeometry
 from .widget_type import WidgetType
@@ -674,16 +799,10 @@ from .widget_type_constraints_allowed_dimensions import WidgetTypeConstraintsAll
 from .workable_big_plan import WorkableBigPlan
 from .workable_summary import WorkableSummary
 from .working_mem import WorkingMem
-from .working_mem_archive_args import WorkingMemArchiveArgs
 from .working_mem_collection import WorkingMemCollection
-from .working_mem_find_args import WorkingMemFindArgs
-from .working_mem_find_result import WorkingMemFindResult
-from .working_mem_find_result_entry import WorkingMemFindResultEntry
-from .working_mem_load_args import WorkingMemLoadArgs
 from .working_mem_load_current_args import WorkingMemLoadCurrentArgs
 from .working_mem_load_current_entry import WorkingMemLoadCurrentEntry
 from .working_mem_load_current_result import WorkingMemLoadCurrentResult
-from .working_mem_load_result import WorkingMemLoadResult
 from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
@@ -702,6 +821,14 @@ from .workspace_update_args import WorkspaceUpdateArgs
 from .workspace_update_args_name import WorkspaceUpdateArgsName
 
 __all__ = (
+    "AchievedTimeAndEffortSummary",
+    "AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDoneness",
+    "AchievedTimeAndEffortSummaryActivitiesByFeasabilityByDonenessAdditionalProperty",
+    "AchievedTimeAndEffortSummaryHoursByFeasability",
+    "AchievedTimeAndEffortSummaryScoreByFeasabilityByDoneness",
+    "AchievedTimeAndEffortSummaryScoreByFeasabilityByDonenessAdditionalProperty",
+    "AchievedTimeAndEffortSummaryTotalActivitiesByDoneness",
+    "AchievedTimeAndEffortSummaryTotalScoreByDoneness",
     "AppComponent",
     "AppCore",
     "AppDistribution",
@@ -736,9 +863,11 @@ __all__ = (
     "BigPlanSummary",
     "BigPlanUpdateArgs",
     "BigPlanUpdateArgsActionableDate",
+    "BigPlanUpdateArgsChapterRefId",
     "BigPlanUpdateArgsDifficulty",
     "BigPlanUpdateArgsDueDate",
     "BigPlanUpdateArgsEisen",
+    "BigPlanUpdateArgsGoalRefId",
     "BigPlanUpdateArgsIsKey",
     "BigPlanUpdateArgsName",
     "BigPlanUpdateArgsProjectRefId",
@@ -755,6 +884,22 @@ __all__ = (
     "CalendarLoadForDateAndPeriodArgs",
     "CalendarLoadForDateAndPeriodResult",
     "ChangePasswordArgs",
+    "Chapter",
+    "ChapterArchiveArgs",
+    "ChapterCreateArgs",
+    "ChapterCreateResult",
+    "ChapterFindArgs",
+    "ChapterFindResult",
+    "ChapterFindResultEntry",
+    "ChapterLoadArgs",
+    "ChapterLoadResult",
+    "ChapterRemoveArgs",
+    "ChapterSummary",
+    "ChapterUpdateArgs",
+    "ChapterUpdateArgsEndDate",
+    "ChapterUpdateArgsName",
+    "ChapterUpdateArgsProjectRefId",
+    "ChapterUpdateArgsStartDate",
     "ChecklistBlock",
     "ChecklistBlockKind",
     "ChecklistItem",
@@ -776,11 +921,13 @@ __all__ = (
     "ChoreUpdateArgs",
     "ChoreUpdateArgsActionableFromDay",
     "ChoreUpdateArgsActionableFromMonth",
+    "ChoreUpdateArgsChapterRefId",
     "ChoreUpdateArgsDifficulty",
     "ChoreUpdateArgsDueAtDay",
     "ChoreUpdateArgsDueAtMonth",
     "ChoreUpdateArgsEisen",
     "ChoreUpdateArgsEndAtDate",
+    "ChoreUpdateArgsGoalRefId",
     "ChoreUpdateArgsIsKey",
     "ChoreUpdateArgsMustDo",
     "ChoreUpdateArgsName",
@@ -788,6 +935,17 @@ __all__ = (
     "ChoreUpdateArgsProjectRefId",
     "ChoreUpdateArgsSkipRule",
     "ChoreUpdateArgsStartAtDate",
+    "Circle",
+    "CircleArchiveArgs",
+    "CircleCreateArgs",
+    "CircleCreateResult",
+    "CircleFindArgs",
+    "CircleFindResult",
+    "CircleLoadArgs",
+    "CircleLoadResult",
+    "CircleRemoveArgs",
+    "CircleUpdateArgs",
+    "CircleUpdateArgsName",
     "ClearAllArgs",
     "CloseAccountArgs",
     "CodeBlock",
@@ -855,6 +1013,21 @@ __all__ = (
     "GenLogEntry",
     "GetSummariesArgs",
     "GetSummariesResult",
+    "Goal",
+    "GoalArchiveArgs",
+    "GoalCreateArgs",
+    "GoalCreateResult",
+    "GoalFindArgs",
+    "GoalFindResult",
+    "GoalFindResultEntry",
+    "GoalLoadArgs",
+    "GoalLoadResult",
+    "GoalRemoveArgs",
+    "GoalSummary",
+    "GoalUpdateArgs",
+    "GoalUpdateArgsName",
+    "GoalUpdateArgsParentGoalRefId",
+    "GoalUpdateArgsProjectRefId",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",
@@ -876,10 +1049,12 @@ __all__ = (
     "HabitUpdateArgs",
     "HabitUpdateArgsActionableFromDay",
     "HabitUpdateArgsActionableFromMonth",
+    "HabitUpdateArgsChapterRefId",
     "HabitUpdateArgsDifficulty",
     "HabitUpdateArgsDueAtDay",
     "HabitUpdateArgsDueAtMonth",
     "HabitUpdateArgsEisen",
+    "HabitUpdateArgsGoalRefId",
     "HabitUpdateArgsIsKey",
     "HabitUpdateArgsName",
     "HabitUpdateArgsPeriod",
@@ -935,9 +1110,11 @@ __all__ = (
     "InboxTaskUpdateArgs",
     "InboxTaskUpdateArgsActionableDate",
     "InboxTaskUpdateArgsBigPlanRefId",
+    "InboxTaskUpdateArgsChapterRefId",
     "InboxTaskUpdateArgsDifficulty",
     "InboxTaskUpdateArgsDueDate",
     "InboxTaskUpdateArgsEisen",
+    "InboxTaskUpdateArgsGoalRefId",
     "InboxTaskUpdateArgsIsKey",
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsProjectRefId",
@@ -980,6 +1157,10 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JournalUpdateSettingsArgsWritingTaskProjectRefId",
     "JupiterArchivalReason",
+    "LifePlan",
+    "LifePlanUpdateArgs",
+    "LifePlanUpdateArgsBirthday",
+    "LifePlanUpdateArgsBirthYear",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",
@@ -1029,6 +1210,21 @@ __all__ = (
     "MetricUpdateArgsIcon",
     "MetricUpdateArgsIsKey",
     "MetricUpdateArgsName",
+    "Milestone",
+    "MilestoneArchiveArgs",
+    "MilestoneCreateArgs",
+    "MilestoneCreateResult",
+    "MilestoneFindArgs",
+    "MilestoneFindResult",
+    "MilestoneFindResultEntry",
+    "MilestoneLoadArgs",
+    "MilestoneLoadResult",
+    "MilestoneRemoveArgs",
+    "MilestoneSummary",
+    "MilestoneUpdateArgs",
+    "MilestoneUpdateArgsDate",
+    "MilestoneUpdateArgsName",
+    "MilestoneUpdateArgsProjectRefId",
     "MOTD",
     "MOTDGetForTodayArgs",
     "MOTDGetForTodayResult",
@@ -1048,8 +1244,21 @@ __all__ = (
     "NoteUpdateArgsContent",
     "NumberedListBlock",
     "NumberedListBlockKind",
+    "Occasion",
+    "OccasionArchiveArgs",
+    "OccasionCreateArgs",
+    "OccasionCreateResult",
+    "OccasionKind",
+    "OccasionLoadArgs",
+    "OccasionLoadResult",
+    "OccasionRemoveArgs",
+    "OccasionUpdateArgs",
+    "OccasionUpdateArgsDate",
+    "OccasionUpdateArgsKind",
+    "OccasionUpdateArgsName",
     "ParagraphBlock",
     "ParagraphBlockKind",
+    "PartialDateType",
     "PerBigPlanBreakdownItem",
     "PerChoreBreakdownItem",
     "PerHabitBreakdownItem",
@@ -1058,10 +1267,9 @@ __all__ = (
     "Person",
     "PersonArchiveArgs",
     "PersonChangeCatchUpProjectArgs",
-    "PersonCollection",
+    "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
-    "PersonEntry",
     "PersonFindArgs",
     "PersonFindResult",
     "PersonFindResultEntry",
@@ -1069,12 +1277,11 @@ __all__ = (
     "PersonLoadResult",
     "PersonLoadSettingsArgs",
     "PersonLoadSettingsResult",
+    "PersonOccasionEntry",
     "PersonRegenArgs",
-    "PersonRelationship",
     "PersonRemoveArgs",
     "PersonSummary",
     "PersonUpdateArgs",
-    "PersonUpdateArgsBirthday",
     "PersonUpdateArgsCatchUpActionableFromDay",
     "PersonUpdateArgsCatchUpActionableFromMonth",
     "PersonUpdateArgsCatchUpDifficulty",
@@ -1082,12 +1289,15 @@ __all__ = (
     "PersonUpdateArgsCatchUpDueAtMonth",
     "PersonUpdateArgsCatchUpEisen",
     "PersonUpdateArgsCatchUpPeriod",
+    "PersonUpdateArgsCircleRefIds",
     "PersonUpdateArgsName",
-    "PersonUpdateArgsRelationship",
+    "PlannedTimeAndEffortSummary",
+    "PlannedTimeAndEffortSummaryActivitiesByFeasability",
+    "PlannedTimeAndEffortSummaryHoursByFeasability",
+    "PlannedTimeAndEffortSummaryScoreByFeasability",
+    "PRM",
     "Project",
     "ProjectArchiveArgs",
-    "ProjectChangeParentArgs",
-    "ProjectCollection",
     "ProjectCreateArgs",
     "ProjectCreateResult",
     "ProjectFindArgs",
@@ -1100,6 +1310,7 @@ __all__ = (
     "ProjectSummary",
     "ProjectUpdateArgs",
     "ProjectUpdateArgsName",
+    "ProjectUpdateArgsParentProjectRefId",
     "PushGenerationExtraInfo",
     "PushIntegrationGroup",
     "QuoteBlock",
@@ -1248,6 +1459,7 @@ __all__ = (
     "SyncTarget",
     "TableBlock",
     "TableBlockKind",
+    "TimeAndEffortSummary",
     "TimeEventDomain",
     "TimeEventFullDaysBlock",
     "TimeEventFullDaysBlockLoadArgs",
@@ -1296,8 +1508,12 @@ __all__ = (
     "TimePlanAssociateWithInboxTasksArgs",
     "TimePlanAssociateWithInboxTasksResult",
     "TimePlanChangeTimeConfigArgs",
+    "TimePlanChangeTimeConfigArgsChapterRefIds",
+    "TimePlanChangeTimeConfigArgsGoalRefIds",
     "TimePlanChangeTimeConfigArgsPeriod",
+    "TimePlanChangeTimeConfigArgsProjectRefIds",
     "TimePlanChangeTimeConfigArgsRightNow",
+    "TimePlanChapterLink",
     "TimePlanCreateArgs",
     "TimePlanCreateResult",
     "TimePlanDomain",
@@ -1307,6 +1523,7 @@ __all__ = (
     "TimePlanFindResultEntry",
     "TimePlanGenerationApproach",
     "TimePlanGenForTimePlanArgs",
+    "TimePlanGoalLink",
     "TimePlanLoadArgs",
     "TimePlanLoadForDateAndPeriodArgs",
     "TimePlanLoadForDateAndPeriodResult",
@@ -1315,6 +1532,7 @@ __all__ = (
     "TimePlanLoadSettingsArgs",
     "TimePlanLoadSettingsResult",
     "TimePlanLoadSettingsResultGenerationInAdvanceDays",
+    "TimePlanProjectLink",
     "TimePlanRegenArgs",
     "TimePlanRemoveArgs",
     "TimePlanSource",
@@ -1360,6 +1578,20 @@ __all__ = (
     "VacationUpdateArgsEndDate",
     "VacationUpdateArgsName",
     "VacationUpdateArgsStartDate",
+    "Vision",
+    "VisionArchiveArgs",
+    "VisionCreateDraftArgs",
+    "VisionCreateDraftResult",
+    "VisionFindArgs",
+    "VisionFindResult",
+    "VisionFindResultEntry",
+    "VisionLoadActiveArgs",
+    "VisionLoadActiveResult",
+    "VisionLoadArgs",
+    "VisionLoadResult",
+    "VisionMarkDraftAsActiveArgs",
+    "VisionRemoveArgs",
+    "VisionStatus",
     "WidgetDimension",
     "WidgetGeometry",
     "WidgetType",
@@ -1368,16 +1600,10 @@ __all__ = (
     "WorkableBigPlan",
     "WorkableSummary",
     "WorkingMem",
-    "WorkingMemArchiveArgs",
     "WorkingMemCollection",
-    "WorkingMemFindArgs",
-    "WorkingMemFindResult",
-    "WorkingMemFindResultEntry",
-    "WorkingMemLoadArgs",
     "WorkingMemLoadCurrentArgs",
     "WorkingMemLoadCurrentEntry",
     "WorkingMemLoadCurrentResult",
-    "WorkingMemLoadResult",
     "WorkingMemLoadSettingsArgs",
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",

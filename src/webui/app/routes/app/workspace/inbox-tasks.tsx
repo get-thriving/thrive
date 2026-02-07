@@ -299,7 +299,7 @@ export default function InboxTasks() {
                   value: View.KANBAN_BY_EISEN,
                   text: "Kanban by Eisen",
                   icon: <ViewKanbanIcon />,
-                  gatedOn: WorkspaceFeature.PROJECTS,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
                   value: View.KANBAN,
@@ -694,7 +694,7 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.BIG_PLAN,
         InboxTaskSource.JOURNAL,
         InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
         InboxTaskSource.SLACK_TASK,
         InboxTaskSource.EMAIL_TASK,
@@ -723,7 +723,7 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.BIG_PLAN,
         InboxTaskSource.JOURNAL,
         InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
         InboxTaskSource.SLACK_TASK,
         InboxTaskSource.EMAIL_TASK,
@@ -753,7 +753,7 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.BIG_PLAN,
         InboxTaskSource.JOURNAL,
         InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
         InboxTaskSource.SLACK_TASK,
         InboxTaskSource.EMAIL_TASK,
@@ -783,7 +783,7 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.BIG_PLAN,
         InboxTaskSource.JOURNAL,
         InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
         InboxTaskSource.SLACK_TASK,
         InboxTaskSource.EMAIL_TASK,
@@ -813,7 +813,7 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.BIG_PLAN,
         InboxTaskSource.JOURNAL,
         InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_BIRTHDAY,
+        InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
         InboxTaskSource.SLACK_TASK,
         InboxTaskSource.EMAIL_TASK,
@@ -840,7 +840,7 @@ function SwiftView(props: SwiftViewProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -860,7 +860,7 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-week"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -880,7 +880,7 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-month"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -901,7 +901,7 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-quarter"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -922,7 +922,7 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-year"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -949,7 +949,7 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-today"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -969,7 +969,7 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-week"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -989,7 +989,7 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-month"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1010,7 +1010,7 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-quarter"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1031,7 +1031,7 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-year"
           showOptions={{
             showStatus: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1059,7 +1059,7 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1080,7 +1080,7 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1101,7 +1101,7 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1123,7 +1123,7 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1145,7 +1145,7 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1416,7 +1416,7 @@ function KanbanBoard({
   draggedInboxTaskId,
 }: KanbanBoardProps) {
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
       <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
         <InboxTasksColumn
           topLevelInfo={topLevelInfo}
@@ -1429,7 +1429,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1450,7 +1450,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1471,7 +1471,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1492,7 +1492,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1513,7 +1513,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1534,7 +1534,7 @@ function KanbanBoard({
           allowEisen={allowEisen}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: allowEisen === undefined,
             showDifficulty: true,
             showDueDate: true,
@@ -1855,7 +1855,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -1882,7 +1882,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -1909,7 +1909,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -1936,7 +1936,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -1963,7 +1963,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -1990,7 +1990,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showSource: true,
-            showProject: true,
+            showLifePlan: true,
             showEisen: props.allowEisen === undefined,
             showDifficulty: true,
             showActionableDate: true,
@@ -2039,7 +2039,7 @@ function List({
         showOptions={{
           showStatus: true,
           showSource: true,
-          showProject: true,
+          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showActionableDate: true,
@@ -2252,7 +2252,7 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
                   compact
                   showOptions={{
                     ...props.showOptions,
-                    showProject: true,
+                    showLifePlan: true,
                     showParent: true,
                     showHandleMarkDone: false,
                     showHandleMarkNotDone: false,

@@ -1,18 +1,17 @@
-import type { Env, Hosting } from "@jupiter/webapi-client";
+import { Instance, Universe, type Env } from "@jupiter/webapi-client";
 import { config } from "dotenv";
 
+import { newOrGenerateInstance } from "#/core/instance";
+import { getHosting } from "#/core/universe";
+
 export interface GlobalPropertiesServer {
+  publicName: string;
+  universe: Universe;
   env: Env;
-  hosting: Hosting;
-  hostingName: string;
-  baseName: string;
+  instance: Instance;
   version: string;
-  title: string;
-  description: string;
-  localOrSelfHostedWebApiServerUrl: string;
-  localOrSelfHostedWebApiProgressReporterUrl: string;
-  hostedGlobalWebApiServerUrl: string;
-  hostedGlobalWebApiProgressReporterUrl: string;
+  webApiServerUrl: string;
+  webApiProgressReporterUrl: string;
   webApiUrl: string;
   docsUrl: string;
   hostedGlobalWebUiUrl: string;
@@ -37,32 +36,30 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
   config({ path: `${process.cwd()}/Config.project` });
 
-  const hostedGlobalWebApiServerHost = process.env
-    .HOSTED_GLOBAL_WEBAPI_SERVER_HOST as string;
-  const hostedGlobalWebApiServerPort = parseInt(
-    process.env.HOSTED_GLOBAL_WEBAPI_SERVER_PORT as string,
+  const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
+  const webApiServerPort = parseInt(
+    process.env.WEBAPI_SERVER_PORT as string,
     10,
   );
 
-  const hostedGlobalWebApiServerUrl = `http://${hostedGlobalWebApiServerHost}:${hostedGlobalWebApiServerPort}`;
-  const hostedGlobalWebApiProgressReporterUrl = `wss://${hostedGlobalWebApiServerHost}:${hostedGlobalWebApiServerPort}/progress-reporter`;
+  const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
+  const webApiProgressReporterUrl = process.env
+    .WEBAPI_PROGRESS_REPORTER_URL as string;
 
   const globalProperties = {
+    publicName: process.env.PUBLIC_NAME as string,
+    universe: process.env.UNIVERSE as Universe,
     env: process.env.ENV as Env,
-    hosting: process.env.HOSTING as Hosting,
-    hostingName: process.env.HOSTING_NAME as string,
-    baseName: process.env.BASENAME as string,
+    instance: process.env.RENDER
+      ? newOrGenerateInstance(
+          process.env.INSTANCE as string,
+          process.env.RENDER_GIT_BRANCH as string,
+        )
+      : (process.env.INSTANCE as Instance),
     version: process.env.VERSION as string,
-    title: process.env.TITLE as string,
-    description: process.env.DESCRIPTION as string,
     webApiUrl: process.env.WEBAPI_URL as string,
-    localOrSelfHostedWebApiServerUrl: process.env
-      .LOCAL_OR_SELF_HOSTED_WEBAPI_SERVER_URL as string,
-    localOrSelfHostedWebApiProgressReporterUrl: process.env
-      .LOCAL_OR_SELF_HOSTED_WEBAPI_PROGRESS_REPORTER_URL as string,
-    hostedGlobalWebApiServerUrl: hostedGlobalWebApiServerUrl,
-    hostedGlobalWebApiProgressReporterUrl:
-      hostedGlobalWebApiProgressReporterUrl,
+    webApiServerUrl: webApiServerUrl,
+    webApiProgressReporterUrl: webApiProgressReporterUrl,
     docsUrl: process.env.DOCS_URL as string,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
@@ -96,6 +93,8 @@ export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
 console.log("=".repeat(80));
 console.log(`Starting Jupiter WebUI:`);
 console.log(`  Version: ${GLOBAL_PROPERTIES.version}`);
+console.log(`  Universe: ${GLOBAL_PROPERTIES.universe}`);
 console.log(`  Environment: ${GLOBAL_PROPERTIES.env}`);
-console.log(`  Hosting: ${GLOBAL_PROPERTIES.hosting}`);
+console.log(`  Instance: ${GLOBAL_PROPERTIES.instance}`);
+console.log(`  Hosting: ${getHosting(GLOBAL_PROPERTIES.universe)}`);
 console.log("=".repeat(80));

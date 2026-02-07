@@ -84,7 +84,22 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.PROJECT &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.CHAPTER &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.GOAL &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.VISION &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
@@ -114,7 +129,12 @@ export function inferEntityTagsForEnabledFeatures(
       inferredEntityTags.push(entityTag);
     } else if (
       entityTag === NamedEntityTag.PERSON &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
+      entityTag === NamedEntityTag.CIRCLE &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
@@ -179,13 +199,13 @@ export function inferSourcesForEnabledFeatures(
     ) {
       inferredSources.push(source);
     } else if (
-      source === InboxTaskSource.PERSON_BIRTHDAY &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      source === InboxTaskSource.PERSON_OCCASION &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (
       source === InboxTaskSource.PERSON_CATCH_UP &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredSources.push(source);
     } else if (

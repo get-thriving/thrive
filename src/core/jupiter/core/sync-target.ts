@@ -24,12 +24,24 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Vacations";
     case SyncTarget.PROJECTS:
       return "Projects";
+    case SyncTarget.CHAPTERS:
+      return "Chapters";
+    case SyncTarget.GOALS:
+      return "Goals";
+    case SyncTarget.MILESTONES:
+      return "Milestones";
+    case SyncTarget.VISIONS:
+      return "Visions";
     case SyncTarget.SMART_LISTS:
       return "Smart Lists";
     case SyncTarget.METRICS:
       return "Metrics";
     case SyncTarget.PERSONS:
       return "Persons";
+    case SyncTarget.OCCASIONS:
+      return "Occasions";
+    case SyncTarget.CIRCLES:
+      return "Circles";
     case SyncTarget.SLACK_TASKS:
       return "Slack Tasks";
     case SyncTarget.EMAIL_TASKS:

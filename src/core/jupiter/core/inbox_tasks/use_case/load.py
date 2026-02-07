@@ -20,13 +20,16 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.root import Journal
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.root import Person
-from jupiter.core.projects.root import Project
+from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan
-from jupiter.core.working_mem.root import WorkingMem
+from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -54,7 +57,9 @@ class InboxTaskLoadResult(UseCaseResultBase):
 
     inbox_task: InboxTask
     project: Project
-    working_mem: WorkingMem | None
+    chapter: Chapter | None
+    goal: Goal | None
+    working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
@@ -62,6 +67,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     journal: Journal | None
     metric: Metric | None
     person: Person | None
+    occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
     note: Note | None
@@ -88,14 +94,21 @@ class InboxTaskLoadUseCase(
         inbox_task = await uow.get_for(InboxTask).load_by_id(
             args.ref_id, allow_archived=args.allow_archived
         )
+
         project = await uow.get_for(Project).load_by_id(inbox_task.project_ref_id)
+        chapter = None
+        if inbox_task.chapter_ref_id:
+            chapter = await uow.get_for(Chapter).load_by_id(inbox_task.chapter_ref_id)
+        goal = None
+        if inbox_task.goal_ref_id:
+            goal = await uow.get_for(Goal).load_by_id(inbox_task.goal_ref_id)
 
         if inbox_task.source is InboxTaskSource.WORKING_MEM_CLEANUP:
-            working_mem = await uow.get_for(WorkingMem).load_by_id(
+            working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_id(
                 inbox_task.source_entity_ref_id_for_sure, allow_archived=True
             )
         else:
-            working_mem = None
+            working_mem_collection = None
 
         if inbox_task.source is InboxTaskSource.TIME_PLAN:
             time_plan = await uow.get_for(TimePlan).load_by_id(
@@ -139,15 +152,21 @@ class InboxTaskLoadUseCase(
         else:
             metric = None
 
-        if (
-            inbox_task.source is InboxTaskSource.PERSON_BIRTHDAY
-            or inbox_task.source is InboxTaskSource.PERSON_CATCH_UP
-        ):
+        if inbox_task.source is InboxTaskSource.PERSON_OCCASION:
+            occasion = await uow.get_for(Occasion).load_by_id(
+                inbox_task.source_entity_ref_id_for_sure, allow_archived=True
+            )
+            person = await uow.get_for(Person).load_by_id(
+                occasion.person.ref_id, allow_archived=True
+            )
+        elif inbox_task.source is InboxTaskSource.PERSON_CATCH_UP:
             person = await uow.get_for(Person).load_by_id(
                 inbox_task.source_entity_ref_id_for_sure, allow_archived=True
             )
+            occasion = None
         else:
             person = None
+            occasion = None
 
         if inbox_task.source is InboxTaskSource.SLACK_TASK:
             slack_task = await uow.get_for(SlackTask).load_by_id(
@@ -178,7 +197,9 @@ class InboxTaskLoadUseCase(
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
             project=project,
-            working_mem=working_mem,
+            chapter=chapter,
+            goal=goal,
+            working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,
             chore=chore,
@@ -186,6 +207,7 @@ class InboxTaskLoadUseCase(
             metric=metric,
             journal=journal,
             person=person,
+            occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
             note=note,

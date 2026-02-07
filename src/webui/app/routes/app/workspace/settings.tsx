@@ -22,6 +22,7 @@ import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { getHosting } from "#/core/universe";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -168,7 +169,7 @@ export default function Settings() {
             inputsEnabled={inputsEnabled}
             featureFlagsControls={topLevelInfo.workspaceFeatureFlagControls}
             defaultFeatureFlags={loaderData.workspace.feature_flags}
-            hosting={globalProperties.hosting}
+            hosting={getHosting(globalProperties.universe)}
           />
         </SectionCard>
       </ToolPanel>

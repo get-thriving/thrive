@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.person_relationship import PersonRelationship
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,12 +26,10 @@ class Person:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         name (str): The person name.
-        person_collection_ref_id (str):
-        relationship (PersonRelationship): The relationship the user has with a person.
+        prm_ref_id (str):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         catch_up_params (None | RecurringTaskGenParams | Unset):
-        birthday (None | str | Unset):
     """
 
     ref_id: str
@@ -41,12 +38,10 @@ class Person:
     created_time: str
     last_modified_time: str
     name: str
-    person_collection_ref_id: str
-    relationship: PersonRelationship
+    prm_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     catch_up_params: None | RecurringTaskGenParams | Unset = UNSET
-    birthday: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,9 +59,7 @@ class Person:
 
         name = self.name
 
-        person_collection_ref_id = self.person_collection_ref_id
-
-        relationship = self.relationship.value
+        prm_ref_id = self.prm_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -88,12 +81,6 @@ class Person:
         else:
             catch_up_params = self.catch_up_params
 
-        birthday: None | str | Unset
-        if isinstance(self.birthday, Unset):
-            birthday = UNSET
-        else:
-            birthday = self.birthday
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -104,8 +91,7 @@ class Person:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "name": name,
-                "person_collection_ref_id": person_collection_ref_id,
-                "relationship": relationship,
+                "prm_ref_id": prm_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -114,8 +100,6 @@ class Person:
             field_dict["archived_time"] = archived_time
         if catch_up_params is not UNSET:
             field_dict["catch_up_params"] = catch_up_params
-        if birthday is not UNSET:
-            field_dict["birthday"] = birthday
 
         return field_dict
 
@@ -136,9 +120,7 @@ class Person:
 
         name = d.pop("name")
 
-        person_collection_ref_id = d.pop("person_collection_ref_id")
-
-        relationship = PersonRelationship(d.pop("relationship"))
+        prm_ref_id = d.pop("prm_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -175,15 +157,6 @@ class Person:
 
         catch_up_params = _parse_catch_up_params(d.pop("catch_up_params", UNSET))
 
-        def _parse_birthday(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        birthday = _parse_birthday(d.pop("birthday", UNSET))
-
         person = cls(
             ref_id=ref_id,
             version=version,
@@ -191,12 +164,10 @@ class Person:
             created_time=created_time,
             last_modified_time=last_modified_time,
             name=name,
-            person_collection_ref_id=person_collection_ref_id,
-            relationship=relationship,
+            prm_ref_id=prm_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             catch_up_params=catch_up_params,
-            birthday=birthday,
         )
 
         person.additional_properties = d

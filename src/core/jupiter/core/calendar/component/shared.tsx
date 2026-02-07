@@ -6,7 +6,7 @@ import {
   CalendarEventsStatsPerSubperiod,
   InboxTask,
   InboxTaskStatus,
-  PersonEntry,
+  PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
   TimeEventNamespace,
@@ -37,7 +37,7 @@ import {
   scheduleTimeEventInDayDurationToRems,
   INBOX_TASK_TIME_EVENT_COLOR,
   BIRTHDAY_TIME_EVENT_COLOR,
-  birthdayTimeEventName,
+  occasionTimeEventName,
   VACATION_TIME_EVENT_COLOR,
   CombinedTimeEventInDayEntry,
   calendarPxHeightToMinutes,
@@ -333,13 +333,14 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       );
     }
 
-    case TimeEventNamespace.PERSON_BIRTHDAY: {
-      const fullDaysEntry = props.entry.entry as PersonEntry;
+    case TimeEventNamespace.PERSON_OCCASION: {
+      const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
-        `👨 ${birthdayTimeEventName(
+        `👨 ${occasionTimeEventName(
           props.entry.time_event,
           fullDaysEntry.person,
+          fullDaysEntry.occasion,
         )}`,
         12,
         containerWidth - 32, // A hack of sorts
@@ -364,7 +365,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
         >
           <EntityLink
             key={`birthday-event-${fullDaysEntry.person.ref_id}`}
-            to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.birthday_time_event.ref_id}?${query}`}
+            to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
             inline
             block={props.isAdding}
           >
@@ -924,8 +925,8 @@ export function ViewAsScheduleTimeEventFullDaysRows(
       );
     }
 
-    case TimeEventNamespace.PERSON_BIRTHDAY: {
-      const fullDaysEntry = props.entry.entry as PersonEntry;
+    case TimeEventNamespace.PERSON_OCCASION: {
+      const fullDaysEntry = props.entry.entry as PersonOccasionEntry;
       return (
         <Fragment>
           <ViewAsScheduleTimeCell
@@ -941,15 +942,16 @@ export function ViewAsScheduleTimeEventFullDaysRows(
           >
             <EntityLink
               light
-              key={`schedule-event-full-days-${fullDaysEntry.birthday_time_event.ref_id}`}
-              to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.birthday_time_event.ref_id}?${query}`}
+              key={`schedule-event-full-days-${fullDaysEntry.occasion_time_event.ref_id}`}
+              to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
               inline
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={`👨 ${birthdayTimeEventName(
-                  fullDaysEntry.birthday_time_event,
+                name={`👨 ${occasionTimeEventName(
+                  fullDaysEntry.occasion_time_event,
                   fullDaysEntry.person,
+                  fullDaysEntry.occasion,
                 )}`}
                 color={scheduleStreamColorContrastingHex(
                   BIRTHDAY_TIME_EVENT_COLOR,

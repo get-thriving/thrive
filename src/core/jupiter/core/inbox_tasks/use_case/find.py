@@ -33,12 +33,15 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -55,7 +58,6 @@ from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
-from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.errors import InputValidationError
@@ -96,8 +98,10 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     inbox_task: InboxTask
     note: Note | None
     project: Project
+    chapter: Chapter | None
+    goal: Goal | None
     time_event_blocks: list[TimeEventInDayBlock] | None
-    working_mem: WorkingMem | None
+    working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
     habit: Habit | None
     chore: Chore | None
@@ -105,6 +109,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     journal: Journal | None
     metric: Metric | None
     person: Person | None
+    occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
 
@@ -137,10 +142,10 @@ class InboxTaskFindUseCase(
             )
 
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         filter_sources = (
             args.filter_sources
@@ -167,7 +172,7 @@ class InboxTaskFindUseCase(
             if args.filter_just_workable
             else NoFilter()
         )
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+        life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -194,7 +199,7 @@ class InboxTaskFindUseCase(
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
             workspace.ref_id,
         )
-        person_collection = await uow.get_for(PersonCollection).load_by_parent(
+        prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
         push_integrations_group = await uow.get_for(
@@ -210,11 +215,25 @@ class InboxTaskFindUseCase(
         )
 
         projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=project_collection.ref_id,
+            parent_ref_id=life_plan.ref_id,
             allow_archived=args.allow_archived,
             ref_id=args.filter_project_ref_ids or NoFilter(),
         )
         project_by_ref_id = {p.ref_id: p for p in projects}
+
+        chapters = await uow.get_for(Chapter).find_all_generic(
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=args.allow_archived,
+            ref_id=NoFilter(),
+        )
+        chapter_by_ref_id = {c.ref_id: c for c in chapters}
+
+        goals = await uow.get_for(Goal).find_all_generic(
+            parent_ref_id=life_plan.ref_id,
+            allow_archived=args.allow_archived,
+            ref_id=NoFilter(),
+        )
+        goal_by_ref_id = {g.ref_id: g for g in goals}
 
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
@@ -225,17 +244,6 @@ class InboxTaskFindUseCase(
             project_ref_id=args.filter_project_ref_ids or NoFilter(),
             source_entity_ref_id=args.filter_source_entity_ref_ids or NoFilter(),
         )
-
-        working_mems = await uow.get_for(WorkingMem).find_all(
-            parent_ref_id=working_mem_collection.ref_id,
-            allow_archived=True,
-            filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
-                for it in inbox_tasks
-                if it.source == InboxTaskSource.WORKING_MEM_CLEANUP
-            ],
-        )
-        working_mems_by_ref_id = {wm.ref_id: wm for wm in working_mems}
 
         time_plans = await uow.get_for(TimePlan).find_all(
             parent_ref_id=time_plan_domain.ref_id,
@@ -303,15 +311,26 @@ class InboxTaskFindUseCase(
         )
         metrics_by_ref_id = {m.ref_id: m for m in metrics}
 
+        occasions = await uow.get_for(Occasion).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=True,
+            ref_id=[
+                it.source_entity_ref_id_for_sure
+                for it in inbox_tasks
+                if it.source == InboxTaskSource.PERSON_OCCASION
+            ],
+        )
+        occasions_by_ref_id = {o.ref_id: o for o in occasions}
+
         persons = await uow.get_for(Person).find_all(
-            parent_ref_id=person_collection.ref_id,
+            parent_ref_id=prm.ref_id,
             allow_archived=True,
             filter_ref_ids=[
                 it.source_entity_ref_id_for_sure
                 for it in inbox_tasks
-                if it.source
-                in {InboxTaskSource.PERSON_BIRTHDAY, InboxTaskSource.PERSON_CATCH_UP}
-            ],
+                if it.source == InboxTaskSource.PERSON_CATCH_UP
+            ]
+            + [o.person.ref_id for o in occasions],
         )
         persons_by_ref_id = {p.ref_id: p for p in persons}
 
@@ -374,8 +393,14 @@ class InboxTaskFindUseCase(
                 InboxTaskFindResultEntry(
                     inbox_task=it,
                     project=project_by_ref_id[it.project_ref_id],
-                    working_mem=(
-                        working_mems_by_ref_id[it.source_entity_ref_id_for_sure]
+                    chapter=(
+                        chapter_by_ref_id[it.chapter_ref_id]
+                        if it.chapter_ref_id
+                        else None
+                    ),
+                    goal=goal_by_ref_id[it.goal_ref_id] if it.goal_ref_id else None,
+                    working_mem_collection=(
+                        working_mem_collection
                         if it.source == InboxTaskSource.WORKING_MEM_CLEANUP
                         else None
                     ),
@@ -411,8 +436,20 @@ class InboxTaskFindUseCase(
                     ),
                     person=(
                         persons_by_ref_id[it.source_entity_ref_id_for_sure]
-                        if it.source == InboxTaskSource.PERSON_BIRTHDAY
-                        or it.source == InboxTaskSource.PERSON_CATCH_UP
+                        if it.source == InboxTaskSource.PERSON_CATCH_UP
+                        else (
+                            persons_by_ref_id[
+                                occasions_by_ref_id[
+                                    it.source_entity_ref_id_for_sure
+                                ].person.ref_id
+                            ]
+                            if it.source == InboxTaskSource.PERSON_OCCASION
+                            else None
+                        )
+                    ),
+                    occasion=(
+                        occasions_by_ref_id[it.source_entity_ref_id_for_sure]
+                        if it.source == InboxTaskSource.PERSON_OCCASION
                         else None
                     ),
                     slack_task=(

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..models.recurring_task_period import RecurringTaskPeriod
 
 if TYPE_CHECKING:
+    from ..models.inbox_task import InboxTask
     from ..models.project import Project
 
 
@@ -22,10 +23,12 @@ class WorkingMemLoadSettingsResult:
     Attributes:
         generation_period (RecurringTaskPeriod): A period for a particular task.
         cleanup_project (Project): The project.
+        clean_up_inbox_tasks (list[InboxTask]):
     """
 
     generation_period: RecurringTaskPeriod
     cleanup_project: Project
+    clean_up_inbox_tasks: list[InboxTask]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,12 +36,18 @@ class WorkingMemLoadSettingsResult:
 
         cleanup_project = self.cleanup_project.to_dict()
 
+        clean_up_inbox_tasks = []
+        for clean_up_inbox_tasks_item_data in self.clean_up_inbox_tasks:
+            clean_up_inbox_tasks_item = clean_up_inbox_tasks_item_data.to_dict()
+            clean_up_inbox_tasks.append(clean_up_inbox_tasks_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "generation_period": generation_period,
                 "cleanup_project": cleanup_project,
+                "clean_up_inbox_tasks": clean_up_inbox_tasks,
             }
         )
 
@@ -46,6 +55,7 @@ class WorkingMemLoadSettingsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.inbox_task import InboxTask
         from ..models.project import Project
 
         d = dict(src_dict)
@@ -53,9 +63,17 @@ class WorkingMemLoadSettingsResult:
 
         cleanup_project = Project.from_dict(d.pop("cleanup_project"))
 
+        clean_up_inbox_tasks = []
+        _clean_up_inbox_tasks = d.pop("clean_up_inbox_tasks")
+        for clean_up_inbox_tasks_item_data in _clean_up_inbox_tasks:
+            clean_up_inbox_tasks_item = InboxTask.from_dict(clean_up_inbox_tasks_item_data)
+
+            clean_up_inbox_tasks.append(clean_up_inbox_tasks_item)
+
         working_mem_load_settings_result = cls(
             generation_period=generation_period,
             cleanup_project=cleanup_project,
+            clean_up_inbox_tasks=clean_up_inbox_tasks,
         )
 
         working_mem_load_settings_result.additional_properties = d

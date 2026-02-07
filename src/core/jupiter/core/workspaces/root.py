@@ -22,10 +22,10 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
+from jupiter.core.prm.root import PRM
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -76,10 +76,10 @@ class Workspace(RootEntity):
     journal_collection = ContainsOne(JournalCollection, workspace_ref_id=IsRefId())
     doc_collection = ContainsOne(DocCollection, workspace_ref_id=IsRefId())
     vacation_collection = ContainsOne(VacationCollection, workspace_ref_id=IsRefId())
-    project_collection = ContainsOne(ProjectCollection, workspace_ref_id=IsRefId())
+    life_plan = ContainsOne(LifePlan, workspace_ref_id=IsRefId())
     smart_list_collection = ContainsOne(SmartListCollection, workspace_ref_id=IsRefId())
     metric_collection = ContainsOne(MetricCollection, workspace_ref_id=IsRefId())
-    person_collection = ContainsOne(PersonCollection, workspace_ref_id=IsRefId())
+    prm = ContainsOne(PRM, workspace_ref_id=IsRefId())
     push_integration_group = ContainsOne(
         PushIntegrationGroup, workspace_ref_id=IsRefId()
     )
@@ -203,7 +203,19 @@ class Workspace(RootEntity):
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.PROJECT and self.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.CHAPTER and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.GOAL and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.VISION and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SMART_LIST and self.is_feature_available(
@@ -230,7 +242,11 @@ class Workspace(RootEntity):
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.PERSON and self.is_feature_available(
-                WorkspaceFeature.PERSONS
+                WorkspaceFeature.PRM
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.CIRCLE and self.is_feature_available(
+                WorkspaceFeature.PRM
             ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SLACK_TASK and self.is_feature_available(
@@ -287,13 +303,13 @@ class Workspace(RootEntity):
             ):
                 inferred_sources.append(source)
             elif (
-                source is InboxTaskSource.PERSON_BIRTHDAY
-                and self.is_feature_available(WorkspaceFeature.PERSONS)
+                source is InboxTaskSource.PERSON_OCCASION
+                and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.PERSON_CATCH_UP
-                and self.is_feature_available(WorkspaceFeature.PERSONS)
+                and self.is_feature_available(WorkspaceFeature.PRM)
             ):
                 inferred_sources.append(source)
             elif source is InboxTaskSource.SLACK_TASK and self.is_feature_available(

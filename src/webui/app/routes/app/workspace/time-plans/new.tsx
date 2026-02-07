@@ -1,11 +1,15 @@
-import { ApiError, RecurringTaskPeriod } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  LifePlan,
+  RecurringTaskPeriod,
+} from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
   InputLabel,
   OutlinedInput,
 } from "@mui/material";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
@@ -29,15 +33,19 @@ import {
   SectionCard,
 } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
+import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
+import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 
 const ParamsSchema = z.object({});
 
@@ -49,11 +57,33 @@ const QuerySchema = z.object({
 const CreateFormSchema = z.object({
   rightNow: z.string(),
   period: z.nativeEnum(RecurringTaskPeriod),
+  projectRefIds: selectZod(z.string()),
+  chapterRefIds: selectZod(z.string()),
+  goalRefIds: selectZod(z.string()),
 });
 
 export const handle = {
   displayType: DisplayType.LEAF,
 };
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_workspace: true,
+    include_life_plan: true,
+    include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
+  });
+  return json({
+    lifePlan: summaryResponse.life_plan as LifePlan,
+    allProjects: summaryResponse.projects,
+    allChapters: summaryResponse.chapters,
+    allGoals: summaryResponse.goals,
+    allMilestones: summaryResponse.milestones,
+  });
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
@@ -63,6 +93,9 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.timePlans.timePlanCreate({
       right_now: form.rightNow,
       period: form.period,
+      project_ref_ids: fixSelectOutputEntityId(form.projectRefIds),
+      chapter_ref_ids: fixSelectOutputEntityId(form.chapterRefIds),
+      goal_ref_ids: fixSelectOutputEntityId(form.goalRefIds),
     });
 
     return redirect(`/app/workspace/time-plans/${result.new_time_plan.ref_id}`);
@@ -75,7 +108,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;
@@ -86,6 +119,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function NewTimePlan() {
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
   const actionData = useActionData<typeof action>();
@@ -151,6 +185,49 @@ export default function NewTimePlan() {
             defaultValue={initialPeriod}
           />
           <FieldError actionResult={actionData} fieldName="/period" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <ProjectMultiSelect
+            name="projectRefIds"
+            label="Project"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allProjects={loaderData.allProjects ?? []}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
+            defaultValue={undefined}
+          />
+          <FieldError actionResult={actionData} fieldName="/projectRefIds" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <ChapterMultiSelect
+            name="chapterRefIds"
+            label="Chapter"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allChapters={loaderData.allChapters ?? []}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
+            defaultValue={undefined}
+            birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+            today={aDateToDate(topLevelInfo.today)}
+            allMilestones={loaderData.allMilestones ?? []}
+            allProjects={loaderData.allProjects ?? []}
+          />
+          <FieldError actionResult={actionData} fieldName="/chapterRefIds" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <GoalMultiSelect
+            name="goalRefIds"
+            label="Goal"
+            inputsEnabled={inputsEnabled}
+            disabled={false}
+            allGoals={loaderData.allGoals ?? []}
+            maxSelections={loaderData.lifePlan.time_plan_max_life_plan_links}
+            defaultValue={undefined}
+          />
+          <FieldError actionResult={actionData} fieldName="/goalRefIds" />
         </FormControl>
       </SectionCard>
     </LeafPanel>

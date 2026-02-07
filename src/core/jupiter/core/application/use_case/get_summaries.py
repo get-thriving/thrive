@@ -2,12 +2,15 @@
 
 from jupiter.core.application.fast_info_repository import (
     BigPlanSummary,
+    ChapterSummary,
     ChoreSummary,
     FastInfoRepository,
+    GoalSummary,
     HabitSummary,
     InboxTaskSummary,
     JournalSummary,
     MetricSummary,
+    MilestoneSummary,
     PersonSummary,
     ProjectSummary,
     ScheduleStreamSummary,
@@ -26,10 +29,12 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
+from jupiter.core.life_plan.sub.visions.root import Vision
+from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import ProjectRepository
+from jupiter.core.prm.root import PRM
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
@@ -56,9 +61,14 @@ class GetSummariesArgs(UseCaseArgsBase):
     allow_archived: bool | None
     include_user: bool | None
     include_workspace: bool | None
+    include_life_plan: bool | None
+    include_active_visions: bool | None
     include_schedule_streams: bool | None
     include_vacations: bool | None
     include_projects: bool | None
+    include_chapters: bool | None
+    include_goals: bool | None
+    include_milestones: bool | None
     include_inbox_tasks: bool | None
     include_journals_last_year: bool | None
     include_habits: bool | None
@@ -75,10 +85,15 @@ class GetSummariesResult(UseCaseResultBase):
 
     user: User | None
     workspace: Workspace | None
+    life_plan: LifePlan | None
+    active_vision: Vision | None
     vacations: list[VacationSummary] | None
     schedule_streams: list[ScheduleStreamSummary] | None
     root_project: ProjectSummary | None
     projects: list[ProjectSummary] | None
+    chapters: list[ChapterSummary] | None
+    goals: list[GoalSummary] | None
+    milestones: list[MilestoneSummary] | None
     inbox_tasks: list[InboxTaskSummary] | None
     journals_last_year: list[JournalSummary] | None
     habits: list[HabitSummary] | None
@@ -115,7 +130,7 @@ class GetSummariesUseCase(
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
             workspace.ref_id
         )
-        project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+        life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
@@ -136,7 +151,7 @@ class GetSummariesUseCase(
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
             workspace.ref_id,
         )
-        person_collection = await uow.get_for(PersonCollection).load_by_parent(
+        prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
 
@@ -149,6 +164,19 @@ class GetSummariesUseCase(
                 parent_ref_id=vacation_collection.workspace.ref_id,
                 allow_archived=allow_archived,
             )
+
+        active_vision = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_active_visions
+        ):
+            active_visions = await uow.get_for(Vision).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+                status=VisionStatus.ACTIVE,
+            )
+            if len(active_visions) > 0:
+                active_vision = active_visions[0]
 
         schedule_streams = None
         if (
@@ -163,7 +191,7 @@ class GetSummariesUseCase(
             )
 
         root_project_real = await uow.get(ProjectRepository).load_root_project(
-            project_collection.ref_id
+            life_plan.ref_id
         )
         root_project = ProjectSummary(
             ref_id=root_project_real.ref_id,
@@ -173,11 +201,11 @@ class GetSummariesUseCase(
         )
         projects = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and args.include_projects
         ):
             projects = await uow.get(FastInfoRepository).find_all_project_summaries(
-                parent_ref_id=project_collection.workspace.ref_id,
+                parent_ref_id=life_plan.workspace.ref_id,
                 allow_archived=allow_archived,
             )
         inbox_tasks = None
@@ -189,6 +217,36 @@ class GetSummariesUseCase(
                 FastInfoRepository
             ).find_all_inbox_task_summaries(
                 parent_ref_id=inbox_task_collection.workspace.ref_id,
+                allow_archived=allow_archived,
+            )
+
+        chapters = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_chapters
+        ):
+            chapters = await uow.get(FastInfoRepository).find_all_chapter_summaries(
+                parent_ref_id=life_plan.workspace.ref_id,
+                allow_archived=allow_archived,
+            )
+
+        milestones = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_milestones
+        ):
+            milestones = await uow.get(FastInfoRepository).find_all_milestone_summaries(
+                parent_ref_id=life_plan.workspace.ref_id,
+                allow_archived=allow_archived,
+            )
+
+        goals = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_goals
+        ):
+            goals = await uow.get(FastInfoRepository).find_all_goal_summaries(
+                parent_ref_id=life_plan.workspace.ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -257,21 +315,26 @@ class GetSummariesUseCase(
             )
         persons = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            workspace.is_feature_available(WorkspaceFeature.PRM)
             and args.include_persons
         ):
             persons = await uow.get(FastInfoRepository).find_all_person_summaries(
-                parent_ref_id=person_collection.workspace.ref_id,
+                parent_ref_id=prm.workspace.ref_id,
                 allow_archived=allow_archived,
             )
 
         return GetSummariesResult(
             user=user if args.include_user else None,
             workspace=workspace if args.include_workspace else None,
+            life_plan=life_plan if args.include_life_plan else None,
+            active_vision=active_vision,
             schedule_streams=schedule_streams,
             vacations=vacations,
             root_project=root_project,
             projects=projects,
+            chapters=chapters,
+            goals=goals,
+            milestones=milestones,
             inbox_tasks=inbox_tasks,
             journals_last_year=journals_last_year,
             habits=habits,

@@ -1,7 +1,11 @@
 import type {
   BigPlanSummary,
+  ChapterSummary,
+  GoalSummary,
   InboxTask,
   InboxTaskLoadResult,
+  LifePlan,
+  MilestoneSummary,
   ProjectSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -38,19 +42,21 @@ import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { InboxTaskSourceLink } from "#/core/inbox_tasks/component/source-link";
 import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
+import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import {
   ActionSingle,
   NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
-import { ProjectSelect } from "#/core/projects/component/select";
 import { IsKeySelect } from "#/core/common/component/is-key-select";
 import {
   constructFieldErrorName,
   constructFieldName,
 } from "#/core/infra/field-names";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 interface InboxTaskPropertiesEditorProps {
   title: string;
@@ -59,8 +65,12 @@ interface InboxTaskPropertiesEditorProps {
   namePrefix?: string;
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
+  lifePlan: LifePlan;
   rootProject: ProjectSummary;
   allProjects: ProjectSummary[];
+  allChapters: ChapterSummary[];
+  allGoals: GoalSummary[];
+  allMilestones: MilestoneSummary[];
   allBigPlans: BigPlanSummary[];
   inputsEnabled: boolean;
   inboxTask: InboxTask;
@@ -91,24 +101,18 @@ export function InboxTaskPropertiesEditor(
   const [selectedProject, setSelectedProject] = useState(
     props.inboxTaskInfo.project.ref_id,
   );
+  const [selectedChapter, setSelectedChapter] = useState(
+    props.inboxTaskInfo.chapter?.ref_id ?? null,
+  );
+  const [selectedGoal, setSelectedGoal] = useState(
+    props.inboxTaskInfo.goal?.ref_id ?? null,
+  );
   const [blockedToSelectProject, setBlockedToSelectProject] = useState(
     props.inboxTask.source === InboxTaskSource.BIG_PLAN,
   );
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
     props.inboxTask.source,
   );
-
-  const allProjectsById: { [k: string]: ProjectSummary } = {};
-  if (
-    isWorkspaceFeatureAvailable(
-      props.topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
-    )
-  ) {
-    for (const project of props.allProjects) {
-      allProjectsById[project.ref_id] = project;
-    }
-  }
 
   const allBigPlansById: { [k: string]: BigPlanSummary } = {};
   let allBigPlansAsOptions: Array<{ label: string; big_plan_id: string }> = [];
@@ -143,11 +147,13 @@ export function InboxTaskPropertiesEditor(
     setSelectedBigPlan({ label, big_plan_id });
     if (big_plan_id === "none") {
       setSelectedProject(props.rootProject.ref_id);
+      setSelectedChapter(null);
+      setSelectedGoal(null);
       setBlockedToSelectProject(false);
     } else {
-      const projectId = allBigPlansById[big_plan_id].project_ref_id;
-      const projectKey = allProjectsById[projectId].ref_id;
-      setSelectedProject(projectKey);
+      setSelectedProject(allBigPlansById[big_plan_id].project_ref_id);
+      setSelectedChapter(allBigPlansById[big_plan_id].chapter_ref_id ?? null);
+      setSelectedGoal(allBigPlansById[big_plan_id].goal_ref_id ?? null);
       setBlockedToSelectProject(true);
     }
   }
@@ -169,6 +175,8 @@ export function InboxTaskPropertiesEditor(
     );
 
     setSelectedProject(props.inboxTaskInfo.project.ref_id);
+    setSelectedChapter(props.inboxTaskInfo.chapter?.ref_id ?? null);
+    setSelectedGoal(props.inboxTaskInfo.goal?.ref_id ?? null);
   }, [props.inboxTaskInfo]);
 
   return (
@@ -297,23 +305,50 @@ export function InboxTaskPropertiesEditor(
 
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name={constructFieldName(props.namePrefix, "project")}
-              label="Project"
-              inputsEnabled={props.inputsEnabled && corePropertyEditable}
-              disabled={!corePropertyEditable || blockedToSelectProject}
+            <LifePlanAssociations
+              inputsEnabled={
+                props.inputsEnabled &&
+                corePropertyEditable &&
+                !blockedToSelectProject
+              }
+              projectName={constructFieldName(props.namePrefix, "project")}
+              chapterName={constructFieldName(props.namePrefix, "chapter")}
+              goalName={constructFieldName(props.namePrefix, "goal")}
               allProjects={props.allProjects}
-              value={selectedProject}
-              onChange={setSelectedProject}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={props.allChapters}
+              chapterValue={selectedChapter}
+              onChapterChange={setSelectedChapter}
+              allGoals={props.allGoals}
+              goalValue={selectedGoal}
+              onGoalChange={setSelectedGoal}
+              birthday={lifePlanBirthdayDate(props.lifePlan)}
+              today={aDateToDate(props.topLevelInfo.today)}
+              allMilestones={props.allMilestones}
             />
             <FieldError
               actionResult={props.actionData}
               fieldName={constructFieldErrorName(
                 props.fieldsPrefix,
                 "project_ref_id",
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "chapter_ref_id",
+              )}
+            />
+            <FieldError
+              actionResult={props.actionData}
+              fieldName={constructFieldErrorName(
+                props.fieldsPrefix,
+                "goal_ref_id",
               )}
             />
           </FormControl>

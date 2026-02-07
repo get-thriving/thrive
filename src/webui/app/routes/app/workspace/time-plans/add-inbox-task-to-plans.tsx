@@ -75,6 +75,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
         allow_archived: false,
         include_notes: false,
         include_planning_tasks: false,
+        include_life_plan_ref_ids: false,
       }),
       apiClient.timePlans.timePlanActivityFindForTarget({
         allow_archived: false,

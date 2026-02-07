@@ -8,9 +8,13 @@ from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.life_plan.partial_date import PartialDate
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.chapters.name import ChapterName
+from jupiter.core.life_plan.sub.goals.name import GoalName
+from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
-from jupiter.core.persons.name import PersonName
-from jupiter.core.projects.name import ProjectName
+from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -51,6 +55,37 @@ class ProjectSummary(CompositeValue):
     parent_project_ref_id: EntityId | None
     name: ProjectName
     order_of_child_projects: list[EntityId]
+
+
+@value
+class ChapterSummary(CompositeValue):
+    """Summary information about a chapter."""
+
+    ref_id: EntityId
+    name: ChapterName
+    start_date: PartialDate
+    end_date: PartialDate
+    project_ref_id: EntityId
+
+
+@value
+class MilestoneSummary(CompositeValue):
+    """Summary information about a milestone."""
+
+    ref_id: EntityId
+    name: MilestoneName
+    date: ADate
+    project_ref_id: EntityId
+
+
+@value
+class GoalSummary(CompositeValue):
+    """Summary information about a goal."""
+
+    ref_id: EntityId
+    name: GoalName
+    project_ref_id: EntityId
+    parent_goal_ref_id: EntityId | None
 
 
 @value
@@ -95,6 +130,8 @@ class BigPlanSummary(CompositeValue):
     ref_id: EntityId
     name: BigPlanName
     project_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     is_key: bool
 
 
@@ -151,6 +188,30 @@ class FastInfoRepository(Repository, abc.ABC):
         allow_archived: bool,
     ) -> list[ProjectSummary]:
         """Find all summaries about projects."""
+
+    @abc.abstractmethod
+    async def find_all_chapter_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[ChapterSummary]:
+        """Find all summaries about chapters."""
+
+    @abc.abstractmethod
+    async def find_all_milestone_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[MilestoneSummary]:
+        """Find all summaries about milestones."""
+
+    @abc.abstractmethod
+    async def find_all_goal_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[GoalSummary]:
+        """Find all summaries about goals."""
 
     @abc.abstractmethod
     async def find_all_inbox_task_summaries(

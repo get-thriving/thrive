@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.home_widget_move_and_resize_args import HomeWidgetMoveAndResizeArgs
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: HomeWidgetMoveAndResizeArgs,
+    body: HomeWidgetMoveAndResizeArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -20,7 +20,8 @@ def _get_kwargs(
         "url": "/home-widget-move-and-resize",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -74,12 +75,12 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: HomeWidgetMoveAndResizeArgs,
+    body: HomeWidgetMoveAndResizeArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The use case for moving a home widget.
 
     Args:
-        body (HomeWidgetMoveAndResizeArgs): The arguments for moving a home widget.
+        body (HomeWidgetMoveAndResizeArgs | Unset): The arguments for moving a home widget.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -103,12 +104,12 @@ def sync_detailed(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: HomeWidgetMoveAndResizeArgs,
+    body: HomeWidgetMoveAndResizeArgs | Unset = UNSET,
 ) -> Response[Any]:
     """The use case for moving a home widget.
 
     Args:
-        body (HomeWidgetMoveAndResizeArgs): The arguments for moving a home widget.
+        body (HomeWidgetMoveAndResizeArgs | Unset): The arguments for moving a home widget.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

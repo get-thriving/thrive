@@ -1,0 +1,87 @@
+"""A life plan."""
+
+from jupiter.core.common.birth_year import BirthYear
+from jupiter.core.common.birthday import Birthday
+from jupiter.core.life_plan.partial_date import MAX_AGE
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.life_plan.sub.milestones.root import Milestone
+from jupiter.core.life_plan.sub.visions.root import Vision
+from jupiter.framework.base.adate import ADate
+from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.context import MutationContext
+from jupiter.framework.entity import (
+    ContainsMany,
+    IsRefId,
+    ParentLink,
+    TrunkEntity,
+    create_entity_action,
+    entity,
+    update_entity_action,
+)
+from jupiter.framework.update_action import UpdateAction
+
+TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
+
+
+@entity
+class LifePlan(TrunkEntity):
+    """A project collection."""
+
+    workspace: ParentLink
+
+    birthday: Birthday
+    birth_year: BirthYear
+    max_age: int
+    time_plan_max_life_plan_links: int
+
+    projects = ContainsMany(Project, life_plan_ref_id=IsRefId())
+    chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
+    goals = ContainsMany(Goal, life_plan_ref_id=IsRefId())
+    milestones = ContainsMany(Milestone, life_plan_ref_id=IsRefId())
+    visions = ContainsMany(Vision, life_plan_ref_id=IsRefId())
+
+    @staticmethod
+    @create_entity_action
+    def new_life_plan(
+        ctx: MutationContext,
+        workspace_ref_id: EntityId,
+        birthday: Birthday,
+        birth_year: BirthYear,
+    ) -> "LifePlan":
+        """Create a life plan."""
+        return LifePlan._create(
+            ctx,
+            workspace=ParentLink(workspace_ref_id),
+            birthday=birthday,
+            birth_year=birth_year,
+            max_age=MAX_AGE,
+            time_plan_max_life_plan_links=TIME_PLAN_MAX_LIFE_PLAN_LINKS,
+        )
+
+    @update_entity_action
+    def update(
+        self,
+        ctx: MutationContext,
+        birthday: UpdateAction[Birthday],
+        birth_year: UpdateAction[BirthYear],
+    ) -> "LifePlan":
+        """Update a life plan."""
+        final_birthday = birthday.or_else(self.birthday)
+        final_birth_year = birth_year.or_else(self.birth_year)
+        return self._new_version(
+            ctx, birthday=final_birthday, birth_year=final_birth_year
+        )
+
+    @property
+    def birthday_date(self) -> ADate:
+        """Get the birthday date."""
+        return ADate.from_components(
+            self.birth_year.the_year, self.birthday.month, self.birthday.day
+        )
+
+    @property
+    def end_date(self) -> ADate:
+        """Get the end date."""
+        return self.birthday_date.add_years(self.max_age)

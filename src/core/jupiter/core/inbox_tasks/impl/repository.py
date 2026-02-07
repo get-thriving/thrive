@@ -27,16 +27,22 @@ class SqliteInboxTaskRepository(
         self,
         parent_ref_id: EntityId,
         source: InboxTaskSource,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
     ) -> int:
         """Count all the inbox task for a source."""
+        if isinstance(source_entity_ref_id, list):
+            source_entity_ref_ids = source_entity_ref_id
+        else:
+            source_entity_ref_ids = [source_entity_ref_id]
         query_stmt = select(func.count()).where(
             self._table.c.inbox_task_collection_ref_id == parent_ref_id.as_int(),
             self._table.c.source == source.value,
-            self._table.c.source_entity_ref_id == source_entity_ref_id.as_int(),
+            self._table.c.source_entity_ref_id.in_(
+                [ref_id.as_int() for ref_id in source_entity_ref_ids]
+            ),
         )
         if isinstance(allow_archived, bool):
             if not allow_archived:
@@ -62,7 +68,7 @@ class SqliteInboxTaskRepository(
         self,
         parent_ref_id: EntityId,
         source: InboxTaskSource,
-        source_entity_ref_id: EntityId,
+        source_entity_ref_id: EntityId | list[EntityId],
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
         ) = False,
@@ -79,10 +85,17 @@ class SqliteInboxTaskRepository(
         if retrieve_limit is not None and retrieve_limit < 1:
             raise Exception("Limit must be positive.")
 
+        if isinstance(source_entity_ref_id, list):
+            source_entity_ref_ids = source_entity_ref_id
+        else:
+            source_entity_ref_ids = [source_entity_ref_id]
+
         query_stmt = select(self._table).where(
             self._table.c.inbox_task_collection_ref_id == parent_ref_id.as_int(),
             self._table.c.source == source.value,
-            self._table.c.source_entity_ref_id == source_entity_ref_id.as_int(),
+            self._table.c.source_entity_ref_id.in_(
+                [ref_id.as_int() for ref_id in source_entity_ref_ids]
+            ),
         )
         if isinstance(allow_archived, bool):
             if not allow_archived:

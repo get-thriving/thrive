@@ -30,10 +30,10 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
-from jupiter.core.projects.root import Project
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp

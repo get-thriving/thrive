@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
+    from ..models.chapter import Chapter
+    from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
@@ -30,6 +32,8 @@ class BigPlanFindResultEntry:
         milestones (list[BigPlanMilestone] | None | Unset):
         stats (BigPlanStats | None | Unset):
         project (None | Project | Unset):
+        chapter (Chapter | None | Unset):
+        goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
     """
 
@@ -38,11 +42,15 @@ class BigPlanFindResultEntry:
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
     project: None | Project | Unset = UNSET
+    chapter: Chapter | None | Unset = UNSET
+    goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.big_plan_stats import BigPlanStats
+        from ..models.chapter import Chapter
+        from ..models.goal import Goal
         from ..models.note import Note
         from ..models.project import Project
 
@@ -84,6 +92,22 @@ class BigPlanFindResultEntry:
         else:
             project = self.project
 
+        chapter: dict[str, Any] | None | Unset
+        if isinstance(self.chapter, Unset):
+            chapter = UNSET
+        elif isinstance(self.chapter, Chapter):
+            chapter = self.chapter.to_dict()
+        else:
+            chapter = self.chapter
+
+        goal: dict[str, Any] | None | Unset
+        if isinstance(self.goal, Unset):
+            goal = UNSET
+        elif isinstance(self.goal, Goal):
+            goal = self.goal.to_dict()
+        else:
+            goal = self.goal
+
         inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.inbox_tasks, Unset):
             inbox_tasks = UNSET
@@ -111,6 +135,10 @@ class BigPlanFindResultEntry:
             field_dict["stats"] = stats
         if project is not UNSET:
             field_dict["project"] = project
+        if chapter is not UNSET:
+            field_dict["chapter"] = chapter
+        if goal is not UNSET:
+            field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
 
@@ -121,6 +149,8 @@ class BigPlanFindResultEntry:
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
+        from ..models.chapter import Chapter
+        from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
@@ -201,6 +231,40 @@ class BigPlanFindResultEntry:
 
         project = _parse_project(d.pop("project", UNSET))
 
+        def _parse_chapter(data: object) -> Chapter | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chapter_type_0 = Chapter.from_dict(data)
+
+                return chapter_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Chapter | None | Unset, data)
+
+        chapter = _parse_chapter(d.pop("chapter", UNSET))
+
+        def _parse_goal(data: object) -> Goal | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                goal_type_0 = Goal.from_dict(data)
+
+                return goal_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Goal | None | Unset, data)
+
+        goal = _parse_goal(d.pop("goal", UNSET))
+
         def _parse_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
                 return data
@@ -229,6 +293,8 @@ class BigPlanFindResultEntry:
             milestones=milestones,
             stats=stats,
             project=project,
+            chapter=chapter,
+            goal=goal,
             inbox_tasks=inbox_tasks,
         )
 

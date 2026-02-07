@@ -1,5 +1,7 @@
 """Tests for the working mem."""
 
+import time
+
 import pytest
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -34,6 +36,14 @@ def _enable_working_mem_feature(logged_in_client: AuthenticatedClient):
 def test_working_mem_write(page: Page) -> None:
     page.goto("/app/workspace/working-mem")
 
-    expect(page.locator("#trunk-panel")).to_contain_text(
-        "There are no working mems to show"
+    expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
+
+    page.locator('#editorjs div[contenteditable="true"]').first.fill("This is a note.")
+
+    time.sleep(1)
+
+    page.reload()
+
+    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+        "This is a note."
     )

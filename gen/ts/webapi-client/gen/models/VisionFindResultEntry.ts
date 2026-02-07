@@ -1,0 +1,14 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { Note } from './Note';
+import type { Vision } from './Vision';
+/**
+ * A single vision result.
+ */
+export type VisionFindResultEntry = {
+    vision: Vision;
+    note?: (Note | null);
+};
+

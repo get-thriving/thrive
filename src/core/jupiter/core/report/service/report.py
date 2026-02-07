@@ -32,13 +32,13 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.persons.root import Person
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     BigPlanWorkSummary,
@@ -96,10 +96,10 @@ class ReportService:
     ) -> ReportPeriodResult:
         """Compute the report."""
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
+            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and filter_project_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
             not workspace.is_feature_available(WorkspaceFeature.HABITS)
             and filter_habit_ref_ids is not None
@@ -116,10 +116,10 @@ class ReportService:
         ):
             raise UnavailableForContextError(WorkspaceFeature.METRICS)
         if (
-            not workspace.is_feature_available(WorkspaceFeature.PERSONS)
+            not workspace.is_feature_available(WorkspaceFeature.PRM)
             and filter_person_ref_ids is not None
         ):
-            raise UnavailableForContextError(WorkspaceFeature.PERSONS)
+            raise UnavailableForContextError(WorkspaceFeature.PRM)
         if (
             not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
             and filter_slack_task_ref_ids is not None
@@ -164,11 +164,11 @@ class ReportService:
             )
 
         async with self._storage_engine.get_unit_of_work() as uow:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
             projects = await uow.get_for(Project).find_all_generic(
-                parent_ref_id=project_collection.ref_id,
+                parent_ref_id=life_plan.ref_id,
                 allow_archived=True,
                 ref_id=filter_project_ref_ids or NoFilter(),
             )
@@ -203,11 +203,11 @@ class ReportService:
             )
             metrics_by_ref_id: dict[EntityId, Metric] = {m.ref_id: m for m in metrics}
 
-            person_collection = await uow.get_for(PersonCollection).load_by_parent(
+            prm = await uow.get_for(PRM).load_by_parent(
                 workspace.ref_id,
             )
             persons = await uow.get_for(Person).find_all(
-                parent_ref_id=person_collection.ref_id,
+                parent_ref_id=prm.ref_id,
                 allow_archived=True,
                 filter_ref_ids=filter_person_ref_ids,
             )
@@ -267,7 +267,7 @@ class ReportService:
                 or (
                     (
                         it.source is InboxTaskSource.PERSON_CATCH_UP
-                        or it.source is InboxTaskSource.PERSON_BIRTHDAY
+                        or it.source is InboxTaskSource.PERSON_OCCASION
                     )
                     and it.source_entity_ref_id_for_sure in persons_by_ref_id
                 )
@@ -340,7 +340,7 @@ class ReportService:
 
         # Build per project breakdown
 
-        if workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             # all_inbox_tasks.groupBy(it -> it.project.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
             per_project_inbox_tasks_summary = {
                 k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))

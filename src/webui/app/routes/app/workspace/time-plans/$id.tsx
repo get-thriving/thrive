@@ -1,6 +1,7 @@
 import type {
   BigPlan,
   InboxTask,
+  LifePlan,
   TimePlan,
   TimePlanActivity,
   TimePlanActivityDoneness,
@@ -16,7 +17,9 @@ import {
   DocsHelpSubject,
 } from "@jupiter/webapi-client";
 import FlareIcon from "@mui/icons-material/Flare";
+import FlagIcon from "@mui/icons-material/Flag";
 import ViewListIcon from "@mui/icons-material/ViewList";
+import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -32,7 +35,8 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
 import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
-import { sortProjectsByTreeOrder } from "@jupiter/core/projects/root";
+import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -55,27 +59,45 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import {
-  aGlobalError,
-  validationErrorToUIErrorInfo,
-} from "@jupiter/core/infra/action-result";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useBranchNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { TimePlanMergedActivities } from "@jupiter/core/time_plans/component/merged-activities";
-import { TimePlanByProjectActivities } from "@jupiter/core/time_plans/component/by-project-activities";
+import { TimePlanListMergedActivities } from "@jupiter/core/time_plans/component/list-merged-activities";
+import { TimePlanListByProjectActivities } from "@jupiter/core/time_plans/component/list-by-project-activities";
+import { TimePlanListByProjectAndGoalsActivities } from "@jupiter/core/time_plans/component/list-by-project-and-goals-activities";
+import { TimePlanTimelineMergedActivities } from "@jupiter/core/time_plans/component/timeline-merged-activities";
+import { TimePlanTimelineByProjectActivities } from "@jupiter/core/time_plans/component/timeline-by-project-activities";
+import { TimePlanTimelineByProjectAndGoalActivities } from "@jupiter/core/time_plans/component/timeline-by-project-and-goal-activities";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
+import { ChapterMultiSelect } from "#/core/life_plan/sub/chapters/components/multi-select";
+import { ProjectMultiSelect } from "#/core/life_plan/sub/aspects/component/multi-select";
+import { aDateToDate } from "#/core/common/adate";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { GoalMultiSelect } from "#/core/life_plan/sub/goals/components/multi-select";
 
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { fixSelectOutputEntityId, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
-enum View {
+enum Grouping {
   MERGED = "merged",
   BY_PROJECT = "by-project",
+  BY_PROJECT_AND_GOALS = "by-project-and-goals",
+}
+
+enum ViewMode {
+  LIST = "list",
+  TIMELINE = "timeline",
+}
+
+enum GroupVisibility {
+  NON_EMPTY_ONLY = "non-empty-only",
+  SHOW_ALL = "show-all",
 }
 
 const ParamsSchema = z.object({
@@ -87,6 +109,15 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("change-time-config"),
     rightNow: z.string(),
     period: z.nativeEnum(RecurringTaskPeriod),
+    chapterRefIds: selectZod(z.string()),
+    projectRefIds: selectZod(z.string()),
+    goalRefIds: selectZod(z.string()),
+  }),
+  z.object({
+    intent: z.literal("change-time-config-for-generated"),
+    chapterRefIds: selectZod(z.string()),
+    projectRefIds: selectZod(z.string()),
+    goalRefIds: selectZod(z.string()),
   }),
   z.object({
     intent: z.literal("archive"),
@@ -106,7 +137,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   try {
@@ -138,10 +173,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      lifePlan: summaryResponse.life_plan as LifePlan,
+      allProjects: summaryResponse.projects,
+      allChapters: summaryResponse.chapters,
+      allGoals: summaryResponse.goals,
+      allMilestones: summaryResponse.milestones,
       timePlan: result.time_plan,
       note: result.note,
       activities: result.activities,
+      projects: result.projects,
+      chapters: result.chapters,
+      goals: result.goals,
       targetInboxTasks: result.target_inbox_tasks as Array<InboxTask>,
       targetBigPlans: result.target_big_plans,
       activityDoneness: result.activity_doneness as Record<
@@ -190,6 +232,43 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.period,
           },
+          chapter_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+          },
+          project_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.projectRefIds) || [],
+          },
+          goal_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.goalRefIds) || [],
+          },
+        });
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "change-time-config-for-generated": {
+        await apiClient.timePlans.timePlanChangeTimeConfig({
+          ref_id: id,
+          right_now: {
+            should_change: false,
+          },
+          period: {
+            should_change: false,
+          },
+          chapter_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+          },
+          project_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.projectRefIds) || [],
+          },
+          goal_ref_ids: {
+            should_change: true,
+            value: fixSelectOutputEntityId(form.goalRefIds) || [],
+          },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -222,7 +301,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
-      return json(aGlobalError(error.body));
+      return json(validationErrorToUIErrorInfo(error.body));
     }
 
     throw error;
@@ -271,9 +350,14 @@ export default function TimePlanView() {
     loaderData.subPeriodTimePlans,
   );
 
-  const [selectedView, setSelectedView] = useState(
+  const [selectedGrouping, setSelectedGrouping] = useState(
+    inferDefaultSelectedGrouping(topLevelInfo.workspace, loaderData.timePlan),
+  );
+  const [selectedView, setSelectedView] = useState<ViewMode>(
     inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
   );
+  const [selectedGroupVisibility, setSelectedGroupVisibility] =
+    useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
   const [selectedKinds, setSelectedKinds] = useState<TimePlanActivityKind[]>(
     [],
   );
@@ -306,17 +390,26 @@ export default function TimePlanView() {
   const otherActivities = niceToHaveActivities.concat(stretchActivities);
 
   useEffect(() => {
+    setSelectedGrouping(
+      inferDefaultSelectedGrouping(topLevelInfo.workspace, loaderData.timePlan),
+    );
     setSelectedView(
       inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
     );
+    setSelectedGroupVisibility(GroupVisibility.NON_EMPTY_ONLY);
     setSelectedKinds([]);
     setSelectedFeasabilities([]);
     setSelectedDoneness([]);
-  }, [topLevelInfo, loaderData]);
+  }, [topLevelInfo.workspace, loaderData.timePlan]);
 
   const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
   const allProjectsByRefId = new Map(
     loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  );
+
+  const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
+  const allGoalsByRefId = new Map(
+    loaderData.allGoals?.map((g) => [g.ref_id, g]),
   );
 
   const sortedSubJournals = sortJournalsNaturally(loaderData.subPeriodJournals);
@@ -348,8 +441,10 @@ export default function TimePlanView() {
                 ActionSingle({
                   id: "time-plan-change-time-config",
                   text: "Change Time Config",
-                  value: "change-time-config",
-                  disabled: !inputsEnabled || !corePropertyEditable,
+                  value: corePropertyEditable
+                    ? "change-time-config"
+                    : "change-time-config-for-generated",
+                  disabled: !inputsEnabled,
                   highlight: true,
                 }),
               ]}
@@ -361,7 +456,7 @@ export default function TimePlanView() {
             spacing={2}
             useFlexGap
           >
-            <FormControl fullWidth>
+            <FormControl fullWidth={!isBigScreen}>
               <InputLabel id="rightNow" shrink margin="dense">
                 The Date
               </InputLabel>
@@ -378,7 +473,7 @@ export default function TimePlanView() {
               <FieldError actionResult={actionData} fieldName="/rightNow" />
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth={!isBigScreen}>
               <PeriodSelect
                 labelId="period"
                 label="Period"
@@ -388,6 +483,70 @@ export default function TimePlanView() {
               />
               <FieldError actionResult={actionData} fieldName="/period" />
               <FieldError actionResult={actionData} fieldName="/status" />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <ProjectMultiSelect
+                name="projectRefIds"
+                label="Project"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                allProjects={loaderData.allProjects ?? []}
+                maxSelections={
+                  loaderData.lifePlan.time_plan_max_life_plan_links
+                }
+                defaultValue={loaderData.projects.map((p) => p.ref_id)}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/projectRefIds"
+              />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <ChapterMultiSelect
+                name="chapterRefIds"
+                label="Chapter"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                allChapters={loaderData.allChapters ?? []}
+                maxSelections={
+                  loaderData.lifePlan.time_plan_max_life_plan_links
+                }
+                defaultValue={loaderData.chapters.map((c) => c.ref_id)}
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={aDateToDate(topLevelInfo.today)}
+                allMilestones={loaderData.allMilestones ?? []}
+                allProjects={loaderData.allProjects ?? []}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/chapterRefIds"
+              />
+            </FormControl>
+
+            <FormControl
+              fullWidth={!isBigScreen}
+              sx={{ width: isBigScreen ? "15%" : "100%" }}
+            >
+              <GoalMultiSelect
+                name="goalRefIds"
+                label="Goal"
+                inputsEnabled={inputsEnabled}
+                disabled={false}
+                allGoals={loaderData.allGoals ?? []}
+                maxSelections={
+                  loaderData.lifePlan.time_plan_max_life_plan_links
+                }
+                defaultValue={loaderData.goals.map((g) => g.ref_id)}
+              />
+              <FieldError actionResult={actionData} fieldName="/goalRefIds" />
             </FormControl>
           </Stack>
         </SectionCard>
@@ -458,18 +617,41 @@ export default function TimePlanView() {
                   selectedView,
                   [
                     {
-                      value: View.MERGED,
+                      value: ViewMode.LIST,
+                      text: "List",
+                      icon: <ViewListIcon />,
+                    },
+                    {
+                      value: ViewMode.TIMELINE,
+                      text: "Timeline",
+                      icon: <ViewTimelineIcon />,
+                    },
+                  ],
+                  (selected) => setSelectedView(selected),
+                ),
+                FilterFewOptionsSpread(
+                  "Grouping",
+                  selectedGrouping,
+                  [
+                    {
+                      value: Grouping.MERGED,
                       text: "Merged",
                       icon: <ViewListIcon />,
                     },
                     {
-                      value: View.BY_PROJECT,
+                      value: Grouping.BY_PROJECT,
                       text: "By Project",
                       icon: <FlareIcon />,
-                      gatedOn: WorkspaceFeature.PROJECTS,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
+                    },
+                    {
+                      value: Grouping.BY_PROJECT_AND_GOALS,
+                      text: "By Project & Goals",
+                      icon: <FlagIcon />,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
                     },
                   ],
-                  (selected) => setSelectedView(selected),
+                  (selected) => setSelectedGrouping(selected),
                 ),
               ]}
               extraActions={[
@@ -510,6 +692,24 @@ export default function TimePlanView() {
                   ],
                   setSelectedDoneness,
                 ),
+                FilterFewOptionsSpread(
+                  "Groups",
+                  selectedGroupVisibility,
+                  [
+                    {
+                      value: GroupVisibility.NON_EMPTY_ONLY,
+                      text: "Only non-empty",
+                      icon: <ViewListIcon />,
+                    },
+                    {
+                      value: GroupVisibility.SHOW_ALL,
+                      text: "Show all",
+                      icon: <ViewListIcon />,
+                      gatedOn: WorkspaceFeature.LIFE_PLAN,
+                    },
+                  ],
+                  (selected) => setSelectedGroupVisibility(selected),
+                ),
               ]}
             />
           }
@@ -523,36 +723,124 @@ export default function TimePlanView() {
             />
           )}
 
-          {selectedView === View.MERGED && (
-            <TimePlanMergedActivities
-              mustDoActivities={mustDoActivities}
-              niceToHaveActivities={niceToHaveActivities}
-              stretchActivities={stretchActivities}
-              targetInboxTasksByRefId={targetInboxTasksByRefId}
-              targetBigPlansByRefId={targetBigPlansByRefId}
-              activityDoneness={loaderData.activityDoneness}
-              timeEventsByRefId={timeEventsByRefId}
-              selectedKinds={selectedKinds}
-              selectedFeasabilities={selectedFeasabilities}
-              selectedDoneness={selectedDoneness}
-            />
-          )}
+          {selectedView === ViewMode.LIST &&
+            selectedGrouping === Grouping.MERGED && (
+              <TimePlanListMergedActivities
+                mustDoActivities={mustDoActivities}
+                niceToHaveActivities={niceToHaveActivities}
+                stretchActivities={stretchActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+              />
+            )}
 
-          {selectedView === View.BY_PROJECT && (
-            <TimePlanByProjectActivities
-              mustDoActivities={mustDoActivities}
-              otherActivities={otherActivities}
-              targetInboxTasksByRefId={targetInboxTasksByRefId}
-              targetBigPlansByRefId={targetBigPlansByRefId}
-              activityDoneness={loaderData.activityDoneness}
-              timeEventsByRefId={timeEventsByRefId}
-              selectedKinds={selectedKinds}
-              selectedFeasabilities={selectedFeasabilities}
-              selectedDoneness={selectedDoneness}
-              projects={sortedProjects}
-              projectsByRefId={allProjectsByRefId}
-            />
-          )}
+          {selectedView === ViewMode.LIST &&
+            selectedGrouping === Grouping.BY_PROJECT && (
+              <TimePlanListByProjectActivities
+                mustDoActivities={mustDoActivities}
+                otherActivities={otherActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+                projects={sortedProjects}
+                projectsByRefId={allProjectsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
+              />
+            )}
+
+          {selectedView === ViewMode.LIST &&
+            selectedGrouping === Grouping.BY_PROJECT_AND_GOALS && (
+              <TimePlanListByProjectAndGoalsActivities
+                mustDoActivities={mustDoActivities}
+                otherActivities={otherActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+                projects={sortedProjects}
+                projectsByRefId={allProjectsByRefId}
+                goals={sortedGoals}
+                goalsByRefId={allGoalsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
+              />
+            )}
+
+          {selectedView === ViewMode.TIMELINE &&
+            selectedGrouping === Grouping.MERGED && (
+              <TimePlanTimelineMergedActivities
+                timePlan={loaderData.timePlan}
+                mustDoActivities={mustDoActivities}
+                niceToHaveActivities={niceToHaveActivities}
+                stretchActivities={stretchActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+              />
+            )}
+
+          {selectedView === ViewMode.TIMELINE &&
+            selectedGrouping === Grouping.BY_PROJECT && (
+              <TimePlanTimelineByProjectActivities
+                timePlan={loaderData.timePlan}
+                mustDoActivities={mustDoActivities}
+                otherActivities={otherActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+                projects={sortedProjects}
+                projectsByRefId={allProjectsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
+              />
+            )}
+
+          {selectedView === ViewMode.TIMELINE &&
+            selectedGrouping === Grouping.BY_PROJECT_AND_GOALS && (
+              <TimePlanTimelineByProjectAndGoalActivities
+                timePlan={loaderData.timePlan}
+                mustDoActivities={mustDoActivities}
+                otherActivities={otherActivities}
+                targetInboxTasksByRefId={targetInboxTasksByRefId}
+                targetBigPlansByRefId={targetBigPlansByRefId}
+                activityDoneness={loaderData.activityDoneness}
+                timeEventsByRefId={timeEventsByRefId}
+                selectedKinds={selectedKinds}
+                selectedFeasabilities={selectedFeasabilities}
+                selectedDoneness={selectedDoneness}
+                projects={sortedProjects}
+                projectsByRefId={allProjectsByRefId}
+                goals={sortedGoals}
+                goalsByRefId={allGoalsByRefId}
+                showEmptyGroups={
+                  selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                }
+              />
+            )}
         </SectionCard>
 
         {loaderData.completedNontargetInboxTasks.length > 0 && (
@@ -583,7 +871,7 @@ export default function TimePlanView() {
                 showOptions={{
                   showDonePct: true,
                   showStatus: true,
-                  showProject: true,
+                  showLifePlan: true,
                   showEisen: true,
                   showDifficulty: true,
                   showActionableDate: true,
@@ -663,18 +951,38 @@ export const ErrorBoundary = makeBranchErrorBoundary(
   },
 );
 
-function inferDefaultSelectedView(workspace: Workspace, timePlan: TimePlan) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
-    return View.MERGED;
+function inferDefaultSelectedGrouping(
+  workspace: Workspace,
+  timePlan: TimePlan,
+) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
+    return Grouping.MERGED;
   }
 
   switch (timePlan.period) {
     case RecurringTaskPeriod.DAILY:
     case RecurringTaskPeriod.WEEKLY:
-      return View.MERGED;
+      return Grouping.MERGED;
     case RecurringTaskPeriod.MONTHLY:
+      return Grouping.BY_PROJECT;
     case RecurringTaskPeriod.QUARTERLY:
     case RecurringTaskPeriod.YEARLY:
-      return View.BY_PROJECT;
+      return Grouping.BY_PROJECT_AND_GOALS;
+  }
+}
+
+function inferDefaultSelectedView(workspace: Workspace, timePlan: TimePlan) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
+    return ViewMode.LIST;
+  }
+
+  switch (timePlan.period) {
+    case RecurringTaskPeriod.DAILY:
+    case RecurringTaskPeriod.WEEKLY:
+    case RecurringTaskPeriod.MONTHLY:
+      return ViewMode.LIST;
+    case RecurringTaskPeriod.QUARTERLY:
+    case RecurringTaskPeriod.YEARLY:
+      return ViewMode.TIMELINE;
   }
 }

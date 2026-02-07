@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.slack_task_load_args import SlackTaskLoadArgs
 from ...models.slack_task_load_result import SlackTaskLoadResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: SlackTaskLoadArgs,
+    body: SlackTaskLoadArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/slack-task-load",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: SlackTaskLoadArgs,
+    body: SlackTaskLoadArgs | Unset = UNSET,
 ) -> Response[Any | SlackTaskLoadResult]:
     """Use case for loading a particular slack task.
 
     Args:
-        body (SlackTaskLoadArgs): SlackTaskLoadArgs.
+        body (SlackTaskLoadArgs | Unset): SlackTaskLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: SlackTaskLoadArgs,
+    body: SlackTaskLoadArgs | Unset = UNSET,
 ) -> Any | SlackTaskLoadResult | None:
     """Use case for loading a particular slack task.
 
     Args:
-        body (SlackTaskLoadArgs): SlackTaskLoadArgs.
+        body (SlackTaskLoadArgs | Unset): SlackTaskLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: SlackTaskLoadArgs,
+    body: SlackTaskLoadArgs | Unset = UNSET,
 ) -> Response[Any | SlackTaskLoadResult]:
     """Use case for loading a particular slack task.
 
     Args:
-        body (SlackTaskLoadArgs): SlackTaskLoadArgs.
+        body (SlackTaskLoadArgs | Unset): SlackTaskLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: SlackTaskLoadArgs,
+    body: SlackTaskLoadArgs | Unset = UNSET,
 ) -> Any | SlackTaskLoadResult | None:
     """Use case for loading a particular slack task.
 
     Args:
-        body (SlackTaskLoadArgs): SlackTaskLoadArgs.
+        body (SlackTaskLoadArgs | Unset): SlackTaskLoadArgs.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

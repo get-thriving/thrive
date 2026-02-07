@@ -249,7 +249,7 @@ WIDGET_CONSTRAINTS = {
                 WidgetDimension.DIM_3x1_SMALL_SCREEN_FLEX,
             ],
         },
-        only_for_workspace_features=[WorkspaceFeature.PERSONS],
+        only_for_workspace_features=[WorkspaceFeature.PRM],
         only_for_user_features=None,
     ),
     WidgetType.CALENDAR_DAY: WidgetTypeConstraints(

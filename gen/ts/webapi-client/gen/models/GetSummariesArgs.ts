@@ -9,9 +9,14 @@ export type GetSummariesArgs = {
     allow_archived?: (boolean | null);
     include_user?: (boolean | null);
     include_workspace?: (boolean | null);
+    include_life_plan?: (boolean | null);
+    include_active_visions?: (boolean | null);
     include_schedule_streams?: (boolean | null);
     include_vacations?: (boolean | null);
     include_projects?: (boolean | null);
+    include_chapters?: (boolean | null);
+    include_goals?: (boolean | null);
+    include_milestones?: (boolean | null);
     include_inbox_tasks?: (boolean | null);
     include_journals_last_year?: (boolean | null);
     include_habits?: (boolean | null);

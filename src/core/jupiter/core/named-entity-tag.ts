@@ -34,6 +34,14 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Big Plan Milestone";
     case NamedEntityTag.JOURNAL:
       return "Journal";
+    case NamedEntityTag.CHAPTER:
+      return "Chapter";
+    case NamedEntityTag.GOAL:
+      return "Goal";
+    case NamedEntityTag.MILESTONE:
+      return "Milestone";
+    case NamedEntityTag.VISION:
+      return "Vision";
     case NamedEntityTag.DOC:
       return "Doc";
     case NamedEntityTag.VACATION:
@@ -52,6 +60,10 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Metric Entry";
     case NamedEntityTag.PERSON:
       return "Person";
+    case NamedEntityTag.OCCASION:
+      return "Occasion";
+    case NamedEntityTag.CIRCLE:
+      return "Circle";
     case NamedEntityTag.SLACK_TASK:
       return "Slack Task";
     case NamedEntityTag.EMAIL_TASK:

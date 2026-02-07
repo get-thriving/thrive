@@ -3,13 +3,17 @@ from enum import Enum
 
 class NoteDomain(str, Enum):
     BIG_PLAN = "big-plan"
+    CHAPTER = "chapter"
     CHORE = "chore"
     DOC = "doc"
+    GOAL = "goal"
     HABIT = "habit"
     INBOX_TASK = "inbox-task"
     JOURNAL = "journal"
     METRIC = "metric"
     METRIC_ENTRY = "metric-entry"
+    MILESTONE = "milestone"
+    OCCASION = "occasion"
     PERSON = "person"
     PROJECT = "project"
     SCHEDULE_EVENT_FULL_DAYS = "schedule-event-full-days"
@@ -19,6 +23,7 @@ class NoteDomain(str, Enum):
     SMART_LIST_ITEM = "smart-list-item"
     TIME_PLAN = "time-plan"
     VACATION = "vacation"
+    VISION = "vision"
     WORKING_MEM = "working-mem"
 
     def __str__(self) -> str:

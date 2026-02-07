@@ -18,6 +18,8 @@ export type InboxTaskCreateArgs = {
     time_plan_activity_kind?: (TimePlanActivityKind | null);
     time_plan_activity_feasability?: (TimePlanActivityFeasability | null);
     project_ref_id?: (EntityId | null);
+    chapter_ref_id?: (EntityId | null);
+    goal_ref_id?: (EntityId | null);
     big_plan_ref_id?: (EntityId | null);
     is_key: boolean;
     eisen: Eisen;

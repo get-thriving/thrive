@@ -7,12 +7,12 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from ...models.time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: TimeEventInDayBlockCreateForInboxTaskArgs,
+    body: TimeEventInDayBlockCreateForInboxTaskArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -21,7 +21,8 @@ def _get_kwargs(
         "url": "/time-event-in-day-block-create-for-inbox-task",
     }
 
-    _kwargs["json"] = body.to_dict()
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -89,12 +90,12 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: TimeEventInDayBlockCreateForInboxTaskArgs,
+    body: TimeEventInDayBlockCreateForInboxTaskArgs | Unset = UNSET,
 ) -> Response[Any | TimeEventInDayBlockCreateForInboxTaskResult]:
     """Use case for creating a time event associated with an inbox task.
 
     Args:
-        body (TimeEventInDayBlockCreateForInboxTaskArgs): Args.
+        body (TimeEventInDayBlockCreateForInboxTaskArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,12 +119,12 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: TimeEventInDayBlockCreateForInboxTaskArgs,
+    body: TimeEventInDayBlockCreateForInboxTaskArgs | Unset = UNSET,
 ) -> Any | TimeEventInDayBlockCreateForInboxTaskResult | None:
     """Use case for creating a time event associated with an inbox task.
 
     Args:
-        body (TimeEventInDayBlockCreateForInboxTaskArgs): Args.
+        body (TimeEventInDayBlockCreateForInboxTaskArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -142,12 +143,12 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: TimeEventInDayBlockCreateForInboxTaskArgs,
+    body: TimeEventInDayBlockCreateForInboxTaskArgs | Unset = UNSET,
 ) -> Response[Any | TimeEventInDayBlockCreateForInboxTaskResult]:
     """Use case for creating a time event associated with an inbox task.
 
     Args:
-        body (TimeEventInDayBlockCreateForInboxTaskArgs): Args.
+        body (TimeEventInDayBlockCreateForInboxTaskArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,12 +170,12 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: TimeEventInDayBlockCreateForInboxTaskArgs,
+    body: TimeEventInDayBlockCreateForInboxTaskArgs | Unset = UNSET,
 ) -> Any | TimeEventInDayBlockCreateForInboxTaskResult | None:
     """Use case for creating a time event associated with an inbox task.
 
     Args:
-        body (TimeEventInDayBlockCreateForInboxTaskArgs): Args.
+        body (TimeEventInDayBlockCreateForInboxTaskArgs | Unset): Args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

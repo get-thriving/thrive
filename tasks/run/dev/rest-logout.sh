@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
 #MISE description="Logout from the webapi"
-#USAGE flag "--environ <environ>" help="Jupiter environ"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--instance <instance>" help="Jupiter instance"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_environ:=}"
+: "${usage_instance:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-environ="${usage_environ}"
+instance="${usage_instance}"
 
-if [[ -z "$environ" ]]; then
-    environ=$STANDARD_ENVIRON
+if [[ -z "$instance" ]]; then
+    instance=$STANDARD_INSTANCE
 fi
 
-rm "${RUN_ROOT}/$environ/rest_access_token"
+rm "${RUN_ROOT}/$instance/rest_access_token"
 
-log info "Logged out from $environ webapi"
+log info "Logged out from $instance webapi"

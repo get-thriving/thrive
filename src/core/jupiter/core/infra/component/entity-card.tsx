@@ -133,6 +133,7 @@ export function EntityCard(props: PropsWithChildren<EntityCardProps>) {
             display: "flex",
             flexDirection: props.markButtonsStyle || "row",
             alignItems: "flex-end",
+            padding: "0px",
           }}
         >
           {props.extraControls}

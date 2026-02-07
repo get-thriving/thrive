@@ -1,4 +1,11 @@
-import type { ProjectSummary, TimePlan } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+  TimePlan,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -40,7 +47,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -48,6 +55,8 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -63,6 +72,8 @@ const QuerySchema = z.object({
 const CreateFormSchema = z.object({
   name: z.string(),
   project: z.string().optional(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
@@ -102,14 +113,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   return json({
     timePlanReason: timePlanReason,
     associatedTimePlan: associatedTimePlan,
     rootProject: summaryResponse.root_project as ProjectSummary,
+    lifePlan: summaryResponse.life_plan as LifePlan,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
   });
 }
 
@@ -130,6 +149,12 @@ export async function action({ request }: ActionFunctionArgs) {
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
       project_ref_id: form.project !== undefined ? form.project : undefined,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
       is_key: form.isKey,
       eisen: form.eisen,
       difficulty: form.difficulty,
@@ -178,6 +203,8 @@ export default function NewBigPlan() {
 
   const inputsEnabled = navigation.state === "idle";
 
+  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+
   return (
     <LeafPanel
       key="big-plans/new"
@@ -224,18 +251,22 @@ export default function NewBigPlan() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
+            <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              disabled={false}
               allProjects={loaderData.allProjects}
-              defaultValue={loaderData.rootProject.ref_id}
+              projectDefaultValue={loaderData.rootProject.ref_id}
+              allChapters={loaderData.allChapters}
+              allGoals={loaderData.allGoals}
+              birthday={birthdayDate}
+              today={aDateToDate(topLevelInfo.today)}
+              allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project" />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
         )}
 

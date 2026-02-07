@@ -1,5 +1,10 @@
 import {
   ADate,
+  ChapterSummary,
+  EntityId,
+  GoalSummary,
+  LifePlan,
+  ProjectSummary,
   RecurringTaskPeriod,
   TimePlan,
   type TimePlanFindResultEntry,
@@ -48,16 +53,29 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
+    include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+  });
+
   const response = await apiClient.timePlans.timePlanFind({
     allow_archived: false,
     include_notes: false,
     include_planning_tasks: true,
+    include_life_plan_ref_ids: true,
   });
   const timePlanSettingsResponse =
     await apiClient.timePlans.timePlanLoadSettings({});
+
   return json({
     entries: response.entries,
     timePlanSettings: timePlanSettingsResponse,
+    lifePlan: summaryResponse.life_plan as LifePlan,
+    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
   });
 }
 
@@ -102,6 +120,32 @@ export default function TimePlans() {
   const entriesByRefId = new Map<string, TimePlanFindResultEntry>();
   for (const entry of loaderData.entries) {
     entriesByRefId.set(entry.time_plan.ref_id, entry);
+  }
+
+  const allProjectsByRefId = new Map(
+    loaderData.allProjects?.map((p) => [p.ref_id, p]) ?? [],
+  );
+  const allChaptersByRefId = new Map(
+    loaderData.allChapters?.map((c) => [c.ref_id, c]) ?? [],
+  );
+  const allGoalsByRefId = new Map(
+    loaderData.allGoals?.map((g) => [g.ref_id, g]) ?? [],
+  );
+
+  const timePlanProjectRefIds = new Map<string, Array<EntityId>>();
+  const timePlanGoalRefIds = new Map<string, Array<EntityId>>();
+  const timePlanChapterRefIds = new Map<string, Array<EntityId>>();
+
+  for (const entry of loaderData.entries) {
+    timePlanProjectRefIds.set(
+      entry.time_plan.ref_id,
+      entry.project_ref_ids ?? [],
+    );
+    timePlanGoalRefIds.set(entry.time_plan.ref_id, entry.goal_ref_ids ?? []);
+    timePlanChapterRefIds.set(
+      entry.time_plan.ref_id,
+      entry.chapter_ref_ids ?? [],
+    );
   }
 
   return (
@@ -204,6 +248,12 @@ export default function TimePlans() {
           label="All Time Plans"
           topLevelInfo={topLevelInfo}
           timePlans={sortedTimePlans}
+          timePlanProjectRefIds={timePlanProjectRefIds}
+          timePlanGoalRefIds={timePlanGoalRefIds}
+          timePlanChapterRefIds={timePlanChapterRefIds}
+          allProjectsByRefId={allProjectsByRefId}
+          allGoalsByRefId={allGoalsByRefId}
+          allChaptersByRefId={allChaptersByRefId}
         />
       </NestingAwareBlock>
 
@@ -240,6 +290,9 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
       key={`time-plan-${props.timePlan.ref_id}`}
       topLevelInfo={props.topLevelInfo}
       timePlan={props.timePlan}
+      projects={[]}
+      goals={[]}
+      chapters={[]}
       label={props.label}
       showOptions={{
         showSource: false,

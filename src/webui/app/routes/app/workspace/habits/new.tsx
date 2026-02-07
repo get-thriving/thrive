@@ -1,4 +1,10 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -21,7 +27,7 @@ import { HabitRepeatStrategySelect } from "@jupiter/core/habits/component/repeat
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -35,6 +41,8 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -45,6 +53,8 @@ const ParamsSchema = z.object({});
 const CreateFormSchema = z.object({
   name: z.string(),
   project: z.string().optional(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   period: z.nativeEnum(RecurringTaskPeriod),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
@@ -69,12 +79,20 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   return json({
     rootProject: summaryResponse.root_project as ProjectSummary,
+    lifePlan: summaryResponse.life_plan as LifePlan,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
   });
 }
 
@@ -86,6 +104,12 @@ export async function action({ request }: ActionFunctionArgs) {
     const result = await apiClient.habits.habitCreate({
       name: form.name,
       project_ref_id: form.project !== undefined ? form.project : undefined,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
       period: form.period,
       is_key: form.isKey,
       eisen: form.eisen,
@@ -133,6 +157,11 @@ export default function NewHabit() {
   const navigation = useNavigation();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const [selectedProject, setSelectedProject] = useState<string>(
+    loaderData.rootProject.ref_id,
+  );
 
   const [selectedPeriod, setSelectedPeriod] = useState<RecurringTaskPeriod>(
     RecurringTaskPeriod.DAILY,
@@ -194,18 +223,23 @@ export default function NewHabit() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
+            <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              disabled={false}
               allProjects={loaderData.allProjects}
-              defaultValue={loaderData.rootProject.ref_id}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={loaderData.allChapters}
+              allGoals={loaderData.allGoals}
+              birthday={birthdayDate}
+              today={aDateToDate(topLevelInfo.today)}
+              allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project" />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
         )}
 

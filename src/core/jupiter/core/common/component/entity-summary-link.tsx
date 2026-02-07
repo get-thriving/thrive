@@ -156,8 +156,38 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.PROJECT:
       return (
-        <EntityLink to={`/app/workspace/projects/${summary.ref_id}`}>
-          <SlimChip label={"Inbox Task"} color={"primary"} />
+        <EntityLink to={`/app/workspace/life-plan/projects/${summary.ref_id}`}>
+          <SlimChip label={"Project"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.CHAPTER:
+      return (
+        <EntityLink to={`/app/workspace/life-plan/chapters/${summary.ref_id}`}>
+          <SlimChip label={"Chapter"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.GOAL:
+      return (
+        <EntityLink to={`/app/workspace/life-plan/goals/${summary.ref_id}`}>
+          <SlimChip label={"Goal"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.MILESTONE:
+      return (
+        <EntityLink
+          to={`/app/workspace/life-plan/milestones/${summary.ref_id}`}
+        >
+          <SlimChip label={"Milestone"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.VISION:
+      return (
+        <EntityLink to={`/app/workspace/life-plan/visions/${summary.ref_id}`}>
+          <SlimChip label={"Vision"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
@@ -204,8 +234,15 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.PERSON:
       return (
-        <EntityLink to={`/app/workspace/persons/${summary.ref_id}`}>
+        <EntityLink to={`/app/workspace/prm/persons/${summary.ref_id}`}>
           <SlimChip label={"Persons"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
+    case NamedEntityTag.CIRCLE:
+      return (
+        <EntityLink to={`/app/workspace/prm/circles/${summary.ref_id}`}>
+          <SlimChip label={"Circle"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );

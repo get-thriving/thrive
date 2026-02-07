@@ -23,6 +23,8 @@ class InitArgs:
         user_feature_flags (list[UserFeature]):
         auth_password (str): A new password in plain text, as received from a user.
         auth_password_repeat (str): A new password in plain text, as received from a user.
+        user_birthday (str): The birthday of a person.
+        user_birth_year (int): The birth year of a person.
         workspace_name (str): The workspace name.
         workspace_first_schedule_stream_name (str): The name of a schedule stream.
         workspace_root_project_name (str): The project name.
@@ -35,6 +37,8 @@ class InitArgs:
     user_feature_flags: list[UserFeature]
     auth_password: str
     auth_password_repeat: str
+    user_birthday: str
+    user_birth_year: int
     workspace_name: str
     workspace_first_schedule_stream_name: str
     workspace_root_project_name: str
@@ -57,6 +61,10 @@ class InitArgs:
 
         auth_password_repeat = self.auth_password_repeat
 
+        user_birthday = self.user_birthday
+
+        user_birth_year = self.user_birth_year
+
         workspace_name = self.workspace_name
 
         workspace_first_schedule_stream_name = self.workspace_first_schedule_stream_name
@@ -78,6 +86,8 @@ class InitArgs:
                 "user_feature_flags": user_feature_flags,
                 "auth_password": auth_password,
                 "auth_password_repeat": auth_password_repeat,
+                "user_birthday": user_birthday,
+                "user_birth_year": user_birth_year,
                 "workspace_name": workspace_name,
                 "workspace_first_schedule_stream_name": workspace_first_schedule_stream_name,
                 "workspace_root_project_name": workspace_root_project_name,
@@ -107,6 +117,10 @@ class InitArgs:
 
         auth_password_repeat = d.pop("auth_password_repeat")
 
+        user_birthday = d.pop("user_birthday")
+
+        user_birth_year = d.pop("user_birth_year")
+
         workspace_name = d.pop("workspace_name")
 
         workspace_first_schedule_stream_name = d.pop("workspace_first_schedule_stream_name")
@@ -127,6 +141,8 @@ class InitArgs:
             user_feature_flags=user_feature_flags,
             auth_password=auth_password,
             auth_password_repeat=auth_password_repeat,
+            user_birthday=user_birthday,
+            user_birth_year=user_birth_year,
             workspace_name=workspace_name,
             workspace_first_schedule_stream_name=workspace_first_schedule_stream_name,
             workspace_root_project_name=workspace_root_project_name,

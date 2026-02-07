@@ -23,10 +23,13 @@ from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )
 from jupiter.core.habits.root import Habit
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.root import Project, ProjectRepository
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -48,6 +51,8 @@ class HabitCreateArgs(UseCaseArgsBase):
     name: HabitName
     period: RecurringTaskPeriod
     project_ref_id: EntityId | None
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
@@ -83,32 +88,48 @@ class HabitCreateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.PROJECTS)
-            and args.project_ref_id is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.PROJECTS)
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if args.project_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.chapter_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if args.goal_ref_id is not None:
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
             workspace.ref_id,
         )
 
         if args.project_ref_id is None:
-            project_collection = await uow.get_for(ProjectCollection).load_by_parent(
+            life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            root_project = await uow.get(ProjectRepository).load_root_project(
-                project_collection.ref_id
+            the_project = await uow.get(ProjectRepository).load_root_project(
+                life_plan.ref_id
             )
-            project_ref_id = root_project.ref_id
         else:
-            await uow.get_for(Project).load_by_id(args.project_ref_id)
-            project_ref_id = args.project_ref_id
+            the_project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+
+        if args.chapter_ref_id is not None:
+            chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
+            if chapter.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Chapter does not belong to project '{the_project.name}'"
+                )
+
+        if args.goal_ref_id is not None:
+            goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
+            if goal.project_ref_id != the_project.ref_id:
+                raise InputValidationError(
+                    f"Goal does not belong to project '{the_project.name}'"
+                )
 
         new_habit = Habit.new_habit(
             ctx=context.domain_context,
             habit_collection_ref_id=habit_collection.ref_id,
-            project_ref_id=project_ref_id,
+            project_ref_id=the_project.ref_id,
+            chapter_ref_id=args.chapter_ref_id,
+            goal_ref_id=args.goal_ref_id,
             name=args.name,
             is_key=args.is_key,
             gen_params=RecurringTaskGenParams(

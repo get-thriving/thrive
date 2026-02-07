@@ -39,6 +39,9 @@ from jupiter_webapi_client.models.big_plan_update_args import BigPlanUpdateArgs
 from jupiter_webapi_client.models.big_plan_update_args_actionable_date import (
     BigPlanUpdateArgsActionableDate,
 )
+from jupiter_webapi_client.models.big_plan_update_args_chapter_ref_id import (
+    BigPlanUpdateArgsChapterRefId,
+)
 from jupiter_webapi_client.models.big_plan_update_args_difficulty import (
     BigPlanUpdateArgsDifficulty,
 )
@@ -47,6 +50,9 @@ from jupiter_webapi_client.models.big_plan_update_args_due_date import (
 )
 from jupiter_webapi_client.models.big_plan_update_args_eisen import (
     BigPlanUpdateArgsEisen,
+)
+from jupiter_webapi_client.models.big_plan_update_args_goal_ref_id import (
+    BigPlanUpdateArgsGoalRefId,
 )
 from jupiter_webapi_client.models.big_plan_update_args_is_key import (
     BigPlanUpdateArgsIsKey,
@@ -71,6 +77,9 @@ from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import 
 from jupiter_webapi_client.models.inbox_task_update_args_big_plan_ref_id import (
     InboxTaskUpdateArgsBigPlanRefId,
 )
+from jupiter_webapi_client.models.inbox_task_update_args_chapter_ref_id import (
+    InboxTaskUpdateArgsChapterRefId,
+)
 from jupiter_webapi_client.models.inbox_task_update_args_difficulty import (
     InboxTaskUpdateArgsDifficulty,
 )
@@ -79,6 +88,9 @@ from jupiter_webapi_client.models.inbox_task_update_args_due_date import (
 )
 from jupiter_webapi_client.models.inbox_task_update_args_eisen import (
     InboxTaskUpdateArgsEisen,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_goal_ref_id import (
+    InboxTaskUpdateArgsGoalRefId,
 )
 from jupiter_webapi_client.models.inbox_task_update_args_is_key import (
     InboxTaskUpdateArgsIsKey,
@@ -2486,7 +2498,6 @@ def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
     expect(page.locator('button[id="period-monthly"]')).to_be_disabled()
     expect(page.locator('button[id="period-quarterly"]')).to_be_disabled()
     expect(page.locator('button[id="period-yearly"]')).to_be_disabled()
-    expect(page.locator("#time-plan-change-time-config")).to_be_disabled()
 
 
 def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:
@@ -2528,6 +2539,8 @@ def _mark_inbox_task_done(
             actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
             project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
+            chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
             is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
@@ -2551,6 +2564,8 @@ def _clear_inbox_task_dates(
             due_date=InboxTaskUpdateArgsDueDate(should_change=True, value=None),
             project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
+            chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
             is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )
@@ -2570,6 +2585,8 @@ def _associate_inbox_task_with_big_plan(
             actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
             project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
+            chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(
                 should_change=True, value=big_plan.ref_id
             ),
@@ -2592,6 +2609,8 @@ def _mark_big_plan_done(
             actionable_date=BigPlanUpdateArgsActionableDate(should_change=False),
             due_date=BigPlanUpdateArgsDueDate(should_change=False),
             project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
             is_key=BigPlanUpdateArgsIsKey(should_change=False),
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),
@@ -2613,6 +2632,8 @@ def _clear_big_plan_dates(
             ),
             due_date=BigPlanUpdateArgsDueDate(should_change=True, value=None),
             project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
+            goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
             is_key=BigPlanUpdateArgsIsKey(should_change=False),
             eisen=BigPlanUpdateArgsEisen(should_change=False),
             difficulty=BigPlanUpdateArgsDifficulty(should_change=False),

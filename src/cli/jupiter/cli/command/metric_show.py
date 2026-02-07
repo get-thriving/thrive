@@ -44,7 +44,7 @@ class MetricShow(JupiterLoggedInReadonlyCommand[MetricFindUseCase, MetricFindRes
 
         rich_tree = Tree("📈 Metrics", guide_style="bold bright_blue")
 
-        if context.workspace.is_feature_available(WorkspaceFeature.PROJECTS):
+        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             collection_project_text = Text(
                 f"The collection project is {result.collection_project.name}",
             )

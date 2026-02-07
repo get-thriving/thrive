@@ -57,11 +57,31 @@ def infer_sync_targets_for_enabled_features(
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.PROJECTS and workspace.is_feature_available(
-            WorkspaceFeature.PROJECTS
+            WorkspaceFeature.LIFE_PLAN
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.CHAPTERS and workspace.is_feature_available(
+            WorkspaceFeature.LIFE_PLAN
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.MILESTONES and workspace.is_feature_available(
+            WorkspaceFeature.LIFE_PLAN
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.VISIONS and workspace.is_feature_available(
+            WorkspaceFeature.LIFE_PLAN
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.PERSONS and workspace.is_feature_available(
-            WorkspaceFeature.PERSONS
+            WorkspaceFeature.PRM
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.OCCASIONS and workspace.is_feature_available(
+            WorkspaceFeature.PRM
+        ):
+            inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.CIRCLES and workspace.is_feature_available(
+            WorkspaceFeature.PRM
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.SMART_LISTS and workspace.is_feature_available(
@@ -70,10 +90,6 @@ def infer_sync_targets_for_enabled_features(
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.METRICS and workspace.is_feature_available(
             WorkspaceFeature.METRICS
-        ):
-            inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.PERSONS and workspace.is_feature_available(
-            WorkspaceFeature.PERSONS
         ):
             inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.SLACK_TASKS and workspace.is_feature_available(

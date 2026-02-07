@@ -32,7 +32,7 @@ from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.hosting import Hosting
-from jupiter.core.projects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
@@ -128,7 +128,7 @@ class LoadTopLevelInfoUseCase(
 
         return LoadTopLevelInfoResult(
             env=gp.env,
-            hosting=gp.hosting,
+            hosting=gp.universe.hosting,
             user_feature_flag_controls=user_feature_flags_controls,
             default_user_feature_flags=BASIC_USER_FEATURE_FLAGS,
             deafult_workspace_name=WorkspaceName("Work"),

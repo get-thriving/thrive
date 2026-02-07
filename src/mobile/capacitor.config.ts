@@ -1,4 +1,5 @@
 import { CapacitorConfig } from "@capacitor/cli";
+import { KeyboardResize } from "@capacitor/keyboard";
 
 import { Env, Hosting } from "../../gen/ts/webapi-client/dist";
 
@@ -26,6 +27,10 @@ const config: CapacitorConfig = {
   plugins: {
     SplashScreen: {
       launchAutoHide: false,
+    },
+    Keyboard: {
+      resize: KeyboardResize.Body, // try Body first
+      resizeOnFullScreen: false, // keep false unless you truly need it
     },
   },
 };

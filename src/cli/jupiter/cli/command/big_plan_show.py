@@ -17,7 +17,7 @@ from jupiter.core.big_plans.use_case.find import (
 )
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.projects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -76,7 +76,7 @@ class BigPlanShow(
                 big_plan_info_text.append(due_date_to_rich_text(big_plan.due_date))
 
             if project is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.PROJECTS
+                WorkspaceFeature.LIFE_PLAN
             ):
                 big_plan_info_text.append(" ")
                 big_plan_info_text.append(project_to_rich_text(project.name))

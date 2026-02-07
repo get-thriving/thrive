@@ -21,7 +21,7 @@ COPY src/core/package.json src/core/package.json
 COPY src/core/tsconfig.json src/core/tsconfig.json
 COPY src/core/jupiter/core src/core/jupiter/core
 COPY src/webui/README.md src/webui/README.md
-COPY src/webui/Config.project.live src/webui/Config.project
+COPY src/webui/Config.project src/webui/Config.project
 COPY src/webui/package.json src/webui/package.json
 COPY src/webui/tsconfig.json src/webui/tsconfig.json
 COPY src/webui/remix.config.js src/webui/remix.config.js

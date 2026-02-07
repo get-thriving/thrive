@@ -30,7 +30,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
-} from "@jupiter/core/projects/root";
+} from "#/core/life_plan/sub/aspects/root";
 import {
   bigPlanFindEntryToParent,
   sortBigPlansNaturally,
@@ -122,7 +122,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       include_milestones: true,
       include_stats: true,
       filter_just_workable: true,
-      include_project: true,
+      include_life_plan: true,
       include_inbox_tasks: false,
     });
 
@@ -294,7 +294,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     value: View.LIST_BY_PROJECT,
                     text: "List By Project",
                     icon: <FlareIcon />,
-                    gatedOn: WorkspaceFeature.PROJECTS,
+                    gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                   {
                     value: View.TIMELINE_MERGED,
@@ -305,7 +305,7 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     value: View.TIMELINE_BY_PROJECT,
                     text: "Timeline By Project",
                     icon: <ViewTimelineIcon />,
-                    gatedOn: WorkspaceFeature.PROJECTS,
+                    gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
                 ],
                 (selected) => setSelectedView(selected),
@@ -510,7 +510,7 @@ function BigPlanList(props: BigPlanListProps) {
       showOptions={{
         showDonePct: true,
         showDueDate: true,
-        showProject: true,
+        showLifePlan: true,
       }}
       onClick={(it) => {
         props.onSelected(it);
@@ -619,7 +619,7 @@ function toggleBigPlanRefIds(
 }
 
 function inferDefaultSelectedView(workspace: Workspace) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PROJECTS)) {
+  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
     return View.TIMELINE_MERGED;
   }
 

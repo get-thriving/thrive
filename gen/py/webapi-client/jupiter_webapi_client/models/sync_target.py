@@ -3,14 +3,19 @@ from enum import Enum
 
 class SyncTarget(str, Enum):
     BIG_PLANS = "big-plans"
+    CHAPTERS = "chapters"
     CHORES = "chores"
+    CIRCLES = "circles"
     DOCS = "docs"
     EMAIL_TASKS = "email-tasks"
     GAMIFICATION = "gamification"
+    GOALS = "goals"
     HABITS = "habits"
     INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     METRICS = "metrics"
+    MILESTONES = "milestones"
+    OCCASIONS = "occasions"
     PERSONS = "persons"
     PROJECTS = "projects"
     SCHEDULE = "schedule"
@@ -18,6 +23,7 @@ class SyncTarget(str, Enum):
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
     VACATIONS = "vacations"
+    VISIONS = "visions"
     WORKING_MEM = "working-mem"
 
     def __str__(self) -> str:

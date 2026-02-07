@@ -30,8 +30,8 @@ export function inboxTaskSourceName(source: InboxTaskSource): string {
       return "Metric";
     case InboxTaskSource.PERSON_CATCH_UP:
       return "Catch Up";
-    case InboxTaskSource.PERSON_BIRTHDAY:
-      return "Birthday";
+    case InboxTaskSource.PERSON_OCCASION:
+      return "Occasion";
     case InboxTaskSource.SLACK_TASK:
       return "Slack";
     case InboxTaskSource.EMAIL_TASK:

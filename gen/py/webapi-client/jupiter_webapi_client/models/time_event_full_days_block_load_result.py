@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.schedule_event_full_days import ScheduleEventFullDays
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
@@ -26,16 +27,19 @@ class TimeEventFullDaysBlockLoadResult:
         full_days_block (TimeEventFullDaysBlock): A full day block of time.
         schedule_event (None | ScheduleEventFullDays | Unset):
         person (None | Person | Unset):
+        occasion (None | Occasion | Unset):
         vacation (None | Unset | Vacation):
     """
 
     full_days_block: TimeEventFullDaysBlock
     schedule_event: None | ScheduleEventFullDays | Unset = UNSET
     person: None | Person | Unset = UNSET
+    occasion: None | Occasion | Unset = UNSET
     vacation: None | Unset | Vacation = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.schedule_event_full_days import ScheduleEventFullDays
         from ..models.vacation import Vacation
@@ -58,6 +62,14 @@ class TimeEventFullDaysBlockLoadResult:
         else:
             person = self.person
 
+        occasion: dict[str, Any] | None | Unset
+        if isinstance(self.occasion, Unset):
+            occasion = UNSET
+        elif isinstance(self.occasion, Occasion):
+            occasion = self.occasion.to_dict()
+        else:
+            occasion = self.occasion
+
         vacation: dict[str, Any] | None | Unset
         if isinstance(self.vacation, Unset):
             vacation = UNSET
@@ -77,6 +89,8 @@ class TimeEventFullDaysBlockLoadResult:
             field_dict["schedule_event"] = schedule_event
         if person is not UNSET:
             field_dict["person"] = person
+        if occasion is not UNSET:
+            field_dict["occasion"] = occasion
         if vacation is not UNSET:
             field_dict["vacation"] = vacation
 
@@ -84,6 +98,7 @@ class TimeEventFullDaysBlockLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.schedule_event_full_days import ScheduleEventFullDays
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
@@ -126,6 +141,23 @@ class TimeEventFullDaysBlockLoadResult:
 
         person = _parse_person(d.pop("person", UNSET))
 
+        def _parse_occasion(data: object) -> None | Occasion | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                occasion_type_0 = Occasion.from_dict(data)
+
+                return occasion_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Occasion | Unset, data)
+
+        occasion = _parse_occasion(d.pop("occasion", UNSET))
+
         def _parse_vacation(data: object) -> None | Unset | Vacation:
             if data is None:
                 return data
@@ -147,6 +179,7 @@ class TimeEventFullDaysBlockLoadResult:
             full_days_block=full_days_block,
             schedule_event=schedule_event,
             person=person,
+            occasion=occasion,
             vacation=vacation,
         )
 

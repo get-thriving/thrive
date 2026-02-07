@@ -1,4 +1,11 @@
-import type { InboxTask, Project } from "@jupiter/webapi-client";
+import type {
+  ChapterSummary,
+  GoalSummary,
+  InboxTask,
+  LifePlan,
+  MilestoneSummary,
+  Project,
+} from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -33,7 +40,7 @@ import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { RecurringTaskGenParamsBlock } from "@jupiter/core/common/component/recurring-task-gen-params-block";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansion";
@@ -45,6 +52,8 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate } from "#/core/common/adate";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -69,6 +78,8 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     project: z.string().optional(),
+    chapter: z.string().optional(),
+    goal: z.string().optional(),
     period: z.nativeEnum(RecurringTaskPeriod),
     isKey: CheckboxAsString,
     eisen: z.nativeEnum(Eisen),
@@ -108,7 +119,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema); // Parse the query parameters
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
   });
 
   let earliestDate = query.viewOneIncludeStreakMarksEarliestDate;
@@ -134,10 +149,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       streakMarkEarliestDate: result.streak_mark_earliest_date,
       streakMarkLatestDate: result.streak_mark_latest_date,
       project: result.project,
+      chapter: result.chapter,
+      goal: result.goal,
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
+      lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<Project>,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+      allGoals: summaryResponse.goals as Array<GoalSummary>,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -167,6 +188,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: form.project ? true : false,
             value: form.project,
+          },
+          chapter_ref_id: {
+            should_change: form.chapter !== undefined,
+            value:
+              form.chapter !== undefined && form.chapter !== ""
+                ? form.chapter
+                : null,
+          },
+          goal_ref_id: {
+            should_change: form.goal !== undefined,
+            value:
+              form.goal !== undefined && form.goal !== "" ? form.goal : null,
           },
           period: {
             should_change: true,
@@ -298,6 +331,7 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.habit.archived;
@@ -411,19 +445,25 @@ export default function Habit() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
+            <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              disabled={!inputsEnabled}
               allProjects={loaderData.allProjects}
-              value={selectedProject}
-              onChange={setSelectedProject}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={loaderData.allChapters}
+              chapterDefaultValue={loaderData.chapter?.ref_id}
+              allGoals={loaderData.allGoals}
+              goalDefaultValue={loaderData.goal?.ref_id}
+              birthday={birthdayDate}
+              today={aDateToDate(topLevelInfo.today)}
+              allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project" />
+            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
         )}
 

@@ -1,5 +1,5 @@
 import type {
-  BigPlanSummary,
+  LifePlan,
   ProjectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
@@ -71,6 +71,8 @@ const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
   targetInboxTaskName: z.string(),
   targetInboxTaskProject: z.string().optional(),
+  targetInboxTaskChapter: z.string().optional(),
+  targetInboxTaskGoal: z.string().optional(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
   targetInboxTaskStatus: z.nativeEnum(InboxTaskStatus),
@@ -137,7 +139,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
     include_big_plans: true,
   });
 
@@ -157,8 +163,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       rootProject: summaryResponse.root_project as ProjectSummary,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
+      lifePlan: summaryResponse.life_plan as LifePlan,
+      allProjects: summaryResponse.projects,
+      allChapters: summaryResponse.chapters,
+      allGoals: summaryResponse.goals,
+      allMilestones: summaryResponse.milestones,
+      allBigPlans: summaryResponse.big_plans,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
@@ -267,6 +277,22 @@ export async function action({ request, params }: ActionFunctionArgs) {
           project_ref_id: {
             should_change: true,
             value: form.targetInboxTaskProject,
+          },
+          chapter_ref_id: {
+            should_change: form.targetInboxTaskChapter !== undefined,
+            value:
+              form.targetInboxTaskChapter !== undefined &&
+              form.targetInboxTaskChapter !== ""
+                ? form.targetInboxTaskChapter
+                : null,
+          },
+          goal_ref_id: {
+            should_change: form.targetInboxTaskGoal !== undefined,
+            value:
+              form.targetInboxTaskGoal !== undefined &&
+              form.targetInboxTaskGoal !== ""
+                ? form.targetInboxTaskGoal
+                : null,
           },
           big_plan_ref_id: {
             should_change: form.targetInboxTaskBigPlan !== undefined,
@@ -452,9 +478,13 @@ export default function TimePlanActivity() {
             intentPrefix="target-inbox-task"
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
+            lifePlan={loaderData.lifePlan}
             rootProject={loaderData.rootProject}
-            allProjects={loaderData.allProjects}
-            allBigPlans={loaderData.allBigPlans}
+            allProjects={loaderData.allProjects ?? []}
+            allChapters={loaderData.allChapters ?? []}
+            allGoals={loaderData.allGoals ?? []}
+            allMilestones={loaderData.allMilestones ?? []}
+            allBigPlans={loaderData.allBigPlans ?? []}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
@@ -514,7 +544,7 @@ export default function TimePlanActivity() {
               showOptions={{
                 showDonePct: true,
                 showStatus: true,
-                showProject: true,
+                showLifePlan: true,
                 showEisen: true,
                 showDifficulty: true,
                 showActionableDate: true,

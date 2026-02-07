@@ -8,5 +8,6 @@ import type { Project } from './Project';
  */
 export type PersonLoadSettingsResult = {
     catch_up_project: Project;
+    max_circles_per_person: number;
 };
 

@@ -1,6 +1,10 @@
 import type {
   BigPlanSummary,
-  Project,
+  ChapterSummary,
+  EntityId,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
   ProjectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
@@ -43,7 +47,7 @@ import {
   GlobalError,
 } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/projects/component/select";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -59,10 +63,12 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { aDateToDate } from "#/core/common/adate";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 
-import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
-import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
 const ParamsSchema = z.object({});
 
@@ -77,6 +83,8 @@ const QuerySchema = z.object({
 const CreateFormSchema = z.object({
   name: z.string(),
   project: z.string().optional(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
   bigPlan: z.string().optional(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
@@ -124,12 +132,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const bigPlanReason = query.bigPlanReason || "standard";
 
   const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
     include_projects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
     include_big_plans: bigPlanReason === "standard",
   });
 
   let ownerBigPlan = null;
   let ownerProject = null;
+  let ownerChapter = null;
+  let ownerGoal = null;
   if (bigPlanReason === "for-big-plan") {
     if (!query.bigPlanRefId) {
       throw new Response("Missing Big Plan Id", { status: 500 });
@@ -142,12 +156,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     ownerBigPlan = bigPlanResult.big_plan;
     ownerProject = bigPlanResult.project;
+    ownerChapter = bigPlanResult.chapter;
+    ownerGoal = bigPlanResult.goal;
   }
 
   const defaultProject =
     bigPlanReason === "for-big-plan"
       ? (ownerProject as ProjectSummary)
       : (summaryResponse.root_project as ProjectSummary);
+  const defaultChapter =
+    bigPlanReason === "for-big-plan" ? (ownerChapter as ChapterSummary) : null;
+  const defaultGoal =
+    bigPlanReason === "for-big-plan" ? (ownerGoal as GoalSummary) : null;
 
   const defaultBigPlan: BigPlanACOption =
     bigPlanReason === "for-big-plan"
@@ -165,9 +185,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     bigPlanReason: bigPlanReason,
     associatedTimePlan: associatedTimePlan,
     defaultProject: defaultProject,
+    defaultChapter: defaultChapter,
+    defaultGoal: defaultGoal,
     defaultBigPlan: defaultBigPlan,
     ownerBigPlan: ownerBigPlan,
-    allProjects: summaryResponse.projects as Array<Project>,
+    lifePlan: summaryResponse.life_plan as LifePlan,
+    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
+    allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
     allBigPlans:
       bigPlanReason === "standard"
         ? (summaryResponse.big_plans as Array<BigPlanSummary>)
@@ -193,6 +219,12 @@ export async function action({ request }: ActionFunctionArgs) {
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
       project_ref_id: form.project,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
       big_plan_ref_id:
         bigPlanReason === "standard"
           ? form.bigPlan !== undefined && form.bigPlan !== "none"
@@ -267,21 +299,35 @@ export default function NewInboxTask() {
   const [selectedProject, setSelectedProject] = useState(
     loaderData.defaultProject.ref_id,
   );
+  const [selectedChapter, setSelectedChapter] = useState<EntityId | null>(
+    loaderData.defaultChapter?.ref_id ?? null,
+  );
+  const [selectedGoal, setSelectedGoal] = useState<EntityId | null>(
+    loaderData.defaultGoal?.ref_id ?? null,
+  );
   const [blockedToSelectProject, setBlockedToSelectProject] = useState(
     loaderData.bigPlanReason === "for-big-plan",
   );
 
   const inputsEnabled = navigation.state === "idle";
 
-  const allProjectsById: { [k: string]: Project } = {};
+  const allProjectsById: { [k: string]: ProjectSummary } = {};
+  const allChaptersById: { [k: string]: ChapterSummary } = {};
+  const allGoalsById: { [k: string]: GoalSummary } = {};
   if (
     isWorkspaceFeatureAvailable(
       topLevelInfo.workspace,
-      WorkspaceFeature.PROJECTS,
+      WorkspaceFeature.LIFE_PLAN,
     )
   ) {
     for (const project of loaderData.allProjects) {
       allProjectsById[project.ref_id] = project;
+    }
+    for (const chapter of loaderData.allChapters) {
+      allChaptersById[chapter.ref_id] = chapter;
+    }
+    for (const goal of loaderData.allGoals) {
+      allGoalsById[goal.ref_id] = goal;
     }
   }
 
@@ -320,16 +366,18 @@ export default function NewInboxTask() {
     if (
       isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
-        WorkspaceFeature.PROJECTS,
+        WorkspaceFeature.LIFE_PLAN,
       )
     ) {
       if (big_plan_id === "none") {
         setSelectedProject(loaderData.defaultProject.ref_id);
+        setSelectedChapter(null);
+        setSelectedGoal(null);
         setBlockedToSelectProject(false);
       } else {
-        const projectId = allBigPlansById[big_plan_id].project_ref_id;
-        const projectKey = allProjectsById[projectId].ref_id;
-        setSelectedProject(projectKey);
+        setSelectedProject(allBigPlansById[big_plan_id].project_ref_id);
+        setSelectedChapter(allBigPlansById[big_plan_id].chapter_ref_id ?? null);
+        setSelectedGoal(allBigPlansById[big_plan_id].goal_ref_id ?? null);
         setBlockedToSelectProject(true);
       }
     }
@@ -423,19 +471,27 @@ export default function NewInboxTask() {
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
-          WorkspaceFeature.PROJECTS,
+          WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
+            <LifePlanAssociations
               inputsEnabled={inputsEnabled && !blockedToSelectProject}
-              disabled={false}
               allProjects={loaderData.allProjects}
-              value={selectedProject}
-              onChange={setSelectedProject}
+              projectValue={selectedProject}
+              onProjectChange={setSelectedProject}
+              allChapters={loaderData.allChapters}
+              chapterValue={selectedChapter}
+              onChapterChange={setSelectedChapter}
+              allGoals={loaderData.allGoals}
+              goalValue={selectedGoal}
+              onGoalChange={setSelectedGoal}
+              birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+              today={aDateToDate(topLevelInfo.today)}
+              allMilestones={loaderData.allMilestones}
             />
             <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>
         )}
 

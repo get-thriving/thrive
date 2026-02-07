@@ -42,6 +42,12 @@ fi
 brew bundle install
 '''
 
+["root:install:gemfile"]
+hide = true
+sources = ["Gemfile", "Gemfile.lock"]
+outputs = { auto = true }
+run = "bundle install"
+
 ["root:install:apt"]
 hide = true
 sources = ["aptfile"]

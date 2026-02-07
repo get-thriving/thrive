@@ -19,7 +19,9 @@ from jupiter.core.application.crm import CRM
 from jupiter.core.env import Env
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.hosting import Hosting
+from jupiter.core.instance import Instance
 from jupiter.core.search.storage_engine import SearchStorageEngine
+from jupiter.core.universe import Universe
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLinkRepository,
 )
@@ -67,8 +69,9 @@ class JupiterPorts(DomainPorts):
 class JupiterGlobalProperties(GlobalProperties):
     """UseCase-level properties."""
 
+    universe: Universe
     env: Env
-    hosting: Hosting
+    instance: Instance
     description: str
     host: str
     port: int
@@ -79,6 +82,7 @@ class JupiterGlobalProperties(GlobalProperties):
     alembic_ini_path: Path
     alembic_migrations_path: Path
     auth_token_secret: str
+    sentry_dsn: str
     wix_api_key: str
     wix_account_id: str
     wix_site_id: str
@@ -98,7 +102,7 @@ class JupiterGlobalProperties(GlobalProperties):
                 if isinstance(filter_val, Env):
                     return self.env == filter_val
                 elif isinstance(filter_val, Hosting):
-                    return self.hosting == filter_val
+                    return self.universe.hosting == filter_val
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         if excluded is not None:
@@ -106,7 +110,7 @@ class JupiterGlobalProperties(GlobalProperties):
                 if isinstance(filter_val, Env):
                     return self.env != filter_val
                 elif isinstance(filter_val, Hosting):
-                    return self.hosting != filter_val
+                    return self.universe.hosting != filter_val
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
         return True
@@ -133,14 +137,21 @@ def build_global_properties() -> JupiterGlobalProperties:
     dotenv.load_dotenv(dotenv_path=global_config_path, verbose=True)
     dotenv.load_dotenv(dotenv_path=project_config_path, verbose=True)
 
+    universe = Universe(cast(str, os.getenv("UNIVERSE")))
     env = Env(cast(str, os.getenv("ENV")))
-    hosting = Hosting(cast(str, os.getenv("HOSTING")))
+    if os.getenv("RENDER"):
+        instance = Instance.new_or_generate(
+            cast(str, os.getenv("INSTANCE")), cast(str, os.getenv("RENDER_GIT_BRANCH"))
+        )
+    else:
+        instance = Instance(cast(str, os.getenv("INSTANCE")))
     description = cast(str, os.getenv("DESCRIPTION"))
     host = cast(str, os.getenv("HOST"))
     port = int(cast(str, os.getenv("PORT")))
     version = AppVersion(cast(str, os.getenv("VERSION")))
     docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
     session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
+    sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
     sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
     alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
     alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
@@ -155,14 +166,16 @@ def build_global_properties() -> JupiterGlobalProperties:
         alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
 
     return JupiterGlobalProperties(
+        universe=universe,
         env=env,
-        hosting=hosting,
+        instance=instance,
         description=description,
         host=host,
         port=port,
         version=version,
         docs_init_workspace_url=docs_init_workspace_url,
         session_info_path=session_info_path,
+        sentry_dsn=sentry_dsn,
         sqlite_db_url=sqlite_db_url,
         alembic_ini_path=alembic_ini_path,
         alembic_migrations_path=alembic_migrations_path,

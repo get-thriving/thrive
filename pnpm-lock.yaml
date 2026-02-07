@@ -83,8 +83,8 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2
       '@editorjs/editorjs':
-        specifier: ^2.30.8
-        version: 2.31.0
+        specifier: ^2.31.1
+        version: 2.31.1
       '@editorjs/header':
         specifier: ^2.8.8
         version: 2.8.8
@@ -194,6 +194,9 @@ importers:
       '@jupiter/webapi-client':
         specifier: workspace:*
         version: link:../../gen/ts/webapi-client
+      debug:
+        specifier: ^4.4.3
+        version: 4.4.3
       dotenv:
         specifier: ^16.4.7
         version: 16.6.1
@@ -264,6 +267,9 @@ importers:
       '@capacitor/ios':
         specifier: ^7.0.0
         version: 7.4.4(@capacitor/core@7.4.4)
+      '@capacitor/keyboard':
+        specifier: ^7.0.0
+        version: 7.0.4(@capacitor/core@7.4.4)
       '@capacitor/splash-screen':
         specifier: ^7.0.0
         version: 7.0.3(@capacitor/core@7.4.4)
@@ -317,8 +323,8 @@ importers:
         specifier: ^1.4.2
         version: 1.4.2
       '@editorjs/editorjs':
-        specifier: ^2.30.8
-        version: 2.31.0
+        specifier: ^2.31.1
+        version: 2.31.1
       '@editorjs/header':
         specifier: ^2.8.8
         version: 2.8.8
@@ -1146,6 +1152,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^7.4.0
 
+  '@capacitor/keyboard@7.0.4':
+    resolution: {integrity: sha512-kKHsuDOC0q9iC1XANhQBK35S+hFKx4EfY9I+SEMPR6RuUAIuXQXYaA3+D0LkdRdHIf3OrlTDznPvXQ5Dg2WrCA==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
   '@capacitor/splash-screen@7.0.3':
     resolution: {integrity: sha512-coAw2de3rRX0EfneK0/D9IZaDAUOtsPaE9ZNbSdCs2UtmXp0hdcr5Tsil01Kve707nQfLsd03pmvaesJYD60EA==}
     peerDependencies:
@@ -1182,8 +1193,8 @@ packages:
   '@editorjs/dom@1.0.1':
     resolution: {integrity: sha512-yLO+86MYOIUr1Jl7SQw23SYT84ggv6aJW0EIRsI3NTHYgnQzmK7Bt2n5ZFupQlB0GJqmKqA5tCue3NKQb+o7Pw==}
 
-  '@editorjs/editorjs@2.31.0':
-    resolution: {integrity: sha512-CBcIZXtPlg0dSlC5clO9OfTCmcxelj723jd4d67teFlaFJobjjxU1PmMxFJdhaRep5+nqdD0jr+fdJBqEDqt1g==}
+  '@editorjs/editorjs@2.31.1':
+    resolution: {integrity: sha512-MGhgIvVAiRIhMyVryyMgHTyfTiLzvCKN2RkfCiooihUwlcmNv0MkmnayMDXfb5S1gStGV46YAObPh/7QotdjGg==}
 
   '@editorjs/header@2.8.8':
     resolution: {integrity: sha512-bsMSs34u2hoi0UBuRoc5EGWXIFzJiwYgkFUYQGVm63y5FU+s8zPBmVx5Ip2sw1xgs0fqfDROqmteMvvmbCy62w==}
@@ -7679,6 +7690,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
 
   temp-dir@2.0.0:
     resolution: {integrity: sha512-aoBAniQmmwtcKp/7BzsH8Cxzv8OL736p7v1ihGb5e9DJ9kTwGWHrQrVB5+lfVDzfGrdRzXch+ig7LHaY1JTOrg==}
@@ -9385,6 +9397,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.4.4
 
+  '@capacitor/keyboard@7.0.4(@capacitor/core@7.4.4)':
+    dependencies:
+      '@capacitor/core': 7.4.4
+
   '@capacitor/splash-screen@7.0.3(@capacitor/core@7.4.4)':
     dependencies:
       '@capacitor/core': 7.4.4
@@ -9421,7 +9437,7 @@ snapshots:
     dependencies:
       '@editorjs/helpers': 1.0.1
 
-  '@editorjs/editorjs@2.31.0':
+  '@editorjs/editorjs@2.31.1':
     dependencies:
       '@editorjs/caret': 1.0.3
       codex-notifier: 1.1.2
@@ -9430,7 +9446,7 @@ snapshots:
   '@editorjs/header@2.8.8':
     dependencies:
       '@codexteam/icons': 0.0.5
-      '@editorjs/editorjs': 2.31.0
+      '@editorjs/editorjs': 2.31.1
 
   '@editorjs/helpers@0.0.4': {}
 

@@ -15,6 +15,11 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanChapterLink,
+    TimePlanGoalLink,
+    TimePlanProjectLink,
+)
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -37,7 +42,8 @@ class TimePlanFindArgs(UseCaseArgsBase):
     allow_archived: bool
     include_notes: bool
     include_planning_tasks: bool
-    filter_ref_ids: list[EntityId] | None
+    include_life_plan_ref_ids: bool
+    filter_ref_ids: list[EntityId] | None = None
 
 
 @use_case_result_part
@@ -47,6 +53,9 @@ class TimePlanFindResultEntry(UseCaseResultBase):
     time_plan: TimePlan
     note: Note | None
     planning_task: InboxTask | None
+    chapter_ref_ids: list[EntityId] | None
+    project_ref_ids: list[EntityId] | None
+    goal_ref_ids: list[EntityId] | None
 
 
 @use_case_result
@@ -86,6 +95,38 @@ class TimePlanFindUseCase(
             filter_ref_ids=args.filter_ref_ids,
         )
 
+        chapter_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
+        project_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
+        goal_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
+        if (
+            args.include_life_plan_ref_ids
+            and workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and time_plans
+        ):
+            time_plan_ref_ids = [tp.ref_id for tp in time_plans]
+            chapter_links = await uow.get_for_record(TimePlanChapterLink).find_all(
+                time_plan_ref_ids
+            )
+            project_links = await uow.get_for_record(TimePlanProjectLink).find_all(
+                time_plan_ref_ids
+            )
+            goal_links = await uow.get_for_record(TimePlanGoalLink).find_all(
+                time_plan_ref_ids
+            )
+
+            for chapter_link in chapter_links:
+                chapter_ref_ids_by_time_plan_ref_id.setdefault(
+                    chapter_link.time_plan.ref_id, []
+                ).append(chapter_link.chapter_ref_id)
+            for project_link in project_links:
+                project_ref_ids_by_time_plan_ref_id.setdefault(
+                    project_link.time_plan.ref_id, []
+                ).append(project_link.project_ref_id)
+            for goal_link in goal_links:
+                goal_ref_ids_by_time_plan_ref_id.setdefault(
+                    goal_link.time_plan.ref_id, []
+                ).append(goal_link.goal_ref_id)
+
         notes_by_time_plan_ref_id = {}
         if args.include_notes:
             notes = await uow.get_for(Note).find_all_generic(
@@ -116,6 +157,21 @@ class TimePlanFindUseCase(
                     note=notes_by_time_plan_ref_id.get(time_plan.ref_id, None),
                     planning_task=planning_tasks_by_time_plan_ref_id.get(
                         time_plan.ref_id, None
+                    ),
+                    chapter_ref_ids=(
+                        chapter_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
+                        if args.include_life_plan_ref_ids
+                        else None
+                    ),
+                    project_ref_ids=(
+                        project_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
+                        if args.include_life_plan_ref_ids
+                        else None
+                    ),
+                    goal_ref_ids=(
+                        goal_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
+                        if args.include_life_plan_ref_ids
+                        else None
                     ),
                 )
                 for time_plan in time_plans

@@ -7,11 +7,15 @@ from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.core.auth.root import Auth
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.birth_year import BirthYear
+from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
@@ -36,11 +40,13 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
+from jupiter.core.life_plan.root import LifePlan
+from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.persons.collection import PersonCollection
-from jupiter.core.projects.collection import ProjectCollection
-from jupiter.core.projects.name import ProjectName
-from jupiter.core.projects.root import Project
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.circle.name import CircleName
+from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -77,6 +83,7 @@ from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
+from jupiter.core.working_mem.root import WorkingMem
 from jupiter.core.workspaces.name import WorkspaceName
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
@@ -102,6 +109,8 @@ class InitArgs(UseCaseArgsBase):
     user_feature_flags: set[UserFeature]
     auth_password: PasswordNewPlain
     auth_password_repeat: PasswordNewPlain
+    user_birthday: Birthday
+    user_birth_year: BirthYear
     workspace_name: WorkspaceName
     workspace_first_schedule_stream_name: ScheduleStreamName
     workspace_root_project_name: ProjectName
@@ -212,17 +221,19 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_vacation_collection,
             )
 
-            new_project_collection = ProjectCollection.new_project_collection(
+            new_life_plan = LifePlan.new_life_plan(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
+                birthday=args.user_birthday,
+                birth_year=args.user_birth_year,
             )
-            new_project_collection = await uow.get_for(ProjectCollection).create(
-                new_project_collection,
+            new_life_plan = await uow.get_for(LifePlan).create(
+                new_life_plan,
             )
 
             new_root_project = Project.new_root_project(
                 ctx=context.domain_context,
-                project_collection_ref_id=new_project_collection.ref_id,
+                life_plan_ref_id=new_life_plan.ref_id,
                 name=args.workspace_root_project_name,
             )
             new_root_project = await uow.get_for(Project).create(
@@ -237,6 +248,14 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_inbox_task_collection,
             )
 
+            new_note_collection = NoteCollection.new_note_collection(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_note_collection = await uow.get_for(NoteCollection).create(
+                new_note_collection
+            )
+
             new_working_mem_collection = (
                 WorkingMemCollection.new_working_mem_collection(
                     ctx=context.domain_context,
@@ -248,6 +267,21 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
                 new_working_mem_collection,
             )
+
+            new_working_mem = WorkingMem.new_working_mem(
+                ctx=context.domain_context,
+                working_mem_collection_ref_id=new_working_mem_collection.ref_id,
+            )
+            new_working_mem = await uow.get_for(WorkingMem).create(new_working_mem)
+
+            new_working_mem_note = Note.new_note(
+                ctx=context.domain_context,
+                note_collection_ref_id=new_note_collection.ref_id,
+                domain=NoteDomain.WORKING_MEM,
+                source_entity_ref_id=new_working_mem.ref_id,
+                content=[],
+            )
+            await uow.get_for(Note).create(new_working_mem_note)
 
             new_time_plan_domain = TimePlanDomain.new_time_plan_domain(
                 ctx=context.domain_context,
@@ -359,14 +393,32 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_metric_collection,
             )
 
-            new_person_collection = PersonCollection.new_person_collection(
+            new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
                 catch_up_project_ref_id=new_root_project.ref_id,
             )
-            new_person_collection = await uow.get_for(PersonCollection).create(
-                new_person_collection,
+            new_prm = await uow.get_for(PRM).create(
+                new_prm,
             )
+
+            # Seed some default circles inspired by the person relationship enum.
+            default_circle_names = [
+                "Family",
+                "Friend",
+                "Work Buddy",
+                "School Buddy",
+                "Colleague",
+                "Acquaintance",
+                "Other",
+            ]
+            for circle_name in default_circle_names:
+                new_circle = Circle.new_circle(
+                    ctx=context.domain_context,
+                    prm_ref_id=new_prm.ref_id,
+                    name=CircleName(circle_name),
+                )
+                await uow.get_for(Circle).create(new_circle)
 
             new_push_integration_group = (
                 PushIntegrationGroup.new_push_integration_group(
@@ -394,14 +446,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,
-            )
-
-            new_note_collection = NoteCollection.new_note_collection(
-                ctx=context.domain_context,
-                workspace_ref_id=new_workspace.ref_id,
-            )
-            new_note_collection = await uow.get_for(NoteCollection).create(
-                new_note_collection
             )
 
             new_time_event_domain = TimeEventDomain.new_time_event_domain(

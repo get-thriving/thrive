@@ -12,7 +12,7 @@ import { Stack } from "@mui/material";
 
 import { filterActivityByFeasabilityWithParents } from "#/core/time_plans/sub/activity/root";
 import { EntityNoNothingCard } from "#/core/infra/component/entity-no-nothing-card";
-import { TimePlanMergedActivities } from "#/core/time_plans/component/merged-activities";
+import { TimePlanListMergedActivities } from "#/core/time_plans/component/list-merged-activities";
 import { WidgetProps } from "#/core/home/component/common";
 
 export function TimePlanViewWidget(props: WidgetProps) {
@@ -105,7 +105,7 @@ function SingleTimePlan(props: SingleTimePlanProps) {
   }
 
   return (
-    <TimePlanMergedActivities
+    <TimePlanListMergedActivities
       mustDoActivities={mustDoActivities}
       niceToHaveActivities={niceToHaveActivities}
       stretchActivities={stretchActivities}

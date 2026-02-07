@@ -80,7 +80,7 @@ import { ScheduleDailyWidget } from "@jupiter/core/calendar/component/schedule-d
 import { HabitRandomWidget } from "@jupiter/core/habits/component/random-widget";
 import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
 import { ChoreRandomWidget } from "@jupiter/core/chores/component/random-widget";
-import { UpcomingBirthdaysWidget } from "@jupiter/core/persons/component/upcoming-birthdays-widget";
+import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
@@ -181,12 +181,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   let personInboxTasksResponse: InboxTaskFindResult | undefined = undefined;
 
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PERSONS)) {
+  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
       include_notes: false,
       include_time_event_blocks: false,
-      filter_sources: [InboxTaskSource.PERSON_BIRTHDAY],
+      filter_sources: [
+        InboxTaskSource.PERSON_OCCASION,
+        InboxTaskSource.PERSON_CATCH_UP,
+      ],
     });
   }
 

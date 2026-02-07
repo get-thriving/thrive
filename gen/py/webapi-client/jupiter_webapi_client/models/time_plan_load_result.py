@@ -10,8 +10,11 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
+    from ..models.chapter import Chapter
+    from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.project import Project
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -28,6 +31,9 @@ class TimePlanLoadResult:
         time_plan (TimePlan): A plan for a particular period of time.
         note (Note): A note in the notebook.
         activities (list[TimePlanActivity]):
+        chapters (list[Chapter]):
+        projects (list[Project]):
+        goals (list[Goal]):
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
         activity_doneness (None | TimePlanLoadResultActivityDonenessType0 | Unset):
@@ -41,6 +47,9 @@ class TimePlanLoadResult:
     time_plan: TimePlan
     note: Note
     activities: list[TimePlanActivity]
+    chapters: list[Chapter]
+    projects: list[Project]
+    goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
     activity_doneness: None | TimePlanLoadResultActivityDonenessType0 | Unset = UNSET
@@ -63,6 +72,21 @@ class TimePlanLoadResult:
         for activities_item_data in self.activities:
             activities_item = activities_item_data.to_dict()
             activities.append(activities_item)
+
+        chapters = []
+        for chapters_item_data in self.chapters:
+            chapters_item = chapters_item_data.to_dict()
+            chapters.append(chapters_item)
+
+        projects = []
+        for projects_item_data in self.projects:
+            projects_item = projects_item_data.to_dict()
+            projects.append(projects_item)
+
+        goals = []
+        for goals_item_data in self.goals:
+            goals_item = goals_item_data.to_dict()
+            goals.append(goals_item)
 
         target_inbox_tasks: list[dict[str, Any]] | None | Unset
         if isinstance(self.target_inbox_tasks, Unset):
@@ -155,6 +179,9 @@ class TimePlanLoadResult:
                 "time_plan": time_plan,
                 "note": note,
                 "activities": activities,
+                "chapters": chapters,
+                "projects": projects,
+                "goals": goals,
             }
         )
         if target_inbox_tasks is not UNSET:
@@ -179,8 +206,11 @@ class TimePlanLoadResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan import BigPlan
+        from ..models.chapter import Chapter
+        from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.project import Project
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -196,6 +226,27 @@ class TimePlanLoadResult:
             activities_item = TimePlanActivity.from_dict(activities_item_data)
 
             activities.append(activities_item)
+
+        chapters = []
+        _chapters = d.pop("chapters")
+        for chapters_item_data in _chapters:
+            chapters_item = Chapter.from_dict(chapters_item_data)
+
+            chapters.append(chapters_item)
+
+        projects = []
+        _projects = d.pop("projects")
+        for projects_item_data in _projects:
+            projects_item = Project.from_dict(projects_item_data)
+
+            projects.append(projects_item)
+
+        goals = []
+        _goals = d.pop("goals")
+        for goals_item_data in _goals:
+            goals_item = Goal.from_dict(goals_item_data)
+
+            goals.append(goals_item)
 
         def _parse_target_inbox_tasks(data: object) -> list[InboxTask] | None | Unset:
             if data is None:
@@ -370,6 +421,9 @@ class TimePlanLoadResult:
             time_plan=time_plan,
             note=note,
             activities=activities,
+            chapters=chapters,
+            projects=projects,
+            goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,
             activity_doneness=activity_doneness,

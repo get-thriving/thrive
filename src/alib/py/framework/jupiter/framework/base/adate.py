@@ -2,12 +2,10 @@
 
 from datetime import date
 from functools import total_ordering
-from typing import cast
+from typing import Literal, cast
 
 import pendulum
 import pendulum.parser
-import pendulum.parsing
-import pendulum.tz
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (
@@ -67,6 +65,10 @@ class ADate(AtomicValue[Date]):
         except ValueError as err:
             raise InputValidationError(f"Invalid date because: {err}") from None
 
+    def end_of(self, unit: Literal["month", "year"]) -> "ADate":
+        """Get the end of the month or year."""
+        return ADate.from_date(self.the_date.end_of(unit))
+
     def to_timestamp_at_start_of_day(self) -> Timestamp:
         """Transform to a timetamp at the start of the day."""
         return Timestamp.from_date_and_time(
@@ -92,6 +94,10 @@ class ADate(AtomicValue[Date]):
     def add_days(self, days_cnt: int) -> "ADate":
         """Add these number of days to this date."""
         return ADate.from_date(self.the_date.add(days=days_cnt))
+
+    def add_years(self, years_cnt: int) -> "ADate":
+        """Add these number of years to this date."""
+        return ADate.from_date(self.the_date.add(years=years_cnt))
 
     def subtract_days(self, days_cnt: int) -> "ADate":
         """Subtract these number of days from this date."""

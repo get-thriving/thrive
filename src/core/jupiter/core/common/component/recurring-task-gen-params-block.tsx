@@ -84,6 +84,7 @@ export function RecurringTaskGenParamsBlock(
           exclusive
           fullWidth
           onChange={handleChangePeriod}
+          size="small"
         >
           {props.allowNonePeriod && (
             <ToggleButton value="none" disabled={!props.inputsEnabled}>

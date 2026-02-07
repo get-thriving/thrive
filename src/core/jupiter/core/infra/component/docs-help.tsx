@@ -62,14 +62,30 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/journals";
     case DocsHelpSubject.VACATIONS:
       return "concepts/vacations";
-    case DocsHelpSubject.PROJECTS:
-      return "concepts/projects";
+    case DocsHelpSubject.LIFE_PLAN:
+      return "concepts/life-plan";
+    case DocsHelpSubject.LIFE_PLAN_PROJECTS:
+      return "concepts/life-plan/projects";
+    case DocsHelpSubject.LIFE_PLAN_CHAPTERS:
+      return "concepts/life-plan/chapters";
+    case DocsHelpSubject.LIFE_PLAN_GOALS:
+      return "concepts/life-plan/goals";
+    case DocsHelpSubject.LIFE_PLAN_MILESTONES:
+      return "concepts/life-plan/milestones";
+    case DocsHelpSubject.LIFE_PLAN_VISIONS:
+      return "concepts/life-plan/visions";
     case DocsHelpSubject.SMART_LISTS:
       return "concepts/smart-lists";
     case DocsHelpSubject.METRICS:
       return "concepts/metrics";
-    case DocsHelpSubject.PERSONS:
-      return "concepts/persons";
+    case DocsHelpSubject.PRM:
+      return "concepts/prm/prm";
+    case DocsHelpSubject.PRM_CIRCLES:
+      return "concepts/prm/circles";
+    case DocsHelpSubject.PRM_PERSONS:
+      return "concepts/prm/persons";
+    case DocsHelpSubject.PRM_OCCASIONS:
+      return "concepts/prm/occasions";
     case DocsHelpSubject.SLACK_TASKS:
       return "concepts/slack-tasks";
     case DocsHelpSubject.EMAIL_TASKS:

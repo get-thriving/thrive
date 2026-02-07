@@ -6,6 +6,11 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.time_plans.life_plan_links import (
+    TimePlanChapterLinkRepository,
+    TimePlanGoalLinkRepository,
+    TimePlanProjectLinkRepository,
+)
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -41,3 +46,11 @@ class TimePlanRemoveUseCase(
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, TimePlan, args.ref_id
         )
+
+        await uow.get(TimePlanChapterLinkRepository).remove_all_for_time_plan(
+            args.ref_id
+        )
+        await uow.get(TimePlanProjectLinkRepository).remove_all_for_time_plan(
+            args.ref_id
+        )
+        await uow.get(TimePlanGoalLinkRepository).remove_all_for_time_plan(args.ref_id)

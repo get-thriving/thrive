@@ -1,7 +1,6 @@
 """The jupiter Web RPC API."""
 
 import asyncio
-import logging
 import sys
 
 import aiohttp
@@ -13,7 +12,6 @@ from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.env import Env
-from jupiter.core.hosting import Hosting
 from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
@@ -32,34 +30,32 @@ from jupiter.framework.storage.sqlite.connection import SqliteConnection
 from jupiter.framework.storage.sqlite.storage_engine import (
     SqliteDomainStorageEngine,
 )
+from jupiter.framework.telemetry.local.local import LocalTelemetry
+from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
+from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter.framework.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
 )
 from jupiter.webapi.config import JupiterWebApiAppForm
 from rich import print as rich_print
-from rich.console import Console
-from rich.logging import RichHandler
 
 
 async def main() -> None:
     """Application main function."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[
-            RichHandler(
-                console=Console(width=128),
-                show_path=False,
-                omit_repeated_times=False,
-                rich_tracebacks=True,
-                markup=True,
-                enable_link_path=False,
-                log_time_format="%Y-%m-%d %H:%M:%S",
-            )
-        ],
-    )
+    global_properties = build_global_properties()
+
+    telemetry: Telemetry
+
+    if (
+        global_properties.env.is_live
+        and global_properties.universe.hosting.is_hosted_global
+    ):
+        telemetry = SentryTelemetry(global_properties.sentry_dsn)
+    else:
+        telemetry = LocalTelemetry()
+
+    telemetry.prepare()
 
     request_time_provider = PerRequestTimeProvider()
     cron_run_time_provider = CronRunTimeProvider()
@@ -80,8 +76,6 @@ async def main() -> None:
 
     aio_session = aiohttp.ClientSession()
 
-    global_properties = build_global_properties()
-
     domain_storage_engine = SqliteDomainStorageEngine.build_from_module_root(
         realm_codec_registry, sqlite_connection, jupiter.core
     )
@@ -95,7 +89,7 @@ async def main() -> None:
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
-        and global_properties.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting.is_hosted_global
     ):
         crm = WixCRM(
             api_key=global_properties.wix_api_key,
@@ -145,8 +139,10 @@ async def main() -> None:
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI:")
     rich_print(f"  Version: {global_properties.version}")
+    rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
-    rich_print(f"  Hosting: {global_properties.hosting}")
+    rich_print(f"  Instance: {global_properties.instance}")
+    rich_print(f"  Hosting: {global_properties.universe.hosting}")
     rich_print("=" * 80)
 
     try:

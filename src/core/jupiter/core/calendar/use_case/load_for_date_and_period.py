@@ -20,8 +20,11 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.persons.root import Person
+from jupiter.core.prm.root import PRM
+from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.event_full_days.root import (
     ScheduleEventFullDays,
@@ -30,6 +33,7 @@ from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.vacations.root import Vacation
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
@@ -85,11 +89,12 @@ class InboxTaskEntry(UseCaseResultBase):
 
 
 @use_case_result_part
-class PersonEntry(UseCaseResultBase):
+class PersonOccasionEntry(UseCaseResultBase):
     """Result entry."""
 
     person: Person
-    birthday_time_event: TimeEventFullDaysBlock
+    occasion: Occasion
+    occasion_time_event: TimeEventFullDaysBlock
 
 
 @use_case_result_part
@@ -107,7 +112,7 @@ class CalendarEventsEntries(UseCaseResultBase):
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
     inbox_task_entries: list[InboxTaskEntry]
-    person_entries: list[PersonEntry]
+    person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
 
 
@@ -332,8 +337,13 @@ class CalendarLoadForDateAndPeriodUseCase(
                 time_events_in_day_for_inbox_tasks[te.source_entity_ref_id].append(te)
         inbox_tasks = []
         if len(time_events_in_day_for_inbox_tasks) > 0:
+            inbox_task_collection = await uow.get_for(
+                InboxTaskCollection
+            ).load_by_parent(
+                workspace.ref_id,
+            )
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=workspace.ref_id,
+                parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=JupiterArchivalReason.GC,
                 ref_id=list(time_events_in_day_for_inbox_tasks.keys()),
             )
@@ -345,24 +355,38 @@ class CalendarLoadForDateAndPeriodUseCase(
             for inbox_task in inbox_tasks
         ]
 
-        time_events_full_days_for_persons: dict[EntityId, TimeEventFullDaysBlock] = {
+        time_events_full_days_for_occasions: dict[EntityId, TimeEventFullDaysBlock] = {
             te.source_entity_ref_id: te
             for te in time_events_full_days
-            if te.namespace == TimeEventNamespace.PERSON_BIRTHDAY
+            if te.namespace == TimeEventNamespace.PERSON_OCCASION
         }
         persons = []
-        if len(time_events_full_days_for_persons) > 0:
-            persons = await uow.get_for(Person).find_all_generic(
-                parent_ref_id=workspace.ref_id,
-                allow_archived=False,
-                ref_id=list(time_events_full_days_for_persons.keys()),
+        persons_by_ref_id: dict[EntityId, Person] = {}
+        occasions = []
+        if len(time_events_full_days_for_occasions) > 0:
+            prm = await uow.get_for(PRM).load_by_parent(
+                workspace.ref_id,
             )
-        person_entries = [
-            PersonEntry(
-                person=person,
-                birthday_time_event=time_events_full_days_for_persons[person.ref_id],
+            persons = await uow.get_for(Person).find_all(
+                parent_ref_id=prm.ref_id,
+                allow_archived=True,
             )
-            for person in persons
+
+            persons_by_ref_id = {p.ref_id: p for p in persons}
+            occasions = await uow.get_for(Occasion).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=list(time_events_full_days_for_occasions.keys()),
+            )
+        person_occasion_entries = [
+            PersonOccasionEntry(
+                person=persons_by_ref_id[occasion.person.ref_id],
+                occasion=occasion,
+                occasion_time_event=time_events_full_days_for_occasions[
+                    occasion.ref_id
+                ],
+            )
+            for occasion in occasions
         ]
 
         time_event_full_days_for_vacations: dict[EntityId, TimeEventFullDaysBlock] = {
@@ -372,8 +396,11 @@ class CalendarLoadForDateAndPeriodUseCase(
         }
         vacations = []
         if len(time_event_full_days_for_vacations) > 0:
+            vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
+                workspace.ref_id,
+            )
             vacations = await uow.get_for(Vacation).find_all_generic(
-                parent_ref_id=workspace.ref_id,
+                parent_ref_id=vacation_collection.ref_id,
                 allow_archived=False,
                 ref_id=list(time_event_full_days_for_vacations.keys()),
             )
@@ -389,7 +416,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
             inbox_task_entries=inbox_task_entries,
-            person_entries=person_entries,
+            person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )
 
@@ -444,7 +471,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                     ):
                         schedule_event_full_days_cnt += full_days_stats.cnt
                     elif (
-                        full_days_stats.namespace == TimeEventNamespace.PERSON_BIRTHDAY
+                        full_days_stats.namespace == TimeEventNamespace.PERSON_OCCASION
                     ):
                         person_birthday_cnt += full_days_stats.cnt
                     elif full_days_stats.namespace == TimeEventNamespace.VACATION:

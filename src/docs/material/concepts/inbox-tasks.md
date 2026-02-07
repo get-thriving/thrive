@@ -38,9 +38,9 @@ Tasks also have a _source_, which can be one of:
 * _Big Plan_: the task belongs to a [big plan](big-plans.md).
 * _Metric_: the task has been generated for a particular [metric](metrics.md).
 * _Person Catch Up_: the task has been generated as a catch up task for a
-  [person](persons.md).
+  [person](prm/persons.md).
 * _Person Birthday_: the task has been generated as a birthday task for a
-  [person](persons.md).
+  [person](prm/persons.md).
 
 In the Inbox, you can see tasks in a sort of Kanban board, organised by status
 likethis:

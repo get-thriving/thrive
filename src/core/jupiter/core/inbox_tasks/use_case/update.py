@@ -27,6 +27,9 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -70,6 +73,8 @@ class InboxTaskUpdateArgs(UseCaseArgsBase):
     name: UpdateAction[InboxTaskName]
     status: UpdateAction[InboxTaskStatus]
     project_ref_id: UpdateAction[EntityId]
+    chapter_ref_id: UpdateAction[EntityId | None]
+    goal_ref_id: UpdateAction[EntityId | None]
     big_plan_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     eisen: UpdateAction[Eisen]
@@ -104,8 +109,27 @@ class InboxTaskUpdateUseCase(
         workspace = context.workspace
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
 
+        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            if (
+                args.project_ref_id.should_change
+                and args.project_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.chapter_ref_id.should_change
+                and args.chapter_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+            if (
+                args.goal_ref_id.should_change
+                and args.goal_ref_id.just_the_value is not None
+            ):
+                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
+
         try:
             the_project: UpdateAction[EntityId]
+            the_chapter: UpdateAction[EntityId | None]
+            the_goal: UpdateAction[EntityId | None]
             previous_big_plan: BigPlan | None
             new_big_plan: BigPlan | None
 
@@ -134,7 +158,28 @@ class InboxTaskUpdateUseCase(
                             "Changing the project of a task and associating it with a big plan at the same time is not allowed"
                         )
 
+                    if (
+                        args.chapter_ref_id.should_change
+                        and args.chapter_ref_id.just_the_value is not None
+                        and args.chapter_ref_id.just_the_value
+                        != new_big_plan.chapter_ref_id
+                    ):
+                        raise InputValidationError(
+                            "Changing the chapter of a task and associating it with a big plan at the same time is not allowed"
+                        )
+
+                    if (
+                        args.goal_ref_id.should_change
+                        and args.goal_ref_id.just_the_value is not None
+                        and args.goal_ref_id.just_the_value != new_big_plan.goal_ref_id
+                    ):
+                        raise InputValidationError(
+                            "Changing the goal of a task and associating it with a big plan at the same time is not allowed"
+                        )
+
                     the_project = UpdateAction.change_to(new_big_plan.project_ref_id)
+                    the_chapter = UpdateAction.change_to(new_big_plan.chapter_ref_id)
+                    the_goal = UpdateAction.change_to(new_big_plan.goal_ref_id)
 
                     new_big_plan = await self._process_time_plans_for_big_plan(
                         uow,
@@ -146,15 +191,40 @@ class InboxTaskUpdateUseCase(
                     )
                 else:
                     the_project = args.project_ref_id
+                    the_chapter = args.chapter_ref_id
+                    the_goal = args.goal_ref_id
                     new_big_plan = None
             else:
                 the_project = args.project_ref_id
+                the_chapter = args.chapter_ref_id
+                the_goal = args.goal_ref_id
                 new_big_plan = previous_big_plan
+
+            project = await uow.get_for(Project).load_by_id(
+                the_project.or_else(inbox_task.project_ref_id)
+            )
+
+            if the_chapter.should_change and the_chapter.just_the_value is not None:
+                chapter = await uow.get_for(Chapter).load_by_id(
+                    the_chapter.just_the_value
+                )
+                if chapter.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Chapter does not belong to task's project '{project.name}'"
+                    )
+            if the_goal.should_change and the_goal.just_the_value is not None:
+                goal = await uow.get_for(Goal).load_by_id(the_goal.just_the_value)
+                if goal.project_ref_id != project.ref_id:
+                    raise InputValidationError(
+                        f"Goal does not belong to task's project '{project.name}'"
+                    )
 
             new_inbox_task = inbox_task.update(
                 ctx=context.domain_context,
                 name=args.name,
                 project_ref_id=the_project,
+                chapter_ref_id=the_chapter,
+                goal_ref_id=the_goal,
                 big_plan_ref_id=args.big_plan_ref_id,
                 is_key=args.is_key,
                 status=args.status,

@@ -30,6 +30,10 @@ class NamedEntityTag(EnumValue):
     BIG_PLAN_MILESTONE = "BigPlanMilestone"  # BigPlanMilestone.__name__
     DOC = "Doc"  # Doc.__name__
     JOURNAL = "Journal"  # Journal.__name__
+    CHAPTER = "Chapter"  # Chapter.__name__
+    GOAL = "Goal"  # Goal.__name__
+    MILESTONE = "Milestone"  # Milestone.__name__
+    VISION = "Vision"  # Vision.__name__
     VACATION = "Vacation"  # Vacation.__name__
     PROJECT = "Project"  # Project.__name__
     SMART_LIST = "SmartList"  # SmartList.__name__
@@ -38,6 +42,8 @@ class NamedEntityTag(EnumValue):
     METRIC = "Metric"  # Metric.__name__
     METRIC_ENTRY = "MetricEntry"  # MetricEntry.__name__
     PERSON = "Person"  # Person.__name__
+    OCCASION = "Occasion"  # Occasion.__name__
+    CIRCLE = "Circle"  # Circle.__name__
     SLACK_TASK = "SlackTask"  # SlackTask.__name__
     EMAIL_TASK = "EmailTask"  # EmailTask.__name__
 
