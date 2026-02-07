@@ -100,13 +100,13 @@ if [ "${desktop_macos}" = true ]; then
     log info "Uploading desktop macOS releases ${usage_version} on GitHub"
 
     # if the releases don't exist
-    if [ ! -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg ] || [ ! -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.dmg ]; then
+    if [ ! -f .build-cache/desktop/mac-store/v${usage_version}/make/Thrive-"${usage_version}"-universal.pkg ] || [ ! -f .build-cache/desktop/mac-web/v${usage_version}/make/Thrive-"${usage_version}"-universal.dmg ]; then
         log info "Desktop macOS releases do not exist"
         exit 1
     fi
 
-    gh release upload "${release_tag}" --clobber .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg
-    gh release upload "${release_tag}" --clobber .build-cache/desktop/make/Thrive-"${usage_version}"-universal.dmg
+    gh release upload "${release_tag}" --clobber .build-cache/desktop/mac-store/v${usage_version}/make/Thrive-"${usage_version}"-universal.pkg
+    gh release upload "${release_tag}" --clobber .build-cache/desktop/mac-web/v${usage_version}/make/Thrive-"${usage_version}"-universal.dmg
 fi
 
 if [ "${mobile_ios}" = true ]; then
@@ -123,12 +123,12 @@ fi
 if [ "${mobile_android}" = true ]; then
     log info "Uploading Android releases ${usage_version} on GitHub"
 
-    if [ ! -f .build-cache/mobile/android/v"${usage_version}"/build/Thrive-"${usage_version}".apk ]; then
+    if [ ! -f .build-cache/mobile/android/v"${usage_version}"/app-"${usage_version}".aab ]; then
         log info "Android release does not exist"
         exit 1
     fi
 
-    gh release upload "${release_tag}" --clobber .build-cache/mobile/android/v"${usage_version}"/build/app-"${usage_version}".aab
+    gh release upload "${release_tag}" --clobber .build-cache/mobile/android/v"${usage_version}"/app-"${usage_version}".aab
 fi
 
 log info "Uploading self-hosted files ${usage_version} on GitHub"
