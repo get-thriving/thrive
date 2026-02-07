@@ -16,6 +16,7 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.domain import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
 from jupiter.core.config import (
@@ -455,6 +456,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_time_event_domain = await uow.get_for(TimeEventDomain).create(
                 new_time_event_domain
             )
+
+            new_tag_domain = TagDomain.new_tag_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_tag_domain = await uow.get_for(TagDomain).create(new_tag_domain)
 
             new_gc_log = GCLog.new_gc_log(
                 ctx=context.domain_context,
