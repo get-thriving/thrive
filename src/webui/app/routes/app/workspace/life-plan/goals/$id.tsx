@@ -1,7 +1,7 @@
 import {
   ApiError,
   GoalSummary,
-  NoteDomain,
+  NoteNamespace,
   ProjectSummary,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
@@ -121,7 +121,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.GOAL,
+          domain: NoteNamespace.GOAL,
           source_entity_ref_id: id,
           content: [],
         });

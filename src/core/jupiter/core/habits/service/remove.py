@@ -1,6 +1,6 @@
 """Shared service for removing a habit."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -59,7 +59,7 @@ class HabitRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.HABIT, habit.ref_id
+            ctx, uow, NoteNamespace.HABIT, habit.ref_id
         )
 
         all_streak_marks = await uow.get(HabitStreakMarkRepository).find_all(

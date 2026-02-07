@@ -1,6 +1,6 @@
 """A smart list item."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.url import URL
 from jupiter.core.smart_lists.sub.item.name import (
@@ -37,7 +37,7 @@ class SmartListItem(LeafEntity):
     tags = RefsMany(SmartListTag, ref_id=IsOneOfRefId("tags_ref_id"))
     all_tags = RefsMany(SmartListTag, smart_list_ref_id=IsParentLink())
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SMART_LIST_ITEM, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.SMART_LIST_ITEM, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

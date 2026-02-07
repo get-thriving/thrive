@@ -1,4 +1,4 @@
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { ApiError, NoteNamespace } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -104,7 +104,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SMART_LIST,
+          domain: NoteNamespace.SMART_LIST,
           source_entity_ref_id: id,
           content: [],
         });

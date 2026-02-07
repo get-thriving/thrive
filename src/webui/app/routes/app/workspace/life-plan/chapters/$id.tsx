@@ -2,7 +2,7 @@ import {
   ApiError,
   LifePlan,
   MilestoneSummary,
-  NoteDomain,
+  NoteNamespace,
   ProjectSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -134,7 +134,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.CHAPTER,
+          domain: NoteNamespace.CHAPTER,
           source_entity_ref_id: id,
           content: [],
         });

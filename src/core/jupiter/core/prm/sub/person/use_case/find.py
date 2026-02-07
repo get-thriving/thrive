@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
@@ -144,7 +144,7 @@ class PersonFindUseCase(
             )
             all_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=notes_collection.ref_id,
-                domain=NoteDomain.PERSON,
+                namespace=NoteNamespace.PERSON,
                 allow_archived=True,
                 source_entity_ref_id=[p.ref_id for p in persons],
             )

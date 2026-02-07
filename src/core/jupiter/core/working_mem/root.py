@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -23,7 +23,9 @@ class WorkingMem(StubEntity):
 
     working_mem_collection: ParentLink
 
-    note = OwnsOne(Note, domain=NoteDomain.WORKING_MEM, source_entity_ref_id=IsRefId())
+    note = OwnsOne(
+        Note, namespace=NoteNamespace.WORKING_MEM, source_entity_ref_id=IsRefId()
+    )
 
     @staticmethod
     @create_entity_action

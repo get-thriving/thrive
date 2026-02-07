@@ -13,7 +13,7 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
   SyncTarget,
@@ -310,7 +310,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.BIG_PLAN,
+          domain: NoteNamespace.BIG_PLAN,
           source_entity_ref_id: id,
           content: [],
         });

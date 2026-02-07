@@ -1,6 +1,6 @@
 """Remove a doc."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -32,7 +32,7 @@ class DocRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.DOC, doc.ref_id
+            ctx, uow, NoteNamespace.DOC, doc.ref_id
         )
 
         await uow.get_for(Doc).remove(doc.ref_id)

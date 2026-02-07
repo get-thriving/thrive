@@ -15,11 +15,11 @@ uv = "latest"
 pnpm = "latest"
 terraform = "latest"
 ruby = "3.2.10"
-java = "openjdk-21"
+java = "openjdk-17"
 
 [env]
-RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
 UV_PROJECT_ENVIRONMENT = "{{ config_root }}/.build-cache/venv"
+RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
 _.python.venv = { path = ".build-cache/venv", create = true }
 
 [task_config]

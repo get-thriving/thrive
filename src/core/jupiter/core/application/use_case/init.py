@@ -14,7 +14,7 @@ from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
@@ -277,7 +277,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_working_mem_note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=new_note_collection.ref_id,
-                domain=NoteDomain.WORKING_MEM,
+                namespace=NoteNamespace.WORKING_MEM,
                 source_entity_ref_id=new_working_mem.ref_id,
                 content=[],
             )

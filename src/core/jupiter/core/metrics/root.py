@@ -2,7 +2,7 @@
 
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
@@ -40,7 +40,9 @@ class Metric(BranchEntity):
     collection_tasks = OwnsMany(
         InboxTask, source=InboxTaskSource.METRIC, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(Note, domain=NoteDomain.METRIC, source_entity_ref_id=IsRefId())
+    note = OwnsAtMostOne(
+        Note, namespace=NoteNamespace.METRIC, source_entity_ref_id=IsRefId()
+    )
 
     @staticmethod
     @create_entity_action

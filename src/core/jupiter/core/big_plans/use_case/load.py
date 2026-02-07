@@ -3,7 +3,7 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -102,7 +102,7 @@ class BigPlanLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.BIG_PLAN,
+            NoteNamespace.BIG_PLAN,
             big_plan.ref_id,
             allow_archived=args.allow_archived,
         )

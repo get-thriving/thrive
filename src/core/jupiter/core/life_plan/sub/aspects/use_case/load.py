@@ -1,6 +1,6 @@
 """Use case for loading a particular project."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -55,7 +55,7 @@ class ProjectLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.PROJECT, project.ref_id, allow_archived=args.allow_archived
+            NoteNamespace.PROJECT, project.ref_id, allow_archived=args.allow_archived
         )
 
         return ProjectLoadResult(project=project, note=note)

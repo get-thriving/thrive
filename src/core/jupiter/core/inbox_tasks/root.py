@@ -10,7 +10,7 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
@@ -85,7 +85,7 @@ class InboxTask(LeafEntity):
     completed_time: Timestamp | None
 
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.INBOX_TASK, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
     )
 
     @property

@@ -1,7 +1,7 @@
 """Load a particulr doc."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -56,7 +56,7 @@ class DocLoadUseCase(
             args.ref_id, allow_archived=args.allow_archived
         )
         note = await uow.get(NoteRepository).load_for_source(
-            NoteDomain.DOC, doc.ref_id, allow_archived=args.allow_archived
+            NoteNamespace.DOC, doc.ref_id, allow_archived=args.allow_archived
         )
         subdocs = await uow.get_for(Doc).find_all_generic(
             parent_ref_id=doc.doc_collection.ref_id,

@@ -5,7 +5,7 @@ from collections import defaultdict
 from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -102,7 +102,7 @@ class MetricFindUseCase(
             )
             all_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.METRIC,
+                namespace=NoteNamespace.METRIC,
                 allow_archived=True,
                 source_entity_ref_id=[m.ref_id for m in metrics],
             )
@@ -168,7 +168,7 @@ class MetricFindUseCase(
             )
             all_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.METRIC_ENTRY,
+                namespace=NoteNamespace.METRIC_ENTRY,
                 allow_archived=True,
                 source_entity_ref_id=[me.ref_id for me in metric_entries],
             )

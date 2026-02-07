@@ -3,7 +3,7 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -83,7 +83,7 @@ class BigPlanRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.BIG_PLAN, big_plan.ref_id
+            ctx, uow, NoteNamespace.BIG_PLAN, big_plan.ref_id
         )
 
         time_plan_activities_for_big_plan = await uow.get(

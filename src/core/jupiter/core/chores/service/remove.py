@@ -2,7 +2,7 @@
 
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -53,7 +53,7 @@ class ChoreRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.CHORE, chore.ref_id
+            ctx, uow, NoteNamespace.CHORE, chore.ref_id
         )
 
         chore = await uow.get_for(Chore).remove(ref_id)

@@ -1,6 +1,6 @@
 """A specific schedule group or stream of events."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.url import URL
 from jupiter.core.schedule.sub.event_full_days.root import (
@@ -49,7 +49,7 @@ class ScheduleStream(LeafEntity):
     in_day_events = OwnsMany(ScheduleEventInDay, schedule_stream_ref_id=IsRefId())
     full_days_events = OwnsMany(ScheduleEventFullDays, schedule_stream_ref_id=IsRefId())
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SCHEDULE_STREAM, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.SCHEDULE_STREAM, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

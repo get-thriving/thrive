@@ -3,7 +3,7 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -63,5 +63,5 @@ class ChoreArchiveService:
 
         note_archive_service = NoteArchiveService()
         await note_archive_service.archive_for_source(
-            ctx, uow, NoteDomain.CHORE, chore.ref_id, archival_reason
+            ctx, uow, NoteNamespace.CHORE, chore.ref_id, archival_reason
         )

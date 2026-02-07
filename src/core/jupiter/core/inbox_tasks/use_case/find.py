@@ -7,7 +7,7 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
@@ -363,7 +363,7 @@ class InboxTaskFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.INBOX_TASK,
+                namespace=NoteNamespace.INBOX_TASK,
                 allow_archived=True,
                 source_entity_ref_id=[it.ref_id for it in inbox_tasks],
             )

@@ -327,7 +327,7 @@ export type { NoteCollection } from './models/NoteCollection';
 export type { NoteContentBlock } from './models/NoteContentBlock';
 export type { NoteCreateArgs } from './models/NoteCreateArgs';
 export type { NoteCreateResult } from './models/NoteCreateResult';
-export { NoteDomain } from './models/NoteDomain';
+export { NoteNamespace } from './models/NoteNamespace';
 export type { NoteRemoveArgs } from './models/NoteRemoveArgs';
 export type { NoteUpdateArgs } from './models/NoteUpdateArgs';
 export { NumberedListBlock } from './models/NumberedListBlock';

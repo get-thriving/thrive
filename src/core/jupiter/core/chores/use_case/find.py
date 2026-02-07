@@ -5,7 +5,7 @@ from collections import defaultdict
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -150,7 +150,7 @@ class ChoreFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                source=NoteDomain.CHORE,
+                source=NoteNamespace.CHORE,
                 allow_archived=True,
                 source_entity_ref_id=[chore.ref_id for chore in chores],
             )

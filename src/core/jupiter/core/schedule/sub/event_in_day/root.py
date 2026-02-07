@@ -1,6 +1,6 @@
 """An event in a schedule."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -45,7 +45,7 @@ class ScheduleEventInDay(LeafEntity):
         source_entity_ref_id=IsRefId(),
     )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SCHEDULE_EVENT_IN_DAY, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

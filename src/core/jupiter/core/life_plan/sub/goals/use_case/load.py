@@ -1,6 +1,6 @@
 """Use case for loading a particular goal."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -53,7 +53,7 @@ class GoalLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.GOAL, goal.ref_id, allow_archived=args.allow_archived
+            NoteNamespace.GOAL, goal.ref_id, allow_archived=args.allow_archived
         )
 
         return GoalLoadResult(goal=goal, note=note)

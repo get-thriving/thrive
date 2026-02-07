@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class NoteDomain(str, Enum):
+class NoteNamespace(str, Enum):
     BIG_PLAN = "big-plan"
     CHAPTER = "chapter"
     CHORE = "chore"

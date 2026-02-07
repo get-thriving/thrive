@@ -1,5 +1,5 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { ApiError, NoteNamespace } from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -157,7 +157,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SCHEDULE_EVENT_IN_DAY,
+          domain: NoteNamespace.SCHEDULE_EVENT_IN_DAY,
           source_entity_ref_id: id,
           content: [],
         });

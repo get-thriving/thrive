@@ -1,7 +1,7 @@
 """The command for archiving a smart list."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -70,7 +70,7 @@ class SmartListArchiveUseCase(
             await note_archive_service.archive_for_source(
                 context.domain_context,
                 uow,
-                NoteDomain.SMART_LIST_ITEM,
+                NoteNamespace.SMART_LIST_ITEM,
                 smart_list_item.ref_id,
                 JupiterArchivalReason.USER,
             )
@@ -79,7 +79,7 @@ class SmartListArchiveUseCase(
         await note_archive_service.archive_for_source(
             context.domain_context,
             uow,
-            NoteDomain.SMART_LIST,
+            NoteNamespace.SMART_LIST,
             smart_list.ref_id,
             JupiterArchivalReason.USER,
         )

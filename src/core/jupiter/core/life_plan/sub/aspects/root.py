@@ -4,7 +4,7 @@ import abc
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
@@ -49,7 +49,7 @@ class Project(LeafEntity):
     big_plans = RefsMany(BigPlan, project_ref_id=IsRefId())
 
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.PROJECT, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.PROJECT, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

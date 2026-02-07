@@ -5,7 +5,7 @@
 /**
  * The source of a note.
  */
-export enum NoteDomain {
+export enum NoteNamespace {
     INBOX_TASK = 'inbox-task',
     WORKING_MEM = 'working-mem',
     TIME_PLAN = 'time-plan',

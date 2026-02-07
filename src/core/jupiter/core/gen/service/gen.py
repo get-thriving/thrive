@@ -14,7 +14,7 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
@@ -968,7 +968,7 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        domain=NoteDomain.TIME_PLAN,
+                        namespace=NoteNamespace.TIME_PLAN,
                         source_entity_ref_id=time_plan.ref_id,
                         content=[],
                     )
@@ -1385,7 +1385,7 @@ class GenService:
                     new_note = Note.new_note(
                         ctx,
                         note_collection_ref_id=note_collection.ref_id,
-                        domain=NoteDomain.JOURNAL,
+                        namespace=NoteNamespace.JOURNAL,
                         source_entity_ref_id=journal.ref_id,
                         content=[],
                     )

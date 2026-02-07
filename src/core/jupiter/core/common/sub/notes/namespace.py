@@ -4,7 +4,7 @@ from jupiter.framework.value import EnumValue, enum_value
 
 
 @enum_value
-class NoteDomain(EnumValue):
+class NoteNamespace(EnumValue):
     """The source of a note."""
 
     INBOX_TASK = "inbox-task"

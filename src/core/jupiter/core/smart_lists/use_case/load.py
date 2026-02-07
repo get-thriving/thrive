@@ -1,7 +1,7 @@
 """Use case for loading a smart list."""
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -70,7 +70,7 @@ class SmartListLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.SMART_LIST,
+            NoteNamespace.SMART_LIST,
             smart_list.ref_id,
             allow_archived=args.allow_archived,
         )
@@ -82,7 +82,7 @@ class SmartListLoadUseCase(
         if len(smart_list_items) > 0:
             smart_list_item_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.SMART_LIST_ITEM,
+                namespace=NoteNamespace.SMART_LIST_ITEM,
                 allow_archived=args.allow_archived,
                 source_entity_ref_id=[item.ref_id for item in smart_list_items],
             )

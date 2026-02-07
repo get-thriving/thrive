@@ -8,7 +8,7 @@ from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -184,7 +184,7 @@ class BigPlanFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.BIG_PLAN,
+                namespace=NoteNamespace.BIG_PLAN,
                 allow_archived=True,
                 source_entity_ref_id=[bp.ref_id for bp in big_plans],
             )

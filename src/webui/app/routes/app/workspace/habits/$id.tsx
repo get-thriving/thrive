@@ -12,7 +12,7 @@ import {
   Eisen,
   HabitRepeatsStrategy,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   RecurringTaskPeriod,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -283,7 +283,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.HABIT,
+          domain: NoteNamespace.HABIT,
           source_entity_ref_id: id,
           content: [],
         });

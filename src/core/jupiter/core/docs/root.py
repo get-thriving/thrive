@@ -2,7 +2,7 @@
 
 import abc
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
@@ -30,7 +30,7 @@ class Doc(LeafEntity):
     idempotency_key: DocIdempotencyKey
     name: DocName
 
-    note = OwnsOne(Note, domain=NoteDomain.DOC, source_entity_ref_id=IsRefId())
+    note = OwnsOne(Note, namespace=NoteNamespace.DOC, source_entity_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

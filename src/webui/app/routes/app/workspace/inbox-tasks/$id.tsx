@@ -13,7 +13,7 @@ import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -301,7 +301,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.INBOX_TASK,
+          domain: NoteNamespace.INBOX_TASK,
           source_entity_ref_id: id,
           content: [],
         });

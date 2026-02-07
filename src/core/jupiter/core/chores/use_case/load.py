@@ -1,7 +1,7 @@
 """Use case for loading a particular chore."""
 
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -111,7 +111,7 @@ class ChoreLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.CHORE,
+            NoteNamespace.CHORE,
             chore.ref_id,
             allow_archived=args.allow_archived,
         )

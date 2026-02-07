@@ -431,7 +431,7 @@ from .note_collection import NoteCollection
 from .note_content_block import NoteContentBlock
 from .note_create_args import NoteCreateArgs
 from .note_create_result import NoteCreateResult
-from .note_domain import NoteDomain
+from .note_namespace import NoteNamespace
 from .note_remove_args import NoteRemoveArgs
 from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
@@ -1238,7 +1238,7 @@ __all__ = (
     "NoteContentBlock",
     "NoteCreateArgs",
     "NoteCreateResult",
-    "NoteDomain",
+    "NoteNamespace",
     "NoteRemoveArgs",
     "NoteUpdateArgs",
     "NoteUpdateArgsContent",

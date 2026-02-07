@@ -4,7 +4,7 @@ import abc
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.inbox_tasks.root import InboxTask
@@ -55,7 +55,7 @@ class TimePlan(LeafEntity):
     end_date: ADate
 
     activities = ContainsMany(TimePlanActivity, time_plan_ref_id=IsRefId())
-    note = OwnsOne(Note, domain=NoteDomain.TIME_PLAN, source_entity_ref_id=IsRefId())
+    note = OwnsOne(Note, namespace=NoteNamespace.TIME_PLAN, source_entity_ref_id=IsRefId())
     planning_task = OwnsAtMostOne(
         InboxTask, source=InboxTaskSource.TIME_PLAN, source_entity_ref_id=IsRefId()
     )

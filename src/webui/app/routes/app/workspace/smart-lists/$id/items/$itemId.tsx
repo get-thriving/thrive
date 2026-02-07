@@ -1,4 +1,4 @@
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import { ApiError, NoteNamespace } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormControlLabel,
@@ -128,7 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SMART_LIST_ITEM,
+          domain: NoteNamespace.SMART_LIST_ITEM,
           source_entity_ref_id: itemId,
           content: [],
         });

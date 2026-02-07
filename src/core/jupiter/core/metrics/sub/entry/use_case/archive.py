@@ -1,7 +1,7 @@
 """The command for archiving a metric entry."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
@@ -52,7 +52,7 @@ class MetricEntryArchiveUseCase(
         await note_archive_service.archive_for_source(
             context.domain_context,
             uow,
-            NoteDomain.METRIC_ENTRY,
+            NoteNamespace.METRIC_ENTRY,
             metric_entry.ref_id,
             JupiterArchivalReason.USER,
         )

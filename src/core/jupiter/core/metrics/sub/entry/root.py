@@ -1,6 +1,6 @@
 """A metric entry."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -27,7 +27,7 @@ class MetricEntry(LeafEntity):
     value: float
 
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.METRIC_ENTRY, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.METRIC_ENTRY, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

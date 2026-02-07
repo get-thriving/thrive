@@ -1,6 +1,6 @@
 """Use case for loading a particular stream."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -57,7 +57,7 @@ class ScheduleStreamLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.SCHEDULE_STREAM,
+            NoteNamespace.SCHEDULE_STREAM,
             schedule_stream.ref_id,
             allow_archived=args.allow_archived,
         )

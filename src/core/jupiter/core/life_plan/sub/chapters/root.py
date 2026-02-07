@@ -1,6 +1,6 @@
 """A chapter in a life plan."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
@@ -31,7 +31,7 @@ class Chapter(LeafEntity):
     end_date: PartialDate
 
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.CHAPTER, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.CHAPTER, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

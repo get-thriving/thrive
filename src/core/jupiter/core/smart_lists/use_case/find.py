@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.name import TagName
 from jupiter.core.config import (
@@ -98,7 +98,7 @@ class SmartListFindUseCase(
             )
             all_smart_list_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.SMART_LIST,
+                namespace=NoteNamespace.SMART_LIST,
                 allow_archived=True,
                 source_entity_ref_id=[sl.ref_id for sl in smart_lists],
             )
@@ -167,7 +167,7 @@ class SmartListFindUseCase(
             )
             all_smart_list_item_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.SMART_LIST_ITEM,
+                namespace=NoteNamespace.SMART_LIST_ITEM,
                 allow_archived=True,
             )
             for note in all_smart_list_item_notes:

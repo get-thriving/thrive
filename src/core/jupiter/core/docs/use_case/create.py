@@ -3,7 +3,7 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -87,14 +87,14 @@ class DocCreateUseCase(
             note = Note.new_note(
                 ctx=context.domain_context,
                 note_collection_ref_id=note_collection.ref_id,
-                domain=NoteDomain.DOC,
+                namespace=NoteNamespace.DOC,
                 source_entity_ref_id=doc.ref_id,
                 content=args.content,
             )
             note = await uow.get_for(Note).create(note)
         else:
             note = await uow.get(NoteRepository).load_for_source(
-                NoteDomain.DOC,
+                NoteNamespace.DOC,
                 doc.ref_id,
             )
             note = note.update(

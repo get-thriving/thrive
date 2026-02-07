@@ -1,6 +1,6 @@
 """The command for removing a metric entry."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -44,5 +44,5 @@ class MetricEntryRemoveUseCase(
         await progress_reporter.mark_removed(metric_entry)
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            context.domain_context, uow, NoteDomain.METRIC_ENTRY, metric_entry.ref_id
+            context.domain_context, uow, NoteNamespace.METRIC_ENTRY, metric_entry.ref_id
         )

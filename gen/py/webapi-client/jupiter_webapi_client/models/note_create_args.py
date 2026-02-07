@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.note_domain import NoteDomain
+from ..models.note_namespace import NoteNamespace
 
 if TYPE_CHECKING:
     from ..models.bulleted_list_block import BulletedListBlock
@@ -30,13 +30,13 @@ class NoteCreateArgs:
     """NoteCreate args.
 
     Attributes:
-        domain (NoteDomain): The source of a note.
+        namespace (NoteNamespace): The source of a note.
         source_entity_ref_id (str): A generic entity id.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
     """
 
-    domain: NoteDomain
+    namespace: NoteNamespace
     source_entity_ref_id: str
     content: list[
         BulletedListBlock
@@ -65,7 +65,7 @@ class NoteCreateArgs:
         from ..models.quote_block import QuoteBlock
         from ..models.table_block import TableBlock
 
-        domain = self.domain.value
+        namespace = self.namespace.value
 
         source_entity_ref_id = self.source_entity_ref_id
 
@@ -101,7 +101,7 @@ class NoteCreateArgs:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "domain": domain,
+                "namespace": namespace,
                 "source_entity_ref_id": source_entity_ref_id,
                 "content": content,
             }
@@ -124,7 +124,7 @@ class NoteCreateArgs:
         from ..models.table_block import TableBlock
 
         d = dict(src_dict)
-        domain = NoteDomain(d.pop("domain"))
+        namespace = NoteNamespace(d.pop("namespace"))
 
         source_entity_ref_id = d.pop("source_entity_ref_id")
 
@@ -238,7 +238,7 @@ class NoteCreateArgs:
             content.append(content_item)
 
         note_create_args = cls(
-            domain=domain,
+            namespace=namespace,
             source_entity_ref_id=source_entity_ref_id,
             content=content,
         )

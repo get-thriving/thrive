@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -81,7 +81,7 @@ class ProjectFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.PROJECT,
+                namespace=NoteNamespace.PROJECT,
                 allow_archived=True,
                 ref_id=[p.ref_id for p in projects],
             )

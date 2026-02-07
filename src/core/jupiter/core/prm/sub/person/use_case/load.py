@@ -1,6 +1,6 @@
 """Use case for loading a person."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -103,7 +103,7 @@ class PersonLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.PERSON,
+            NoteNamespace.PERSON,
             person.ref_id,
             allow_archived=args.allow_archived,
         )
