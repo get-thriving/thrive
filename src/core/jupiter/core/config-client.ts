@@ -4,7 +4,8 @@ import {
   AppPlatform,
   AppShell,
   Env,
-  Hosting,
+  Instance,
+  Universe,
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
 
@@ -12,15 +13,13 @@ import type { GlobalPropertiesServer } from "#/core/config-server";
 import type { FrontDoorInfo } from "#/core/frontdoor";
 
 export interface GlobalPropertiesClient {
+  publicName: string;
+  universe: Universe;
   env: Env;
-  hosting: Hosting;
-  hostingName: string;
+  instance: Instance;
   version: string;
   appCore: AppCore;
   frontDoorInfo: FrontDoorInfo;
-  baseName: string;
-  title: string;
-  description: string;
   webApiProgressReporterUrl: string;
   webApiUrl: string;
   docsUrl: string;
@@ -35,9 +34,10 @@ export interface GlobalPropertiesClient {
 }
 
 export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
+  publicName: "FAKE-FAKE",
+  universe: "dev",
   env: Env.LOCAL,
-  hosting: Hosting.LOCAL,
-  hostingName: "FAKE-FAKE",
+  instance: "Main",
   version: "FAKE-FAKE",
   appCore: AppCore.WEBUI,
   frontDoorInfo: {
@@ -47,9 +47,6 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
     appDistribution: AppDistribution.WEB,
     initialWindowWidth: undefined,
   },
-  baseName: "FAKE-FAKE",
-  title: "FAKE-FAKE",
-  description: "FAKE-FAKE",
   webApiProgressReporterUrl: "FAKE-FAKE",
   webApiUrl: "FAKE-FAKE",
   docsUrl: "FAKE-FAKE",
@@ -68,15 +65,13 @@ export function serverToClientGlobalProperties(
   frontDoorInfo: FrontDoorInfo,
 ): GlobalPropertiesClient {
   return {
+    publicName: globalPropertiesServer.publicName,
+    universe: globalPropertiesServer.universe,
     env: globalPropertiesServer.env,
-    hosting: globalPropertiesServer.hosting,
-    hostingName: globalPropertiesServer.hostingName,
+    instance: globalPropertiesServer.instance,
     version: globalPropertiesServer.version,
     appCore: AppCore.WEBUI,
     frontDoorInfo: frontDoorInfo,
-    baseName: globalPropertiesServer.baseName,
-    title: globalPropertiesServer.title,
-    description: globalPropertiesServer.description,
     webApiProgressReporterUrl: globalPropertiesServer.webApiProgressReporterUrl,
     webApiUrl: globalPropertiesServer.webApiUrl,
     docsUrl: globalPropertiesServer.docsUrl,

@@ -205,7 +205,7 @@ class PartialDate(AtomicValue[str]):
             case PartialDateType.START:
                 return birthday
             case PartialDateType.END:
-                return birthday.add_years(MAX_AGE).end_of("year")
+                return birthday.add_years(MAX_AGE)
 
     def latest_relative_to(
         self,
@@ -236,7 +236,7 @@ class PartialDate(AtomicValue[str]):
             case PartialDateType.START:
                 return birthday
             case PartialDateType.END:
-                return birthday.add_years(MAX_AGE).end_of("year")
+                return birthday.add_years(MAX_AGE)
 
     def contains_milestone(self, milestone_ref_id: EntityId) -> bool:
         """Check if the partial date contains a milestone."""

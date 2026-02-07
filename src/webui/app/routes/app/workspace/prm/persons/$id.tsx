@@ -52,6 +52,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi-select";
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 import { AnimatePresence } from "framer-motion";
+import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -362,170 +363,172 @@ export default function Person() {
       returnLocation="/app/workspace/prm/persons"
       shouldShowALeaflet={shouldShowALeaflet}
     >
-      <GlobalError actionResult={actionData} />
-      <SectionCard
-        title="Properties"
-        actions={
-          <SectionActions
-            id="person-properties"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Save",
-                value: "update",
-                highlight: true,
-              }),
-              ActionSingle({
-                text: "Regen",
-                value: "regen",
-                highlight: false,
-              }),
-            ]}
-          />
-        }
-      >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={person.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
-
-        <CircleMultiSelect
-          name="circleRefIds"
-          label="Circles"
-          inputsEnabled={inputsEnabled}
-          disabled={false}
-          allCircles={loaderData.allCircles}
-          defaultValue={loaderData.circleRefIds}
-          maxSelections={loaderData.maxCirclesPerPerson}
-        />
-        <FieldError actionResult={actionData} fieldName="/circle_ref_ids" />
-
-        <StandardDivider title="Catch Up" size="small" />
-
-        <RecurringTaskGenParamsBlock
-          namePrefix="catchUp"
-          fieldsPrefix="catch_up"
-          allowNonePeriod
-          period={person.catch_up_params?.period ?? "none"}
-          eisen={person.catch_up_params?.eisen}
-          difficulty={person.catch_up_params?.difficulty}
-          actionableFromDay={person.catch_up_params?.actionable_from_day}
-          actionableFromMonth={person.catch_up_params?.actionable_from_month}
-          dueAtDay={person.catch_up_params?.due_at_day}
-          dueAtMonth={person.catch_up_params?.due_at_month}
-          inputsEnabled={inputsEnabled}
-          actionData={actionData}
-        />
-      </SectionCard>
-
-      <SectionCard
-        title="Occasions"
-        actions={
-          <SectionActions
-            id="person-occasions"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              NavSingle({
-                text: "New",
-                link: `/app/workspace/prm/persons/${person.ref_id}/occasions/new`,
-              }),
-            ]}
-          />
-        }
-      >
-        <OccasionStack occasions={loaderData.occasions} />
-      </SectionCard>
-
-      <SectionCard
-        title="Note"
-        actions={
-          <SectionActions
-            id="person-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create Note",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.note !== null,
-              }),
-            ]}
-          />
-        }
-      >
-        {loaderData.note && (
-          <>
-            <EntityNoteEditor
-              initialNote={loaderData.note}
+      <NestingAwareBlock shouldHide={shouldShowALeaflet}>
+        <GlobalError actionResult={actionData} />
+        <SectionCard
+          title="Properties"
+          actions={
+            <SectionActions
+              id="person-properties"
+              topLevelInfo={topLevelInfo}
               inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Save",
+                  value: "update",
+                  highlight: true,
+                }),
+                ActionSingle({
+                  text: "Regen",
+                  value: "regen",
+                  highlight: false,
+                }),
+              ]}
             />
-          </>
-        )}
-      </SectionCard>
+          }
+        >
+          <FormControl fullWidth>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name="name"
+              readOnly={!inputsEnabled}
+              defaultValue={person.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
 
-      <SectionCard title="Birthday Tasks">
-        {sortedOccasionTasks.length > 0 && (
-          <InboxTaskStack
-            topLevelInfo={topLevelInfo}
-            showOptions={{
-              showStatus: true,
-              showDueDate: true,
-              showHandleMarkDone: true,
-              showHandleMarkNotDone: true,
-            }}
-            inboxTasks={sortedOccasionTasks}
-            withPages={{
-              retrieveOffsetParamName: "birthdayTasksRetrieveOffset",
-              totalCnt: loaderData.occasionTasksTotalCnt,
-              pageSize: loaderData.occasionTasksPageSize,
-            }}
-          />
-        )}
-      </SectionCard>
-
-      <SectionCard title="Catch Up Tasks">
-        {sortedCatchUpTasks.length > 0 && (
-          <InboxTaskStack
-            topLevelInfo={topLevelInfo}
-            showOptions={{
-              showStatus: true,
-              showDueDate: true,
-              showHandleMarkDone: true,
-              showHandleMarkNotDone: true,
-            }}
-            inboxTasks={sortedCatchUpTasks}
-            withPages={{
-              retrieveOffsetParamName: "catchUpTasksRetrieveOffset",
-              totalCnt: loaderData.catchUpTasksTotalCnt,
-              pageSize: loaderData.catchUpTasksPageSize,
-            }}
-            onCardMarkDone={handleCardMarkDone}
-            onCardMarkNotDone={handleCardMarkNotDone}
-          />
-        )}
-      </SectionCard>
-
-      {isWorkspaceFeatureAvailable(
-        topLevelInfo.workspace,
-        WorkspaceFeature.SCHEDULE,
-      ) &&
-        sortedOccasionTimeEventEntries.length > 0 && (
-          <TimeEventFullDaysBlockStack
-            topLevelInfo={topLevelInfo}
+          <CircleMultiSelect
+            name="circleRefIds"
+            label="Circles"
             inputsEnabled={inputsEnabled}
-            title="Occasion Time Events"
-            entries={sortedOccasionTimeEventEntries}
+            disabled={false}
+            allCircles={loaderData.allCircles}
+            defaultValue={loaderData.circleRefIds}
+            maxSelections={loaderData.maxCirclesPerPerson}
           />
-        )}
+          <FieldError actionResult={actionData} fieldName="/circle_ref_ids" />
+
+          <StandardDivider title="Catch Up" size="small" />
+
+          <RecurringTaskGenParamsBlock
+            namePrefix="catchUp"
+            fieldsPrefix="catch_up"
+            allowNonePeriod
+            period={person.catch_up_params?.period ?? "none"}
+            eisen={person.catch_up_params?.eisen}
+            difficulty={person.catch_up_params?.difficulty}
+            actionableFromDay={person.catch_up_params?.actionable_from_day}
+            actionableFromMonth={person.catch_up_params?.actionable_from_month}
+            dueAtDay={person.catch_up_params?.due_at_day}
+            dueAtMonth={person.catch_up_params?.due_at_month}
+            inputsEnabled={inputsEnabled}
+            actionData={actionData}
+          />
+        </SectionCard>
+
+        <SectionCard
+          title="Occasions"
+          actions={
+            <SectionActions
+              id="person-occasions"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                NavSingle({
+                  text: "New",
+                  link: `/app/workspace/prm/persons/${person.ref_id}/occasions/new`,
+                }),
+              ]}
+            />
+          }
+        >
+          <OccasionStack occasions={loaderData.occasions} />
+        </SectionCard>
+
+        <SectionCard
+          title="Note"
+          actions={
+            <SectionActions
+              id="person-note"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Create Note",
+                  value: "create-note",
+                  highlight: false,
+                  disabled: loaderData.note !== null,
+                }),
+              ]}
+            />
+          }
+        >
+          {loaderData.note && (
+            <>
+              <EntityNoteEditor
+                initialNote={loaderData.note}
+                inputsEnabled={inputsEnabled}
+              />
+            </>
+          )}
+        </SectionCard>
+
+        <SectionCard title="Birthday Tasks">
+          {sortedOccasionTasks.length > 0 && (
+            <InboxTaskStack
+              topLevelInfo={topLevelInfo}
+              showOptions={{
+                showStatus: true,
+                showDueDate: true,
+                showHandleMarkDone: true,
+                showHandleMarkNotDone: true,
+              }}
+              inboxTasks={sortedOccasionTasks}
+              withPages={{
+                retrieveOffsetParamName: "birthdayTasksRetrieveOffset",
+                totalCnt: loaderData.occasionTasksTotalCnt,
+                pageSize: loaderData.occasionTasksPageSize,
+              }}
+            />
+          )}
+        </SectionCard>
+
+        <SectionCard title="Catch Up Tasks">
+          {sortedCatchUpTasks.length > 0 && (
+            <InboxTaskStack
+              topLevelInfo={topLevelInfo}
+              showOptions={{
+                showStatus: true,
+                showDueDate: true,
+                showHandleMarkDone: true,
+                showHandleMarkNotDone: true,
+              }}
+              inboxTasks={sortedCatchUpTasks}
+              withPages={{
+                retrieveOffsetParamName: "catchUpTasksRetrieveOffset",
+                totalCnt: loaderData.catchUpTasksTotalCnt,
+                pageSize: loaderData.catchUpTasksPageSize,
+              }}
+              onCardMarkDone={handleCardMarkDone}
+              onCardMarkNotDone={handleCardMarkNotDone}
+            />
+          )}
+        </SectionCard>
+
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.SCHEDULE,
+        ) &&
+          sortedOccasionTimeEventEntries.length > 0 && (
+            <TimeEventFullDaysBlockStack
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              title="Occasion Time Events"
+              entries={sortedOccasionTimeEventEntries}
+            />
+          )}
+      </NestingAwareBlock>
 
       <AnimatePresence mode="wait" initial={false}>
         <Outlet />

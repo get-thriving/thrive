@@ -38,10 +38,12 @@ log info "Generating iOS mobile app"
 
 npx @capacitor/assets generate --iconBackgroundColor '#eeeeee' --iconBackgroundColorDark '#222222' --splashBackgroundColor '#eeeeee' --splashBackgroundColorDark '#111111'  --ios --android
 npx trapeze run config.yaml --diff
-ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx vite build --mode production --config vite.config.ts
-ENV=production HOSTING=hosted-global BUILD_TARGET=ios npx cap copy
+ENV=production BUILD_TARGET=ios npx vite build --mode production --config vite.config.ts
+ENV=production BUILD_TARGET=ios npx cap copy
 
 log info "Building iOS mobile app"
+
+(cd ios/App && pod install)
 
 xcodebuild clean \
     -workspace "$workspace" \
@@ -62,7 +64,8 @@ log info "Exporting iOS mobile app"
 xcodebuild -exportArchive \
     -archivePath "$archive_path" \
     -exportOptionsPlist "$export_options_plist" \
-    -exportPath "$ipa_path"
+    -exportPath "$ipa_path" \
+    -allowProvisioningUpdates
 
 cp "$ipa_path/App.ipa" "$ipa_path/App-${VERSION}.ipa"
 

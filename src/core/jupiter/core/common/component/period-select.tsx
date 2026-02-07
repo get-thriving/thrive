@@ -60,6 +60,7 @@ export function PeriodSelect(props: PeriodSelectProps) {
         exclusive={!props.multiSelect}
         fullWidth
         onChange={handleChangePeriod}
+        size="small"
       >
         {props.allowNonePeriod && (
           <ToggleButton value="none" disabled={!props.inputsEnabled}>

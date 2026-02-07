@@ -14,7 +14,7 @@ module.exports = {
       ? undefined
       : {
           provisioningProfile: "../../secrets/Thrive_MacOS.provisionprofile",
-          identity: "Developer ID Application: Horia-Mihai Coman",
+          identity: "Developer ID Application: Horia Coman",
           type: "distribution",
           verbose: true,
           hardenedRuntime: true,

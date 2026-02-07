@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 #MISE description="Restore Jupiter database from backup"
-#USAGE flag "--environ <environ>" help="Jupiter environ (defaults to standard environ)"
-#USAGE complete "environ" run="./tasks/run/environ/_list-fast.sh"
+#USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
+#USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
-: "${usage_environ:=}"
+: "${usage_instance:=}"
 
 set -e -o pipefail
 
 source tasks/_common.sh
 
-environ="${usage_environ}"
+instance="${usage_instance}"
 
-if [[ -z "$environ" ]]; then
-    environ=$STANDARD_ENVIRON
+if [[ -z "$instance" ]]; then
+    instance=$STANDARD_INSTANCE
 fi
 
-db_path="$RUN_ROOT/$environ/jupiter.sqlite"
-backup_path="$RUN_ROOT/$environ/jupiter.sqlite.bak"
+db_path="$RUN_ROOT/$instance/jupiter.sqlite"
+backup_path="$RUN_ROOT/$instance/jupiter.sqlite.bak"
 
 if [[ ! -f "$backup_path" ]]; then
     log info "Backup file not found at: $backup_path"
@@ -31,7 +31,7 @@ fi
 log info "Restoring Jupiter database from backup..."
 log info "Source (backup): $backup_path"
 log info "Destination: $db_path"
-log info "Environ: $environ"
+log info "Environ: $instance"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$(dirname "$db_path")"

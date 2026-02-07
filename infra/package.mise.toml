@@ -1,0 +1,47 @@
+["package:infra:fix:terraform-fmt"]
+hide = true
+sources = ["infra/**/*.tf", "infra/**/*.tfvars", "infra/**/*.hcl"]
+outputs = { auto = true }
+run = """
+#!/usr/bin/env bash
+set -e -o pipefail
+
+cd infra
+terraform fmt -recursive
+"""
+
+["package:infra:fix"]
+description = "Fix infra module"
+depends = ["package:infra:fix:*"]
+run = "true"
+
+["package:infra:lint:terraform-fmt"]
+hide = true
+sources = ["infra/**/*.tf", "infra/**/*.tfvars", "infra/**/*.hcl"]
+outputs = { auto = true }
+run = """
+#!/usr/bin/env bash
+set -e -o pipefail
+
+cd infra
+terraform fmt -check -diff -recursive
+"""
+
+["package:infra:lint:terraform-validate"]
+hide = true
+sources = ["infra/**/*.tf", "infra/**/*.tfvars", "infra/**/*.hcl"]
+outputs = { auto = true }
+run = """
+#!/usr/bin/env bash
+set -e -o pipefail
+
+cd infra
+terraform init -backend=false
+terraform validate
+"""
+
+["package:infra:lint"]
+description = "Check infra module"
+depends = ["package:infra:lint:*"]
+run = "true"
+

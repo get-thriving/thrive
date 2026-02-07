@@ -26,23 +26,18 @@ run_tests() {
         $@
 }
 
-format_local_dev_universe_url() {
-    local environ=$1
-    get_jupiter_url "$environ" webui
-}
-
-format_thrive_universe_url() {
-    local environ=$1
-    echo "https://jupiter-webui-${environ}.${GLOBAL_HOSTED_INFRA_ROOT}"
-}
-
-format_other_universe_url() {
+check_is_testable_universe() {
     local universe_url=$1
-    # If the URL starts with http or https return it as is
-    # Otherwise add http as a prefix
-    if [[ "$universe_url" =~ ^https?:// ]]; then
-        echo "$universe_url"
-    else
-        echo "http://$universe_url"
+
+    log info "Checking if universe at $universe_url is testable"
+
+    set +e
+    http --check-status --ignore-stdin --follow --timeout 10 --verify=no get "${universe_url}/test-manifest" > /dev/null 2>&1
+    local status=$?
+    set -e
+
+    if [[ "$status" -ne 0 ]]; then
+        log error "Universe at $universe_url is not testable: /test-manifest did not return a successful status code"
+        exit 1
     fi
 }

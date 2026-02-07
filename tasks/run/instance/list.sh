@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="List all Jupiter environs"
+#MISE description="List all Jupiter instances"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -9,7 +9,7 @@ set -e -o pipefail
 
 source tasks/_common.sh
 
-log debug Listing Jupiter environs
+log debug Listing Jupiter instances
 
 # --- Config ---
 COL_W=42
@@ -34,38 +34,38 @@ if [[ -z "${RUN_ROOT:-}" ]]; then
 fi
 
 if [[ ! -d "$RUN_ROOT" ]]; then
-    echo "No environs found. Run directory does not exist: $RUN_ROOT"
+    echo "No instances found. Run directory does not exist: $RUN_ROOT"
     exit 0
 fi
 
-# Collect environs (directories directly under RUN_ROOT)
+# Collect instances (directories directly under RUN_ROOT)
 # Use a portable approach that works on GNU/BSD find.
-environs=$(
+instances=$(
   find "$RUN_ROOT" -maxdepth 1 -type d -not -path "$RUN_ROOT" \
     | sed "s|$RUN_ROOT/||" \
     | LC_ALL=C sort
 )
 
-if [[ -z "$environs" ]]; then
-    echo "No environs found in $RUN_ROOT"
+if [[ -z "$instances" ]]; then
+    echo "No instances found in $RUN_ROOT"
     exit 0
 fi
 
-count="$(echo "$environs" | wc -l | tr -d ' ')"
-echo "Found $count environ(s):"
+count="$(echo "$instances" | wc -l | tr -d ' ')"
+echo "Found $count instance(s):"
 echo "Run directory: $RUN_ROOT"
 echo ""
 
-# Iterate each environ
+# Iterate each instance
 # (names shouldn't contain whitespace; if they could, switch to a read-while loop)
-for environ in $environs; do
-    environ_path="$RUN_ROOT/$environ"
+for instance in $instances; do
+    instance_path="$RUN_ROOT/$instance"
 
     # Build status info
-    webapi_url=$(get_jupiter_url "$environ" "webapi")
-    webui_url=$(get_jupiter_url "$environ" "webui")
-    docs_url=$(get_jupiter_url "$environ" "docs")
-    db_file="$environ_path/jupiter.sqlite"
+    webapi_url=$(get_dev_service_url "$instance" "webapi")
+    webui_url=$(get_dev_service_url "$instance" "webui")
+    docs_url=$(get_dev_service_url "$instance" "docs")
+    db_file="$instance_path/jupiter.sqlite"
 
     status_info="WebAPI: $webapi_url, WebUI: $webui_url, Docs: $docs_url"
 
@@ -80,16 +80,16 @@ for environ in $environs; do
     fi
 
     # Build plain (no ANSI) label for width calc
-    plain="  * $environ"
-    if [[ "${environ}" == "${STANDARD_ENVIRON:-}" ]]; then
+    plain="  * $instance"
+    if [[ "${instance}" == "${STANDARD_INSTANCE:-}" ]]; then
         plain+=" (standard)"
     fi
 
     # Build colored label for output
-    if [[ "${environ}" == "${STANDARD_ENVIRON:-}" ]]; then
-        colored="  * ${blue}${environ}${reset} ${green}(standard)${reset}"
+    if [[ "${instance}" == "${STANDARD_INSTANCE:-}" ]]; then
+        colored="  * ${blue}${instance}${reset} ${green}(standard)${reset}"
     else
-        colored="  * ${blue}${environ}${reset}"
+        colored="  * ${blue}${instance}${reset}"
     fi
 
     # Compute padding based on *visible* length of plain label

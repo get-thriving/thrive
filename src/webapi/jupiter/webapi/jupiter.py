@@ -12,7 +12,6 @@ from jupiter.core.application.impl.crm.noop import NoOpCRM
 from jupiter.core.application.impl.crm.wix import WixCRM
 from jupiter.core.config import JupiterPorts, build_global_properties
 from jupiter.core.env import Env
-from jupiter.core.hosting import Hosting
 from jupiter.core.search.impl.storage_engine import (
     SqliteSearchStorageEngine,
 )
@@ -50,7 +49,7 @@ async def main() -> None:
 
     if (
         global_properties.env.is_live
-        and global_properties.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting.is_hosted_global
     ):
         telemetry = SentryTelemetry(global_properties.sentry_dsn)
     else:
@@ -90,7 +89,7 @@ async def main() -> None:
     crm: CRM
     if (
         global_properties.env == Env.PRODUCTION
-        and global_properties.hosting == Hosting.HOSTED_GLOBAL
+        and global_properties.universe.hosting.is_hosted_global
     ):
         crm = WixCRM(
             api_key=global_properties.wix_api_key,
@@ -140,8 +139,10 @@ async def main() -> None:
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI:")
     rich_print(f"  Version: {global_properties.version}")
+    rich_print(f"  Universe: {global_properties.universe}")
     rich_print(f"  Environment: {global_properties.env}")
-    rich_print(f"  Hosting: {global_properties.hosting}")
+    rich_print(f"  Instance: {global_properties.instance}")
+    rich_print(f"  Hosting: {global_properties.universe.hosting}")
     rich_print("=" * 80)
 
     try:

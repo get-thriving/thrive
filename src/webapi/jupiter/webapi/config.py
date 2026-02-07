@@ -48,7 +48,9 @@ from jupiter.framework.realm.standard import (
 from jupiter.framework.use_case_io import UseCaseResultBase
 from starlette.status import HTTP_401_UNAUTHORIZED
 
+UNIVERSE_HEADER: Final[str] = "X-Jupiter-Universe"
 ENV_HEADER: Final[str] = "X-Jupiter-Env"
+INSTANCE_HEADER: Final[str] = "X-Jupiter-Instance"
 HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
 VERSION_HEADER: Final[str] = "X-Jupiter-Version"
 FRONTDOOR_HEADER: Final[str] = "X-Jupiter-FrontDoor"
@@ -241,8 +243,12 @@ class JupiterWebApiAppForm(
 
     def add_headers_to_response(self, response: Response) -> None:
         """Add the headers to the response."""
+        response.headers[UNIVERSE_HEADER] = str(self._global_properties.universe)
         response.headers[ENV_HEADER] = self._global_properties.env.value
-        response.headers[HOSTING_HEADER] = self._global_properties.hosting.value
+        response.headers[INSTANCE_HEADER] = str(self._global_properties.instance)
+        response.headers[HOSTING_HEADER] = (
+            self._global_properties.universe.hosting.value
+        )
         response.headers[VERSION_HEADER] = self.api_version
 
     async def simple_login(

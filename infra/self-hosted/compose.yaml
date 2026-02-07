@@ -3,8 +3,10 @@ name: jupiter
 services:
   webapi:
     environment:
+      - SQLITE_DB_URL=sqlite+aiosqlite:////data/jupiter.sqlite
+      - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
-      - HOSTING=${HOSTING:-self-hosted}
+      - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
@@ -20,9 +22,9 @@ services:
       retries: 5
   webui:
     environment:
+      - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
-      - HOSTING=${HOSTING:-self-hosted}
-      - HOSTING_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=2000
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
@@ -42,10 +44,12 @@ services:
       retries: 5
   docs:
     environment:
+      - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - ENV=${ENV:-production}
+      - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - DEV_ADDR=0.0.0.0:8000
       - SITE_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
-      - PUBLIC_NAME=${PUBLIC_NAME:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - PUBLIC_NAME=${PUBLIC_NAME}
     restart: always
     image: ${DOCKER_IMAGE_DOCS:-horia141/jupiter-docs:${VERSION:-latest}}
     healthcheck:
@@ -77,5 +81,5 @@ services:
       retries: 5
 volumes:
   db:
-    name: db-${NAMESPACE:-dev}
+    name: db-${INSTANCE:-dev}
     

@@ -1,6 +1,5 @@
 import {
   ApiError,
-  GoalSummary,
   LifePlan,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";

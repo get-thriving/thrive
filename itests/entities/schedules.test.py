@@ -118,25 +118,28 @@ def test_schedule_view_with_events(
     # Create a schedule stream first
     schedule_stream = create_schedule_stream("Work Schedule", ScheduleStreamColor.BLUE)
 
+    today = pendulum.now()
+
     # Create some events
     event1 = create_schedule_event_in_day(
         schedule_stream.ref_id,
         "Morning Meeting",
-        pendulum.now().to_iso8601_string(),
+        today.to_iso8601_string(),
         "09:00",
         60,
     )
     event2 = create_schedule_event_in_day(
         schedule_stream.ref_id,
         "Lunch Break",
-        pendulum.now().to_iso8601_string(),
+        today.to_iso8601_string(),
         "12:00",
         30,
     )
+    event3_date = today.add(days=1) if today.day_of_week != 6 else today.add(days=-1)
     event3 = create_schedule_event_in_day(
         schedule_stream.ref_id,
         "Project Review",
-        pendulum.now().add(days=1).to_iso8601_string(),
+        event3_date.to_iso8601_string(),
         "14:00",
         90,
     )

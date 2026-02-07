@@ -19,6 +19,7 @@
     "@capacitor/device": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/keyboard": "^7.0.0",
     "@jupiter/webapi-client": "workspace:*",
     "dotenv": "^16.4.7"
   },

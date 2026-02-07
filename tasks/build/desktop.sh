@@ -25,7 +25,6 @@ revert_package_json() {
   rm -f src/desktop/package.json.1
   rm -f src/desktop/forge.config.cjs
   rm -f src/desktop/LICENSE
-  rm -f src/desktop/Config.project.live
   rm -f src/desktop/Config.global
 
   # if node_modules/@jupiter/webapi-client is not a link, then we should revert it
@@ -57,7 +56,8 @@ source src/Config.global
 # shellcheck disable=SC1091
 source secrets/Config.secrets
 
-mkdir -p .build-cache/desktop
+mkdir -p .build-cache/desktop/mac-store/v${VERSION}
+mkdir -p .build-cache/desktop/mac-web/v${VERSION}
 
 trap revert_package_json EXIT
 replace_package_json
@@ -66,7 +66,7 @@ log info "Building desktop app for macOS"
 
 cp LICENSE src/desktop/LICENSE
 
-(cd src/desktop && ENV=production HOSTING=hosted-global npx vite build --mode production --config vite.config.ts)
+(cd src/desktop && ENV=production npx vite build --mode production --config vite.config.ts)
 
 # Electron forge is exceedinly stupid wrt symlinks going out of it. So
 # before the build we fix this.
@@ -83,15 +83,13 @@ log info "Building desktop app for macOS with forge.config.mac-store.cjs"
 
 cp src/desktop/forge.config.mac-store.cjs src/desktop/forge.config.cjs
 cp src/Config.global src/desktop/Config.global
-cp src/desktop/Config.project.live.mac-store  src/desktop/Config.project.live
-(cd src/desktop && npx electron-forge make --platform mas --arch universal)
+(cd src/desktop && ENV=production DISTRIBUTION=mac-store npx electron-forge make --platform mas --arch universal)
 
 log info "Building desktop app for macOS with forge.config.mac-web.cjs"
 
 cp src/desktop/forge.config.mac-web.cjs src/desktop/forge.config.cjs
 cp src/Config.global src/desktop/Config.global
-cp src/desktop/Config.project.live.mac-web  src/desktop/Config.project.live
-(cd src/desktop && npx electron-forge make --platform darwin --arch universal)
+(cd src/desktop && ENV=production DISTRIBUTION=mac-web npx electron-forge make --platform darwin --arch universal)
 
-log info "Desktop app for macOS AppStore built in .build-cache/desktop/make/Thrive-${VERSION}-universal.pkg"
-log info "Desktop app for macOS Web built in .build-cache/desktop/make/Thrive-${VERSION}-universal.dmg"
+log info "Desktop app for macOS AppStore built in .build-cache/desktop/mac-store/v${VERSION}/make/Thrive-${VERSION}-universal.pkg"
+log info "Desktop app for macOS Web built in .build-cache/desktop/mac-web/v${VERSION}/make/Thrive-${VERSION}-universal.dmg"

@@ -1052,7 +1052,7 @@ function getRealText(text: string, isInDialog: boolean, isBigScreen: boolean) {
     return text;
   }
 
-  if (text.length <= 4) {
+  if (text.length <= 6) {
     return text;
   }
 
@@ -1060,5 +1060,5 @@ function getRealText(text: string, isInDialog: boolean, isBigScreen: boolean) {
     return text;
   }
 
-  return `${text.slice(0, 3)}...`;
+  return `${text.slice(0, 6)}...`;
 }
