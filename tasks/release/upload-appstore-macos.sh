@@ -32,10 +32,10 @@ source secrets/Config.secrets
 
 log info "Uploading macOS app to Apple App Store"
 
-xcrun altool --validate-app -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD" --type osx
+xcrun altool --validate-app -f .build-cache/desktop/mac-store/v${usage_version}/make/Thrive-"${usage_version}"-universal.pkg --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD" --type osx
 
 log info "Uploading macOS app to Apple App Store"
 
-xcrun altool --upload-app -f .build-cache/desktop/make/Thrive-"${usage_version}"-universal.pkg --type osx --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD"
+xcrun altool --upload-app -f .build-cache/desktop/mac-store/v${usage_version}/make/Thrive-"${usage_version}"-universal.pkg --type osx --username "$APPLE_ID" --password "$APPLE_NOTARIZATION_PASSWORD"
 
 log info "macOS app uploaded to Apple App Store"

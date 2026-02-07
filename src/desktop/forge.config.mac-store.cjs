@@ -14,10 +14,10 @@ module.exports = {
       ? undefined
       : {
           provisioningProfile: "../../secrets/Thrive_MacOS.provisionprofile",
-          identity: "Apple Distribution: Horia Coman",
+          identity: "3rd Party Mac Developer Application: Horia Coman (BTZYJ9V34R)",
           type: "distribution",
           verbose: true,
-          hardenedRuntime: true,
+          hardenedRuntime: false,
           continueOnError: false,
         },
   },
@@ -27,7 +27,7 @@ module.exports = {
     {
       name: "@electron-forge/maker-pkg",
       config: {
-        identity: "3rd Party Mac Developer Installer: Horia Coma",
+        identity: "3rd Party Mac Developer Installer: Horia Coman (BTZYJ9V34R)",
       },
     },
   ],
