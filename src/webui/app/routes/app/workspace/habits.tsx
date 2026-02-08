@@ -7,12 +7,14 @@ import type {
   HabitLoadResult,
   Project,
   ProjectSummary,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   WidgetDimension,
   WorkspaceFeature,
   DocsHelpSubject,
   RecurringTaskPeriod,
+  TagNamespace,
 } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
@@ -46,6 +48,7 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
   FilterFewOptionsSpread,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
@@ -115,6 +118,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_inbox_tasks: false,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.HABIT],
+  });
+
   let earliestDate = query.includeStreakMarksEarliestDate;
   let latestDate = query.includeStreakMarksLatestDate;
   if (earliestDate === undefined) {
@@ -144,6 +152,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     habits: response.entries,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allTags: allTags.tags,
     keyHabitStreaks: keyHabitResults.map((h) => ({
       habitRefId: h.habit.ref_id,
       streakMarkEarliestDate: h.streak_mark_earliest_date,
@@ -163,14 +172,6 @@ export default function Habits() {
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const sortedHabits = sortHabitsNaturally(
-    loaderData.habits.map((e) => e.habit),
-  );
-  const entriesByRefId = new Map<string, HabitFindResultEntry>();
-  for (const entry of loaderData.habits) {
-    entriesByRefId.set(entry.habit.ref_id, entry);
-  }
-
   const lifePlanAvailable = isWorkspaceFeatureAvailable(
     topLevelInfo.workspace,
     WorkspaceFeature.LIFE_PLAN,
@@ -185,6 +186,26 @@ export default function Habits() {
     );
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
     useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const tagsByRefId: { [tag: string]: Tag } = {};
+  for (const tag of loaderData.allTags) {
+    tagsByRefId[tag.ref_id] = tag;
+  }
+
+  const entriesByRefId = new Map<string, HabitFindResultEntry>();
+  for (const entry of loaderData.habits) {
+    entriesByRefId.set(entry.habit.ref_id, entry);
+  }
+
+  const sortedHabits = sortHabitsNaturally(
+    loaderData.habits.map((e) => e.habit),
+  ).filter((habit) => {
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      entriesByRefId.get(habit.ref_id)?.tags?.some((tag) => selectedTagsRefId.includes(tag.ref_id));
+    return tagsOk;
+  });
 
   const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
   const allProjectsByRefId = new Map(
@@ -238,7 +259,7 @@ export default function Habits() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterFewOptionsSpread(
+            FilterFewOptionsCompact(
               "Grouping",
               selectedGrouping,
               [
@@ -260,7 +281,7 @@ export default function Habits() {
             ),
             ...(isBigScreen
               ? [
-                  FilterFewOptionsSpread(
+                  FilterFewOptionsCompact(
                     "Periods",
                     selectedPeriodBreakdown,
                     [
@@ -301,12 +322,20 @@ export default function Habits() {
                   ),
                 ]
               : []),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        {sortedHabits.length === 0 && (
+        {loaderData.habits.length === 0 && (
           <EntityNoNothingCard
             title="You Have To Start Somewhere"
             message="There are no habits to show. You can create a new habit."

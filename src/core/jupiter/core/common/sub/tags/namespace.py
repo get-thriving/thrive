@@ -8,7 +8,6 @@ class TagNamespace(EnumValue):
     """The namespace of a tag."""
 
     INBOX_TASK = "inbox-task"
-    TIME_PLAN_ACTIVITY = "time-plan-activity"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = "schedule-event-full-days-block"
     HABIT = "habit"
