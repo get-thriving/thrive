@@ -2,6 +2,8 @@
 
 import sys
 
+from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
+
 from jupiter.cli.config import JupiterExceptionHandler
 from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
@@ -104,6 +106,15 @@ class JournalExistsForDatePeriodCombinationHandler(
     ) -> None:
         """Handle journal already existing."""
         print("A journal for that particular day and period already exists")
+        sys.exit(1)
+
+
+class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
+    """Handle tag already exists errors."""
+
+    def handle(self, console: Console, exception: TagAlreadyExistsError) -> None:
+        """Handle tag already exists errors."""
+        print("A tag for that particular name already exists")
         sys.exit(1)
 
 

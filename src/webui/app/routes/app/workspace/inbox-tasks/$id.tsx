@@ -301,7 +301,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteNamespace.INBOX_TASK,
+          namespace: NoteNamespace.INBOX_TASK,
           source_entity_ref_id: id,
           content: [],
         });

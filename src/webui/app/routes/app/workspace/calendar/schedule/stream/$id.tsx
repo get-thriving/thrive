@@ -118,7 +118,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteNamespace.SCHEDULE_STREAM,
+          namespace: NoteNamespace.SCHEDULE_STREAM,
           source_entity_ref_id: id,
           content: [],
         });

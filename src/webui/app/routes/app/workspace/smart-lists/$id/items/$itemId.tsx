@@ -128,7 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteNamespace.SMART_LIST_ITEM,
+          namespace: NoteNamespace.SMART_LIST_ITEM,
           source_entity_ref_id: itemId,
           content: [],
         });

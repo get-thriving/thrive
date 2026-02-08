@@ -235,7 +235,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteNamespace.METRIC,
+          namespace: NoteNamespace.METRIC,
           source_entity_ref_id: id,
           content: [],
         });
