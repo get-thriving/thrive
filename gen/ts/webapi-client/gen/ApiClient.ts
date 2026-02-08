@@ -28,6 +28,7 @@ import { ScheduleService } from './services/ScheduleService';
 import { SearchService } from './services/SearchService';
 import { SmartListsService } from './services/SmartListsService';
 import { StatsService } from './services/StatsService';
+import { TagsService } from './services/TagsService';
 import { TestHelperService } from './services/TestHelperService';
 import { TimeEventsService } from './services/TimeEventsService';
 import { TimePlansService } from './services/TimePlansService';
@@ -60,6 +61,7 @@ export class ApiClient {
     public readonly search: SearchService;
     public readonly smartLists: SmartListsService;
     public readonly stats: StatsService;
+    public readonly tags: TagsService;
     public readonly testHelper: TestHelperService;
     public readonly timeEvents: TimeEventsService;
     public readonly timePlans: TimePlansService;
@@ -103,6 +105,7 @@ export class ApiClient {
         this.search = new SearchService(this.request);
         this.smartLists = new SmartListsService(this.request);
         this.stats = new StatsService(this.request);
+        this.tags = new TagsService(this.request);
         this.testHelper = new TestHelperService(this.request);
         this.timeEvents = new TimeEventsService(this.request);
         this.timePlans = new TimePlansService(this.request);

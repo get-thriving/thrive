@@ -106,6 +106,7 @@ def upgrade() -> None:
             created_time DATETIME NOT NULL,
             last_modified_time DATETIME NOT NULL,
             archived_time DATETIME,
+            name VARCHAR(255) NOT NULL,
             tag_domain_ref_id INTEGER NOT NULL,
             namespace VARCHAR(255) NOT NULL,
             source_entity_ref_id INTEGER NOT NULL,

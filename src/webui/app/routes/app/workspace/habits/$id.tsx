@@ -5,6 +5,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   Project,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -14,6 +15,7 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -54,6 +56,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -99,6 +102,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("regen"),
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("create-note"),
   }),
   z.object({
@@ -133,6 +142,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.HABIT],
+  });
+
   try {
     const result = await apiClient.habits.habitLoad({
       ref_id: id,
@@ -144,6 +158,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       habit: result.habit,
+      tags: result.tags,
       note: result.note,
       streakMarks: result.streak_marks,
       streakMarkEarliestDate: result.streak_mark_earliest_date,
@@ -159,6 +174,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -276,6 +292,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "regen": {
         await apiClient.habits.habitRegen({
           ref_id: id,
+        });
+
+        return redirect(`/app/workspace/habits/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.HABIT,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/habits/${id}`);
@@ -544,6 +570,32 @@ export default function Habit() {
             )}`
           }
         />
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="habit-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tags" />
       </SectionCard>
 
       <SectionCard

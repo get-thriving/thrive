@@ -18,7 +18,7 @@ import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-edit
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { SmartListTagsEditor } from "@jupiter/core/common/sub/tags/component/smart-list-tags-editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -232,7 +232,7 @@ export default function SmartListItem() {
         </FormControl>
 
         <FormControl fullWidth>
-          <TagsEditor
+          <SmartListTagsEditor
             allTags={loaderData.tags}
             defaultTags={loaderData.item.tags_ref_id}
             readOnly={!inputsEnabled}

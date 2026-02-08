@@ -52,8 +52,8 @@ class HabitFindArgs(UseCaseArgsBase):
     include_notes: bool
     include_life_plan: bool
     include_inbox_tasks: bool
-    filter_ref_ids: list[EntityId] | NoFilter
-    filter_project_ref_ids: list[EntityId] | NoFilter
+    filter_ref_ids: list[EntityId] | None
+    filter_project_ref_ids: list[EntityId] | None
 
 
 @use_case_result_part
@@ -65,7 +65,7 @@ class HabitFindResultEntry(UseCaseResultBase):
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
-    tags: list[Tag] | None
+    tags: list[Tag]
     note: Note | None
 
 
@@ -214,8 +214,8 @@ class HabitFindUseCase(
                             all_tags_by_ref_id[rid]
                             for rid in tag_links_by_habit_ref_id[rt.ref_id].ref_ids
                         ]
-                        if tag_links_by_habit_ref_id[rt.ref_id] is not None
-                        else None
+                        if rt.ref_id in tag_links_by_habit_ref_id
+                        else []
                     ),
                     note=notes_by_habit_ref_id.get(rt.ref_id, None),
                 )

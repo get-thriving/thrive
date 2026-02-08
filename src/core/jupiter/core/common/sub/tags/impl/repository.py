@@ -40,7 +40,6 @@ class SqliteTagRepository(SqliteLeafEntityRepository[Tag], TagRepository):
         stmt = (
             sqlite_insert(self._table)
             .values(
-                ref_id=tag.ref_id.as_int(),
                 version=tag.version,
                 archived=tag.archived,
                 archival_reason=tag.archival_reason,
@@ -84,7 +83,6 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
         stmt = (
             sqlite_insert(self._table)
             .values(
-                ref_id=tag_link.ref_id.as_int(),
                 version=tag_link.version,
                 archived=tag_link.archived,
                 archival_reason=tag_link.archival_reason,
@@ -97,6 +95,7 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
                 archived_time=self._realm_codec_registry.db_encode(
                     tag_link.archived_time
                 ),
+                name=tag_link.name.the_name,
                 tag_domain_ref_id=tag_link.tag_domain.ref_id.as_int(),
                 namespace=tag_link.namespace.value,
                 source_entity_ref_id=tag_link.source_entity_ref_id.as_int(),

@@ -696,6 +696,7 @@ export { ScheduleService } from './services/ScheduleService';
 export { SearchService } from './services/SearchService';
 export { SmartListsService } from './services/SmartListsService';
 export { StatsService } from './services/StatsService';
+export { TagsService } from './services/TagsService';
 export { TestHelperService } from './services/TestHelperService';
 export { TimeEventsService } from './services/TimeEventsService';
 export { TimePlansService } from './services/TimePlansService';

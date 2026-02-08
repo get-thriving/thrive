@@ -2,34 +2,59 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { ChoreArchiveArgs } from '../models/ChoreArchiveArgs';
-import type { ChoreCreateArgs } from '../models/ChoreCreateArgs';
-import type { ChoreCreateResult } from '../models/ChoreCreateResult';
-import type { ChoreFindArgs } from '../models/ChoreFindArgs';
-import type { ChoreFindResult } from '../models/ChoreFindResult';
-import type { ChoreLoadArgs } from '../models/ChoreLoadArgs';
-import type { ChoreLoadResult } from '../models/ChoreLoadResult';
-import type { ChoreRegenArgs } from '../models/ChoreRegenArgs';
-import type { ChoreRemoveArgs } from '../models/ChoreRemoveArgs';
-import type { ChoreSuspendArgs } from '../models/ChoreSuspendArgs';
-import type { ChoreUnsuspendArgs } from '../models/ChoreUnsuspendArgs';
-import type { ChoreUpdateArgs } from '../models/ChoreUpdateArgs';
+import type { TagArchiveArgs } from '../models/TagArchiveArgs';
+import type { TagCreateArgs } from '../models/TagCreateArgs';
+import type { TagCreateResult } from '../models/TagCreateResult';
+import type { TagFindArgs } from '../models/TagFindArgs';
+import type { TagFindResult } from '../models/TagFindResult';
+import type { TagLinkUpsertArgs } from '../models/TagLinkUpsertArgs';
+import type { TagLinkUpsertResult } from '../models/TagLinkUpsertResult';
+import type { TagLoadArgs } from '../models/TagLoadArgs';
+import type { TagLoadResult } from '../models/TagLoadResult';
+import type { TagRemoveArgs } from '../models/TagRemoveArgs';
+import type { TagUpdateArgs } from '../models/TagUpdateArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
-export class ChoresService {
+export class TagsService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * The command for archiving a chore.
+     * Use case for upserting a tag link.
+     * @param requestBody The input data
+     * @returns TagLinkUpsertResult Successful response
+     * @throws ApiError
+     */
+    public tagLinkUpsert(
+        requestBody?: TagLinkUpsertArgs,
+    ): CancelablePromise<TagLinkUpsertResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/tag-link-upsert',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for archiving a tag.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public choreArchive(
-        requestBody?: ChoreArchiveArgs,
+    public tagArchive(
+        requestBody?: TagArchiveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-archive',
+            url: '/tag-archive',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -45,17 +70,17 @@ export class ChoresService {
         });
     }
     /**
-     * The command for creating a chore.
+     * Use case for creating a tag.
      * @param requestBody The input data
-     * @returns ChoreCreateResult Successful response
+     * @returns TagCreateResult Successful response
      * @throws ApiError
      */
-    public choreCreate(
-        requestBody?: ChoreCreateArgs,
-    ): CancelablePromise<ChoreCreateResult> {
+    public tagCreate(
+        requestBody?: TagCreateArgs,
+    ): CancelablePromise<TagCreateResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-create',
+            url: '/tag-create',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -71,17 +96,17 @@ export class ChoresService {
         });
     }
     /**
-     * The command for finding a chore.
+     * Use case for finding tags.
      * @param requestBody The input data
-     * @returns ChoreFindResult Successful response
+     * @returns TagFindResult Successful response
      * @throws ApiError
      */
-    public choreFind(
-        requestBody?: ChoreFindArgs,
-    ): CancelablePromise<ChoreFindResult> {
+    public tagFind(
+        requestBody?: TagFindArgs,
+    ): CancelablePromise<TagFindResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-find',
+            url: '/tag-find',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -97,17 +122,17 @@ export class ChoresService {
         });
     }
     /**
-     * Use case for loading a particular chore.
+     * Use case for loading a tag.
      * @param requestBody The input data
-     * @returns ChoreLoadResult Successful response
+     * @returns TagLoadResult Successful response
      * @throws ApiError
      */
-    public choreLoad(
-        requestBody?: ChoreLoadArgs,
-    ): CancelablePromise<ChoreLoadResult> {
+    public tagLoad(
+        requestBody?: TagLoadArgs,
+    ): CancelablePromise<TagLoadResult> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-load',
+            url: '/tag-load',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -123,17 +148,17 @@ export class ChoresService {
         });
     }
     /**
-     * A use case for regenerating tasks associated with chores.
+     * Use case for removing a tag.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public choreRegen(
-        requestBody?: ChoreRegenArgs,
+    public tagRemove(
+        requestBody?: TagRemoveArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-regen',
+            url: '/tag-remove',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -149,95 +174,17 @@ export class ChoresService {
         });
     }
     /**
-     * The command for removing a chore.
+     * Use case for updating a tag.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
      * @throws ApiError
      */
-    public choreRemove(
-        requestBody?: ChoreRemoveArgs,
+    public tagUpdate(
+        requestBody?: TagUpdateArgs,
     ): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'POST',
-            url: '/chore-remove',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for suspending a chore.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public choreSuspend(
-        requestBody?: ChoreSuspendArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/chore-suspend',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for unsuspending a chore.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public choreUnsuspend(
-        requestBody?: ChoreUnsuspendArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/chore-unsuspend',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating a chore.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public choreUpdate(
-        requestBody?: ChoreUpdateArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/chore-update',
+            url: '/tag-update',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

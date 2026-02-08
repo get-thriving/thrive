@@ -1,29 +1,23 @@
-import type { EntityId, Tag } from "@jupiter/webapi-client";
+import type { EntityId, SmartListTag } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useState } from "react";
 
 interface Props {
-  name: string;
-  allTags: Array<Tag>;
-  defaultValue: Array<EntityId>;
-  inputsEnabled: boolean;
+  allTags: Array<SmartListTag>;
+  defaultTags: Array<EntityId>;
+  readOnly: boolean;
 }
 
-export function TagsEditor({
-  name,
-  allTags,
-  defaultValue,
-  inputsEnabled,
-}: Props) {
-  const allTagsAsOptions = allTags.map((tag) => tag.name);
+export function SmartListTagsEditor({ allTags, defaultTags, readOnly }: Props) {
+  const allTagsAsOptions = allTags.map((tag) => tag.tag_name);
 
-  const tagsByRefId: { [tag: string]: Tag } = {};
+  const tagsByRefId: { [tag: string]: SmartListTag } = {};
   for (const tag of allTags) {
     tagsByRefId[tag.ref_id] = tag;
   }
 
   const [tagsHiddenValue, setTagsHiddenValue] = useState(
-    defaultValue.map((tid) => tagsByRefId[tid].name).join(","),
+    defaultTags.map((tid) => tagsByRefId[tid].tag_name).join(","),
   );
 
   return (
@@ -37,11 +31,11 @@ export function TagsEditor({
           setTagsHiddenValue(newValue.join(","));
         }}
         options={allTagsAsOptions}
-        readOnly={!inputsEnabled}
-        defaultValue={defaultValue.map((tid) => tagsByRefId[tid].name)}
+        readOnly={readOnly}
+        defaultValue={defaultTags.map((tid) => tagsByRefId[tid].tag_name)}
         renderInput={(params) => <TextField {...params} label="Tags" />}
       />
-      <input name={name} type="hidden" value={tagsHiddenValue} />
+      <input name="tags" type="hidden" value={tagsHiddenValue} />
     </>
   );
 }

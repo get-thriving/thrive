@@ -67,6 +67,7 @@ import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -108,6 +109,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const response = await apiClient.habits.habitFind({
     allow_archived: false,
+    include_tags: true,
     include_notes: false,
     include_life_plan: true,
     include_inbox_tasks: false,
@@ -435,6 +437,9 @@ function HabitRow(props: HabitRowProps) {
         {habit.gen_params.difficulty && (
           <DifficultyTag difficulty={habit.gen_params.difficulty} />
         )}
+        {entry.tags?.map((tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
       </EntityLink>
     </EntityCard>
   );

@@ -17,6 +17,7 @@ class HabitFindArgs:
 
     Attributes:
         allow_archived (bool):
+        include_tags (bool):
         include_notes (bool):
         include_life_plan (bool):
         include_inbox_tasks (bool):
@@ -25,6 +26,7 @@ class HabitFindArgs:
     """
 
     allow_archived: bool
+    include_tags: bool
     include_notes: bool
     include_life_plan: bool
     include_inbox_tasks: bool
@@ -34,6 +36,8 @@ class HabitFindArgs:
 
     def to_dict(self) -> dict[str, Any]:
         allow_archived = self.allow_archived
+
+        include_tags = self.include_tags
 
         include_notes = self.include_notes
 
@@ -64,6 +68,7 @@ class HabitFindArgs:
         field_dict.update(
             {
                 "allow_archived": allow_archived,
+                "include_tags": include_tags,
                 "include_notes": include_notes,
                 "include_life_plan": include_life_plan,
                 "include_inbox_tasks": include_inbox_tasks,
@@ -80,6 +85,8 @@ class HabitFindArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         allow_archived = d.pop("allow_archived")
+
+        include_tags = d.pop("include_tags")
 
         include_notes = d.pop("include_notes")
 
@@ -123,6 +130,7 @@ class HabitFindArgs:
 
         habit_find_args = cls(
             allow_archived=allow_archived,
+            include_tags=include_tags,
             include_notes=include_notes,
             include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="HabitLoadResult")
@@ -34,6 +35,7 @@ class HabitLoadResult:
         streak_marks (list[HabitStreakMark]):
         streak_mark_earliest_date (str): A date or possibly a datetime for the application.
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
+        tags (list[Tag]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -47,6 +49,7 @@ class HabitLoadResult:
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: str
     streak_mark_latest_date: str
+    tags: list[Tag]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -78,6 +81,11 @@ class HabitLoadResult:
         streak_mark_earliest_date = self.streak_mark_earliest_date
 
         streak_mark_latest_date = self.streak_mark_latest_date
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -115,6 +123,7 @@ class HabitLoadResult:
                 "streak_marks": streak_marks,
                 "streak_mark_earliest_date": streak_mark_earliest_date,
                 "streak_mark_latest_date": streak_mark_latest_date,
+                "tags": tags,
             }
         )
         if chapter is not UNSET:
@@ -135,6 +144,7 @@ class HabitLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
@@ -162,6 +172,13 @@ class HabitLoadResult:
         streak_mark_earliest_date = d.pop("streak_mark_earliest_date")
 
         streak_mark_latest_date = d.pop("streak_mark_latest_date")
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -223,6 +240,7 @@ class HabitLoadResult:
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
+            tags=tags,
             chapter=chapter,
             goal=goal,
             note=note,

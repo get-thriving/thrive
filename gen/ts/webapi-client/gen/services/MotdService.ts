@@ -27,7 +27,7 @@ export class MotdService {
                 401: `Error response for ExpiredAuthTokenError`,
                 404: `Error response for EntityNotFoundError`,
                 406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
                 410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
                 422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, ProjectInSignificantUseError`,
                 426: `Error response for InvalidAuthTokenError`,
