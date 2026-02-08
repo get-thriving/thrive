@@ -1,8 +1,10 @@
 import {
   ApiError,
   NoteNamespace,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -27,6 +29,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -42,6 +45,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     name: z.string(),
     startDate: z.string(),
     endDate: z.string(),
+  }),
+  z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -63,6 +72,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.VACATION],
+    });
+
     const result = await apiClient.vacations.vacationLoad({
       ref_id: id,
       allow_archived: true,
@@ -72,6 +86,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       vacation: result.vacation,
       note: result.note,
       timeEventBlock: result.time_event_block,
+      tags: result.tags,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -110,6 +126,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(`/app/workspace/vacations`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.VACATION,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
+        });
+
+        return redirect(`/app/workspace/vacations/${id}`);
       }
 
       case "create-note": {
@@ -155,7 +181,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Vacation() {
-  const { vacation, note, timeEventBlock } =
+  const { vacation, note, timeEventBlock, tags, allTags } =
     useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
@@ -246,6 +272,33 @@ export default function Vacation() {
 
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="vacation-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "vacation-tags-upsert",
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={allTags}
+          defaultValue={tags.map((tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tags" />
       </SectionCard>
 
       <SectionCard

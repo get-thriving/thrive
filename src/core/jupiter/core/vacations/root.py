@@ -4,6 +4,8 @@ import typing
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -37,6 +39,9 @@ class Vacation(LeafEntity):
     start_date: ADate
     end_date: ADate
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.VACATION, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.VACATION, source_entity_ref_id=IsRefId()
     )

@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.note import Note
+    from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
     from ..models.vacation import Vacation
 
@@ -23,11 +24,13 @@ class VacationFindResultEntry:
 
     Attributes:
         vacation (Vacation): A vacation.
+        tags (list[Tag]):
         note (None | Note | Unset):
         time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
 
     vacation: Vacation
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -37,6 +40,11 @@ class VacationFindResultEntry:
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         vacation = self.vacation.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -59,6 +67,7 @@ class VacationFindResultEntry:
         field_dict.update(
             {
                 "vacation": vacation,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -71,11 +80,19 @@ class VacationFindResultEntry:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.note import Note
+        from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
         from ..models.vacation import Vacation
 
         d = dict(src_dict)
         vacation = Vacation.from_dict(d.pop("vacation"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -113,6 +130,7 @@ class VacationFindResultEntry:
 
         vacation_find_result_entry = cls(
             vacation=vacation,
+            tags=tags,
             note=note,
             time_event_block=time_event_block,
         )
