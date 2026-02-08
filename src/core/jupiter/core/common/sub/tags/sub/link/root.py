@@ -69,14 +69,8 @@ class TagLinkRepository(LeafEntityRepository[TagLink], abc.ABC):
     """The repository for tag links."""
 
     @abc.abstractmethod
-    async def upsert_for_namespace_and_source(
-        self,
-        parent_ref_id: EntityId,
-        namespace: TagNamespace,
-        source_entity_ref_id: EntityId,
-        tag_ref_ids: list[EntityId],
-    ) -> TagLink:
-        """Upsert a tag link for a namespace and source entity reference ID."""
+    async def upsert(self, tag_link: TagLink) -> TagLink:
+        """Upsert a tag link."""
 
     @abc.abstractmethod
     async def load_by_namespace_and_source(

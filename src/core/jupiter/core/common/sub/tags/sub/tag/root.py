@@ -65,7 +65,5 @@ class TagRepository(LeafEntityRepository[Tag], abc.ABC):
     """The repository for tags."""
 
     @abc.abstractmethod
-    async def upsert(
-        self, parent_ref_id: EntityId, namespace: TagNamespace, name: TagName
-    ) -> Tag:
+    async def upsert(self, tag: Tag) -> Tag:
         """Upsert a tag for a namespace and name."""

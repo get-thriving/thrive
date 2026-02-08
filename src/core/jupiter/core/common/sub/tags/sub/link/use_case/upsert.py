@@ -4,7 +4,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLink, TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
-from jupiter.core.common.sub.tags.sub.tag.root import TagRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -56,18 +56,22 @@ class TagLinkUpsertUseCase(
 
         tag_ref_ids = []
         for tag_name in set(args.tag_names):
-            tag = await uow.get(TagRepository).upsert(
-                parent_ref_id=tag_domain.ref_id,
+            tag = Tag.new_tag(
+                ctx=context.domain_context,
+                tag_domain_ref_id=tag_domain.ref_id,
                 namespace=args.namespace,
                 name=tag_name,
             )
+            tag = await uow.get(TagRepository).upsert(tag)
             tag_ref_ids.append(tag.ref_id)
 
-        tag_link = await uow.get(TagLinkRepository).upsert_for_namespace_and_source(
-            parent_ref_id=tag_domain.ref_id,
+        tag_link = TagLink.new_tag_link(
+            ctx=context.domain_context,
+            tag_domain_ref_id=tag_domain.ref_id,
             namespace=args.namespace,
             source_entity_ref_id=args.source_entity_ref_id,
-            tag_ref_ids=tag_ref_ids,
+            ref_ids=tag_ref_ids,
         )
+        tag_link = await uow.get(TagLinkRepository).upsert(tag_link)
 
         return TagLinkUpsertResult(tag_link=tag_link)

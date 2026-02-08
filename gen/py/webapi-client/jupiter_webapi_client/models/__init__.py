@@ -654,6 +654,22 @@ from .suggested_date import SuggestedDate
 from .sync_target import SyncTarget
 from .table_block import TableBlock
 from .table_block_kind import TableBlockKind
+from .tag import Tag
+from .tag_archive_args import TagArchiveArgs
+from .tag_create_args import TagCreateArgs
+from .tag_create_result import TagCreateResult
+from .tag_domain import TagDomain
+from .tag_find_args import TagFindArgs
+from .tag_find_result import TagFindResult
+from .tag_link import TagLink
+from .tag_link_upsert_args import TagLinkUpsertArgs
+from .tag_link_upsert_result import TagLinkUpsertResult
+from .tag_load_args import TagLoadArgs
+from .tag_load_result import TagLoadResult
+from .tag_namespace import TagNamespace
+from .tag_remove_args import TagRemoveArgs
+from .tag_update_args import TagUpdateArgs
+from .tag_update_args_name import TagUpdateArgsName
 from .time_and_effort_summary import TimeAndEffortSummary
 from .time_event_domain import TimeEventDomain
 from .time_event_full_days_block import TimeEventFullDaysBlock
@@ -1459,6 +1475,22 @@ __all__ = (
     "SyncTarget",
     "TableBlock",
     "TableBlockKind",
+    "Tag",
+    "TagArchiveArgs",
+    "TagCreateArgs",
+    "TagCreateResult",
+    "TagDomain",
+    "TagFindArgs",
+    "TagFindResult",
+    "TagLink",
+    "TagLinkUpsertArgs",
+    "TagLinkUpsertResult",
+    "TagLoadArgs",
+    "TagLoadResult",
+    "TagNamespace",
+    "TagRemoveArgs",
+    "TagUpdateArgs",
+    "TagUpdateArgsName",
     "TimeAndEffortSummary",
     "TimeEventDomain",
     "TimeEventFullDaysBlock",

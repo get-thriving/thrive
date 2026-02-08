@@ -42,7 +42,7 @@ def upgrade() -> None:
                     'CLI' as source,
                     1 as owner_version,
                     'Created' as kind,
-                    '{}}' as data
+                    '{}' as data
                 FROM workspace;
         """
     )
