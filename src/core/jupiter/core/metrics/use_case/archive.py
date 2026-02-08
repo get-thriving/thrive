@@ -5,6 +5,8 @@ from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -70,6 +72,7 @@ class MetricArchiveUseCase(
         )
 
         inbox_task_archive_service = InboxTaskArchiveService()
+        tag_link_archive_service = TagLinkArchiveService()
         for inbox_task in inbox_tasks_to_archive:
             await inbox_task_archive_service.do_it(
                 context.domain_context,
@@ -94,12 +97,26 @@ class MetricArchiveUseCase(
                 metric_entry.ref_id,
                 JupiterArchivalReason.USER,
             )
+            await tag_link_archive_service.archive_for_entity(
+                context.domain_context,
+                uow,
+                TagNamespace.METRIC_ENTRY,
+                metric_entry.ref_id,
+                JupiterArchivalReason.USER,
+            )
 
         note_archive_service = NoteArchiveService()
         await note_archive_service.archive_for_source(
             context.domain_context,
             uow,
             NoteNamespace.METRIC,
+            metric.ref_id,
+            JupiterArchivalReason.USER,
+        )
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.METRIC,
             metric.ref_id,
             JupiterArchivalReason.USER,
         )

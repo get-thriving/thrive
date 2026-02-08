@@ -120,7 +120,9 @@ class ChoreLoadUseCase(
             allow_archived=args.allow_archived,
         )
 
-        tag_link = await uow.get(TagLinkRepository).load_optional_for_namespace_and_source(
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
             namespace=TagNamespace.CHORE,
             source_entity_ref_id=chore.ref_id,
         )

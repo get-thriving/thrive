@@ -7,6 +7,10 @@ from typing import cast
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -44,6 +48,7 @@ class MetricFindArgs(UseCaseArgsBase):
     include_entries: bool
     include_collection_inbox_tasks: bool
     include_metric_entry_notes: bool
+    include_tags: bool
     filter_ref_ids: list[EntityId] | None
     filter_entry_ref_ids: list[EntityId] | None
 
@@ -53,6 +58,7 @@ class MetricFindResponseEntry(UseCaseResultBase):
     """A single entry in the LoadAllMetricsResponse."""
 
     metric: Metric
+    tags: list[Tag]
     note: Note | None
     metric_entries: list[MetricEntry] | None
     metric_collection_inbox_tasks: list[InboxTask] | None
@@ -177,11 +183,37 @@ class MetricFindUseCase(
                     cast(EntityId, n.source_entity_ref_id)
                 ] = n
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.METRIC,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.METRIC,
+                source_entity_ref_id=[m.ref_id for m in metrics],
+            )
+            tag_links_by_metric_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_metric_ref_id = {}
+
         return MetricFindResult(
             collection_project=collection_project,
             entries=[
                 MetricFindResponseEntry(
                     metric=m,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_metric_ref_id[m.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if m.ref_id in tag_links_by_metric_ref_id
+                        else []
+                    ),
                     note=all_notes_by_metric_ref_id.get(m.ref_id, None),
                     metric_entries=(
                         metric_entries_by_ref_ids.get(m.ref_id, [])

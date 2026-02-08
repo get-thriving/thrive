@@ -67,7 +67,9 @@ class VacationLoadUseCase(
             allow_archived=args.allow_archived,
         )
 
-        tag_link = await uow.get(TagLinkRepository).load_optional_for_namespace_and_source(
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
             namespace=TagNamespace.VACATION,
             source_entity_ref_id=vacation.ref_id,
         )

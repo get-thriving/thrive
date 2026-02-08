@@ -469,6 +469,7 @@ from .person_find_result import PersonFindResult
 from .person_find_result_entry import PersonFindResultEntry
 from .person_load_args import PersonLoadArgs
 from .person_load_result import PersonLoadResult
+from .person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
 from .person_load_settings_args import PersonLoadSettingsArgs
 from .person_load_settings_result import PersonLoadSettingsResult
 from .person_occasion_entry import PersonOccasionEntry
@@ -1293,6 +1294,7 @@ __all__ = (
     "PersonFindResultEntry",
     "PersonLoadArgs",
     "PersonLoadResult",
+    "PersonLoadResultOccasionTagsByRefId",
     "PersonLoadSettingsArgs",
     "PersonLoadSettingsResult",
     "PersonOccasionEntry",

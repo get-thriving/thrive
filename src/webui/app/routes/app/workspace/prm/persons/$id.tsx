@@ -143,6 +143,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allCircles: circlesResult.circles,
       person: result.person,
       occasions: result.occasions,
+      occasionTagsByRefId: result.occasion_tags_by_ref_id,
       circleRefIds: result.circle_ref_ids,
       maxCirclesPerPerson: settings.max_circles_per_person,
       catchUpTasks: result.catch_up_tasks,
@@ -469,7 +470,7 @@ export default function Person() {
             />
           }
         >
-          <OccasionStack occasions={loaderData.occasions} />
+          <OccasionStack occasions={loaderData.occasions} occasionTagsByRefId={loaderData.occasionTagsByRefId} />
         </SectionCard>
 
         <SectionCard
@@ -495,7 +496,7 @@ export default function Person() {
             defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
             inputsEnabled={inputsEnabled}
           />
-          <FieldError actionResult={actionData} fieldName="/tags" />
+          <FieldError actionResult={actionData} fieldName="/tags_names" />
         </SectionCard>
 
         <SectionCard

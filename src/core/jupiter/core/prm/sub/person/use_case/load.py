@@ -3,6 +3,7 @@
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.namespace import (
@@ -60,6 +61,7 @@ class PersonLoadResult(UseCaseResultBase):
     person: Person
     circle_ref_ids: list[EntityId]
     occasions: list[Occasion]
+    occasion_tags_by_ref_id: dict[EntityId, list[Tag]]
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -173,7 +175,11 @@ class PersonLoadUseCase(
             if link.person_ref_id == person.ref_id
         ]
 
-        tag_link = await uow.get(TagLinkRepository).load_optional_for_namespace_and_source(
+        tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
             namespace=TagNamespace.PERSON,
             source_entity_ref_id=person.ref_id,
         )
@@ -186,9 +192,27 @@ class PersonLoadUseCase(
         else:
             tags = []
 
+        occasion_tags = await uow.get(TagRepository).find_all_generic(
+            parent_ref_id=tag_domain.ref_id,
+            allow_archived=False,
+            namespace=TagNamespace.OCCASION,
+        )
+
+        occasion_tag_links = await uow.get(TagLinkRepository).find_all_generic(
+            parent_ref_id=tag_domain.ref_id,
+            namespace=TagNamespace.OCCASION,
+            source_entity_ref_id=[o.ref_id for o in occasions],
+        )
+
+        occasion_tags_by_ref_id = {
+            link.source_entity_ref_id: [t for t in occasion_tags if t.ref_id in link.ref_ids]
+            for link in occasion_tag_links
+        }
+
         return PersonLoadResult(
             person=person,
             occasions=occasions,
+            occasion_tags_by_ref_id=occasion_tags_by_ref_id,
             circle_ref_ids=circle_ref_ids,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,

@@ -23,11 +23,11 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -273,7 +273,7 @@ export default function MetricEntry() {
           defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
           inputsEnabled={inputsEnabled}
         />
-        <FieldError actionResult={actionData} fieldName="/tags" />
+        <FieldError actionResult={actionData} fieldName="/tags_names" />
       </SectionCard>
 
       <SectionCard

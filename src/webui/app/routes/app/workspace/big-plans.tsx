@@ -1,5 +1,14 @@
-import type { BigPlanFindResultEntry, BigPlanMilestone, BigPlanStats, Tag } from "@jupiter/webapi-client";
-import { WorkspaceFeature, DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import type {
+  BigPlanFindResultEntry,
+  BigPlanMilestone,
+  BigPlanStats,
+  Tag,
+} from "@jupiter/webapi-client";
+import {
+  WorkspaceFeature,
+  DocsHelpSubject,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -97,7 +106,9 @@ export default function BigPlans() {
   }
 
   const sortedBigPlans = sortBigPlansNaturally(
-    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => b.big_plan),
+    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map(
+      (b) => b.big_plan,
+    ),
   ).filter((bp) => {
     const entry = entriesByRefId.get(bp.ref_id);
     const tagsOk =

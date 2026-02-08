@@ -6,11 +6,13 @@ import type { InboxTask } from './InboxTask';
 import type { Metric } from './Metric';
 import type { MetricEntry } from './MetricEntry';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * A single entry in the LoadAllMetricsResponse.
  */
 export type MetricFindResponseEntry = {
     metric: Metric;
+    tags: Array<Tag>;
     note?: (Note | null);
     metric_entries?: (Array<MetricEntry> | null);
     metric_collection_inbox_tasks?: (Array<InboxTask> | null);

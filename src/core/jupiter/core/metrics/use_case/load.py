@@ -5,7 +5,7 @@ from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
-from jupiter.core.common.sub.tags.sub.tag.root import Tag
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -60,6 +60,7 @@ class MetricLoadResult(UseCaseResultBase):
 
     metric: Metric
     note: Note | None
+    tags: list[Tag]
     metric_entries: list[MetricEntry]
     metric_entry_tags: list[MetricLoadMetricEntryTags]
     collection_tasks: list[InboxTask]
@@ -93,7 +94,24 @@ class MetricLoadUseCase(
             metric.ref_id, allow_archived=args.allow_archived_entries
         )
 
-        tags_domain = await uow.get_for(TagDomain).load_by_parent(context.workspace.ref_id)
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.METRIC,
+            source_entity_ref_id=metric.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        tags_domain = await uow.get_for(TagDomain).load_by_parent(
+            context.workspace.ref_id
+        )
         all_tags = await uow.get_for(Tag).find_all_generic(
             parent_ref_id=tags_domain.ref_id,
             allow_archived=False,
@@ -154,6 +172,7 @@ class MetricLoadUseCase(
         return MetricLoadResult(
             metric=metric,
             note=note,
+            tags=tags,
             metric_entries=metric_entries,
             metric_entry_tags=metric_entry_tags,
             collection_tasks=collection_tasks,

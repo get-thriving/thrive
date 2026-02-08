@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.metric_entry import MetricEntry
     from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="MetricLoadResult")
@@ -25,6 +26,7 @@ class MetricLoadResult:
 
     Attributes:
         metric (Metric): A metric.
+        tags (list[Tag]):
         metric_entries (list[MetricEntry]):
         metric_entry_tags (list[MetricLoadMetricEntryTags]):
         collection_tasks (list[InboxTask]):
@@ -34,6 +36,7 @@ class MetricLoadResult:
     """
 
     metric: Metric
+    tags: list[Tag]
     metric_entries: list[MetricEntry]
     metric_entry_tags: list[MetricLoadMetricEntryTags]
     collection_tasks: list[InboxTask]
@@ -46,6 +49,11 @@ class MetricLoadResult:
         from ..models.note import Note
 
         metric = self.metric.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         metric_entries = []
         for metric_entries_item_data in self.metric_entries:
@@ -79,6 +87,7 @@ class MetricLoadResult:
         field_dict.update(
             {
                 "metric": metric,
+                "tags": tags,
                 "metric_entries": metric_entries,
                 "metric_entry_tags": metric_entry_tags,
                 "collection_tasks": collection_tasks,
@@ -98,9 +107,17 @@ class MetricLoadResult:
         from ..models.metric_entry import MetricEntry
         from ..models.metric_load_metric_entry_tags import MetricLoadMetricEntryTags
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         metric_entries = []
         _metric_entries = d.pop("metric_entries")
@@ -146,6 +163,7 @@ class MetricLoadResult:
 
         metric_load_result = cls(
             metric=metric,
+            tags=tags,
             metric_entries=metric_entries,
             metric_entry_tags=metric_entry_tags,
             collection_tasks=collection_tasks,

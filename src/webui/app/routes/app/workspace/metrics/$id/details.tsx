@@ -1,4 +1,4 @@
-import type { InboxTask } from "@jupiter/webapi-client";
+import type { InboxTask , Tag } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -6,6 +6,7 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -39,6 +40,7 @@ import {
   SectionActions,
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -75,6 +77,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("regen"),
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("archive"),
   }),
   z.object({
@@ -95,6 +103,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.METRIC],
+    });
+
     const response = await apiClient.metrics.metricLoad({
       ref_id: id,
       allow_archived: true,
@@ -105,9 +118,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metric: response.metric,
       note: response.note,
+      tags: response.tags,
       collectionTasks: response.collection_tasks,
       collectionTasksTotalCnt: response.collection_tasks_total_cnt,
       collectionTasksPageSize: response.collection_tasks_page_size,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -212,6 +227,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "regen": {
         await apiClient.metrics.metricRegen({
           ref_id: id,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/details`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.METRIC,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/metrics/${id}/details`);
@@ -388,6 +413,32 @@ export default function MetricDetails() {
           inputsEnabled={inputsEnabled}
           actionData={actionData}
         />
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="metric-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tags_names" />
       </SectionCard>
 
       <SectionCard

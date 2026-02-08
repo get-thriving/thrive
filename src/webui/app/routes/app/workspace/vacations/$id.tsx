@@ -298,7 +298,7 @@ export default function Vacation() {
           defaultValue={tags.map((tag) => tag.ref_id)}
           inputsEnabled={inputsEnabled}
         />
-        <FieldError actionResult={actionData} fieldName="/tags" />
+        <FieldError actionResult={actionData} fieldName="/tags_names" />
       </SectionCard>
 
       <SectionCard

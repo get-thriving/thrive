@@ -237,7 +237,7 @@ export default function SmartListItem() {
             defaultTags={loaderData.item.tags_ref_id}
             readOnly={!inputsEnabled}
           />
-          <FieldError actionResult={actionData} fieldName="/tags" />
+          <FieldError actionResult={actionData} fieldName="/tags_names" />
         </FormControl>
 
         <FormControl fullWidth>

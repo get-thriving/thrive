@@ -63,6 +63,7 @@ class PersonRemoveService:
             )
 
         note_remove_service = NoteRemoveService()
+        tag_link_remove_service = TagLinkRemoveService()
 
         all_occasions = await uow.get_for(Occasion).find_all(
             person.ref_id, allow_archived=True
@@ -71,6 +72,9 @@ class PersonRemoveService:
             await note_remove_service.remove_for_source(
                 ctx, uow, NoteNamespace.OCCASION, occasion.ref_id
             )
+            await tag_link_remove_service.remove_for_entity(
+                ctx, uow, TagNamespace.OCCASION, occasion.ref_id
+            )
             await uow.get_for(Occasion).remove(occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
 
@@ -78,7 +82,6 @@ class PersonRemoveService:
             ctx, uow, NoteNamespace.PERSON, person.ref_id
         )
 
-        tag_link_remove_service = TagLinkRemoveService()
         await tag_link_remove_service.remove_for_entity(
             ctx, uow, TagNamespace.PERSON, person.ref_id
         )

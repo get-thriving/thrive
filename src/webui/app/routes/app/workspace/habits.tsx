@@ -203,7 +203,9 @@ export default function Habits() {
   ).filter((habit) => {
     const tagsOk =
       selectedTagsRefId.length === 0 ||
-      entriesByRefId.get(habit.ref_id)?.tags?.some((tag) => selectedTagsRefId.includes(tag.ref_id));
+      entriesByRefId
+        .get(habit.ref_id)
+        ?.tags?.some((tag) => selectedTagsRefId.includes(tag.ref_id));
     return tagsOk;
   });
 

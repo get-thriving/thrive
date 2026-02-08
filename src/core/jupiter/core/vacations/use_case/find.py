@@ -134,7 +134,9 @@ class VacationFindUseCase(
                 namespace=TagNamespace.VACATION,
                 source_entity_ref_id=[v.ref_id for v in vacations],
             )
-            tag_links_by_vacation_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+            tag_links_by_vacation_ref_id = {
+                t.source_entity_ref_id: t for t in tag_links
+            }
         else:
             all_tags_by_ref_id = {}
             tag_links_by_vacation_ref_id = {}
@@ -146,7 +148,9 @@ class VacationFindUseCase(
                     tags=(
                         [
                             all_tags_by_ref_id[rid]
-                            for rid in tag_links_by_vacation_ref_id[vacation.ref_id].ref_ids
+                            for rid in tag_links_by_vacation_ref_id[
+                                vacation.ref_id
+                            ].ref_ids
                             if rid in all_tags_by_ref_id
                         ]
                         if vacation.ref_id in tag_links_by_vacation_ref_id

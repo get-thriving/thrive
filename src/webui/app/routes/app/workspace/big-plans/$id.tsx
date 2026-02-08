@@ -778,7 +778,7 @@ export default function BigPlan() {
             defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
             inputsEnabled={inputsEnabled}
           />
-          <FieldError actionResult={actionData} fieldName="/tags" />
+          <FieldError actionResult={actionData} fieldName="/tags_names" />
         </SectionCard>
 
         <SectionCard

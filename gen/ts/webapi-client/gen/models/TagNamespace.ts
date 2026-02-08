@@ -7,6 +7,8 @@
  */
 export enum TagNamespace {
     INBOX_TASK = 'inbox-task',
+    TIME_PLAN = 'time-plan',
+    SCHEDULE_STREAM = 'schedule-stream',
     SCHEDULE_EVENT_IN_DAY = 'schedule-event-in-day',
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = 'schedule-event-full-days-block',
     HABIT = 'habit',
@@ -15,9 +17,15 @@ export enum TagNamespace {
     DOC = 'doc',
     JOURNAL = 'journal',
     VACATION = 'vacation',
+    PROJECT = 'project',
+    CHAPTER = 'chapter',
+    GOAL = 'goal',
+    MILESTONE = 'milestone',
+    VISION = 'vision',
     SMART_LIST = 'smart-list',
     SMART_LIST_ITEM = 'smart-list-item',
     METRIC = 'metric',
     METRIC_ENTRY = 'metric-entry',
     PERSON = 'person',
+    OCCASION = 'occasion',
 }

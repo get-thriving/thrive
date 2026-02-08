@@ -7,12 +7,14 @@ import type { Metric } from './Metric';
 import type { MetricEntry } from './MetricEntry';
 import type { MetricLoadMetricEntryTags } from './MetricLoadMetricEntryTags';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * MetricLoadResult.
  */
 export type MetricLoadResult = {
     metric: Metric;
     note?: (Note | null);
+    tags: Array<Tag>;
     metric_entries: Array<MetricEntry>;
     metric_entry_tags: Array<MetricLoadMetricEntryTags>;
     collection_tasks: Array<InboxTask>;

@@ -16,6 +16,7 @@ export type PersonLoadResult = {
     person: Person;
     circle_ref_ids: Array<EntityId>;
     occasions: Array<Occasion>;
+    occasion_tags_by_ref_id: Record<string, Array<Tag>>;
     occasion_time_event_blocks: Array<TimeEventFullDaysBlock>;
     catch_up_tasks: Array<InboxTask>;
     catch_up_tasks_total_cnt: number;

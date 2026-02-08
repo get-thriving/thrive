@@ -34,11 +34,11 @@ import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export const handle = {
   displayType: DisplayType.TRUNK,

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
+    from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -28,6 +29,7 @@ class PersonLoadResult:
         person (Person): A person.
         circle_ref_ids (list[str]):
         occasions (list[Occasion]):
+        occasion_tags_by_ref_id (PersonLoadResultOccasionTagsByRefId):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock]):
         catch_up_tasks (list[InboxTask]):
         catch_up_tasks_total_cnt (int):
@@ -42,6 +44,7 @@ class PersonLoadResult:
     person: Person
     circle_ref_ids: list[str]
     occasions: list[Occasion]
+    occasion_tags_by_ref_id: PersonLoadResultOccasionTagsByRefId
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     catch_up_tasks: list[InboxTask]
     catch_up_tasks_total_cnt: int
@@ -64,6 +67,8 @@ class PersonLoadResult:
         for occasions_item_data in self.occasions:
             occasions_item = occasions_item_data.to_dict()
             occasions.append(occasions_item)
+
+        occasion_tags_by_ref_id = self.occasion_tags_by_ref_id.to_dict()
 
         occasion_time_event_blocks = []
         for occasion_time_event_blocks_item_data in self.occasion_time_event_blocks:
@@ -108,6 +113,7 @@ class PersonLoadResult:
                 "person": person,
                 "circle_ref_ids": circle_ref_ids,
                 "occasions": occasions,
+                "occasion_tags_by_ref_id": occasion_tags_by_ref_id,
                 "occasion_time_event_blocks": occasion_time_event_blocks,
                 "catch_up_tasks": catch_up_tasks,
                 "catch_up_tasks_total_cnt": catch_up_tasks_total_cnt,
@@ -129,6 +135,7 @@ class PersonLoadResult:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
@@ -143,6 +150,8 @@ class PersonLoadResult:
             occasions_item = Occasion.from_dict(occasions_item_data)
 
             occasions.append(occasions_item)
+
+        occasion_tags_by_ref_id = PersonLoadResultOccasionTagsByRefId.from_dict(d.pop("occasion_tags_by_ref_id"))
 
         occasion_time_event_blocks = []
         _occasion_time_event_blocks = d.pop("occasion_time_event_blocks")
@@ -201,6 +210,7 @@ class PersonLoadResult:
             person=person,
             circle_ref_ids=circle_ref_ids,
             occasions=occasions,
+            occasion_tags_by_ref_id=occasion_tags_by_ref_id,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_tasks=catch_up_tasks,
             catch_up_tasks_total_cnt=catch_up_tasks_total_cnt,

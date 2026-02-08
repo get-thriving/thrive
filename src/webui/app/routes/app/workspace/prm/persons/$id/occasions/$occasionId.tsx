@@ -1,4 +1,5 @@
-import { ApiError, OccasionKind } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
+import { ApiError, OccasionKind, TagNamespace } from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
@@ -26,6 +27,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { OccasionKindSelect } from "#/core/prm/sub/person/sub/occasion/components/kind-select";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -44,6 +46,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     date: z.string(),
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("archive"),
   }),
   z.object({
@@ -60,6 +68,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { occasionId } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.OCCASION],
+    });
+
     const result = await apiClient.prm.occasionLoad({
       ref_id: occasionId,
       allow_archived: true,
@@ -67,6 +80,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       occasion: result.occasion,
+      tags: result.tags,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -101,6 +116,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.date,
           },
+        });
+
+        return redirect(`/app/workspace/prm/persons/${personId}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.OCCASION,
+          source_entity_ref_id: occasionId,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/prm/persons/${personId}`);
@@ -143,7 +168,8 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function OccasionView() {
-  const { occasion } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { occasion, tags, allTags } =
+    useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -210,6 +236,33 @@ export default function OccasionView() {
           />
           <FieldError actionResult={actionData} fieldName="/birthday" />
         </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        id="occasion-tags"
+        title="Tags"
+        actions={
+          <SectionActions
+            id="occasion-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={allTags}
+          defaultValue={tags.map((tag: Tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tag_names" />
       </SectionCard>
     </LeafPanel>
   );

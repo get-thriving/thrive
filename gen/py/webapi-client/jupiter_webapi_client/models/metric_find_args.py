@@ -21,6 +21,7 @@ class MetricFindArgs:
         include_entries (bool):
         include_collection_inbox_tasks (bool):
         include_metric_entry_notes (bool):
+        include_tags (bool):
         filter_ref_ids (list[str] | None | Unset):
         filter_entry_ref_ids (list[str] | None | Unset):
     """
@@ -30,6 +31,7 @@ class MetricFindArgs:
     include_entries: bool
     include_collection_inbox_tasks: bool
     include_metric_entry_notes: bool
+    include_tags: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     filter_entry_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -44,6 +46,8 @@ class MetricFindArgs:
         include_collection_inbox_tasks = self.include_collection_inbox_tasks
 
         include_metric_entry_notes = self.include_metric_entry_notes
+
+        include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -72,6 +76,7 @@ class MetricFindArgs:
                 "include_entries": include_entries,
                 "include_collection_inbox_tasks": include_collection_inbox_tasks,
                 "include_metric_entry_notes": include_metric_entry_notes,
+                "include_tags": include_tags,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -93,6 +98,8 @@ class MetricFindArgs:
         include_collection_inbox_tasks = d.pop("include_collection_inbox_tasks")
 
         include_metric_entry_notes = d.pop("include_metric_entry_notes")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -134,6 +141,7 @@ class MetricFindArgs:
             include_entries=include_entries,
             include_collection_inbox_tasks=include_collection_inbox_tasks,
             include_metric_entry_notes=include_metric_entry_notes,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
             filter_entry_ref_ids=filter_entry_ref_ids,
         )

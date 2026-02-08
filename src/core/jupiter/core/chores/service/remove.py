@@ -59,7 +59,9 @@ class ChoreRemoveService:
         )
 
         tag_link_remove_service = TagLinkRemoveService()
-        await tag_link_remove_service.remove_for_entity(ctx, uow, TagNamespace.CHORE, chore.ref_id)
+        await tag_link_remove_service.remove_for_entity(
+            ctx, uow, TagNamespace.CHORE, chore.ref_id
+        )
 
         chore = await uow.get_for(Chore).remove(ref_id)
         await progress_reporter.mark_removed(chore)

@@ -1,5 +1,5 @@
 import type { MetricEntry, Tag } from "@jupiter/webapi-client";
-import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
+import { ApiError, DocsHelpSubject , TagNamespace } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
@@ -36,12 +36,11 @@ import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { TagNamespace } from "@jupiter/webapi-client";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 const ParamsSchema = z.object({
   id: z.string(),

@@ -2,8 +2,7 @@ import type {
   ADate,
   Vacation,
   VacationFindResultEntry,
-} from "@jupiter/webapi-client";
-import type { Tag } from "@jupiter/webapi-client";
+ Tag } from "@jupiter/webapi-client";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Box, IconButton, Typography, styled } from "@mui/material";
@@ -39,11 +38,11 @@ import {
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -51,7 +50,7 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const response = await (apiClient.vacations.vacationFind as any)({
+  const response = await apiClient.vacations.vacationFind({
     allow_archived: false,
     include_notes: false,
     include_time_event_blocks: false,
@@ -153,8 +152,10 @@ export default function Vacations() {
                     date={vacation.end_date}
                     color="success"
                   />
-                  {(entriesByRefId.get(vacation.ref_id) as any)?.tags?.map(
-                    (tag: Tag) => <TagTag key={tag.ref_id} tag={tag} />,
+                  {entriesByRefId.get(vacation.ref_id)?.tags?.map(
+                    (tag: Tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ),
                   )}
                 </EntityLink>
               </EntityCard>
