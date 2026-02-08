@@ -2,6 +2,8 @@
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
@@ -26,6 +28,9 @@ class MetricEntry(LeafEntity):
     collection_time: ADate
     value: float
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.METRIC_ENTRY, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.METRIC_ENTRY, source_entity_ref_id=IsRefId()
     )

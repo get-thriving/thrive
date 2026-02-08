@@ -292,6 +292,7 @@ export type { MetricFindArgs } from './models/MetricFindArgs';
 export type { MetricFindResponseEntry } from './models/MetricFindResponseEntry';
 export type { MetricFindResult } from './models/MetricFindResult';
 export type { MetricLoadArgs } from './models/MetricLoadArgs';
+export type { MetricLoadMetricEntryTags } from './models/MetricLoadMetricEntryTags';
 export type { MetricLoadResult } from './models/MetricLoadResult';
 export type { MetricLoadSettingsArgs } from './models/MetricLoadSettingsArgs';
 export type { MetricLoadSettingsResult } from './models/MetricLoadSettingsResult';

@@ -2,6 +2,9 @@
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -34,6 +37,7 @@ class MetricEntryLoadResult(UseCaseResultBase):
     """MetricEntryLoadResult."""
 
     metric_entry: MetricEntry
+    tags: list[Tag]
     note: Note | None
 
 
@@ -62,4 +66,17 @@ class MetricEntryLoadUseCase(
             allow_archived=args.allow_archived,
         )
 
-        return MetricEntryLoadResult(metric_entry=metric_entry, note=note)
+        tag_link = await uow.get(TagLinkRepository).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.METRIC_ENTRY,
+            source_entity_ref_id=metric_entry.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        return MetricEntryLoadResult(metric_entry=metric_entry, tags=tags, note=note)

@@ -1,4 +1,5 @@
-import { ApiError, NoteNamespace } from "@jupiter/webapi-client";
+import { ApiError, NoteNamespace, TagNamespace } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -26,6 +27,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -37,6 +39,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     collectionTime: z.string(),
     value: z.string().transform(parseFloat),
+  }),
+  z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -58,6 +66,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.METRIC_ENTRY],
+    });
+
     const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
       allow_archived: true,
@@ -66,6 +79,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metricEntry: result.metric_entry,
       note: result.note,
+      tags: result.tags,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -100,6 +115,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(`/app/workspace/metrics/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.METRIC_ENTRY,
+          source_entity_ref_id: entryId,
+          tag_names: form.tags,
+        });
+
+        return redirect(`/app/workspace/metrics/${id}/entries/${entryId}`);
       }
 
       case "create-note": {
@@ -223,6 +248,32 @@ export default function MetricEntry() {
           />
           <FieldError actionResult={actionData} fieldName="/value" />
         </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="metric-entry-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tags" />
       </SectionCard>
 
       <SectionCard

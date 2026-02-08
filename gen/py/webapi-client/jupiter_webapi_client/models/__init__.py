@@ -385,6 +385,7 @@ from .metric_find_args import MetricFindArgs
 from .metric_find_response_entry import MetricFindResponseEntry
 from .metric_find_result import MetricFindResult
 from .metric_load_args import MetricLoadArgs
+from .metric_load_metric_entry_tags import MetricLoadMetricEntryTags
 from .metric_load_result import MetricLoadResult
 from .metric_load_settings_args import MetricLoadSettingsArgs
 from .metric_load_settings_result import MetricLoadSettingsResult
@@ -1208,6 +1209,7 @@ __all__ = (
     "MetricFindResponseEntry",
     "MetricFindResult",
     "MetricLoadArgs",
+    "MetricLoadMetricEntryTags",
     "MetricLoadResult",
     "MetricLoadSettingsArgs",
     "MetricLoadSettingsResult",
