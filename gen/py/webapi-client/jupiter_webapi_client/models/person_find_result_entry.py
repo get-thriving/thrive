@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
+    from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
@@ -27,6 +28,7 @@ class PersonFindResultEntry:
         person (Person): A person.
         occasions (list[Occasion]):
         circle_ref_ids (list[str]):
+        tags (list[Tag]):
         note (None | Note | Unset):
         occasion_time_event_blocks (list[TimeEventFullDaysBlock] | None | Unset):
         catch_up_inbox_tasks (list[InboxTask] | None | Unset):
@@ -36,6 +38,7 @@ class PersonFindResultEntry:
     person: Person
     occasions: list[Occasion]
     circle_ref_ids: list[str]
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None | Unset = UNSET
     catch_up_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -53,6 +56,11 @@ class PersonFindResultEntry:
             occasions.append(occasions_item)
 
         circle_ref_ids = self.circle_ref_ids
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -105,6 +113,7 @@ class PersonFindResultEntry:
                 "person": person,
                 "occasions": occasions,
                 "circle_ref_ids": circle_ref_ids,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -124,6 +133,7 @@ class PersonFindResultEntry:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
@@ -137,6 +147,13 @@ class PersonFindResultEntry:
             occasions.append(occasions_item)
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -227,6 +244,7 @@ class PersonFindResultEntry:
             person=person,
             occasions=occasions,
             circle_ref_ids=circle_ref_ids,
+            tags=tags,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,
             catch_up_inbox_tasks=catch_up_inbox_tasks,

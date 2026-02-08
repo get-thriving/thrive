@@ -5,7 +5,9 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
+from jupiter.core.prm.sub.person.service.remove import PersonRemoveService
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -13,7 +15,6 @@ from jupiter.framework.use_case import (
     mutation_use_case,
 )
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
-from jupiter.framework.utils.generic_crown_remover import generic_crown_remover
 
 
 @use_case_args
@@ -37,6 +38,9 @@ class PersonRemoveUseCase(
         args: PersonRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        await generic_crown_remover(
-            context.domain_context, uow, progress_reporter, Person, args.ref_id
+        workspace = context.workspace
+        prm = await uow.get_for(PRM).load_by_parent(workspace.ref_id)
+        person = await uow.get_for(Person).load_by_id(args.ref_id, allow_archived=True)
+        await PersonRemoveService().do_it(
+            context.domain_context, uow, progress_reporter, prm, person
         )

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
+    from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
@@ -34,6 +35,7 @@ class PersonLoadResult:
         occasion_tasks (list[InboxTask]):
         occasion_tasks_total_cnt (int):
         occasion_tasks_page_size (int):
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
@@ -47,6 +49,7 @@ class PersonLoadResult:
     occasion_tasks: list[InboxTask]
     occasion_tasks_total_cnt: int
     occasion_tasks_page_size: int
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -85,6 +88,11 @@ class PersonLoadResult:
 
         occasion_tasks_page_size = self.occasion_tasks_page_size
 
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -107,6 +115,7 @@ class PersonLoadResult:
                 "occasion_tasks": occasion_tasks,
                 "occasion_tasks_total_cnt": occasion_tasks_total_cnt,
                 "occasion_tasks_page_size": occasion_tasks_page_size,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -120,6 +129,7 @@ class PersonLoadResult:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
+        from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
@@ -163,6 +173,13 @@ class PersonLoadResult:
 
         occasion_tasks_page_size = d.pop("occasion_tasks_page_size")
 
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -191,6 +208,7 @@ class PersonLoadResult:
             occasion_tasks=occasion_tasks,
             occasion_tasks_total_cnt=occasion_tasks_total_cnt,
             occasion_tasks_page_size=occasion_tasks_page_size,
+            tags=tags,
             note=note,
         )
 

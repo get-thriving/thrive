@@ -23,6 +23,7 @@ class PersonFindArgs:
         include_occasion_time_event_blocks (bool):
         include_catch_up_inbox_tasks (bool):
         include_occasion_inbox_tasks (bool):
+        include_tags (bool):
         filter_person_ref_ids (list[str] | None | Unset):
     """
 
@@ -33,6 +34,7 @@ class PersonFindArgs:
     include_occasion_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
     include_occasion_inbox_tasks: bool
+    include_tags: bool
     filter_person_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,6 +52,8 @@ class PersonFindArgs:
         include_catch_up_inbox_tasks = self.include_catch_up_inbox_tasks
 
         include_occasion_inbox_tasks = self.include_occasion_inbox_tasks
+
+        include_tags = self.include_tags
 
         filter_person_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_person_ref_ids, Unset):
@@ -71,6 +75,7 @@ class PersonFindArgs:
                 "include_occasion_time_event_blocks": include_occasion_time_event_blocks,
                 "include_catch_up_inbox_tasks": include_catch_up_inbox_tasks,
                 "include_occasion_inbox_tasks": include_occasion_inbox_tasks,
+                "include_tags": include_tags,
             }
         )
         if filter_person_ref_ids is not UNSET:
@@ -94,6 +99,8 @@ class PersonFindArgs:
         include_catch_up_inbox_tasks = d.pop("include_catch_up_inbox_tasks")
 
         include_occasion_inbox_tasks = d.pop("include_occasion_inbox_tasks")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_person_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -120,6 +127,7 @@ class PersonFindArgs:
             include_occasion_time_event_blocks=include_occasion_time_event_blocks,
             include_catch_up_inbox_tasks=include_catch_up_inbox_tasks,
             include_occasion_inbox_tasks=include_occasion_inbox_tasks,
+            include_tags=include_tags,
             filter_person_ref_ids=filter_person_ref_ids,
         )
 

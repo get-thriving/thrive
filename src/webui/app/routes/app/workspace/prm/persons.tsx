@@ -6,7 +6,8 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
+import type { PersonFindResultEntry, Tag } from "@jupiter/webapi-client";
 import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
 import { EisenTag } from "@jupiter/core/common/component/eisen-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -37,6 +38,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -52,6 +54,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_occasion_inbox_tasks: false,
     include_occasion_time_event_blocks: false,
     include_notes: false,
+    include_tags: true,
   });
 
   const circlesResult = await apiClient.prm.circleFind({
@@ -59,9 +62,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     filter_ref_ids: null,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.PERSON],
+  });
+
   return json({
     entries: body.entries,
     allCircles: circlesResult.circles,
+    allTags: allTags.tags,
   });
 }
 
@@ -72,20 +81,32 @@ export default function Persons() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
+  const entries = loaderData.entries as Array<PersonFindResultEntry>;
+
   const [selectedCirclesRefId, setSelectedCirclesRefId] = useState<string[]>(
     [],
   );
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
 
   const circlesByRefId = new Map(
     loaderData.allCircles.map((c) => [c.ref_id, c]),
   );
 
-  const filteredEntries = loaderData.entries.filter((entry) => {
+  const filteredEntries = entries.filter((entry) => {
     if (selectedCirclesRefId.length === 0) {
+      // fallthrough
+    } else if (
+      !entry.circle_ref_ids.some((cid) => selectedCirclesRefId.includes(cid))
+    ) {
+      return false;
+    }
+
+    if (selectedTagsRefId.length === 0) {
       return true;
     }
-    return entry.circle_ref_ids.some((cid) =>
-      selectedCirclesRefId.includes(cid),
+
+    return entry.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
     );
   });
 
@@ -123,6 +144,14 @@ export default function Persons() {
                 text: String(c.name),
               })),
               setSelectedCirclesRefId,
+            ),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
             ),
           ]}
         />
@@ -175,6 +204,10 @@ export default function Persons() {
                     )}
                   </>
                 )}
+
+                {entry.tags?.map((tag: Tag) => (
+                  <TagTag key={tag.ref_id} tag={tag} />
+                ))}
               </EntityLink>
             </EntityCard>
           ))}

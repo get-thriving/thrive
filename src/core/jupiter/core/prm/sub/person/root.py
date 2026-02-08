@@ -3,6 +3,8 @@
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.name import PersonName
@@ -40,6 +42,9 @@ class Person(LeafEntity):
         InboxTask,
         source=InboxTaskSource.PERSON_CATCH_UP,
         source_entity_ref_id=IsRefId(),
+    )
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.PERSON, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.PERSON, source_entity_ref_id=IsRefId()

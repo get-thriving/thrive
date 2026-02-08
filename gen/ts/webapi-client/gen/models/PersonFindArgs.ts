@@ -14,6 +14,7 @@ export type PersonFindArgs = {
     include_occasion_time_event_blocks: boolean;
     include_catch_up_inbox_tasks: boolean;
     include_occasion_inbox_tasks: boolean;
+    include_tags: boolean;
     filter_person_ref_ids?: (Array<EntityId> | null);
 };
 

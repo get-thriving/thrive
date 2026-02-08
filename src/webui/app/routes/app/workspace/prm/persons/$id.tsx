@@ -6,8 +6,10 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import {
   ActionFunctionArgs,
@@ -53,6 +55,7 @@ import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -93,6 +96,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("regen"),
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("create-note"),
   }),
   z.object({
@@ -113,6 +122,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.PERSON],
+    });
+
     const result = await apiClient.prm.personLoad({
       ref_id: id,
       allow_archived: true,
@@ -137,8 +151,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasks: result.occasion_tasks,
       occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
       occasionTasksPageSize: result.occasion_tasks_page_size,
+      tags: result.tags,
       note: result.note,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -238,6 +254,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "regen": {
         await apiClient.prm.personRegen({
           ref_id: id,
+        });
+
+        return redirect(`/app/workspace/prm/persons/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.PERSON,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/prm/persons/${id}`);
@@ -444,6 +470,32 @@ export default function Person() {
           }
         >
           <OccasionStack occasions={loaderData.occasions} />
+        </SectionCard>
+
+        <SectionCard
+          title="Tags"
+          actions={
+            <SectionActions
+              id="person-tags"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Add Tags",
+                  value: "upsert-tags",
+                  highlight: false,
+                }),
+              ]}
+            />
+          }
+        >
+          <TagsEditor
+            name="tags"
+            allTags={loaderData.allTags}
+            defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/tags" />
         </SectionCard>
 
         <SectionCard
