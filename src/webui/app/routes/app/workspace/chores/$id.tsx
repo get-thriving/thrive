@@ -142,7 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       chore: result.chore,
-      tags: ((result as any).tags ?? []) as Array<Tag>,
+      tags: result.tags,
       note: result.note,
       project: result.project,
       chapter: result.chapter,

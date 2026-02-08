@@ -41,7 +41,6 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
-  FilterFewOptionsSpread,
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -97,7 +96,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_goals: true,
   });
 
-  const response = await (apiClient.chores.choreFind as any)({
+  const response = await apiClient.chores.choreFind({
     allow_archived: false,
     include_tags: true,
     include_life_plan: true,
@@ -138,7 +137,7 @@ export default function Chores() {
   const sortedChores = sortChoresNaturally(
     (loaderData.chores as Array<ChoreFindResultEntry>).map((e) => e.chore),
   ).filter((chore) => {
-    const entry = entriesByRefId.get(chore.ref_id) as any;
+    const entry = entriesByRefId.get(chore.ref_id);
     const tagsOk =
       selectedTagsRefId.length === 0 ||
       entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
@@ -384,7 +383,7 @@ function ChoreRow(props: ChoreRowProps) {
         {chore.gen_params.difficulty && (
           <DifficultyTag difficulty={chore.gen_params.difficulty} />
         )}
-        {(entry as any).tags?.map((tag: Tag) => (
+        {entry.tags?.map((tag: Tag) => (
           <TagTag key={tag.ref_id} tag={tag} />
         ))}
       </EntityLink>

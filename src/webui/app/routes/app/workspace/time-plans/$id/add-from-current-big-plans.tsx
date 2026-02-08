@@ -118,6 +118,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const bigPlansResult = await apiClient.bigPlans.bigPlanFind({
       allow_archived: false,
+      include_tags: false,
       include_notes: false,
       include_milestones: true,
       include_stats: true,

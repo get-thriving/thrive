@@ -5,6 +5,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   ProjectSummary,
+  Tag,
   Workspace,
 } from "@jupiter/webapi-client";
 import {
@@ -14,6 +15,7 @@ import {
   Eisen,
   InboxTaskStatus,
   NoteNamespace,
+  TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
   SyncTarget,
@@ -78,6 +80,7 @@ import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/co
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -134,6 +137,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     ...CommonParamsSchema,
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("create-note"),
   }),
   z.object({
@@ -164,6 +173,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_milestones: true,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.BIG_PLAN],
+  });
+
   try {
     const result = await apiClient.bigPlans.bigPlanLoad({
       ref_id: id,
@@ -190,6 +204,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
+      tags: result.tags,
       note: result.note,
       timePlanEntries: timePlanEntries,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -197,6 +212,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -306,6 +322,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         }
 
         return redirect(`/app/workspace/big-plans`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.BIG_PLAN,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
+        });
+
+        return redirect(`/app/workspace/big-plans/${id}`);
       }
 
       case "create-note": {
@@ -727,6 +753,32 @@ export default function BigPlan() {
               </ButtonGroup>
             )}
           </Stack>
+        </SectionCard>
+
+        <SectionCard
+          title="Tags"
+          actions={
+            <SectionActions
+              id="big-plan-tags"
+              topLevelInfo={topLevelInfo}
+              inputsEnabled={inputsEnabled}
+              actions={[
+                ActionSingle({
+                  text: "Add Tags",
+                  value: "upsert-tags",
+                  highlight: false,
+                }),
+              ]}
+            />
+          }
+        >
+          <TagsEditor
+            name="tags"
+            allTags={loaderData.allTags}
+            defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/tags" />
         </SectionCard>
 
         <SectionCard

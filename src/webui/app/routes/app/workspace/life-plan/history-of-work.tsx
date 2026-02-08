@@ -63,6 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const bigPlansResponse = await apiClient.bigPlans.bigPlanFind({
     allow_archived: true,
+    include_tags: false,
     include_life_plan: true,
     include_milestones: false,
     include_stats: false,
@@ -80,6 +81,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const choresResponse = await apiClient.chores.choreFind({
     allow_archived: true,
+    include_tags: false,
     include_life_plan: true,
     include_inbox_tasks: false,
     include_notes: false,

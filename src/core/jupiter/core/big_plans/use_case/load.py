@@ -5,6 +5,9 @@ from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -52,6 +55,7 @@ class BigPlanLoadResult(UseCaseResultBase):
     goal: Goal | None
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
+    tags: list[Tag]
     note: Note | None
     stats: BigPlanStats
 
@@ -101,6 +105,21 @@ class BigPlanLoadUseCase(
             source_entity_ref_id=big_plan.ref_id,
         )
 
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.BIG_PLAN,
+            source_entity_ref_id=big_plan.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.BIG_PLAN,
             big_plan.ref_id,
@@ -119,6 +138,7 @@ class BigPlanLoadUseCase(
             goal=goal,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
+            tags=tags,
             note=note,
             stats=stats,
         )

@@ -10,6 +10,10 @@ from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -47,6 +51,7 @@ class BigPlanFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool
+    include_tags: bool
     include_life_plan: bool
     include_inbox_tasks: bool
     include_notes: bool
@@ -69,6 +74,7 @@ class BigPlanFindResultEntry(UseCaseResultBase):
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
+    tags: list[Tag]
 
 
 @use_case_result
@@ -191,6 +197,25 @@ class BigPlanFindUseCase(
             for note in notes:
                 notes_by_inbox_task_ref_id[note.source_entity_ref_id] = note
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.BIG_PLAN,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.BIG_PLAN,
+                source_entity_ref_id=[bp.ref_id for bp in big_plans],
+            )
+            tag_links_by_big_plan_ref_id = {
+                t.source_entity_ref_id: t for t in tag_links
+            }
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_big_plan_ref_id = {}
+
         return BigPlanFindResult(
             entries=[
                 BigPlanFindResultEntry(
@@ -228,6 +253,15 @@ class BigPlanFindUseCase(
                         ]
                         if inbox_tasks is not None
                         else None
+                    ),
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_big_plan_ref_id[bp.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if bp.ref_id in tag_links_by_big_plan_ref_id
+                        else []
                     ),
                     note=notes_by_inbox_task_ref_id.get(bp.ref_id, None),
                 )

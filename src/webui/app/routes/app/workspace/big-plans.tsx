@@ -1,4 +1,5 @@
-import { WorkspaceFeature, DocsHelpSubject } from "@jupiter/webapi-client";
+import type { BigPlanFindResultEntry, BigPlanMilestone, BigPlanStats, Tag } from "@jupiter/webapi-client";
+import { WorkspaceFeature, DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -27,6 +28,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsSpread,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
@@ -53,15 +55,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   const response = await apiClient.bigPlans.bigPlanFind({
     allow_archived: false,
+    include_tags: true,
     include_life_plan: true,
     include_milestones: true,
     include_stats: true,
     include_inbox_tasks: false,
     include_notes: false,
   });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.BIG_PLAN],
+  });
   return json({
     bigPlans: response.entries,
     allProjects: summaryResponse.projects || undefined,
+    allTags: allTags.tags as Array<Tag>,
   });
 }
 
@@ -80,13 +89,22 @@ export default function BigPlans() {
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
-  const sortedBigPlans = sortBigPlansNaturally(
-    loaderData.bigPlans.map((b) => b.big_plan),
-  );
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
   const entriesByRefId = new Map<string, BigPlanParent>();
-  for (const entry of loaderData.bigPlans) {
+  for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
     entriesByRefId.set(entry.big_plan.ref_id, bigPlanFindEntryToParent(entry));
   }
+
+  const sortedBigPlans = sortBigPlansNaturally(
+    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => b.big_plan),
+  ).filter((bp) => {
+    const entry = entriesByRefId.get(bp.ref_id);
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    return tagsOk;
+  });
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
@@ -105,11 +123,17 @@ export default function BigPlans() {
   const allProjectsByRefId = new Map(
     loaderData.allProjects?.map((p) => [p.ref_id, p]),
   );
-  const bigPlanMilestonesByRefId = new Map(
-    loaderData.bigPlans.map((b) => [b.big_plan.ref_id, b.milestones!]),
+  const bigPlanMilestonesByRefId = new Map<string, BigPlanMilestone[]>(
+    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
+      b.big_plan.ref_id,
+      b.milestones!,
+    ]),
   );
-  const bigPlanStatsByRefId = new Map(
-    loaderData.bigPlans.map((b) => [b.big_plan.ref_id, b.stats!]),
+  const bigPlanStatsByRefId = new Map<string, BigPlanStats>(
+    (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
+      b.big_plan.ref_id,
+      b.stats!,
+    ]),
   );
 
   return (
@@ -141,6 +165,14 @@ export default function BigPlans() {
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
               (selected) => setSelectedView(selected),
+            ),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
             ),
           ]}
         />

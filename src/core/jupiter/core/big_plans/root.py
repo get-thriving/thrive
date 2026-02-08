@@ -12,6 +12,8 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.adate import ADate
@@ -56,6 +58,9 @@ class BigPlan(LeafEntity):
     milestones = ContainsMany(BigPlanMilestone, big_plan_ref_id=IsRefId())
     inbox_tasks = OwnsMany(
         InboxTask, source=InboxTaskSource.BIG_PLAN, source_entity_ref_id=IsRefId()
+    )
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.BIG_PLAN, source_entity_ref_id=IsRefId()
