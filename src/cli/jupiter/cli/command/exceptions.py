@@ -2,13 +2,12 @@
 
 import sys
 
-from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
-
 from jupiter.cli.config import JupiterExceptionHandler
 from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )

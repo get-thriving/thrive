@@ -12,7 +12,6 @@ from jupiter.core.common.sub.tags.sub.tag.root import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
-from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import SqliteLeafEntityRepository
 from sqlalchemy import MetaData, select
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
@@ -130,22 +129,18 @@ class SqliteTagLinkRepository(SqliteLeafEntityRepository[TagLink], TagLinkReposi
 
         return tag_link.assign_ref_id(EntityId(new_id))
 
-    async def load_by_namespace_and_source(
+    async def load_optional_for_namespace_and_source(
         self,
-        parent_ref_id: EntityId,
         namespace: TagNamespace,
         source_entity_ref_id: EntityId,
-    ) -> TagLink:
+    ) -> TagLink | None:
         """Load a tag link by its namespace and source entity reference ID."""
         query_stmt = (
             select(self._table)
-            .where(self._table.c.tag_domain_ref_id == parent_ref_id.as_int())
             .where(self._table.c.namespace == namespace.value)
             .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
         )
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
-            raise EntityNotFoundError(
-                f"TagLink in namespace {namespace.value} with source {source_entity_ref_id!s} does not exist"
-            )
+            return None
         return self._row_to_entity(result)

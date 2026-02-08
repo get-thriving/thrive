@@ -73,10 +73,9 @@ class TagLinkRepository(LeafEntityRepository[TagLink], abc.ABC):
         """Upsert a tag link."""
 
     @abc.abstractmethod
-    async def load_by_namespace_and_source(
+    async def load_optional_for_namespace_and_source(
         self,
-        parent_ref_id: EntityId,
         namespace: TagNamespace,
         source_entity_ref_id: EntityId,
-    ) -> TagLink:
+    ) -> TagLink | None:
         """Load a tag link by its namespace and source entity reference ID."""

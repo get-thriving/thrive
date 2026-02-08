@@ -4,6 +4,8 @@ from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
@@ -60,6 +62,11 @@ class HabitRemoveService:
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
             ctx, uow, NoteNamespace.HABIT, habit.ref_id
+        )
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            ctx, uow, TagNamespace.HABIT, habit.ref_id
         )
 
         all_streak_marks = await uow.get(HabitStreakMarkRepository).find_all(

@@ -122,6 +122,11 @@ def upgrade() -> None:
     )
     op.execute(
         """
+        CREATE UNIQUE INDEX ix_tag_link_namespace_source_entity_ref_id ON tag_link (namespace, source_entity_ref_id)
+        """
+    )
+    op.execute(
+        """
         CREATE TABLE tag_link_event (
             owner_ref_id INTEGER NOT NULL,
             timestamp DATETIME NOT NULL,

@@ -243,4 +243,3 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
                 },
             ],
         }
-
