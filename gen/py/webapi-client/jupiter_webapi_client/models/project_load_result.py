@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="ProjectLoadResult")
@@ -22,10 +23,12 @@ class ProjectLoadResult:
 
     Attributes:
         project (Project): The project.
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     project: Project
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,6 +36,11 @@ class ProjectLoadResult:
         from ..models.note import Note
 
         project = self.project.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -47,6 +55,7 @@ class ProjectLoadResult:
         field_dict.update(
             {
                 "project": project,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -58,9 +67,17 @@ class ProjectLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         project = Project.from_dict(d.pop("project"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -81,6 +98,7 @@ class ProjectLoadResult:
 
         project_load_result = cls(
             project=project,
+            tags=tags,
             note=note,
         )
 

@@ -6,6 +6,8 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
@@ -48,6 +50,9 @@ class Project(LeafEntity):
     chores = RefsMany(Chore, project_ref_id=IsRefId())
     big_plans = RefsMany(BigPlan, project_ref_id=IsRefId())
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.PROJECT, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.PROJECT, source_entity_ref_id=IsRefId()
     )

@@ -22,7 +22,6 @@ class TagNamespace(EnumValue):
     CHAPTER = "chapter"
     GOAL = "goal"
     MILESTONE = "milestone"
-    VISION = "vision"
     SMART_LIST = "smart-list"
     SMART_LIST_ITEM = "smart-list-item"
     METRIC = "metric"

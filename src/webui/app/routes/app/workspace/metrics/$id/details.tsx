@@ -1,4 +1,4 @@
-import type { InboxTask , Tag } from "@jupiter/webapi-client";
+import type { InboxTask, Tag } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,

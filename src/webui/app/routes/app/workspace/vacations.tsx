@@ -2,7 +2,8 @@ import type {
   ADate,
   Vacation,
   VacationFindResultEntry,
- Tag } from "@jupiter/webapi-client";
+  Tag,
+} from "@jupiter/webapi-client";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { Box, IconButton, Typography, styled } from "@mui/material";
@@ -90,7 +91,7 @@ export default function Vacations() {
         if (selectedTagsRefId.length === 0) {
           return true;
         }
-        const entry = entriesByRefId.get(vacation.ref_id) as any;
+        const entry = entriesByRefId.get(vacation.ref_id);
         return entry?.tags?.some((tag: Tag) =>
           selectedTagsRefId.includes(tag.ref_id),
         );
@@ -152,11 +153,11 @@ export default function Vacations() {
                     date={vacation.end_date}
                     color="success"
                   />
-                  {entriesByRefId.get(vacation.ref_id)?.tags?.map(
-                    (tag: Tag) => (
+                  {entriesByRefId
+                    .get(vacation.ref_id)
+                    ?.tags?.map((tag: Tag) => (
                       <TagTag key={tag.ref_id} tag={tag} />
-                    ),
-                  )}
+                    ))}
                 </EntityLink>
               </EntityCard>
             );

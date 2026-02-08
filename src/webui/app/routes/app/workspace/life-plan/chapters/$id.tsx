@@ -4,6 +4,8 @@ import {
   MilestoneSummary,
   NoteNamespace,
   ProjectSummary,
+  type Tag,
+  TagNamespace,
 } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -33,6 +35,7 @@ import {
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
 import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -49,6 +52,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     project: z.string(),
     startDate: z.string(),
     endDate: z.string(),
+  }),
+  z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -76,6 +85,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.CHAPTER],
+    });
+
     const response = await apiClient.lifePlan.chapterLoad({
       ref_id: id,
       allow_archived: true,
@@ -87,7 +101,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
       rootProject: summaryResponse.root_project as ProjectSummary,
       chapter: response.chapter,
+      tags: response.tags,
       note: response.note ?? null,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -127,6 +143,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.endDate,
           },
+        });
+
+        return redirect(`/app/workspace/life-plan/chapters/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.CHAPTER,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/life-plan/chapters/${id}`);
@@ -258,6 +284,32 @@ export default function Chapter() {
           />
           <FieldError actionResult={actionData} fieldName="/end_date" />
         </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="chapter-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tag_names" />
       </SectionCard>
 
       <SectionCard

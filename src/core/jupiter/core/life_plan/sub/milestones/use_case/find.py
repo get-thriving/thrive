@@ -5,6 +5,10 @@ from collections import defaultdict
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -30,6 +34,7 @@ class MilestoneFindArgs(UseCaseArgsBase):
 
     allow_archived: bool
     include_notes: bool
+    include_tags: bool
     filter_ref_ids: list[EntityId] | None
 
 
@@ -38,6 +43,7 @@ class MilestoneFindResultEntry(UseCaseResultBase):
     """A single milestone result."""
 
     milestone: Milestone
+    tags: list[Tag]
     note: Note | None
 
 
@@ -86,10 +92,40 @@ class MilestoneFindUseCase(
             for note in notes:
                 notes_by_milestone_ref_id[note.parent_ref_id] = note
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.MILESTONE,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.MILESTONE,
+                source_entity_ref_id=[m.ref_id for m in milestones],
+            )
+            tag_links_by_milestone_ref_id = {
+                t.source_entity_ref_id: t for t in tag_links
+            }
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_milestone_ref_id = {}
+
         return MilestoneFindResult(
             entries=[
                 MilestoneFindResultEntry(
                     milestone=milestone,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_milestone_ref_id[
+                                milestone.ref_id
+                            ].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if milestone.ref_id in tag_links_by_milestone_ref_id
+                        else []
+                    ),
                     note=notes_by_milestone_ref_id.get(milestone.ref_id, None),
                 )
                 for milestone in milestones

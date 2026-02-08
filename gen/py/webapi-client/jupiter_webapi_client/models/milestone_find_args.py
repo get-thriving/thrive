@@ -18,11 +18,13 @@ class MilestoneFindArgs:
     Attributes:
         allow_archived (bool):
         include_notes (bool):
+        include_tags (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
     include_notes: bool
+    include_tags: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -30,6 +32,8 @@ class MilestoneFindArgs:
         allow_archived = self.allow_archived
 
         include_notes = self.include_notes
+
+        include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -46,6 +50,7 @@ class MilestoneFindArgs:
             {
                 "allow_archived": allow_archived,
                 "include_notes": include_notes,
+                "include_tags": include_tags,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -59,6 +64,8 @@ class MilestoneFindArgs:
         allow_archived = d.pop("allow_archived")
 
         include_notes = d.pop("include_notes")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -80,6 +87,7 @@ class MilestoneFindArgs:
         milestone_find_args = cls(
             allow_archived=allow_archived,
             include_notes=include_notes,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )
 

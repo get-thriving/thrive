@@ -47,7 +47,6 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
-  FilterFewOptionsSpread,
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";

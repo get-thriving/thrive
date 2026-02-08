@@ -470,7 +470,10 @@ export default function Person() {
             />
           }
         >
-          <OccasionStack occasions={loaderData.occasions} occasionTagsByRefId={loaderData.occasionTagsByRefId} />
+          <OccasionStack
+            occasions={loaderData.occasions}
+            occasionTagsByRefId={loaderData.occasionTagsByRefId}
+          />
         </SectionCard>
 
         <SectionCard

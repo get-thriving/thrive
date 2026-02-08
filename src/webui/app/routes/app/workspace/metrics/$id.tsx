@@ -1,5 +1,9 @@
 import type { MetricEntry, Tag } from "@jupiter/webapi-client";
-import { ApiError, DocsHelpSubject , TagNamespace } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  DocsHelpSubject,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";

@@ -205,7 +205,9 @@ class PersonLoadUseCase(
         )
 
         occasion_tags_by_ref_id = {
-            link.source_entity_ref_id: [t for t in occasion_tags if t.ref_id in link.ref_ids]
+            link.source_entity_ref_id: [
+                t for t in occasion_tags if t.ref_id in link.ref_ids
+            ]
             for link in occasion_tag_links
         }
 

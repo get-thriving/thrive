@@ -2,6 +2,8 @@
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -27,6 +29,9 @@ class Milestone(LeafEntity):
     project_ref_id: EntityId
     date: ADate
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.MILESTONE, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace("milestone"), source_entity_ref_id=IsRefId()
     )

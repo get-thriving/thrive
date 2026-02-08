@@ -55,6 +55,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import {
   DisplayType,
   useLeafNeedsToShowLeaflet,
+  useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import {
@@ -102,18 +103,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const projectsResponse = await apiClient.lifePlan.projectFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
   });
   const chaptersResponse = await apiClient.lifePlan.chapterFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
   });
   const goalsResponse = await apiClient.lifePlan.goalFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
   });
   const milestonesResponse = await apiClient.lifePlan.milestoneFind({
     allow_archived: false,
     include_notes: false,
+    include_tags: true,
   });
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
@@ -177,6 +182,7 @@ export default function LifePlanView() {
   const navigation = useNavigation();
   const isBigScreen = useBigScreen();
   const actionData = useActionData<typeof action>();
+  const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const inputsEnabled = navigation.state === "idle";
@@ -311,7 +317,7 @@ export default function LifePlanView() {
         />
       }
     >
-      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet} branchForceHide={shouldShowABranch}>
         <GlobalError actionResult={actionData} />
         <EntityStack>
           <Form method="post" style={{ position: "relative" }}>

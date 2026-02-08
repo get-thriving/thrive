@@ -1,6 +1,8 @@
-import type { GoalSummary } from "@jupiter/webapi-client";
+import type { Goal, GoalSummary } from "@jupiter/webapi-client";
 
-export function sortGoalsNaturally<T extends GoalSummary>(goals: T[]): T[] {
+export function sortGoalsNaturally<T extends Goal | GoalSummary>(
+  goals: T[],
+): T[] {
   const collator = new Intl.Collator(undefined, {
     numeric: true,
     sensitivity: "base",

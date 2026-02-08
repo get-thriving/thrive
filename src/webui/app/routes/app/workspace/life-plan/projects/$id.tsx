@@ -1,5 +1,5 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
-import { ApiError, NoteNamespace } from "@jupiter/webapi-client";
+import type { ProjectSummary, Tag } from "@jupiter/webapi-client";
+import { ApiError, NoteNamespace, TagNamespace } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -23,6 +23,7 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -37,6 +38,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("update"),
     name: z.string(),
     parentProjectRefId: z.string().optional(),
+  }),
+  z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
   }),
   z.object({
     intent: z.literal("create-note"),
@@ -62,6 +69,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.PROJECT],
+    });
+
     const response = await apiClient.lifePlan.projectLoad({
       ref_id: id,
       allow_archived: true,
@@ -71,7 +83,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       rootProject: summaryResponse.root_project as ProjectSummary,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
       project: response.project,
+      tags: response.tags,
       note: response.note,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -103,6 +117,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: form.parentProjectRefId !== undefined,
             value: form.parentProjectRefId ?? null,
           },
+        });
+
+        return redirect(`/app/workspace/life-plan/projects/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.PROJECT,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/life-plan/projects/${id}`);
@@ -238,6 +262,32 @@ export default function Project() {
             />
           </FormControl>
         )}
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="project-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tag_names" />
       </SectionCard>
 
       <SectionCard
