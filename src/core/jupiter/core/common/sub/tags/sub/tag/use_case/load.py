@@ -1,7 +1,7 @@
 """Use case for loading a tag."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.root import Tag
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -33,7 +33,9 @@ class TagLoadResult(UseCaseResultBase):
 
 
 @readonly_use_case(exclude_component=[AppCore.CLI])
-class TagLoadUseCase(JupiterTransactionalLoggedInReadOnlyUseCase[TagLoadArgs, TagLoadResult]):
+class TagLoadUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[TagLoadArgs, TagLoadResult]
+):
     """Use case for loading a tag."""
 
     async def _perform_transactional_read(
@@ -47,4 +49,3 @@ class TagLoadUseCase(JupiterTransactionalLoggedInReadOnlyUseCase[TagLoadArgs, Ta
             args.ref_id, allow_archived=args.allow_archived
         )
         return TagLoadResult(tag=tag)
-

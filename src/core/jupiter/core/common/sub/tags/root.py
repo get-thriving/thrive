@@ -1,53 +1,31 @@
-"""A tag."""
+"""Tags domain trunk entity."""
 
-from jupiter.core.common.sub.tags.name import TagName
-from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
-    LeafSupportEntity,
+    ContainsMany,
+    IsRefId,
     ParentLink,
-    create_entity_action,
+    TrunkEntity,
     entity,
-    update_entity_action,
 )
-from jupiter.framework.update_action import UpdateAction
 
 
 @entity
-class Tag(LeafSupportEntity):
-    """A tag."""
+class TagDomain(TrunkEntity):
+    """Tags trunk entity."""
 
-    tag_domain: ParentLink
-    namespace: TagNamespace
-    name: TagName
+    workspace: ParentLink
+
+    tags = ContainsMany(Tag, tag_domain_ref_id=IsRefId())
+    links = ContainsMany(TagLink, tag_domain_ref_id=IsRefId())
 
     @staticmethod
-    @create_entity_action
-    def new_tag(
+    def new_tag_domain(
         ctx: MutationContext,
-        tag_domain_ref_id: EntityId,
-        namespace: TagNamespace,
-        name: TagName,
-    ) -> "Tag":
-        """Create a tag."""
-        return Tag._create(
-            ctx,
-            tag_domain=ParentLink(tag_domain_ref_id),
-            namespace=namespace,
-            name=name,
-        )
-
-    @update_entity_action
-    def update(
-        self,
-        ctx: MutationContext,
-        name: UpdateAction[TagName],
-    ) -> "Tag":
-        """Update the tag."""
-        return self._new_version(
-            ctx,
-            name=name.or_else(self.name),
-        )
-
+        workspace_ref_id: EntityId,
+    ) -> "TagDomain":
+        """Create a tags domain."""
+        return TagDomain._create(ctx, workspace=ParentLink(workspace_ref_id))

@@ -5,7 +5,7 @@ from collections import defaultdict
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.name import TagName
+from jupiter.core.common.sub.tags.sub.tag.name import TagName
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,

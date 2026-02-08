@@ -55,7 +55,9 @@ class TimePlan(LeafEntity):
     end_date: ADate
 
     activities = ContainsMany(TimePlanActivity, time_plan_ref_id=IsRefId())
-    note = OwnsOne(Note, namespace=NoteNamespace.TIME_PLAN, source_entity_ref_id=IsRefId())
+    note = OwnsOne(
+        Note, namespace=NoteNamespace.TIME_PLAN, source_entity_ref_id=IsRefId()
+    )
     planning_task = OwnsAtMostOne(
         InboxTask, source=InboxTaskSource.TIME_PLAN, source_entity_ref_id=IsRefId()
     )

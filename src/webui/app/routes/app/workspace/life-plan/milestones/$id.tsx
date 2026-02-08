@@ -1,4 +1,8 @@
-import { ApiError, NoteNamespace, ProjectSummary } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  NoteNamespace,
+  ProjectSummary,
+} from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";

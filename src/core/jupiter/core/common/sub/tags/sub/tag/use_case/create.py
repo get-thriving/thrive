@@ -1,10 +1,10 @@
 """Use case for creating a tag."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.domain import TagDomain
-from jupiter.core.common.sub.tags.name import TagName
 from jupiter.core.common.sub.tags.namespace import TagNamespace
-from jupiter.core.common.sub.tags.root import Tag
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.tag.name import TagName
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -61,4 +61,3 @@ class TagCreateUseCase(
         new_tag = await uow.get_for(Tag).create(new_tag)
         await progress_reporter.mark_created(new_tag)
         return TagCreateResult(new_tag=new_tag)
-

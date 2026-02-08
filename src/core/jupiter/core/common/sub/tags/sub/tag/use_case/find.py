@@ -1,9 +1,9 @@
 """Use case for finding tags."""
 
 from jupiter.core.app import AppCore
-from jupiter.core.common.sub.tags.domain import TagDomain
 from jupiter.core.common.sub.tags.namespace import TagNamespace
-from jupiter.core.common.sub.tags.root import Tag
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,

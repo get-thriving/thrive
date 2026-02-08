@@ -52,7 +52,9 @@ class Journal(LeafEntity):
     period: RecurringTaskPeriod
     timeline: str
 
-    note = OwnsOne(Note, namespace=NoteNamespace.JOURNAL, source_entity_ref_id=IsRefId())
+    note = OwnsOne(
+        Note, namespace=NoteNamespace.JOURNAL, source_entity_ref_id=IsRefId()
+    )
     writing_task = OwnsAtMostOne(
         InboxTask, source=InboxTaskSource.JOURNAL, source_entity_ref_id=IsRefId()
     )

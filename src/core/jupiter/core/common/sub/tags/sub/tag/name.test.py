@@ -1,6 +1,6 @@
 """Tests for tag name."""
 
-from jupiter.core.common.sub.tags.name import TagName
+from jupiter.core.common.sub.tags.sub.tag.name import TagName
 
 
 def test_construction() -> None:

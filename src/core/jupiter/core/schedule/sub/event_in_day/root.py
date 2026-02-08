@@ -45,7 +45,9 @@ class ScheduleEventInDay(LeafEntity):
         source_entity_ref_id=IsRefId(),
     )
     note = OwnsAtMostOne(
-        Note, namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY, source_entity_ref_id=IsRefId()
+        Note,
+        namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
+        source_entity_ref_id=IsRefId(),
     )
 
     @staticmethod
