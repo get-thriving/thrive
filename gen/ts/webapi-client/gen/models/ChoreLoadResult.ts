@@ -8,6 +8,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 /**
  * ChoreLoadResult.
  */
@@ -19,6 +20,7 @@ export type ChoreLoadResult = {
     inbox_tasks: Array<InboxTask>;
     inbox_tasks_total_cnt: number;
     inbox_tasks_page_size: number;
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

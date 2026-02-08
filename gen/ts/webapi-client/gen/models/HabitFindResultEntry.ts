@@ -18,7 +18,7 @@ export type HabitFindResultEntry = {
     chapter?: (Chapter | null);
     goal?: (Goal | null);
     inbox_tasks?: (Array<InboxTask> | null);
-    tags?: (Array<Tag> | null);
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

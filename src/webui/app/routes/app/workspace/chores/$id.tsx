@@ -5,6 +5,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   Project,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -13,6 +14,7 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -52,6 +54,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -92,6 +95,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("regen"),
   }),
   z.object({
+    intent: z.literal("upsert-tags"),
+    tags: z
+      .string()
+      .transform((s) => (s.trim() !== "" ? s.trim().split(",") : [])),
+  }),
+  z.object({
     intent: z.literal("create-note"),
   }),
   z.object({
@@ -119,6 +128,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_milestones: true,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.CHORE],
+  });
+
   try {
     const result = await apiClient.chores.choreLoad({
       ref_id: id,
@@ -128,6 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       chore: result.chore,
+      tags: ((result as any).tags ?? []) as Array<Tag>,
       note: result.note,
       project: result.project,
       chapter: result.chapter,
@@ -140,6 +155,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -261,6 +277,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       case "regen": {
         await apiClient.chores.choreRegen({
           ref_id: id,
+        });
+
+        return redirect(`/app/workspace/chores/${id}`);
+      }
+
+      case "upsert-tags": {
+        await apiClient.tags.tagLinkUpsert({
+          namespace: TagNamespace.CHORE,
+          source_entity_ref_id: id,
+          tag_names: form.tags,
         });
 
         return redirect(`/app/workspace/chores/${id}`);
@@ -519,6 +545,32 @@ export default function Chore() {
             <FieldError actionResult={actionData} fieldName="/end_at_date" />
           </FormControl>
         </Stack>
+      </SectionCard>
+
+      <SectionCard
+        title="Tags"
+        actions={
+          <SectionActions
+            id="chore-tags"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Add Tags",
+                value: "upsert-tags",
+                highlight: false,
+              }),
+            ]}
+          />
+        }
+      >
+        <TagsEditor
+          name="tags"
+          allTags={loaderData.allTags}
+          defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+          inputsEnabled={inputsEnabled}
+        />
+        <FieldError actionResult={actionData} fieldName="/tags" />
       </SectionCard>
 
       <SectionCard

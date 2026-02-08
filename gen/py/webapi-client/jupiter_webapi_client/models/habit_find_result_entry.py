@@ -27,20 +27,20 @@ class HabitFindResultEntry:
 
     Attributes:
         habit (Habit): A habit.
+        tags (list[Tag]):
         project (None | Project | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
-        tags (list[Tag] | None | Unset):
         note (None | Note | Unset):
     """
 
     habit: Habit
+    tags: list[Tag]
     project: None | Project | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
-    tags: list[Tag] | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -51,6 +51,11 @@ class HabitFindResultEntry:
         from ..models.project import Project
 
         habit = self.habit.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         project: dict[str, Any] | None | Unset
         if isinstance(self.project, Unset):
@@ -88,18 +93,6 @@ class HabitFindResultEntry:
         else:
             inbox_tasks = self.inbox_tasks
 
-        tags: list[dict[str, Any]] | None | Unset
-        if isinstance(self.tags, Unset):
-            tags = UNSET
-        elif isinstance(self.tags, list):
-            tags = []
-            for tags_type_0_item_data in self.tags:
-                tags_type_0_item = tags_type_0_item_data.to_dict()
-                tags.append(tags_type_0_item)
-
-        else:
-            tags = self.tags
-
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -113,6 +106,7 @@ class HabitFindResultEntry:
         field_dict.update(
             {
                 "habit": habit,
+                "tags": tags,
             }
         )
         if project is not UNSET:
@@ -123,8 +117,6 @@ class HabitFindResultEntry:
             field_dict["goal"] = goal
         if inbox_tasks is not UNSET:
             field_dict["inbox_tasks"] = inbox_tasks
-        if tags is not UNSET:
-            field_dict["tags"] = tags
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -142,6 +134,13 @@ class HabitFindResultEntry:
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_project(data: object) -> None | Project | Unset:
             if data is None:
@@ -216,28 +215,6 @@ class HabitFindResultEntry:
 
         inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
 
-        def _parse_tags(data: object) -> list[Tag] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                tags_type_0 = []
-                _tags_type_0 = data
-                for tags_type_0_item_data in _tags_type_0:
-                    tags_type_0_item = Tag.from_dict(tags_type_0_item_data)
-
-                    tags_type_0.append(tags_type_0_item)
-
-                return tags_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[Tag] | None | Unset, data)
-
-        tags = _parse_tags(d.pop("tags", UNSET))
-
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -257,11 +234,11 @@ class HabitFindResultEntry:
 
         habit_find_result_entry = cls(
             habit=habit,
+            tags=tags,
             project=project,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,
-            tags=tags,
             note=note,
         )
 

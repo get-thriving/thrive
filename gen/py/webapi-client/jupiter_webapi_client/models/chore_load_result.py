@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="ChoreLoadResult")
@@ -30,6 +31,7 @@ class ChoreLoadResult:
         inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
+        tags (list[Tag]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -40,6 +42,7 @@ class ChoreLoadResult:
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
+    tags: list[Tag]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -62,6 +65,11 @@ class ChoreLoadResult:
         inbox_tasks_total_cnt = self.inbox_tasks_total_cnt
 
         inbox_tasks_page_size = self.inbox_tasks_page_size
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -96,6 +104,7 @@ class ChoreLoadResult:
                 "inbox_tasks": inbox_tasks,
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
+                "tags": tags,
             }
         )
         if chapter is not UNSET:
@@ -115,6 +124,7 @@ class ChoreLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         chore = Chore.from_dict(d.pop("chore"))
@@ -131,6 +141,13 @@ class ChoreLoadResult:
         inbox_tasks_total_cnt = d.pop("inbox_tasks_total_cnt")
 
         inbox_tasks_page_size = d.pop("inbox_tasks_page_size")
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -189,6 +206,7 @@ class ChoreLoadResult:
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,
+            tags=tags,
             chapter=chapter,
             goal=goal,
             note=note,

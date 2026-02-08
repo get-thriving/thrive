@@ -8,6 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type ChoreFindArgs = {
     allow_archived: boolean;
+    include_tags: boolean;
     include_life_plan: boolean;
     include_inbox_tasks: boolean;
     include_notes: boolean;

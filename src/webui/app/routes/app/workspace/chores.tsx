@@ -5,11 +5,13 @@ import type {
   GoalSummary,
   Project,
   ProjectSummary,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   WorkspaceFeature,
   DocsHelpSubject,
   RecurringTaskPeriod,
+  TagNamespace,
 } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
@@ -40,6 +42,7 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
   FilterFewOptionsSpread,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
@@ -60,6 +63,7 @@ import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -93,17 +97,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_goals: true,
   });
 
-  const response = await apiClient.chores.choreFind({
+  const response = await (apiClient.chores.choreFind as any)({
     allow_archived: false,
+    include_tags: true,
     include_life_plan: true,
     include_inbox_tasks: false,
     include_notes: false,
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.CHORE],
   });
 
   return json({
     chores: response.entries,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
+    allTags: allTags.tags as Array<Tag>,
   });
 }
 
@@ -117,13 +128,22 @@ export default function Chores() {
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const sortedChores = sortChoresNaturally(
-    loaderData.chores.map((e) => e.chore),
-  );
   const entriesByRefId = new Map<string, ChoreFindResultEntry>();
   for (const entry of loaderData.chores) {
     entriesByRefId.set(entry.chore.ref_id, entry);
   }
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const sortedChores = sortChoresNaturally(
+    (loaderData.chores as Array<ChoreFindResultEntry>).map((e) => e.chore),
+  ).filter((chore) => {
+    const entry = entriesByRefId.get(chore.ref_id) as any;
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    return tagsOk;
+  });
 
   const lifePlanAvailable = isWorkspaceFeatureAvailable(
     topLevelInfo.workspace,
@@ -161,7 +181,7 @@ export default function Chores() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterFewOptionsSpread(
+            FilterFewOptionsCompact(
               "Grouping",
               selectedGrouping,
               [
@@ -183,7 +203,7 @@ export default function Chores() {
             ),
             ...(isBigScreen
               ? [
-                  FilterFewOptionsSpread(
+                  FilterFewOptionsCompact(
                     "Periods",
                     selectedPeriodBreakdown,
                     [
@@ -224,6 +244,14 @@ export default function Chores() {
                   ),
                 ]
               : []),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
@@ -356,6 +384,9 @@ function ChoreRow(props: ChoreRowProps) {
         {chore.gen_params.difficulty && (
           <DifficultyTag difficulty={chore.gen_params.difficulty} />
         )}
+        {(entry as any).tags?.map((tag: Tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
       </EntityLink>
     </EntityCard>
   );
