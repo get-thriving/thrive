@@ -20,6 +20,20 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  api:
+    environment:
+      - PORT=10020
+    restart: always
+    image: ${DOCKER_IMAGE_API:-horia141/jupiter-api:${VERSION:-latest}}
+    ports:
+      - "${API_PORT:-0}:10020"
+    depends_on:
+      - webapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:10020/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   webui:
     environment:
       - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}

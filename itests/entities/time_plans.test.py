@@ -2495,7 +2495,9 @@ def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
 
     expect(page.locator("input[name='rightNow']")).to_have_attribute("readonly", "")
     # Check the Select dropdown is disabled (compact mode)
-    expect(page.locator('div[aria-labelledby="period"]')).to_have_attribute("aria-disabled", "true")
+    expect(page.locator('div[aria-labelledby="period"]')).to_have_attribute(
+        "aria-disabled", "true"
+    )
 
 
 def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:

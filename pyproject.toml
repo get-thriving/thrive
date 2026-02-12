@@ -17,6 +17,7 @@ members = [
     "gen/py/webapi-client",
     "src/alib/py/framework",
     "src/webapi",
+    "src/api",
     "src/core",
     "src/docs",
     "src/cli",

@@ -18,7 +18,7 @@ ruby = "3.2.10"
 java = "openjdk-17"
 
 [env]
-UV_PROJECT_ENVIRONMENT = "\{{ config_root }}/.build-cache/venv"
+UV_PROJECT_ENVIRONMENT = "\{{ config_root \}}/.build-cache/venv"
 RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
 _.python.venv = { path = ".build-cache/venv", create = true }
 
@@ -32,6 +32,7 @@ includes = [
     "src/core/package.mise.toml",
     "src/cli/package.mise.toml",
     "src/webapi/package.mise.toml",
+    "src/api/package.mise.toml",
     "src/docs/package.mise.toml",
     "src/webui/package.mise.toml",
     "src/desktop/package.mise.toml",

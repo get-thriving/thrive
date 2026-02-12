@@ -1,18 +1,17 @@
 [project]
-name = "jupiter-webapi"
+name = "jupiter-api"
 version = "0.1.0"
-description = "A Web RPC-ish API for Thrive."
+description = "An API used by external entities to access Thrive programmatically.."
 authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
 requires-python = ">=3.13,<4"
 readme = "README.md"
 license = "MIT"
 dependencies = [
-    "jupiter-core",
     "jupiter-framework",
+    "jupiter-webapi-client",
     "fastapi>=0.115.11,<0.116",
     "uvicorn>=0.34.0,<0.35",
     "pydantic>=2.10.6,<3",
-    "websockets>=15.0.1,<16",
     "gunicorn>=23.0.0,<24",
     "python-multipart>=0.0.20,<0.0.21",
     "apscheduler>=3.11.0,<4",
@@ -34,8 +33,8 @@ dev = ["types-requests>=2.32.0,<3"]
 package = false
 
 [tool.uv.sources]
-jupiter-core = { workspace = true }
 jupiter-framework = { workspace = true }
+jupiter-webapi-client = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

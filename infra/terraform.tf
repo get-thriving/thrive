@@ -392,6 +392,14 @@ resource "sentry_project" "webapi" {
   platform     = "python-fastapi"
 }
 
+resource "sentry_project" "api" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "api"
+  slug         = "api"
+  platform     = "python-fastapi"
+}
+
 resource "sentry_project" "webui" {
   organization = data.sentry_organization.main.slug
   teams        = [sentry_team.thrive.slug]
@@ -496,6 +504,12 @@ resource "docker_hub_repository" "webapi" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "jupiter-webapi"
   description = "This is the repository for the WebApi"
+}
+
+resource "docker_hub_repository" "api" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "jupiter-api"
+  description = "This is the repository for the external API"
 }
 
 resource "docker_hub_repository" "webui" {

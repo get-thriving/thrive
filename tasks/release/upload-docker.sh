@@ -19,6 +19,12 @@ docker tag jupiter/webapi:${VERSION}-amd64 ${DOCKER_REGISTRY_NAME}/jupiter-webap
 docker tag jupiter/webapi:latest-arm64   ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-arm64
 docker tag jupiter/webapi:${VERSION}-arm64 ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-arm64
 
+# api
+docker tag jupiter/api:latest-amd64   ${DOCKER_REGISTRY_NAME}/jupiter-api:latest-amd64
+docker tag jupiter/api:${VERSION}-amd64 ${DOCKER_REGISTRY_NAME}/jupiter-api:${VERSION}-amd64
+docker tag jupiter/api:latest-arm64   ${DOCKER_REGISTRY_NAME}/jupiter-api:latest-arm64
+docker tag jupiter/api:${VERSION}-arm64 ${DOCKER_REGISTRY_NAME}/jupiter-api:${VERSION}-arm64
+
 # webui
 docker tag jupiter/webui:latest-amd64    ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-amd64
 docker tag jupiter/webui:${VERSION}-amd64  ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-amd64

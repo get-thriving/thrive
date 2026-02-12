@@ -54,29 +54,30 @@ run_jupiter_webapp() {
     local UNIVERSE=$1
     local INSTANCE=$2
     local WEBAPI_PORT=$3
-    local WEBUI_PORT=$4
-    local DOCS_PORT=$5
-    local should_wait=$6
-    local should_monit=$7
-    local in_ci=$8
-    local source=$9
+    local API_PORT=$4
+    local WEBUI_PORT=$5
+    local DOCS_PORT=$6
+    local should_wait=$7
+    local should_monit=$8
+    local in_ci=$9
     shift 9
-    local version=$1
-    local mode=$2
-    local clear_first=$3
+    local source=$1
+    local version=$2
+    local mode=$3
+    local clear_first=$4
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -90,21 +91,24 @@ _run_dev_jupiter_webapp_with_pm2() {
     local webapiPort=$2
     local webapiServerUrl=http://localhost:${webapiPort}
     local webuiLogFile=../../$RUN_ROOT/$instance/webui.log
-    local webuiPort=$3
+    local apiPort=$3
+    local apiServerUrl=http://localhost:${apiPort}
+    local apiLogFile=../../$RUN_ROOT/$instance/api.log
+    local webuiPort=$4
     local webuiServerUrl=http://localhost:${webuiPort}
     local docsLogFile=../../$RUN_ROOT/$instance/docs.log
-    local docsPort=$4
+    local docsPort=$5
     local docsServerUrl=http://localhost:${docsPort}
     local docsPublicName=$PUBLIC_NAME
     local docsAuthor=$AUTHOR
     local docsCopyright=$COPYRIGHT
-    local should_wait=$5
-    local should_monit=$6
-    local in_ci=$7
-    local source=$8
-    local version=$9
-    shift 9
-    local clear_first=$1
+    local should_wait=$6
+    local should_monit=$7
+    local in_ci=$8
+    shift 8
+    local source=$1
+    local version=$2
+    local clear_first=$3
 
     # If source is not local, or version is not local, then we exit
     if [[ "$source" != "local" ]] || [[ "$version" != "latest" ]]; then
@@ -120,10 +124,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     
     # here!
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     fi
 
@@ -133,11 +137,13 @@ _run_dev_jupiter_webapp_with_pm2() {
     npx pm2 --no-color start "$RUN_ROOT/$instance/pm2.config.js"
 
     save_jupiter_url "$instance" "webapi" "$webapiServerUrl"
+    save_jupiter_url "$instance" "api" "$apiServerUrl"
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
+        wait_for_service_to_start api "$apiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
         wait_for_service_to_start docs "$docsServerUrl"
     fi
@@ -145,6 +151,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     if [[ ${should_wait} == "wait:webapi" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
     fi 
+
+    if [[ ${should_wait} == "wait:api" ]]; then
+        wait_for_service_to_start api "$apiServerUrl"
+    fi
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$webuiServerUrl"
@@ -166,21 +176,23 @@ _run_dev_jupiter_webapp_with_docker() {
     export INSTANCE=$instance
     export DOMAIN=localhost
     export WEBAPI_PORT=$2
-    export WEBUI_PORT=$3
     export WEBAPI_SERVER_URL=http://localhost:${WEBAPI_PORT}
+    export API_PORT=$3
+    export API_SERVER_URL=http://localhost:${API_PORT}
+    export WEBUI_PORT=$4
     export WEBUI_SERVER_URL=https://localhost:${WEBUI_PORT}
-    export DOCS_PORT=$4
+    export DOCS_PORT=$5
     export DOCS_SERVER_URL=http://localhost:${DOCS_PORT}
     export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT
-    local should_wait=$5
-    local should_monit=$6
-    local in_ci=$7
-    local source=$8
-    local version=$9
-    shift 9
-    local clear_first=$1
+    local should_wait=$6
+    local should_monit=$7
+    local in_ci=$8
+    shift 8
+    local source=$1
+    local version=$2
+    local clear_first=$3
 
     AUTH_TOKEN_SECRET=$(openssl rand -hex 32)
     export AUTH_TOKEN_SECRET
@@ -189,6 +201,8 @@ _run_dev_jupiter_webapp_with_docker() {
 
     export DOCKER_IMAGE_WEBAPI
     DOCKER_IMAGE_WEBAPI=$(get_jupiter_image "webapi" "$source" "$version" arm64)
+    export DOCKER_IMAGE_API
+    DOCKER_IMAGE_API=$(get_jupiter_image "api" "$source" "$version" arm64)
     export DOCKER_IMAGE_WEBUI
     DOCKER_IMAGE_WEBUI=$(get_jupiter_image "webui" "$source" "$version" arm64)
     export DOCKER_IMAGE_DOCS
@@ -205,8 +219,7 @@ _run_dev_jupiter_webapp_with_docker() {
 
     create_jupiter_database "$instance"
 
-
-    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
+    log info "Running docker images: $DOCKER_IMAGE_WEBAPI, $DOCKER_IMAGE_API, $DOCKER_IMAGE_WEBUI, $DOCKER_IMAGE_DOCS"
 
     openssl req -x509 \
         -nodes \
@@ -219,6 +232,7 @@ _run_dev_jupiter_webapp_with_docker() {
     trap "docker compose -f infra/self-hosted/compose.yaml down" EXIT
 
     save_jupiter_url "$instance" "webapi" "$WEBAPI_SERVER_URL"
+    save_jupiter_url "$instance" "api" "$API_SERVER_URL"
     save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
     save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
 
@@ -228,6 +242,7 @@ _run_dev_jupiter_webapp_with_docker() {
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
+        wait_for_service_to_start api "$API_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
         wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
@@ -235,6 +250,10 @@ _run_dev_jupiter_webapp_with_docker() {
     if [[ ${should_wait} == "wait:webapi" ]]; then
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
     fi 
+
+    if [[ ${should_wait} == "wait:api" ]]; then
+        wait_for_service_to_start api "$API_SERVER_URL"
+    fi
 
     if [[ ${should_wait} == "wait:webui" ]]; then
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
@@ -251,13 +270,13 @@ _run_dev_jupiter_webapp_with_docker() {
 
 _run_thrive_sh_test_webapp() {
     local instance=$1
-    local should_wait=$5
-    local should_monit=$6
-    local in_ci=$7
-    local source=$8
-    shift 8
-    local version=$1
-    local clear_first=$2
+    local should_wait=$7
+    local should_monit=$8
+    local in_ci=$9
+    shift 9
+    local source=$1
+    local version=$2
+    local clear_first=$3
 
     local gcp_vm_name="thrive-sh-test-${instance}"
 
@@ -409,13 +428,17 @@ _run_thrive_sh_test_webapp() {
     else
         log info "Preparing Thrive on $gcp_vm_name from local"
 
-        trap "rm -f webapi.tar webui.tar docs.tar" EXIT
+        trap "rm -f webapi.tar api.tar webui.tar docs.tar" EXIT
 
         docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
+        docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
 
         gcloud compute scp webapi.tar "$gcp_vm_name":~/webapi.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp api.tar "$gcp_vm_name":~/api.tar \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
         gcloud compute scp webui.tar "$gcp_vm_name":~/webui.tar \
@@ -446,6 +469,7 @@ _run_thrive_sh_test_webapp() {
                 (sudo docker compose down || true) &&
                 rm -rf .env &&
                 sudo docker load -i webapi.tar &&
+                sudo docker load -i api.tar &&
                 sudo docker load -i webui.tar &&
                 sudo docker load -i docs.tar &&
                 touch .env &&
@@ -460,6 +484,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"SESSION_COOKIE_SECRET=\$(openssl rand -base64 32)\" >> .env &&
                 echo \"WEBAPI_PORT=${WEBAPI_TESTING_PORT}\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBAPI=jupiter/webapi:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)

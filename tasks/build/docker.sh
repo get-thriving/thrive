@@ -38,6 +38,16 @@ docker buildx build \
     --load \
     .
 
+log info "Building Docker images for api (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/api:latest-${usage_platform}" \
+    --tag "jupiter/api:${VERSION}-${usage_platform}" \
+    --file src/api/Dockerfile \
+    --load \
+    .
+
 log info "Building Docker images for webui (platform: ${usage_platform})"
 
 docker buildx build \

@@ -32,6 +32,7 @@ includes = [
     "src/core/package.mise.toml",
     "src/cli/package.mise.toml",
     "src/webapi/package.mise.toml",
+    "src/api/package.mise.toml",
     "src/docs/package.mise.toml",
     "src/webui/package.mise.toml",
     "src/desktop/package.mise.toml",
