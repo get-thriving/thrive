@@ -2,6 +2,7 @@ import type { EntityId, Circle } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { sortCirclesNaturally } from "#/core/prm/sub/circle/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
@@ -87,6 +88,7 @@ export function CircleMultiSelect(props: CircleMultiSelectProps) {
         disabled={props.disabled || allCirclesAsOptions.length === 0}
         multiple
         disableCloseOnSelect
+        sx={autocompleteSingleLineSx}
         value={selectedCircles}
         getOptionDisabled={(o) => {
           const maxSelections = props.maxSelections ?? null;

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.metric import Metric
     from ..models.metric_entry import MetricEntry
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="MetricFindResponseEntry")
@@ -24,6 +25,7 @@ class MetricFindResponseEntry:
 
     Attributes:
         metric (Metric): A metric.
+        tags (list[Tag]):
         note (None | Note | Unset):
         metric_entries (list[MetricEntry] | None | Unset):
         metric_collection_inbox_tasks (list[InboxTask] | None | Unset):
@@ -31,6 +33,7 @@ class MetricFindResponseEntry:
     """
 
     metric: Metric
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     metric_entries: list[MetricEntry] | None | Unset = UNSET
     metric_collection_inbox_tasks: list[InboxTask] | None | Unset = UNSET
@@ -41,6 +44,11 @@ class MetricFindResponseEntry:
         from ..models.note import Note
 
         metric = self.metric.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -91,6 +99,7 @@ class MetricFindResponseEntry:
         field_dict.update(
             {
                 "metric": metric,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -110,9 +119,17 @@ class MetricFindResponseEntry:
         from ..models.metric import Metric
         from ..models.metric_entry import MetricEntry
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         metric = Metric.from_dict(d.pop("metric"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -203,6 +220,7 @@ class MetricFindResponseEntry:
 
         metric_find_response_entry = cls(
             metric=metric,
+            tags=tags,
             note=note,
             metric_entries=metric_entries,
             metric_collection_inbox_tasks=metric_collection_inbox_tasks,

@@ -2,8 +2,11 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -56,6 +59,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     """InboxTaskLoadResult."""
 
     inbox_task: InboxTask
+    tags: list[Tag]
     project: Project
     chapter: Chapter | None
     goal: Goal | None
@@ -183,10 +187,24 @@ class InboxTaskLoadUseCase(
             email_task = None
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.INBOX_TASK,
+            NoteNamespace.INBOX_TASK,
             inbox_task.ref_id,
             allow_archived=args.allow_archived,
         )
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.INBOX_TASK,
+            source_entity_ref_id=inbox_task.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
@@ -196,6 +214,7 @@ class InboxTaskLoadUseCase(
 
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
+            tags=tags,
             project=project,
             chapter=chapter,
             goal=goal,

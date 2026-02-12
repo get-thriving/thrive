@@ -11,7 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.smart_list_item import SmartListItem
-    from ..models.smart_list_tag import SmartListTag
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="SmartListItemLoadResult")
@@ -23,12 +23,12 @@ class SmartListItemLoadResult:
 
     Attributes:
         item (SmartListItem): A smart list item.
-        tags (list[SmartListTag]):
+        generic_tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     item: SmartListItem
-    tags: list[SmartListTag]
+    generic_tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -37,10 +37,10 @@ class SmartListItemLoadResult:
 
         item = self.item.to_dict()
 
-        tags = []
-        for tags_item_data in self.tags:
-            tags_item = tags_item_data.to_dict()
-            tags.append(tags_item)
+        generic_tags = []
+        for generic_tags_item_data in self.generic_tags:
+            generic_tags_item = generic_tags_item_data.to_dict()
+            generic_tags.append(generic_tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -55,7 +55,7 @@ class SmartListItemLoadResult:
         field_dict.update(
             {
                 "item": item,
-                "tags": tags,
+                "generic_tags": generic_tags,
             }
         )
         if note is not UNSET:
@@ -67,17 +67,17 @@ class SmartListItemLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.note import Note
         from ..models.smart_list_item import SmartListItem
-        from ..models.smart_list_tag import SmartListTag
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         item = SmartListItem.from_dict(d.pop("item"))
 
-        tags = []
-        _tags = d.pop("tags")
-        for tags_item_data in _tags:
-            tags_item = SmartListTag.from_dict(tags_item_data)
+        generic_tags = []
+        _generic_tags = d.pop("generic_tags")
+        for generic_tags_item_data in _generic_tags:
+            generic_tags_item = Tag.from_dict(generic_tags_item_data)
 
-            tags.append(tags_item)
+            generic_tags.append(generic_tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -98,7 +98,7 @@ class SmartListItemLoadResult:
 
         smart_list_item_load_result = cls(
             item=item,
-            tags=tags,
+            generic_tags=generic_tags,
             note=note,
         )
 

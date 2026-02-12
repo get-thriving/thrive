@@ -25,7 +25,7 @@ export function IsKeySelect(props: IsKeySelectProps) {
         selected={value}
         disabled={!props.inputsEnabled}
         onChange={() => setValue((prevSelected) => !prevSelected)}
-        sx={{ height: "100%" }}
+        sx={{ height: "100%", minWidth: "2rem" }}
       >
         <KeyIcon />
       </ToggleButton>

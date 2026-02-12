@@ -5,14 +5,16 @@ import type {
   LifePlan,
   MilestoneSummary,
   Project,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -52,6 +54,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -119,6 +122,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_milestones: true,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.CHORE],
+  });
+
   try {
     const result = await apiClient.chores.choreLoad({
       ref_id: id,
@@ -128,6 +136,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       chore: result.chore,
+      tags: result.tags,
       note: result.note,
       project: result.project,
       chapter: result.chapter,
@@ -140,6 +149,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -268,7 +278,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.CHORE,
+          namespace: NoteNamespace.CHORE,
           source_entity_ref_id: id,
           content: [],
         });
@@ -406,6 +416,18 @@ export default function Chore() {
               defaultValue={loaderData.chore.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.CHORE}
+              sourceEntityRefId={loaderData.chore.ref_id}
+            />
           </FormControl>
 
           <FormControl sx={{ flexGrow: 1 }}>

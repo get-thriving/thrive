@@ -1,22 +1,20 @@
 """A smart list item."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.url import URL
 from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
-from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
-    IsOneOfRefId,
-    IsParentLink,
     IsRefId,
     LeafEntity,
     OwnsAtMostOne,
     ParentLink,
-    RefsMany,
     create_entity_action,
     entity,
     update_entity_action,
@@ -31,13 +29,15 @@ class SmartListItem(LeafEntity):
     smart_list: ParentLink
     name: SmartListItemName
     is_done: bool
-    tags_ref_id: list[EntityId]
     url: URL | None
 
-    tags = RefsMany(SmartListTag, ref_id=IsOneOfRefId("tags_ref_id"))
-    all_tags = RefsMany(SmartListTag, smart_list_ref_id=IsParentLink())
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        namespace=TagNamespace.SMART_LIST_ITEM,
+        source_entity_ref_id=IsRefId(),
+    )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SMART_LIST_ITEM, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.SMART_LIST_ITEM, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod
@@ -47,7 +47,6 @@ class SmartListItem(LeafEntity):
         smart_list_ref_id: EntityId,
         name: SmartListItemName,
         is_done: bool,
-        tags_ref_id: list[EntityId],
         url: URL | None,
     ) -> "SmartListItem":
         """Create a smart list item."""
@@ -56,7 +55,6 @@ class SmartListItem(LeafEntity):
             smart_list=ParentLink(smart_list_ref_id),
             name=name,
             is_done=is_done,
-            tags_ref_id=tags_ref_id,
             url=url,
         )
 
@@ -66,7 +64,6 @@ class SmartListItem(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[SmartListItemName],
         is_done: UpdateAction[bool],
-        tags_ref_id: UpdateAction[list[EntityId]],
         url: UpdateAction[URL | None],
     ) -> "SmartListItem":
         """Update the smart list item."""
@@ -74,6 +71,5 @@ class SmartListItem(LeafEntity):
             ctx,
             name=name.or_else(self.name),
             is_done=is_done.or_else(self.is_done),
-            tags_ref_id=tags_ref_id.or_else(self.tags_ref_id),
             url=url.or_else(self.url),
         )

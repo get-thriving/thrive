@@ -1,10 +1,12 @@
 """The command for archiving a metric entry."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -52,7 +54,16 @@ class MetricEntryArchiveUseCase(
         await note_archive_service.archive_for_source(
             context.domain_context,
             uow,
-            NoteDomain.METRIC_ENTRY,
+            NoteNamespace.METRIC_ENTRY,
+            metric_entry.ref_id,
+            JupiterArchivalReason.USER,
+        )
+
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.METRIC_ENTRY,
             metric_entry.ref_id,
             JupiterArchivalReason.USER,
         )

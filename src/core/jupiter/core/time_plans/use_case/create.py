@@ -3,7 +3,7 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -172,7 +172,7 @@ class TimePlanCreateUseCase(
         new_note = Note.new_note(
             context.domain_context,
             note_collection_ref_id=note_collection.ref_id,
-            domain=NoteDomain.TIME_PLAN,
+            namespace=NoteNamespace.TIME_PLAN,
             source_entity_ref_id=new_time_plan.ref_id,
             content=[],
         )

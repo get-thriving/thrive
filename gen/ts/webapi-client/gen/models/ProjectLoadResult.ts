@@ -4,11 +4,13 @@
 /* eslint-disable */
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 /**
  * ProjectLoadResult.
  */
 export type ProjectLoadResult = {
     project: Project;
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

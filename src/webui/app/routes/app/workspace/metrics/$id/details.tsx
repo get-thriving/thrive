@@ -4,8 +4,9 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -39,6 +40,7 @@ import {
   SectionActions,
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -95,6 +97,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.METRIC],
+    });
+
     const response = await apiClient.metrics.metricLoad({
       ref_id: id,
       allow_archived: true,
@@ -105,9 +112,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metric: response.metric,
       note: response.note,
+      tags: response.tags,
       collectionTasks: response.collection_tasks,
       collectionTasksTotalCnt: response.collection_tasks_total_cnt,
       collectionTasksPageSize: response.collection_tasks_page_size,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -235,7 +244,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.METRIC,
+          namespace: NoteNamespace.METRIC,
           source_entity_ref_id: id,
           content: [],
         });
@@ -347,6 +356,18 @@ export default function MetricDetails() {
               defaultValue={loaderData.metric.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.METRIC}
+              sourceEntityRefId={loaderData.metric.ref_id}
+            />
           </FormControl>
 
           <FormControl sx={{ flexGrow: 1 }}>

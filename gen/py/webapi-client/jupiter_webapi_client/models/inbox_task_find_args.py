@@ -20,6 +20,7 @@ class InboxTaskFindArgs:
         allow_archived (bool):
         include_notes (bool):
         include_time_event_blocks (bool):
+        include_tags (bool):
         filter_just_workable (bool | None | Unset):
         filter_just_user (bool | None | Unset):
         filter_just_generated (bool | None | Unset):
@@ -32,6 +33,7 @@ class InboxTaskFindArgs:
     allow_archived: bool
     include_notes: bool
     include_time_event_blocks: bool
+    include_tags: bool
     filter_just_workable: bool | None | Unset = UNSET
     filter_just_user: bool | None | Unset = UNSET
     filter_just_generated: bool | None | Unset = UNSET
@@ -47,6 +49,8 @@ class InboxTaskFindArgs:
         include_notes = self.include_notes
 
         include_time_event_blocks = self.include_time_event_blocks
+
+        include_tags = self.include_tags
 
         filter_just_workable: bool | None | Unset
         if isinstance(self.filter_just_workable, Unset):
@@ -112,6 +116,7 @@ class InboxTaskFindArgs:
                 "allow_archived": allow_archived,
                 "include_notes": include_notes,
                 "include_time_event_blocks": include_time_event_blocks,
+                "include_tags": include_tags,
             }
         )
         if filter_just_workable is not UNSET:
@@ -139,6 +144,8 @@ class InboxTaskFindArgs:
         include_notes = d.pop("include_notes")
 
         include_time_event_blocks = d.pop("include_time_event_blocks")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_just_workable(data: object) -> bool | None | Unset:
             if data is None:
@@ -244,6 +251,7 @@ class InboxTaskFindArgs:
             allow_archived=allow_archived,
             include_notes=include_notes,
             include_time_event_blocks=include_time_event_blocks,
+            include_tags=include_tags,
             filter_just_workable=filter_just_workable,
             filter_just_user=filter_just_user,
             filter_just_generated=filter_just_generated,

@@ -1,5 +1,12 @@
 import { RecurringTaskPeriod } from "@jupiter/webapi-client";
-import { ToggleButton, ToggleButtonGroup } from "@mui/material";
+import {
+  InputLabel,
+  MenuItem,
+  Select,
+  type SelectChangeEvent,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { periodName } from "#/core/common/recurring-task-period";
@@ -9,6 +16,7 @@ interface PeriodSelectProps {
   labelId: string;
   label: string;
   name: string;
+  compact?: boolean;
   allowNonePeriod?: boolean;
   multiSelect?: boolean;
   inputsEnabled: boolean;
@@ -40,6 +48,10 @@ export function PeriodSelect(props: PeriodSelectProps) {
     }
   }, [props.value, props.multiSelect]);
 
+  const allowedValues = Object.values(RecurringTaskPeriod).filter(
+    (p) => !props.allowedValues || props.allowedValues.includes(p),
+  );
+
   function handleChangePeriod(
     event: React.MouseEvent<HTMLElement>,
     newPeriod: RecurringTaskPeriod | RecurringTaskPeriod[] | null,
@@ -53,25 +65,68 @@ export function PeriodSelect(props: PeriodSelectProps) {
     }
   }
 
+  function handleChangePeriodCompact(event: SelectChangeEvent<unknown>) {
+    const raw = event.target.value;
+    const newPeriod = props.multiSelect
+      ? (raw as RecurringTaskPeriod[])
+      : (raw as RecurringTaskPeriod | "none");
+
+    setPeriod(newPeriod);
+    if (props.onChange) {
+      props.onChange(newPeriod);
+    }
+  }
+
   return (
     <>
-      <ToggleButtonGroup
-        value={period}
-        exclusive={!props.multiSelect}
-        fullWidth
-        onChange={handleChangePeriod}
-        size="small"
-      >
-        {props.allowNonePeriod && (
-          <ToggleButton value="none" disabled={!props.inputsEnabled}>
-            None
-          </ToggleButton>
-        )}
-        {Object.values(RecurringTaskPeriod)
-          .filter(
-            (p) => !props.allowedValues || props.allowedValues.includes(p),
-          )
-          .map((s) => (
+      {props.compact ? (
+        <>
+          <InputLabel id={props.labelId}>{props.label}</InputLabel>
+          <Select
+            labelId={props.labelId}
+            label={props.label}
+            multiple={Boolean(props.multiSelect)}
+            value={period}
+            onChange={handleChangePeriodCompact}
+            disabled={!props.inputsEnabled}
+            fullWidth
+            size="small"
+            renderValue={(selected) => {
+              if (selected === "none") {
+                return "None";
+              }
+              if (Array.isArray(selected)) {
+                return selected
+                  .map((p) => periodName(p, isBigScreen))
+                  .join(", ");
+              }
+              return periodName(selected as RecurringTaskPeriod, isBigScreen);
+            }}
+          >
+            {props.allowNonePeriod && !props.multiSelect && (
+              <MenuItem value="none">None</MenuItem>
+            )}
+            {allowedValues.map((p) => (
+              <MenuItem key={p} value={p}>
+                {periodName(p, isBigScreen)}
+              </MenuItem>
+            ))}
+          </Select>
+        </>
+      ) : (
+        <ToggleButtonGroup
+          value={period}
+          exclusive={!props.multiSelect}
+          fullWidth
+          onChange={handleChangePeriod}
+          size="small"
+        >
+          {props.allowNonePeriod && (
+            <ToggleButton value="none" disabled={!props.inputsEnabled}>
+              None
+            </ToggleButton>
+          )}
+          {allowedValues.map((s) => (
             <ToggleButton
               key={s}
               id={`period-${s}`}
@@ -81,7 +136,8 @@ export function PeriodSelect(props: PeriodSelectProps) {
               {periodName(s, isBigScreen)}
             </ToggleButton>
           ))}
-      </ToggleButtonGroup>
+        </ToggleButtonGroup>
+      )}
       <input type="hidden" name={props.name} value={period} />
     </>
   );

@@ -5,6 +5,7 @@ import type {
   Chapter,
   Goal,
   Project,
+  Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import { Divider } from "@mui/material";
@@ -25,6 +26,7 @@ import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { BigPlanMilestonesLeftTag } from "#/core/big_plans/sub/milestones/component/left-tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export interface BigPlanShowOptions {
   showDonePct?: boolean;
@@ -150,6 +152,10 @@ export function BigPlanCard(props: BigPlanCardProps) {
         {props.showOptions.showDueDate && props.bigPlan.due_date && (
           <ADateTag label="Due Date" date={props.bigPlan.due_date} />
         )}
+
+        {props.parent?.tags?.map((tag: Tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
       </EntityLink>
     </EntityCard>
   );

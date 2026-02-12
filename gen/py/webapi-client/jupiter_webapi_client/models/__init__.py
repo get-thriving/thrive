@@ -385,6 +385,7 @@ from .metric_find_args import MetricFindArgs
 from .metric_find_response_entry import MetricFindResponseEntry
 from .metric_find_result import MetricFindResult
 from .metric_load_args import MetricLoadArgs
+from .metric_load_metric_entry_tags import MetricLoadMetricEntryTags
 from .metric_load_result import MetricLoadResult
 from .metric_load_settings_args import MetricLoadSettingsArgs
 from .metric_load_settings_result import MetricLoadSettingsResult
@@ -431,7 +432,11 @@ from .note_collection import NoteCollection
 from .note_content_block import NoteContentBlock
 from .note_create_args import NoteCreateArgs
 from .note_create_result import NoteCreateResult
-from .note_domain import NoteDomain
+from .note_find_args import NoteFindArgs
+from .note_find_result import NoteFindResult
+from .note_load_args import NoteLoadArgs
+from .note_load_result import NoteLoadResult
+from .note_namespace import NoteNamespace
 from .note_remove_args import NoteRemoveArgs
 from .note_update_args import NoteUpdateArgs
 from .note_update_args_content import NoteUpdateArgsContent
@@ -468,6 +473,7 @@ from .person_find_result import PersonFindResult
 from .person_find_result_entry import PersonFindResultEntry
 from .person_load_args import PersonLoadArgs
 from .person_load_result import PersonLoadResult
+from .person_load_result_occasion_tags_by_ref_id import PersonLoadResultOccasionTagsByRefId
 from .person_load_settings_args import PersonLoadSettingsArgs
 from .person_load_settings_result import PersonLoadSettingsResult
 from .person_occasion_entry import PersonOccasionEntry
@@ -615,6 +621,9 @@ from .smart_list_create_args import SmartListCreateArgs
 from .smart_list_create_result import SmartListCreateResult
 from .smart_list_find_args import SmartListFindArgs
 from .smart_list_find_response_entry import SmartListFindResponseEntry
+from .smart_list_find_response_entry_smart_list_item_generic_tags_type_0 import (
+    SmartListFindResponseEntrySmartListItemGenericTagsType0,
+)
 from .smart_list_find_result import SmartListFindResult
 from .smart_list_item import SmartListItem
 from .smart_list_item_archive_args import SmartListItemArchiveArgs
@@ -626,21 +635,12 @@ from .smart_list_item_remove_args import SmartListItemRemoveArgs
 from .smart_list_item_update_args import SmartListItemUpdateArgs
 from .smart_list_item_update_args_is_done import SmartListItemUpdateArgsIsDone
 from .smart_list_item_update_args_name import SmartListItemUpdateArgsName
-from .smart_list_item_update_args_tags import SmartListItemUpdateArgsTags
 from .smart_list_item_update_args_url import SmartListItemUpdateArgsUrl
 from .smart_list_load_args import SmartListLoadArgs
 from .smart_list_load_result import SmartListLoadResult
+from .smart_list_load_result_smart_list_item_generic_tags_type_0 import SmartListLoadResultSmartListItemGenericTagsType0
 from .smart_list_remove_args import SmartListRemoveArgs
 from .smart_list_summary import SmartListSummary
-from .smart_list_tag import SmartListTag
-from .smart_list_tag_archive_args import SmartListTagArchiveArgs
-from .smart_list_tag_create_args import SmartListTagCreateArgs
-from .smart_list_tag_create_result import SmartListTagCreateResult
-from .smart_list_tag_load_args import SmartListTagLoadArgs
-from .smart_list_tag_load_result import SmartListTagLoadResult
-from .smart_list_tag_remove_args import SmartListTagRemoveArgs
-from .smart_list_tag_update_args import SmartListTagUpdateArgs
-from .smart_list_tag_update_args_tag_name import SmartListTagUpdateArgsTagName
 from .smart_list_update_args import SmartListUpdateArgs
 from .smart_list_update_args_icon import SmartListUpdateArgsIcon
 from .smart_list_update_args_name import SmartListUpdateArgsName
@@ -654,6 +654,22 @@ from .suggested_date import SuggestedDate
 from .sync_target import SyncTarget
 from .table_block import TableBlock
 from .table_block_kind import TableBlockKind
+from .tag import Tag
+from .tag_archive_args import TagArchiveArgs
+from .tag_create_args import TagCreateArgs
+from .tag_create_result import TagCreateResult
+from .tag_domain import TagDomain
+from .tag_find_args import TagFindArgs
+from .tag_find_result import TagFindResult
+from .tag_link import TagLink
+from .tag_link_upsert_args import TagLinkUpsertArgs
+from .tag_link_upsert_result import TagLinkUpsertResult
+from .tag_load_args import TagLoadArgs
+from .tag_load_result import TagLoadResult
+from .tag_namespace import TagNamespace
+from .tag_remove_args import TagRemoveArgs
+from .tag_update_args import TagUpdateArgs
+from .tag_update_args_name import TagUpdateArgsName
 from .time_and_effort_summary import TimeAndEffortSummary
 from .time_event_domain import TimeEventDomain
 from .time_event_full_days_block import TimeEventFullDaysBlock
@@ -1192,6 +1208,7 @@ __all__ = (
     "MetricFindResponseEntry",
     "MetricFindResult",
     "MetricLoadArgs",
+    "MetricLoadMetricEntryTags",
     "MetricLoadResult",
     "MetricLoadSettingsArgs",
     "MetricLoadSettingsResult",
@@ -1238,7 +1255,11 @@ __all__ = (
     "NoteContentBlock",
     "NoteCreateArgs",
     "NoteCreateResult",
-    "NoteDomain",
+    "NoteFindArgs",
+    "NoteFindResult",
+    "NoteLoadArgs",
+    "NoteLoadResult",
+    "NoteNamespace",
     "NoteRemoveArgs",
     "NoteUpdateArgs",
     "NoteUpdateArgsContent",
@@ -1275,6 +1296,7 @@ __all__ = (
     "PersonFindResultEntry",
     "PersonLoadArgs",
     "PersonLoadResult",
+    "PersonLoadResultOccasionTagsByRefId",
     "PersonLoadSettingsArgs",
     "PersonLoadSettingsResult",
     "PersonOccasionEntry",
@@ -1420,6 +1442,7 @@ __all__ = (
     "SmartListCreateResult",
     "SmartListFindArgs",
     "SmartListFindResponseEntry",
+    "SmartListFindResponseEntrySmartListItemGenericTagsType0",
     "SmartListFindResult",
     "SmartListItem",
     "SmartListItemArchiveArgs",
@@ -1431,21 +1454,12 @@ __all__ = (
     "SmartListItemUpdateArgs",
     "SmartListItemUpdateArgsIsDone",
     "SmartListItemUpdateArgsName",
-    "SmartListItemUpdateArgsTags",
     "SmartListItemUpdateArgsUrl",
     "SmartListLoadArgs",
     "SmartListLoadResult",
+    "SmartListLoadResultSmartListItemGenericTagsType0",
     "SmartListRemoveArgs",
     "SmartListSummary",
-    "SmartListTag",
-    "SmartListTagArchiveArgs",
-    "SmartListTagCreateArgs",
-    "SmartListTagCreateResult",
-    "SmartListTagLoadArgs",
-    "SmartListTagLoadResult",
-    "SmartListTagRemoveArgs",
-    "SmartListTagUpdateArgs",
-    "SmartListTagUpdateArgsTagName",
     "SmartListUpdateArgs",
     "SmartListUpdateArgsIcon",
     "SmartListUpdateArgsName",
@@ -1459,6 +1473,22 @@ __all__ = (
     "SyncTarget",
     "TableBlock",
     "TableBlockKind",
+    "Tag",
+    "TagArchiveArgs",
+    "TagCreateArgs",
+    "TagCreateResult",
+    "TagDomain",
+    "TagFindArgs",
+    "TagFindResult",
+    "TagLink",
+    "TagLinkUpsertArgs",
+    "TagLinkUpsertResult",
+    "TagLoadArgs",
+    "TagLoadResult",
+    "TagNamespace",
+    "TagRemoveArgs",
+    "TagUpdateArgs",
+    "TagUpdateArgsName",
     "TimeAndEffortSummary",
     "TimeEventDomain",
     "TimeEventFullDaysBlock",

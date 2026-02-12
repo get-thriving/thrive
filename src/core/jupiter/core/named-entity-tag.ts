@@ -50,8 +50,6 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Project";
     case NamedEntityTag.SMART_LIST:
       return "Smart List";
-    case NamedEntityTag.SMART_LIST_TAG:
-      return "Smart List Tag";
     case NamedEntityTag.SMART_LIST_ITEM:
       return "Smart List Item";
     case NamedEntityTag.METRIC:

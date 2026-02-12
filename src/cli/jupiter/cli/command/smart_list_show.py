@@ -35,11 +35,6 @@ class SmartListShow(
 
         for smart_list_entry in sorted_smart_lists:
             smart_list = smart_list_entry.smart_list
-            smart_list_tags_set = (
-                {t.ref_id: t for t in smart_list_entry.smart_list_tags}
-                if smart_list_entry.smart_list_tags
-                else {}
-            )
 
             smart_list_text = Text("")
             smart_list_text.append(entity_id_to_rich_text(smart_list.ref_id))
@@ -50,15 +45,6 @@ class SmartListShow(
             smart_list_text.append(str(smart_list.name))
 
             smart_list_info_text = Text("")
-
-            for smart_list_tag in smart_list_tags_set.values():
-                smart_list_info_text.append("<")
-                smart_list_info_text.append(
-                    entity_id_to_rich_text(smart_list_tag.ref_id),
-                )
-                smart_list_info_text.append(" ")
-                smart_list_info_text.append(str(smart_list_tag.tag_name))
-                smart_list_info_text.append("> ")
 
             if smart_list.archived:
                 smart_list_text.stylize("gray62")
@@ -72,6 +58,12 @@ class SmartListShow(
 
             if smart_list_entry.smart_list_items is None:
                 continue
+
+            generic_tags_by_item_ref_id = (
+                smart_list_entry.smart_list_item_generic_tags
+                if smart_list_entry.smart_list_item_generic_tags
+                else {}
+            )
 
             for smart_list_item in smart_list_entry.smart_list_items:
                 smart_list_item_text = Text("")
@@ -90,11 +82,9 @@ class SmartListShow(
                     smart_list_item_text.append(" ")
                     smart_list_item_text.append("🔲")
 
-                if len(smart_list_item.tags_ref_id) > 0:
-                    for tag_ref_id in smart_list_item.tags_ref_id:
-                        tag = smart_list_tags_set[tag_ref_id]
-                        smart_list_item_text.append(" #")
-                        smart_list_item_text.append(str(tag.tag_name))
+                for tag in generic_tags_by_item_ref_id.get(smart_list_item.ref_id, []):
+                    smart_list_item_text.append(" #")
+                    smart_list_item_text.append(str(tag.name))
 
                 if smart_list_item.url and str(smart_list_item.url) != "None":
                     smart_list_item_text.append(" ")

@@ -1,9 +1,15 @@
-import { ApiError, OccasionKind } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  OccasionKind,
+  Tag,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import {
   FormControl,
   FormLabel,
   InputLabel,
   OutlinedInput,
+  Stack,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -26,6 +32,7 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { OccasionKindSelect } from "#/core/prm/sub/person/sub/occasion/components/kind-select";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -60,6 +67,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { occasionId } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.OCCASION],
+    });
+
     const result = await apiClient.prm.occasionLoad({
       ref_id: occasionId,
       allow_archived: true,
@@ -67,6 +79,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       occasion: result.occasion,
+      tags: result.tags,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -143,7 +157,8 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function OccasionView() {
-  const { occasion } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { occasion, tags, allTags } =
+    useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -179,16 +194,30 @@ export default function OccasionView() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="Name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={occasion.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction="row" spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="Name"
+              name="name"
+              readOnly={!inputsEnabled}
+              defaultValue={occasion.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              allTags={allTags}
+              defaultValue={tags.map((tag: Tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.OCCASION}
+              sourceEntityRefId={occasion.ref_id}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <FormLabel id="kind">Kind</FormLabel>

@@ -4,8 +4,12 @@ from collections import defaultdict
 
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -35,6 +39,7 @@ class DocFindArgs(UseCaseArgsBase):
     include_notes: bool
     allow_archived: bool
     include_subdocs: bool
+    include_tags: bool
     filter_ref_ids: list[EntityId] | None
 
 
@@ -43,6 +48,7 @@ class DocFindResultEntry(UseCaseResultBase):
     """A single entry in the load all docs response."""
 
     doc: Doc
+    tags: list[Tag]
     note: Note | None
     subdocs: list[Doc] | None
 
@@ -86,7 +92,7 @@ class DocFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.DOC,
+                namespace=NoteNamespace.DOC,
                 allow_archived=True,
                 source_entity_ref_id=[d.ref_id for d in docs],
             )
@@ -105,10 +111,36 @@ class DocFindUseCase(
                     continue
                 subdocs_by_parent_ref_id[sd.parent_doc_ref_id].append(sd)
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.DOC,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.DOC,
+                source_entity_ref_id=[d.ref_id for d in docs],
+            )
+            tag_links_by_doc_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_doc_ref_id = {}
+
         return DocFindResult(
             entries=[
                 DocFindResultEntry(
                     doc=doc,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_doc_ref_id[doc.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if doc.ref_id in tag_links_by_doc_ref_id
+                        else []
+                    ),
                     note=notes_by_doc_ref_id.get(doc.ref_id, None),
                     subdocs=subdocs_by_parent_ref_id.get(doc.ref_id, None),
                 )

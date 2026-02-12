@@ -303,7 +303,8 @@ def test_time_plan_create(page: Page, create_time_plan) -> None:
 
     page.wait_for_selector("#branch-panel")
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-18")
-    expect(page.locator('button[aria-pressed="true"]')).to_have_text("Weekly")
+    # After creation, we're on the view page which uses compact mode (Select dropdown)
+    expect(page.locator('input[name="period"]')).to_have_value("weekly")
 
 
 def test_time_plan_update(page: Page, create_time_plan) -> None:
@@ -312,16 +313,16 @@ def test_time_plan_update(page: Page, create_time_plan) -> None:
     page.wait_for_selector("#branch-panel")
 
     page.locator('input[name="rightNow"]').fill("2024-06-19")
-    page.locator('button[id="period-daily"]').click()
+    page.get_by_label("Period").click()
+    page.get_by_role("option", name="Daily").click()
     page.locator("#time-plan-change-time-config").click()
 
     page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
 
     page.wait_for_selector("#branch-panel")
     expect(page.locator('input[name="rightNow"]')).to_have_value("2024-06-19")
-    expect(page.locator("button[id='period-daily']")).to_have_attribute(
-        "aria-pressed", "true"
-    )
+    # Check the Select has the correct value
+    expect(page.locator('input[name="period"]')).to_have_value("daily")
 
 
 def test_time_plan_change_note(page: Page, create_time_plan) -> None:
@@ -2493,11 +2494,8 @@ def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
     page.locator("#time-plans-all", has_text="Weekly plan for").click()
 
     expect(page.locator("input[name='rightNow']")).to_have_attribute("readonly", "")
-    expect(page.locator('button[id="period-daily"]')).to_be_disabled()
-    expect(page.locator('button[id="period-weekly"]')).to_be_disabled()
-    expect(page.locator('button[id="period-monthly"]')).to_be_disabled()
-    expect(page.locator('button[id="period-quarterly"]')).to_be_disabled()
-    expect(page.locator('button[id="period-yearly"]')).to_be_disabled()
+    # Check the Select dropdown is disabled (compact mode)
+    expect(page.locator('div[aria-labelledby="period"]')).to_have_attribute("aria-disabled", "true")
 
 
 def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:
@@ -2518,9 +2516,8 @@ def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None
     page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
     page.reload()
 
-    expect(
-        page.locator("#trunk-panel").locator('button[aria-pressed="true"]')
-    ).to_have_text("Weekly")
+    # Check the Select dropdown has "weekly" as the value (compact mode)
+    expect(page.locator('input[name="period"]')).to_have_value("weekly")
 
 
 def _mark_inbox_task_done(

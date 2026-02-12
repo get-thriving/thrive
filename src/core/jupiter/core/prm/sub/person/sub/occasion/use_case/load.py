@@ -1,6 +1,9 @@
 """Use case for loading an occasion."""
 
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
@@ -42,6 +45,7 @@ class OccasionLoadResult(UseCaseResultBase):
     """OccasionLoadResult."""
 
     occasion: Occasion
+    tags: list[Tag]
     note: Note | None
     occasion_time_event_blocks: list[TimeEventFullDaysBlock]
     occasion_tasks: list[InboxTask]
@@ -70,6 +74,21 @@ class OccasionLoadUseCase(
             allow_archived=args.allow_archived,
         )
 
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.OCCASION,
+            source_entity_ref_id=occasion.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository
         ).find_for_namespace(
@@ -95,6 +114,7 @@ class OccasionLoadUseCase(
 
         return OccasionLoadResult(
             occasion=occasion,
+            tags=tags,
             note=note,
             occasion_time_event_blocks=occasion_time_event_blocks,
             occasion_tasks=occasion_tasks,

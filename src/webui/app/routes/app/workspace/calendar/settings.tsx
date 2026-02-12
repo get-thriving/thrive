@@ -111,7 +111,7 @@ export default function CalendarSettings() {
 
   const inputsEnabled = navigation.state === "idle";
 
-  const query = useSearchParams();
+  const [query] = useSearchParams();
 
   const scheduleStreamsByRefId = new Map(
     loaderData.scheduleStreams.map((stream) => [stream.ref_id, stream]),

@@ -2,8 +2,10 @@
 
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.habits.name import HabitName
 from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
@@ -46,7 +48,12 @@ class Habit(LeafEntity):
     inbox_tasks = OwnsMany(
         InboxTask, source=InboxTaskSource.HABIT, source_entity_ref_id=IsRefId()
     )
-    note = OwnsAtMostOne(Note, domain=NoteDomain.HABIT, source_entity_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()
+    )
+    note = OwnsAtMostOne(
+        Note, namespace=NoteNamespace.HABIT, source_entity_ref_id=IsRefId()
+    )
     streak_marks = ContainsManyRecords(
         HabitStreakMark,
         habit_ref_id=IsRefId(),

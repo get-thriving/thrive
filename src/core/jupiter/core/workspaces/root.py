@@ -6,6 +6,7 @@ from collections.abc import Iterable
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.docs.collection import DocCollection
 from jupiter.core.features import (
@@ -86,6 +87,7 @@ class Workspace(RootEntity):
 
     note_collection = ContainsOne(NoteCollection, workspace_ref_id=IsRefId())
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
+    tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())
 
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())
@@ -220,11 +222,6 @@ class Workspace(RootEntity):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.SMART_LIST and self.is_feature_available(
                 WorkspaceFeature.SMART_LISTS
-            ):
-                inferred_entity_tags.append(entity_tag)
-            elif (
-                entity_tag is NamedEntityTag.SMART_LIST_TAG
-                and self.is_feature_available(WorkspaceFeature.SMART_LISTS)
             ):
                 inferred_entity_tags.append(entity_tag)
             elif (

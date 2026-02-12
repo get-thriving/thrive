@@ -30,7 +30,6 @@ export enum NamedEntityTag {
     VACATION = 'Vacation',
     PROJECT = 'Project',
     SMART_LIST = 'SmartList',
-    SMART_LIST_TAG = 'SmartListTag',
     SMART_LIST_ITEM = 'SmartListItem',
     METRIC = 'Metric',
     METRIC_ENTRY = 'MetricEntry',

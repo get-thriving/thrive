@@ -1,5 +1,5 @@
 # jupiter_webapi_client
-A client library for accessing The Web RPC API client for Thrive
+A client library for accessing Thrive is a tool for life planning
 
 ## Usage
 First, create a client:

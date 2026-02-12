@@ -11,5 +11,6 @@ export type SmartListLoadArgs = {
     allow_archived: boolean;
     allow_archived_items: boolean;
     allow_archived_tags: boolean;
+    include_item_tags_and_notes: boolean;
 };
 

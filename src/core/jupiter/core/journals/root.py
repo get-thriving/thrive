@@ -4,8 +4,10 @@ import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.timeline import infer_timeline
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
@@ -52,7 +54,12 @@ class Journal(LeafEntity):
     period: RecurringTaskPeriod
     timeline: str
 
-    note = OwnsOne(Note, domain=NoteDomain.JOURNAL, source_entity_ref_id=IsRefId())
+    note = OwnsOne(
+        Note, namespace=NoteNamespace.JOURNAL, source_entity_ref_id=IsRefId()
+    )
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.JOURNAL, source_entity_ref_id=IsRefId()
+    )
     writing_task = OwnsAtMostOne(
         InboxTask, source=InboxTaskSource.JOURNAL, source_entity_ref_id=IsRefId()
     )

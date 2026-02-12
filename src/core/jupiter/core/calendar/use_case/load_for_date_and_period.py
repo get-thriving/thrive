@@ -3,6 +3,10 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -67,6 +71,7 @@ class ScheduleInDayEventEntry(UseCaseResultBase):
     """Result entry."""
 
     event: ScheduleEventInDay
+    tags: list[Tag]
     time_event: TimeEventInDayBlock
     stream: ScheduleStream
 
@@ -76,6 +81,7 @@ class ScheduleFullDaysEventEntry(UseCaseResultBase):
     """Result entry."""
 
     event: ScheduleEventFullDays
+    tags: list[Tag]
     time_event: TimeEventFullDaysBlock
     stream: ScheduleStream
 
@@ -289,9 +295,34 @@ class CalendarLoadForDateAndPeriodUseCase(
                 allow_archived=False,
                 ref_id=list(time_events_full_days_for_schedule_events_full_days.keys()),
             )
+
+        tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+
+        full_days_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
+        if schedule_events_full_days:
+            all_full_days_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+            )
+            all_full_days_tags_by_ref_id = {t.ref_id: t for t in all_full_days_tags}
+            full_days_tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+                source_entity_ref_id=[se.ref_id for se in schedule_events_full_days],
+            )
+            for tag_link in full_days_tag_links:
+                full_days_tags_by_schedule_event_ref_id[
+                    tag_link.source_entity_ref_id
+                ] = [
+                    all_full_days_tags_by_ref_id[rid]
+                    for rid in tag_link.ref_ids
+                    if rid in all_full_days_tags_by_ref_id
+                ]
+
         schedule_event_full_days_entries = [
             ScheduleFullDaysEventEntry(
                 event=se,
+                tags=full_days_tags_by_schedule_event_ref_id.get(se.ref_id, []),
                 time_event=time_events_full_days_for_schedule_events_full_days[
                     se.ref_id
                 ],
@@ -316,9 +347,30 @@ class CalendarLoadForDateAndPeriodUseCase(
                 allow_archived=False,
                 ref_id=list(time_events_in_day_for_schedule_events_in_day.keys()),
             )
+
+        in_day_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
+        if schedule_events_in_day:
+            all_in_day_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
+            )
+            all_in_day_tags_by_ref_id = {t.ref_id: t for t in all_in_day_tags}
+            in_day_tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
+                source_entity_ref_id=[se.ref_id for se in schedule_events_in_day],
+            )
+            for tag_link in in_day_tag_links:
+                in_day_tags_by_schedule_event_ref_id[tag_link.source_entity_ref_id] = [
+                    all_in_day_tags_by_ref_id[rid]
+                    for rid in tag_link.ref_ids
+                    if rid in all_in_day_tags_by_ref_id
+                ]
+
         schedule_event_in_day_entries = [
             ScheduleInDayEventEntry(
                 event=se,
+                tags=in_day_tags_by_schedule_event_ref_id.get(se.ref_id, []),
                 time_event=time_events_in_day_for_schedule_events_in_day[se.ref_id],
                 stream=schedule_streams_by_ref_id[se.schedule_stream_ref_id],
             )

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="BigPlanFindResultEntry")
@@ -28,6 +29,7 @@ class BigPlanFindResultEntry:
 
     Attributes:
         big_plan (BigPlan): A big plan.
+        tags (list[Tag]):
         note (None | Note | Unset):
         milestones (list[BigPlanMilestone] | None | Unset):
         stats (BigPlanStats | None | Unset):
@@ -38,6 +40,7 @@ class BigPlanFindResultEntry:
     """
 
     big_plan: BigPlan
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
@@ -55,6 +58,11 @@ class BigPlanFindResultEntry:
         from ..models.project import Project
 
         big_plan = self.big_plan.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -125,6 +133,7 @@ class BigPlanFindResultEntry:
         field_dict.update(
             {
                 "big_plan": big_plan,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -154,9 +163,17 @@ class BigPlanFindResultEntry:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -289,6 +306,7 @@ class BigPlanFindResultEntry:
 
         big_plan_find_result_entry = cls(
             big_plan=big_plan,
+            tags=tags,
             note=note,
             milestones=milestones,
             stats=stats,

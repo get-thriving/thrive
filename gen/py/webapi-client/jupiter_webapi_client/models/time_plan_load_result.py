@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
     from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
@@ -29,6 +30,7 @@ class TimePlanLoadResult:
 
     Attributes:
         time_plan (TimePlan): A plan for a particular period of time.
+        tags (list[Tag]):
         note (Note): A note in the notebook.
         activities (list[TimePlanActivity]):
         chapters (list[Chapter]):
@@ -45,6 +47,7 @@ class TimePlanLoadResult:
     """
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
@@ -65,6 +68,11 @@ class TimePlanLoadResult:
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
 
         time_plan = self.time_plan.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note = self.note.to_dict()
 
@@ -177,6 +185,7 @@ class TimePlanLoadResult:
         field_dict.update(
             {
                 "time_plan": time_plan,
+                "tags": tags,
                 "note": note,
                 "activities": activities,
                 "chapters": chapters,
@@ -211,12 +220,20 @@ class TimePlanLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultActivityDonenessType0
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         note = Note.from_dict(d.pop("note"))
 
@@ -419,6 +436,7 @@ class TimePlanLoadResult:
 
         time_plan_load_result = cls(
             time_plan=time_plan,
+            tags=tags,
             note=note,
             activities=activities,
             chapters=chapters,

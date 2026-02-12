@@ -8,6 +8,9 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.common import schedules
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -74,6 +77,7 @@ class TimePlanLoadResult(UseCaseResultBase):
     """Result."""
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
@@ -113,6 +117,21 @@ class TimePlanLoadUseCase(
             allow_archived=args.allow_archived,
             allow_subentity_archived=False,
         )
+
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.TIME_PLAN,
+            source_entity_ref_id=time_plan.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
 
         schedule = schedules.get_schedule(
             period=time_plan.period,
@@ -389,6 +408,7 @@ class TimePlanLoadUseCase(
 
         return TimePlanLoadResult(
             time_plan=time_plan,
+            tags=tags,
             note=note,
             activities=list(activities),
             chapters=chapters,

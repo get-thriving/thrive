@@ -2,6 +2,8 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -39,6 +41,15 @@ class TimePlanArchiveUseCase(
         args: TimePlanArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.TIME_PLAN,
+            time_plan.ref_id,
+            JupiterArchivalReason.USER,
+        )
         await generic_crown_archiver(
             context.domain_context,
             uow,

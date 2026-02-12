@@ -10,6 +10,7 @@ import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 /**
  * HabitLoadResult.
  */
@@ -24,6 +25,7 @@ export type HabitLoadResult = {
     streak_marks: Array<HabitStreakMark>;
     streak_mark_earliest_date: ADate;
     streak_mark_latest_date: ADate;
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

@@ -1,5 +1,7 @@
 """Use case for removing a schedule stream."""
 
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -63,6 +65,14 @@ class ScheduleStreamRemoveUseCase(
 
             if len(all_user_schedule_streams) == 1:
                 raise InputValidationError("You cannot remove the last user schedule")
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.SCHEDULE_STREAM,
+            schedule_stream.ref_id,
+        )
 
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, ScheduleStream, args.ref_id

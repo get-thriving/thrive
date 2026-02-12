@@ -13,7 +13,7 @@ from jupiter.core.common.sub.notes.content_block import (
     OneOfNoteContentBlock,
     ParagraphBlock,
 )
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
@@ -159,7 +159,7 @@ class ScheduleExternalSyncService:
             all_notes_for_dull_days = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
                 allow_archived=False,
-                domain=NoteDomain.SCHEDULE_EVENT_FULL_DAYS,
+                namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
             )
             all_notes_for_dull_days_by_source_entity_ref_id = {
                 note.source_entity_ref_id: note for note in all_notes_for_dull_days
@@ -168,7 +168,7 @@ class ScheduleExternalSyncService:
             all_notes_for_in_day = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
                 allow_archived=False,
-                domain=NoteDomain.SCHEDULE_EVENT_IN_DAY,
+                namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
             )
             all_notes_for_in_day_by_source_entity_ref_id = {
                 note.source_entity_ref_id: note for note in all_notes_for_in_day
@@ -371,7 +371,7 @@ class ScheduleExternalSyncService:
                                     note: Note | None = Note.new_note(
                                         ctx,
                                         note_collection_ref_id=note_collection.ref_id,
-                                        domain=NoteDomain.SCHEDULE_EVENT_FULL_DAYS,
+                                        namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
                                         source_entity_ref_id=schedule_event_full_days.ref_id,
                                         content=note_content,
                                     )
@@ -450,7 +450,7 @@ class ScheduleExternalSyncService:
                                         note = Note.new_note(
                                             ctx,
                                             note_collection_ref_id=note_collection.ref_id,
-                                            domain=NoteDomain.SCHEDULE_EVENT_FULL_DAYS,
+                                            namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
                                             source_entity_ref_id=schedule_event_full_days.ref_id,
                                             content=note_content,
                                         )
@@ -593,7 +593,7 @@ class ScheduleExternalSyncService:
                                     note = Note.new_note(
                                         ctx,
                                         note_collection_ref_id=note_collection.ref_id,
-                                        domain=NoteDomain.SCHEDULE_EVENT_IN_DAY,
+                                        namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
                                         source_entity_ref_id=schedule_event_in_day.ref_id,
                                         content=note_content,
                                     )
@@ -675,7 +675,7 @@ class ScheduleExternalSyncService:
                                         note = Note.new_note(
                                             ctx,
                                             note_collection_ref_id=note_collection.ref_id,
-                                            domain=NoteDomain.SCHEDULE_EVENT_IN_DAY,
+                                            namespace=NoteNamespace.SCHEDULE_EVENT_IN_DAY,
                                             source_entity_ref_id=schedule_event_in_day.ref_id,
                                             content=note_content,
                                         )

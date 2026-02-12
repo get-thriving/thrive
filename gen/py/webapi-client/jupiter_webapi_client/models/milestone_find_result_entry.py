@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.milestone import Milestone
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="MilestoneFindResultEntry")
@@ -22,10 +23,12 @@ class MilestoneFindResultEntry:
 
     Attributes:
         milestone (Milestone): A milestone in a life plan.
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     milestone: Milestone
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,6 +36,11 @@ class MilestoneFindResultEntry:
         from ..models.note import Note
 
         milestone = self.milestone.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -47,6 +55,7 @@ class MilestoneFindResultEntry:
         field_dict.update(
             {
                 "milestone": milestone,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -58,9 +67,17 @@ class MilestoneFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.milestone import Milestone
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         milestone = Milestone.from_dict(d.pop("milestone"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -81,6 +98,7 @@ class MilestoneFindResultEntry:
 
         milestone_find_result_entry = cls(
             milestone=milestone,
+            tags=tags,
             note=note,
         )
 

@@ -2,6 +2,7 @@ import type {
   ADate,
   Vacation,
   VacationFindResultEntry,
+  Tag,
 } from "@jupiter/webapi-client";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
@@ -15,7 +16,7 @@ import { Outlet, useNavigate } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { aDateToDate } from "@jupiter/core/common/adate";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import { sortVacationsNaturally } from "@jupiter/core/vacations/root";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -34,6 +35,11 @@ import {
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import {
+  FilterManyOptions,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -49,24 +55,48 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
     include_time_event_blocks: false,
+    include_tags: true,
   });
-  return json(response.entries);
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.VACATION],
+  });
+
+  return json({
+    entries: response.entries,
+    allTags: allTags.tags as Array<Tag>,
+  });
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Vacations() {
-  const entries = useLoaderDataSafeForAnimation<typeof loader>();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const sortedVacations = sortVacationsNaturally(
-    entries.map((e) => e.vacation),
-  );
-  const vacationsByRefId = new Map<string, VacationFindResultEntry>();
+  const entries = loaderData.entries as Array<VacationFindResultEntry>;
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const entriesByRefId = new Map<string, VacationFindResultEntry>();
   for (const entry of entries) {
-    vacationsByRefId.set(entry.vacation.ref_id, entry);
+    entriesByRefId.set(entry.vacation.ref_id, entry);
   }
+
+  const sortedVacations = sortVacationsNaturally(
+    entries
+      .map((e) => e.vacation)
+      .filter((vacation) => {
+        if (selectedTagsRefId.length === 0) {
+          return true;
+        }
+        const entry = entriesByRefId.get(vacation.ref_id);
+        return entry?.tags?.some((tag: Tag) =>
+          selectedTagsRefId.includes(tag.ref_id),
+        );
+      }),
+  );
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
@@ -75,6 +105,23 @@ export default function Vacations() {
       key={"vacations"}
       createLocation="/app/workspace/vacations/new"
       returnLocation="/app/workspace"
+      actions={
+        <SectionActions
+          id="vacations-actions"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={true}
+          actions={[
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
+          ]}
+        />
+      }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <VacationCalendar
@@ -106,6 +153,11 @@ export default function Vacations() {
                     date={vacation.end_date}
                     color="success"
                   />
+                  {entriesByRefId
+                    .get(vacation.ref_id)
+                    ?.tags?.map((tag: Tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ))}
                 </EntityLink>
               </EntityCard>
             );

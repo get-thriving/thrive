@@ -19,12 +19,14 @@ class VacationFindArgs:
         allow_archived (bool):
         include_notes (bool):
         include_time_event_blocks (bool):
+        include_tags (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool
     include_notes: bool
     include_time_event_blocks: bool
+    include_tags: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -34,6 +36,8 @@ class VacationFindArgs:
         include_notes = self.include_notes
 
         include_time_event_blocks = self.include_time_event_blocks
+
+        include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -51,6 +55,7 @@ class VacationFindArgs:
                 "allow_archived": allow_archived,
                 "include_notes": include_notes,
                 "include_time_event_blocks": include_time_event_blocks,
+                "include_tags": include_tags,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -66,6 +71,8 @@ class VacationFindArgs:
         include_notes = d.pop("include_notes")
 
         include_time_event_blocks = d.pop("include_time_event_blocks")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -88,6 +95,7 @@ class VacationFindArgs:
             allow_archived=allow_archived,
             include_notes=include_notes,
             include_time_event_blocks=include_time_event_blocks,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )
 

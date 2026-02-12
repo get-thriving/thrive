@@ -1,7 +1,9 @@
 """A chapter in a life plan."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.framework.base.adate import ADate
@@ -30,8 +32,11 @@ class Chapter(LeafEntity):
     start_date: PartialDate
     end_date: PartialDate
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.CHAPTER, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.CHAPTER, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.CHAPTER, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

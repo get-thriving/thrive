@@ -1,4 +1,4 @@
-import { ApiError } from "@jupiter/webapi-client";
+import { ApiError, TagNamespace } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -7,6 +7,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { DocEditor } from "@jupiter/core/docs/component/editor";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -42,9 +43,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.DOC],
+    });
+
     return json({
       doc: result.doc,
       note: result.note,
+      tags: result.tags,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -120,6 +128,16 @@ export default function Doc() {
           initialDoc={loaderData.doc}
           initialNote={loaderData.note}
           inputsEnabled={inputsEnabled}
+          rightOfName={
+            <TagsEditor
+              name="tags"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.DOC}
+              sourceEntityRefId={loaderData.doc.ref_id}
+            />
+          }
         />
       </SectionCard>
     </LeafPanel>

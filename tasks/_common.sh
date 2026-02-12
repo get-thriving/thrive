@@ -58,7 +58,7 @@ run_jupiter_webapp() {
     local DOCS_PORT=$5
     local should_wait=$6
     local should_monit=$7
-    local in_ci=$9
+    local in_ci=$8
     local source=$9
     shift 9
     local version=$1

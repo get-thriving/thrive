@@ -2,8 +2,12 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -43,6 +47,7 @@ class TimePlanFindArgs(UseCaseArgsBase):
     include_notes: bool
     include_planning_tasks: bool
     include_life_plan_ref_ids: bool
+    include_tags: bool
     filter_ref_ids: list[EntityId] | None = None
 
 
@@ -51,6 +56,7 @@ class TimePlanFindResultEntry(UseCaseResultBase):
     """Result part."""
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: Note | None
     planning_task: InboxTask | None
     chapter_ref_ids: list[EntityId] | None
@@ -131,7 +137,7 @@ class TimePlanFindUseCase(
         if args.include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.JOURNAL,
+                namespace=NoteNamespace.JOURNAL,
                 allow_archived=True,
                 source_entity_ref_id=[time_plan.ref_id for time_plan in time_plans],
             )
@@ -150,10 +156,41 @@ class TimePlanFindUseCase(
                 planning_tasks_by_time_plan_ref_id[
                     planning_task.source_entity_ref_id
                 ] = planning_task
+
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.TIME_PLAN,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.TIME_PLAN,
+                source_entity_ref_id=[tp.ref_id for tp in time_plans],
+            )
+            tag_links_by_time_plan_ref_id = {
+                t.source_entity_ref_id: t for t in tag_links
+            }
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_time_plan_ref_id = {}
+
         return TimePlanFindResult(
             entries=[
                 TimePlanFindResultEntry(
                     time_plan=time_plan,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_time_plan_ref_id[
+                                time_plan.ref_id
+                            ].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if time_plan.ref_id in tag_links_by_time_plan_ref_id
+                        else []
+                    ),
                     note=notes_by_time_plan_ref_id.get(time_plan.ref_id, None),
                     planning_task=planning_tasks_by_time_plan_ref_id.get(
                         time_plan.ref_id, None

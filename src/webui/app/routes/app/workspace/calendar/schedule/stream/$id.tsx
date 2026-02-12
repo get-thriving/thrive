@@ -1,10 +1,12 @@
 import {
   ApiError,
-  NoteDomain,
+  NoteNamespace,
   ScheduleStreamSource,
   ScheduleStreamColor,
+  Tag,
+  TagNamespace,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -31,6 +33,8 @@ import { ScheduleStreamColorInput } from "@jupiter/core/schedule/component/color
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -74,9 +78,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.SCHEDULE_STREAM],
+    });
+
     return json({
       scheduleStream: response.schedule_stream,
       note: response.note,
+      tags: response.tags as Array<Tag>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -118,7 +129,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SCHEDULE_STREAM,
+          namespace: NoteNamespace.SCHEDULE_STREAM,
           source_entity_ref_id: id,
           content: [],
         });
@@ -182,6 +193,7 @@ export default function ScheduleStreamViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleStream.archived;
@@ -238,16 +250,33 @@ export default function ScheduleStreamViewOne() {
           </FormControl>
         )}
 
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            defaultValue={loaderData.scheduleStream.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          spacing={2}
+          useFlexGap
+        >
+          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled || !corePropertyEditable}
+              defaultValue={loaderData.scheduleStream.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth={!isBigScreen}>
+            <TagsEditor
+              name="tags_names"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.SCHEDULE_STREAM}
+              sourceEntityRefId={loaderData.scheduleStream.ref_id}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <InputLabel id="color">Color</InputLabel>

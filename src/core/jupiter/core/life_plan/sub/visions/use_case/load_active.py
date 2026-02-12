@@ -1,6 +1,6 @@
 """Use case for loading the active vision (if any)."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -60,6 +60,6 @@ class VisionLoadActiveUseCase(
 
         vision = visions[0]
         note = await uow.get(NoteRepository).load_for_source(
-            NoteDomain.VISION, vision.ref_id, allow_archived=False
+            NoteNamespace.VISION, vision.ref_id, allow_archived=False
         )
         return VisionLoadActiveResult(vision=vision, note=note)

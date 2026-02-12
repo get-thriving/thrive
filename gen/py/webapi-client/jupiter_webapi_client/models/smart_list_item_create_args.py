@@ -19,14 +19,12 @@ class SmartListItemCreateArgs:
         smart_list_ref_id (str): A generic entity id.
         name (str): The smart list item name.
         is_done (bool):
-        tag_names (list[str]):
         url (None | str | Unset):
     """
 
     smart_list_ref_id: str
     name: str
     is_done: bool
-    tag_names: list[str]
     url: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -36,8 +34,6 @@ class SmartListItemCreateArgs:
         name = self.name
 
         is_done = self.is_done
-
-        tag_names = self.tag_names
 
         url: None | str | Unset
         if isinstance(self.url, Unset):
@@ -52,7 +48,6 @@ class SmartListItemCreateArgs:
                 "smart_list_ref_id": smart_list_ref_id,
                 "name": name,
                 "is_done": is_done,
-                "tag_names": tag_names,
             }
         )
         if url is not UNSET:
@@ -69,8 +64,6 @@ class SmartListItemCreateArgs:
 
         is_done = d.pop("is_done")
 
-        tag_names = cast(list[str], d.pop("tag_names"))
-
         def _parse_url(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -84,7 +77,6 @@ class SmartListItemCreateArgs:
             smart_list_ref_id=smart_list_ref_id,
             name=name,
             is_done=is_done,
-            tag_names=tag_names,
             url=url,
         )
 

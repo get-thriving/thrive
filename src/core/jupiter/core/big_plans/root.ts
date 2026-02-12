@@ -4,6 +4,7 @@ import {
   type BigPlan,
   type BigPlanFindResultEntry,
   type Project,
+  type Tag,
   type BigPlanMilestone,
   Chapter,
   Goal,
@@ -19,6 +20,7 @@ export interface BigPlanParent {
   project?: Project;
   chapter?: Chapter;
   goal?: Goal;
+  tags?: Tag[];
 }
 
 export function bigPlanFindEntryToParent(
@@ -28,6 +30,7 @@ export function bigPlanFindEntryToParent(
     project: entry.project || undefined,
     chapter: entry.chapter || undefined,
     goal: entry.goal || undefined,
+    tags: entry.tags || undefined,
   };
 }
 

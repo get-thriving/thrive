@@ -3,6 +3,7 @@ import type {
   EntityId,
   GoalSummary,
   ProjectSummary,
+  Tag,
   TimePlan,
 } from "@jupiter/webapi-client";
 
@@ -16,6 +17,7 @@ interface TimePlanStackProps {
   label?: string;
   topLevelInfo: TopLevelInfo;
   timePlans: Array<TimePlan>;
+  timePlanTagsByTimePlanRefId?: Map<string, Array<Tag>>;
   timePlanProjectRefIds?: Map<string, Array<EntityId>>;
   timePlanGoalRefIds?: Map<string, Array<EntityId>>;
   timePlanChapterRefIds?: Map<string, Array<EntityId>>;
@@ -41,6 +43,7 @@ export function TimePlanStack(props: TimePlanStackProps) {
           key={`time-plan-${timePlan.ref_id}`}
           topLevelInfo={props.topLevelInfo}
           timePlan={timePlan}
+          tags={props.timePlanTagsByTimePlanRefId?.get(timePlan.ref_id) ?? []}
           projects={
             props.timePlanProjectRefIds
               ?.get(timePlan.ref_id)

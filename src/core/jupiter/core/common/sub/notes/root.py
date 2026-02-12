@@ -3,9 +3,9 @@
 import abc
 
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_name import NOT_USED_NAME
+from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     LeafSupportEntity,
@@ -23,7 +23,7 @@ class Note(LeafSupportEntity):
     """A note in the notebook."""
 
     note_collection: ParentLink
-    domain: NoteDomain
+    namespace: NoteNamespace
     source_entity_ref_id: EntityId
     content: list[OneOfNoteContentBlock]
 
@@ -32,16 +32,16 @@ class Note(LeafSupportEntity):
     def new_note(
         ctx: MutationContext,
         note_collection_ref_id: EntityId,
-        domain: NoteDomain,
+        namespace: NoteNamespace,
         source_entity_ref_id: EntityId,
         content: list[OneOfNoteContentBlock],
     ) -> "Note":
         """Create a note."""
         return Note._create(
             ctx,
-            name=NOT_USED_NAME,
+            name=Note.build_name(namespace, source_entity_ref_id),
             note_collection=ParentLink(note_collection_ref_id),
-            domain=domain,
+            namespace=namespace,
             source_entity_ref_id=source_entity_ref_id,
             content=content,
         )
@@ -62,12 +62,19 @@ class Note(LeafSupportEntity):
     def can_be_removed_independently(self) -> bool:
         """Whether the note can be removed independently."""
         if (
-            self.domain == NoteDomain.WORKING_MEM
-            or self.domain == NoteDomain.DOC
-            or self.domain == NoteDomain.JOURNAL
+            self.namespace == NoteNamespace.WORKING_MEM
+            or self.namespace == NoteNamespace.DOC
+            or self.namespace == NoteNamespace.JOURNAL
         ):
             return False
         return True
+
+    @staticmethod
+    def build_name(
+        namespace: NoteNamespace, source_entity_ref_id: EntityId
+    ) -> EntityName:
+        """Build the name of the note."""
+        return EntityName(f"{namespace.value} with id #{source_entity_ref_id}")
 
 
 class NoteRepository(LeafEntityRepository[Note], abc.ABC):
@@ -76,7 +83,7 @@ class NoteRepository(LeafEntityRepository[Note], abc.ABC):
     @abc.abstractmethod
     async def load_for_source(
         self,
-        domain: NoteDomain,
+        namespace: NoteNamespace,
         source_entity_ref_id: EntityId,
         allow_archived: bool = False,
     ) -> Note:
@@ -85,7 +92,7 @@ class NoteRepository(LeafEntityRepository[Note], abc.ABC):
     @abc.abstractmethod
     async def load_optional_for_source(
         self,
-        domain: NoteDomain,
+        namespace: NoteNamespace,
         source_entity_ref_id: EntityId,
         allow_archived: bool = False,
     ) -> Note | None:

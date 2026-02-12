@@ -2,6 +2,7 @@ import type { ProjectSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import {
   computeProjectDistanceFromRoot,
   sortProjectsByTreeOrder,
@@ -79,6 +80,7 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
         disabled={props.disabled}
         multiple
         disableCloseOnSelect
+        sx={autocompleteSingleLineSx}
         value={selectedProjects}
         getOptionDisabled={(o) => {
           const maxSelections = props.maxSelections ?? null;

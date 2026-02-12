@@ -1,7 +1,10 @@
 """Use case for loading a particular milestone."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -32,6 +35,7 @@ class MilestoneLoadResult(UseCaseResultBase):
     """MilestoneLoadResult."""
 
     milestone: Milestone
+    tags: list[Tag]
     note: Note | None
 
 
@@ -53,7 +57,24 @@ class MilestoneLoadUseCase(
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.MILESTONE, milestone.ref_id, allow_archived=args.allow_archived
+            NoteNamespace.MILESTONE,
+            milestone.ref_id,
+            allow_archived=args.allow_archived,
         )
 
-        return MilestoneLoadResult(milestone=milestone, note=note)
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.MILESTONE,
+            source_entity_ref_id=milestone.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        return MilestoneLoadResult(milestone=milestone, tags=tags, note=note)

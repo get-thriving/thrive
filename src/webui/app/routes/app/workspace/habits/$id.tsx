@@ -12,8 +12,9 @@ import {
   Eisen,
   HabitRepeatsStrategy,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
@@ -54,6 +55,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -133,6 +135,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     latestDate = DateTime.now().toISODate();
   }
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.HABIT],
+  });
+
   try {
     const result = await apiClient.habits.habitLoad({
       ref_id: id,
@@ -144,6 +151,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       habit: result.habit,
+      tags: result.tags,
       note: result.note,
       streakMarks: result.streak_marks,
       streakMarkEarliestDate: result.streak_mark_earliest_date,
@@ -159,6 +167,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -283,7 +292,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.HABIT,
+          namespace: NoteNamespace.HABIT,
           source_entity_ref_id: id,
           content: [],
         });
@@ -431,6 +440,18 @@ export default function Habit() {
               defaultValue={loaderData.habit.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 3 }}>
+            <TagsEditor
+              name="tags"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.HABIT}
+              sourceEntityRefId={loaderData.habit.ref_id}
+            />
+            <FieldError actionResult={actionData} fieldName="/tags_names" />
           </FormControl>
 
           <FormControl sx={{ flexGrow: 1 }}>

@@ -1,5 +1,10 @@
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  ApiError,
+  NoteNamespace,
+  Tag,
+  TagNamespace,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -22,6 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -58,6 +64,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { entryId } = parseParams(params, ParamsSchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.METRIC_ENTRY],
+    });
+
     const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
       allow_archived: true,
@@ -66,6 +77,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       metricEntry: result.metric_entry,
       note: result.note,
+      tags: result.tags,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -104,7 +117,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.METRIC_ENTRY,
+          namespace: NoteNamespace.METRIC_ENTRY,
           source_entity_ref_id: entryId,
           content: [],
         });
@@ -183,11 +196,25 @@ export default function MetricEntry() {
           />
         }
       >
-        <TimeDiffTag
-          today={topLevelInfo.today}
-          labelPrefix="Collected"
-          collectionTime={loaderData.metricEntry.collection_time}
-        />
+        <Stack direction="row" spacing={2}>
+          <TimeDiffTag
+            today={topLevelInfo.today}
+            labelPrefix="Collected"
+            collectionTime={loaderData.metricEntry.collection_time}
+          />
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.METRIC_ENTRY}
+              sourceEntityRefId={loaderData.metricEntry.ref_id}
+            />
+          </FormControl>
+        </Stack>
         <FormControl fullWidth>
           <InputLabel id="collectionTime" shrink>
             Collection Time

@@ -5,6 +5,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   ProjectSummary,
+  Tag,
   Workspace,
 } from "@jupiter/webapi-client";
 import {
@@ -13,7 +14,8 @@ import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
+  TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -146,6 +148,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.INBOX_TASK],
+    });
+
     const workspace = summaryResponse.workspace as Workspace;
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
@@ -168,6 +175,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
+      tags: result.tags as Array<Tag>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -301,7 +310,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.INBOX_TASK,
+          namespace: NoteNamespace.INBOX_TASK,
           source_entity_ref_id: id,
           content: [],
         });
@@ -412,6 +421,8 @@ export default function InboxTask() {
         allGoals={loaderData.allGoals}
         allMilestones={loaderData.allMilestones}
         allBigPlans={loaderData.allBigPlans}
+        allTags={loaderData.allTags}
+        tags={loaderData.tags}
         inputsEnabled={inputsEnabled}
         inboxTask={inboxTask}
         inboxTaskInfo={info}

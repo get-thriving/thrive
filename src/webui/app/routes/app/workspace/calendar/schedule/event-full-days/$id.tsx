@@ -1,5 +1,10 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
-import { ApiError, NoteDomain } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  NoteNamespace,
+  Tag,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import {
   Button,
   ButtonGroup,
@@ -35,6 +40,8 @@ import { ScheduleStreamSelect } from "@jupiter/core/schedule/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -84,12 +91,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK],
+    });
+
     return json({
       allScheduleStreams:
         summaryResponse.schedule_streams as Array<ScheduleStreamSummary>,
       scheduleEventFullDays: response.schedule_event_full_days,
       timeEventFullDaysBlock: response.time_event_full_days_block,
       note: response.note,
+      tags: response.tags as Array<Tag>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -142,7 +156,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.SCHEDULE_EVENT_FULL_DAYS,
+          namespace: NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
           source_entity_ref_id: id,
           content: [],
         });
@@ -188,6 +202,7 @@ export default function ScheduleEventFullDaysViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleEventFullDays.archived;
@@ -264,16 +279,34 @@ export default function ScheduleEventFullDaysViewOne() {
             fieldName="/schedule_stream_ref_id"
           />
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled || !corePropertyEditable}
-            defaultValue={loaderData.scheduleEventFullDays.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          spacing={2}
+          useFlexGap
+        >
+          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled || !corePropertyEditable}
+              defaultValue={loaderData.scheduleEventFullDays.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth={!isBigScreen}>
+            <TagsEditor
+              name="tags_names"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK}
+              sourceEntityRefId={loaderData.scheduleEventFullDays.ref_id}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <InputLabel id="startDate" shrink margin="dense">

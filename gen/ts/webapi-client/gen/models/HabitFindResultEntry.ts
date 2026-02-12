@@ -8,6 +8,7 @@ import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 /**
  * A single entry in the load all habits response.
  */
@@ -17,6 +18,7 @@ export type HabitFindResultEntry = {
     chapter?: (Chapter | null);
     goal?: (Goal | null);
     inbox_tasks?: (Array<InboxTask> | null);
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

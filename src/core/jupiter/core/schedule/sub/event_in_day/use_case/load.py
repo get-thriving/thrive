@@ -1,6 +1,9 @@
 """Use case for loading a schedule in day event."""
 
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
@@ -41,6 +44,7 @@ class ScheduleEventInDayLoadResult(UseCaseResultBase):
     schedule_event_in_day: ScheduleEventInDay
     time_event_in_day_block: TimeEventInDayBlock
     note: Note | None
+    tags: list[Tag]
 
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
@@ -67,8 +71,24 @@ class ScheduleEventInDayLoadUseCase(
             allow_archived=args.allow_archived,
         )
 
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.SCHEDULE_EVENT_IN_DAY,
+            source_entity_ref_id=schedule_event_in_day.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         return ScheduleEventInDayLoadResult(
             schedule_event_in_day=schedule_event_in_day,
             time_event_in_day_block=time_event_in_day_block,
             note=note,
+            tags=tags,
         )

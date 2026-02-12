@@ -57,6 +57,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { ProjectMultiSelect } from "@jupiter/core/life_plan/sub/aspects/component/multi-select";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -320,6 +321,7 @@ export default function Gen() {
                     disablePortal
                     id="filter_habit_ref_ids"
                     options={habitOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -354,6 +356,7 @@ export default function Gen() {
                     disablePortal
                     id="filter_chore_ref_ids"
                     options={choreOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -388,6 +391,7 @@ export default function Gen() {
                     disablePortal
                     id="filter_metric_ref_ids"
                     options={metricOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -422,6 +426,7 @@ export default function Gen() {
                     disablePortal
                     id="filter_person_ref_ids"
                     options={personOptions}
+                    sx={autocompleteSingleLineSx}
                     disabled={!inputsEnabled}
                     readOnly={!inputsEnabled}
                     multiple

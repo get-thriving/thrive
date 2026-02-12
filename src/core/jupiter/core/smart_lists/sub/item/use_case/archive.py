@@ -1,6 +1,8 @@
 """The command for archiving a smart list item."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -38,6 +40,15 @@ class SmartListItemArchiveUseCase(
         args: SmartListItemArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        smart_list_item = await uow.get_for(SmartListItem).load_by_id(args.ref_id)
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.SMART_LIST_ITEM,
+            smart_list_item.ref_id,
+            JupiterArchivalReason.USER,
+        )
         await generic_crown_archiver(
             context.domain_context,
             uow,

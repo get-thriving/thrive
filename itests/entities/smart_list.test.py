@@ -73,7 +73,6 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
                 name=name,
                 smart_list_ref_id=smart_list_ref_id,
                 is_done=False,
-                tag_names=[],
                 url=None,
             ),
         )

@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.schedule_stream import ScheduleStream
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="ScheduleStreamFindResultEntry")
@@ -22,10 +23,12 @@ class ScheduleStreamFindResultEntry:
 
     Attributes:
         schedule_stream (ScheduleStream): A schedule group or stream of events.
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     schedule_stream: ScheduleStream
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,6 +36,11 @@ class ScheduleStreamFindResultEntry:
         from ..models.note import Note
 
         schedule_stream = self.schedule_stream.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -47,6 +55,7 @@ class ScheduleStreamFindResultEntry:
         field_dict.update(
             {
                 "schedule_stream": schedule_stream,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -58,9 +67,17 @@ class ScheduleStreamFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.note import Note
         from ..models.schedule_stream import ScheduleStream
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         schedule_stream = ScheduleStream.from_dict(d.pop("schedule_stream"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -81,6 +98,7 @@ class ScheduleStreamFindResultEntry:
 
         schedule_stream_find_result_entry = cls(
             schedule_stream=schedule_stream,
+            tags=tags,
             note=note,
         )
 

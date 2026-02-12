@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.note_domain import NoteDomain
+from ..models.note_namespace import NoteNamespace
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ class Note:
         last_modified_time (str): A timestamp in the application.
         name (str): The name for an entity which acts as both name and unique identifier.
         note_collection_ref_id (str):
-        domain (NoteDomain): The source of a note.
+        namespace (NoteNamespace): The source of a note.
         source_entity_ref_id (str): A generic entity id.
         content (list[BulletedListBlock | ChecklistBlock | CodeBlock | DividerBlock | EntityReferenceBlock |
             HeadingBlock | LinkBlock | NumberedListBlock | ParagraphBlock | QuoteBlock | TableBlock]):
@@ -53,7 +53,7 @@ class Note:
     last_modified_time: str
     name: str
     note_collection_ref_id: str
-    domain: NoteDomain
+    namespace: NoteNamespace
     source_entity_ref_id: str
     content: list[
         BulletedListBlock
@@ -98,7 +98,7 @@ class Note:
 
         note_collection_ref_id = self.note_collection_ref_id
 
-        domain = self.domain.value
+        namespace = self.namespace.value
 
         source_entity_ref_id = self.source_entity_ref_id
 
@@ -153,7 +153,7 @@ class Note:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "note_collection_ref_id": note_collection_ref_id,
-                "domain": domain,
+                "namespace": namespace,
                 "source_entity_ref_id": source_entity_ref_id,
                 "content": content,
             }
@@ -194,7 +194,7 @@ class Note:
 
         note_collection_ref_id = d.pop("note_collection_ref_id")
 
-        domain = NoteDomain(d.pop("domain"))
+        namespace = NoteNamespace(d.pop("namespace"))
 
         source_entity_ref_id = d.pop("source_entity_ref_id")
 
@@ -333,7 +333,7 @@ class Note:
             last_modified_time=last_modified_time,
             name=name,
             note_collection_ref_id=note_collection_ref_id,
-            domain=domain,
+            namespace=namespace,
             source_entity_ref_id=source_entity_ref_id,
             content=content,
             archival_reason=archival_reason,

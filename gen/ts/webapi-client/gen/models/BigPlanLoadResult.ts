@@ -10,6 +10,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 /**
  * BigPlanLoadResult.
  */
@@ -20,6 +21,7 @@ export type BigPlanLoadResult = {
     goal?: (Goal | null);
     milestones: Array<BigPlanMilestone>;
     inbox_tasks: Array<InboxTask>;
+    tags: Array<Tag>;
     note?: (Note | null);
     stats: BigPlanStats;
 };

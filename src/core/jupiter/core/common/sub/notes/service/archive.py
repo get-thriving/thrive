@@ -1,7 +1,7 @@
 """Shared service for archiving a note."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -32,7 +32,7 @@ class NoteArchiveService:
         self,
         ctx: MutationContext,
         uow: DomainUnitOfWork,
-        domain: NoteDomain,
+        domain: NoteNamespace,
         source_entity_ref_id: EntityId,
         archival_reason: JupiterArchivalReason,
     ) -> None:

@@ -1,7 +1,7 @@
 """Sqlite implementation of the notes repository."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import (
     Note,
     NoteRepository,
@@ -21,7 +21,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
 
     async def load_for_source(
         self,
-        domain: NoteDomain,
+        namespace: NoteNamespace,
         source_entity_ref_id: EntityId,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
@@ -30,7 +30,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         """Retrieve a note via its source entity."""
         query_stmt = (
             select(self._table)
-            .where(self._table.c.domain == domain.value)
+            .where(self._table.c.namespace == namespace.value)
             .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
         )
         if isinstance(allow_archived, bool):
@@ -53,13 +53,13 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         result = (await self._connection.execute(query_stmt)).first()
         if result is None:
             raise EntityNotFoundError(
-                f"Note in domain {domain} with source {source_entity_ref_id!s} does not exist"
+                f"Note in namespace {namespace.value} with source {source_entity_ref_id!s} does not exist"
             )
         return self._row_to_entity(result)
 
     async def load_optional_for_source(
         self,
-        domain: NoteDomain,
+        namespace: NoteNamespace,
         source_entity_ref_id: EntityId,
         allow_archived: (
             bool | JupiterArchivalReason | list[JupiterArchivalReason]
@@ -68,7 +68,7 @@ class SqliteNoteRepository(SqliteLeafEntityRepository[Note], NoteRepository):
         """Retrieve a note via its source entity."""
         query_stmt = (
             select(self._table)
-            .where(self._table.c.domain == domain.value)
+            .where(self._table.c.namespace == namespace.value)
             .where(self._table.c.source_entity_ref_id == source_entity_ref_id.as_int())
         )
         if isinstance(allow_archived, bool):

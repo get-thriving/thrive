@@ -1,8 +1,10 @@
 import {
   ApiError,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
+import type { Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -34,6 +36,7 @@ import { LeafPanelExpansionState } from "@jupiter/core/infra/leaf-panel-expansio
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -76,6 +79,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   try {
     const workspace = summaryResponse.workspace!;
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.JOURNAL],
+    });
+
     const result = await apiClient.journals.journalLoad({
       ref_id: id,
       allow_archived: true,
@@ -100,6 +108,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       subPeriodJournals: result.sub_period_journals,
       timePlan: timePlanResult?.time_plan,
       subTimePlans: timePlanResult?.sub_period_time_plans ?? [],
+      tags: result.tags,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -261,6 +271,17 @@ export default function Journal() {
               defaultValue={loaderData.journal.period}
             />
             <FieldError actionResult={actionData} fieldName="/status" />
+          </FormControl>
+
+          <FormControl fullWidth>
+            <TagsEditor
+              name="tags"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.JOURNAL}
+              sourceEntityRefId={loaderData.journal.ref_id}
+            />
           </FormControl>
         </Stack>
       </SectionCard>

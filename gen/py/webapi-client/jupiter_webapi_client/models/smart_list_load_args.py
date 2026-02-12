@@ -18,12 +18,14 @@ class SmartListLoadArgs:
         allow_archived (bool):
         allow_archived_items (bool):
         allow_archived_tags (bool):
+        include_item_tags_and_notes (bool):
     """
 
     ref_id: str
     allow_archived: bool
     allow_archived_items: bool
     allow_archived_tags: bool
+    include_item_tags_and_notes: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,6 +37,8 @@ class SmartListLoadArgs:
 
         allow_archived_tags = self.allow_archived_tags
 
+        include_item_tags_and_notes = self.include_item_tags_and_notes
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -43,6 +47,7 @@ class SmartListLoadArgs:
                 "allow_archived": allow_archived,
                 "allow_archived_items": allow_archived_items,
                 "allow_archived_tags": allow_archived_tags,
+                "include_item_tags_and_notes": include_item_tags_and_notes,
             }
         )
 
@@ -59,11 +64,14 @@ class SmartListLoadArgs:
 
         allow_archived_tags = d.pop("allow_archived_tags")
 
+        include_item_tags_and_notes = d.pop("include_item_tags_and_notes")
+
         smart_list_load_args = cls(
             ref_id=ref_id,
             allow_archived=allow_archived,
             allow_archived_items=allow_archived_items,
             allow_archived_tags=allow_archived_tags,
+            include_item_tags_and_notes=include_item_tags_and_notes,
         )
 
         smart_list_load_args.additional_properties = d

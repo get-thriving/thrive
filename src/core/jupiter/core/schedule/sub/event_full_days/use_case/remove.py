@@ -1,5 +1,7 @@
 """Use case for removing a full day event."""
 
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -45,6 +47,14 @@ class ScheduleEventFullDaysRemoveUseCase(
         )
         if not schedule_event_full_days.can_be_modified_independently:
             raise InputValidationError("Cannot remove a non-user schedule event")
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+            schedule_event_full_days.ref_id,
+        )
         await generic_crown_remover(
             context.domain_context,
             uow,

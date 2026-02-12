@@ -2,8 +2,10 @@
 
 import abc
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
 from jupiter.framework.base.entity_id import EntityId
@@ -11,6 +13,7 @@ from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
+    OwnsAtMostOne,
     OwnsOne,
     ParentLink,
     create_entity_action,
@@ -30,7 +33,10 @@ class Doc(LeafEntity):
     idempotency_key: DocIdempotencyKey
     name: DocName
 
-    note = OwnsOne(Note, domain=NoteDomain.DOC, source_entity_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.DOC, source_entity_ref_id=IsRefId()
+    )
+    note = OwnsOne(Note, namespace=NoteNamespace.DOC, source_entity_ref_id=IsRefId())
 
     @staticmethod
     @create_entity_action

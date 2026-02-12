@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
+    from ..models.tag import Tag
     from ..models.time_plan import TimePlan
 
 
@@ -23,6 +24,7 @@ class TimePlanFindResultEntry:
 
     Attributes:
         time_plan (TimePlan): A plan for a particular period of time.
+        tags (list[Tag]):
         note (None | Note | Unset):
         planning_task (InboxTask | None | Unset):
         chapter_ref_ids (list[str] | None | Unset):
@@ -31,6 +33,7 @@ class TimePlanFindResultEntry:
     """
 
     time_plan: TimePlan
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     planning_task: InboxTask | None | Unset = UNSET
     chapter_ref_ids: list[str] | None | Unset = UNSET
@@ -43,6 +46,11 @@ class TimePlanFindResultEntry:
         from ..models.note import Note
 
         time_plan = self.time_plan.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -92,6 +100,7 @@ class TimePlanFindResultEntry:
         field_dict.update(
             {
                 "time_plan": time_plan,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -111,10 +120,18 @@ class TimePlanFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
+        from ..models.tag import Tag
         from ..models.time_plan import TimePlan
 
         d = dict(src_dict)
         time_plan = TimePlan.from_dict(d.pop("time_plan"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -203,6 +220,7 @@ class TimePlanFindResultEntry:
 
         time_plan_find_result_entry = cls(
             time_plan=time_plan,
+            tags=tags,
             note=note,
             planning_task=planning_task,
             chapter_ref_ids=chapter_ref_ids,

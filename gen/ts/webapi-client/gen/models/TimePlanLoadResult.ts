@@ -8,6 +8,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
 import type { TimePlanActivity } from './TimePlanActivity';
 import type { TimePlanActivityDoneness } from './TimePlanActivityDoneness';
@@ -16,6 +17,7 @@ import type { TimePlanActivityDoneness } from './TimePlanActivityDoneness';
  */
 export type TimePlanLoadResult = {
     time_plan: TimePlan;
+    tags: Array<Tag>;
     note: Note;
     activities: Array<TimePlanActivity>;
     chapters: Array<Chapter>;

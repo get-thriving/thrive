@@ -31,6 +31,7 @@ import {
 import { Link } from "@remix-run/react";
 import { Fragment, useRef, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
@@ -1034,7 +1035,7 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
           {option.text}
         </li>
       )}
-      style={{ minWidth: "180px" }}
+      sx={[autocompleteSingleLineSx, { minWidth: "180px" }]}
       renderInput={(params) => (
         <TextField
           {...params}

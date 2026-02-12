@@ -3,8 +3,12 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -32,6 +36,7 @@ class ScheduleStreamFindArgs(UseCaseArgsBase):
     """Args."""
 
     include_notes: bool
+    include_tags: bool
     allow_archived: bool
     filter_ref_ids: list[EntityId] | None
 
@@ -41,6 +46,7 @@ class ScheduleStreamFindResultEntry(UseCaseResultBase):
     """A single entry in the load all schedule streams response."""
 
     schedule_stream: ScheduleStream
+    tags: list[Tag]
     note: Note | None
 
 
@@ -83,17 +89,47 @@ class ScheduleStreamFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.SCHEDULE_STREAM,
+                namespace=NoteNamespace.SCHEDULE_STREAM,
                 allow_archived=True,
                 source_entity_ref_id=[cs.ref_id for cs in schedule_streams],
             )
             for n in notes:
                 notes_by_schedule_stream_ref_id[n.source_entity_ref_id] = n
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.SCHEDULE_STREAM,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.SCHEDULE_STREAM,
+                source_entity_ref_id=[cs.ref_id for cs in schedule_streams],
+            )
+            tag_links_by_schedule_stream_ref_id = {
+                t.source_entity_ref_id: t for t in tag_links
+            }
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_schedule_stream_ref_id = {}
+
         return ScheduleStreamFindResult(
             entries=[
                 ScheduleStreamFindResultEntry(
                     schedule_stream=cs,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_schedule_stream_ref_id[
+                                cs.ref_id
+                            ].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if cs.ref_id in tag_links_by_schedule_stream_ref_id
+                        else []
+                    ),
                     note=notes_by_schedule_stream_ref_id.get(cs.ref_id, None),
                 )
                 for cs in schedule_streams

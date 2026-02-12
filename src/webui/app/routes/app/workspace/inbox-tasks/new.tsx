@@ -37,6 +37,7 @@ import {
   getSuggestedDatesForInboxTaskActionableDate,
   getSuggestedDatesForInboxTaskDueDate,
 } from "@jupiter/core/common/suggested-date";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
@@ -444,6 +445,7 @@ export default function NewInboxTask() {
               disablePortal
               id="bigPlan"
               options={allBigPlansAsOptions}
+              sx={autocompleteSingleLineSx}
               readOnly={
                 !inputsEnabled || loaderData.bigPlanReason !== "standard"
               }

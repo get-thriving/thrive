@@ -11,6 +11,7 @@ export type InboxTaskFindArgs = {
     allow_archived: boolean;
     include_notes: boolean;
     include_time_event_blocks: boolean;
+    include_tags: boolean;
     filter_just_workable?: (boolean | null);
     filter_just_user?: (boolean | null);
     filter_just_generated?: (boolean | null);

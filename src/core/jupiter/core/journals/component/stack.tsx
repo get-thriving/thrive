@@ -3,6 +3,7 @@ import type {
   Journal,
   JournalStats,
   ReportPeriodResult,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   RecurringTaskPeriod,
@@ -18,11 +19,13 @@ import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { EntityStack } from "#/core/infra/component/entity-stack";
 import { JournalSourceTag } from "#/core/journals/component/tag";
 import { PeriodTag } from "#/core/common/component/period-tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 interface JournalStackProps {
   topLevelInfo: TopLevelInfo;
   journals: Array<Journal>;
   journalStatsByJournalRefId?: Map<EntityId, JournalStats>;
+  journalTagsByJournalRefId?: Map<EntityId, Array<Tag>>;
   allowSwipe?: boolean;
   allowMarkNotDone?: boolean;
   onMarkNotDone?: (journal: Journal) => void;
@@ -50,6 +53,11 @@ export function JournalStack(props: JournalStackProps) {
               <EntityNameComponent name={journal.name} />
               <JournalSourceTag source={journal.source} />
               <PeriodTag period={journal.period} />
+              {props.journalTagsByJournalRefId
+                ?.get(journal.ref_id)
+                ?.map((tag) => (
+                  <TagTag key={tag.ref_id} tag={tag} />
+                ))}
               {isUserFeatureAvailable(
                 props.topLevelInfo.user,
                 UserFeature.GAMIFICATION,

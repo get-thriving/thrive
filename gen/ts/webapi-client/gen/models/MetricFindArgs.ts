@@ -12,6 +12,7 @@ export type MetricFindArgs = {
     include_entries: boolean;
     include_collection_inbox_tasks: boolean;
     include_metric_entry_notes: boolean;
+    include_tags: boolean;
     filter_ref_ids?: (Array<EntityId> | null);
     filter_entry_ref_ids?: (Array<EntityId> | null);
 };

@@ -11,6 +11,7 @@ export type JournalFindArgs = {
     include_notes: boolean;
     include_journal_stats: boolean;
     include_writing_tasks: boolean;
+    include_tags: boolean;
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

@@ -3,7 +3,7 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.content_block import OneOfNoteContentBlock
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -27,7 +27,7 @@ from jupiter.framework.use_case_io import (
 class NoteCreateArgs(UseCaseArgsBase):
     """NoteCreate args."""
 
-    domain: NoteDomain
+    namespace: NoteNamespace
     source_entity_ref_id: EntityId
     content: list[OneOfNoteContentBlock]
 
@@ -60,7 +60,7 @@ class NoteCreateUseCase(
         note = Note.new_note(
             ctx=context.domain_context,
             note_collection_ref_id=note_collection.ref_id,
-            domain=args.domain,
+            namespace=args.namespace,
             source_entity_ref_id=args.source_entity_ref_id,
             content=args.content,
         )

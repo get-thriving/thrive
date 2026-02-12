@@ -20,6 +20,7 @@ class JournalFindArgs:
         include_notes (bool):
         include_journal_stats (bool):
         include_writing_tasks (bool):
+        include_tags (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
@@ -27,6 +28,7 @@ class JournalFindArgs:
     include_notes: bool
     include_journal_stats: bool
     include_writing_tasks: bool
+    include_tags: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -38,6 +40,8 @@ class JournalFindArgs:
         include_journal_stats = self.include_journal_stats
 
         include_writing_tasks = self.include_writing_tasks
+
+        include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -56,6 +60,7 @@ class JournalFindArgs:
                 "include_notes": include_notes,
                 "include_journal_stats": include_journal_stats,
                 "include_writing_tasks": include_writing_tasks,
+                "include_tags": include_tags,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -73,6 +78,8 @@ class JournalFindArgs:
         include_journal_stats = d.pop("include_journal_stats")
 
         include_writing_tasks = d.pop("include_writing_tasks")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -96,6 +103,7 @@ class JournalFindArgs:
             include_notes=include_notes,
             include_journal_stats=include_journal_stats,
             include_writing_tasks=include_writing_tasks,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )
 

@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { Doc } from './Doc';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * DocLoad result.
  */
@@ -11,5 +12,6 @@ export type DocLoadResult = {
     doc: Doc;
     note: Note;
     subdocs: Array<Doc>;
+    tags: Array<Tag>;
 };
 

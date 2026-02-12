@@ -1,7 +1,9 @@
 """A goal in a life plan."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -28,7 +30,12 @@ class Goal(LeafEntity):
     project_ref_id: EntityId
     parent_goal_ref_id: EntityId | None
 
-    note = OwnsAtMostOne(Note, domain=NoteDomain.GOAL, source_entity_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.GOAL, source_entity_ref_id=IsRefId()
+    )
+    note = OwnsAtMostOne(
+        Note, namespace=NoteNamespace.GOAL, source_entity_ref_id=IsRefId()
+    )
 
     @staticmethod
     @create_entity_action

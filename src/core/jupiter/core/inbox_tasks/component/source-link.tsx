@@ -82,10 +82,13 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
           size="small"
           component={Link}
           to={`/app/workspace/big-plans/${props.inboxTaskResult.big_plan?.ref_id}`}
-          sx={{ flexGrow: 1 }}
-        >
-          {isBigScreen ? "Big Plan" : "BP"}
-        </Button>
+          sx={{
+            flexGrow: 1,
+            width: "2rem",
+            minWidth: "unset",
+            paddingRight: "3px",
+          }}
+        ></Button>
       );
     }
 

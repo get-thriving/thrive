@@ -37,6 +37,7 @@ import {
   validationErrorToUIErrorInfo,
   noErrorNoData,
 } from "@jupiter/core/infra/action-result";
+import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
   ActionSingle,
@@ -205,6 +206,7 @@ export default function Stats() {
                     disablePortal
                     id="filterHabitRefIds"
                     options={habitOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -239,6 +241,7 @@ export default function Stats() {
                     disablePortal
                     id="filterBigPlanRefIds"
                     options={bigPlanOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple
@@ -273,6 +276,7 @@ export default function Stats() {
                     disablePortal
                     id="filterJournalRefIds"
                     options={journalOptions}
+                    sx={autocompleteSingleLineSx}
                     readOnly={!inputsEnabled}
                     disabled={!inputsEnabled}
                     multiple

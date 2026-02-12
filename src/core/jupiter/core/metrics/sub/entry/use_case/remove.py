@@ -1,9 +1,11 @@
 """The command for removing a metric entry."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -40,9 +42,18 @@ class MetricEntryRemoveUseCase(
         args: MetricEntryRemoveArgs,
     ) -> None:
         """Execute the command's action."""
-        metric_entry = await uow.get_for(MetricEntry).remove(args.ref_id)
-        await progress_reporter.mark_removed(metric_entry)
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            context.domain_context, uow, NoteDomain.METRIC_ENTRY, metric_entry.ref_id
+            context.domain_context, uow, NoteNamespace.METRIC_ENTRY, args.ref_id
         )
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.METRIC_ENTRY,
+            args.ref_id,
+        )
+
+        metric_entry = await uow.get_for(MetricEntry).remove(args.ref_id)
+        await progress_reporter.mark_removed(metric_entry)

@@ -2,6 +2,7 @@ import type { EntityId, GoalSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
@@ -94,6 +95,7 @@ export function GoalMultiSelect(props: GoalMultiSelectProps) {
         disabled={props.disabled || allGoalsAsOptions.length === 0}
         multiple
         disableCloseOnSelect
+        sx={autocompleteSingleLineSx}
         value={selectedGoals}
         getOptionDisabled={(o) => {
           const maxSelections = props.maxSelections ?? null;

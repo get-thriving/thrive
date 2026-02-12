@@ -19,12 +19,14 @@ class DocFindArgs:
         include_notes (bool):
         allow_archived (bool):
         include_subdocs (bool):
+        include_tags (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     include_notes: bool
     allow_archived: bool
     include_subdocs: bool
+    include_tags: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -34,6 +36,8 @@ class DocFindArgs:
         allow_archived = self.allow_archived
 
         include_subdocs = self.include_subdocs
+
+        include_tags = self.include_tags
 
         filter_ref_ids: list[str] | None | Unset
         if isinstance(self.filter_ref_ids, Unset):
@@ -51,6 +55,7 @@ class DocFindArgs:
                 "include_notes": include_notes,
                 "allow_archived": allow_archived,
                 "include_subdocs": include_subdocs,
+                "include_tags": include_tags,
             }
         )
         if filter_ref_ids is not UNSET:
@@ -66,6 +71,8 @@ class DocFindArgs:
         allow_archived = d.pop("allow_archived")
 
         include_subdocs = d.pop("include_subdocs")
+
+        include_tags = d.pop("include_tags")
 
         def _parse_filter_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -88,6 +95,7 @@ class DocFindArgs:
             include_notes=include_notes,
             allow_archived=allow_archived,
             include_subdocs=include_subdocs,
+            include_tags=include_tags,
             filter_ref_ids=filter_ref_ids,
         )
 

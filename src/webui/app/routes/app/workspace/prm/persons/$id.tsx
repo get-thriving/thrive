@@ -4,11 +4,13 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
+  Tag,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -53,6 +55,7 @@ import { CircleMultiSelect } from "@jupiter/core/prm/sub/circle/components/multi
 import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/components/stack";
 import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -113,6 +116,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.PERSON],
+    });
+
     const result = await apiClient.prm.personLoad({
       ref_id: id,
       allow_archived: true,
@@ -129,6 +137,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allCircles: circlesResult.circles,
       person: result.person,
       occasions: result.occasions,
+      occasionTagsByRefId: result.occasion_tags_by_ref_id,
       circleRefIds: result.circle_ref_ids,
       maxCirclesPerPerson: settings.max_circles_per_person,
       catchUpTasks: result.catch_up_tasks,
@@ -137,8 +146,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       occasionTasks: result.occasion_tasks,
       occasionTasksTotalCnt: result.occasion_tasks_total_cnt,
       occasionTasksPageSize: result.occasion_tasks_page_size,
+      tags: result.tags,
       note: result.note,
       occasionTimeEventBlocks: result.occasion_time_event_blocks,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -245,7 +256,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.PERSON,
+          namespace: NoteNamespace.PERSON,
           source_entity_ref_id: id,
           content: [],
         });
@@ -387,16 +398,30 @@ export default function Person() {
             />
           }
         >
-          <FormControl fullWidth>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="Name"
-              name="name"
-              readOnly={!inputsEnabled}
-              defaultValue={person.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
+          <Stack direction="row" spacing={1}>
+            <FormControl fullWidth sx={{ flexGrow: 3 }}>
+              <InputLabel id="name">Name</InputLabel>
+              <OutlinedInput
+                label="Name"
+                name="name"
+                readOnly={!inputsEnabled}
+                defaultValue={person.name}
+              />
+              <FieldError actionResult={actionData} fieldName="/name" />
+            </FormControl>
+
+            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags"
+                label={null}
+                allTags={loaderData.allTags}
+                defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+                inputsEnabled={inputsEnabled}
+                namespace={TagNamespace.PERSON}
+                sourceEntityRefId={person.ref_id}
+              />
+            </FormControl>
+          </Stack>
 
           <CircleMultiSelect
             name="circleRefIds"
@@ -443,7 +468,10 @@ export default function Person() {
             />
           }
         >
-          <OccasionStack occasions={loaderData.occasions} />
+          <OccasionStack
+            occasions={loaderData.occasions}
+            occasionTagsByRefId={loaderData.occasionTagsByRefId}
+          />
         </SectionCard>
 
         <SectionCard

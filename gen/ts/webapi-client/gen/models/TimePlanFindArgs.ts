@@ -11,6 +11,7 @@ export type TimePlanFindArgs = {
     include_notes: boolean;
     include_planning_tasks: boolean;
     include_life_plan_ref_ids: boolean;
+    include_tags: boolean;
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

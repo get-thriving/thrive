@@ -1,11 +1,12 @@
 """A smart list."""
 
 from jupiter.core.common.entity_icon import EntityIcon
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
-from jupiter.core.smart_lists.sub.tag.root import SmartListTag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -30,10 +31,14 @@ class SmartList(BranchEntity):
     icon: EntityIcon | None
 
     items = ContainsMany(SmartListItem, smart_list_ref_id=IsRefId())
-    tags = ContainsMany(SmartListTag, smart_list_ref_id=IsRefId())
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        namespace=TagNamespace.SMART_LIST,
+        source_entity_ref_id=IsRefId(),
+    )
 
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SMART_LIST, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.SMART_LIST, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.journal import Journal
     from ..models.journal_stats import JournalStats
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="JournalFindResultEntry")
@@ -24,12 +25,14 @@ class JournalFindResultEntry:
 
     Attributes:
         journal (Journal): A journal for a particular range.
+        tags (list[Tag]):
         note (None | Note | Unset):
         journal_stats (JournalStats | None | Unset):
         writing_task (InboxTask | None | Unset):
     """
 
     journal: Journal
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     journal_stats: JournalStats | None | Unset = UNSET
     writing_task: InboxTask | None | Unset = UNSET
@@ -41,6 +44,11 @@ class JournalFindResultEntry:
         from ..models.note import Note
 
         journal = self.journal.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -71,6 +79,7 @@ class JournalFindResultEntry:
         field_dict.update(
             {
                 "journal": journal,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -88,9 +97,17 @@ class JournalFindResultEntry:
         from ..models.journal import Journal
         from ..models.journal_stats import JournalStats
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         journal = Journal.from_dict(d.pop("journal"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -145,6 +162,7 @@ class JournalFindResultEntry:
 
         journal_find_result_entry = cls(
             journal=journal,
+            tags=tags,
             note=note,
             journal_stats=journal_stats,
             writing_task=writing_task,

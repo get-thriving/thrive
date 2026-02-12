@@ -373,6 +373,30 @@ export default function Sidebar(props: SidebarProps) {
               </ListItemButton>
             </ListItem>
 
+            <StandardDivider title="Core" size="small" />
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/tags"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>🏷️</ListItemIcon>
+                <ListItemText primary="Tags" />
+              </ListItemButton>
+            </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/notes"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📝</ListItemIcon>
+                <ListItemText primary="Notes" />
+              </ListItemButton>
+            </ListItem>
+
             <StandardDivider title="Process" size="small" />
 
             <ListItem disablePadding>

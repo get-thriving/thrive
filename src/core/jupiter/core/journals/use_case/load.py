@@ -3,6 +3,9 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common import schedules
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -41,6 +44,7 @@ class JournalLoadResult(UseCaseResultBase):
     """Result."""
 
     journal: Journal
+    tags: list[Tag]
     note: Note
     journal_stats: JournalStats
     writing_task: InboxTask | None
@@ -91,8 +95,24 @@ class JournalLoadUseCase(
             filter_end_date=schedule.end_day,
         )
 
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.JOURNAL,
+            source_entity_ref_id=journal.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         return JournalLoadResult(
             journal=journal,
+            tags=tags,
             note=note,
             journal_stats=journal_stats,
             writing_task=writing_task,

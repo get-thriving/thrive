@@ -9,6 +9,7 @@ import type {
   Metric,
   Person,
   SlackTask,
+  Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
 import {
@@ -59,6 +60,7 @@ import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
@@ -81,6 +83,7 @@ export interface InboxTaskCardProps {
   selected?: boolean;
   showOptions: InboxTaskShowOptions;
   inboxTask: InboxTask;
+  tags?: Array<Tag>;
   optimisticState?: InboxTaskOptimisticState;
   parent?: InboxTaskParent;
   onClick?: (it: InboxTask) => void;
@@ -195,6 +198,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             />
           </EntityLink>
           <TagsContained>
+            {props.tags?.map((tag) => (
+              <TagTag key={tag.ref_id} tag={tag} />
+            ))}
             {props.showOptions.showStatus && (
               <InboxTaskStatusTag
                 status={props.optimisticState?.status ?? props.inboxTask.status}

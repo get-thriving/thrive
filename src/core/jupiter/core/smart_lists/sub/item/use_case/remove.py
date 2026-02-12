@@ -1,5 +1,7 @@
 """The command for removing a smart list item."""
 
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -37,6 +39,10 @@ class SmartListItemRemoveUseCase(
         args: SmartListItemRemoveArgs,
     ) -> None:
         """Execute the command's action."""
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            context.domain_context, uow, TagNamespace.SMART_LIST_ITEM, args.ref_id
+        )
         await generic_crown_remover(
             context.domain_context, uow, progress_reporter, SmartListItem, args.ref_id
         )

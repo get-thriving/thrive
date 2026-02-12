@@ -1,6 +1,6 @@
 """Use case for loading the current working memory file."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
@@ -71,7 +71,7 @@ class WorkingMemLoadCurrentUseCase(
             working_mem_collection.ref_id
         )
         note = await uow.get(NoteRepository).load_for_source(
-            NoteDomain.WORKING_MEM, working_mem.ref_id, allow_archived=True
+            NoteNamespace.WORKING_MEM, working_mem.ref_id, allow_archived=True
         )
 
         return WorkingMemLoadCurrentResult(

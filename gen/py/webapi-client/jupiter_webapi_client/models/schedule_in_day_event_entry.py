@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.schedule_stream import ScheduleStream
+    from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
@@ -21,17 +22,24 @@ class ScheduleInDayEventEntry:
 
     Attributes:
         event (ScheduleEventInDay): An event in a schedule.
+        tags (list[Tag]):
         time_event (TimeEventInDayBlock): Time event.
         stream (ScheduleStream): A schedule group or stream of events.
     """
 
     event: ScheduleEventInDay
+    tags: list[Tag]
     time_event: TimeEventInDayBlock
     stream: ScheduleStream
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         event = self.event.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         time_event = self.time_event.to_dict()
 
@@ -42,6 +50,7 @@ class ScheduleInDayEventEntry:
         field_dict.update(
             {
                 "event": event,
+                "tags": tags,
                 "time_event": time_event,
                 "stream": stream,
             }
@@ -53,10 +62,18 @@ class ScheduleInDayEventEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.schedule_stream import ScheduleStream
+        from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         event = ScheduleEventInDay.from_dict(d.pop("event"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         time_event = TimeEventInDayBlock.from_dict(d.pop("time_event"))
 
@@ -64,6 +81,7 @@ class ScheduleInDayEventEntry:
 
         schedule_in_day_event_entry = cls(
             event=event,
+            tags=tags,
             time_event=time_event,
             stream=stream,
         )

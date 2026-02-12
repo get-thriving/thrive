@@ -9,6 +9,7 @@ import type { EntityId } from './EntityId';
 export type ProjectFindArgs = {
     allow_archived: boolean;
     include_notes: boolean;
+    include_tags: boolean;
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

@@ -3,8 +3,12 @@
 from collections import defaultdict
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -30,6 +34,7 @@ class GoalFindArgs(UseCaseArgsBase):
 
     allow_archived: bool
     include_notes: bool
+    include_tags: bool
     filter_ref_ids: list[EntityId] | None
 
 
@@ -38,6 +43,7 @@ class GoalFindResultEntry(UseCaseResultBase):
     """A single goal result."""
 
     goal: Goal
+    tags: list[Tag]
     note: Note | None
 
 
@@ -79,17 +85,43 @@ class GoalFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                domain=NoteDomain.GOAL,
+                namespace=NoteNamespace.GOAL,
                 allow_archived=True,
                 ref_id=[g.ref_id for g in goals],
             )
             for note in notes:
                 notes_by_goal_ref_id[note.parent_ref_id] = note
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.GOAL,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.GOAL,
+                source_entity_ref_id=[g.ref_id for g in goals],
+            )
+            tag_links_by_goal_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_goal_ref_id = {}
+
         return GoalFindResult(
             entries=[
                 GoalFindResultEntry(
                     goal=goal,
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_goal_ref_id[goal.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if goal.ref_id in tag_links_by_goal_ref_id
+                        else []
+                    ),
                     note=notes_by_goal_ref_id.get(goal.ref_id, None),
                 )
                 for goal in goals

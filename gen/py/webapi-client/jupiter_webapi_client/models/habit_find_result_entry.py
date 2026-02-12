@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.project import Project
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="HabitFindResultEntry")
@@ -26,6 +27,7 @@ class HabitFindResultEntry:
 
     Attributes:
         habit (Habit): A habit.
+        tags (list[Tag]):
         project (None | Project | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -34,6 +36,7 @@ class HabitFindResultEntry:
     """
 
     habit: Habit
+    tags: list[Tag]
     project: None | Project | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -48,6 +51,11 @@ class HabitFindResultEntry:
         from ..models.project import Project
 
         habit = self.habit.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         project: dict[str, Any] | None | Unset
         if isinstance(self.project, Unset):
@@ -98,6 +106,7 @@ class HabitFindResultEntry:
         field_dict.update(
             {
                 "habit": habit,
+                "tags": tags,
             }
         )
         if project is not UNSET:
@@ -121,9 +130,17 @@ class HabitFindResultEntry:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.project import Project
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_project(data: object) -> None | Project | Unset:
             if data is None:
@@ -217,6 +234,7 @@ class HabitFindResultEntry:
 
         habit_find_result_entry = cls(
             habit=habit,
+            tags=tags,
             project=project,
             chapter=chapter,
             goal=goal,

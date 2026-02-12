@@ -7,6 +7,7 @@ type ChipComponent = React.ComponentType<ChipProps>;
 
 export const SlimChip: ChipComponent = styled(Chip)<ChipProps>(() => ({
   maxWidth: "130px",
+  minWidth: "2rem",
   fontSize: "0.75rem",
   lineHeight: "1rem",
   height: "1rem",

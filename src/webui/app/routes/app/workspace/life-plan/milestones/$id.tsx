@@ -1,5 +1,11 @@
-import { ApiError, NoteDomain, ProjectSummary } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import {
+  ApiError,
+  NoteNamespace,
+  ProjectSummary,
+  type Tag,
+  TagNamespace,
+} from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -23,6 +29,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
 import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -63,6 +70,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   try {
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.MILESTONE],
+    });
+
     const response = await apiClient.lifePlan.milestoneLoad({
       ref_id: id,
       allow_archived: true,
@@ -72,7 +84,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
       rootProject: summaryResponse.root_project as ProjectSummary,
       milestone: response.milestone,
+      tags: response.tags,
       note: response.note ?? null,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -115,7 +129,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.MILESTONE,
+          namespace: NoteNamespace.MILESTONE,
           source_entity_ref_id: id,
           content: [],
         });
@@ -194,16 +208,30 @@ export default function MilestoneView() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.milestone.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack direction="row" spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              defaultValue={loaderData.milestone.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <TagsEditor
+              name="tags"
+              label={null}
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((tag: Tag) => tag.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.MILESTONE}
+              sourceEntityRefId={loaderData.milestone.ref_id}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <ProjectSelect

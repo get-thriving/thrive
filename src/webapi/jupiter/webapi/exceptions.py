@@ -4,6 +4,7 @@ from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
@@ -216,6 +217,29 @@ class JournalExistsForDatePeriodCombinationHandler(
                     ],
                     "msg": "Journal already exists for this date and period combination",
                     "type": "value_error.journalexistsfordateperiodcombinationerror",
+                },
+            ],
+        }
+
+
+class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
+    """Handle tag already exists errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(self, exception: TagAlreadyExistsError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": "Tag already exists",
+                    "type": "value_error.tagalreadyexistserror",
                 },
             ],
         }

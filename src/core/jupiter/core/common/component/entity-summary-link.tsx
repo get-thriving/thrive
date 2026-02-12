@@ -1,19 +1,30 @@
-import type { ADate, EntitySummary } from "@jupiter/webapi-client";
+import type { ADate, EntityId, Timestamp } from "@jupiter/webapi-client";
 import { NamedEntityTag } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 import { EntityFakeLink, EntityLink } from "#/core/infra/component/entity-card";
 import { TimeDiffTag } from "#/core/common/component/time-diff-tag";
 
+export interface EntitySummaryLight {
+  entity_tag: NamedEntityTag;
+  ref_id: EntityId;
+  snippet: string;
+  archived: boolean;
+  last_modified_time?: Timestamp | null;
+  archived_time?: Timestamp | null;
+}
+
 interface EntitySummaryLinkProps {
   today: ADate;
-  summary: EntitySummary;
+  summary: EntitySummaryLight;
+  hideModifiedTime?: boolean;
   removed?: boolean;
 }
 
 export function EntitySummaryLink({
   today,
   summary,
+  hideModifiedTime,
   removed,
 }: EntitySummaryLinkProps) {
   const commonSequence = (
@@ -26,7 +37,7 @@ export function EntitySummaryLink({
           collectionTime={summary.archived_time}
         />
       )}
-      {!summary.archived && (
+      {!summary.archived && summary.last_modified_time && !hideModifiedTime && (
         <TimeDiffTag
           today={today}
           labelPrefix="Modified"
@@ -77,9 +88,9 @@ export function EntitySummaryLink({
     case NamedEntityTag.TIME_PLAN_ACTIVITY:
       return (
         <EntityLink
-          to={`/app/workspace/time-plans/${summary.parent_ref_id}/activities/${summary.ref_id}`}
+          to={`/app/workspace/time-plans/no-parent/${summary.ref_id}`}
         >
-          <SlimChip label={"Time Plan Acticity"} color={"primary"} />
+          <SlimChip label={"Time Plan Activity"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
@@ -193,24 +204,15 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.SMART_LIST:
       return (
-        <EntityLink to={`/app/workspace/smart-lists/${summary.ref_id}/items`}>
+        <EntityLink to={`/app/workspace/smart-lists/${summary.ref_id}`}>
           <SlimChip label={"Smart List"} color={"primary"} />
-          {commonSequence}
-        </EntityLink>
-      );
-    case NamedEntityTag.SMART_LIST_TAG:
-      return (
-        <EntityLink
-          to={`/app/workspace/smart-lists/${summary.parent_ref_id}/tags/${summary.ref_id}`}
-        >
-          <SlimChip label={"Smart List Tag"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.SMART_LIST_ITEM:
       return (
         <EntityLink
-          to={`/app/workspace/smart-lists/${summary.parent_ref_id}/items/${summary.ref_id}`}
+          to={`/app/workspace/smart-lists/no-parent/${summary.ref_id}`}
         >
           <SlimChip label={"Smart List Item"} color={"primary"} />
           {commonSequence}
@@ -225,9 +227,7 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.METRIC_ENTRY:
       return (
-        <EntityLink
-          to={`/app/workspace/metrics/${summary.parent_ref_id}/entries/${summary.ref_id}`}
-        >
+        <EntityLink to={`/app/workspace/metrics/no-parent/${summary.ref_id}`}>
           <SlimChip label={"Metric Entry"} color={"primary"} />
           {commonSequence}
         </EntityLink>

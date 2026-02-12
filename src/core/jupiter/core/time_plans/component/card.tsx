@@ -2,6 +2,7 @@ import type {
   ChapterSummary,
   GoalSummary,
   ProjectSummary,
+  Tag,
   TimePlan,
 } from "@jupiter/webapi-client";
 
@@ -13,6 +14,7 @@ import { TimePlanSourceTag } from "#/core/time_plans/component/source-tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 export interface TimePlanShowOptions {
   showSource?: boolean;
@@ -23,6 +25,7 @@ interface TimePlanCardProps {
   label?: string;
   topLevelInfo: TopLevelInfo;
   timePlan: TimePlan;
+  tags?: Array<Tag>;
   projects: Array<ProjectSummary>;
   goals: Array<GoalSummary>;
   chapters: Array<ChapterSummary>;
@@ -66,6 +69,9 @@ export function TimePlanCard(props: TimePlanCardProps) {
           <TimePlanSourceTag source={timePlan.source} />
         )}
         {props.showOptions.showPeriod && <PeriodTag period={timePlan.period} />}
+        {props.tags?.map((tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
         {props.projects.map((project) => (
           <ProjectTag key={project.ref_id} project={project} />
         ))}

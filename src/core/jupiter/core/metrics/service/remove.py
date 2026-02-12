@@ -1,9 +1,11 @@
 """Shared service for removing a metric."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -57,16 +59,26 @@ class MetricRemoveService:
             )
 
         note_remove_service = NoteRemoveService()
+        tag_link_remove_service = TagLinkRemoveService()
 
         for metric_entry in all_metric_entries:
+            await tag_link_remove_service.remove_for_entity(
+                ctx,
+                uow,
+                TagNamespace.METRIC_ENTRY,
+                metric_entry.ref_id,
+            )
             await uow.get_for(MetricEntry).remove(metric_entry.ref_id)
             await progress_reporter.mark_removed(metric_entry)
             await note_remove_service.remove_for_source(
-                ctx, uow, NoteDomain.METRIC_ENTRY, metric_entry.ref_id
+                ctx, uow, NoteNamespace.METRIC_ENTRY, metric_entry.ref_id
             )
 
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.METRIC, metric.ref_id
+            ctx, uow, NoteNamespace.METRIC, metric.ref_id
+        )
+        await tag_link_remove_service.remove_for_entity(
+            ctx, uow, TagNamespace.METRIC, metric.ref_id
         )
 
         await uow.get_for(Metric).remove(metric.ref_id)

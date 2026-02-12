@@ -4,11 +4,13 @@
 /* eslint-disable */
 import type { Milestone } from './Milestone';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 /**
  * MilestoneLoadResult.
  */
 export type MilestoneLoadResult = {
     milestone: Milestone;
+    tags: Array<Tag>;
     note?: (Note | null);
 };
 

@@ -8,6 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type ScheduleStreamFindArgs = {
     include_notes: boolean;
+    include_tags: boolean;
     allow_archived: boolean;
     filter_ref_ids?: (Array<EntityId> | null);
 };

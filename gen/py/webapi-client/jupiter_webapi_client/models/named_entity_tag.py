@@ -29,7 +29,6 @@ class NamedEntityTag(str, Enum):
     SLACKTASK = "SlackTask"
     SMARTLIST = "SmartList"
     SMARTLISTITEM = "SmartListItem"
-    SMARTLISTTAG = "SmartListTag"
     TIMEPLAN = "TimePlan"
     TIMEPLANACTIVITY = "TimePlanActivity"
     VACATION = "Vacation"

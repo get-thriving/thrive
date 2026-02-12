@@ -73,6 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       }),
       apiClient.timePlans.timePlanFind({
         allow_archived: false,
+        include_tags: false,
         include_notes: false,
         include_planning_tasks: false,
         include_life_plan_ref_ids: false,

@@ -6,6 +6,7 @@ import type {
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import {
   sortHabitSummariesByPeriod,
   sortHabitSummariesByProjectAndPeriod,
@@ -79,6 +80,7 @@ export function HabitSelectSingle(props: HabitSelectSingleProps) {
         }
         id={props.name}
         options={allHabitsAsOptions}
+        sx={autocompleteSingleLineSx}
         value={selectedHabit}
         onChange={(e, v) => {
           if (!props.allowNone && !v) {

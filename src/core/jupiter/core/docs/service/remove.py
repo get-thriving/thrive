@@ -1,9 +1,11 @@
 """Remove a doc."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.docs.root import Doc
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -32,7 +34,12 @@ class DocRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.DOC, doc.ref_id
+            ctx, uow, NoteNamespace.DOC, doc.ref_id
+        )
+
+        tag_link_remove_service = TagLinkRemoveService()
+        await tag_link_remove_service.remove_for_entity(
+            ctx, uow, TagNamespace.DOC, doc.ref_id
         )
 
         await uow.get_for(Doc).remove(doc.ref_id)

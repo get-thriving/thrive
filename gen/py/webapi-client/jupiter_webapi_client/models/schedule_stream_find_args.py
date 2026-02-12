@@ -17,17 +17,21 @@ class ScheduleStreamFindArgs:
 
     Attributes:
         include_notes (bool):
+        include_tags (bool):
         allow_archived (bool):
         filter_ref_ids (list[str] | None | Unset):
     """
 
     include_notes: bool
+    include_tags: bool
     allow_archived: bool
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         include_notes = self.include_notes
+
+        include_tags = self.include_tags
 
         allow_archived = self.allow_archived
 
@@ -45,6 +49,7 @@ class ScheduleStreamFindArgs:
         field_dict.update(
             {
                 "include_notes": include_notes,
+                "include_tags": include_tags,
                 "allow_archived": allow_archived,
             }
         )
@@ -57,6 +62,8 @@ class ScheduleStreamFindArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         include_notes = d.pop("include_notes")
+
+        include_tags = d.pop("include_tags")
 
         allow_archived = d.pop("allow_archived")
 
@@ -79,6 +86,7 @@ class ScheduleStreamFindArgs:
 
         schedule_stream_find_args = cls(
             include_notes=include_notes,
+            include_tags=include_tags,
             allow_archived=allow_archived,
             filter_ref_ids=filter_ref_ids,
         )

@@ -5,12 +5,14 @@
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
 /**
  * Result part.
  */
 export type TimePlanFindResultEntry = {
     time_plan: TimePlan;
+    tags: Array<Tag>;
     note?: (Note | null);
     planning_task?: (InboxTask | null);
     chapter_ref_ids?: (Array<EntityId> | null);

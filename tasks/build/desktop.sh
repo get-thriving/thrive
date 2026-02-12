@@ -56,6 +56,9 @@ source src/Config.global
 # shellcheck disable=SC1091
 source secrets/Config.secrets
 
+sudo rm -rf .build-cache/desktop/mac-store/v${VERSION}
+sudo rm -rf .build-cache/desktop/mac-web/v${VERSION}
+
 mkdir -p .build-cache/desktop/mac-store/v${VERSION}
 mkdir -p .build-cache/desktop/mac-web/v${VERSION}
 

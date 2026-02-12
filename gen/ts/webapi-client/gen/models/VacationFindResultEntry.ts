@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Note } from './Note';
+import type { Tag } from './Tag';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 import type { Vacation } from './Vacation';
 /**
@@ -10,6 +11,7 @@ import type { Vacation } from './Vacation';
  */
 export type VacationFindResultEntry = {
     vacation: Vacation;
+    tags: Array<Tag>;
     note?: (Note | null);
     time_event_block?: (TimeEventFullDaysBlock | null);
 };

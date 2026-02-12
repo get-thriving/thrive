@@ -17,6 +17,7 @@ class ChoreFindArgs:
 
     Attributes:
         allow_archived (bool):
+        include_tags (bool):
         include_life_plan (bool):
         include_inbox_tasks (bool):
         include_notes (bool):
@@ -25,6 +26,7 @@ class ChoreFindArgs:
     """
 
     allow_archived: bool
+    include_tags: bool
     include_life_plan: bool
     include_inbox_tasks: bool
     include_notes: bool
@@ -34,6 +36,8 @@ class ChoreFindArgs:
 
     def to_dict(self) -> dict[str, Any]:
         allow_archived = self.allow_archived
+
+        include_tags = self.include_tags
 
         include_life_plan = self.include_life_plan
 
@@ -64,6 +68,7 @@ class ChoreFindArgs:
         field_dict.update(
             {
                 "allow_archived": allow_archived,
+                "include_tags": include_tags,
                 "include_life_plan": include_life_plan,
                 "include_inbox_tasks": include_inbox_tasks,
                 "include_notes": include_notes,
@@ -80,6 +85,8 @@ class ChoreFindArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         allow_archived = d.pop("allow_archived")
+
+        include_tags = d.pop("include_tags")
 
         include_life_plan = d.pop("include_life_plan")
 
@@ -123,6 +130,7 @@ class ChoreFindArgs:
 
         chore_find_args = cls(
             allow_archived=allow_archived,
+            include_tags=include_tags,
             include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,
             include_notes=include_notes,

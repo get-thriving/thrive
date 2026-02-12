@@ -7,10 +7,12 @@ import type {
   LifePlan,
   MilestoneSummary,
   ProjectSummary,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   InboxTaskSource,
   InboxTaskStatus,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
@@ -29,6 +31,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { isInboxTaskCoreFieldEditable } from "#/core/inbox_tasks/root";
 import {
@@ -57,6 +60,7 @@ import {
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 interface InboxTaskPropertiesEditorProps {
   title: string;
@@ -72,6 +76,8 @@ interface InboxTaskPropertiesEditorProps {
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
   allBigPlans: BigPlanSummary[];
+  allTags?: Array<Tag>;
+  tags?: Array<Tag>;
   inputsEnabled: boolean;
   inboxTask: InboxTask;
   inboxTaskInfo: InboxTaskLoadResult;
@@ -239,6 +245,20 @@ export function InboxTaskPropertiesEditor(
               value={props.inboxTask.source}
             />
           </FormControl>
+
+          {props.allTags && props.tags && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags_names"
+                allTags={props.allTags}
+                defaultValue={props.tags.map((t) => t.ref_id)}
+                inputsEnabled={props.inputsEnabled}
+                namespace={TagNamespace.INBOX_TASK}
+                sourceEntityRefId={props.inboxTask.ref_id}
+              />
+            </FormControl>
+          )}
+
           <FormControl sx={{ flexGrow: 1 }}>
             <IsKeySelect
               name={constructFieldName(props.namePrefix, "isKey")}
@@ -246,7 +266,10 @@ export function InboxTaskPropertiesEditor(
               inputsEnabled={props.inputsEnabled && corePropertyEditable}
             />
           </FormControl>
-          <FormControl sx={{ flexGrow: 1 }}>
+        </Box>
+
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl sx={{ flexGrow: 1, minWidth: "unset" }}>
             <InboxTaskStatusBigTag status={props.inboxTask.status} />
             <input
               type="hidden"
@@ -258,50 +281,52 @@ export function InboxTaskPropertiesEditor(
               fieldName={constructFieldErrorName(props.fieldsPrefix, "status")}
             />
           </FormControl>
+
+          {isWorkspaceFeatureAvailable(
+            props.topLevelInfo.workspace,
+            WorkspaceFeature.BIG_PLANS,
+          ) &&
+            (props.inboxTask.source === InboxTaskSource.USER ||
+              props.inboxTask.source === InboxTaskSource.BIG_PLAN) && (
+              <>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    disablePortal
+                    autoHighlight
+                    id="bigPlan"
+                    options={allBigPlansAsOptions}
+                    readOnly={!props.inputsEnabled}
+                    value={selectedBigPlan}
+                    disableClearable={true}
+                    sx={autocompleteSingleLineSx}
+                    onChange={handleChangeBigPlan}
+                    isOptionEqualToValue={(o, v) =>
+                      o.big_plan_id === v.big_plan_id
+                    }
+                    renderInput={(params) => (
+                      <TextField {...params} label="Big Plan" />
+                    )}
+                  />
+
+                  <FieldError
+                    actionResult={props.actionData}
+                    fieldName={constructFieldErrorName(
+                      props.fieldsPrefix,
+                      "big_plan_ref_id",
+                    )}
+                  />
+
+                  <input
+                    type="hidden"
+                    name={constructFieldName(props.namePrefix, "bigPlan")}
+                    value={selectedBigPlan.big_plan_id}
+                  />
+                </FormControl>
+              </>
+            )}
+
           <InboxTaskSourceLink inboxTaskResult={props.inboxTaskInfo} />
-        </Box>
-
-        {isWorkspaceFeatureAvailable(
-          props.topLevelInfo.workspace,
-          WorkspaceFeature.BIG_PLANS,
-        ) &&
-          (props.inboxTask.source === InboxTaskSource.USER ||
-            props.inboxTask.source === InboxTaskSource.BIG_PLAN) && (
-            <>
-              <FormControl fullWidth>
-                <Autocomplete
-                  disablePortal
-                  autoHighlight
-                  id="bigPlan"
-                  options={allBigPlansAsOptions}
-                  readOnly={!props.inputsEnabled}
-                  value={selectedBigPlan}
-                  disableClearable={true}
-                  onChange={handleChangeBigPlan}
-                  isOptionEqualToValue={(o, v) =>
-                    o.big_plan_id === v.big_plan_id
-                  }
-                  renderInput={(params) => (
-                    <TextField {...params} label="Big Plan" />
-                  )}
-                />
-
-                <FieldError
-                  actionResult={props.actionData}
-                  fieldName={constructFieldErrorName(
-                    props.fieldsPrefix,
-                    "big_plan_ref_id",
-                  )}
-                />
-
-                <input
-                  type="hidden"
-                  name={constructFieldName(props.namePrefix, "bigPlan")}
-                  value={selectedBigPlan.big_plan_id}
-                />
-              </FormControl>
-            </>
-          )}
+        </Stack>
 
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,

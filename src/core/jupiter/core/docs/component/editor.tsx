@@ -1,8 +1,8 @@
 import type { Doc, DocCreateResult, Note } from "@jupiter/webapi-client";
-import { TextField } from "@mui/material";
+import { Box, TextField } from "@mui/material";
 import { useFetcher } from "@remix-run/react";
 import { Buffer } from "buffer-polyfill";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 
 import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
@@ -26,12 +26,14 @@ interface DocEditorProps {
   initialDoc?: Doc;
   initialNote?: Note;
   inputsEnabled: boolean;
+  rightOfName?: ReactNode;
 }
 
 export function DocEditor({
   initialDoc,
   initialNote,
   inputsEnabled,
+  rightOfName,
 }: DocEditorProps) {
   const cardActionFetcher = useFetcher<
     SomeErrorNoData | NoErrorSomeData<DocCreateResult>
@@ -122,19 +124,23 @@ export function DocEditor({
     <>
       <GlobalError actionResult={cardActionFetcher.data} />
 
-      <TextField
-        label="Name"
-        name="name"
-        variant="standard"
-        InputProps={{
-          readOnly: !inputsEnabled,
-        }}
-        defaultValue={noteName}
-        onChange={(e) => {
-          setDataModified(true);
-          setNoteName(e.target.value);
-        }}
-      />
+      <Box sx={{ display: "flex", gap: 2, alignItems: "flex-end" }}>
+        <TextField
+          sx={{ flexGrow: 1 }}
+          label="Name"
+          name="name"
+          variant="standard"
+          InputProps={{
+            readOnly: !inputsEnabled,
+          }}
+          defaultValue={noteName}
+          onChange={(e) => {
+            setDataModified(true);
+            setNoteName(e.target.value);
+          }}
+        />
+        {rightOfName}
+      </Box>
       <FieldError actionResult={cardActionFetcher.data} fieldName="/name" />
       <FieldError actionResult={cardActionFetcher.data} fieldName="/content" />
 

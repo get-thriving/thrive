@@ -1,9 +1,11 @@
 """Remove a person."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
@@ -61,19 +63,27 @@ class PersonRemoveService:
             )
 
         note_remove_service = NoteRemoveService()
+        tag_link_remove_service = TagLinkRemoveService()
 
         all_occasions = await uow.get_for(Occasion).find_all(
             person.ref_id, allow_archived=True
         )
         for occasion in all_occasions:
             await note_remove_service.remove_for_source(
-                ctx, uow, NoteDomain.OCCASION, occasion.ref_id
+                ctx, uow, NoteNamespace.OCCASION, occasion.ref_id
+            )
+            await tag_link_remove_service.remove_for_entity(
+                ctx, uow, TagNamespace.OCCASION, occasion.ref_id
             )
             await uow.get_for(Occasion).remove(occasion.ref_id)
             await progress_reporter.mark_removed(occasion)
 
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteDomain.PERSON, person.ref_id
+            ctx, uow, NoteNamespace.PERSON, person.ref_id
+        )
+
+        await tag_link_remove_service.remove_for_entity(
+            ctx, uow, TagNamespace.PERSON, person.ref_id
         )
 
         all_links = await uow.get_for_record(PersonCircleLink).find_all(prm.ref_id)

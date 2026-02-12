@@ -1,7 +1,9 @@
 """A full day block in a schedule."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -44,8 +46,15 @@ class ScheduleEventFullDays(LeafEntity):
         namespace=TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK,
         source_entity_ref_id=IsRefId(),
     )
+    tag_link = OwnsAtMostOne(
+        TagLink,
+        namespace=TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK,
+        source_entity_ref_id=IsRefId(),
+    )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.SCHEDULE_EVENT_FULL_DAYS, source_entity_ref_id=IsRefId()
+        Note,
+        namespace=NoteNamespace.SCHEDULE_EVENT_FULL_DAYS,
+        source_entity_ref_id=IsRefId(),
     )
 
     @staticmethod

@@ -4,8 +4,12 @@ from collections import defaultdict
 from typing import cast
 
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -53,6 +57,7 @@ class PersonFindArgs(UseCaseArgsBase):
     include_occasion_time_event_blocks: bool
     include_catch_up_inbox_tasks: bool
     include_occasion_inbox_tasks: bool
+    include_tags: bool
     filter_person_ref_ids: list[EntityId] | None
 
 
@@ -63,6 +68,7 @@ class PersonFindResultEntry(UseCaseResultBase):
     person: Person
     occasions: list[Occasion]
     circle_ref_ids: list[EntityId]
+    tags: list[Tag]
     note: Note | None
     occasion_time_event_blocks: list[TimeEventFullDaysBlock] | None
     catch_up_inbox_tasks: list[InboxTask] | None
@@ -144,7 +150,7 @@ class PersonFindUseCase(
             )
             all_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=notes_collection.ref_id,
-                domain=NoteDomain.PERSON,
+                namespace=NoteNamespace.PERSON,
                 allow_archived=True,
                 source_entity_ref_id=[p.ref_id for p in persons],
             )
@@ -183,6 +189,23 @@ class PersonFindUseCase(
         else:
             birthday_inbox_tasks = None
 
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.PERSON,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.PERSON,
+                source_entity_ref_id=[p.ref_id for p in persons],
+            )
+            tag_links_by_person_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_person_ref_id = {}
+
         return PersonFindResult(
             catch_up_project=catch_up_project,
             entries=[
@@ -190,6 +213,15 @@ class PersonFindUseCase(
                     person=p,
                     occasions=occasions_by_person_ref_id.get(p.ref_id, []),
                     circle_ref_ids=circle_ref_ids_by_person_ref_id.get(p.ref_id, []),
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_person_ref_id[p.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if p.ref_id in tag_links_by_person_ref_id
+                        else []
+                    ),
                     note=all_notes_by_person_ref_id.get(p.ref_id, None),
                     occasion_time_event_blocks=(
                         [

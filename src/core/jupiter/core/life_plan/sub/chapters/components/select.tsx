@@ -8,6 +8,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
 import { useEffect, useMemo, useState } from "react";
 
+import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { sortChaptersNaturally } from "#/core/life_plan/sub/chapters/root";
 
 interface ChapterSelectProps {
@@ -120,6 +121,7 @@ export function ChapterSelect(props: ChapterSelectProps) {
         options={allChaptersAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled || allChaptersAsOptions.length === 0}
+        sx={autocompleteSingleLineSx}
         value={selectedChapter}
         onChange={(_, v) => {
           setSelectedChapter(v);

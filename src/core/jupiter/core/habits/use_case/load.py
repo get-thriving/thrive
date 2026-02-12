@@ -1,7 +1,10 @@
 """Use case for loading a particular habit."""
 
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -63,6 +66,7 @@ class HabitLoadResult(UseCaseResultBase):
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: ADate
     streak_mark_latest_date: ADate
+    tags: list[Tag]
     note: Note | None
 
 
@@ -145,8 +149,23 @@ class HabitLoadUseCase(
             streak_mark_latest_date,
         )
 
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.HABIT,
+            source_entity_ref_id=habit.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteDomain.HABIT,
+            NoteNamespace.HABIT,
             habit.ref_id,
             allow_archived=args.allow_archived,
         )
@@ -162,5 +181,6 @@ class HabitLoadUseCase(
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
+            tags=tags,
             note=note,
         )

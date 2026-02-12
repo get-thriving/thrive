@@ -5,8 +5,12 @@ from collections import defaultdict
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.root import TagDomain
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -44,6 +48,7 @@ class ChoreFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool
+    include_tags: bool
     include_life_plan: bool
     include_inbox_tasks: bool
     include_notes: bool
@@ -61,6 +66,7 @@ class ChoreFindResultEntry(UseCaseResultBase):
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
+    tags: list[Tag]
 
 
 @use_case_result
@@ -137,7 +143,7 @@ class ChoreFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                soure=InboxTaskSource.CHORE,
+                source=InboxTaskSource.CHORE,
                 source_entity_ref_id=[bp.ref_id for bp in chores],
             )
         else:
@@ -150,12 +156,29 @@ class ChoreFindUseCase(
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                source=NoteDomain.CHORE,
+                namespace=NoteNamespace.CHORE,
                 allow_archived=True,
                 source_entity_ref_id=[chore.ref_id for chore in chores],
             )
             for note in notes:
                 notes_by_chore_ref_id[note.source_entity_ref_id] = note
+
+        if args.include_tags:
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
+            all_tags = await uow.get_for(Tag).find_all_generic(
+                parent_ref_id=tags_domain.ref_id,
+                allow_archived=False,
+                namespace=TagNamespace.CHORE,
+            )
+            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
+            tag_links = await uow.get(TagLinkRepository).find_all_generic(
+                namespace=TagNamespace.CHORE,
+                source_entity_ref_id=[c.ref_id for c in chores],
+            )
+            tag_links_by_chore_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+        else:
+            all_tags_by_ref_id = {}
+            tag_links_by_chore_ref_id = {}
 
         return ChoreFindResult(
             entries=[
@@ -184,6 +207,15 @@ class ChoreFindUseCase(
                         ]
                         if inbox_tasks is not None
                         else None
+                    ),
+                    tags=(
+                        [
+                            all_tags_by_ref_id[rid]
+                            for rid in tag_links_by_chore_ref_id[rt.ref_id].ref_ids
+                            if rid in all_tags_by_ref_id
+                        ]
+                        if rt.ref_id in tag_links_by_chore_ref_id
+                        else []
                     ),
                     note=notes_by_chore_ref_id.get(rt.ref_id, None),
                 )

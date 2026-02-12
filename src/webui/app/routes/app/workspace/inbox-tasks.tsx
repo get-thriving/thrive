@@ -7,12 +7,14 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import type {
   InboxTask,
   InboxTaskFindResultEntry,
+  Tag,
 } from "@jupiter/webapi-client";
 import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
   RecurringTaskPeriod,
+  TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import FlareIcon from "@mui/icons-material/Flare";
@@ -60,6 +62,7 @@ import {
   FilterFewOptionsCompact,
   SectionActions,
   FilterFewOptionsSpread,
+  FilterManyOptions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
@@ -113,9 +116,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
     include_time_event_blocks: false,
+    include_tags: true,
+  });
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.INBOX_TASK],
   });
   return json({
     entries: response.entries,
+    allTags: allTags.tags as Array<Tag>,
   });
 }
 
@@ -124,7 +133,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { entries } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { entries, allTags } = useLoaderDataSafeForAnimation<typeof loader>();
 
   const globalProperties = useContext(GlobalPropertiesContext);
 
@@ -142,6 +151,23 @@ export default function InboxTasks() {
   for (const entry of entries) {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
+
+  const inboxTaskTagsByInboxTaskRefId = new Map<string, Array<Tag>>();
+  for (const entry of entries) {
+    inboxTaskTagsByInboxTaskRefId.set(
+      entry.inbox_task.ref_id,
+      entry.tags ?? [],
+    );
+  }
+
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const filteredSortedInboxTasks = sortedInboxTasks.filter((it) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const tags = inboxTaskTagsByInboxTaskRefId.get(it.ref_id) ?? [];
+    return tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+  });
 
   const [selectedView, setSelectedView] = useState(View.SWIFTVIEW);
 
@@ -332,6 +358,14 @@ export default function InboxTasks() {
               ],
               (selected) => setSelectedActionableTime(selected),
             ),
+            FilterManyOptions(
+              "Tags",
+              allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
@@ -361,12 +395,13 @@ export default function InboxTasks() {
           <SwiftView
             topLevelInfo={topLevelInfo}
             isBigScreen={isBigScreen}
-            inboxTasks={sortedInboxTasks}
+            inboxTasks={filteredSortedInboxTasks}
             optimisticUpdates={optimisticUpdates}
             moreInfoByRefId={entriesByRefId}
             actionableTime={selectedActionableTime}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
+            inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           />
         )}
 
@@ -376,12 +411,13 @@ export default function InboxTasks() {
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <BigScreenKanbanByEisen
                   topLevelInfo={topLevelInfo}
-                  inboxTasks={sortedInboxTasks}
+                  inboxTasks={filteredSortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
                   inboxTasksByRefId={inboxTasksByRefId}
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                 />
               </DragDropContext>
             )}
@@ -389,12 +425,13 @@ export default function InboxTasks() {
             {!isBigScreen && (
               <SmallScreenKanbanByEisen
                 topLevelInfo={topLevelInfo}
-                inboxTasks={sortedInboxTasks}
+                inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
                 moreInfoByRefId={entriesByRefId}
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
+                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
               />
             )}
           </>
@@ -406,12 +443,13 @@ export default function InboxTasks() {
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <BigScreenKanban
                   topLevelInfo={topLevelInfo}
-                  inboxTasks={sortedInboxTasks}
+                  inboxTasks={filteredSortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
                   inboxTasksByRefId={inboxTasksByRefId}
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                 />
               </DragDropContext>
             )}
@@ -419,12 +457,13 @@ export default function InboxTasks() {
             {!isBigScreen && (
               <SmallScreenKanban
                 topLevelInfo={topLevelInfo}
-                inboxTasks={sortedInboxTasks}
+                inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
                 moreInfoByRefId={entriesByRefId}
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
+                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
               />
             )}
           </>
@@ -433,11 +472,12 @@ export default function InboxTasks() {
         {selectedView === View.LIST && (
           <List
             topLevelInfo={topLevelInfo}
-            inboxTasks={sortedInboxTasks}
+            inboxTasks={filteredSortedInboxTasks}
             optimisticUpdates={optimisticUpdates}
             moreInfoByRefId={entriesByRefId}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
+            inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           />
         )}
       </NestingAwareBlock>
@@ -468,6 +508,7 @@ interface SwiftViewProps {
   actionableTime: ActionableTime;
   onCardMarkDone: (inboxTask: InboxTask) => void;
   onCardMarkNotDone: (inboxTask: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function SwiftView(props: SwiftViewProps) {
@@ -851,6 +892,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -871,6 +913,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -892,6 +935,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -913,6 +957,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -934,6 +979,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -960,6 +1006,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -980,6 +1027,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1001,6 +1049,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1022,6 +1071,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1043,6 +1093,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1070,6 +1121,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1091,6 +1143,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1113,6 +1166,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1135,6 +1189,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1157,6 +1212,7 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1300,6 +1356,7 @@ interface BigScreenKanbanByEisenProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   actionableTime: ActionableTime;
   draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function BigScreenKanbanByEisen({
@@ -1310,6 +1367,7 @@ function BigScreenKanbanByEisen({
   moreInfoByRefId,
   actionableTime,
   draggedInboxTaskId,
+  inboxTaskTagsByInboxTaskRefId,
 }: BigScreenKanbanByEisenProps) {
   return (
     <>
@@ -1338,6 +1396,7 @@ function BigScreenKanbanByEisen({
                   actionableTime={actionableTime}
                   allowEisen={e}
                   draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                 />
               </Fragment>
             );
@@ -1357,6 +1416,7 @@ interface BigScreenKanbanProps {
   actionableTime: ActionableTime;
   allowEisen?: Eisen;
   draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function BigScreenKanban({
@@ -1368,6 +1428,7 @@ function BigScreenKanban({
   actionableTime,
   allowEisen,
   draggedInboxTaskId,
+  inboxTaskTagsByInboxTaskRefId,
 }: BigScreenKanbanProps) {
   return (
     <>
@@ -1388,6 +1449,7 @@ function BigScreenKanban({
           actionableTime={actionableTime}
           allowEisen={allowEisen}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       )}
     </>
@@ -1403,6 +1465,7 @@ interface KanbanBoardProps {
   actionableTime: ActionableTime;
   allowEisen?: Eisen;
   draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function KanbanBoard({
@@ -1414,6 +1477,7 @@ function KanbanBoard({
   allowEisen,
   optimisticUpdates,
   draggedInboxTaskId,
+  inboxTaskTagsByInboxTaskRefId,
 }: KanbanBoardProps) {
   return (
     <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
@@ -1435,6 +1499,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1456,6 +1521,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1477,6 +1543,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1498,6 +1565,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1519,6 +1587,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1540,6 +1609,7 @@ function KanbanBoard({
             showDueDate: true,
           }}
           draggedInboxTaskId={draggedInboxTaskId}
+          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         />
       </Grid>
     </Grid>
@@ -1554,6 +1624,7 @@ interface SmallScreenKanbanByEisenProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
@@ -1651,6 +1722,7 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           actionableTime={props.actionableTime}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
         />
       </TabPanel>
 
@@ -1664,6 +1736,7 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           actionableTime={props.actionableTime}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
         />
       </TabPanel>
 
@@ -1677,6 +1750,7 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           actionableTime={props.actionableTime}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
         />
       </TabPanel>
 
@@ -1690,6 +1764,7 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           actionableTime={props.actionableTime}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
         />
       </TabPanel>
     </>
@@ -1705,6 +1780,7 @@ interface SmallScreenKanbanProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function SmallScreenKanban(props: SmallScreenKanbanProps) {
@@ -1865,6 +1941,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={notStartedTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1892,6 +1969,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={recurringTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1919,6 +1997,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={inProgressTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1946,6 +2025,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={blockedTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1973,6 +2053,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={notDoneTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2000,6 +2081,7 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           inboxTasks={doneTasks}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
+          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2015,6 +2097,7 @@ interface ListProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function List({
@@ -2024,6 +2107,7 @@ function List({
   optimisticUpdates,
   onCardMarkDone,
   onCardMarkNotDone,
+  inboxTaskTagsByInboxTaskRefId,
 }: ListProps) {
   return (
     <>
@@ -2050,6 +2134,7 @@ function List({
         }}
         inboxTasks={inboxTasks}
         moreInfoByRefId={moreInfoByRefId}
+        inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
         optimisticUpdates={optimisticUpdates}
         onCardMarkDone={onCardMarkDone}
         onCardMarkNotDone={onCardMarkNotDone}
@@ -2070,6 +2155,7 @@ interface InboxTasksColumnProps {
   allowEisen?: Eisen;
   showOptions: InboxTaskShowOptions;
   draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 function InboxTasksColumn(props: InboxTasksColumnProps) {
@@ -2189,6 +2275,9 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
                 inboxTasks={filteredInboxTasks}
                 moreInfoByRefId={props.moreInfoByRefId}
                 showOptions={props.showOptions}
+                inboxTaskTagsByInboxTaskRefId={
+                  props.inboxTaskTagsByInboxTaskRefId
+                }
               />
             )}
 
@@ -2225,6 +2314,7 @@ interface InboxTaskColumnTasksProps {
   inboxTasks: Array<InboxTask>;
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   showOptions: InboxTaskShowOptions;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
 }
 
 const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
@@ -2258,6 +2348,10 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
                     showHandleMarkNotDone: false,
                   }}
                   inboxTask={inboxTask}
+                  tags={
+                    props.inboxTaskTagsByInboxTaskRefId.get(inboxTask.ref_id) ??
+                    []
+                  }
                   parent={entry}
                 />
               </div>

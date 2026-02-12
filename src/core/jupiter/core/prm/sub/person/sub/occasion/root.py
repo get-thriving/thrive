@@ -3,8 +3,10 @@
 import abc
 
 from jupiter.core.common.birthday import Birthday
-from jupiter.core.common.sub.notes.domain import NoteDomain
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
@@ -39,8 +41,11 @@ class Occasion(LeafEntity):
     name: OccasionName
     date: Birthday
 
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.OCCASION, source_entity_ref_id=IsRefId()
+    )
     note = OwnsAtMostOne(
-        Note, domain=NoteDomain.OCCASION, source_entity_ref_id=IsRefId()
+        Note, namespace=NoteNamespace.OCCASION, source_entity_ref_id=IsRefId()
     )
 
     birthday_time_event_blocks = OwnsMany(

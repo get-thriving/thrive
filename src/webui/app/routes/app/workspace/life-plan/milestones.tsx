@@ -1,12 +1,12 @@
-import type { MilestoneSummary, ProjectSummary } from "@jupiter/webapi-client";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
+import type { ProjectSummary, Tag } from "@jupiter/webapi-client";
+import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import AddIcon from "@mui/icons-material/Add";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
@@ -25,12 +25,14 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import {
+  FilterManyOptions,
   NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { sortMilestonesNaturally } from "@jupiter/core/life_plan/sub/milestones/root";
 import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -47,12 +49,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
-    include_milestones: true,
+  });
+
+  const response = await apiClient.lifePlan.milestoneFind({
+    allow_archived: false,
+    include_notes: false,
+    include_tags: true,
+  });
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.MILESTONE],
   });
 
   return json({
     allProjects: summaryResponse.projects as ProjectSummary[],
-    allMilestones: summaryResponse.milestones as MilestoneSummary[],
+    entries: response.entries,
+    allTags: allTags.tags,
   });
 }
 
@@ -66,11 +79,27 @@ export default function Milestones() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
   const allProjectsByRefId = new Map(
     loaderData.allProjects.map((project) => [project.ref_id, project]),
   );
 
-  const sortedMilestones = sortMilestonesNaturally(loaderData.allMilestones);
+  const entriesByRefId = new Map(
+    loaderData.entries.map((entry) => [entry.milestone.ref_id, entry]),
+  );
+
+  const sortedMilestones = sortMilestonesNaturally(
+    loaderData.entries.map((e) => e.milestone),
+  ).filter((milestone) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(milestone.ref_id);
+    return entry?.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
 
   return (
     <LeafPanel
@@ -94,6 +123,14 @@ export default function Milestones() {
                   link: `/app/workspace/life-plan/milestones/new`,
                   icon: <AddIcon />,
                 }),
+                FilterManyOptions(
+                  "Tags",
+                  loaderData.allTags.map((tag) => ({
+                    value: tag.ref_id,
+                    text: tag.name,
+                  })),
+                  setSelectedTagsRefId,
+                ),
               ]}
             />
           }
@@ -120,6 +157,11 @@ export default function Milestones() {
                     project={allProjectsByRefId.get(milestone.project_ref_id)!}
                   />
                   <EntityNameComponent name={milestone.name} />
+                  {entriesByRefId
+                    .get(milestone.ref_id)
+                    ?.tags?.map((tag: Tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ))}
                 </EntityLink>
               </EntityCard>
             ))}

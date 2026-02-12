@@ -49,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     return redirect(
-      `/app/workspace/smart-lists/${result.new_smart_list.ref_id}/items`,
+      `/app/workspace/smart-lists/${result.new_smart_list.ref_id}`,
     );
   } catch (error) {
     if (

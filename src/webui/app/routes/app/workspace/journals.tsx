@@ -1,16 +1,17 @@
 import type {
   JournalFindResultEntry,
   JournalStats,
+  Tag,
 } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import TuneIcon from "@mui/icons-material/Tune";
 import { sortJournalsNaturally } from "@jupiter/core/journals/root";
-import { DocsHelpSubject } from "@jupiter/webapi-client";
+import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -23,6 +24,7 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
+  FilterManyOptions,
   SectionActions,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
@@ -42,29 +44,56 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_notes: false,
     include_writing_tasks: false,
     include_journal_stats: true,
+    include_tags: true,
   });
-  return json(response.entries);
+
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.JOURNAL],
+  });
+
+  return json({
+    entries: response.entries,
+    allTags: allTags.tags,
+  });
 }
 
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Journals() {
-  const entries = useLoaderDataSafeForAnimation<typeof loader>();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
-  const sortedJournals = sortJournalsNaturally(entries.map((e) => e.journal));
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const entries = loaderData.entries;
   const entriesByRefId = new Map<string, JournalFindResultEntry>();
   for (const entry of entries) {
     entriesByRefId.set(entry.journal.ref_id, entry);
   }
+  const sortedJournals = sortJournalsNaturally(
+    entries.map((e) => e.journal),
+  ).filter((journal) => {
+    if (selectedTagsRefId.length === 0) {
+      return true;
+    }
+    const entry = entriesByRefId.get(journal.ref_id);
+    return entry?.tags?.some((tag: Tag) =>
+      selectedTagsRefId.includes(tag.ref_id),
+    );
+  });
   const journalStatsByJournalRefId = new Map<string, JournalStats>();
   for (const entry of entries) {
     journalStatsByJournalRefId.set(entry.journal.ref_id, entry.journal_stats!);
+  }
+  const journalTagsByJournalRefId = new Map<string, Array<Tag>>();
+  for (const entry of entries) {
+    journalTagsByJournalRefId.set(entry.journal.ref_id, entry.tags ?? []);
   }
 
   return (
@@ -78,6 +107,14 @@ export default function Journals() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
             NavSingle({
               text: "Settings",
               link: `/app/workspace/journals/settings`,
@@ -104,6 +141,7 @@ export default function Journals() {
           topLevelInfo={topLevelInfo}
           journals={sortedJournals}
           journalStatsByJournalRefId={journalStatsByJournalRefId}
+          journalTagsByJournalRefId={journalTagsByJournalRefId}
         />
       </NestingAwareBlock>
 

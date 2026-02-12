@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.schedule_event_in_day import ScheduleEventInDay
+    from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
@@ -24,11 +25,13 @@ class ScheduleEventInDayLoadResult:
     Attributes:
         schedule_event_in_day (ScheduleEventInDay): An event in a schedule.
         time_event_in_day_block (TimeEventInDayBlock): Time event.
+        tags (list[Tag]):
         note (None | Note | Unset):
     """
 
     schedule_event_in_day: ScheduleEventInDay
     time_event_in_day_block: TimeEventInDayBlock
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -38,6 +41,11 @@ class ScheduleEventInDayLoadResult:
         schedule_event_in_day = self.schedule_event_in_day.to_dict()
 
         time_event_in_day_block = self.time_event_in_day_block.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -53,6 +61,7 @@ class ScheduleEventInDayLoadResult:
             {
                 "schedule_event_in_day": schedule_event_in_day,
                 "time_event_in_day_block": time_event_in_day_block,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -64,12 +73,20 @@ class ScheduleEventInDayLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.note import Note
         from ..models.schedule_event_in_day import ScheduleEventInDay
+        from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         schedule_event_in_day = ScheduleEventInDay.from_dict(d.pop("schedule_event_in_day"))
 
         time_event_in_day_block = TimeEventInDayBlock.from_dict(d.pop("time_event_in_day_block"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -91,6 +108,7 @@ class ScheduleEventInDayLoadResult:
         schedule_event_in_day_load_result = cls(
             schedule_event_in_day=schedule_event_in_day,
             time_event_in_day_block=time_event_in_day_block,
+            tags=tags,
             note=note,
         )
 

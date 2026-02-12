@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.doc import Doc
     from ..models.note import Note
+    from ..models.tag import Tag
 
 
 T = TypeVar("T", bound="DocFindResultEntry")
@@ -22,11 +23,13 @@ class DocFindResultEntry:
 
     Attributes:
         doc (Doc): A doc in the docbook.
+        tags (list[Tag]):
         note (None | Note | Unset):
         subdocs (list[Doc] | None | Unset):
     """
 
     doc: Doc
+    tags: list[Tag]
     note: None | Note | Unset = UNSET
     subdocs: list[Doc] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -35,6 +38,11 @@ class DocFindResultEntry:
         from ..models.note import Note
 
         doc = self.doc.to_dict()
+
+        tags = []
+        for tags_item_data in self.tags:
+            tags_item = tags_item_data.to_dict()
+            tags.append(tags_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -61,6 +69,7 @@ class DocFindResultEntry:
         field_dict.update(
             {
                 "doc": doc,
+                "tags": tags,
             }
         )
         if note is not UNSET:
@@ -74,9 +83,17 @@ class DocFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.doc import Doc
         from ..models.note import Note
+        from ..models.tag import Tag
 
         d = dict(src_dict)
         doc = Doc.from_dict(d.pop("doc"))
+
+        tags = []
+        _tags = d.pop("tags")
+        for tags_item_data in _tags:
+            tags_item = Tag.from_dict(tags_item_data)
+
+            tags.append(tags_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -119,6 +136,7 @@ class DocFindResultEntry:
 
         doc_find_result_entry = cls(
             doc=doc,
+            tags=tags,
             note=note,
             subdocs=subdocs,
         )

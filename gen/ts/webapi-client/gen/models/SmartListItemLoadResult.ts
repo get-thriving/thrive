@@ -4,13 +4,13 @@
 /* eslint-disable */
 import type { Note } from './Note';
 import type { SmartListItem } from './SmartListItem';
-import type { SmartListTag } from './SmartListTag';
+import type { Tag } from './Tag';
 /**
  * SmartListItemLoadResult.
  */
 export type SmartListItemLoadResult = {
     item: SmartListItem;
-    tags: Array<SmartListTag>;
+    generic_tags: Array<Tag>;
     note?: (Note | null);
 };
 

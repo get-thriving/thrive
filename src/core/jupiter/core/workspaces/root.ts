@@ -113,11 +113,6 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
-      entityTag === NamedEntityTag.SMART_LIST_TAG &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SMART_LISTS)
-    ) {
-      inferredEntityTags.push(entityTag);
-    } else if (
       entityTag === NamedEntityTag.METRIC &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.METRICS)
     ) {

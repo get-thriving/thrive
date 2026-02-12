@@ -1,6 +1,8 @@
 """Use case for archiving a schedule stream."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -57,6 +59,15 @@ class ScheduleStreamArchiveUseCase(
 
             if len(all_user_schedules) == 1:
                 raise InputValidationError("You cannot archive the last user schedule")
+
+        tag_link_archive_service = TagLinkArchiveService()
+        await tag_link_archive_service.archive_for_entity(
+            context.domain_context,
+            uow,
+            TagNamespace.SCHEDULE_STREAM,
+            schedule_stream.ref_id,
+            JupiterArchivalReason.USER,
+        )
 
         await generic_crown_archiver(
             context.domain_context,

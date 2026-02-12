@@ -5,6 +5,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   ProjectSummary,
+  Tag,
   Workspace,
 } from "@jupiter/webapi-client";
 import {
@@ -13,7 +14,8 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
-  NoteDomain,
+  NoteNamespace,
+  TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
   SyncTarget,
@@ -78,6 +80,7 @@ import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/co
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -164,6 +167,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_milestones: true,
   });
 
+  const allTags = await apiClient.tags.tagFind({
+    allow_archived: false,
+    filter_namespace: [TagNamespace.BIG_PLAN],
+  });
+
   try {
     const result = await apiClient.bigPlans.bigPlanLoad({
       ref_id: id,
@@ -190,6 +198,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       goal: result.goal,
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
+      tags: result.tags,
       note: result.note,
       timePlanEntries: timePlanEntries,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -197,6 +206,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -310,7 +320,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       case "create-note": {
         await apiClient.notes.noteCreate({
-          domain: NoteDomain.BIG_PLAN,
+          namespace: NoteNamespace.BIG_PLAN,
           source_entity_ref_id: id,
           content: [],
         });
@@ -466,6 +476,18 @@ export default function BigPlan() {
                 defaultValue={loaderData.bigPlan.name}
               />
               <FieldError actionResult={actionData} fieldName="/name" />
+            </FormControl>
+
+            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags"
+                label={null}
+                allTags={loaderData.allTags}
+                defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
+                inputsEnabled={inputsEnabled}
+                namespace={TagNamespace.BIG_PLAN}
+                sourceEntityRefId={loaderData.bigPlan.ref_id}
+              />
             </FormControl>
             <FormControl sx={{ flexGrow: 1 }}>
               <IsKeySelect

@@ -9,6 +9,7 @@ import {
   PersonOccasionEntry,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
+  Tag,
   TimeEventNamespace,
   Timezone,
   VacationEntry,
@@ -63,6 +64,15 @@ export const MAX_VISIBLE_TIME_EVENT_FULL_DAYS = 3;
 export enum View {
   CALENDAR = "calendar",
   SCHEDULE = "schedule",
+}
+
+function titleWithTags(title: string, tags: Array<Tag>): string {
+  if (!tags || tags.length === 0) {
+    return title;
+  }
+
+  const tagsPart = tags.map((t) => `#${t.name}`).join(" ");
+  return `${title} ${tagsPart}`;
 }
 
 export interface ViewAsProps {
@@ -294,7 +304,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       const fullDaysEntry = props.entry.entry as ScheduleFullDaysEventEntry;
 
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
-        fullDaysEntry.event.name,
+        titleWithTags(fullDaysEntry.event.name, fullDaysEntry.tags),
         12,
         containerWidth - 32, // A hack of sorts
       );
@@ -638,7 +648,7 @@ export function ViewAsCalendarTimeEventInDayCell(
       const clippedName = clipTimeEventInDayNameToWhatFits(
         startTime,
         endTime,
-        scheduleEntry.event.name,
+        titleWithTags(scheduleEntry.event.name, scheduleEntry.tags),
         theme.typography.htmlFontSize,
         containerWidth,
         minutesSinceStartOfDay,
@@ -914,7 +924,10 @@ export function ViewAsScheduleTimeEventFullDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={fullDaysEntry.event.name}
+                name={titleWithTags(
+                  fullDaysEntry.event.name,
+                  fullDaysEntry.tags,
+                )}
                 color={scheduleStreamColorContrastingHex(
                   fullDaysEntry.stream.color,
                 )}
@@ -1045,7 +1058,10 @@ export function ViewAsScheduleTimeEventInDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={scheduleEntry.event.name}
+                name={titleWithTags(
+                  scheduleEntry.event.name,
+                  scheduleEntry.tags,
+                )}
                 color={scheduleStreamColorContrastingHex(
                   scheduleEntry.stream.color,
                 )}

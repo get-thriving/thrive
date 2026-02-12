@@ -1,5 +1,9 @@
-import type { MetricEntry } from "@jupiter/webapi-client";
-import { ApiError, DocsHelpSubject } from "@jupiter/webapi-client";
+import type { MetricEntry, Tag } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  DocsHelpSubject,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
 import { ResponsiveLine } from "@nivo/line";
@@ -9,7 +13,7 @@ import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet, useNavigation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate, compareADate } from "@jupiter/core/common/adate";
@@ -33,8 +37,10 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import {
   NavSingle,
+  FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
+import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -68,9 +74,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived_entries: false,
     });
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.METRIC_ENTRY],
+    });
+
     return json({
       metric: response.metric,
       metricEntries: response.metric_entries,
+      metricEntryTags: response.metric_entry_tags,
+      allTags: allTags.tags,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -131,9 +144,24 @@ export default function Metric() {
   const navigation = useNavigation();
   const inputsEnabled = navigation.state === "idle";
 
-  const sortedEntries = [...loaderData.metricEntries].sort((e1, e2) => {
-    return -compareADate(e1.collection_time, e2.collection_time);
-  });
+  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+
+  const tagsByMetricEntryRefId = new Map<string, Tag[]>();
+  for (const et of loaderData.metricEntryTags) {
+    tagsByMetricEntryRefId.set(et.metric_entry_ref_id, et.tags);
+  }
+
+  const sortedEntries = [...loaderData.metricEntries]
+    .sort((e1, e2) => {
+      return -compareADate(e1.collection_time, e2.collection_time);
+    })
+    .filter((entry) => {
+      if (selectedTagsRefId.length === 0) {
+        return true;
+      }
+      const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
+      return tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    });
 
   return (
     <BranchPanel
@@ -154,6 +182,14 @@ export default function Metric() {
               icon: <TuneIcon />,
               link: `/app/workspace/metrics/${loaderData.metric.ref_id}/details`,
             }),
+            FilterManyOptions(
+              "Tags",
+              loaderData.allTags.map((tag) => ({
+                value: tag.ref_id,
+                text: tag.name,
+              })),
+              setSelectedTagsRefId,
+            ),
           ]}
         />
       }
@@ -185,6 +221,9 @@ export default function Metric() {
                   labelPrefix="Collected"
                   collectionTime={entry.collection_time}
                 />
+                {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map((tag) => (
+                  <TagTag key={tag.ref_id} tag={tag} />
+                ))}
               </EntityLink>
             </EntityCard>
           ))}
