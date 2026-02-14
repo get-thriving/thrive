@@ -1,5 +1,6 @@
 """Exceptions handling for the webapi module."""
 
+from jupiter.core.api_key.root import InvalidAPIKeyError
 from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
@@ -69,6 +70,28 @@ class InvalidLoginCredentialsHandler(
             ],
         }
 
+
+class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
+    """Handle invalid API key errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    def get_detail(self, exception: InvalidAPIKeyError) -> ExceptionDetailT:
+        """Get the detail for the exception."""
+        return {
+            "detail": [
+                {
+                    "loc": [
+                        "body",
+                    ],
+                    "msg": f"{exception}",
+                    "type": "value_error.invalidapikeyerror",
+                },
+            ],
+        }
 
 class ProjectInSignificantUseHandler(
     JupiterExceptionHandler[ProjectInSignificantUseError]

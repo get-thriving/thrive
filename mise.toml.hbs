@@ -18,7 +18,7 @@ ruby = "3.2.10"
 java = "openjdk-17"
 
 [env]
-UV_PROJECT_ENVIRONMENT = "\{{ config_root \}}/.build-cache/venv"
+UV_PROJECT_ENVIRONMENT = "\{{ config_root }}/.build-cache/venv"
 RUBY_CONFIGURE_OPTS = "--with-libyaml-dir=/opt/homebrew/opt/libyaml --with-openssl-dir=/opt/homebrew/opt/openssl@3"
 _.python.venv = { path = ".build-cache/venv", create = true }
 

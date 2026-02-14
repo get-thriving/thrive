@@ -1,5 +1,6 @@
 """An API key."""
 
+from jupiter.core.api_key.api_key_summary import APIKeySummary
 from jupiter.core.api_key.key_secret_hash import KeySecretHash
 from jupiter.core.api_key.key_secret_plain import KeySecretPlain
 from jupiter.core.api_key.name import APIKeyName
@@ -15,6 +16,11 @@ from jupiter.framework.entity import (
 from jupiter.framework.realm.realm import DatabaseRealm, only_in_realm
 from jupiter.framework.secure import secure_class
 from jupiter.framework.update_action import UpdateAction
+
+
+class InvalidAPIKeyError(Exception):
+    """Error raised when the API key is invalid."""
+
 
 
 @entity
@@ -58,4 +64,14 @@ class APIKey(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
+        )
+
+    @property
+    def summary(self) -> APIKeySummary:
+        """Get the summary of the API key."""
+        return APIKeySummary(
+            ref_id=self.ref_id,
+            name=self.name,
+            last_four_digits=self.last_four_digits,
+            archived=self.archived,
         )

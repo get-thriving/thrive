@@ -39,4 +39,3 @@ class APIKeyArchiveUseCase(
             context.domain_context, JupiterArchivalReason.USER
         )
         await uow.get_for(APIKey).save(api_key)
-        await progress_reporter.mark_updated(api_key)

@@ -1,7 +1,7 @@
 """Use case for exchanging an API key for an authentication token."""
 
 from jupiter.core.api_key.api_key_external import APIKeyExternal
-from jupiter.core.api_key.root import APIKey
+from jupiter.core.api_key.root import APIKey, InvalidAPIKeyError
 from jupiter.core.config import (
     JupiterGuestReadonlyContext,
     JupiterGuestReadonlyUseCase,
@@ -15,10 +15,6 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
-
-
-class InvalidAPIKeyError(Exception):
-    """Error raised when the API key is invalid."""
 
 
 @use_case_args
@@ -58,7 +54,7 @@ class APIKeyExchangeUseCase(
             except EntityNotFoundError as err:
                 raise InvalidAPIKeyError("Invalid API key") from err
 
-            if api_key.key_hash.check_against(args.api_key_external.secret):
+            if not api_key.key_hash.check_against(args.api_key_external.secret):
                 raise InvalidAPIKeyError("Invalid API key")
 
             auth_token = self._auth_token_stamper.stamp_for_general_short(
