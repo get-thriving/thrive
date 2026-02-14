@@ -6,16 +6,12 @@ import { getHosting } from "#/core/universe";
 
 export interface GlobalPropertiesServer {
   publicName: string;
+  description: string;
   universe: Universe;
   env: Env;
   instance: Instance;
   version: string;
-  webApiServerUrl: string;
-  webApiProgressReporterUrl: string;
-  webApiUrl: string;
-  docsUrl: string;
   hostedGlobalWebUiUrl: string;
-  pwaStartUrl: string;
   communityUrl: string;
   appsStorageUrl: string;
   macStoreUrl: string;
@@ -23,6 +19,14 @@ export interface GlobalPropertiesServer {
   googlePlayStoreUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
+}
+
+export interface ServicePropertiesServer {
+  webApiServerUrl: string;
+  webApiProgressReporterUrl: string;
+  webApiUrl: string;
+  docsUrl: string;
+  pwaStartUrl: string;
   sessionCookieSecure: boolean;
   sessionCookieSecret: string;
   inboxTasksToAskForGC: number;
@@ -48,6 +52,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
 
   const globalProperties = {
     publicName: process.env.PUBLIC_NAME as string,
+    description: process.env.DESCRIPTION as string,
     universe: process.env.UNIVERSE as Universe,
     env: process.env.ENV as Env,
     instance: process.env.RENDER
@@ -57,12 +62,7 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
         )
       : (process.env.INSTANCE as Instance),
     version: process.env.VERSION as string,
-    webApiUrl: process.env.WEBAPI_URL as string,
-    webApiServerUrl: webApiServerUrl,
-    webApiProgressReporterUrl: webApiProgressReporterUrl,
-    docsUrl: process.env.DOCS_URL as string,
     hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
-    pwaStartUrl: process.env.PWA_START_URL as string,
     communityUrl: process.env.COMMUNITY_URL as string,
     appsStorageUrl: process.env.APPS_STORAGE_URL as string,
     macStoreUrl: process.env.MAC_STORE_URL as string,
@@ -70,24 +70,35 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     googlePlayStoreUrl: process.env.GOOGLE_PLAY_STORE_URL as string,
     termsOfServiceUrl: process.env.TERMS_OF_SERVICE_URL as string,
     privacyPolicyUrl: process.env.PRIVACY_POLICY_URL as string,
-    sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
-    sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
-    inboxTasksToAskForGC: parseInt(
-      process.env.INBOX_TASKS_TO_ASK_FOR_GC as string,
-      10,
-    ),
-    overdueInfoDays: parseInt(process.env.OVERDUE_INFO_DAYS as string, 10),
-    overdueWarningDays: parseInt(
-      process.env.OVERDUE_WARNING_DAYS as string,
-      10,
-    ),
-    overdueDangerDays: parseInt(process.env.OVERDUE_DANGER_DAYS as string, 10),
+
   };
 
   return globalProperties;
 }
 
+function loadServicePropertiesOnServer(): ServicePropertiesServer {
+  config({ path: `${process.cwd()}/../Config.global` });
+  config({ path: `${process.cwd()}/Config.project` });
+
+  const serviceProperties = {
+    webApiServerUrl: process.env.WEBAPI_SERVER_URL as string,
+    webApiProgressReporterUrl: process.env.WEBAPI_PROGRESS_REPORTER_URL as string,
+    webApiUrl: process.env.WEBAPI_URL as string,
+    docsUrl: process.env.DOCS_URL as string,
+    pwaStartUrl: process.env.PWA_START_URL as string,
+    sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
+    sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
+    inboxTasksToAskForGC: parseInt(process.env.INBOX_TASKS_TO_ASK_FOR_GC as string, 10),
+    overdueInfoDays: parseInt(process.env.OVERDUE_INFO_DAYS as string, 10),
+    overdueWarningDays: parseInt(process.env.OVERDUE_WARNING_DAYS as string, 10),
+    overdueDangerDays: parseInt(process.env.OVERDUE_DANGER_DAYS as string, 10),
+  };
+
+  return serviceProperties;
+}
+
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
+export const SERVICE_PROPERTIES = loadServicePropertiesOnServer();
 
 // A hack!
 console.log("=".repeat(80));

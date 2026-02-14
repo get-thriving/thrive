@@ -59,6 +59,7 @@ from jupiter.framework.progress_reporter.reporters.noop import (
     NoOpProgressReporterFactory,
 )
 from jupiter.framework.realm.realm import RealmCodecRegistry, RealmDecodingError
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.storage.connection import ConnectionPrepareError
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
@@ -83,14 +84,15 @@ from rich.panel import Panel
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _ComponentPropertiesT = TypeVar("_ComponentPropertiesT", bound=ComponentProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 _CliAppFormT = TypeVar("_CliAppFormT", bound="CliAppForm[Any, Any, Any]")  # type: ignore
 
 
 class CliAppForm(
-    AppForm[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
-    Generic[_PortsT, _GlobalPropertiesT, _ComponentPropertiesT],
+    AppForm[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
+    Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _ComponentPropertiesT],
 ):
     """A CLI application form."""
 
@@ -121,13 +123,14 @@ class CliAppForm(
         Command,
     ]
     _exception_handlers: dict[
-        type[Exception], CliExceptionHandler[GlobalProperties, Any]
+        type[Exception], CliExceptionHandler[GlobalProperties, ServiceProperties, Any]
     ]
 
     def __init__(
         self,
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationInvocationRecorder,
@@ -141,7 +144,7 @@ class CliAppForm(
         logged_in_readonly_command_ctor: type[LoggedInReadonlyCommand],  # type: ignore[type-arg]
     ) -> None:
         """Constructor."""
-        super().__init__(ports, global_properties)
+        super().__init__(ports, global_properties, service_properties)
         self._time_provider = time_provider
         self._realm_codec_registry = realm_codec_registry
         self._invocation_recorder = invocation_recorder
@@ -162,6 +165,7 @@ class CliAppForm(
         cls: type[_CliAppFormT],
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
         time_provider: TimeProvider,
         realm_codec_registry: RealmCodecRegistry,
         invocation_recorder: MutationInvocationRecorder,
@@ -204,6 +208,7 @@ class CliAppForm(
                 type[
                     UseCaseCommand[
                         GlobalProperties,
+                        ServiceProperties,
                         UseCase[
                             Ports,
                             GlobalProperties,
@@ -313,7 +318,10 @@ class CliAppForm(
             the_module: types.ModuleType,
         ) -> Iterator[
             tuple[
-                type[Exception], type[CliExceptionHandler[GlobalProperties, Exception]]
+                type[Exception],
+                type[
+                    CliExceptionHandler[GlobalProperties, ServiceProperties, Exception]
+                ],
             ]
         ]:
             for _name, obj in the_module.__dict__.items():
@@ -345,6 +353,7 @@ class CliAppForm(
         cli_app = cls(
             ports=ports,
             global_properties=global_properties,
+            service_properties=service_properties,
             time_provider=time_provider,
             realm_codec_registry=realm_codec_registry,
             invocation_recorder=invocation_recorder,
@@ -415,7 +424,9 @@ class CliAppForm(
 
     def _add_use_case_command(
         self,
-        use_case_command_type: type[UseCaseCommand[GlobalProperties, _UseCaseT]],
+        use_case_command_type: type[
+            UseCaseCommand[GlobalProperties, ServiceProperties, _UseCaseT]
+        ],
         use_case_type: type[
             UseCase[
                 Ports,
@@ -435,6 +446,7 @@ class CliAppForm(
         if issubclass(use_case_type, GuestMutationUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(  # type: ignore
@@ -450,6 +462,7 @@ class CliAppForm(
         elif issubclass(use_case_type, GuestReadonlyUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(  # type: ignore
@@ -463,6 +476,7 @@ class CliAppForm(
         elif issubclass(use_case_type, LoggedInMutationUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(  # type: ignore
@@ -478,6 +492,7 @@ class CliAppForm(
         elif issubclass(use_case_type, LoggedInReadonlyUseCase):
             self._use_case_commands[use_case_type] = use_case_command_type(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(  # type: ignore
@@ -518,6 +533,7 @@ class CliAppForm(
         if issubclass(use_case_type, GuestMutationUseCase):
             self._use_case_commands[use_case_type] = self._guest_mutation_command_ctor(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(
@@ -533,6 +549,7 @@ class CliAppForm(
         elif issubclass(use_case_type, GuestReadonlyUseCase):
             self._use_case_commands[use_case_type] = self._guest_readoly_command_ctor(
                 global_properties=self._global_properties,
+                service_properties=self._service_properties,
                 realm_codec_registry=self._realm_codec_registry,
                 session_storage=self._session_storage,
                 use_case=use_case_type(
@@ -547,6 +564,7 @@ class CliAppForm(
             self._use_case_commands[use_case_type] = (
                 self._logged_in_mutation_command_ctor(
                     global_properties=self._global_properties,
+                    service_properties=self._service_properties,
                     realm_codec_registry=self._realm_codec_registry,
                     session_storage=self._session_storage,
                     use_case=use_case_type(
@@ -564,6 +582,7 @@ class CliAppForm(
             self._use_case_commands[use_case_type] = (
                 self._logged_in_readonly_command_ctor(
                     global_properties=self._global_properties,
+                    service_properties=self._service_properties,
                     realm_codec_registry=self._realm_codec_registry,
                     session_storage=self._session_storage,
                     use_case=use_case_type(
@@ -582,14 +601,17 @@ class CliAppForm(
     def _add_exception_handler(
         self,
         exception_type: type[_ExceptionT],
-        exception_handler: type[CliExceptionHandler[GlobalProperties, _ExceptionT]],
-    ) -> CliExceptionHandler[GlobalProperties, _ExceptionT]:
+        exception_handler: type[
+            CliExceptionHandler[GlobalProperties, ServiceProperties, _ExceptionT]
+        ],
+    ) -> CliExceptionHandler[GlobalProperties, ServiceProperties, _ExceptionT]:
         if exception_type in self._exception_handlers:
             raise Exception(
                 f"Exception type {exception_type} already has an exception handler"
             )
         self._exception_handlers[exception_type] = exception_handler(
-            self._global_properties
+            self._global_properties,
+            self._service_properties,
         )
         return self._exception_handlers[exception_type]
 

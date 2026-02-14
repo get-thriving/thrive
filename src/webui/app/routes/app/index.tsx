@@ -9,12 +9,12 @@ import { StandaloneContainer } from "@jupiter/core/infra/component/layout/standa
 import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Title } from "@jupiter/core/infra/component/title";
-import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { ServicePropertiesContext } from "@jupiter/core/config-client";
 
 export const shouldRevalidate: ShouldRevalidateFunction = () => false;
 
 export default function Index() {
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   return (
     <StandaloneContainer>
@@ -39,7 +39,7 @@ export default function Index() {
 
           <Button
             variant="outlined"
-            href={globalProperties.docsUrl}
+            href={serviceProperties.docsUrl}
             component={"a"}
           >
             Go To The Docs

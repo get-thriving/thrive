@@ -89,7 +89,8 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
 
-  const showArchiveButNotRemove = props.showArchiveButton && !props.showArchiveAndRemoveButton;
+  const showArchiveButNotRemove =
+    props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
   const handleScroll = useCallback(
     (ref: HTMLDivElement, pathname: string) => {

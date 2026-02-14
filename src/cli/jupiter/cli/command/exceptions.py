@@ -46,7 +46,7 @@ class InvalidLoginCredentialsHandler(
         print(" * Run 'init' to create a user and workspace!")
         print(" * Run 'reset-password' to reset your password!")
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(1)
 
@@ -126,7 +126,7 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
             "The user you're trying to operate as does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(2)
 
@@ -140,6 +140,6 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
             "The workspace you're trying to operate in does't seem to exist! Please run `init` to create a user and workspace."
         )
         print(
-            f"For more information checkout: {self._global_properties.docs_init_workspace_url}",
+            f"For more information checkout: {self._service_properties.docs_init_workspace_url}",
         )
         sys.exit(2)

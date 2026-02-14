@@ -39,7 +39,10 @@ import { Logo } from "@jupiter/core/infra/component/logo";
 import { Password } from "@jupiter/core/auth/component/password";
 import { TimezoneSelect } from "@jupiter/core/common/component/timezone-select";
 import { Title } from "@jupiter/core/infra/component/title";
-import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import {
+  GlobalPropertiesContext,
+  ServicePropertiesContext,
+} from "@jupiter/core/config-client";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import {
@@ -149,6 +152,7 @@ export default function WorkspaceInit() {
   const inputsEnabled = navigation.state === "idle";
 
   const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   return (
     <StandaloneContainer>
@@ -193,7 +197,7 @@ export default function WorkspaceInit() {
                       text: "Pick Server",
                       link: "/app/pick-server/desktop",
                       disabled:
-                        globalProperties.frontDoorInfo.appShell !==
+                        serviceProperties.frontDoorInfo.appShell !==
                         AppShell.DESKTOP_ELECTRON,
                     }),
                   ],
@@ -358,7 +362,9 @@ export default function WorkspaceInit() {
                 inputsEnabled={inputsEnabled}
                 featureFlagsControls={loaderData.userFeatureFlagControls}
                 defaultFeatureFlags={loaderData.defaultUserFeatureFlags}
-                hosting={getHosting(globalProperties.universe)}
+                hosting={getHosting(
+                  serviceProperties.frontDoorInfo.appPlatform,
+                )}
               />
               <WorkspaceFeatureFlagsEditor
                 name="workspaceFeatureFlags"

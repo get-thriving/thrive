@@ -1,8 +1,12 @@
 """Configuration for the WebAPI app."""
 
 import abc
-from typing import Final, Generic, TypeVar, Union
+import os
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Final, Generic, TypeVar, Union, cast
 
+import dotenv
 from fastapi import HTTPException, Request, Response
 from jupiter.core.app import (
     AppCore,
@@ -45,6 +49,7 @@ from jupiter.framework.auth.auth_token_ext import (
 from jupiter.framework.realm.standard import (
     _StandardEnumValueDatabaseDecoder,
 )
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.use_case_io import UseCaseResultBase
 from starlette.status import HTTP_401_UNAUTHORIZED
 
@@ -70,10 +75,87 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
+@dataclass(frozen=True)
+class JupiterWebApiProperties(ServiceProperties):
+    """Properties of the Jupiter Web API."""
+
+    host: str
+    port: int
+    docs_init_workspace_url: str
+    session_info_path: Path
+    sqlite_db_url: str
+    alembic_ini_path: Path
+    alembic_migrations_path: Path
+    auth_token_secret: str
+    sentry_dsn: str
+    wix_api_key: str
+    wix_account_id: str
+    wix_site_id: str
+
+    @property
+    def sync_sqlite_db_url(self) -> str:
+        """A safe sync version of the Sqlite DB url."""
+        # Bit of implicit knowledge here.
+        return self.sqlite_db_url.replace("sqlite+aiosqlite", "sqlite+pysqlite")
+
+
+def build_web_api_properties() -> JupiterWebApiProperties:
+    """Build the web api properties from the environment."""
+
+    def find_up_the_dir_tree(partial_path: Union[str, Path]) -> Path:
+        last_here = None
+        right_here = Path(os.path.relpath(__file__)).parent
+        while True:
+            if last_here == right_here:
+                raise Exception(f"Critical error - missing config file {partial_path}")
+            config_file = right_here / partial_path
+            if config_file.exists():
+                return config_file
+            last_here = right_here
+            right_here = right_here.parent
+
+    service_config_path = find_up_the_dir_tree("Config.project")
+    dotenv.load_dotenv(dotenv_path=service_config_path, verbose=True)
+
+    host = cast(str, os.getenv("HOST"))
+    port = int(cast(str, os.getenv("PORT")))
+    docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
+    session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
+    sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
+    alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
+    alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
+    auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
+    sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
+    wix_api_key = cast(str, os.getenv("WIX_API_KEY"))
+    wix_account_id = cast(str, os.getenv("WIX_ACCOUNT_ID"))
+    wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
+
+    if not alembic_ini_path.is_absolute():
+        alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
+    if not alembic_migrations_path.is_absolute():
+        alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
+
+    return JupiterWebApiProperties(
+        host=host,
+        port=port,
+        docs_init_workspace_url=docs_init_workspace_url,
+        session_info_path=session_info_path,
+        sentry_dsn=sentry_dsn,
+        sqlite_db_url=sqlite_db_url,
+        alembic_ini_path=alembic_ini_path,
+        alembic_migrations_path=alembic_migrations_path,
+        auth_token_secret=auth_token_secret,
+        wix_api_key=wix_api_key,
+        wix_account_id=wix_account_id,
+        wix_site_id=wix_site_id,
+    )
+
+
 class JupiterGuestMutationCommand(
     GuestMutationCommand[
         _JupiterGuestMutationUseCaseT,
         JupiterGlobalProperties,
+        JupiterWebApiProperties,
         JupiterGuestSession,
         JupiterGuestMutationContext,
         _UseCaseResultT,
@@ -98,6 +180,7 @@ class JupiterGuestReadonlyCommand(
     GuestReadonlyCommand[
         _JupiterGuestReadonlyUseCaseT,
         JupiterGlobalProperties,
+        JupiterWebApiProperties,
         JupiterGuestSession,
         JupiterGuestReadonlyContext,
         _UseCaseResultT,
@@ -122,6 +205,7 @@ class JupiterLoggedInMutationCommand(
     LoggedInMutationCommand[
         _JupiterLoggedInMutationUseCaseT,
         JupiterGlobalProperties,
+        JupiterWebApiProperties,
         JupiterLoggedInSession,
         JupiterLoggedInMutationContext,
         _UseCaseResultT,
@@ -152,6 +236,7 @@ class JupiterLoggedInReadonlyCommand(
     LoggedInReadonlyCommand[
         _JupiterLoggedInReadonlyUseCaseT,
         JupiterGlobalProperties,
+        JupiterWebApiProperties,
         JupiterLoggedInSession,
         JupiterLoggedInReadonlyContext,
         _UseCaseResultT,
@@ -179,7 +264,9 @@ class JupiterLoggedInReadonlyCommand(
 
 
 class JupiterExceptionHandler(
-    WebApiExceptionHandler[JupiterGlobalProperties, _ExceptionT],
+    WebApiExceptionHandler[
+        JupiterGlobalProperties, JupiterWebApiProperties, _ExceptionT
+    ],
     abc.ABC,
     Generic[_ExceptionT],
 ):
@@ -187,7 +274,12 @@ class JupiterExceptionHandler(
 
 
 class JupiterWebApiAppForm(
-    WebApiAppForm[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties]
+    WebApiAppForm[
+        JupiterPorts,
+        JupiterGlobalProperties,
+        JupiterWebApiProperties,
+        JupiterComponentProperties,
+    ]
 ):
     """A Jupiter web api app form."""
 
@@ -204,12 +296,12 @@ class JupiterWebApiAppForm(
     @property
     def host(self) -> str:
         """The host of the app."""
-        return self._global_properties.host
+        return self._service_properties.host
 
     @property
     def port(self) -> int:
         """The port of the app."""
-        return self._global_properties.port
+        return self._service_properties.port
 
     @property
     def is_live(self) -> bool:

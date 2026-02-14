@@ -1,9 +1,10 @@
 """The API configuration."""
 
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Union, cast
+
 import dotenv
 from jupiter.framework.service.rest.service import RestService
 from jupiter.framework.service_properties import ServiceProperties
@@ -16,8 +17,10 @@ class JupiterApiProperties(ServiceProperties):
     host: str
     port: int
 
+
 def build_api_properties() -> JupiterApiProperties:
     """Build the API properties from the environment."""
+
     def find_up_the_dir_tree(partial_path: Union[str, Path]) -> Path:
         last_here = None
         right_here = Path(os.path.relpath(__file__)).parent

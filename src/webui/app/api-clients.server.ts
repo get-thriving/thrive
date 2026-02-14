@@ -1,6 +1,9 @@
 import { ApiClient } from "@jupiter/webapi-client";
 import { redirect } from "@remix-run/node";
-import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
+import {
+  GLOBAL_PROPERTIES,
+  SERVICE_PROPERTIES,
+} from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 import { AUTH_TOKEN_NAME, FRONTDOOR_HEADER } from "@jupiter/core/infra/names";
@@ -32,7 +35,7 @@ export async function getGuestApiClient(
     return _API_CLIENTS_BY_SESSION.get(token) as ApiClient;
   }
 
-  const base = GLOBAL_PROPERTIES.webApiServerUrl;
+  const base = SERVICE_PROPERTIES.webApiServerUrl;
 
   const newApiClient = new ApiClient({
     BASE: base,
@@ -71,7 +74,7 @@ export async function getLoggedInApiClient(
     return _API_CLIENTS_BY_SESSION.get(authTokenExtStr) as ApiClient;
   }
 
-  const base = GLOBAL_PROPERTIES.webApiServerUrl;
+  const base = SERVICE_PROPERTIES.webApiServerUrl;
 
   const newApiClient = new ApiClient({
     BASE: base,

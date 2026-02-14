@@ -22,7 +22,6 @@ class InvalidAPIKeyError(Exception):
     """Error raised when the API key is invalid."""
 
 
-
 @entity
 @secure_class
 @only_in_realm(DatabaseRealm)

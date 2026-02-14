@@ -29,11 +29,11 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   useLeafNeedsToShowLeaflet,
   useTrunkNeedsToShowLeaf,
+  DisplayType,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TimezoneSelect } from "@jupiter/core/common/component/timezone-select";
 import { GlobalPropertiesContext } from "@jupiter/core/config-client";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
-import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   ActionSingle,
@@ -171,158 +171,160 @@ export default function Account() {
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
         <ToolPanel>
-        <GlobalError actionResult={actionData} />
+          <GlobalError actionResult={actionData} />
 
-        <SectionCard
-          title="Account"
-          actions={
-            <SectionActions
-              id="account-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <FormControl fullWidth>
-            <InputLabel id="emailAddress">Your Email Address</InputLabel>
-            <OutlinedInput
-              type="email"
-              autoComplete="email"
-              label="Your Email Address"
-              name="emailAddress"
-              disabled={true}
-              defaultValue={loaderData.user.email_address ?? ""}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <TextField
-              name="name"
-              label="Your Name"
-              defaultValue={loaderData.user.name ?? ""}
-              disabled={!inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
-          <FormControl fullWidth>
-            <TimezoneSelect
-              id="timezone"
-              name="timezone"
-              inputsEnabled={inputsEnabled}
-              initialValue={loaderData.user.timezone ?? ""}
-            />
-
-            <FieldError actionResult={actionData} fieldName="/timezone" />
-          </FormControl>
-        </SectionCard>
-
-        <SectionCard
-          title="Feature Flags"
-          actions={
-            <SectionActions
-              id="feature-flags-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Change Feature Flags",
-                  value: "change-feature-flags",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <GlobalError
-            intent="change-feature-flags"
-            actionResult={actionData}
-          />
-          <UserFeatureFlagsEditor
-            name="featureFlags"
-            inputsEnabled={inputsEnabled}
-            featureFlagsControls={topLevelInfo.userFeatureFlagControls}
-            defaultFeatureFlags={loaderData.user.feature_flags}
-            hosting={getHosting(globalProperties.universe)}
-          />
-        </SectionCard>
-
-        <SectionCard
-          title="API Keys"
-          actions={
-            <SectionActions
-              id="api-keys-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                NavSingle({
-                  text: "Add",
-                  link: "/app/workspace/account/api-key/new",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <EntityStack>
-            {loaderData.apiKeys.map((apiKey) => (
-              <EntityCard
-                entityId={`api-key-${apiKey.ref_id}`}
-                key={`api-key-${apiKey.ref_id}`}
-              >
-                <EntityLink to={`/app/workspace/account/api-key/${apiKey.ref_id}`}>
-                  <ApiKeyView apiKey={apiKey} />
-                </EntityLink>
-              </EntityCard>
-            ))}
-          </EntityStack>
-        </SectionCard>
-
-        <SectionCard title="Dangerous">
-          <GlobalError intent="close-account" actionResult={actionData} />
-          <Dialog
-            onClose={() => setShowCloseAccountDialog(false)}
-            open={showCloseAccountDialog}
-            disablePortal
+          <SectionCard
+            title="Account"
+            actions={
+              <SectionActions
+                id="account-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                  }),
+                ]}
+              />
+            }
           >
-            <DialogTitle>Are You Sure?</DialogTitle>
-            <DialogContent>
-              <Typography variant="body1">
-                Are you sure you want to close your account? This action is
-                irreversible.
-              </Typography>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                id="close-account"
-                variant="contained"
+            <FormControl fullWidth>
+              <InputLabel id="emailAddress">Your Email Address</InputLabel>
+              <OutlinedInput
+                type="email"
+                autoComplete="email"
+                label="Your Email Address"
+                name="emailAddress"
+                disabled={true}
+                defaultValue={loaderData.user.email_address ?? ""}
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <TextField
+                name="name"
+                label="Your Name"
+                defaultValue={loaderData.user.name ?? ""}
                 disabled={!inputsEnabled}
-                type="submit"
-                name="intent"
-                value="close-account"
-                color="error"
-              >
-                Close Account
-              </Button>
-            </DialogActions>
-          </Dialog>
+              />
+              <FieldError actionResult={actionData} fieldName="/name" />
+            </FormControl>
+            <FormControl fullWidth>
+              <TimezoneSelect
+                id="timezone"
+                name="timezone"
+                inputsEnabled={inputsEnabled}
+                initialValue={loaderData.user.timezone ?? ""}
+              />
 
-          <Button
-            id="close-account-initialize"
-            variant="contained"
-            disabled={!inputsEnabled}
-            onClick={() => setShowCloseAccountDialog(true)}
-            color="error"
+              <FieldError actionResult={actionData} fieldName="/timezone" />
+            </FormControl>
+          </SectionCard>
+
+          <SectionCard
+            title="Feature Flags"
+            actions={
+              <SectionActions
+                id="feature-flags-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Change Feature Flags",
+                    value: "change-feature-flags",
+                    highlight: true,
+                  }),
+                ]}
+              />
+            }
           >
-            Close Account
-          </Button>
-        </SectionCard>
+            <GlobalError
+              intent="change-feature-flags"
+              actionResult={actionData}
+            />
+            <UserFeatureFlagsEditor
+              name="featureFlags"
+              inputsEnabled={inputsEnabled}
+              featureFlagsControls={topLevelInfo.userFeatureFlagControls}
+              defaultFeatureFlags={loaderData.user.feature_flags}
+              hosting={getHosting(globalProperties.universe)}
+            />
+          </SectionCard>
+
+          <SectionCard
+            title="API Keys"
+            actions={
+              <SectionActions
+                id="api-keys-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "Add",
+                    link: "/app/workspace/account/api-key/new",
+                    highlight: true,
+                  }),
+                ]}
+              />
+            }
+          >
+            <EntityStack>
+              {loaderData.apiKeys.map((apiKey) => (
+                <EntityCard
+                  entityId={`api-key-${apiKey.ref_id}`}
+                  key={`api-key-${apiKey.ref_id}`}
+                >
+                  <EntityLink
+                    to={`/app/workspace/account/api-key/${apiKey.ref_id}`}
+                  >
+                    <ApiKeyView apiKey={apiKey} />
+                  </EntityLink>
+                </EntityCard>
+              ))}
+            </EntityStack>
+          </SectionCard>
+
+          <SectionCard title="Dangerous">
+            <GlobalError intent="close-account" actionResult={actionData} />
+            <Dialog
+              onClose={() => setShowCloseAccountDialog(false)}
+              open={showCloseAccountDialog}
+              disablePortal
+            >
+              <DialogTitle>Are You Sure?</DialogTitle>
+              <DialogContent>
+                <Typography variant="body1">
+                  Are you sure you want to close your account? This action is
+                  irreversible.
+                </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Button
+                  id="close-account"
+                  variant="contained"
+                  disabled={!inputsEnabled}
+                  type="submit"
+                  name="intent"
+                  value="close-account"
+                  color="error"
+                >
+                  Close Account
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            <Button
+              id="close-account-initialize"
+              variant="contained"
+              disabled={!inputsEnabled}
+              onClick={() => setShowCloseAccountDialog(true)}
+              color="error"
+            >
+              Close Account
+            </Button>
+          </SectionCard>
         </ToolPanel>
       </NestingAwareBlock>
 

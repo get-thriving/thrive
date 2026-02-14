@@ -3,19 +3,27 @@
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
+from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.service_properties import ServiceProperties
 
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 
 
-class Service(ABC, Generic[_ServicePropertiesT]):
+class Service(ABC, Generic[_GlobalPropertiesT, _ServicePropertiesT]):
     """A service at the framework level."""
 
-    _properties: _ServicePropertiesT
+    _global_properties: _GlobalPropertiesT
+    _service_properties: _ServicePropertiesT
 
-    def __init__(self, properties: _ServicePropertiesT) -> None:
+    def __init__(
+        self,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+    ) -> None:
         """Initialize the service."""
-        self._properties = properties
+        self._global_properties = global_properties
+        self._service_properties = service_properties
 
     @abstractmethod
     async def run(self) -> None:

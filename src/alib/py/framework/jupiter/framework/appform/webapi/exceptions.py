@@ -17,6 +17,7 @@ from jupiter.framework.global_properties import (
     UnavailableGloballyError,
 )
 from jupiter.framework.realm.realm import RealmDecodingError
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.storage.repository import (
     EntityAlreadyExistsError,
     EntityNotFoundError,
@@ -26,7 +27,9 @@ from starlette import status
 
 
 class UnavailableGloballyHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableGloballyError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableGloballyError
+    ]
 ):
     """Handle unavailable globally errors."""
 
@@ -44,7 +47,9 @@ class UnavailableGloballyHandler(
 
 
 class UnavailableForComponentHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableForComponentError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableForComponentError
+    ]
 ):
     """Handle unavailable for component errors."""
 
@@ -62,7 +67,9 @@ class UnavailableForComponentHandler(
 
 
 class UnavailableForContextHandler(
-    WebApiExceptionHandler[GlobalProperties, UnavailableForContextError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, UnavailableForContextError
+    ]
 ):
     """Handle unavailable for context errors."""
 
@@ -80,7 +87,7 @@ class UnavailableForContextHandler(
 
 
 class EntityNotFoundHandler(
-    WebApiExceptionHandler[GlobalProperties, EntityNotFoundError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, EntityNotFoundError]
 ):
     """Handle entity not found errors."""
 
@@ -98,7 +105,9 @@ class EntityNotFoundHandler(
 
 
 class EntityAlreadyExistsHandler(
-    WebApiExceptionHandler[GlobalProperties, EntityAlreadyExistsError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, EntityAlreadyExistsError
+    ]
 ):
     """Handle entity already exists errors."""
 
@@ -116,7 +125,7 @@ class EntityAlreadyExistsHandler(
 
 
 class ExpiredAuthTokenHandler(
-    WebApiExceptionHandler[GlobalProperties, ExpiredAuthTokenError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, ExpiredAuthTokenError]
 ):
     """Handle expired auth token errors."""
 
@@ -134,7 +143,7 @@ class ExpiredAuthTokenHandler(
 
 
 class InvalidAuthTokenHandler(
-    WebApiExceptionHandler[GlobalProperties, InvalidAuthTokenError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, InvalidAuthTokenError]
 ):
     """Handle invalid auth token errors."""
 
@@ -152,7 +161,7 @@ class InvalidAuthTokenHandler(
 
 
 class RealmDecodingHandler(
-    WebApiExceptionHandler[GlobalProperties, RealmDecodingError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, RealmDecodingError]
 ):
     """Handle realm decoding errors."""
 
@@ -176,7 +185,7 @@ class RealmDecodingHandler(
 
 
 class InputValidationHandler(
-    WebApiExceptionHandler[GlobalProperties, InputValidationError]
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, InputValidationError]
 ):
     """Handle input validation errors."""
 
@@ -201,7 +210,9 @@ class InputValidationHandler(
 
 
 class MultiInputValidationHandler(
-    WebApiExceptionHandler[GlobalProperties, MultiInputValidationError]
+    WebApiExceptionHandler[
+        GlobalProperties, ServiceProperties, MultiInputValidationError
+    ]
 ):
     """Handle input validation errors."""
 
@@ -227,7 +238,9 @@ class MultiInputValidationHandler(
         }
 
 
-class JSONDecodeHandler(WebApiExceptionHandler[GlobalProperties, JSONDecodeError]):
+class JSONDecodeHandler(
+    WebApiExceptionHandler[GlobalProperties, ServiceProperties, JSONDecodeError]
+):
     """Handle JSON decode errors."""
 
     @staticmethod

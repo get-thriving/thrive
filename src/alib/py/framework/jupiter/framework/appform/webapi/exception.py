@@ -6,8 +6,10 @@ from typing import Generic, Sequence, TypeVar
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.service_properties import ServiceProperties
 
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
@@ -21,17 +23,24 @@ ExceptionDetailT = dict[
 ]
 
 
-class WebApiExceptionHandler(abc.ABC, Generic[_GlobalPropertiesT, _ExceptionT]):
+class WebApiExceptionHandler(
+    abc.ABC, Generic[_GlobalPropertiesT, _ServicePropertiesT, _ExceptionT]
+):
     """An exception handler for the web."""
 
     _global_properties: _GlobalPropertiesT
+    _service_properties: _ServicePropertiesT
     _exception_type: type[_ExceptionT]
 
     def __init__(
-        self, global_properties: _GlobalPropertiesT, exception_type: type[_ExceptionT]
+        self,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+        exception_type: type[_ExceptionT],
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
+        self._service_properties = service_properties
         self._exception_type = exception_type
 
     @staticmethod

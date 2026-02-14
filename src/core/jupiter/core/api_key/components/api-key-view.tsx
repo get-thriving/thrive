@@ -10,10 +10,10 @@ export function ApiKeyView(props: ApiKeyViewProps) {
   const { apiKey } = props;
   return (
     <>
-    <Typography variant="body1">{apiKey.name}</Typography>
-    <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
-      ****{apiKey.last_four_digits}
-    </Typography>
+      <Typography variant="body1">{apiKey.name}</Typography>
+      <Typography variant="body1" sx={{ fontFamily: "monospace" }}>
+        ****{apiKey.last_four_digits}
+      </Typography>
     </>
   );
 }

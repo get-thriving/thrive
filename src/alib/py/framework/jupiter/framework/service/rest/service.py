@@ -1,24 +1,35 @@
 """A REST service at the framework level."""
 
 from abc import ABC, abstractmethod
-from typing import Final, Generic, TypeVar
-from fastapi import FastAPI, HTTPException, Response, status
+from typing import Any, Final, Generic, TypeVar
+
+import uvicorn
+from fastapi import FastAPI, Response
 from fastapi.routing import APIRoute
+from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
-import uvicorn
 
-
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 
-class RestService(Service[_ServicePropertiesT], ABC, Generic[_ServicePropertiesT]):
+
+class RestService(
+    Service[_GlobalPropertiesT, _ServicePropertiesT],
+    ABC,
+    Generic[_GlobalPropertiesT, _ServicePropertiesT],
+):
     """A REST service at the framework level."""
 
     _fast_app: Final[FastAPI]
 
-    def __init__(self, properties: _ServicePropertiesT) -> None:
+    def __init__(
+        self,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+    ) -> None:
         """Initialize the service."""
-        super().__init__(properties)
+        super().__init__(global_properties, service_properties)
         self._fast_app = FastAPI(
             title=self.description,
             version=self.version,

@@ -37,13 +37,14 @@ from jupiter.framework.time_provider import (
     CronRunTimeProvider,
     PerRequestTimeProvider,
 )
-from jupiter.webapi.config import JupiterWebApiAppForm
+from jupiter.webapi.config import JupiterWebApiAppForm, build_web_api_properties
 from rich import print as rich_print
 
 
 async def main() -> None:
     """Application main function."""
     global_properties = build_global_properties()
+    service_properties = build_web_api_properties()
 
     telemetry: Telemetry
 
@@ -51,7 +52,7 @@ async def main() -> None:
         global_properties.env.is_live
         and global_properties.universe.hosting.is_hosted_global
     ):
-        telemetry = SentryTelemetry(global_properties.sentry_dsn)
+        telemetry = SentryTelemetry(service_properties.sentry_dsn)
     else:
         telemetry = LocalTelemetry()
 
@@ -60,17 +61,15 @@ async def main() -> None:
     request_time_provider = PerRequestTimeProvider()
     cron_run_time_provider = CronRunTimeProvider()
 
-    no_timezone_global_properties = build_global_properties()
-
     realm_codec_registry = ModuleExplorerRealmCodecRegistry.build_from_module_root(
         jupiter.core
     )
 
     sqlite_connection = SqliteConnection(
         SqliteConnection.Config(
-            no_timezone_global_properties.sqlite_db_url,
-            no_timezone_global_properties.alembic_ini_path,
-            no_timezone_global_properties.alembic_migrations_path,
+            service_properties.sqlite_db_url,
+            service_properties.alembic_ini_path,
+            service_properties.alembic_migrations_path,
         ),
     )
 
@@ -92,16 +91,16 @@ async def main() -> None:
         and global_properties.universe.hosting.is_hosted_global
     ):
         crm = WixCRM(
-            api_key=global_properties.wix_api_key,
-            account_id=global_properties.wix_account_id,
-            site_id=global_properties.wix_site_id,
+            api_key=service_properties.wix_api_key,
+            account_id=service_properties.wix_account_id,
+            site_id=service_properties.wix_site_id,
             session=aio_session,
         )
     else:
         crm = NoOpCRM()
 
     auth_token_stamper = AuthTokenStamper(
-        auth_token_secret=global_properties.auth_token_secret,
+        auth_token_secret=service_properties.auth_token_secret,
         time_provider=request_time_provider,
     )
 
@@ -120,6 +119,7 @@ async def main() -> None:
     web_app_form = JupiterWebApiAppForm.build_from_module_root(
         ports,
         global_properties,
+        service_properties,
         request_time_provider,
         cron_run_time_provider,
         realm_codec_registry,

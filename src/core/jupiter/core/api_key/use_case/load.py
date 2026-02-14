@@ -48,6 +48,4 @@ class APIKeyLoadUseCase(
         )
         if api_key.user.ref_id != context.user.ref_id:
             raise EntityNotFoundError("API key not found")
-        return APIKeyLoadResult(
-            api_key=api_key.summary
-        )
+        return APIKeyLoadResult(api_key=api_key.summary)

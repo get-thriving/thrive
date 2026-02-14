@@ -120,7 +120,11 @@ class UseCase(
     _ports: _PortsT
     _global_properties: _GlobalPropertiesT
 
-    def __init__(self, ports: _PortsT, global_properties: _GlobalPropertiesT) -> None:
+    def __init__(
+        self,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+    ) -> None:
         """Create the use case."""
         self._ports = ports
         self._global_properties = global_properties

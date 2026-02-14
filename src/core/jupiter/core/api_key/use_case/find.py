@@ -46,8 +46,4 @@ class APIKeyFindUseCase(
             parent_ref_id=user.ref_id,
             allow_archived=args.allow_archived,
         )
-        api_keys = [
-            ak.summary
-            for ak in api_keys
-        ]
-        return APIKeyFindResult(api_keys=api_keys)
+        return APIKeyFindResult(api_keys=[ak.summary for ak in api_keys])

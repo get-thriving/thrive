@@ -1,5 +1,10 @@
 import { ApiError } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Typography } from "@mui/material";
+import {
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -18,8 +23,8 @@ import {
   ButtonSingle,
   NavSingle,
   SectionActions,
+  ActionsExpansion,
 } from "@jupiter/core/infra/component/section-actions";
-import { ActionsExpansion } from "@jupiter/core/infra/component/section-actions";
 import {
   noErrorSomeData,
   validationErrorToUIErrorInfo,
@@ -47,9 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const result = await apiClient.apiKey.aPiKeyCreate({ name: form.name });
-    return json(
-      noErrorSomeData({ created: true, apiKey: result.api_key }),
-    );
+    return json(noErrorSomeData({ created: true, apiKey: result.api_key }));
   } catch (error) {
     if (
       error instanceof ApiError &&
@@ -94,55 +97,55 @@ export default function NewApiKey() {
     >
       <SectionCard
         title="New API Key"
-      actions={
-        <SectionActions
-          id="api-key-create"
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={inputsEnabled}
-          expansion={created ? ActionsExpansion.ALWAYS_SHOW : undefined}
-          actions={
-            created
-              ? [
-                  ButtonSingle({
-                    text: hasCopied ? "Copied" : "Copy",
-                    onClick: copyToClipboard,
-                    disabled: hasCopied,
-                    highlight: true,
-                  }),
-                  NavSingle({
-                    text: "Close",
-                    link: "/app/workspace/account",
-                  }),
-                ]
-              : [
-                  ActionSingle({
-                    text: "Create",
-                    value: "create",
-                    highlight: true,
-                  }),
-                ]
-          }
-        />
-      }
-    >
-      <GlobalError actionResult={actionData} />
+        actions={
+          <SectionActions
+            id="api-key-create"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            expansion={created ? ActionsExpansion.ALWAYS_SHOW : undefined}
+            actions={
+              created
+                ? [
+                    ButtonSingle({
+                      text: hasCopied ? "Copied" : "Copy",
+                      onClick: copyToClipboard,
+                      disabled: hasCopied,
+                      highlight: true,
+                    }),
+                    NavSingle({
+                      text: "Close",
+                      link: "/app/workspace/account",
+                    }),
+                  ]
+                : [
+                    ActionSingle({
+                      text: "Create",
+                      value: "create",
+                      highlight: true,
+                    }),
+                  ]
+            }
+          />
+        }
+      >
+        <GlobalError actionResult={actionData} />
 
-      {!created ? (
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
-      ) : apiKey ? (
-        <>
-          <Typography variant="body1">
-            This is your new API key. <em>Store it in a safe place!</em> You
-            won&apos;t be able to see it again.
-          </Typography>
-          <ApiKeyBox variant="body2">{apiKey}</ApiKeyBox>
-        </>
-      ) : null}
-    </SectionCard>
+        {!created ? (
+          <FormControl fullWidth>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+        ) : apiKey ? (
+          <>
+            <Typography variant="body1">
+              This is your new API key. <em>Store it in a safe place!</em> You
+              won&apos;t be able to see it again.
+            </Typography>
+            <ApiKeyBox variant="body2">{apiKey}</ApiKeyBox>
+          </>
+        ) : null}
+      </SectionCard>
     </LeafPanel>
   );
 }
@@ -151,7 +154,7 @@ export const ErrorBoundary = makeLeafErrorBoundary(
   "/app/workspace/account",
   ParamsSchema,
   {
-  error: () => `There was an error creating the API key! Please try again!`,
+    error: () => `There was an error creating the API key! Please try again!`,
   },
 );
 

@@ -7,7 +7,6 @@ import {
   useActionData,
   useLoaderData,
   useNavigation,
-  useParams,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
@@ -39,7 +38,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("archive"),
-  })
+  }),
 ]);
 
 export const handle = {
@@ -134,35 +133,35 @@ export default function ApiKeyEdit() {
     >
       <SectionCard
         title={`API Key: ${apiKey.name}`}
-      actions={
-        <SectionActions
-          id={`api-key-${apiKey.ref_id}-actions`}
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={inputsEnabled}
-          actions={[
-            ActionSingle({
-              id: "api-key-update",
-              text: "Save",
-              value: "update",
-              highlight: true,
-            }),
-          ]}
-        />
-      }
-    >
-      <GlobalError actionResult={actionData} />
+        actions={
+          <SectionActions
+            id={`api-key-${apiKey.ref_id}-actions`}
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "api-key-update",
+                text: "Save",
+                value: "update",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <GlobalError actionResult={actionData} />
 
-      <FormControl fullWidth>
-        <InputLabel id="name">Name</InputLabel>
-        <OutlinedInput
-          label="Name"
-          name="name"
-          defaultValue={apiKey.name}
-          readOnly={!inputsEnabled}
-        />
-        <FieldError actionResult={actionData} fieldName="/name" />
-      </FormControl>
-    </SectionCard>
+        <FormControl fullWidth>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="Name"
+            name="name"
+            defaultValue={apiKey.name}
+            readOnly={!inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+      </SectionCard>
     </LeafPanel>
   );
 }
@@ -172,7 +171,6 @@ export const ErrorBoundary = makeLeafErrorBoundary(
   ParamsSchema,
   {
     notFound: (params) => `Could not find API key ${params.id}!`,
-    error: () =>
-      `There was an error loading the API key! Please try again!`,
+    error: () => `There was an error loading the API key! Please try again!`,
   },
 );

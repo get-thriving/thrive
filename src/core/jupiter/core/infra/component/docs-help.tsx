@@ -3,7 +3,7 @@ import { HelpCenter as HelpCenterIcon } from "@mui/icons-material";
 import { IconButton } from "@mui/material";
 import { useContext } from "react";
 
-import { GlobalPropertiesContext } from "#/core/config-client";
+import { ServicePropertiesContext } from "#/core/config-client";
 
 interface DocsHelpProps {
   size: "small" | "medium" | "large";
@@ -12,11 +12,11 @@ interface DocsHelpProps {
 }
 
 export function DocsHelp(props: DocsHelpProps) {
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   const helpUrl = new URL(
     subjectToUrl(props.subject),
-    globalProperties.docsUrl,
+    serviceProperties.docsUrl,
   );
 
   return (

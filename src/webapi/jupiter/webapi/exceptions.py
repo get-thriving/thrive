@@ -93,6 +93,7 @@ class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
             ],
         }
 
+
 class ProjectInSignificantUseHandler(
     JupiterExceptionHandler[ProjectInSignificantUseError]
 ):
