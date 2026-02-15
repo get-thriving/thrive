@@ -20,10 +20,15 @@ from jupiter_webapi_client.api.metrics.metric_find import (
 from jupiter_webapi_client.api.smart_lists.smart_list_find import (
     asyncio_detailed as smart_list_find,
 )
+from jupiter_webapi_client.api.smart_lists.smart_list_load import (
+    asyncio_detailed as smart_list_load,
+)
 from jupiter_webapi_client.models import (
     MetricFindResult,
     SmartListFindArgs,
     SmartListFindResult,
+    SmartListLoadArgs,
+    SmartListLoadResult,
 )
 from jupiter_webapi_client.models.metric_find_args import MetricFindArgs
 from rich import print as rich_print
@@ -66,6 +71,12 @@ async def main() -> None:
                 SmartListFindArgs, SmartListFindResult, smart_list_find
             ),
         ),
+        JupiterApiResource.build(
+            ":ref_id",
+            JupiterApiGatewayMethod.get(
+                SmartListLoadArgs, SmartListLoadResult, smart_list_load
+            ),
+        )
     )
 
     rich_print("=" * 80)

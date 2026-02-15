@@ -275,8 +275,9 @@ class JupiterApiGatewayMethod(
             try:
                 # Explicitly collect all query params into a dict
                 query_dict = dict(request.query_params)
+                query_dict.update(request.path_params)
                 return self._args.from_dict(query_dict)
-            except Exception:
+            except KeyError:
                 return None
 
         api_key = extract_bearer_token_from_request(request)

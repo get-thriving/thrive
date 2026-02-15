@@ -15,7 +15,7 @@ _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _RestResourceT = TypeVar("_RestResourceT", bound="RestResource[Any, Any, Any]")  # type: ignore[explicit-any]
 
-_NAME_RE = re.compile(r"^[a-z][a-z0-9-/]+$")
+_NAME_RE = re.compile(r"^([a-z][a-z0-9-]+)|(:[a-z][a-zA-Z0-9_]+)$")
 
 
 class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]):
@@ -70,13 +70,7 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
 
         return build_it
 
-    def attach_route(self, fast_app: FastAPI, prefix: str | None = None) -> None:
+    def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
         """Attach the route to the FastAPI app."""
-        if prefix is not None:
-            if not _NAME_RE.match(prefix):
-                raise ValueError(f"Invalid prefix: {prefix}")
-            full_path = f"/{prefix}/{self._name}"
-        else:
-            full_path = f"/{self._name}"
         for method in self._methods:
-            method.attach_route(fast_app, full_path)
+            method.attach_route(fast_app, [*paths, self._name])

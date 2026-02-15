@@ -72,7 +72,7 @@ class RestService(
             return None
 
         for resource in service._resources:
-            resource.attach_route(service._fast_app)
+            resource.attach_route(service._fast_app, [])
 
         return service
 

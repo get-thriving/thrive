@@ -1,6 +1,5 @@
 """Methods for the REST service."""
 
-import re
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, Literal, Mapping, TypeVar
 
@@ -13,8 +12,6 @@ _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _RestMethodT = TypeVar("_RestMethodT", bound="RestMethod[Any, Any, Any]")  # type: ignore[explicit-any]
-
-_NAME_RE = re.compile(r"^[/][a-z][a-z0-9-/]+$")
 
 _STANDARD_CONFIG: Mapping[str, Any] = {  # type: ignore[explicit-any]
     "response_model_exclude_defaults": True,
@@ -57,13 +54,12 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
 
         return build_it
 
-    def attach_route(self, fast_app: FastAPI, path: str) -> None:
+    def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
         """Attach the route to the FastAPI app."""
-        if not _NAME_RE.match(path):
-            raise ValueError(f"Invalid path: {path}")
+        api_path = self._build_api_path(paths)
 
         @fast_app.api_route(
-            path=path,
+            path=api_path,
             methods=[self._name],
             summary="Basic summary",
             description="Basic description",
@@ -76,3 +72,14 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
     @abstractmethod
     async def execute(self, request: Request) -> Response:
         """Execute the method."""
+
+    @staticmethod
+    def _build_api_path(paths: list[str]) -> str:
+        """Build the API path."""
+        new_paths = []
+        for p in paths:
+            if p.startswith(":"):
+                new_paths.append("{" + p[1:] + "}")
+            else:
+                new_paths.append(p)
+        return "/" + "/".join(new_paths)
