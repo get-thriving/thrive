@@ -3,9 +3,23 @@
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union, cast
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Generic,
+    Literal,
+    Mapping,
+    Protocol,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import dotenv
+import httpx
+from fastapi import Request, Response, status
+from fastapi.responses import JSONResponse
 from jupiter.api.webapi_client import WebApiClient
 from jupiter.core.config import JupiterGlobalProperties
 from jupiter.framework.ports import Ports
@@ -13,6 +27,16 @@ from jupiter.framework.service.rest.method import RestMethod
 from jupiter.framework.service.rest.resource import RestResource
 from jupiter.framework.service.rest.service import RestService
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter_webapi_client import AuthenticatedClient, errors
+from jupiter_webapi_client.api.api_key.a_pi_key_exchange import (
+    asyncio_detailed as api_key_exchange,
+)
+from jupiter_webapi_client.models import (
+    APIKeyExchangeArgs,
+    APIKeyExchangeResult,
+    ErrorResponse,
+)
+from jupiter_webapi_client.types import Response as WebApiClientResponse
 
 
 @dataclass(frozen=True)
@@ -76,6 +100,248 @@ class JupiterApiMethod(
     RestMethod[JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties]
 ):
     """The Jupiter API method."""
+
+
+class WebApiClientSerializable(Protocol):
+    """Protocol for types with from_dict and to_dict."""
+
+    def to_dict(self) -> dict[str, Any]: ...  # type: ignore[explicit-any]
+
+    @classmethod
+    def from_dict(cls: type[Any], src_dict: Mapping[str, Any]) -> Any: ...  # type: ignore[explicit-any]
+
+
+_ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
+_ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
+
+_CallApiArgsT_contra = TypeVar(
+    "_CallApiArgsT_contra", bound=WebApiClientSerializable, contravariant=True
+)
+_CallApiResultT = TypeVar(
+    "_CallApiResultT", bound=WebApiClientSerializable, covariant=False
+)
+
+
+class WebApiClientCallable(Protocol[_CallApiArgsT_contra, _CallApiResultT]):
+    def __call__(
+        self,
+        *,
+        client: AuthenticatedClient,
+        body: _CallApiArgsT_contra,
+    ) -> Awaitable[WebApiClientResponse[ErrorResponse | _CallApiResultT]]: ...
+
+
+_ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any])  # type: ignore[explicit-any]
+
+
+class JupiterApiGatewayMethod(
+    JupiterApiMethod, Generic[_ApiArgsT, _ApiResultT, _ApiCallT]
+):
+    """A REST method for the metrics resource."""
+
+    _args: type[_ApiArgsT]
+    _result: type[_ApiResultT]
+    _api_call: _ApiCallT
+
+    def __init__(
+        self,
+        ports: JupiterApiPorts,
+        global_properties: JupiterGlobalProperties,
+        service_properties: JupiterApiProperties,
+        args: type[_ApiArgsT],
+        result: type[_ApiResultT],
+        api_call: _ApiCallT,
+        name: Literal["GET", "POST", "PUT", "DELETE"],
+    ):
+        """Initialize the method."""
+        super().__init__(ports, global_properties, service_properties, name)
+        self._args = args
+        self._result = result
+        self._api_call = api_call
+
+    @staticmethod
+    def get(
+        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+    ) -> Callable[
+        [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
+        "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
+    ]:
+        def build_it(
+            ports: JupiterApiPorts,
+            global_properties: JupiterGlobalProperties,
+            service_properties: JupiterApiProperties,
+        ) -> JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]:
+            return JupiterApiGatewayMethod(
+                ports,
+                global_properties,
+                service_properties,
+                args,
+                result,
+                api_call,
+                "GET",
+            )
+
+        return build_it
+
+    @staticmethod
+    def post(
+        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+    ) -> Callable[
+        [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
+        "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
+    ]:
+        def build_it(
+            ports: JupiterApiPorts,
+            global_properties: JupiterGlobalProperties,
+            service_properties: JupiterApiProperties,
+        ) -> JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]:
+            return JupiterApiGatewayMethod(
+                ports,
+                global_properties,
+                service_properties,
+                args,
+                result,
+                api_call,
+                "POST",
+            )
+
+        return build_it
+
+    @staticmethod
+    def put(
+        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+    ) -> Callable[
+        [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
+        "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
+    ]:
+        def build_it(
+            ports: JupiterApiPorts,
+            global_properties: JupiterGlobalProperties,
+            service_properties: JupiterApiProperties,
+        ) -> JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]:
+            return JupiterApiGatewayMethod(
+                ports,
+                global_properties,
+                service_properties,
+                args,
+                result,
+                api_call,
+                "PUT",
+            )
+
+        return build_it
+
+    @staticmethod
+    def delete(
+        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+    ) -> Callable[
+        [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
+        "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
+    ]:
+        def build_it(
+            ports: JupiterApiPorts,
+            global_properties: JupiterGlobalProperties,
+            service_properties: JupiterApiProperties,
+        ) -> JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]:
+            return JupiterApiGatewayMethod(
+                ports,
+                global_properties,
+                service_properties,
+                args,
+                result,
+                api_call,
+                "DELETE",
+            )
+
+        return build_it
+
+    async def execute(self, request: Request) -> Response:
+        """Execute the method."""
+
+        def extract_bearer_token_from_request(request: Request) -> str | None:
+            """Extract bearer token from the request's Authorization header, or None if invalid."""
+            auth_header: str | None = request.headers.get("authorization")
+            if not auth_header:
+                return None
+            if not auth_header.lower().startswith("bearer "):
+                return None
+            token = auth_header[7:].strip()
+            if not token:
+                return None
+            return token
+
+        def parse_args(request: Request) -> _ApiArgsT | None:
+            """Parse query params from the request into the args type, or None on error."""
+            try:
+                # Explicitly collect all query params into a dict
+                query_dict = dict(request.query_params)
+                return self._args.from_dict(query_dict)
+            except Exception:
+                return None
+
+        api_key = extract_bearer_token_from_request(request)
+        if api_key is None:
+            return Response(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content="Missing or invalid Authorization header",
+            )
+
+        client = self._ports.webapi_client.client
+
+        try:
+            resp = await api_key_exchange(
+                client=client, body=APIKeyExchangeArgs(api_key_external=api_key)
+            )
+        except errors.UnexpectedStatus:
+            return Response(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content="Unexpected status",
+            )
+        except httpx.TimeoutException:
+            return Response(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT, content="Timeout"
+            )
+
+        if not resp.status_code.is_success:
+            error_resp = cast(ErrorResponse, resp.parsed)
+            return Response(
+                status_code=status.HTTP_401_UNAUTHORIZED, content=error_resp.reason
+            )
+
+        true_resp = cast(APIKeyExchangeResult, resp.parsed)
+
+        args = parse_args(request)
+        if args is None:
+            return Response(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content="Invalid query parameters",
+            )
+
+        auth_client = AuthenticatedClient(
+            base_url=client._base_url,
+            raise_on_unexpected_status=True,
+            token=true_resp.auth_token_ext,
+        )
+
+        try:
+            response = await self._api_call(client=auth_client, body=args)
+        except errors.UnexpectedStatus:
+            return Response(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content="Unexpected status",
+            )
+        except httpx.TimeoutException:
+            return Response(
+                status_code=status.HTTP_504_GATEWAY_TIMEOUT, content="Timeout"
+            )
+
+        if not response.status_code.is_success:
+            error_resp = cast(ErrorResponse, response.parsed)
+            return Response(status_code=response.status_code, content=error_resp.reason)
+
+        true_response = cast(_ApiResultT, response.parsed)
+
+        return JSONResponse(content=true_response.to_dict())
 
 
 class JupiterApiService(

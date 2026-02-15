@@ -38,7 +38,7 @@ export interface ServicePropertiesServer {
 // @secureFn
 function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
-  
+
   const globalProperties = {
     publicName: process.env.PUBLIC_NAME as string,
     description: process.env.DESCRIPTION as string,
