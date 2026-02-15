@@ -292,15 +292,32 @@ class JupiterApiGatewayMethod(
                 return None
             return token
 
+        def _reduce_path_params(request: Request) -> dict[str, str]:
+            """Build a reduced dict from path params.
+
+            Keys containing "___" (e.g. "occasions___ref_id") are stripped
+            to their suffix (e.g. "ref_id"). Keys are processed in sorted
+            order so longer prefixed keys overwrite shorter plain ones.
+            """
+            reduced: dict[str, str] = {}
+            for key in sorted(request.path_params.keys(), key=len):
+                value = request.path_params[key]
+                if "___" in key:
+                    suffix = key.split("___")[-1]
+                    reduced[suffix] = value
+                else:
+                    reduced[key] = value
+            print("reduced", reduced)
+            return reduced
+
         def parse_args_from_query(request: Request) -> _ApiArgsT | None:
             """Parse query params from the request into the args type, or None on error."""
             if self._args is None:
                 return None
 
             try:
-                # Explicitly collect all query params into a dict
                 query_dict = dict(request.query_params)
-                query_dict.update(request.path_params)
+                query_dict.update(_reduce_path_params(request))
                 return self._args.from_dict(query_dict)  # type: ignore[no-any-return]
             except KeyError:
                 return None
@@ -316,7 +333,7 @@ class JupiterApiGatewayMethod(
                     body_dict = {}
                 else:
                     body_dict = json.loads(raw_body)
-                body_dict.update(request.path_params)
+                body_dict.update(_reduce_path_params(request))
                 return self._args.from_dict(body_dict)  # type: ignore[no-any-return]
             except (KeyError, ValueError):
                 return None

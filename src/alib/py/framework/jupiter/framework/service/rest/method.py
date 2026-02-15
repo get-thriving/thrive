@@ -58,10 +58,6 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         """Attach the route to the FastAPI app."""
         api_path = self._build_api_path(paths)
 
-        from rich import print as rich_print
-
-        rich_print(api_path)
-
         @fast_app.api_route(
             path=api_path,
             methods=[self._name],
@@ -83,7 +79,8 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         new_paths = []
         for p in paths:
             if p.startswith(":"):
-                new_paths.append("{" + p[1:] + "}")
+                param_name = p[1:].replace(":", "___")
+                new_paths.append("{" + param_name + "}")
             else:
                 new_paths.append(p)
         return "/" + "/".join(new_paths)

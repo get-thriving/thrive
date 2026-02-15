@@ -15,7 +15,9 @@ _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _RestResourceT = TypeVar("_RestResourceT", bound="RestResource[Any, Any, Any]")  # type: ignore[explicit-any]
 
-_NAME_RE = re.compile(r"^([a-z][a-z0-9-]+)|(:[a-z][a-zA-Z0-9_]+)$")
+_NAME_RE = re.compile(
+    r"^([a-z][a-z0-9-]+|:[a-z][a-zA-Z0-9_]+(:[a-z][a-zA-Z0-9_]+)*)$"
+)
 
 
 class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]):
