@@ -58,6 +58,9 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         """Attach the route to the FastAPI app."""
         api_path = self._build_api_path(paths)
 
+        from rich import print as rich_print
+        rich_print(api_path)
+
         @fast_app.api_route(
             path=api_path,
             methods=[self._name],

@@ -36,7 +36,7 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
-from jupiter_webapi_client.types import Response as WebApiClientResponse
+from jupiter_webapi_client.types import UNSET, Response as WebApiClientResponse
 
 
 @dataclass(frozen=True)
@@ -139,8 +139,8 @@ class JupiterApiGatewayMethod(
 ):
     """A REST method for the metrics resource."""
 
-    _args: type[_ApiArgsT]
-    _result: type[_ApiResultT]
+    _args: type[_ApiArgsT] | None
+    _result: type[_ApiResultT] | None
     _api_call: _ApiCallT
 
     def __init__(
@@ -148,8 +148,8 @@ class JupiterApiGatewayMethod(
         ports: JupiterApiPorts,
         global_properties: JupiterGlobalProperties,
         service_properties: JupiterApiProperties,
-        args: type[_ApiArgsT],
-        result: type[_ApiResultT],
+        args: type[_ApiArgsT] | None,
+        result: type[_ApiResultT] | None,
         api_call: _ApiCallT,
         name: Literal["GET", "POST", "PUT", "DELETE"],
     ):
@@ -161,7 +161,7 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def get(
-        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
@@ -185,7 +185,7 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def post(
-        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
@@ -209,7 +209,7 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def put(
-        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
@@ -233,7 +233,7 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def delete(
-        args: type[_ApiArgsT], result: type[_ApiResultT], api_call: _ApiCallT
+        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
@@ -270,14 +270,29 @@ class JupiterApiGatewayMethod(
                 return None
             return token
 
-        def parse_args(request: Request) -> _ApiArgsT | None:
+        def parse_args_from_query(request: Request) -> _ApiArgsT | None:
             """Parse query params from the request into the args type, or None on error."""
+            if self._args is None:
+                return None
+        
             try:
                 # Explicitly collect all query params into a dict
                 query_dict = dict(request.query_params)
                 query_dict.update(request.path_params)
                 return self._args.from_dict(query_dict)
             except KeyError:
+                return None
+
+        async def parse_args_from_body(request: Request) -> _ApiArgsT | None:
+            """Parse body from the request into the args type, or None on error."""
+            if self._args is None:
+                return None
+        
+            try:
+                body_dict = await request.json()
+                body_dict.update(request.path_params)
+                return self._args.from_dict(body_dict)
+            except (KeyError, ValueError):
                 return None
 
         api_key = extract_bearer_token_from_request(request)
@@ -311,12 +326,18 @@ class JupiterApiGatewayMethod(
 
         true_resp = cast(APIKeyExchangeResult, resp.parsed)
 
-        args = parse_args(request)
-        if args is None:
-            return Response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content="Invalid query parameters",
-            )
+        if self._args is not None:
+            if request.method == "GET":
+                args = parse_args_from_query(request)
+            else:
+                args = await parse_args_from_body(request)
+            if args is None:
+                return Response(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content="Invalid query parameters",
+                )
+        else:
+            args = None
 
         auth_client = AuthenticatedClient(
             base_url=client._base_url,
@@ -325,7 +346,7 @@ class JupiterApiGatewayMethod(
         )
 
         try:
-            response = await self._api_call(client=auth_client, body=args)
+            response = await self._api_call(client=auth_client, body=args or UNSET)
         except errors.UnexpectedStatus:
             return Response(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -339,6 +360,9 @@ class JupiterApiGatewayMethod(
         if not response.status_code.is_success:
             error_resp = cast(ErrorResponse, response.parsed)
             return Response(status_code=response.status_code, content=error_resp.reason)
+
+        if self._result is None:
+            return JSONResponse(content=None)
 
         true_response = cast(_ApiResultT, response.parsed)
 
