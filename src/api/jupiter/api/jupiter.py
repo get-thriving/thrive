@@ -3,6 +3,8 @@
 import asyncio
 
 from fastapi import Request, Response
+from jupiter_webapi_client import AuthenticatedClient
+from jupiter_webapi_client.models.metric_find_args import MetricFindArgs
 from jupiter.api.config import (
     JupiterApiMethod,
     JupiterApiPorts,
@@ -19,6 +21,7 @@ from jupiter_webapi_client.api.api_key.a_pi_key_exchange import (
     asyncio as api_key_exchange,
 )
 from jupiter_webapi_client.models.api_key_exchange_args import APIKeyExchangeArgs
+from jupiter_webapi_client.api.metrics.metric_find import asyncio_detailed as metric_find
 from rich import print as rich_print
 
 
@@ -34,7 +37,23 @@ class MetricsRestMethod(JupiterApiMethod):
             client=client, body=APIKeyExchangeArgs(api_key_external=API_KEY)
         )
 
-        rich_print(resp)
+        args = MetricFindArgs(
+            allow_archived=False,
+            include_notes=False,
+            include_entries=False,
+            include_collection_inbox_tasks=False,
+            include_metric_entry_notes=False,
+            include_tags=False,
+        )
+
+        auth_client = AuthenticatedClient(
+            base_url=client._base_url,
+            token=resp.auth_token_ext,
+        )
+
+        response = await metric_find(client=auth_client, body=args)
+
+        rich_print(response.parsed)
         return Response(content="Hello, world!")
 
 
