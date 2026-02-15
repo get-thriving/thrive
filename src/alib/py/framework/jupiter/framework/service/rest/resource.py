@@ -25,7 +25,9 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
     _global_properties: _GlobalPropertiesT
     _service_properties: _ServicePropertiesT
     _name: str
-    _subresources: list["RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]"]
+    _subresources: list[
+        "RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]"
+    ]
     _methods: list[RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
 
     def __init__(
@@ -34,7 +36,9 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
         name: str,
-        subresources: list["RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]"],
+        subresources: list[
+            "RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]"
+        ],
         methods: list[RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]],
     ) -> None:
         """Initialize the resource."""
@@ -53,8 +57,8 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
         name: str,
         *builders: Callable[
             [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
-            RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT] | 
-            "RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]",
+            RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]
+            | "RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]",
         ],
     ) -> Callable[[_PortsT, _GlobalPropertiesT, _ServicePropertiesT], _RestResourceT]:
         """Build the resource."""
@@ -73,7 +77,12 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
                 else:
                     subresources.append(built)
             return cls(
-                ports, global_properties, service_properties, name, subresources, methods
+                ports,
+                global_properties,
+                service_properties,
+                name,
+                subresources,
+                methods,
             )
 
         return build_it

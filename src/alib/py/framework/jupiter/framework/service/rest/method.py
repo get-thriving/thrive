@@ -59,6 +59,7 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         api_path = self._build_api_path(paths)
 
         from rich import print as rich_print
+
         rich_print(api_path)
 
         @fast_app.api_route(

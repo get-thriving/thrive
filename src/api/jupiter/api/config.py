@@ -1,5 +1,6 @@
 """The API configuration."""
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,7 +37,8 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
-from jupiter_webapi_client.types import UNSET, Response as WebApiClientResponse
+from jupiter_webapi_client.types import UNSET
+from jupiter_webapi_client.types import Response as WebApiClientResponse
 
 
 @dataclass(frozen=True)
@@ -102,27 +104,31 @@ class JupiterApiMethod(
     """The Jupiter API method."""
 
 
-class WebApiClientSerializable(Protocol):
+class _WebApiClientSerializable(Protocol):
     """Protocol for types with from_dict and to_dict."""
 
-    def to_dict(self) -> dict[str, Any]: ...  # type: ignore[explicit-any]
+    def to_dict(self) -> dict[str, Any]:  # type: ignore[explicit-any]
+        """Convert the object to a dictionary."""
 
     @classmethod
-    def from_dict(cls: type[Any], src_dict: Mapping[str, Any]) -> Any: ...  # type: ignore[explicit-any]
+    def from_dict(cls: type[Any], src_dict: Mapping[str, Any]) -> Any:  # type: ignore[explicit-any]
+        """Convert a dictionary to an object."""
 
 
-_ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
-_ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
+_ApiArgsT = TypeVar("_ApiArgsT", bound=_WebApiClientSerializable)
+_ApiResultT = TypeVar("_ApiResultT", bound=_WebApiClientSerializable)
 
 _CallApiArgsT_contra = TypeVar(
-    "_CallApiArgsT_contra", bound=WebApiClientSerializable, contravariant=True
+    "_CallApiArgsT_contra", bound=_WebApiClientSerializable, contravariant=True
 )
 _CallApiResultT = TypeVar(
-    "_CallApiResultT", bound=WebApiClientSerializable, covariant=False
+    "_CallApiResultT", bound=_WebApiClientSerializable, covariant=False
 )
 
 
-class WebApiClientCallable(Protocol[_CallApiArgsT_contra, _CallApiResultT]):
+class _WebApiClientCallable(Protocol[_CallApiArgsT_contra, _CallApiResultT]):
+    """Protocol for callable API functions."""
+
     def __call__(
         self,
         *,
@@ -131,7 +137,7 @@ class WebApiClientCallable(Protocol[_CallApiArgsT_contra, _CallApiResultT]):
     ) -> Awaitable[WebApiClientResponse[ErrorResponse | _CallApiResultT]]: ...
 
 
-_ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any])  # type: ignore[explicit-any]
+_ApiCallT = TypeVar("_ApiCallT", bound=_WebApiClientCallable[Any, Any])  # type: ignore[explicit-any]
 
 
 class JupiterApiGatewayMethod(
@@ -141,9 +147,9 @@ class JupiterApiGatewayMethod(
 
     _args: type[_ApiArgsT] | None
     _result: type[_ApiResultT] | None
-    _api_call: _ApiCallT
+    _api_call: _ApiCallT  # type: ignore[explicit-any]
 
-    def __init__(
+    def __init__(  # type: ignore[explicit-any]
         self,
         ports: JupiterApiPorts,
         global_properties: JupiterGlobalProperties,
@@ -160,13 +166,17 @@ class JupiterApiGatewayMethod(
         self._api_call = api_call
 
     @staticmethod
-    def get(
-        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
+    def get(  # type: ignore[explicit-any]
+        args: type[_ApiArgsT] | None,
+        result: type[_ApiResultT] | None,
+        api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
-        def build_it(
+        """Build a GET method."""
+
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterApiProperties,
@@ -184,13 +194,17 @@ class JupiterApiGatewayMethod(
         return build_it
 
     @staticmethod
-    def post(
-        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
+    def post(  # type: ignore[explicit-any]
+        args: type[_ApiArgsT] | None,
+        result: type[_ApiResultT] | None,
+        api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
-        def build_it(
+        """Build a POST method."""
+
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterApiProperties,
@@ -208,13 +222,17 @@ class JupiterApiGatewayMethod(
         return build_it
 
     @staticmethod
-    def put(
-        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
+    def put(  # type: ignore[explicit-any]
+        args: type[_ApiArgsT] | None,
+        result: type[_ApiResultT] | None,
+        api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
-        def build_it(
+        """Build a PUT method."""
+
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterApiProperties,
@@ -232,13 +250,17 @@ class JupiterApiGatewayMethod(
         return build_it
 
     @staticmethod
-    def delete(
-        args: type[_ApiArgsT] | None, result: type[_ApiResultT] | None, api_call: _ApiCallT
+    def delete(  # type: ignore[explicit-any]
+        args: type[_ApiArgsT] | None,
+        result: type[_ApiResultT] | None,
+        api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
-        def build_it(
+        """Build a DELETE method."""
+
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterApiProperties,
@@ -255,7 +277,7 @@ class JupiterApiGatewayMethod(
 
         return build_it
 
-    async def execute(self, request: Request) -> Response:
+    async def execute(self, request: Request) -> Response:  # type: ignore[explicit-any]
         """Execute the method."""
 
         def extract_bearer_token_from_request(request: Request) -> str | None:
@@ -274,12 +296,12 @@ class JupiterApiGatewayMethod(
             """Parse query params from the request into the args type, or None on error."""
             if self._args is None:
                 return None
-        
+
             try:
                 # Explicitly collect all query params into a dict
                 query_dict = dict(request.query_params)
                 query_dict.update(request.path_params)
-                return self._args.from_dict(query_dict)
+                return self._args.from_dict(query_dict)  # type: ignore[no-any-return]
             except KeyError:
                 return None
 
@@ -287,11 +309,15 @@ class JupiterApiGatewayMethod(
             """Parse body from the request into the args type, or None on error."""
             if self._args is None:
                 return None
-        
+
             try:
-                body_dict = await request.json()
+                raw_body = await request.body()
+                if len(raw_body) == 0:
+                    body_dict = {}
+                else:
+                    body_dict = json.loads(raw_body)
                 body_dict.update(request.path_params)
-                return self._args.from_dict(body_dict)
+                return self._args.from_dict(body_dict)  # type: ignore[no-any-return]
             except (KeyError, ValueError):
                 return None
 
@@ -334,7 +360,7 @@ class JupiterApiGatewayMethod(
             if args is None:
                 return Response(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    content="Invalid query parameters",
+                    content="Invalid arguments",
                 )
         else:
             args = None

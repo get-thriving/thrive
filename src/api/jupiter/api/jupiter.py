@@ -17,24 +17,54 @@ from jupiter.framework.telemetry.telemetry import Telemetry
 from jupiter_webapi_client.api.metrics.metric_find import (
     asyncio_detailed as metric_find,
 )
+from jupiter_webapi_client.api.smart_lists.smart_list_archive import (
+    asyncio_detailed as smart_list_archive,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_create import (
+    asyncio_detailed as smart_list_create,
+)
 from jupiter_webapi_client.api.smart_lists.smart_list_find import (
     asyncio_detailed as smart_list_find,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_item_create import (
+    asyncio_detailed as smart_list_item_create,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_item_load import (
+    asyncio_detailed as smart_list_item_load,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_item_remove import (
+    asyncio_detailed as smart_list_item_remove,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_item_update import (
+    asyncio_detailed as smart_list_item_update,
 )
 from jupiter_webapi_client.api.smart_lists.smart_list_load import (
     asyncio_detailed as smart_list_load,
 )
+from jupiter_webapi_client.api.smart_lists.smart_list_remove import (
+    asyncio_detailed as smart_list_remove,
+)
+from jupiter_webapi_client.api.smart_lists.smart_list_update import (
+    asyncio_detailed as smart_list_update,
+)
 from jupiter_webapi_client.models import (
     MetricFindResult,
+    SmartListArchiveArgs,
+    SmartListCreateArgs,
+    SmartListCreateResult,
     SmartListFindArgs,
     SmartListFindResult,
+    SmartListItemCreateArgs,
+    SmartListItemCreateResult,
+    SmartListItemLoadArgs,
+    SmartListItemLoadResult,
+    SmartListItemRemoveArgs,
+    SmartListItemUpdateArgs,
     SmartListLoadArgs,
     SmartListLoadResult,
     SmartListUpdateArgs,
 )
 from jupiter_webapi_client.models.metric_find_args import MetricFindArgs
-from jupiter_webapi_client.api.smart_lists.smart_list_update import (
-    asyncio_detailed as smart_list_update,
-)
 from rich import print as rich_print
 
 
@@ -69,8 +99,12 @@ async def main() -> None:
             "metrics",
             JupiterApiGatewayMethod.get(MetricFindArgs, MetricFindResult, metric_find),
         ),
+        # Smart Lists
         JupiterApiResource.build(
             "smart-lists",
+            JupiterApiGatewayMethod.post(
+                SmartListCreateArgs, SmartListCreateResult, smart_list_create
+            ),
             JupiterApiGatewayMethod.get(
                 SmartListFindArgs, SmartListFindResult, smart_list_find
             ),
@@ -81,6 +115,43 @@ async def main() -> None:
                 ),
                 JupiterApiGatewayMethod.put(
                     SmartListUpdateArgs, None, smart_list_update
+                ),
+                JupiterApiGatewayMethod.delete(
+                    SmartListArchiveArgs, None, smart_list_archive
+                ),
+                JupiterApiResource.build(
+                    "remove",
+                    JupiterApiGatewayMethod.delete(
+                        SmartListItemRemoveArgs, None, smart_list_remove
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "items",
+                    JupiterApiGatewayMethod.post(
+                        SmartListItemCreateArgs,
+                        SmartListItemCreateResult,
+                        smart_list_item_create,
+                    ),
+                    JupiterApiResource.build(
+                        ":ref_id",
+                        JupiterApiGatewayMethod.get(
+                            SmartListItemLoadArgs,
+                            SmartListItemLoadResult,
+                            smart_list_item_load,
+                        ),
+                        JupiterApiGatewayMethod.put(
+                            SmartListItemUpdateArgs, None, smart_list_item_update
+                        ),
+                        JupiterApiGatewayMethod.delete(
+                            SmartListItemRemoveArgs, None, smart_list_item_remove
+                        ),
+                        JupiterApiResource.build(
+                            "remove",
+                            JupiterApiGatewayMethod.delete(
+                                SmartListItemRemoveArgs, None, smart_list_item_remove
+                            ),
+                        ),
+                    ),
                 ),
             ),
         ),
