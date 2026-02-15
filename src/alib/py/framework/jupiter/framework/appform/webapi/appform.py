@@ -996,12 +996,46 @@ class WebApiAppForm(
                 )
                 paths_object["responses"][str(status_code)] = {
                     "description": f"Error response for {all_exceptions}",
-                    "content": {"application/json": {"schema": {}}},
+                    "content": {
+                        "application/json": {
+                            "schema": {"$ref": "#/components/schemas/ErrorResponse"}
+                        }
+                    },
                 }
 
             openapi_schema["paths"][f"/{command._build_http_name()}"][
                 "post"
             ] = paths_object
+
+        openapi_schema["components"]["schemas"]["ErrorResponse"] = {
+            "title": "ErrorResponse",
+            "type": "object",
+            "required": ["reason", "detail"],
+            "properties": {
+                "reason": {"type": "string"},
+                "detail": {
+                    "oneOf": [
+                        {"type": "string"},
+                        {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/ErrorDetailItem"},
+                        },
+                    ]
+                },
+            },
+            "additionalProperties": False,
+        }
+        openapi_schema["components"]["schemas"]["ErrorDetailItem"] = {
+            "title": "ErrorDetailItem",
+            "type": "object",
+            "required": ["loc", "msg", "type"],
+            "properties": {
+                "loc": {"type": "array", "items": {"type": "string"}},
+                "msg": {"type": "string"},
+                "type": {"type": "string"},
+            },
+            "additionalProperties": False,
+        }
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]

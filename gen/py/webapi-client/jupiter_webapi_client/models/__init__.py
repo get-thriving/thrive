@@ -199,6 +199,8 @@ from .entity_reference_block import EntityReferenceBlock
 from .entity_reference_block_kind import EntityReferenceBlockKind
 from .entity_summary import EntitySummary
 from .env import Env
+from .error_detail_item import ErrorDetailItem
+from .error_response import ErrorResponse
 from .feature_control import FeatureControl
 from .gc_do_all_args import GCDoAllArgs
 from .gc_do_args import GCDoArgs
@@ -1038,6 +1040,8 @@ __all__ = (
     "EntityReferenceBlockKind",
     "EntitySummary",
     "Env",
+    "ErrorDetailItem",
+    "ErrorResponse",
     "FeatureControl",
     "GCDoAllArgs",
     "GCDoArgs",

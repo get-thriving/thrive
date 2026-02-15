@@ -160,6 +160,8 @@ export type { EntityName } from './models/EntityName';
 export { EntityReferenceBlock } from './models/EntityReferenceBlock';
 export type { EntitySummary } from './models/EntitySummary';
 export { Env } from './models/Env';
+export type { ErrorDetailItem } from './models/ErrorDetailItem';
+export type { ErrorResponse } from './models/ErrorResponse';
 export { FeatureControl } from './models/FeatureControl';
 export type { GCDoAllArgs } from './models/GCDoAllArgs';
 export type { GCDoArgs } from './models/GCDoArgs';

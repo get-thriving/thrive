@@ -38,18 +38,7 @@ export interface ServicePropertiesServer {
 // @secureFn
 function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
-  config({ path: `${process.cwd()}/Config.project` });
-
-  const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
-  const webApiServerPort = parseInt(
-    process.env.WEBAPI_SERVER_PORT as string,
-    10,
-  );
-
-  const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
-  const webApiProgressReporterUrl = process.env
-    .WEBAPI_PROGRESS_REPORTER_URL as string;
-
+  
   const globalProperties = {
     publicName: process.env.PUBLIC_NAME as string,
     description: process.env.DESCRIPTION as string,
@@ -76,13 +65,21 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
 }
 
 function loadServicePropertiesOnServer(): ServicePropertiesServer {
-  config({ path: `${process.cwd()}/../Config.global` });
   config({ path: `${process.cwd()}/Config.project` });
 
+  const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
+  const webApiServerPort = parseInt(
+    process.env.WEBAPI_SERVER_PORT as string,
+    10,
+  );
+
+  const webApiServerUrl = `http://${webApiServerHost}:${webApiServerPort}`;
+  const webApiProgressReporterUrl = process.env
+    .WEBAPI_PROGRESS_REPORTER_URL as string;
+
   const serviceProperties = {
-    webApiServerUrl: process.env.WEBAPI_SERVER_URL as string,
-    webApiProgressReporterUrl: process.env
-      .WEBAPI_PROGRESS_REPORTER_URL as string,
+    webApiServerUrl: webApiServerUrl,
+    webApiProgressReporterUrl: webApiProgressReporterUrl,
     webApiUrl: process.env.WEBAPI_URL as string,
     docsUrl: process.env.DOCS_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,

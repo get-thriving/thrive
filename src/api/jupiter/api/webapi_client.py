@@ -11,4 +11,4 @@ class WebApiClient(DomainPorts):
 
     def __init__(self, webapi_url: str) -> None:
         """Initialize the ports."""
-        self.client = Client(base_url=webapi_url)
+        self.client = Client(base_url=webapi_url, raise_on_unexpected_status=True)

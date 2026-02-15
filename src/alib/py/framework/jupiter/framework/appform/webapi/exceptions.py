@@ -197,6 +197,7 @@ class InputValidationHandler(
     def get_detail(self, exception: InputValidationError) -> ExceptionDetailT:
         """Handle input validation errors."""
         return {
+            "reason": "Looks like there's something wrong with the command's arguments",
             "detail": [
                 {
                     "loc": [
@@ -224,6 +225,7 @@ class MultiInputValidationHandler(
     def get_detail(self, exception: MultiInputValidationError) -> ExceptionDetailT:
         """Handle input validation errors."""
         return {
+            "reason": "Looks like there's something wrong with the command's arguments",
             "detail": [
                 {
                     "loc": [
@@ -234,7 +236,7 @@ class MultiInputValidationHandler(
                     "type": "value_error.inputvalidationerror",
                 }
                 for k, v in exception.errors.items()
-            ]
+            ],
         }
 
 

@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/node";
+import type { SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
@@ -42,8 +42,7 @@ const THEME = createTheme({
   },
 });
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  // This is the only place where we can read this field.
+export async function loader() {
   return json({
     globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
   });

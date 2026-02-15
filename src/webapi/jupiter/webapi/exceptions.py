@@ -34,6 +34,7 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
     def get_detail(self, exception: UserAlreadyExistsError) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "A user with the same identity already seems to exist here!",
             "detail": [
                 {
                     "loc": [
@@ -59,6 +60,7 @@ class InvalidLoginCredentialsHandler(
     def get_detail(self, exception: InvalidLoginCredentialsError) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "User email or password invalid",
             "detail": [
                 {
                     "loc": [
@@ -82,6 +84,7 @@ class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
     def get_detail(self, exception: InvalidAPIKeyError) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "Invalid API key",
             "detail": [
                 {
                     "loc": [
@@ -107,6 +110,7 @@ class ProjectInSignificantUseHandler(
     def get_detail(self, exception: ProjectInSignificantUseError) -> ExceptionDetailT:
         """Handle project in significant use errors."""
         return {
+            "reason": "Cannot remove because project",
             "detail": [
                 {
                     "loc": [
@@ -130,6 +134,7 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
     def get_detail(self, exception: UserNotFoundError) -> ExceptionDetailT:
         """Handle user not found errors."""
         return {
+            "reason": "User does not exist",
             "detail": [
                 {
                     "loc": [
@@ -153,6 +158,7 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
     def get_detail(self, exception: WorkspaceNotFoundError) -> ExceptionDetailT:
         """Handle workspace not found errors."""
         return {
+            "reason": "Workspace does not exist",
             "detail": [
                 {
                     "loc": [
@@ -180,6 +186,7 @@ class TimePlanExistsForDatePeriodCombinationHandler(
     ) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "Time plan already exists for this date and period combination",
             "detail": [
                 {
                     "loc": [
@@ -207,6 +214,7 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
     ) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "Big plan milestone already exists for this date",
             "detail": [
                 {
                     "loc": [
@@ -234,6 +242,7 @@ class JournalExistsForDatePeriodCombinationHandler(
     ) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "Journal already exists for this date and period combination",
             "detail": [
                 {
                     "loc": [
@@ -257,6 +266,7 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
     def get_detail(self, exception: TagAlreadyExistsError) -> ExceptionDetailT:
         """Get the detail for the exception."""
         return {
+            "reason": "Tag already exists",
             "detail": [
                 {
                     "loc": [

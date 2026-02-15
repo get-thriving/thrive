@@ -1,10 +1,12 @@
 """The Jupiter external API."""
 
 import asyncio
+from typing import cast
 
-from fastapi import Request, Response
-from jupiter_webapi_client import AuthenticatedClient
-from jupiter_webapi_client.models.metric_find_args import MetricFindArgs
+from fastapi import Request, Response, status
+from fastapi.responses import JSONResponse
+import httpx
+from jupiter_webapi_client.models import APIKeyExchangeResult, ErrorResponse, MetricFindResult
 from jupiter.api.config import (
     JupiterApiMethod,
     JupiterApiPorts,
@@ -17,11 +19,15 @@ from jupiter.core.config import build_global_properties
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter_webapi_client import AuthenticatedClient, errors
 from jupiter_webapi_client.api.api_key.a_pi_key_exchange import (
-    asyncio as api_key_exchange,
+    asyncio_detailed as api_key_exchange,
+)
+from jupiter_webapi_client.api.metrics.metric_find import (
+    asyncio_detailed as metric_find,
 )
 from jupiter_webapi_client.models.api_key_exchange_args import APIKeyExchangeArgs
-from jupiter_webapi_client.api.metrics.metric_find import asyncio_detailed as metric_find
+from jupiter_webapi_client.models.metric_find_args import MetricFindArgs
 from rich import print as rich_print
 
 
@@ -30,31 +36,79 @@ class MetricsRestMethod(JupiterApiMethod):
 
     async def execute(self, request: Request) -> Response:
         """Execute the method."""
-        API_KEY = "ak_local_2.9c9ed24bbbb1e81253b70906fe3c7265"
+        def extract_bearer_token(auth_header: str | None) -> str | None:
+            """Extract bearer token from Authorization header, or None if invalid."""
+            if not auth_header:
+                return None
+            if not auth_header.lower().startswith("bearer "):
+                return None
+            token = auth_header[7:].strip()
+            return token if token else None
+
+        def parse_metric_find_args(params: dict) -> MetricFindArgs | None:
+            """Parse query params into MetricFindArgs, or None on error."""
+            try:
+                return MetricFindArgs.from_dict(params)
+            except Exception:
+                return None
+
+        auth_header = request.headers.get("authorization")
+        api_key = extract_bearer_token(auth_header)
+        if api_key is None:
+            return Response(status_code=status.HTTP_401_UNAUTHORIZED, content="Missing or invalid Authorization header")
+
         client = self._ports.webapi_client.client
 
-        resp = await api_key_exchange(
-            client=client, body=APIKeyExchangeArgs(api_key_external=API_KEY)
-        )
+        try:
+            resp = await api_key_exchange(
+                client=client, body=APIKeyExchangeArgs(api_key_external=api_key)
+            )
+        except errors.UnexpectedStatus as e:
+            rich_print(f"Unexpected status: {e}")
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content="Unexpected status")
+        except httpx.TimeoutException as e:
+            rich_print(f"HTTP status error: {e}")
+            return Response(status_code=status.HTTP_504_GATEWAY_TIMEOUT, content="Timeout")
+        except Exception as e:
+            rich_print(f"Exception: {e}")
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content="Unknown error")
 
-        args = MetricFindArgs(
-            allow_archived=False,
-            include_notes=False,
-            include_entries=False,
-            include_collection_inbox_tasks=False,
-            include_metric_entry_notes=False,
-            include_tags=False,
-        )
+        if not resp.status_code.is_success:
+            error_resp = cast(ErrorResponse, resp.parsed)
+            return Response(status_code=status.HTTP_401_UNAUTHORIZED, content=error_resp.reason)
+
+        true_resp = cast(APIKeyExchangeResult, resp.parsed)
+
+        query_params = dict(request.query_params)
+        args = parse_metric_find_args(query_params)
+        if args is None:
+            return Response(status_code=status.HTTP_400_BAD_REQUEST, content="Invalid query parameters")
 
         auth_client = AuthenticatedClient(
             base_url=client._base_url,
-            token=resp.auth_token_ext,
+            raise_on_unexpected_status=True,
+            token=true_resp.auth_token_ext,
         )
 
-        response = await metric_find(client=auth_client, body=args)
+        try:
+            response = await metric_find(client=auth_client, body=args)
+        except errors.UnexpectedStatus as e:
+            rich_print(f"Unexpected status: {e}")
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content="Unexpected status")
+        except httpx.TimeoutException as e:
+            rich_print(f"HTTP status error: {e}")
+            return Response(status_code=status.HTTP_504_GATEWAY_TIMEOUT, content="Timeout")
+        except Exception as e:
+            rich_print(f"Exception: {e}")
+            return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content="Unknown error")
 
-        rich_print(response.parsed)
-        return Response(content="Hello, world!")
+        if not response.status_code.is_success:
+            error_resp = cast(ErrorResponse, response.parsed)
+            return Response(status_code=response.status_code, content=error_resp.reason)
+
+        true_response = cast(MetricFindResult, response.parsed)
+
+        return JSONResponse(content=true_response.to_dict())
 
 
 async def main() -> None:
