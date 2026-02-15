@@ -30,4 +30,4 @@ class Pomodoro(JupiterLoggedInReadonlyCommand[NoOpUseCase, None]):
                 await asyncio.sleep(1)
                 progress.update(task1, advance=1)
 
-        beepy.beep("success")
+        beepy.beep(6)

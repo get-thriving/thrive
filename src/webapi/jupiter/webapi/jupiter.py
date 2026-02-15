@@ -132,9 +132,6 @@ async def main() -> None:
     )
 
     await sqlite_connection.prepare()
-    # await domain_storage_engine.initialize()
-    # await search_storage_engine.initialize()
-    # await usecase_storage_engine.initialize()
 
     rich_print("=" * 80)
     rich_print("Starting Jupiter WebAPI:")

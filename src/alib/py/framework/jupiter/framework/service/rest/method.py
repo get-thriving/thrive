@@ -1,0 +1,78 @@
+"""Methods for the REST service."""
+
+import re
+from abc import ABC, abstractmethod
+from typing import Any, Callable, Generic, Literal, Mapping, TypeVar
+
+from fastapi import FastAPI, Request, Response
+from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.ports import Ports
+from jupiter.framework.service_properties import ServiceProperties
+
+_PortsT = TypeVar("_PortsT", bound=Ports)
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
+_RestMethodT = TypeVar("_RestMethodT", bound="RestMethod[Any, Any, Any]")  # type: ignore[explicit-any]
+
+_NAME_RE = re.compile(r"^[/][a-z][a-z0-9-/]+$")
+
+_STANDARD_CONFIG: Mapping[str, Any] = {  # type: ignore[explicit-any]
+    "response_model_exclude_defaults": True,
+}
+
+
+class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]):
+    """A method for the REST service."""
+
+    _ports: _PortsT
+    _global_properties: _GlobalPropertiesT
+    _service_properties: _ServicePropertiesT
+    _name: Literal["GET", "POST", "PUT", "DELETE"]
+
+    def __init__(
+        self,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+        name: Literal["GET", "POST", "PUT", "DELETE"],
+    ) -> None:
+        """Initialize the method."""
+        self._ports = ports
+        self._global_properties = global_properties
+        self._service_properties = service_properties
+        self._name = name
+
+    @classmethod
+    def build(  # type: ignore[explicit-any]
+        cls: type[_RestMethodT], name: Literal["GET", "POST", "PUT", "DELETE"]
+    ) -> Callable[[_PortsT, _GlobalPropertiesT, _ServicePropertiesT], _RestMethodT]:
+        """Build the method."""
+
+        def build_it(  # type: ignore[explicit-any]
+            ports: _PortsT,
+            global_properties: _GlobalPropertiesT,
+            service_properties: _ServicePropertiesT,
+        ) -> _RestMethodT:
+            return cls(ports, global_properties, service_properties, name)
+
+        return build_it
+
+    def attach_route(self, fast_app: FastAPI, path: str) -> None:
+        """Attach the route to the FastAPI app."""
+        if not _NAME_RE.match(path):
+            raise ValueError(f"Invalid path: {path}")
+
+        @fast_app.api_route(
+            path=path,
+            methods=[self._name],
+            summary="Basic summary",
+            description="Basic description",
+            tags=["test"],
+            **_STANDARD_CONFIG,
+        )
+        async def do_it(request: Request) -> Response:
+            return await self.execute(request)
+
+    @abstractmethod
+    async def execute(self, request: Request) -> Response:
+        """Execute the method."""

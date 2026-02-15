@@ -22,7 +22,12 @@ services:
       retries: 5
   api:
     environment:
+      - UNIVERSE=${UNIVERSE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
+      - ENV=${ENV:-production}
+      - INSTANCE=${INSTANCE:?Check https://docs.get-thriving.com/how-tos/self-hosting}
       - PORT=10020
+      - WEBAPI_SERVER_HOST=webapi
+      - WEBAPI_SERVER_PORT=2000
     restart: always
     image: ${DOCKER_IMAGE_API:-horia141/jupiter-api:${VERSION:-latest}}
     ports:

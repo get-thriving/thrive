@@ -1,35 +1,42 @@
 """A REST service at the framework level."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Final, Generic, TypeVar
+from typing import Any, Callable, Final, Generic, TypeVar
 
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, status
 from fastapi.routing import APIRoute
 from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.ports import Ports
+from jupiter.framework.service.rest.resource import RestResource
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
 
+_PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
 _ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
+_RestServiceT = TypeVar("_RestServiceT", bound="RestService[Any, Any, Any]")  # type: ignore[explicit-any]
 
 
 class RestService(
-    Service[_GlobalPropertiesT, _ServicePropertiesT],
+    Service[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
     ABC,
-    Generic[_GlobalPropertiesT, _ServicePropertiesT],
+    Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
 ):
     """A REST service at the framework level."""
 
     _fast_app: Final[FastAPI]
+    _resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
 
     def __init__(
         self,
+        ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
+        resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]],
     ) -> None:
         """Initialize the service."""
-        super().__init__(global_properties, service_properties)
+        super().__init__(ports, global_properties, service_properties)
         self._fast_app = FastAPI(
             title=self.description,
             version=self.version,
@@ -39,6 +46,35 @@ class RestService(
             redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
+        self._resources = resources
+
+    @classmethod
+    def build(  # type: ignore[explicit-any]
+        cls: type[_RestServiceT],
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+        *resource_builders: Callable[
+            [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
+            RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
+        ],
+    ) -> _RestServiceT:
+        """Build the service."""
+        resources = [
+            resource_builder(ports, global_properties, service_properties)
+            for resource_builder in resource_builders
+        ]
+        service = cls(ports, global_properties, service_properties, list(resources))
+
+        @service._fast_app.get(service.healthz_route, status_code=status.HTTP_200_OK)
+        async def healthz() -> None:
+            """Health check endpoint."""
+            return None
+
+        for resource in service._resources:
+            resource.attach_route(service._fast_app)
+
+        return service
 
     async def run(self) -> None:
         """Run the service."""

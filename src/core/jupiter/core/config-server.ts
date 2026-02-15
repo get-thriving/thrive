@@ -70,7 +70,6 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     googlePlayStoreUrl: process.env.GOOGLE_PLAY_STORE_URL as string,
     termsOfServiceUrl: process.env.TERMS_OF_SERVICE_URL as string,
     privacyPolicyUrl: process.env.PRIVACY_POLICY_URL as string,
-
   };
 
   return globalProperties;
@@ -82,15 +81,22 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
 
   const serviceProperties = {
     webApiServerUrl: process.env.WEBAPI_SERVER_URL as string,
-    webApiProgressReporterUrl: process.env.WEBAPI_PROGRESS_REPORTER_URL as string,
+    webApiProgressReporterUrl: process.env
+      .WEBAPI_PROGRESS_REPORTER_URL as string,
     webApiUrl: process.env.WEBAPI_URL as string,
     docsUrl: process.env.DOCS_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
     sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
-    inboxTasksToAskForGC: parseInt(process.env.INBOX_TASKS_TO_ASK_FOR_GC as string, 10),
+    inboxTasksToAskForGC: parseInt(
+      process.env.INBOX_TASKS_TO_ASK_FOR_GC as string,
+      10,
+    ),
     overdueInfoDays: parseInt(process.env.OVERDUE_INFO_DAYS as string, 10),
-    overdueWarningDays: parseInt(process.env.OVERDUE_WARNING_DAYS as string, 10),
+    overdueWarningDays: parseInt(
+      process.env.OVERDUE_WARNING_DAYS as string,
+      10,
+    ),
     overdueDangerDays: parseInt(process.env.OVERDUE_DANGER_DAYS as string, 10),
   };
 

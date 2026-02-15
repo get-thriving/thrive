@@ -101,8 +101,8 @@ def build_cli_properties() -> JupiterCliProperties:
     )
 
 
-class JupiterGuestMutationCommand( 
-    GuestMutationCommand[ # type: ignore
+class JupiterGuestMutationCommand(
+    GuestMutationCommand[  # type: ignore
         _JupiterGuestMutationUseCaseT,
         JupiterGlobalProperties,
         JupiterCliProperties,
@@ -130,7 +130,7 @@ class JupiterGuestMutationCommand(
 
 
 class JupiterGuestReadonlyCommand(
-    GuestReadonlyCommand[ # type: ignore
+    GuestReadonlyCommand[  # type: ignore
         _JupiterGuestReadonlyUseCaseT,
         JupiterGlobalProperties,
         JupiterCliProperties,
@@ -158,7 +158,7 @@ class JupiterGuestReadonlyCommand(
 
 
 class JupiterLoggedInMutationCommand(
-    LoggedInMutationCommand[ # type: ignore
+    LoggedInMutationCommand[  # type: ignore
         _JupiterLoggedInMutationUseCaseT,
         JupiterGlobalProperties,
         JupiterCliProperties,
@@ -186,7 +186,7 @@ class JupiterLoggedInMutationCommand(
 
 
 class JupiterLoggedInReadonlyCommand(
-    LoggedInReadonlyCommand[ # type: ignore
+    LoggedInReadonlyCommand[  # type: ignore
         _JupiterLoggedInReadonlyUseCaseT,
         JupiterGlobalProperties,
         JupiterCliProperties,

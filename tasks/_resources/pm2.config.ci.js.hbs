@@ -22,7 +22,9 @@ module.exports = {
         log_file: "{{apiLogFile}}",
         env: {
             INSTANCE: "{{instance}}",
-            PORT: "{{apiPort}}"
+            PORT: "{{apiPort}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
         }
     }, 
     {

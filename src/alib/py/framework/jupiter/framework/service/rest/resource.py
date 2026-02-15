@@ -1,0 +1,82 @@
+"""Resources for the REST service."""
+
+import re
+from abc import ABC
+from typing import Any, Callable, Generic, TypeVar
+
+from fastapi import FastAPI
+from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.ports import Ports
+from jupiter.framework.service.rest.method import RestMethod
+from jupiter.framework.service_properties import ServiceProperties
+
+_PortsT = TypeVar("_PortsT", bound=Ports)
+_GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
+_RestResourceT = TypeVar("_RestResourceT", bound="RestResource[Any, Any, Any]")  # type: ignore[explicit-any]
+
+_NAME_RE = re.compile(r"^[a-z][a-z0-9-/]+$")
+
+
+class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]):
+    """A resource for the REST service."""
+
+    _ports: _PortsT
+    _global_properties: _GlobalPropertiesT
+    _service_properties: _ServicePropertiesT
+    _name: str
+    _methods: list[RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
+
+    def __init__(
+        self,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
+        name: str,
+        methods: list[RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]],
+    ) -> None:
+        """Initialize the resource."""
+        if not _NAME_RE.match(name):
+            raise ValueError(f"Invalid resource name: {name}")
+        self._ports = ports
+        self._global_properties = global_properties
+        self._service_properties = service_properties
+        self._name = name
+        self._methods = methods
+
+    @classmethod
+    def build(  # type: ignore[explicit-any]
+        cls: type[_RestResourceT],
+        name: str,
+        *method_builders: Callable[
+            [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
+            RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
+        ],
+    ) -> Callable[[_PortsT, _GlobalPropertiesT, _ServicePropertiesT], _RestResourceT]:
+        """Build the resource."""
+
+        def build_it(  # type: ignore[explicit-any]
+            ports: _PortsT,
+            global_properties: _GlobalPropertiesT,
+            service_properties: _ServicePropertiesT,
+        ) -> _RestResourceT:
+            methods = [
+                method_builder(ports, global_properties, service_properties)
+                for method_builder in method_builders
+            ]
+            return cls(
+                ports, global_properties, service_properties, name, list(methods)
+            )
+
+        return build_it
+
+    def attach_route(self, fast_app: FastAPI, prefix: str | None = None) -> None:
+        """Attach the route to the FastAPI app."""
+        if prefix is not None:
+            if not _NAME_RE.match(prefix):
+                raise ValueError(f"Invalid prefix: {prefix}")
+            full_path = f"/{prefix}/{self._name}"
+        else:
+            full_path = f"/{self._name}"
+        for method in self._methods:
+            method.attach_route(fast_app, full_path)

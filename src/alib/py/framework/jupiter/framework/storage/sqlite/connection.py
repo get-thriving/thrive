@@ -10,8 +10,8 @@ from alembic import command
 from alembic.config import Config
 from jupiter.framework.storage.connection import Connection, ConnectionPrepareError
 from pydantic_core import to_jsonable_python
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.engine import Connection as SyncConnection
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 
 class SqliteConnection(Connection):

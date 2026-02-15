@@ -9,7 +9,10 @@ import {
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
 
-import type { GlobalPropertiesServer, ServicePropertiesServer } from "#/core/config-server";
+import type {
+  GlobalPropertiesServer,
+  ServicePropertiesServer,
+} from "#/core/config-server";
 import type { FrontDoorInfo } from "#/core/frontdoor";
 
 export interface GlobalPropertiesClient {
@@ -92,7 +95,8 @@ export function serverToClientServiceProperties(
   return {
     appCore: AppCore.WEBUI,
     frontDoorInfo: frontDoorInfo,
-    webApiProgressReporterUrl: servicePropertiesServer.webApiProgressReporterUrl,
+    webApiProgressReporterUrl:
+      servicePropertiesServer.webApiProgressReporterUrl,
     webApiUrl: servicePropertiesServer.webApiUrl,
     docsUrl: servicePropertiesServer.docsUrl,
     inboxTasksToAskForGC: servicePropertiesServer.inboxTasksToAskForGC,

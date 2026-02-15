@@ -16,7 +16,10 @@ import {
 import { useFetcher } from "@remix-run/react";
 import { useContext, useEffect, useState } from "react";
 
-import { GlobalPropertiesContext, ServicePropertiesContext } from "#/core/config-client";
+import {
+  GlobalPropertiesContext,
+  ServicePropertiesContext,
+} from "#/core/config-client";
 import type { ReleaseManifestResult } from "#/core/infra/release";
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;

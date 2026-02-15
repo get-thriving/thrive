@@ -18,11 +18,13 @@ module.exports = {
         cwd: "src/api",
         interpreter: "none",
         script: "python",
-        args: "-m jupiter.api.jupiter",
+        args: "-m watchfiles jupiter.api.jupiter.sync_main . ../alib/py/framework",
         log_file: "{{apiLogFile}}",
         env: {
             INSTANCE: "{{instance}}",
-            PORT: "{{apiPort}}"
+            PORT: "{{apiPort}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
         }
     }, 
     {
