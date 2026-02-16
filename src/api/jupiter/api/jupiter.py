@@ -299,6 +299,26 @@ from jupiter_webapi_client.api.metrics.metric_update import (
     asyncio_detailed as metric_update,
 )
 
+# --- Notes API ---
+from jupiter_webapi_client.api.notes.note_archive import (
+    asyncio_detailed as note_archive,
+)
+from jupiter_webapi_client.api.notes.note_create import (
+    asyncio_detailed as note_create,
+)
+from jupiter_webapi_client.api.notes.note_find import (
+    asyncio_detailed as note_find,
+)
+from jupiter_webapi_client.api.notes.note_load import (
+    asyncio_detailed as note_load,
+)
+from jupiter_webapi_client.api.notes.note_remove import (
+    asyncio_detailed as note_remove,
+)
+from jupiter_webapi_client.api.notes.note_update import (
+    asyncio_detailed as note_update,
+)
+
 # --- PRM API ---
 from jupiter_webapi_client.api.prm.circle_archive import (
     asyncio_detailed as circle_archive,
@@ -456,6 +476,49 @@ from jupiter_webapi_client.api.smart_lists.smart_list_remove import (
 )
 from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
+)
+
+# --- Tags API ---
+from jupiter_webapi_client.api.tags.tag_archive import (
+    asyncio_detailed as tag_archive,
+)
+from jupiter_webapi_client.api.tags.tag_create import (
+    asyncio_detailed as tag_create,
+)
+from jupiter_webapi_client.api.tags.tag_find import (
+    asyncio_detailed as tag_find,
+)
+from jupiter_webapi_client.api.tags.tag_link_upsert import (
+    asyncio_detailed as tag_link_upsert,
+)
+from jupiter_webapi_client.api.tags.tag_load import (
+    asyncio_detailed as tag_load,
+)
+from jupiter_webapi_client.api.tags.tag_remove import (
+    asyncio_detailed as tag_remove,
+)
+from jupiter_webapi_client.api.tags.tag_update import (
+    asyncio_detailed as tag_update,
+)
+
+# --- Time Events API ---
+from jupiter_webapi_client.api.time_events.time_event_full_days_block_load import (
+    asyncio_detailed as time_event_full_days_block_load,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive import (
+    asyncio_detailed as time_event_in_day_block_archive,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
+    asyncio_detailed as time_event_in_day_block_load,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_remove import (
+    asyncio_detailed as time_event_in_day_block_remove,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_update import (
+    asyncio_detailed as time_event_in_day_block_update,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_activity_archive import (
     asyncio_detailed as time_plan_activity_archive,
@@ -1091,6 +1154,77 @@ async def main() -> None:
                             "remove",
                             JupiterApiGatewayMethod.delete(smart_list_item_remove),
                         ),
+                    ),
+                ),
+            ),
+        ),
+        JupiterApiResource.build(
+            "core",
+            # Notes
+            JupiterApiResource.build(
+                "notes",
+                JupiterApiGatewayMethod.get(note_find),
+                JupiterApiGatewayMethod.post(note_create),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(note_load),
+                    JupiterApiGatewayMethod.put(note_update),
+                    JupiterApiGatewayMethod.delete(note_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(note_remove),
+                    ),
+                ),
+            ),
+            # Tags
+            JupiterApiResource.build(
+                "tags",
+                JupiterApiGatewayMethod.get(tag_find),
+                JupiterApiGatewayMethod.post(tag_create),
+                JupiterApiResource.build(
+                    "link",
+                    JupiterApiGatewayMethod.post(tag_link_upsert),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(tag_load),
+                    JupiterApiGatewayMethod.put(tag_update),
+                    JupiterApiGatewayMethod.delete(tag_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(tag_remove),
+                    ),
+                ),
+            ),
+            # Time Events
+            JupiterApiResource.build(
+                "time-events",
+                JupiterApiResource.build(
+                    "in-day-blocks",
+                    JupiterApiResource.build(
+                        "for-inbox-task",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_inbox_task,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        ":ref_id",
+                        JupiterApiGatewayMethod.get(time_event_in_day_block_load),
+                        JupiterApiGatewayMethod.put(time_event_in_day_block_update),
+                        JupiterApiGatewayMethod.delete(time_event_in_day_block_archive),
+                        JupiterApiResource.build(
+                            "remove",
+                            JupiterApiGatewayMethod.delete(
+                                time_event_in_day_block_remove
+                            ),
+                        ),
+                    ),
+                ),
+                JupiterApiResource.build(
+                    "full-days-blocks",
+                    JupiterApiResource.build(
+                        ":ref_id",
+                        JupiterApiGatewayMethod.get(time_event_full_days_block_load),
                     ),
                 ),
             ),
