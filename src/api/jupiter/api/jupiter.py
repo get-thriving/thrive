@@ -15,194 +15,42 @@ from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
 
-# --- Inbox Tasks API ---
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
-    asyncio_detailed as inbox_task_archive,
+# --- Big Plans API ---
+from jupiter_webapi_client.api.big_plans.big_plan_archive import (
+    asyncio_detailed as big_plan_archive,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    asyncio_detailed as inbox_task_create,
+from jupiter_webapi_client.api.big_plans.big_plan_create import (
+    asyncio_detailed as big_plan_create,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
-    asyncio_detailed as inbox_task_find,
+from jupiter_webapi_client.api.big_plans.big_plan_find import (
+    asyncio_detailed as big_plan_find,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_load import (
-    asyncio_detailed as inbox_task_load,
+from jupiter_webapi_client.api.big_plans.big_plan_load import (
+    asyncio_detailed as big_plan_load,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_remove import (
-    asyncio_detailed as inbox_task_remove,
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_archive import (
+    asyncio_detailed as big_plan_milestone_archive,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
-    asyncio_detailed as inbox_task_update,
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_create import (
+    asyncio_detailed as big_plan_milestone_create,
 )
-
-# --- Working Mem API ---
-from jupiter_webapi_client.api.working_mem.working_mem_load_current import (
-    asyncio_detailed as working_mem_load_current,
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_load import (
+    asyncio_detailed as big_plan_milestone_load,
 )
-from jupiter_webapi_client.api.working_mem.working_mem_load_settings import (
-    asyncio_detailed as working_mem_load_settings,
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
+    asyncio_detailed as big_plan_milestone_remove,
 )
-from jupiter_webapi_client.api.working_mem.working_mem_update_settings import (
-    asyncio_detailed as working_mem_update_settings,
+from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
+    asyncio_detailed as big_plan_milestone_update,
 )
-
-# --- Time Plans API ---
-from jupiter_webapi_client.api.time_plans.time_plan_archive import (
-    asyncio_detailed as time_plan_archive,
+from jupiter_webapi_client.api.big_plans.big_plan_refresh_stats import (
+    asyncio_detailed as big_plan_refresh_stats,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
-    asyncio_detailed as time_plan_associate_big_plan_with_plan,
+from jupiter_webapi_client.api.big_plans.big_plan_remove import (
+    asyncio_detailed as big_plan_remove,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
-    asyncio_detailed as time_plan_associate_inbox_task_with_plan,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities import (
-    asyncio_detailed as time_plan_associate_with_activities,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
-    asyncio_detailed as time_plan_associate_with_big_plans,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
-    asyncio_detailed as time_plan_associate_with_inbox_tasks,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_change_time_config import (
-    asyncio_detailed as time_plan_change_time_config,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_create import (
-    asyncio_detailed as time_plan_create,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_find import (
-    asyncio_detailed as time_plan_find,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_gen_for_time_plan import (
-    asyncio_detailed as time_plan_gen_for_time_plan,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_load import (
-    asyncio_detailed as time_plan_load,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_load_for_time_date_and_period import (
-    asyncio_detailed as time_plan_load_for_date_and_period,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_load_settings import (
-    asyncio_detailed as time_plan_load_settings,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_regen import (
-    asyncio_detailed as time_plan_regen,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_remove import (
-    asyncio_detailed as time_plan_remove,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_update_settings import (
-    asyncio_detailed as time_plan_update_settings,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_activity_archive import (
-    asyncio_detailed as time_plan_activity_archive,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_activity_find_for_target import (
-    asyncio_detailed as time_plan_activity_find_for_target,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_activity_load import (
-    asyncio_detailed as time_plan_activity_load,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_activity_remove import (
-    asyncio_detailed as time_plan_activity_remove,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_activity_update import (
-    asyncio_detailed as time_plan_activity_update,
-)
-
-# --- Schedule API ---
-from jupiter_webapi_client.api.schedule.schedule_stream_archive import (
-    asyncio_detailed as schedule_stream_archive,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_create_for_external_ical import (
-    asyncio_detailed as schedule_stream_create_for_external_ical,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_create_for_user import (
-    asyncio_detailed as schedule_stream_create_for_user,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_find import (
-    asyncio_detailed as schedule_stream_find,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_load import (
-    asyncio_detailed as schedule_stream_load,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_remove import (
-    asyncio_detailed as schedule_stream_remove,
-)
-from jupiter_webapi_client.api.schedule.schedule_stream_update import (
-    asyncio_detailed as schedule_stream_update,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_archive import (
-    asyncio_detailed as schedule_event_full_days_archive,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_change_schedule_stream import (
-    asyncio_detailed as schedule_event_full_days_change_schedule_stream,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
-    asyncio_detailed as schedule_event_full_days_create,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_load import (
-    asyncio_detailed as schedule_event_full_days_load,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_remove import (
-    asyncio_detailed as schedule_event_full_days_remove,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_full_days_update import (
-    asyncio_detailed as schedule_event_full_days_update,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_archive import (
-    asyncio_detailed as schedule_event_in_day_archive,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_change_schedule_stream import (
-    asyncio_detailed as schedule_event_in_day_change_schedule_stream,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
-    asyncio_detailed as schedule_event_in_day_create,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_load import (
-    asyncio_detailed as schedule_event_in_day_load,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_remove import (
-    asyncio_detailed as schedule_event_in_day_remove,
-)
-from jupiter_webapi_client.api.schedule.schedule_event_in_day_update import (
-    asyncio_detailed as schedule_event_in_day_update,
-)
-from jupiter_webapi_client.api.schedule.schedule_external_sync_do import (
-    asyncio_detailed as schedule_external_sync_do,
-)
-from jupiter_webapi_client.api.schedule.schedule_external_sync_load_runs import (
-    asyncio_detailed as schedule_external_sync_load_runs,
-)
-
-# --- Habits API ---
-from jupiter_webapi_client.api.habits.habit_archive import (
-    asyncio_detailed as habit_archive,
-)
-from jupiter_webapi_client.api.habits.habit_create import (
-    asyncio_detailed as habit_create,
-)
-from jupiter_webapi_client.api.habits.habit_find import (
-    asyncio_detailed as habit_find,
-)
-from jupiter_webapi_client.api.habits.habit_load import (
-    asyncio_detailed as habit_load,
-)
-from jupiter_webapi_client.api.habits.habit_regen import (
-    asyncio_detailed as habit_regen,
-)
-from jupiter_webapi_client.api.habits.habit_remove import (
-    asyncio_detailed as habit_remove,
-)
-from jupiter_webapi_client.api.habits.habit_suspend import (
-    asyncio_detailed as habit_suspend,
-)
-from jupiter_webapi_client.api.habits.habit_unsuspend import (
-    asyncio_detailed as habit_unsuspend,
-)
-from jupiter_webapi_client.api.habits.habit_update import (
-    asyncio_detailed as habit_update,
+from jupiter_webapi_client.api.big_plans.big_plan_update import (
+    asyncio_detailed as big_plan_update,
 )
 
 # --- Chores API ---
@@ -234,44 +82,6 @@ from jupiter_webapi_client.api.chores.chore_update import (
     asyncio_detailed as chore_update,
 )
 
-# --- Big Plans API ---
-from jupiter_webapi_client.api.big_plans.big_plan_archive import (
-    asyncio_detailed as big_plan_archive,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_create import (
-    asyncio_detailed as big_plan_create,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_find import (
-    asyncio_detailed as big_plan_find,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_load import (
-    asyncio_detailed as big_plan_load,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_refresh_stats import (
-    asyncio_detailed as big_plan_refresh_stats,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_remove import (
-    asyncio_detailed as big_plan_remove,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_update import (
-    asyncio_detailed as big_plan_update,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_archive import (
-    asyncio_detailed as big_plan_milestone_archive,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_create import (
-    asyncio_detailed as big_plan_milestone_create,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_load import (
-    asyncio_detailed as big_plan_milestone_load,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
-    asyncio_detailed as big_plan_milestone_remove,
-)
-from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
-    asyncio_detailed as big_plan_milestone_update,
-)
-
 # --- Docs API ---
 from jupiter_webapi_client.api.docs.doc_archive import (
     asyncio_detailed as doc_archive,
@@ -295,30 +105,53 @@ from jupiter_webapi_client.api.docs.doc_update import (
     asyncio_detailed as doc_update,
 )
 
-# --- Life Plan API ---
-from jupiter_webapi_client.api.life_plan.life_plan_update import (
-    asyncio_detailed as life_plan_update,
+# --- Habits API ---
+from jupiter_webapi_client.api.habits.habit_archive import (
+    asyncio_detailed as habit_archive,
 )
-from jupiter_webapi_client.api.life_plan.vision_archive import (
-    asyncio_detailed as vision_archive,
+from jupiter_webapi_client.api.habits.habit_create import (
+    asyncio_detailed as habit_create,
 )
-from jupiter_webapi_client.api.life_plan.vision_create_draft import (
-    asyncio_detailed as vision_create_draft,
+from jupiter_webapi_client.api.habits.habit_find import (
+    asyncio_detailed as habit_find,
 )
-from jupiter_webapi_client.api.life_plan.vision_find import (
-    asyncio_detailed as vision_find,
+from jupiter_webapi_client.api.habits.habit_load import (
+    asyncio_detailed as habit_load,
 )
-from jupiter_webapi_client.api.life_plan.vision_load import (
-    asyncio_detailed as vision_load,
+from jupiter_webapi_client.api.habits.habit_regen import (
+    asyncio_detailed as habit_regen,
 )
-from jupiter_webapi_client.api.life_plan.vision_load_active import (
-    asyncio_detailed as vision_load_active,
+from jupiter_webapi_client.api.habits.habit_remove import (
+    asyncio_detailed as habit_remove,
 )
-from jupiter_webapi_client.api.life_plan.vision_mark_draft_as_active import (
-    asyncio_detailed as vision_mark_draft_as_active,
+from jupiter_webapi_client.api.habits.habit_suspend import (
+    asyncio_detailed as habit_suspend,
 )
-from jupiter_webapi_client.api.life_plan.vision_remove import (
-    asyncio_detailed as vision_remove,
+from jupiter_webapi_client.api.habits.habit_unsuspend import (
+    asyncio_detailed as habit_unsuspend,
+)
+from jupiter_webapi_client.api.habits.habit_update import (
+    asyncio_detailed as habit_update,
+)
+
+# --- Inbox Tasks API ---
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
+    asyncio_detailed as inbox_task_archive,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
+    asyncio_detailed as inbox_task_create,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
+    asyncio_detailed as inbox_task_find,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_load import (
+    asyncio_detailed as inbox_task_load,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_remove import (
+    asyncio_detailed as inbox_task_remove,
+)
+from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
+    asyncio_detailed as inbox_task_update,
 )
 from jupiter_webapi_client.api.life_plan.chapter_archive import (
     asyncio_detailed as chapter_archive,
@@ -355,6 +188,11 @@ from jupiter_webapi_client.api.life_plan.goal_remove import (
 )
 from jupiter_webapi_client.api.life_plan.goal_update import (
     asyncio_detailed as goal_update,
+)
+
+# --- Life Plan API ---
+from jupiter_webapi_client.api.life_plan.life_plan_update import (
+    asyncio_detailed as life_plan_update,
 )
 from jupiter_webapi_client.api.life_plan.milestone_archive import (
     asyncio_detailed as milestone_archive,
@@ -394,6 +232,27 @@ from jupiter_webapi_client.api.life_plan.project_reorder_children import (
 )
 from jupiter_webapi_client.api.life_plan.project_update import (
     asyncio_detailed as project_update,
+)
+from jupiter_webapi_client.api.life_plan.vision_archive import (
+    asyncio_detailed as vision_archive,
+)
+from jupiter_webapi_client.api.life_plan.vision_create_draft import (
+    asyncio_detailed as vision_create_draft,
+)
+from jupiter_webapi_client.api.life_plan.vision_find import (
+    asyncio_detailed as vision_find,
+)
+from jupiter_webapi_client.api.life_plan.vision_load import (
+    asyncio_detailed as vision_load,
+)
+from jupiter_webapi_client.api.life_plan.vision_load_active import (
+    asyncio_detailed as vision_load_active,
+)
+from jupiter_webapi_client.api.life_plan.vision_mark_draft_as_active import (
+    asyncio_detailed as vision_mark_draft_as_active,
+)
+from jupiter_webapi_client.api.life_plan.vision_remove import (
+    asyncio_detailed as vision_remove,
 )
 
 # --- Metrics API ---
@@ -501,6 +360,71 @@ from jupiter_webapi_client.api.prm.person_remove import (
 from jupiter_webapi_client.api.prm.person_update import (
     asyncio_detailed as person_update,
 )
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_archive import (
+    asyncio_detailed as schedule_event_full_days_archive,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_change_schedule_stream import (
+    asyncio_detailed as schedule_event_full_days_change_schedule_stream,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_create import (
+    asyncio_detailed as schedule_event_full_days_create,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_load import (
+    asyncio_detailed as schedule_event_full_days_load,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_remove import (
+    asyncio_detailed as schedule_event_full_days_remove,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_full_days_update import (
+    asyncio_detailed as schedule_event_full_days_update,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_archive import (
+    asyncio_detailed as schedule_event_in_day_archive,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_change_schedule_stream import (
+    asyncio_detailed as schedule_event_in_day_change_schedule_stream,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_create import (
+    asyncio_detailed as schedule_event_in_day_create,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_load import (
+    asyncio_detailed as schedule_event_in_day_load,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_remove import (
+    asyncio_detailed as schedule_event_in_day_remove,
+)
+from jupiter_webapi_client.api.schedule.schedule_event_in_day_update import (
+    asyncio_detailed as schedule_event_in_day_update,
+)
+from jupiter_webapi_client.api.schedule.schedule_external_sync_do import (
+    asyncio_detailed as schedule_external_sync_do,
+)
+from jupiter_webapi_client.api.schedule.schedule_external_sync_load_runs import (
+    asyncio_detailed as schedule_external_sync_load_runs,
+)
+
+# --- Schedule API ---
+from jupiter_webapi_client.api.schedule.schedule_stream_archive import (
+    asyncio_detailed as schedule_stream_archive,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_create_for_external_ical import (
+    asyncio_detailed as schedule_stream_create_for_external_ical,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_create_for_user import (
+    asyncio_detailed as schedule_stream_create_for_user,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_find import (
+    asyncio_detailed as schedule_stream_find,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_load import (
+    asyncio_detailed as schedule_stream_load,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_remove import (
+    asyncio_detailed as schedule_stream_remove,
+)
+from jupiter_webapi_client.api.schedule.schedule_stream_update import (
+    asyncio_detailed as schedule_stream_update,
+)
 
 # --- Smart Lists API ---
 from jupiter_webapi_client.api.smart_lists.smart_list_archive import (
@@ -533,9 +457,170 @@ from jupiter_webapi_client.api.smart_lists.smart_list_remove import (
 from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
 )
+from jupiter_webapi_client.api.time_plans.time_plan_activity_archive import (
+    asyncio_detailed as time_plan_activity_archive,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_activity_find_for_target import (
+    asyncio_detailed as time_plan_activity_find_for_target,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_activity_load import (
+    asyncio_detailed as time_plan_activity_load,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_activity_remove import (
+    asyncio_detailed as time_plan_activity_remove,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_activity_update import (
+    asyncio_detailed as time_plan_activity_update,
+)
+
+# --- Time Plans API ---
+from jupiter_webapi_client.api.time_plans.time_plan_archive import (
+    asyncio_detailed as time_plan_archive,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_big_plan_with_plan import (
+    asyncio_detailed as time_plan_associate_big_plan_with_plan,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_inbox_task_with_plan import (
+    asyncio_detailed as time_plan_associate_inbox_task_with_plan,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_activities import (
+    asyncio_detailed as time_plan_associate_with_activities,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_big_plans import (
+    asyncio_detailed as time_plan_associate_with_big_plans,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks import (
+    asyncio_detailed as time_plan_associate_with_inbox_tasks,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_change_time_config import (
+    asyncio_detailed as time_plan_change_time_config,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_create import (
+    asyncio_detailed as time_plan_create,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_find import (
+    asyncio_detailed as time_plan_find,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_gen_for_time_plan import (
+    asyncio_detailed as time_plan_gen_for_time_plan,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_load import (
+    asyncio_detailed as time_plan_load,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_load_for_time_date_and_period import (
+    asyncio_detailed as time_plan_load_for_date_and_period,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_load_settings import (
+    asyncio_detailed as time_plan_load_settings,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_regen import (
+    asyncio_detailed as time_plan_regen,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_remove import (
+    asyncio_detailed as time_plan_remove,
+)
+from jupiter_webapi_client.api.time_plans.time_plan_update_settings import (
+    asyncio_detailed as time_plan_update_settings,
+)
+
+# --- Working Mem API ---
+from jupiter_webapi_client.api.working_mem.working_mem_load_current import (
+    asyncio_detailed as working_mem_load_current,
+)
+from jupiter_webapi_client.api.working_mem.working_mem_load_settings import (
+    asyncio_detailed as working_mem_load_settings,
+)
+from jupiter_webapi_client.api.working_mem.working_mem_update_settings import (
+    asyncio_detailed as working_mem_update_settings,
+)
 
 # --- Model imports ---
 from jupiter_webapi_client.models import (
+    # Big Plans
+    BigPlanArchiveArgs,
+    BigPlanCreateArgs,
+    BigPlanCreateResult,
+    BigPlanFindArgs,
+    BigPlanFindResult,
+    BigPlanLoadArgs,
+    BigPlanLoadResult,
+    BigPlanMilestoneArchiveArgs,
+    BigPlanMilestoneCreateArgs,
+    BigPlanMilestoneCreateResult,
+    BigPlanMilestoneLoadArgs,
+    BigPlanMilestoneLoadResult,
+    BigPlanMilestoneRemoveArgs,
+    BigPlanMilestoneUpdateArgs,
+    BigPlanRefreshStatsArgs,
+    BigPlanRemoveArgs,
+    BigPlanUpdateArgs,
+    BigPlanUpdateResult,
+    # Life Plan
+    ChapterArchiveArgs,
+    ChapterCreateArgs,
+    ChapterCreateResult,
+    ChapterFindArgs,
+    ChapterFindResult,
+    ChapterLoadArgs,
+    ChapterLoadResult,
+    ChapterRemoveArgs,
+    ChapterUpdateArgs,
+    # Chores
+    ChoreArchiveArgs,
+    ChoreCreateArgs,
+    ChoreCreateResult,
+    ChoreFindArgs,
+    ChoreFindResult,
+    ChoreLoadArgs,
+    ChoreLoadResult,
+    ChoreRegenArgs,
+    ChoreRemoveArgs,
+    ChoreSuspendArgs,
+    ChoreUnsuspendArgs,
+    ChoreUpdateArgs,
+    # PRM
+    CircleArchiveArgs,
+    CircleCreateArgs,
+    CircleCreateResult,
+    CircleFindArgs,
+    CircleFindResult,
+    CircleLoadArgs,
+    CircleLoadResult,
+    CircleRemoveArgs,
+    CircleUpdateArgs,
+    # Docs
+    DocArchiveArgs,
+    DocChangeParentArgs,
+    DocCreateArgs,
+    DocCreateResult,
+    DocFindArgs,
+    DocFindResult,
+    DocLoadArgs,
+    DocLoadResult,
+    DocRemoveArgs,
+    DocUpdateArgs,
+    GoalArchiveArgs,
+    GoalCreateArgs,
+    GoalCreateResult,
+    GoalFindArgs,
+    GoalFindResult,
+    GoalLoadArgs,
+    GoalLoadResult,
+    GoalRemoveArgs,
+    GoalUpdateArgs,
+    # Habits
+    HabitArchiveArgs,
+    HabitCreateArgs,
+    HabitCreateResult,
+    HabitFindArgs,
+    HabitFindResult,
+    HabitLoadArgs,
+    HabitLoadResult,
+    HabitRegenArgs,
+    HabitRemoveArgs,
+    HabitSuspendArgs,
+    HabitUnsuspendArgs,
+    HabitUpdateArgs,
     # Inbox Tasks
     InboxTaskArchiveArgs,
     InboxTaskCreateArgs,
@@ -547,12 +632,120 @@ from jupiter_webapi_client.models import (
     InboxTaskRemoveArgs,
     InboxTaskUpdateArgs,
     InboxTaskUpdateResult,
-    # Working Mem
-    WorkingMemLoadCurrentArgs,
-    WorkingMemLoadCurrentResult,
-    WorkingMemLoadSettingsArgs,
-    WorkingMemLoadSettingsResult,
-    WorkingMemUpdateSettingsArgs,
+    LifePlanUpdateArgs,
+    # Metrics
+    MetricArchiveArgs,
+    MetricChangeCollectionProjectArgs,
+    MetricCreateArgs,
+    MetricCreateResult,
+    MetricEntryArchiveArgs,
+    MetricEntryCreateArgs,
+    MetricEntryCreateResult,
+    MetricEntryLoadArgs,
+    MetricEntryLoadResult,
+    MetricEntryRemoveArgs,
+    MetricEntryUpdateArgs,
+    MetricFindArgs,
+    MetricFindResult,
+    MetricLoadArgs,
+    MetricLoadResult,
+    MetricLoadSettingsArgs,
+    MetricLoadSettingsResult,
+    MetricRegenArgs,
+    MetricRemoveArgs,
+    MetricUpdateArgs,
+    MilestoneArchiveArgs,
+    MilestoneCreateArgs,
+    MilestoneCreateResult,
+    MilestoneFindArgs,
+    MilestoneFindResult,
+    MilestoneLoadArgs,
+    MilestoneLoadResult,
+    MilestoneRemoveArgs,
+    MilestoneUpdateArgs,
+    OccasionArchiveArgs,
+    OccasionCreateArgs,
+    OccasionCreateResult,
+    OccasionLoadArgs,
+    OccasionLoadResult,
+    OccasionRemoveArgs,
+    OccasionUpdateArgs,
+    PersonArchiveArgs,
+    PersonChangeCatchUpProjectArgs,
+    PersonCreateArgs,
+    PersonCreateResult,
+    PersonFindArgs,
+    PersonFindResult,
+    PersonLoadArgs,
+    PersonLoadResult,
+    PersonLoadSettingsArgs,
+    PersonLoadSettingsResult,
+    PersonRegenArgs,
+    PersonRemoveArgs,
+    PersonUpdateArgs,
+    ProjectArchiveArgs,
+    ProjectCreateArgs,
+    ProjectCreateResult,
+    ProjectFindArgs,
+    ProjectFindResult,
+    ProjectLoadArgs,
+    ProjectLoadResult,
+    ProjectRemoveArgs,
+    ProjectReorderChildrenArgs,
+    ProjectUpdateArgs,
+    ScheduleEventFullDaysArchiveArgs,
+    ScheduleEventFullDaysChangeScheduleStreamArgs,
+    ScheduleEventFullDaysCreateArgs,
+    ScheduleEventFullDaysCreateResult,
+    ScheduleEventFullDaysLoadArgs,
+    ScheduleEventFullDaysLoadResult,
+    ScheduleEventFullDaysRemoveArgs,
+    ScheduleEventFullDaysUpdateArgs,
+    ScheduleEventInDayArchiveArgs,
+    ScheduleEventInDayChangeScheduleStreamArgs,
+    ScheduleEventInDayCreateArgs,
+    ScheduleEventInDayCreateResult,
+    ScheduleEventInDayLoadArgs,
+    ScheduleEventInDayLoadResult,
+    ScheduleEventInDayRemoveArgs,
+    ScheduleEventInDayUpdateArgs,
+    ScheduleExternalSyncDoArgs,
+    ScheduleExternalSyncLoadRunsArgs,
+    ScheduleExternalSyncLoadRunsResult,
+    # Schedule
+    ScheduleStreamArchiveArgs,
+    ScheduleStreamCreateForExternalIcalArgs,
+    ScheduleStreamCreateForExternalIcalResult,
+    ScheduleStreamCreateForUserArgs,
+    ScheduleStreamCreateForUserResult,
+    ScheduleStreamFindArgs,
+    ScheduleStreamFindResult,
+    ScheduleStreamLoadArgs,
+    ScheduleStreamLoadResult,
+    ScheduleStreamRemoveArgs,
+    ScheduleStreamUpdateArgs,
+    # Smart Lists
+    SmartListArchiveArgs,
+    SmartListCreateArgs,
+    SmartListCreateResult,
+    SmartListFindArgs,
+    SmartListFindResult,
+    SmartListItemCreateArgs,
+    SmartListItemCreateResult,
+    SmartListItemLoadArgs,
+    SmartListItemLoadResult,
+    SmartListItemRemoveArgs,
+    SmartListItemUpdateArgs,
+    SmartListLoadArgs,
+    SmartListLoadResult,
+    SmartListUpdateArgs,
+    TimePlanActivityArchiveArgs,
+    TimePlanActivityFindForTargetArgs,
+    TimePlanActivityFindForTargetResult,
+    TimePlanActivityLoadArgs,
+    TimePlanActivityLoadResult,
+    TimePlanActivityRemoveArgs,
+    TimePlanActivityUpdateArgs,
     # Time Plans
     TimePlanArchiveArgs,
     TimePlanAssociateBigPlanWithPlanArgs,
@@ -580,139 +773,6 @@ from jupiter_webapi_client.models import (
     TimePlanRegenArgs,
     TimePlanRemoveArgs,
     TimePlanUpdateSettingsArgs,
-    TimePlanActivityArchiveArgs,
-    TimePlanActivityFindForTargetArgs,
-    TimePlanActivityFindForTargetResult,
-    TimePlanActivityLoadArgs,
-    TimePlanActivityLoadResult,
-    TimePlanActivityRemoveArgs,
-    TimePlanActivityUpdateArgs,
-    # Schedule
-    ScheduleStreamArchiveArgs,
-    ScheduleStreamCreateForExternalIcalArgs,
-    ScheduleStreamCreateForExternalIcalResult,
-    ScheduleStreamCreateForUserArgs,
-    ScheduleStreamCreateForUserResult,
-    ScheduleStreamFindArgs,
-    ScheduleStreamFindResult,
-    ScheduleStreamLoadArgs,
-    ScheduleStreamLoadResult,
-    ScheduleStreamRemoveArgs,
-    ScheduleStreamUpdateArgs,
-    ScheduleEventFullDaysArchiveArgs,
-    ScheduleEventFullDaysChangeScheduleStreamArgs,
-    ScheduleEventFullDaysCreateArgs,
-    ScheduleEventFullDaysCreateResult,
-    ScheduleEventFullDaysLoadArgs,
-    ScheduleEventFullDaysLoadResult,
-    ScheduleEventFullDaysRemoveArgs,
-    ScheduleEventFullDaysUpdateArgs,
-    ScheduleEventInDayArchiveArgs,
-    ScheduleEventInDayChangeScheduleStreamArgs,
-    ScheduleEventInDayCreateArgs,
-    ScheduleEventInDayCreateResult,
-    ScheduleEventInDayLoadArgs,
-    ScheduleEventInDayLoadResult,
-    ScheduleEventInDayRemoveArgs,
-    ScheduleEventInDayUpdateArgs,
-    ScheduleExternalSyncDoArgs,
-    ScheduleExternalSyncLoadRunsArgs,
-    ScheduleExternalSyncLoadRunsResult,
-    # Habits
-    HabitArchiveArgs,
-    HabitCreateArgs,
-    HabitCreateResult,
-    HabitFindArgs,
-    HabitFindResult,
-    HabitLoadArgs,
-    HabitLoadResult,
-    HabitRegenArgs,
-    HabitRemoveArgs,
-    HabitSuspendArgs,
-    HabitUnsuspendArgs,
-    HabitUpdateArgs,
-    # Chores
-    ChoreArchiveArgs,
-    ChoreCreateArgs,
-    ChoreCreateResult,
-    ChoreFindArgs,
-    ChoreFindResult,
-    ChoreLoadArgs,
-    ChoreLoadResult,
-    ChoreRegenArgs,
-    ChoreRemoveArgs,
-    ChoreSuspendArgs,
-    ChoreUnsuspendArgs,
-    ChoreUpdateArgs,
-    # Big Plans
-    BigPlanArchiveArgs,
-    BigPlanCreateArgs,
-    BigPlanCreateResult,
-    BigPlanFindArgs,
-    BigPlanFindResult,
-    BigPlanLoadArgs,
-    BigPlanLoadResult,
-    BigPlanMilestoneArchiveArgs,
-    BigPlanMilestoneCreateArgs,
-    BigPlanMilestoneCreateResult,
-    BigPlanMilestoneLoadArgs,
-    BigPlanMilestoneLoadResult,
-    BigPlanMilestoneRemoveArgs,
-    BigPlanMilestoneUpdateArgs,
-    BigPlanRefreshStatsArgs,
-    BigPlanRemoveArgs,
-    BigPlanUpdateArgs,
-    BigPlanUpdateResult,
-    # Docs
-    DocArchiveArgs,
-    DocChangeParentArgs,
-    DocCreateArgs,
-    DocCreateResult,
-    DocFindArgs,
-    DocFindResult,
-    DocLoadArgs,
-    DocLoadResult,
-    DocRemoveArgs,
-    DocUpdateArgs,
-    # Life Plan
-    ChapterArchiveArgs,
-    ChapterCreateArgs,
-    ChapterCreateResult,
-    ChapterFindArgs,
-    ChapterFindResult,
-    ChapterLoadArgs,
-    ChapterLoadResult,
-    ChapterRemoveArgs,
-    ChapterUpdateArgs,
-    GoalArchiveArgs,
-    GoalCreateArgs,
-    GoalCreateResult,
-    GoalFindArgs,
-    GoalFindResult,
-    GoalLoadArgs,
-    GoalLoadResult,
-    GoalRemoveArgs,
-    GoalUpdateArgs,
-    LifePlanUpdateArgs,
-    MilestoneArchiveArgs,
-    MilestoneCreateArgs,
-    MilestoneCreateResult,
-    MilestoneFindArgs,
-    MilestoneFindResult,
-    MilestoneLoadArgs,
-    MilestoneLoadResult,
-    MilestoneRemoveArgs,
-    MilestoneUpdateArgs,
-    ProjectArchiveArgs,
-    ProjectCreateArgs,
-    ProjectCreateResult,
-    ProjectFindArgs,
-    ProjectFindResult,
-    ProjectLoadArgs,
-    ProjectLoadResult,
-    ProjectRemoveArgs,
-    ProjectReorderChildrenArgs,
-    ProjectUpdateArgs,
     VisionArchiveArgs,
     VisionCreateDraftArgs,
     VisionCreateDraftResult,
@@ -724,72 +784,12 @@ from jupiter_webapi_client.models import (
     VisionLoadResult,
     VisionMarkDraftAsActiveArgs,
     VisionRemoveArgs,
-    # Metrics
-    MetricArchiveArgs,
-    MetricChangeCollectionProjectArgs,
-    MetricCreateArgs,
-    MetricCreateResult,
-    MetricEntryArchiveArgs,
-    MetricEntryCreateArgs,
-    MetricEntryCreateResult,
-    MetricEntryLoadArgs,
-    MetricEntryLoadResult,
-    MetricEntryRemoveArgs,
-    MetricEntryUpdateArgs,
-    MetricFindArgs,
-    MetricFindResult,
-    MetricLoadArgs,
-    MetricLoadResult,
-    MetricLoadSettingsArgs,
-    MetricLoadSettingsResult,
-    MetricRegenArgs,
-    MetricRemoveArgs,
-    MetricUpdateArgs,
-    # PRM
-    CircleArchiveArgs,
-    CircleCreateArgs,
-    CircleCreateResult,
-    CircleFindArgs,
-    CircleFindResult,
-    CircleLoadArgs,
-    CircleLoadResult,
-    CircleRemoveArgs,
-    CircleUpdateArgs,
-    OccasionArchiveArgs,
-    OccasionCreateArgs,
-    OccasionCreateResult,
-    OccasionLoadArgs,
-    OccasionLoadResult,
-    OccasionRemoveArgs,
-    OccasionUpdateArgs,
-    PersonArchiveArgs,
-    PersonChangeCatchUpProjectArgs,
-    PersonCreateArgs,
-    PersonCreateResult,
-    PersonFindArgs,
-    PersonFindResult,
-    PersonLoadArgs,
-    PersonLoadResult,
-    PersonLoadSettingsArgs,
-    PersonLoadSettingsResult,
-    PersonRegenArgs,
-    PersonRemoveArgs,
-    PersonUpdateArgs,
-    # Smart Lists
-    SmartListArchiveArgs,
-    SmartListCreateArgs,
-    SmartListCreateResult,
-    SmartListFindArgs,
-    SmartListFindResult,
-    SmartListItemCreateArgs,
-    SmartListItemCreateResult,
-    SmartListItemLoadArgs,
-    SmartListItemLoadResult,
-    SmartListItemRemoveArgs,
-    SmartListItemUpdateArgs,
-    SmartListLoadArgs,
-    SmartListLoadResult,
-    SmartListUpdateArgs,
+    # Working Mem
+    WorkingMemLoadCurrentArgs,
+    WorkingMemLoadCurrentResult,
+    WorkingMemLoadSettingsArgs,
+    WorkingMemLoadSettingsResult,
+    WorkingMemUpdateSettingsArgs,
 )
 from rich import print as rich_print
 
@@ -1160,34 +1160,22 @@ async def main() -> None:
         # Habits
         JupiterApiResource.build(
             "habits",
-            JupiterApiGatewayMethod.get(
-                HabitFindArgs, HabitFindResult, habit_find
-            ),
+            JupiterApiGatewayMethod.get(HabitFindArgs, HabitFindResult, habit_find),
             JupiterApiGatewayMethod.post(
                 HabitCreateArgs, HabitCreateResult, habit_create
             ),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    HabitLoadArgs, HabitLoadResult, habit_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    HabitUpdateArgs, None, habit_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    HabitArchiveArgs, None, habit_archive
-                ),
+                JupiterApiGatewayMethod.get(HabitLoadArgs, HabitLoadResult, habit_load),
+                JupiterApiGatewayMethod.put(HabitUpdateArgs, None, habit_update),
+                JupiterApiGatewayMethod.delete(HabitArchiveArgs, None, habit_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        HabitRemoveArgs, None, habit_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(HabitRemoveArgs, None, habit_remove),
                 ),
                 JupiterApiResource.build(
                     "suspend",
-                    JupiterApiGatewayMethod.post(
-                        HabitSuspendArgs, None, habit_suspend
-                    ),
+                    JupiterApiGatewayMethod.post(HabitSuspendArgs, None, habit_suspend),
                 ),
                 JupiterApiResource.build(
                     "unsuspend",
@@ -1197,43 +1185,29 @@ async def main() -> None:
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(
-                        HabitRegenArgs, None, habit_regen
-                    ),
+                    JupiterApiGatewayMethod.post(HabitRegenArgs, None, habit_regen),
                 ),
             ),
         ),
         # Chores
         JupiterApiResource.build(
             "chores",
-            JupiterApiGatewayMethod.get(
-                ChoreFindArgs, ChoreFindResult, chore_find
-            ),
+            JupiterApiGatewayMethod.get(ChoreFindArgs, ChoreFindResult, chore_find),
             JupiterApiGatewayMethod.post(
                 ChoreCreateArgs, ChoreCreateResult, chore_create
             ),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    ChoreLoadArgs, ChoreLoadResult, chore_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    ChoreUpdateArgs, None, chore_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    ChoreArchiveArgs, None, chore_archive
-                ),
+                JupiterApiGatewayMethod.get(ChoreLoadArgs, ChoreLoadResult, chore_load),
+                JupiterApiGatewayMethod.put(ChoreUpdateArgs, None, chore_update),
+                JupiterApiGatewayMethod.delete(ChoreArchiveArgs, None, chore_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        ChoreRemoveArgs, None, chore_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(ChoreRemoveArgs, None, chore_remove),
                 ),
                 JupiterApiResource.build(
                     "suspend",
-                    JupiterApiGatewayMethod.post(
-                        ChoreSuspendArgs, None, chore_suspend
-                    ),
+                    JupiterApiGatewayMethod.post(ChoreSuspendArgs, None, chore_suspend),
                 ),
                 JupiterApiResource.build(
                     "unsuspend",
@@ -1243,9 +1217,7 @@ async def main() -> None:
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(
-                        ChoreRegenArgs, None, chore_regen
-                    ),
+                    JupiterApiGatewayMethod.post(ChoreRegenArgs, None, chore_regen),
                 ),
             ),
         ),
@@ -1320,28 +1292,16 @@ async def main() -> None:
         # Docs
         JupiterApiResource.build(
             "docs",
-            JupiterApiGatewayMethod.get(
-                DocFindArgs, DocFindResult, doc_find
-            ),
-            JupiterApiGatewayMethod.post(
-                DocCreateArgs, DocCreateResult, doc_create
-            ),
+            JupiterApiGatewayMethod.get(DocFindArgs, DocFindResult, doc_find),
+            JupiterApiGatewayMethod.post(DocCreateArgs, DocCreateResult, doc_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    DocLoadArgs, DocLoadResult, doc_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    DocUpdateArgs, None, doc_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    DocArchiveArgs, None, doc_archive
-                ),
+                JupiterApiGatewayMethod.get(DocLoadArgs, DocLoadResult, doc_load),
+                JupiterApiGatewayMethod.put(DocUpdateArgs, None, doc_update),
+                JupiterApiGatewayMethod.delete(DocArchiveArgs, None, doc_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        DocRemoveArgs, None, doc_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(DocRemoveArgs, None, doc_remove),
                 ),
                 JupiterApiResource.build(
                     "change-parent",
@@ -1354,9 +1314,7 @@ async def main() -> None:
         # Life Plan
         JupiterApiResource.build(
             "life-plan",
-            JupiterApiGatewayMethod.put(
-                LifePlanUpdateArgs, None, life_plan_update
-            ),
+            JupiterApiGatewayMethod.put(LifePlanUpdateArgs, None, life_plan_update),
             JupiterApiResource.build(
                 "visions",
                 JupiterApiGatewayMethod.get(
@@ -1431,9 +1389,7 @@ async def main() -> None:
             ),
             JupiterApiResource.build(
                 "goals",
-                JupiterApiGatewayMethod.get(
-                    GoalFindArgs, GoalFindResult, goal_find
-                ),
+                JupiterApiGatewayMethod.get(GoalFindArgs, GoalFindResult, goal_find),
                 JupiterApiGatewayMethod.post(
                     GoalCreateArgs, GoalCreateResult, goal_create
                 ),
@@ -1442,12 +1398,8 @@ async def main() -> None:
                     JupiterApiGatewayMethod.get(
                         GoalLoadArgs, GoalLoadResult, goal_load
                     ),
-                    JupiterApiGatewayMethod.put(
-                        GoalUpdateArgs, None, goal_update
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        GoalArchiveArgs, None, goal_archive
-                    ),
+                    JupiterApiGatewayMethod.put(GoalUpdateArgs, None, goal_update),
+                    JupiterApiGatewayMethod.delete(GoalArchiveArgs, None, goal_archive),
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(
@@ -1520,9 +1472,7 @@ async def main() -> None:
         # Metrics
         JupiterApiResource.build(
             "metrics",
-            JupiterApiGatewayMethod.get(
-                MetricFindArgs, MetricFindResult, metric_find
-            ),
+            JupiterApiGatewayMethod.get(MetricFindArgs, MetricFindResult, metric_find),
             JupiterApiGatewayMethod.post(
                 MetricCreateArgs, MetricCreateResult, metric_create
             ),
@@ -1539,12 +1489,8 @@ async def main() -> None:
                 JupiterApiGatewayMethod.get(
                     MetricLoadArgs, MetricLoadResult, metric_load
                 ),
-                JupiterApiGatewayMethod.put(
-                    MetricUpdateArgs, None, metric_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    MetricArchiveArgs, None, metric_archive
-                ),
+                JupiterApiGatewayMethod.put(MetricUpdateArgs, None, metric_update),
+                JupiterApiGatewayMethod.delete(MetricArchiveArgs, None, metric_archive),
                 JupiterApiResource.build(
                     "remove",
                     JupiterApiGatewayMethod.delete(
@@ -1553,9 +1499,7 @@ async def main() -> None:
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(
-                        MetricRegenArgs, None, metric_regen
-                    ),
+                    JupiterApiGatewayMethod.post(MetricRegenArgs, None, metric_regen),
                 ),
                 JupiterApiResource.build(
                     "change-collection-project",
@@ -1627,9 +1571,7 @@ async def main() -> None:
                     JupiterApiGatewayMethod.get(
                         PersonLoadArgs, PersonLoadResult, person_load
                     ),
-                    JupiterApiGatewayMethod.put(
-                        PersonUpdateArgs, None, person_update
-                    ),
+                    JupiterApiGatewayMethod.put(PersonUpdateArgs, None, person_update),
                     JupiterApiGatewayMethod.delete(
                         PersonArchiveArgs, None, person_archive
                     ),
@@ -1688,9 +1630,7 @@ async def main() -> None:
                     JupiterApiGatewayMethod.get(
                         CircleLoadArgs, CircleLoadResult, circle_load
                     ),
-                    JupiterApiGatewayMethod.put(
-                        CircleUpdateArgs, None, circle_update
-                    ),
+                    JupiterApiGatewayMethod.put(CircleUpdateArgs, None, circle_update),
                     JupiterApiGatewayMethod.delete(
                         CircleArchiveArgs, None, circle_archive
                     ),

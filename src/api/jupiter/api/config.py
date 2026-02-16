@@ -407,9 +407,13 @@ class JupiterApiGatewayMethod(
         if self._result is None:
             return JSONResponse(content=None)
 
-        true_response = cast(_ApiResultT, response.parsed)
+        if not isinstance(response.parsed, self._result):
+            return Response(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content="Unexpected response type",
+            )
 
-        return JSONResponse(content=true_response.to_dict())
+        return JSONResponse(content=response.parsed.to_dict())
 
 
 class JupiterApiService(
