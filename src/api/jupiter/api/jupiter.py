@@ -533,264 +533,6 @@ from jupiter_webapi_client.api.working_mem.working_mem_load_settings import (
 from jupiter_webapi_client.api.working_mem.working_mem_update_settings import (
     asyncio_detailed as working_mem_update_settings,
 )
-
-# --- Model imports ---
-from jupiter_webapi_client.models import (
-    # Big Plans
-    BigPlanArchiveArgs,
-    BigPlanCreateArgs,
-    BigPlanCreateResult,
-    BigPlanFindArgs,
-    BigPlanFindResult,
-    BigPlanLoadArgs,
-    BigPlanLoadResult,
-    BigPlanMilestoneArchiveArgs,
-    BigPlanMilestoneCreateArgs,
-    BigPlanMilestoneCreateResult,
-    BigPlanMilestoneLoadArgs,
-    BigPlanMilestoneLoadResult,
-    BigPlanMilestoneRemoveArgs,
-    BigPlanMilestoneUpdateArgs,
-    BigPlanRefreshStatsArgs,
-    BigPlanRemoveArgs,
-    BigPlanUpdateArgs,
-    BigPlanUpdateResult,
-    # Life Plan
-    ChapterArchiveArgs,
-    ChapterCreateArgs,
-    ChapterCreateResult,
-    ChapterFindArgs,
-    ChapterFindResult,
-    ChapterLoadArgs,
-    ChapterLoadResult,
-    ChapterRemoveArgs,
-    ChapterUpdateArgs,
-    # Chores
-    ChoreArchiveArgs,
-    ChoreCreateArgs,
-    ChoreCreateResult,
-    ChoreFindArgs,
-    ChoreFindResult,
-    ChoreLoadArgs,
-    ChoreLoadResult,
-    ChoreRegenArgs,
-    ChoreRemoveArgs,
-    ChoreSuspendArgs,
-    ChoreUnsuspendArgs,
-    ChoreUpdateArgs,
-    # PRM
-    CircleArchiveArgs,
-    CircleCreateArgs,
-    CircleCreateResult,
-    CircleFindArgs,
-    CircleFindResult,
-    CircleLoadArgs,
-    CircleLoadResult,
-    CircleRemoveArgs,
-    CircleUpdateArgs,
-    # Docs
-    DocArchiveArgs,
-    DocChangeParentArgs,
-    DocCreateArgs,
-    DocCreateResult,
-    DocFindArgs,
-    DocFindResult,
-    DocLoadArgs,
-    DocLoadResult,
-    DocRemoveArgs,
-    DocUpdateArgs,
-    GoalArchiveArgs,
-    GoalCreateArgs,
-    GoalCreateResult,
-    GoalFindArgs,
-    GoalFindResult,
-    GoalLoadArgs,
-    GoalLoadResult,
-    GoalRemoveArgs,
-    GoalUpdateArgs,
-    # Habits
-    HabitArchiveArgs,
-    HabitCreateArgs,
-    HabitCreateResult,
-    HabitFindArgs,
-    HabitFindResult,
-    HabitLoadArgs,
-    HabitLoadResult,
-    HabitRegenArgs,
-    HabitRemoveArgs,
-    HabitSuspendArgs,
-    HabitUnsuspendArgs,
-    HabitUpdateArgs,
-    # Inbox Tasks
-    InboxTaskArchiveArgs,
-    InboxTaskCreateArgs,
-    InboxTaskCreateResult,
-    InboxTaskFindArgs,
-    InboxTaskFindResult,
-    InboxTaskLoadArgs,
-    InboxTaskLoadResult,
-    InboxTaskRemoveArgs,
-    InboxTaskUpdateArgs,
-    InboxTaskUpdateResult,
-    LifePlanUpdateArgs,
-    # Metrics
-    MetricArchiveArgs,
-    MetricChangeCollectionProjectArgs,
-    MetricCreateArgs,
-    MetricCreateResult,
-    MetricEntryArchiveArgs,
-    MetricEntryCreateArgs,
-    MetricEntryCreateResult,
-    MetricEntryLoadArgs,
-    MetricEntryLoadResult,
-    MetricEntryRemoveArgs,
-    MetricEntryUpdateArgs,
-    MetricFindArgs,
-    MetricFindResult,
-    MetricLoadArgs,
-    MetricLoadResult,
-    MetricLoadSettingsArgs,
-    MetricLoadSettingsResult,
-    MetricRegenArgs,
-    MetricRemoveArgs,
-    MetricUpdateArgs,
-    MilestoneArchiveArgs,
-    MilestoneCreateArgs,
-    MilestoneCreateResult,
-    MilestoneFindArgs,
-    MilestoneFindResult,
-    MilestoneLoadArgs,
-    MilestoneLoadResult,
-    MilestoneRemoveArgs,
-    MilestoneUpdateArgs,
-    OccasionArchiveArgs,
-    OccasionCreateArgs,
-    OccasionCreateResult,
-    OccasionLoadArgs,
-    OccasionLoadResult,
-    OccasionRemoveArgs,
-    OccasionUpdateArgs,
-    PersonArchiveArgs,
-    PersonChangeCatchUpProjectArgs,
-    PersonCreateArgs,
-    PersonCreateResult,
-    PersonFindArgs,
-    PersonFindResult,
-    PersonLoadArgs,
-    PersonLoadResult,
-    PersonLoadSettingsArgs,
-    PersonLoadSettingsResult,
-    PersonRegenArgs,
-    PersonRemoveArgs,
-    PersonUpdateArgs,
-    ProjectArchiveArgs,
-    ProjectCreateArgs,
-    ProjectCreateResult,
-    ProjectFindArgs,
-    ProjectFindResult,
-    ProjectLoadArgs,
-    ProjectLoadResult,
-    ProjectRemoveArgs,
-    ProjectReorderChildrenArgs,
-    ProjectUpdateArgs,
-    ScheduleEventFullDaysArchiveArgs,
-    ScheduleEventFullDaysChangeScheduleStreamArgs,
-    ScheduleEventFullDaysCreateArgs,
-    ScheduleEventFullDaysCreateResult,
-    ScheduleEventFullDaysLoadArgs,
-    ScheduleEventFullDaysLoadResult,
-    ScheduleEventFullDaysRemoveArgs,
-    ScheduleEventFullDaysUpdateArgs,
-    ScheduleEventInDayArchiveArgs,
-    ScheduleEventInDayChangeScheduleStreamArgs,
-    ScheduleEventInDayCreateArgs,
-    ScheduleEventInDayCreateResult,
-    ScheduleEventInDayLoadArgs,
-    ScheduleEventInDayLoadResult,
-    ScheduleEventInDayRemoveArgs,
-    ScheduleEventInDayUpdateArgs,
-    ScheduleExternalSyncDoArgs,
-    ScheduleExternalSyncLoadRunsArgs,
-    ScheduleExternalSyncLoadRunsResult,
-    # Schedule
-    ScheduleStreamArchiveArgs,
-    ScheduleStreamCreateForExternalIcalArgs,
-    ScheduleStreamCreateForExternalIcalResult,
-    ScheduleStreamCreateForUserArgs,
-    ScheduleStreamCreateForUserResult,
-    ScheduleStreamFindArgs,
-    ScheduleStreamFindResult,
-    ScheduleStreamLoadArgs,
-    ScheduleStreamLoadResult,
-    ScheduleStreamRemoveArgs,
-    ScheduleStreamUpdateArgs,
-    # Smart Lists
-    SmartListArchiveArgs,
-    SmartListCreateArgs,
-    SmartListCreateResult,
-    SmartListFindArgs,
-    SmartListFindResult,
-    SmartListItemCreateArgs,
-    SmartListItemCreateResult,
-    SmartListItemLoadArgs,
-    SmartListItemLoadResult,
-    SmartListItemRemoveArgs,
-    SmartListItemUpdateArgs,
-    SmartListLoadArgs,
-    SmartListLoadResult,
-    SmartListUpdateArgs,
-    TimePlanActivityArchiveArgs,
-    TimePlanActivityFindForTargetArgs,
-    TimePlanActivityFindForTargetResult,
-    TimePlanActivityLoadArgs,
-    TimePlanActivityLoadResult,
-    TimePlanActivityRemoveArgs,
-    TimePlanActivityUpdateArgs,
-    # Time Plans
-    TimePlanArchiveArgs,
-    TimePlanAssociateBigPlanWithPlanArgs,
-    TimePlanAssociateBigPlanWithPlanResult,
-    TimePlanAssociateInboxTaskWithPlanArgs,
-    TimePlanAssociateInboxTaskWithPlanResult,
-    TimePlanAssociateWithActivitiesArgs,
-    TimePlanAssociateWithActivitiesResult,
-    TimePlanAssociateWithBigPlansArgs,
-    TimePlanAssociateWithBigPlansResult,
-    TimePlanAssociateWithInboxTasksArgs,
-    TimePlanAssociateWithInboxTasksResult,
-    TimePlanChangeTimeConfigArgs,
-    TimePlanCreateArgs,
-    TimePlanCreateResult,
-    TimePlanFindArgs,
-    TimePlanFindResult,
-    TimePlanGenForTimePlanArgs,
-    TimePlanLoadArgs,
-    TimePlanLoadForDateAndPeriodArgs,
-    TimePlanLoadForDateAndPeriodResult,
-    TimePlanLoadResult,
-    TimePlanLoadSettingsArgs,
-    TimePlanLoadSettingsResult,
-    TimePlanRegenArgs,
-    TimePlanRemoveArgs,
-    TimePlanUpdateSettingsArgs,
-    VisionArchiveArgs,
-    VisionCreateDraftArgs,
-    VisionCreateDraftResult,
-    VisionFindArgs,
-    VisionFindResult,
-    VisionLoadActiveArgs,
-    VisionLoadActiveResult,
-    VisionLoadArgs,
-    VisionLoadResult,
-    VisionMarkDraftAsActiveArgs,
-    VisionRemoveArgs,
-    # Working Mem
-    WorkingMemLoadCurrentArgs,
-    WorkingMemLoadCurrentResult,
-    WorkingMemLoadSettingsArgs,
-    WorkingMemLoadSettingsResult,
-    WorkingMemUpdateSettingsArgs,
-)
 from rich import print as rich_print
 
 
@@ -824,183 +566,109 @@ async def main() -> None:
         # Inbox Tasks
         JupiterApiResource.build(
             "inbox-tasks",
-            JupiterApiGatewayMethod.get(
-                InboxTaskFindArgs, InboxTaskFindResult, inbox_task_find
-            ),
-            JupiterApiGatewayMethod.post(
-                InboxTaskCreateArgs, InboxTaskCreateResult, inbox_task_create
-            ),
+            JupiterApiGatewayMethod.get(inbox_task_find),
+            JupiterApiGatewayMethod.post(inbox_task_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    InboxTaskLoadArgs, InboxTaskLoadResult, inbox_task_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    InboxTaskUpdateArgs, InboxTaskUpdateResult, inbox_task_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    InboxTaskArchiveArgs, None, inbox_task_archive
-                ),
+                JupiterApiGatewayMethod.get(inbox_task_load),
+                JupiterApiGatewayMethod.put(inbox_task_update),
+                JupiterApiGatewayMethod.delete(inbox_task_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        InboxTaskRemoveArgs, None, inbox_task_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(inbox_task_remove),
                 ),
             ),
         ),
         # Working Mem
         JupiterApiResource.build(
             "working-mem",
-            JupiterApiGatewayMethod.get(
-                WorkingMemLoadCurrentArgs,
-                WorkingMemLoadCurrentResult,
-                working_mem_load_current,
-            ),
+            JupiterApiGatewayMethod.get(working_mem_load_current),
             JupiterApiResource.build(
                 "settings",
-                JupiterApiGatewayMethod.get(
-                    WorkingMemLoadSettingsArgs,
-                    WorkingMemLoadSettingsResult,
-                    working_mem_load_settings,
-                ),
-                JupiterApiGatewayMethod.put(
-                    WorkingMemUpdateSettingsArgs, None, working_mem_update_settings
-                ),
+                JupiterApiGatewayMethod.get(working_mem_load_settings),
+                JupiterApiGatewayMethod.put(working_mem_update_settings),
             ),
         ),
         # Time Plans
         JupiterApiResource.build(
             "time-plans",
-            JupiterApiGatewayMethod.get(
-                TimePlanFindArgs, TimePlanFindResult, time_plan_find
-            ),
-            JupiterApiGatewayMethod.post(
-                TimePlanCreateArgs, TimePlanCreateResult, time_plan_create
-            ),
+            JupiterApiGatewayMethod.get(time_plan_find),
+            JupiterApiGatewayMethod.post(time_plan_create),
             JupiterApiResource.build(
                 "settings",
-                JupiterApiGatewayMethod.get(
-                    TimePlanLoadSettingsArgs,
-                    TimePlanLoadSettingsResult,
-                    time_plan_load_settings,
-                ),
-                JupiterApiGatewayMethod.put(
-                    TimePlanUpdateSettingsArgs, None, time_plan_update_settings
-                ),
+                JupiterApiGatewayMethod.get(time_plan_load_settings),
+                JupiterApiGatewayMethod.put(time_plan_update_settings),
             ),
             JupiterApiResource.build(
                 "for-date-and-period",
-                JupiterApiGatewayMethod.get(
-                    TimePlanLoadForDateAndPeriodArgs,
-                    TimePlanLoadForDateAndPeriodResult,
-                    time_plan_load_for_date_and_period,
-                ),
+                JupiterApiGatewayMethod.get(time_plan_load_for_date_and_period),
             ),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    TimePlanLoadArgs, TimePlanLoadResult, time_plan_load
-                ),
-                JupiterApiGatewayMethod.delete(
-                    TimePlanArchiveArgs, None, time_plan_archive
-                ),
+                JupiterApiGatewayMethod.get(time_plan_load),
+                JupiterApiGatewayMethod.delete(time_plan_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        TimePlanRemoveArgs, None, time_plan_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(time_plan_remove),
                 ),
                 JupiterApiResource.build(
                     "change-time-config",
-                    JupiterApiGatewayMethod.post(
-                        TimePlanChangeTimeConfigArgs, None, time_plan_change_time_config
-                    ),
+                    JupiterApiGatewayMethod.post(time_plan_change_time_config),
                 ),
                 JupiterApiResource.build(
                     "associate-big-plan",
                     JupiterApiGatewayMethod.post(
-                        TimePlanAssociateBigPlanWithPlanArgs,
-                        TimePlanAssociateBigPlanWithPlanResult,
                         time_plan_associate_big_plan_with_plan,
                     ),
                 ),
                 JupiterApiResource.build(
                     "associate-inbox-task",
                     JupiterApiGatewayMethod.post(
-                        TimePlanAssociateInboxTaskWithPlanArgs,
-                        TimePlanAssociateInboxTaskWithPlanResult,
                         time_plan_associate_inbox_task_with_plan,
                     ),
                 ),
                 JupiterApiResource.build(
                     "associate-with-activities",
                     JupiterApiGatewayMethod.post(
-                        TimePlanAssociateWithActivitiesArgs,
-                        TimePlanAssociateWithActivitiesResult,
                         time_plan_associate_with_activities,
                     ),
                 ),
                 JupiterApiResource.build(
                     "associate-with-big-plans",
                     JupiterApiGatewayMethod.post(
-                        TimePlanAssociateWithBigPlansArgs,
-                        TimePlanAssociateWithBigPlansResult,
                         time_plan_associate_with_big_plans,
                     ),
                 ),
                 JupiterApiResource.build(
                     "associate-with-inbox-tasks",
                     JupiterApiGatewayMethod.post(
-                        TimePlanAssociateWithInboxTasksArgs,
-                        TimePlanAssociateWithInboxTasksResult,
                         time_plan_associate_with_inbox_tasks,
                     ),
                 ),
                 JupiterApiResource.build(
                     "gen",
-                    JupiterApiGatewayMethod.post(
-                        TimePlanGenForTimePlanArgs, None, time_plan_gen_for_time_plan
-                    ),
+                    JupiterApiGatewayMethod.post(time_plan_gen_for_time_plan),
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(
-                        TimePlanRegenArgs, None, time_plan_regen
-                    ),
+                    JupiterApiGatewayMethod.post(time_plan_regen),
                 ),
                 JupiterApiResource.build(
                     "activities",
                     JupiterApiResource.build(
                         "find-for-target",
                         JupiterApiGatewayMethod.get(
-                            TimePlanActivityFindForTargetArgs,
-                            TimePlanActivityFindForTargetResult,
                             time_plan_activity_find_for_target,
                         ),
                     ),
                     JupiterApiResource.build(
                         ":activities:ref_id",
-                        JupiterApiGatewayMethod.get(
-                            TimePlanActivityLoadArgs,
-                            TimePlanActivityLoadResult,
-                            time_plan_activity_load,
-                        ),
-                        JupiterApiGatewayMethod.put(
-                            TimePlanActivityUpdateArgs,
-                            None,
-                            time_plan_activity_update,
-                        ),
-                        JupiterApiGatewayMethod.delete(
-                            TimePlanActivityArchiveArgs,
-                            None,
-                            time_plan_activity_archive,
-                        ),
+                        JupiterApiGatewayMethod.get(time_plan_activity_load),
+                        JupiterApiGatewayMethod.put(time_plan_activity_update),
+                        JupiterApiGatewayMethod.delete(time_plan_activity_archive),
                         JupiterApiResource.build(
                             "remove",
                             JupiterApiGatewayMethod.delete(
-                                TimePlanActivityRemoveArgs,
-                                None,
                                 time_plan_activity_remove,
                             ),
                         ),
@@ -1013,85 +681,45 @@ async def main() -> None:
             "schedule",
             JupiterApiResource.build(
                 "streams",
-                JupiterApiGatewayMethod.get(
-                    ScheduleStreamFindArgs,
-                    ScheduleStreamFindResult,
-                    schedule_stream_find,
-                ),
+                JupiterApiGatewayMethod.get(schedule_stream_find),
                 JupiterApiResource.build(
                     "for-user",
-                    JupiterApiGatewayMethod.post(
-                        ScheduleStreamCreateForUserArgs,
-                        ScheduleStreamCreateForUserResult,
-                        schedule_stream_create_for_user,
-                    ),
+                    JupiterApiGatewayMethod.post(schedule_stream_create_for_user),
                 ),
                 JupiterApiResource.build(
                     "for-external-ical",
                     JupiterApiGatewayMethod.post(
-                        ScheduleStreamCreateForExternalIcalArgs,
-                        ScheduleStreamCreateForExternalIcalResult,
                         schedule_stream_create_for_external_ical,
                     ),
                 ),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        ScheduleStreamLoadArgs,
-                        ScheduleStreamLoadResult,
-                        schedule_stream_load,
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        ScheduleStreamUpdateArgs, None, schedule_stream_update
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        ScheduleStreamArchiveArgs, None, schedule_stream_archive
-                    ),
+                    JupiterApiGatewayMethod.get(schedule_stream_load),
+                    JupiterApiGatewayMethod.put(schedule_stream_update),
+                    JupiterApiGatewayMethod.delete(schedule_stream_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            ScheduleStreamRemoveArgs, None, schedule_stream_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(schedule_stream_remove),
                     ),
                 ),
             ),
             JupiterApiResource.build(
                 "events-full-days",
-                JupiterApiGatewayMethod.post(
-                    ScheduleEventFullDaysCreateArgs,
-                    ScheduleEventFullDaysCreateResult,
-                    schedule_event_full_days_create,
-                ),
+                JupiterApiGatewayMethod.post(schedule_event_full_days_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        ScheduleEventFullDaysLoadArgs,
-                        ScheduleEventFullDaysLoadResult,
-                        schedule_event_full_days_load,
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        ScheduleEventFullDaysUpdateArgs,
-                        None,
-                        schedule_event_full_days_update,
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        ScheduleEventFullDaysArchiveArgs,
-                        None,
-                        schedule_event_full_days_archive,
-                    ),
+                    JupiterApiGatewayMethod.get(schedule_event_full_days_load),
+                    JupiterApiGatewayMethod.put(schedule_event_full_days_update),
+                    JupiterApiGatewayMethod.delete(schedule_event_full_days_archive),
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(
-                            ScheduleEventFullDaysRemoveArgs,
-                            None,
                             schedule_event_full_days_remove,
                         ),
                     ),
                     JupiterApiResource.build(
                         "change-stream",
                         JupiterApiGatewayMethod.post(
-                            ScheduleEventFullDaysChangeScheduleStreamArgs,
-                            None,
                             schedule_event_full_days_change_schedule_stream,
                         ),
                     ),
@@ -1099,41 +727,19 @@ async def main() -> None:
             ),
             JupiterApiResource.build(
                 "events-in-day",
-                JupiterApiGatewayMethod.post(
-                    ScheduleEventInDayCreateArgs,
-                    ScheduleEventInDayCreateResult,
-                    schedule_event_in_day_create,
-                ),
+                JupiterApiGatewayMethod.post(schedule_event_in_day_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        ScheduleEventInDayLoadArgs,
-                        ScheduleEventInDayLoadResult,
-                        schedule_event_in_day_load,
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        ScheduleEventInDayUpdateArgs,
-                        None,
-                        schedule_event_in_day_update,
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        ScheduleEventInDayArchiveArgs,
-                        None,
-                        schedule_event_in_day_archive,
-                    ),
+                    JupiterApiGatewayMethod.get(schedule_event_in_day_load),
+                    JupiterApiGatewayMethod.put(schedule_event_in_day_update),
+                    JupiterApiGatewayMethod.delete(schedule_event_in_day_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            ScheduleEventInDayRemoveArgs,
-                            None,
-                            schedule_event_in_day_remove,
-                        ),
+                        JupiterApiGatewayMethod.delete(schedule_event_in_day_remove),
                     ),
                     JupiterApiResource.build(
                         "change-stream",
                         JupiterApiGatewayMethod.post(
-                            ScheduleEventInDayChangeScheduleStreamArgs,
-                            None,
                             schedule_event_in_day_change_schedule_stream,
                         ),
                     ),
@@ -1143,145 +749,99 @@ async def main() -> None:
                 "external-sync",
                 JupiterApiResource.build(
                     "do",
-                    JupiterApiGatewayMethod.post(
-                        ScheduleExternalSyncDoArgs, None, schedule_external_sync_do
-                    ),
+                    JupiterApiGatewayMethod.post(schedule_external_sync_do),
                 ),
                 JupiterApiResource.build(
                     "load-runs",
-                    JupiterApiGatewayMethod.get(
-                        ScheduleExternalSyncLoadRunsArgs,
-                        ScheduleExternalSyncLoadRunsResult,
-                        schedule_external_sync_load_runs,
-                    ),
+                    JupiterApiGatewayMethod.get(schedule_external_sync_load_runs),
                 ),
             ),
         ),
         # Habits
         JupiterApiResource.build(
             "habits",
-            JupiterApiGatewayMethod.get(HabitFindArgs, HabitFindResult, habit_find),
-            JupiterApiGatewayMethod.post(
-                HabitCreateArgs, HabitCreateResult, habit_create
-            ),
+            JupiterApiGatewayMethod.get(habit_find),
+            JupiterApiGatewayMethod.post(habit_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(HabitLoadArgs, HabitLoadResult, habit_load),
-                JupiterApiGatewayMethod.put(HabitUpdateArgs, None, habit_update),
-                JupiterApiGatewayMethod.delete(HabitArchiveArgs, None, habit_archive),
+                JupiterApiGatewayMethod.get(habit_load),
+                JupiterApiGatewayMethod.put(habit_update),
+                JupiterApiGatewayMethod.delete(habit_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(HabitRemoveArgs, None, habit_remove),
+                    JupiterApiGatewayMethod.delete(habit_remove),
                 ),
                 JupiterApiResource.build(
                     "suspend",
-                    JupiterApiGatewayMethod.post(HabitSuspendArgs, None, habit_suspend),
+                    JupiterApiGatewayMethod.post(habit_suspend),
                 ),
                 JupiterApiResource.build(
                     "unsuspend",
-                    JupiterApiGatewayMethod.post(
-                        HabitUnsuspendArgs, None, habit_unsuspend
-                    ),
+                    JupiterApiGatewayMethod.post(habit_unsuspend),
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(HabitRegenArgs, None, habit_regen),
+                    JupiterApiGatewayMethod.post(habit_regen),
                 ),
             ),
         ),
         # Chores
         JupiterApiResource.build(
             "chores",
-            JupiterApiGatewayMethod.get(ChoreFindArgs, ChoreFindResult, chore_find),
-            JupiterApiGatewayMethod.post(
-                ChoreCreateArgs, ChoreCreateResult, chore_create
-            ),
+            JupiterApiGatewayMethod.get(chore_find),
+            JupiterApiGatewayMethod.post(chore_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(ChoreLoadArgs, ChoreLoadResult, chore_load),
-                JupiterApiGatewayMethod.put(ChoreUpdateArgs, None, chore_update),
-                JupiterApiGatewayMethod.delete(ChoreArchiveArgs, None, chore_archive),
+                JupiterApiGatewayMethod.get(chore_load),
+                JupiterApiGatewayMethod.put(chore_update),
+                JupiterApiGatewayMethod.delete(chore_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(ChoreRemoveArgs, None, chore_remove),
+                    JupiterApiGatewayMethod.delete(chore_remove),
                 ),
                 JupiterApiResource.build(
                     "suspend",
-                    JupiterApiGatewayMethod.post(ChoreSuspendArgs, None, chore_suspend),
+                    JupiterApiGatewayMethod.post(chore_suspend),
                 ),
                 JupiterApiResource.build(
                     "unsuspend",
-                    JupiterApiGatewayMethod.post(
-                        ChoreUnsuspendArgs, None, chore_unsuspend
-                    ),
+                    JupiterApiGatewayMethod.post(chore_unsuspend),
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(ChoreRegenArgs, None, chore_regen),
+                    JupiterApiGatewayMethod.post(chore_regen),
                 ),
             ),
         ),
         # Big Plans
         JupiterApiResource.build(
             "big-plans",
-            JupiterApiGatewayMethod.get(
-                BigPlanFindArgs, BigPlanFindResult, big_plan_find
-            ),
-            JupiterApiGatewayMethod.post(
-                BigPlanCreateArgs, BigPlanCreateResult, big_plan_create
-            ),
+            JupiterApiGatewayMethod.get(big_plan_find),
+            JupiterApiGatewayMethod.post(big_plan_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    BigPlanLoadArgs, BigPlanLoadResult, big_plan_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    BigPlanUpdateArgs, BigPlanUpdateResult, big_plan_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    BigPlanArchiveArgs, None, big_plan_archive
-                ),
+                JupiterApiGatewayMethod.get(big_plan_load),
+                JupiterApiGatewayMethod.put(big_plan_update),
+                JupiterApiGatewayMethod.delete(big_plan_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        BigPlanRemoveArgs, None, big_plan_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(big_plan_remove),
                 ),
                 JupiterApiResource.build(
                     "refresh-stats",
-                    JupiterApiGatewayMethod.post(
-                        BigPlanRefreshStatsArgs, None, big_plan_refresh_stats
-                    ),
+                    JupiterApiGatewayMethod.post(big_plan_refresh_stats),
                 ),
                 JupiterApiResource.build(
                     "milestones",
-                    JupiterApiGatewayMethod.post(
-                        BigPlanMilestoneCreateArgs,
-                        BigPlanMilestoneCreateResult,
-                        big_plan_milestone_create,
-                    ),
+                    JupiterApiGatewayMethod.post(big_plan_milestone_create),
                     JupiterApiResource.build(
                         ":milestones:ref_id",
-                        JupiterApiGatewayMethod.get(
-                            BigPlanMilestoneLoadArgs,
-                            BigPlanMilestoneLoadResult,
-                            big_plan_milestone_load,
-                        ),
-                        JupiterApiGatewayMethod.put(
-                            BigPlanMilestoneUpdateArgs,
-                            None,
-                            big_plan_milestone_update,
-                        ),
-                        JupiterApiGatewayMethod.delete(
-                            BigPlanMilestoneArchiveArgs,
-                            None,
-                            big_plan_milestone_archive,
-                        ),
+                        JupiterApiGatewayMethod.get(big_plan_milestone_load),
+                        JupiterApiGatewayMethod.put(big_plan_milestone_update),
+                        JupiterApiGatewayMethod.delete(big_plan_milestone_archive),
                         JupiterApiResource.build(
                             "remove",
                             JupiterApiGatewayMethod.delete(
-                                BigPlanMilestoneRemoveArgs,
-                                None,
                                 big_plan_milestone_remove,
                             ),
                         ),
@@ -1292,179 +852,113 @@ async def main() -> None:
         # Docs
         JupiterApiResource.build(
             "docs",
-            JupiterApiGatewayMethod.get(DocFindArgs, DocFindResult, doc_find),
-            JupiterApiGatewayMethod.post(DocCreateArgs, DocCreateResult, doc_create),
+            JupiterApiGatewayMethod.get(doc_find),
+            JupiterApiGatewayMethod.post(doc_create),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(DocLoadArgs, DocLoadResult, doc_load),
-                JupiterApiGatewayMethod.put(DocUpdateArgs, None, doc_update),
-                JupiterApiGatewayMethod.delete(DocArchiveArgs, None, doc_archive),
+                JupiterApiGatewayMethod.get(doc_load),
+                JupiterApiGatewayMethod.put(doc_update),
+                JupiterApiGatewayMethod.delete(doc_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(DocRemoveArgs, None, doc_remove),
+                    JupiterApiGatewayMethod.delete(doc_remove),
                 ),
                 JupiterApiResource.build(
                     "change-parent",
-                    JupiterApiGatewayMethod.post(
-                        DocChangeParentArgs, None, doc_change_parent
-                    ),
+                    JupiterApiGatewayMethod.post(doc_change_parent),
                 ),
             ),
         ),
         # Life Plan
         JupiterApiResource.build(
             "life-plan",
-            JupiterApiGatewayMethod.put(LifePlanUpdateArgs, None, life_plan_update),
+            JupiterApiGatewayMethod.put(life_plan_update),
             JupiterApiResource.build(
                 "visions",
-                JupiterApiGatewayMethod.get(
-                    VisionFindArgs, VisionFindResult, vision_find
-                ),
+                JupiterApiGatewayMethod.get(vision_find),
                 JupiterApiResource.build(
                     "create-draft",
-                    JupiterApiGatewayMethod.post(
-                        VisionCreateDraftArgs,
-                        VisionCreateDraftResult,
-                        vision_create_draft,
-                    ),
+                    JupiterApiGatewayMethod.post(vision_create_draft),
                 ),
                 JupiterApiResource.build(
                     "active",
-                    JupiterApiGatewayMethod.get(
-                        VisionLoadActiveArgs,
-                        VisionLoadActiveResult,
-                        vision_load_active,
-                    ),
+                    JupiterApiGatewayMethod.get(vision_load_active),
                 ),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        VisionLoadArgs, VisionLoadResult, vision_load
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        VisionArchiveArgs, None, vision_archive
-                    ),
+                    JupiterApiGatewayMethod.get(vision_load),
+                    JupiterApiGatewayMethod.delete(vision_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            VisionRemoveArgs, None, vision_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(vision_remove),
                     ),
                     JupiterApiResource.build(
                         "mark-active",
-                        JupiterApiGatewayMethod.post(
-                            VisionMarkDraftAsActiveArgs,
-                            None,
-                            vision_mark_draft_as_active,
-                        ),
+                        JupiterApiGatewayMethod.post(vision_mark_draft_as_active),
                     ),
                 ),
             ),
             JupiterApiResource.build(
                 "chapters",
-                JupiterApiGatewayMethod.get(
-                    ChapterFindArgs, ChapterFindResult, chapter_find
-                ),
-                JupiterApiGatewayMethod.post(
-                    ChapterCreateArgs, ChapterCreateResult, chapter_create
-                ),
+                JupiterApiGatewayMethod.get(chapter_find),
+                JupiterApiGatewayMethod.post(chapter_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        ChapterLoadArgs, ChapterLoadResult, chapter_load
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        ChapterUpdateArgs, None, chapter_update
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        ChapterArchiveArgs, None, chapter_archive
-                    ),
+                    JupiterApiGatewayMethod.get(chapter_load),
+                    JupiterApiGatewayMethod.put(chapter_update),
+                    JupiterApiGatewayMethod.delete(chapter_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            ChapterRemoveArgs, None, chapter_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(chapter_remove),
                     ),
                 ),
             ),
             JupiterApiResource.build(
                 "goals",
-                JupiterApiGatewayMethod.get(GoalFindArgs, GoalFindResult, goal_find),
-                JupiterApiGatewayMethod.post(
-                    GoalCreateArgs, GoalCreateResult, goal_create
-                ),
+                JupiterApiGatewayMethod.get(goal_find),
+                JupiterApiGatewayMethod.post(goal_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        GoalLoadArgs, GoalLoadResult, goal_load
-                    ),
-                    JupiterApiGatewayMethod.put(GoalUpdateArgs, None, goal_update),
-                    JupiterApiGatewayMethod.delete(GoalArchiveArgs, None, goal_archive),
+                    JupiterApiGatewayMethod.get(goal_load),
+                    JupiterApiGatewayMethod.put(goal_update),
+                    JupiterApiGatewayMethod.delete(goal_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            GoalRemoveArgs, None, goal_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(goal_remove),
                     ),
                 ),
             ),
             JupiterApiResource.build(
                 "milestones",
-                JupiterApiGatewayMethod.get(
-                    MilestoneFindArgs, MilestoneFindResult, milestone_find
-                ),
-                JupiterApiGatewayMethod.post(
-                    MilestoneCreateArgs, MilestoneCreateResult, milestone_create
-                ),
+                JupiterApiGatewayMethod.get(milestone_find),
+                JupiterApiGatewayMethod.post(milestone_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        MilestoneLoadArgs, MilestoneLoadResult, milestone_load
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        MilestoneUpdateArgs, None, milestone_update
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        MilestoneArchiveArgs, None, milestone_archive
-                    ),
+                    JupiterApiGatewayMethod.get(milestone_load),
+                    JupiterApiGatewayMethod.put(milestone_update),
+                    JupiterApiGatewayMethod.delete(milestone_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            MilestoneRemoveArgs, None, milestone_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(milestone_remove),
                     ),
                 ),
             ),
             JupiterApiResource.build(
                 "projects",
-                JupiterApiGatewayMethod.get(
-                    ProjectFindArgs, ProjectFindResult, project_find
-                ),
-                JupiterApiGatewayMethod.post(
-                    ProjectCreateArgs, ProjectCreateResult, project_create
-                ),
+                JupiterApiGatewayMethod.get(project_find),
+                JupiterApiGatewayMethod.post(project_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        ProjectLoadArgs, ProjectLoadResult, project_load
-                    ),
-                    JupiterApiGatewayMethod.put(
-                        ProjectUpdateArgs, None, project_update
-                    ),
-                    JupiterApiGatewayMethod.delete(
-                        ProjectArchiveArgs, None, project_archive
-                    ),
+                    JupiterApiGatewayMethod.get(project_load),
+                    JupiterApiGatewayMethod.put(project_update),
+                    JupiterApiGatewayMethod.delete(project_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            ProjectRemoveArgs, None, project_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(project_remove),
                     ),
                     JupiterApiResource.build(
                         "reorder-children",
-                        JupiterApiGatewayMethod.post(
-                            ProjectReorderChildrenArgs, None, project_reorder_children
-                        ),
+                        JupiterApiGatewayMethod.post(project_reorder_children),
                     ),
                 ),
             ),
@@ -1472,68 +966,40 @@ async def main() -> None:
         # Metrics
         JupiterApiResource.build(
             "metrics",
-            JupiterApiGatewayMethod.get(MetricFindArgs, MetricFindResult, metric_find),
-            JupiterApiGatewayMethod.post(
-                MetricCreateArgs, MetricCreateResult, metric_create
-            ),
+            JupiterApiGatewayMethod.get(metric_find),
+            JupiterApiGatewayMethod.post(metric_create),
             JupiterApiResource.build(
                 "settings",
-                JupiterApiGatewayMethod.get(
-                    MetricLoadSettingsArgs,
-                    MetricLoadSettingsResult,
-                    metric_load_settings,
-                ),
+                JupiterApiGatewayMethod.get(metric_load_settings),
             ),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    MetricLoadArgs, MetricLoadResult, metric_load
-                ),
-                JupiterApiGatewayMethod.put(MetricUpdateArgs, None, metric_update),
-                JupiterApiGatewayMethod.delete(MetricArchiveArgs, None, metric_archive),
+                JupiterApiGatewayMethod.get(metric_load),
+                JupiterApiGatewayMethod.put(metric_update),
+                JupiterApiGatewayMethod.delete(metric_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        MetricRemoveArgs, None, metric_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(metric_remove),
                 ),
                 JupiterApiResource.build(
                     "regen",
-                    JupiterApiGatewayMethod.post(MetricRegenArgs, None, metric_regen),
+                    JupiterApiGatewayMethod.post(metric_regen),
                 ),
                 JupiterApiResource.build(
                     "change-collection-project",
-                    JupiterApiGatewayMethod.post(
-                        MetricChangeCollectionProjectArgs,
-                        None,
-                        metric_change_collection_project,
-                    ),
+                    JupiterApiGatewayMethod.post(metric_change_collection_project),
                 ),
                 JupiterApiResource.build(
                     "entries",
-                    JupiterApiGatewayMethod.post(
-                        MetricEntryCreateArgs,
-                        MetricEntryCreateResult,
-                        metric_entry_create,
-                    ),
+                    JupiterApiGatewayMethod.post(metric_entry_create),
                     JupiterApiResource.build(
                         ":entries:ref_id",
-                        JupiterApiGatewayMethod.get(
-                            MetricEntryLoadArgs,
-                            MetricEntryLoadResult,
-                            metric_entry_load,
-                        ),
-                        JupiterApiGatewayMethod.put(
-                            MetricEntryUpdateArgs, None, metric_entry_update
-                        ),
-                        JupiterApiGatewayMethod.delete(
-                            MetricEntryArchiveArgs, None, metric_entry_archive
-                        ),
+                        JupiterApiGatewayMethod.get(metric_entry_load),
+                        JupiterApiGatewayMethod.put(metric_entry_update),
+                        JupiterApiGatewayMethod.delete(metric_entry_archive),
                         JupiterApiResource.build(
                             "remove",
-                            JupiterApiGatewayMethod.delete(
-                                MetricEntryRemoveArgs, None, metric_entry_remove
-                            ),
+                            JupiterApiGatewayMethod.delete(metric_entry_remove),
                         ),
                     ),
                 ),
@@ -1544,74 +1010,40 @@ async def main() -> None:
             "prm",
             JupiterApiResource.build(
                 "settings",
-                JupiterApiGatewayMethod.get(
-                    PersonLoadSettingsArgs,
-                    PersonLoadSettingsResult,
-                    person_load_settings,
-                ),
+                JupiterApiGatewayMethod.get(person_load_settings),
             ),
             JupiterApiResource.build(
                 "change-catch-up-project",
-                JupiterApiGatewayMethod.post(
-                    PersonChangeCatchUpProjectArgs,
-                    None,
-                    person_change_catch_up_project,
-                ),
+                JupiterApiGatewayMethod.post(person_change_catch_up_project),
             ),
             JupiterApiResource.build(
                 "persons",
-                JupiterApiGatewayMethod.get(
-                    PersonFindArgs, PersonFindResult, person_find
-                ),
-                JupiterApiGatewayMethod.post(
-                    PersonCreateArgs, PersonCreateResult, person_create
-                ),
+                JupiterApiGatewayMethod.get(person_find),
+                JupiterApiGatewayMethod.post(person_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        PersonLoadArgs, PersonLoadResult, person_load
-                    ),
-                    JupiterApiGatewayMethod.put(PersonUpdateArgs, None, person_update),
-                    JupiterApiGatewayMethod.delete(
-                        PersonArchiveArgs, None, person_archive
-                    ),
+                    JupiterApiGatewayMethod.get(person_load),
+                    JupiterApiGatewayMethod.put(person_update),
+                    JupiterApiGatewayMethod.delete(person_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            PersonRemoveArgs, None, person_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(person_remove),
                     ),
                     JupiterApiResource.build(
                         "regen",
-                        JupiterApiGatewayMethod.post(
-                            PersonRegenArgs, None, person_regen
-                        ),
+                        JupiterApiGatewayMethod.post(person_regen),
                     ),
                     JupiterApiResource.build(
                         "occasions",
-                        JupiterApiGatewayMethod.post(
-                            OccasionCreateArgs,
-                            OccasionCreateResult,
-                            occasion_create,
-                        ),
+                        JupiterApiGatewayMethod.post(occasion_create),
                         JupiterApiResource.build(
                             ":occasions:ref_id",
-                            JupiterApiGatewayMethod.get(
-                                OccasionLoadArgs,
-                                OccasionLoadResult,
-                                occasion_load,
-                            ),
-                            JupiterApiGatewayMethod.put(
-                                OccasionUpdateArgs, None, occasion_update
-                            ),
-                            JupiterApiGatewayMethod.delete(
-                                OccasionArchiveArgs, None, occasion_archive
-                            ),
+                            JupiterApiGatewayMethod.get(occasion_load),
+                            JupiterApiGatewayMethod.put(occasion_update),
+                            JupiterApiGatewayMethod.delete(occasion_archive),
                             JupiterApiResource.build(
                                 "remove",
-                                JupiterApiGatewayMethod.delete(
-                                    OccasionRemoveArgs, None, occasion_remove
-                                ),
+                                JupiterApiGatewayMethod.delete(occasion_remove),
                             ),
                         ),
                     ),
@@ -1619,26 +1051,16 @@ async def main() -> None:
             ),
             JupiterApiResource.build(
                 "circles",
-                JupiterApiGatewayMethod.get(
-                    CircleFindArgs, CircleFindResult, circle_find
-                ),
-                JupiterApiGatewayMethod.post(
-                    CircleCreateArgs, CircleCreateResult, circle_create
-                ),
+                JupiterApiGatewayMethod.get(circle_find),
+                JupiterApiGatewayMethod.post(circle_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(
-                        CircleLoadArgs, CircleLoadResult, circle_load
-                    ),
-                    JupiterApiGatewayMethod.put(CircleUpdateArgs, None, circle_update),
-                    JupiterApiGatewayMethod.delete(
-                        CircleArchiveArgs, None, circle_archive
-                    ),
+                    JupiterApiGatewayMethod.get(circle_load),
+                    JupiterApiGatewayMethod.put(circle_update),
+                    JupiterApiGatewayMethod.delete(circle_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(
-                            CircleRemoveArgs, None, circle_remove
-                        ),
+                        JupiterApiGatewayMethod.delete(circle_remove),
                     ),
                 ),
             ),
@@ -1646,54 +1068,28 @@ async def main() -> None:
         # Smart Lists
         JupiterApiResource.build(
             "smart-lists",
-            JupiterApiGatewayMethod.post(
-                SmartListCreateArgs, SmartListCreateResult, smart_list_create
-            ),
-            JupiterApiGatewayMethod.get(
-                SmartListFindArgs, SmartListFindResult, smart_list_find
-            ),
+            JupiterApiGatewayMethod.post(smart_list_create),
+            JupiterApiGatewayMethod.get(smart_list_find),
             JupiterApiResource.build(
                 ":ref_id",
-                JupiterApiGatewayMethod.get(
-                    SmartListLoadArgs, SmartListLoadResult, smart_list_load
-                ),
-                JupiterApiGatewayMethod.put(
-                    SmartListUpdateArgs, None, smart_list_update
-                ),
-                JupiterApiGatewayMethod.delete(
-                    SmartListArchiveArgs, None, smart_list_archive
-                ),
+                JupiterApiGatewayMethod.get(smart_list_load),
+                JupiterApiGatewayMethod.put(smart_list_update),
+                JupiterApiGatewayMethod.delete(smart_list_archive),
                 JupiterApiResource.build(
                     "remove",
-                    JupiterApiGatewayMethod.delete(
-                        SmartListItemRemoveArgs, None, smart_list_remove
-                    ),
+                    JupiterApiGatewayMethod.delete(smart_list_remove),
                 ),
                 JupiterApiResource.build(
                     "items",
-                    JupiterApiGatewayMethod.post(
-                        SmartListItemCreateArgs,
-                        SmartListItemCreateResult,
-                        smart_list_item_create,
-                    ),
+                    JupiterApiGatewayMethod.post(smart_list_item_create),
                     JupiterApiResource.build(
                         ":items:ref_id",
-                        JupiterApiGatewayMethod.get(
-                            SmartListItemLoadArgs,
-                            SmartListItemLoadResult,
-                            smart_list_item_load,
-                        ),
-                        JupiterApiGatewayMethod.put(
-                            SmartListItemUpdateArgs, None, smart_list_item_update
-                        ),
-                        JupiterApiGatewayMethod.delete(
-                            SmartListItemRemoveArgs, None, smart_list_item_remove
-                        ),
+                        JupiterApiGatewayMethod.get(smart_list_item_load),
+                        JupiterApiGatewayMethod.put(smart_list_item_update),
+                        JupiterApiGatewayMethod.delete(smart_list_item_remove),
                         JupiterApiResource.build(
                             "remove",
-                            JupiterApiGatewayMethod.delete(
-                                SmartListItemRemoveArgs, None, smart_list_item_remove
-                            ),
+                            JupiterApiGatewayMethod.delete(smart_list_item_remove),
                         ),
                     ),
                 ),

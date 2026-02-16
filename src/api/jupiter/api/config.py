@@ -15,6 +15,8 @@ from typing import (
     TypeVar,
     Union,
     cast,
+    get_args,
+    get_type_hints,
 )
 
 import dotenv
@@ -37,7 +39,7 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
-from jupiter_webapi_client.types import UNSET
+from jupiter_webapi_client.types import UNSET, Unset
 from jupiter_webapi_client.types import Response as WebApiClientResponse
 
 
@@ -140,6 +142,44 @@ class _WebApiClientCallable(Protocol[_CallApiArgsT_contra, _CallApiResultT]):
 _ApiCallT = TypeVar("_ApiCallT", bound=_WebApiClientCallable[Any, Any])  # type: ignore[explicit-any]
 
 
+def _extract_types_from_api_call(  # type: ignore[explicit-any, return-value]
+    api_call: Any,
+) -> tuple[type[Any] | None, type[Any] | None]:  # type: ignore[explicit-any]
+    """Extract Args and Result types from an api_call's type hints.
+
+    The ``body`` parameter is expected to be annotated ``SomeArgs | Unset``.
+    The return annotation is ``Response[ErrorResponse | SomeResult]`` when the
+    call returns a result, or ``Response[Any]`` (because ``Any | ErrorResponse``
+    evaluates to ``Any`` in Python 3.12+) when it does not.
+    """
+    hints = get_type_hints(api_call)
+
+    # body: SomeArgs | Unset  →  extract the non-Unset member
+    args_type: type[Any] | None = None  # type: ignore[explicit-any]
+    body_hint = hints.get("body")
+    if body_hint is not None:
+        for arg in get_args(body_hint):
+            if arg is not Unset:
+                args_type = arg
+                break
+
+    # return: Response[ErrorResponse | SomeResult]
+    # For void calls: Response[Any] (Any | ErrorResponse == Any in 3.12+)
+    result_type: type[Any] | None = None  # type: ignore[explicit-any]
+    return_hint = hints.get("return")
+    if return_hint is not None:
+        response_type_args = get_args(return_hint)
+        if response_type_args:
+            inner = response_type_args[0]
+            if inner is not Any:
+                for arg in get_args(inner):
+                    if arg is not ErrorResponse:
+                        result_type = arg
+                        break
+
+    return args_type, result_type
+
+
 class JupiterApiGatewayMethod(
     JupiterApiMethod, Generic[_ApiArgsT, _ApiResultT, _ApiCallT]
 ):
@@ -167,14 +207,13 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def get(  # type: ignore[explicit-any]
-        args: type[_ApiArgsT] | None,
-        result: type[_ApiResultT] | None,
         api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
         """Build a GET method."""
+        args, result = _extract_types_from_api_call(api_call)
 
         def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
@@ -195,14 +234,13 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def post(  # type: ignore[explicit-any]
-        args: type[_ApiArgsT] | None,
-        result: type[_ApiResultT] | None,
         api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
         """Build a POST method."""
+        args, result = _extract_types_from_api_call(api_call)
 
         def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
@@ -223,14 +261,13 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def put(  # type: ignore[explicit-any]
-        args: type[_ApiArgsT] | None,
-        result: type[_ApiResultT] | None,
         api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
         """Build a PUT method."""
+        args, result = _extract_types_from_api_call(api_call)
 
         def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
@@ -251,14 +288,13 @@ class JupiterApiGatewayMethod(
 
     @staticmethod
     def delete(  # type: ignore[explicit-any]
-        args: type[_ApiArgsT] | None,
-        result: type[_ApiResultT] | None,
         api_call: _ApiCallT,
     ) -> Callable[
         [JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties],
         "JupiterApiGatewayMethod[_ApiArgsT, _ApiResultT, _ApiCallT]",
     ]:
         """Build a DELETE method."""
+        args, result = _extract_types_from_api_call(api_call)
 
         def build_it(  # type: ignore[explicit-any]
             ports: JupiterApiPorts,
