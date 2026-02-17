@@ -8,6 +8,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    Final,
     Generic,
     Literal,
     Mapping,
@@ -41,6 +42,12 @@ from jupiter_webapi_client.models import (
 )
 from jupiter_webapi_client.types import UNSET, Unset
 from jupiter_webapi_client.types import Response as WebApiClientResponse
+
+UNIVERSE_HEADER: Final[str] = "X-Jupiter-Universe"
+ENV_HEADER: Final[str] = "X-Jupiter-Env"
+INSTANCE_HEADER: Final[str] = "X-Jupiter-Instance"
+HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
+VERSION_HEADER: Final[str] = "X-Jupiter-Version"
 
 
 @dataclass(frozen=True)
@@ -481,3 +488,13 @@ class JupiterApiService(
     def is_live(self) -> bool:
         """Whether the app is live."""
         return self._global_properties.env.is_live
+
+    def add_headers_to_response(self, response: Response) -> None:
+        """Add the headers to the response."""
+        response.headers[UNIVERSE_HEADER] = str(self._global_properties.universe)
+        response.headers[ENV_HEADER] = self._global_properties.env.value
+        response.headers[INSTANCE_HEADER] = str(self._global_properties.instance)
+        response.headers[HOSTING_HEADER] = (
+            self._global_properties.universe.hosting.value
+        )
+        response.headers[VERSION_HEADER] = str(self._global_properties.version)

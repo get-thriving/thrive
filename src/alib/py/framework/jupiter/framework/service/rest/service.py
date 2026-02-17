@@ -4,13 +4,15 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable, Final, Generic, TypeVar
 
 import uvicorn
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, Request, Response, status
 from fastapi.routing import APIRoute
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.rest.resource import RestResource
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.time_provider import CronRunTimeProvider, PerRequestTimeProvider
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -25,6 +27,8 @@ class RestService(
 ):
     """A REST service at the framework level."""
 
+    _request_time_provider: Final[PerRequestTimeProvider]
+    _cron_time_provider: Final[CronRunTimeProvider]
     _fast_app: Final[FastAPI]
     _resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
 
@@ -33,10 +37,14 @@ class RestService(
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
+        request_time_provider: PerRequestTimeProvider,
+        cron_time_provider: CronRunTimeProvider,
         resources: list[RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]],
     ) -> None:
         """Initialize the service."""
         super().__init__(ports, global_properties, service_properties)
+        self._request_time_provider = request_time_provider
+        self._cron_time_provider = cron_time_provider
         self._fast_app = FastAPI(
             title=self.description,
             version=self.version,
@@ -54,6 +62,8 @@ class RestService(
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
+        request_time_provider: PerRequestTimeProvider,
+        cron_time_provider: CronRunTimeProvider,
         *resource_builders: Callable[
             [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
             RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
@@ -64,7 +74,14 @@ class RestService(
             resource_builder(ports, global_properties, service_properties)
             for resource_builder in resource_builders
         ]
-        service = cls(ports, global_properties, service_properties, list(resources))
+        service = cls(
+            ports,
+            global_properties,
+            service_properties,
+            request_time_provider,
+            cron_time_provider,
+            list(resources),
+        )
 
         @service._fast_app.get(service.healthz_route, status_code=status.HTTP_200_OK)
         async def healthz() -> None:
@@ -78,6 +95,13 @@ class RestService(
 
     async def run(self) -> None:
         """Run the service."""
+        self._fast_app.add_middleware(
+            BaseHTTPMiddleware, dispatch=self._time_provider_middleware
+        )
+        self._fast_app.add_middleware(
+            BaseHTTPMiddleware, dispatch=self._setting_middleware
+        )
+
         config = uvicorn.Config(
             self._fast_app,
             host=self.host,
@@ -85,8 +109,28 @@ class RestService(
             log_config=None,
             log_level="info",
         )
+
         server = uvicorn.Server(config)
         await server.serve()
+
+    async def _time_provider_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        """Middleware to provide the time provider."""
+        self._request_time_provider.set_request_time()
+        return await call_next(request)
+
+    async def _setting_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        """Middleware to provide the version."""
+        response: Response = await call_next(request)
+        self.add_headers_to_response(response)  # mutate in place
+        return response
 
     @property
     @abstractmethod

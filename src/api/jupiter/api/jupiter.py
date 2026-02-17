@@ -14,6 +14,7 @@ from jupiter.core.config import build_global_properties
 from jupiter.framework.telemetry.local.local import LocalTelemetry
 from jupiter.framework.telemetry.sentry.sentry import SentryTelemetry
 from jupiter.framework.telemetry.telemetry import Telemetry
+from jupiter.framework.time_provider import CronRunTimeProvider, PerRequestTimeProvider
 
 # --- Big Plans API ---
 from jupiter_webapi_client.api.big_plans.big_plan_archive import (
@@ -604,6 +605,9 @@ async def main() -> None:
     global_properties = build_global_properties()
     service_properties = build_api_properties()
 
+    request_time_provider = PerRequestTimeProvider()
+    cron_run_time_provider = CronRunTimeProvider()
+
     telemetry: Telemetry
 
     if (
@@ -626,6 +630,8 @@ async def main() -> None:
         ports,
         global_properties,
         service_properties,
+        request_time_provider,
+        cron_run_time_provider,
         # Inbox Tasks
         JupiterApiResource.build(
             "inbox-tasks",
