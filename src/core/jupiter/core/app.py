@@ -1,5 +1,7 @@
 """A client facing application."""
 
+import re
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.value import AtomicValue, EnumValue, enum_value, value
 
 
@@ -66,12 +68,26 @@ class AppDistributionState(EnumValue):
     NOT_AVAILABLE = "not-available"
 
 
+_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+
+
 @value
 class AppVersion(AtomicValue[str]):
     """The version of the app."""
 
     the_version: str
 
+    def _validate(self) -> None:
+        """Validate this version."""
+        match = _VERSION_RE.match(self.the_version)
+        if match is None:
+            raise InputValidationError(f"Invalid version: {self.the_version}")
+
     def __str__(self) -> str:
         """Transform this to a string version."""
         return self.the_version
+
+    @property
+    def major_version(self) -> int:
+        """Get the major version."""
+        return int(self.the_version.split(".")[0])

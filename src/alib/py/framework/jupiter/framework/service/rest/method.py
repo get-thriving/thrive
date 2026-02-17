@@ -56,7 +56,7 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
 
     def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
         """Attach the route to the FastAPI app."""
-        api_path = self._build_api_path(paths)
+        api_path = self._build_final_api_path(self._build_api_path(paths))
 
         @fast_app.api_route(
             path=api_path,
@@ -84,3 +84,7 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
             else:
                 new_paths.append(p)
         return "/" + "/".join(new_paths)
+
+    @abstractmethod
+    def _build_final_api_path(self, path: str) -> str:
+        """Build the final API path."""

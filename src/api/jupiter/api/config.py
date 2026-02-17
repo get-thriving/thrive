@@ -106,6 +106,10 @@ class JupiterApiMethod(
 ):
     """The Jupiter API method."""
 
+    def _build_final_api_path(self, path: str) -> str:
+        """Build the final API path."""
+        return f"/v{self._global_properties.version.major_version}{path}"
+
 
 class _WebApiClientSerializable(Protocol):
     """Protocol for types with from_dict and to_dict."""
