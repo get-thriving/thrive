@@ -620,7 +620,7 @@ async def main() -> None:
 
     telemetry.prepare()
 
-    webapi_client = WebApiClient(service_properties.webapi_url)
+    webapi_client = WebApiClient(global_properties, service_properties.webapi_url)
 
     ports = JupiterApiPorts(
         webapi_client=webapi_client,
