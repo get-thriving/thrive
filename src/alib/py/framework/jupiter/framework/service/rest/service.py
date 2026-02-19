@@ -53,7 +53,7 @@ class RestService(
             docs_url=self.openapi_docs_route if not self.is_live else None,
             redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
-        self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
+        # self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
         self._resources = resources
 
     @classmethod

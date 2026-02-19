@@ -61,9 +61,9 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         @fast_app.api_route(
             path=api_path,
             methods=[self._name],
-            summary="Basic summary",
-            description="Basic description",
-            tags=["test"],
+            summary=api_path,
+            description=self._description(),
+            tags=[paths[0]],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request) -> Response:
@@ -72,6 +72,14 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
     @abstractmethod
     async def execute(self, request: Request) -> Response:
         """Execute the method."""
+
+    @abstractmethod
+    def _description(self) -> str:
+        """The description of the method."""
+
+    @abstractmethod
+    def _build_final_api_path(self, path: str) -> str:
+        """Build the final API path."""
 
     @staticmethod
     def _build_api_path(paths: list[str]) -> str:
@@ -85,6 +93,4 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
                 new_paths.append(p)
         return "/" + "/".join(new_paths)
 
-    @abstractmethod
-    def _build_final_api_path(self, path: str) -> str:
-        """Build the final API path."""
+

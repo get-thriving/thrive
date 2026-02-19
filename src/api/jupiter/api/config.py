@@ -318,14 +318,22 @@ class JupiterApiGatewayMethod(
 
         return build_it
 
-    async def execute(self, request: Request) -> Response:  # type: ignore[explicit-any]
-        """Execute the method."""
-        response = await self._do_execute(request)
-        for key, value in build_response_headers(self._global_properties).items():
-            response.headers[key] = value
-        return response
+    def _description(self) -> str:
+        """The description of the method."""
+        doc = self._api_call.__doc__
+        if not doc:
+            return ""
+        # Extract only up to "Args: " if present, else first line
+        doc_lines = doc.strip().splitlines()
+        result_lines = []
+        for line in doc_lines:
+            if line.strip().startswith("Args:"):
+                break
+            result_lines.append(line)
+        # Only return up to the "Args:" block, join, strip trailing blank lines
+        return "\n".join(result_lines).strip()
 
-    async def _do_execute(self, request: Request) -> Response:  # type: ignore[explicit-any]
+    async def execute(self, request: Request) -> Response:  # type: ignore[explicit-any]
         """Core execution logic."""
 
         def extract_bearer_token_from_request(request: Request) -> str | None:
