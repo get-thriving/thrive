@@ -81,6 +81,10 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
     def _build_final_api_path(self, path: str) -> str:
         """Build the final API path."""
 
+    @abstractmethod
+    def get_openapi_components(self) -> dict[str, Any]:  # type: ignore[explicit-any]
+        """Get the OpenAPI components for the method."""
+
     @staticmethod
     def _build_api_path(paths: list[str]) -> str:
         """Build the API path."""

@@ -93,3 +93,13 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
             subresource.attach_route(fast_app, [*paths, self._name])
         for method in self._methods:
             method.attach_route(fast_app, [*paths, self._name])
+
+    def get_openapi_components(self) -> dict[str, Any]:  # type: ignore[explicit-any]
+        """Get the OpenAPI components for the resource."""
+        components = {}
+        for subresource in self._subresources:
+            components.update(subresource.get_openapi_components())
+        for method in self._methods:
+            components.update(method.get_openapi_components())
+        return components
+    

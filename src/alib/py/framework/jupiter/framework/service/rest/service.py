@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Final, Generic, TypeVar
 
+from fastapi.openapi.utils import get_openapi
 import uvicorn
 from fastapi import FastAPI, Request, Response, status
 from fastapi.routing import APIRoute
@@ -53,7 +54,7 @@ class RestService(
             docs_url=self.openapi_docs_route if not self.is_live else None,
             redoc_url=self.openapi_redoc_route if not self.is_live else None,
         )
-        # self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
+        self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
         self._resources = resources
 
     @classmethod
@@ -185,4 +186,31 @@ class RestService(
         return f"{route.name}"
 
     def _custom_openapi(self) -> dict[str, Any]:  # type: ignore
-        pass
+        print("here here here")
+        openapi_schema = get_openapi(
+            title=self.description,
+            version=self.version,
+            routes=self._fast_app.routes,
+            description=self.description
+        )
+
+        # Generate all components
+
+        openapi_schema["components"] = {}
+
+        openapi_schema["components"]["securitySchemes"] = {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "Authorization",
+                "description": "API key to authorize requests. Pass as 'Authorization: Bearer <API_KEY>'."
+            }
+        }
+
+        for resource in self._resources:
+            openapi_schema["components"].update(resource.get_openapi_components())
+
+        openapi_schema["paths"] = {}
+
+        self._fast_app.openapi_schema = openapi_schema
+        return self._fast_app.openapi_schema
