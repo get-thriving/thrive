@@ -25,6 +25,8 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
     _global_properties: _GlobalPropertiesT
     _service_properties: _ServicePropertiesT
     _name: Literal["GET", "POST", "PUT", "DELETE"]
+    _attached_path: str | None
+    _tag: str | None
 
     def __init__(
         self,
@@ -38,6 +40,8 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         self._global_properties = global_properties
         self._service_properties = service_properties
         self._name = name
+        self._attached_path = None
+        self._tag = None
 
     @classmethod
     def build(  # type: ignore[explicit-any]
@@ -54,16 +58,16 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
 
         return build_it
 
-    def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
+    def attach_route(self, fast_app: FastAPI, paths: list[str], attached_path: str) -> None:
         """Attach the route to the FastAPI app."""
-        api_path = self._build_final_api_path(self._build_api_path(paths))
-
+        self._attached_path = attached_path
+        self._tag = paths[0]
         @fast_app.api_route(
-            path=api_path,
+            path=attached_path,
             methods=[self._name],
-            summary=api_path,
+            summary=self._attached_path,
             description=self._description(),
-            tags=[paths[0]],
+            tags=[self._tag],
             **_STANDARD_CONFIG,
         )
         async def do_it(request: Request) -> Response:
@@ -78,23 +82,14 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         """The description of the method."""
 
     @abstractmethod
-    def _build_final_api_path(self, path: str) -> str:
-        """Build the final API path."""
-
-    @abstractmethod
     def get_openapi_components(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI components for the method."""
 
-    @staticmethod
-    def _build_api_path(paths: list[str]) -> str:
-        """Build the API path."""
-        new_paths = []
-        for p in paths:
-            if p.startswith(":"):
-                param_name = p[1:].replace(":", "___")
-                new_paths.append("{" + param_name + "}")
-            else:
-                new_paths.append(p)
-        return "/" + "/".join(new_paths)
+    @abstractmethod
+    def get_openapi_path(self) -> tuple[str, dict[str, Any]]:  # type: ignore[explicit-any]
+        """Get the OpenAPI paths for the method."""
 
-
+    @property
+    def method_name(self) -> Literal["GET", "POST", "PUT", "DELETE"]:
+        """The method."""
+        return self._name

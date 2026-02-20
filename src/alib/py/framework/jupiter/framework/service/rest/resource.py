@@ -1,7 +1,8 @@
 """Resources for the REST service."""
 
+from collections import defaultdict
 import re
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Callable, Generic, TypeVar
 
 from fastapi import FastAPI
@@ -29,6 +30,7 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
         "RestResource[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]"
     ]
     _methods: list[RestMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT]]
+    _attached_path: str | None
 
     def __init__(
         self,
@@ -50,6 +52,7 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
         self._name = name
         self._subresources = subresources
         self._methods = methods
+        self._attached_path = None
 
     @classmethod
     def build(  # type: ignore[explicit-any]
@@ -89,10 +92,12 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
 
     def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
         """Attach the route to the FastAPI app."""
+        full_paths = [*paths, self._name]
+        self._attached_path = self._build_final_api_path(self._build_api_path(full_paths))
         for subresource in self._subresources:
-            subresource.attach_route(fast_app, [*paths, self._name])
+            subresource.attach_route(fast_app, full_paths)
         for method in self._methods:
-            method.attach_route(fast_app, [*paths, self._name])
+            method.attach_route(fast_app, full_paths, self._attached_path)
 
     def get_openapi_components(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI components for the resource."""
@@ -102,4 +107,28 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
         for method in self._methods:
             components.update(method.get_openapi_components())
         return components
-    
+
+    def get_openapi_paths(self) -> dict[str, Any]:  # type: ignore[explicit-any]
+        """Get the OpenAPI paths for the resource."""
+        paths = defaultdict(dict)
+        for subresource in self._subresources:
+            paths.update(subresource.get_openapi_paths())
+        for method in self._methods:
+            paths[self._attached_path][method.method_name.lower()] = method.get_openapi_path()
+        return paths
+
+    @staticmethod
+    def _build_api_path(paths: list[str]) -> str:
+        """Build the API path."""
+        new_paths = []
+        for p in paths:
+            if p.startswith(":"):
+                param_name = p[1:].replace(":", "___")
+                new_paths.append("{" + param_name + "}")
+            else:
+                new_paths.append(p)
+        return "/" + "/".join(new_paths)
+
+    @abstractmethod
+    def _build_final_api_path(self, path: str) -> str:
+        """Build the final API path."""

@@ -207,10 +207,15 @@ class RestService(
             }
         }
 
+        openapi_schema["components"]["schemas"] = {}
+
         for resource in self._resources:
-            openapi_schema["components"].update(resource.get_openapi_components())
+            openapi_schema["components"]["schemas"].update(resource.get_openapi_components())
 
         openapi_schema["paths"] = {}
+
+        for resource in self._resources:
+            openapi_schema["paths"].update(resource.get_openapi_paths())
 
         self._fast_app.openapi_schema = openapi_schema
         return self._fast_app.openapi_schema
