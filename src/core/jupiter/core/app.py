@@ -1,6 +1,7 @@
 """A client facing application."""
 
 import re
+
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.value import AtomicValue, EnumValue, enum_value, value
 

@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Final, Generic, TypeVar
 
-from fastapi.openapi.utils import get_openapi
 import uvicorn
 from fastapi import FastAPI, Request, Response, status
+from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
@@ -191,7 +191,7 @@ class RestService(
             title=self.description,
             version=self.version,
             routes=self._fast_app.routes,
-            description=self.description
+            description=self.description,
         )
 
         # Generate all components
@@ -199,18 +199,21 @@ class RestService(
         openapi_schema["components"] = {}
 
         openapi_schema["components"]["securitySchemes"] = {
-            "ApiKeyAuth": {
-                "type": "apiKey",
-                "in": "header",
-                "name": "Authorization",
-                "description": "API key to authorize requests. Pass as 'Authorization: Bearer <API_KEY>'."
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                # Optional but helpful: tells UIs / generators what kind of bearer token it is
+                # If it's not a JWT, you can omit this.
+                "bearerFormat": "Opaque",
             }
         }
 
         openapi_schema["components"]["schemas"] = {}
 
         for resource in self._resources:
-            openapi_schema["components"]["schemas"].update(resource.get_openapi_components())
+            openapi_schema["components"]["schemas"].update(
+                resource.get_openapi_components()
+            )
 
         openapi_schema["paths"] = {}
 

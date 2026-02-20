@@ -4,6 +4,7 @@ import enum
 import inspect
 import json
 import os
+import re
 import sys
 import types as types_mod
 from dataclasses import dataclass
@@ -25,7 +26,6 @@ from typing import (
 )
 
 import attr
-
 import dotenv
 import httpx
 from fastapi import Request, Response, status
@@ -205,7 +205,92 @@ def _extract_operation_id_from_api_call(api_call: Any) -> str:  # type: ignore[e
     return f"{module}.{filename}"
 
 
-OPENAPI_ERROR_RESPONSES: dict[str, Any] = {
+def _attrs_type_has_payload(tp: type[Any] | None) -> bool:  # type: ignore[explicit-any]
+    """Check whether an attrs type has meaningful fields beyond ``ref_id``."""
+    if tp is None or not attr.has(tp):
+        return False
+    return any(
+        f.name not in ("ref_id", "additional_properties") for f in attr.fields(tp)
+    )
+
+
+_PATH_PARAM_RE = re.compile(r"\{([^}]+)\}")
+
+
+def _extract_path_parameters(path: str) -> list[dict[str, Any]]:  # type: ignore[explicit-any]
+    """Extract OpenAPI parameter objects from ``{param}`` segments in a path."""
+    return [
+        {
+            "name": match.group(1),
+            "in": "path",
+            "required": True,
+            "schema": {"type": "string"},
+        }
+        for match in _PATH_PARAM_RE.finditer(path)
+    ]
+
+
+def _build_query_parameters(  # type: ignore[explicit-any]
+    args_type: type[Any] | None,
+) -> list[dict[str, Any]]:
+    """Build OpenAPI query parameter objects from the fields of an attrs args type.
+
+    Skips ``ref_id`` (handled as a path parameter) and ``additional_properties``.
+    """
+    if args_type is None or not attr.has(args_type):
+        return []
+
+    hints = _resolve_attrs_hints(args_type)
+    parameters: list[dict[str, Any]] = []  # type: ignore[explicit-any]
+
+    def _scalar_schema(tp: Any) -> dict[str, Any]:  # type: ignore[explicit-any]
+        if tp is type(None):
+            return {"type": "null"}
+        if tp is str:
+            return {"type": "string"}
+        if tp is int:
+            return {"type": "integer"}
+        if tp is float:
+            return {"type": "number"}
+        if tp is bool:
+            return {"type": "boolean"}
+        if isinstance(tp, type) and issubclass(tp, enum.Enum):
+            return {"type": "string", "enum": [e.value for e in tp]}
+        origin = get_origin(tp)
+        if origin is list:
+            return {"type": "array", "items": _scalar_schema(get_args(tp)[0])}
+        if origin is Union or isinstance(tp, types_mod.UnionType):
+            members = [a for a in get_args(tp) if a is not type(None)]
+            if len(members) == 1:
+                return _scalar_schema(members[0])
+            return {"anyOf": [_scalar_schema(m) for m in members]}
+        return {"type": "string"}
+
+    for field in attr.fields(args_type):
+        if field.name in ("ref_id", "additional_properties"):
+            continue
+        ft = hints.get(field.name)
+        if ft is None:
+            continue
+
+        has_unset, has_none, clean = _decompose_union(ft)
+        schema = _scalar_schema(clean)
+
+        if has_none:
+            schema = {"anyOf": [schema, {"type": "null"}]}
+
+        param: dict[str, Any] = {  # type: ignore[explicit-any]
+            "name": field.name,
+            "in": "query",
+            "required": not has_unset,
+            "schema": schema,
+        }
+        parameters.append(param)
+
+    return parameters
+
+
+OPENAPI_ERROR_RESPONSES: dict[str, Any] = {  # type: ignore[explicit-any]
     "ErrorResponse": {
         "title": "ErrorResponse",
         "type": "object",
@@ -238,9 +323,45 @@ OPENAPI_ERROR_RESPONSES: dict[str, Any] = {
 }
 
 
-def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
+def _resolve_attrs_hints(cls: type[Any]) -> dict[str, Any]:  # type: ignore[explicit-any]
+    """Resolve string annotations, injecting sibling model types for TYPE_CHECKING refs."""
+    mod = sys.modules.get(cls.__module__)
+    globalns: dict[str, Any] = dict(getattr(mod, "__dict__", {})) if mod else {}  # type: ignore[explicit-any]
+    pkg_name = cls.__module__.rsplit(".", 1)[0]
+    pkg = sys.modules.get(pkg_name)
+    if pkg is not None:
+        for name in dir(pkg):
+            obj = getattr(pkg, name, None)
+            if isinstance(obj, type):
+                globalns.setdefault(name, obj)
+    try:
+        return get_type_hints(cls, globalns=globalns)
+    except TypeError:
+        return {}
+
+
+def _decompose_union( # type: ignore[explicit-any]
+    tp: Any,
+) -> tuple[bool, bool, Any]:
+    """Strip ``Unset`` and ``None`` from a union, returning ``(has_unset, has_none, cleaned)``."""
+    origin = get_origin(tp)
+    if origin is not Union and not isinstance(tp, types_mod.UnionType):
+        return False, False, tp
+    args = get_args(tp)
+    has_unset = any(a is Unset for a in args)
+    has_none = type(None) in args
+    rest = [a for a in args if a is not Unset and a is not type(None)]
+    if len(rest) == 0:
+        return has_unset, has_none, type(None)
+    if len(rest) == 1:
+        return has_unset, has_none, rest[0]
+    return has_unset, has_none, Union[tuple(rest)]
+
+
+def _build_openapi_schemas_for_type(  # type: ignore[explicit-any]
     root_type: type[Any] | None,
-) -> dict[str, Any]:
+    exclude_ref_id: bool = False,
+) -> dict[str, Any]:  # type: ignore[explicit-any]
     """Build OpenAPI component schemas for an attrs type and all its transitive dependencies.
 
     Handles primitives, ``str`` Enums, attrs-defined classes (including
@@ -252,39 +373,6 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
 
     schemas: dict[str, Any] = {}  # type: ignore[explicit-any]
     visited: set[type[Any]] = set()  # type: ignore[explicit-any]
-
-    def _resolve_hints(cls: type[Any]) -> dict[str, Any]:  # type: ignore[explicit-any]
-        """Resolve string annotations, injecting sibling model types for TYPE_CHECKING refs."""
-        mod = sys.modules.get(cls.__module__)
-        globalns: dict[str, Any] = dict(getattr(mod, "__dict__", {})) if mod else {}  # type: ignore[explicit-any]
-        pkg_name = cls.__module__.rsplit(".", 1)[0]
-        pkg = sys.modules.get(pkg_name)
-        if pkg is not None:
-            for name in dir(pkg):
-                obj = getattr(pkg, name, None)
-                if isinstance(obj, type):
-                    globalns.setdefault(name, obj)
-        try:
-            return get_type_hints(cls, globalns=globalns)
-        except Exception:
-            return {}
-
-    def _decompose_union(
-        tp: Any,  # type: ignore[explicit-any]
-    ) -> tuple[bool, bool, Any]:  # type: ignore[explicit-any]
-        """Strip ``Unset`` and ``None`` from a union, returning ``(has_unset, has_none, cleaned)``."""
-        origin = get_origin(tp)
-        if origin is not Union and not isinstance(tp, types_mod.UnionType):
-            return False, False, tp
-        args = get_args(tp)
-        has_unset = any(a is Unset for a in args)
-        has_none = type(None) in args
-        rest = [a for a in args if a is not Unset and a is not type(None)]
-        if len(rest) == 0:
-            return has_unset, has_none, type(None)
-        if len(rest) == 1:
-            return has_unset, has_none, rest[0]
-        return has_unset, has_none, Union[tuple(rest)]
 
     def _type_to_schema(tp: type[Any]) -> dict[str, Any]:  # type: ignore[explicit-any]
         if tp is type(None):
@@ -308,7 +396,10 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
             return {"type": "array", "items": _type_to_schema(get_args(tp)[0])}
         if origin is dict:
             value_type = get_args(tp)[1]
-            return {"type": "object", "additionalProperties": _type_to_schema(value_type)}
+            return {
+                "type": "object",
+                "additionalProperties": _type_to_schema(value_type),
+            }
         if origin is Union or isinstance(tp, types_mod.UnionType):
             members = [a for a in get_args(tp) if a is not type(None)]
             if len(members) == 1:
@@ -316,7 +407,7 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
             return {"anyOf": [_type_to_schema(m) for m in members]}
         return {"type": "string"}
 
-    def _walk(tp: type[Any]) -> None:  # type: ignore[explicit-any]
+    def _walk(tp: type[Any], is_root: bool = False) -> None:  # type: ignore[explicit-any]
         if tp in visited:
             return
         visited.add(tp)
@@ -332,7 +423,7 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
         if not attr.has(tp):
             return
 
-        hints = _resolve_hints(tp)
+        hints = _resolve_attrs_hints(tp)
         user_fields = [a for a in attr.fields(tp) if a.name != "additional_properties"]
 
         # Dict-like attrs types that only carry additional_properties
@@ -353,6 +444,9 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
         required: list[str] = []
 
         for field in user_fields:
+            if is_root and exclude_ref_id and field.name == "ref_id":
+                continue
+
             ft = hints.get(field.name)
             if ft is None:
                 continue
@@ -378,7 +472,7 @@ def build_openapi_schemas_for_type(  # type: ignore[explicit-any]
             schema["required"] = required
         schemas[tp.__name__] = schema
 
-    _walk(root_type)
+    _walk(root_type, is_root=True)
     return schemas
 
 
@@ -515,7 +609,7 @@ class JupiterApiGatewayMethod(
 
         return build_it
 
-    def _description(self) -> str:
+    def _description(self) -> str:  # type: ignore[explicit-any]
         """The description of the method."""
         doc = self._api_call.__doc__
         if not doc:
@@ -659,10 +753,10 @@ class JupiterApiGatewayMethod(
                 content={
                     "status": response.status_code,
                     "response": error_resp.to_dict(),
-                }
+                },
             )
 
-        if self._result is None:
+        if self._result is None or self._result is Any:  # type: ignore[explicit-any, comparison-overlap]
             return JSONResponse(content=None)
 
         if not isinstance(response.parsed, self._result):
@@ -676,14 +770,35 @@ class JupiterApiGatewayMethod(
     def get_openapi_components(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI components for the method."""
         components = dict(OPENAPI_ERROR_RESPONSES)
-        components.update(build_openapi_schemas_for_type(self._result))
+        components.update(_build_openapi_schemas_for_type(self._result))
+        if self._method != "GET":
+            components.update(
+                _build_openapi_schemas_for_type(self._args, exclude_ref_id=True)
+            )
         return components
 
     def get_openapi_path(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI path for the method."""
+        request_body: dict[str, Any] = {}  # type: ignore[explicit-any]
+        if (
+            self.method_name != "GET"
+            and self._args is not None
+            and _attrs_type_has_payload(self._args)
+        ):
+            request_body = {  # type: ignore[explicit-any]
+                "required": True,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": f"#/components/schemas/{self._args.__name__}"
+                        }
+                    }
+                },
+            }
+
         responses: dict[str, Any] = {}  # type: ignore[explicit-any]
 
-        if self._result is not None and self._result is not Any:
+        if self._result is not None and self._result is not Any:  # type: ignore[explicit-any, comparison-overlap]
             responses["200"] = {
                 "description": "Successful response",
                 "content": {
@@ -701,21 +816,15 @@ class JupiterApiGatewayMethod(
 
         responses["400"] = {
             "description": "Invalid arguments",
-            "content": {
-                "text/plain": {"schema": {"type": "string"}}
-            },
+            "content": {"text/plain": {"schema": {"type": "string"}}},
         }
         responses["401"] = {
             "description": "Missing or invalid Authorization header, or API key exchange failed",
-            "content": {
-                "text/plain": {"schema": {"type": "string"}}
-            },
+            "content": {"text/plain": {"schema": {"type": "string"}}},
         }
         responses["500"] = {
             "description": "Unexpected status or unexpected response type",
-            "content": {
-                "text/plain": {"schema": {"type": "string"}}
-            },
+            "content": {"text/plain": {"schema": {"type": "string"}}},
         }
         responses["502"] = {
             "description": "Downstream API call failed",
@@ -726,9 +835,7 @@ class JupiterApiGatewayMethod(
                         "required": ["status", "response"],
                         "properties": {
                             "status": {"type": "integer"},
-                            "response": {
-                                "$ref": "#/components/schemas/ErrorResponse"
-                            },
+                            "response": {"$ref": "#/components/schemas/ErrorResponse"},
                         },
                         "additionalProperties": False,
                     }
@@ -737,9 +844,7 @@ class JupiterApiGatewayMethod(
         }
         responses["504"] = {
             "description": "Gateway timeout",
-            "content": {
-                "text/plain": {"schema": {"type": "string"}}
-            },
+            "content": {"text/plain": {"schema": {"type": "string"}}},
         }
 
         operation_id = _extract_operation_id_from_api_call(self._api_call)
@@ -747,14 +852,25 @@ class JupiterApiGatewayMethod(
         if self._tag is None:
             raise Exception("Tag is None")
 
-        return {
+        parameters = _extract_path_parameters(self._attached_path or "")
+        if self.method_name == "GET" and _attrs_type_has_payload(self._args):
+            parameters.extend(_build_query_parameters(self._args))
+
+        path_object: dict[str, Any] = {  # type: ignore[explicit-any]
             "summary": self._description(),
             "description": self._description(),
             "operationId": operation_id,
             "tags": [self._tag],
-            "security": [{"ApiKeyAuth": []}],
+            "security": [{"BearerAuth": []}],
             "responses": responses,
         }
+
+        if request_body:
+            path_object["requestBody"] = request_body
+        if parameters:
+            path_object["parameters"] = parameters
+
+        return path_object
 
 
 class JupiterApiService(

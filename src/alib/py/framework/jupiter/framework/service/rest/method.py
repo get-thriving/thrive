@@ -24,7 +24,7 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
     _ports: _PortsT
     _global_properties: _GlobalPropertiesT
     _service_properties: _ServicePropertiesT
-    _name: Literal["GET", "POST", "PUT", "DELETE"]
+    _method: Literal["GET", "POST", "PUT", "DELETE"]
     _attached_path: str | None
     _tag: str | None
 
@@ -33,13 +33,13 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         ports: _PortsT,
         global_properties: _GlobalPropertiesT,
         service_properties: _ServicePropertiesT,
-        name: Literal["GET", "POST", "PUT", "DELETE"],
+        method: Literal["GET", "POST", "PUT", "DELETE"],
     ) -> None:
         """Initialize the method."""
         self._ports = ports
         self._global_properties = global_properties
         self._service_properties = service_properties
-        self._name = name
+        self._method = method
         self._attached_path = None
         self._tag = None
 
@@ -58,13 +58,16 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
 
         return build_it
 
-    def attach_route(self, fast_app: FastAPI, paths: list[str], attached_path: str) -> None:
+    def attach_route(
+        self, fast_app: FastAPI, paths: list[str], attached_path: str
+    ) -> None:
         """Attach the route to the FastAPI app."""
         self._attached_path = attached_path
         self._tag = paths[0]
+
         @fast_app.api_route(
             path=attached_path,
-            methods=[self._name],
+            methods=[self._method],
             summary=self._attached_path,
             description=self._description(),
             tags=[self._tag],
@@ -86,10 +89,10 @@ class RestMethod(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT])
         """Get the OpenAPI components for the method."""
 
     @abstractmethod
-    def get_openapi_path(self) -> tuple[str, dict[str, Any]]:  # type: ignore[explicit-any]
+    def get_openapi_path(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI paths for the method."""
 
     @property
     def method_name(self) -> Literal["GET", "POST", "PUT", "DELETE"]:
         """The method."""
-        return self._name
+        return self._method

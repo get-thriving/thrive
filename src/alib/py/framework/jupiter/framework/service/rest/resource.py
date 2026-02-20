@@ -1,8 +1,8 @@
 """Resources for the REST service."""
 
-from collections import defaultdict
 import re
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from typing import Any, Callable, Generic, TypeVar
 
 from fastapi import FastAPI
@@ -93,7 +93,9 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
     def attach_route(self, fast_app: FastAPI, paths: list[str]) -> None:
         """Attach the route to the FastAPI app."""
         full_paths = [*paths, self._name]
-        self._attached_path = self._build_final_api_path(self._build_api_path(full_paths))
+        self._attached_path = self._build_final_api_path(
+            self._build_api_path(full_paths)
+        )
         for subresource in self._subresources:
             subresource.attach_route(fast_app, full_paths)
         for method in self._methods:
@@ -110,11 +112,15 @@ class RestResource(ABC, Generic[_PortsT, _GlobalPropertiesT, _ServicePropertiesT
 
     def get_openapi_paths(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Get the OpenAPI paths for the resource."""
-        paths = defaultdict(dict)
+        paths: dict[str, dict[str, Any]] = defaultdict(dict)  # type: ignore[explicit-any]
+        if self._attached_path is None:
+            raise Exception("This resource has no attached path")
         for subresource in self._subresources:
             paths.update(subresource.get_openapi_paths())
         for method in self._methods:
-            paths[self._attached_path][method.method_name.lower()] = method.get_openapi_path()
+            paths[self._attached_path][
+                method.method_name.lower()
+            ] = method.get_openapi_path()
         return paths
 
     @staticmethod
