@@ -12,6 +12,7 @@ export async function loader() {
 
   return json({
     webApiUrl: SERVICE_PROPERTIES.webApiUrl,
+    apiUrl: SERVICE_PROPERTIES.apiUrl,
     webUiUrl: GLOBAL_PROPERTIES.hostedGlobalWebUiUrl,
     docsUrl: SERVICE_PROPERTIES.docsUrl,
   });

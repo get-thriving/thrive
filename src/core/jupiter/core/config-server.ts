@@ -25,6 +25,7 @@ export interface ServicePropertiesServer {
   webApiServerUrl: string;
   webApiProgressReporterUrl: string;
   webApiUrl: string;
+  apiUrl: string;
   docsUrl: string;
   pwaStartUrl: string;
   sessionCookieSecure: boolean;
@@ -81,6 +82,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
     webApiServerUrl: webApiServerUrl,
     webApiProgressReporterUrl: webApiProgressReporterUrl,
     webApiUrl: process.env.WEBAPI_URL as string,
+    apiUrl: process.env.API_URL as string,
     docsUrl: process.env.DOCS_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",

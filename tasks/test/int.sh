@@ -30,13 +30,15 @@ webui_url=$(get_webui_url_for_universe "$usage_universe" "$usage_environment" "$
 wait_for_service_to_start "universe" "$webui_url"
 check_is_testable_universe "$webui_url"
 webapi_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.webApiUrl')
+api_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.apiUrl')
 docs_url=$(http --verify=no get "$webui_url/test-manifest" | jq -r '.docsUrl')
 
 log info "Testing Jupiter with Web API $webapi_url and Web UI $webui_url and Docs $docs_url and pytest args ${usage_pytest_args[*]}"
 
 wait_for_service_to_start "webapi" "$webapi_url"
+wait_for_service_to_start "api" "$api_url"
 wait_for_service_to_start "docs" "$docs_url"
 
 log info "Running tests with pytest args ${usage_pytest_args[*]}"
 
-run_tests "$webapi_url" "$webui_url" "$docs_url" "$usage_headed" "${usage_pytest_args[@]}" 
+run_tests "$webapi_url" "$api_url" "$webui_url" "$docs_url" "$usage_headed" "${usage_pytest_args[@]}" 

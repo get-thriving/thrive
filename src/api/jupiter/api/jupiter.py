@@ -479,6 +479,26 @@ from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
 )
 
+# --- Vacations API ---
+from jupiter_webapi_client.api.vacations.vacation_archive import (
+    asyncio_detailed as vacation_archive,
+)
+from jupiter_webapi_client.api.vacations.vacation_create import (
+    asyncio_detailed as vacation_create,
+)
+from jupiter_webapi_client.api.vacations.vacation_find import (
+    asyncio_detailed as vacation_find,
+)
+from jupiter_webapi_client.api.vacations.vacation_load import (
+    asyncio_detailed as vacation_load,
+)
+from jupiter_webapi_client.api.vacations.vacation_remove import (
+    asyncio_detailed as vacation_remove,
+)
+from jupiter_webapi_client.api.vacations.vacation_update import (
+    asyncio_detailed as vacation_update,
+)
+
 # --- Tags API ---
 from jupiter_webapi_client.api.tags.tag_archive import (
     asyncio_detailed as tag_archive,
@@ -1161,6 +1181,22 @@ async def main() -> None:
                             JupiterApiGatewayMethod.delete(smart_list_item_remove),
                         ),
                     ),
+                ),
+            ),
+        ),
+        # Vacations
+        JupiterApiResource.build(
+            "vacations",
+            JupiterApiGatewayMethod.get(vacation_find),
+            JupiterApiGatewayMethod.post(vacation_create),
+            JupiterApiResource.build(
+                ":ref_id",
+                JupiterApiGatewayMethod.get(vacation_load),
+                JupiterApiGatewayMethod.put(vacation_update),
+                JupiterApiGatewayMethod.delete(vacation_archive),
+                JupiterApiResource.build(
+                    "remove",
+                    JupiterApiGatewayMethod.delete(vacation_remove),
                 ),
             ),
         ),
