@@ -22,7 +22,6 @@ from jupiter.framework.service.rest.api_gateway_method import (
     WebApiClientCallable,
     WebApiClientErrorResponse,
     WebApiClientSerializable,
-    WebApiUnsetMarker,
 )
 from jupiter.framework.service.rest.method import RestMethod
 from jupiter.framework.service.rest.resource import RestResource
@@ -37,7 +36,7 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
-from jupiter_webapi_client.types import UNSET, Unset
+from jupiter_webapi_client.types import Unset
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
 _ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
@@ -113,7 +112,7 @@ class JupiterApiMethod(
 
 class JupiterApiGatewayMethod(
     Generic[_ApiArgsT, _ApiResultT, _ApiCallT],
-    RestApiGatewayMethod[
+    RestApiGatewayMethod[  # type: ignore[explicit-any]
         JupiterApiPorts,
         JupiterGlobalProperties,
         JupiterApiProperties,
@@ -127,14 +126,15 @@ class JupiterApiGatewayMethod(
 ):
     """The Jupiter API gateway method."""
 
-    def get_authenticated_client(self, token: str) -> AuthenticatedClient:
+    def get_authenticated_client(self, token: str) -> AuthenticatedClient:  # type: ignore[explicit-any]
+        """Get the authenticated client."""
         return AuthenticatedClient(
             base_url=self._ports.webapi_client.client._base_url,
             raise_on_unexpected_status=True,
             token=token,
         )
 
-    async def _do_key_exchange(self, key: str) -> str | Response:
+    async def _do_key_exchange(self, key: str) -> str | Response:  # type: ignore[explicit-any]
         client = self._ports.webapi_client.client
 
         resp = await api_key_exchange(

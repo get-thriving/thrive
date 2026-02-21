@@ -53,12 +53,18 @@ class WebApiClientErrorResponse(Protocol):
     """Protocol for web API client error responses."""
 
     @property
-    def reason(self) -> str: ...
+    def reason(self) -> str:
+        """The reason for the error."""
+        ...
 
     def to_dict(self) -> dict[str, Any]:  # type: ignore[explicit-any]
         """Convert the object to a dictionary."""
+        ...
 
-_WebApiClientErrorResponseT = TypeVar("_WebApiClientErrorResponseT", bound=WebApiClientErrorResponse)
+
+_WebApiClientErrorResponseT = TypeVar(
+    "_WebApiClientErrorResponseT", bound=WebApiClientErrorResponse
+)
 
 
 _WebApiAuthenticatedClientT = TypeVar("_WebApiAuthenticatedClientT", bound=object)
@@ -105,7 +111,9 @@ class WebApiClientCallable(
         body: _CallApiArgsT_contra,
     ) -> Awaitable[
         _WebApiClientResponse[WebApiClientErrorResponse | _CallApiResultT_co]
-    ]: ...
+    ]:
+        """The callable API function."""
+        ...
 
 
 _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # type: ignore[explicit-any]
@@ -114,7 +122,10 @@ _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # t
 class WebApiUnsetMarker(Protocol):
     """Protocol for unset markers."""
 
-    def __bool__(self) -> Literal[False]: ...
+    def __bool__(self) -> Literal[False]:
+        """The unset marker."""
+        ...
+
 
 _WebApiUnsetMarkerT = TypeVar("_WebApiUnsetMarkerT", bound=WebApiUnsetMarker)
 
@@ -446,7 +457,7 @@ def _build_openapi_schemas_for_type(  # type: ignore[explicit-any]
     return schemas
 
 
-_RestApiGatewayMethodT = TypeVar("_RestApiGatewayMethodT", bound="RestApiGatewayMethod[Any, Any, Any, Any, Any, Any]")  # type: ignore[explicit-any]
+_RestApiGatewayMethodT = TypeVar("_RestApiGatewayMethodT", bound="RestApiGatewayMethod[Any, Any, Any, Any, Any, Any, Any, Any, Any]")  # type: ignore[explicit-any]
 
 
 class RestApiGatewayMethod(
@@ -492,7 +503,16 @@ class RestApiGatewayMethod(
         api_call: _ApiCallT,
     ) -> Callable[
         [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
-        "RestApiGatewayMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _WebApiAuthenticatedClientT, _WebApiUnsetMarkerT, _WebApiClientErrorResponseT, _ApiArgsT, _ApiResultT, _ApiCallT]",
+        """RestApiGatewayMethod[
+            _PortsT,
+            _GlobalPropertiesT,
+            _ServicePropertiesT,
+            _WebApiAuthenticatedClientT,
+            _WebApiUnsetMarkerT,
+            _WebApiClientErrorResponseT,
+            _ApiArgsT,
+            _ApiResultT,
+            _ApiCallT]""",
     ]:
         """Build a GET method."""
         args, result = _extract_types_from_api_call(
@@ -532,7 +552,16 @@ class RestApiGatewayMethod(
         api_call: _ApiCallT,
     ) -> Callable[
         [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
-        "RestApiGatewayMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _WebApiAuthenticatedClientT, _WebApiUnsetMarkerT, _WebApiClientErrorResponseT, _ApiArgsT, _ApiResultT, _ApiCallT]",
+        """RestApiGatewayMethod[
+            _PortsT,
+            _GlobalPropertiesT,
+            _ServicePropertiesT,
+            _WebApiAuthenticatedClientT,
+            _WebApiUnsetMarkerT,
+            _WebApiClientErrorResponseT,
+            _ApiArgsT,
+            _ApiResultT,
+            _ApiCallT]""",
     ]:
         """Build a POST method."""
         args, result = _extract_types_from_api_call(
@@ -572,7 +601,16 @@ class RestApiGatewayMethod(
         api_call: _ApiCallT,
     ) -> Callable[
         [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
-        "RestApiGatewayMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _WebApiAuthenticatedClientT, _WebApiUnsetMarkerT, _WebApiClientErrorResponseT, _ApiArgsT, _ApiResultT, _ApiCallT]",
+        """RestApiGatewayMethod[
+            _PortsT,
+            _GlobalPropertiesT,
+            _ServicePropertiesT,
+            _WebApiAuthenticatedClientT,
+            _WebApiUnsetMarkerT,
+            _WebApiClientErrorResponseT,
+            _ApiArgsT,
+            _ApiResultT,
+            _ApiCallT]""",
     ]:
         """Build a PUT method."""
         args, result = _extract_types_from_api_call(
@@ -612,7 +650,17 @@ class RestApiGatewayMethod(
         api_call: _ApiCallT,
     ) -> Callable[
         [_PortsT, _GlobalPropertiesT, _ServicePropertiesT],
-        "RestApiGatewayMethod[_PortsT, _GlobalPropertiesT, _ServicePropertiesT, _WebApiAuthenticatedClientT, _WebApiUnsetMarkerT, _WebApiClientErrorResponseT, _ApiArgsT, _ApiResultT, _ApiCallT]",
+        """RestApiGatewayMethod[
+            _PortsT,
+            _GlobalPropertiesT,
+            _ServicePropertiesT,
+            _WebApiAuthenticatedClientT,
+            _WebApiUnsetMarkerT,
+            _WebApiClientErrorResponseT,
+            _ApiArgsT,
+            _ApiResultT,
+            _ApiCallT,
+        ]""",
     ]:
         """Build a DELETE method."""
         args, result = _extract_types_from_api_call(
@@ -894,13 +942,13 @@ class RestApiGatewayMethod(
 
         return path_object
 
-    @staticmethod
-    def unset_marker(cls) -> WebApiUnsetMarker:
+    @classmethod
+    def unset_marker(cls) -> WebApiUnsetMarker:  # type: ignore[explicit-any]
         """The unset marker for the method."""
         return cls.unset_marker_type()()
 
     @classmethod
-    def unset_marker_type(cls) -> type[WebApiUnsetMarker]:
+    def unset_marker_type(cls) -> type[WebApiUnsetMarker]:  # type: ignore[explicit-any]
         """The type of the unset marker for the method."""
         for klass in cls.__mro__:
             for base in getattr(klass, "__orig_bases__", ()):
@@ -914,7 +962,7 @@ class RestApiGatewayMethod(
         )
 
     @classmethod
-    def error_response_type(cls) -> type[WebApiClientErrorResponse]:
+    def error_response_type(cls) -> type[WebApiClientErrorResponse]:  # type: ignore[explicit-any]
         """The type of the error response for the method."""
         for klass in cls.__mro__:
             for base in getattr(klass, "__orig_bases__", ()):
@@ -928,9 +976,9 @@ class RestApiGatewayMethod(
         )
 
     @abstractmethod
-    def get_authenticated_client(self, token: str) -> _WebApiAuthenticatedClientT:
+    def get_authenticated_client(self, token: str) -> _WebApiAuthenticatedClientT:  # type: ignore[explicit-any]
         """The authenticated client for the method."""
 
     @abstractmethod
-    async def _do_key_exchange(self, key: str) -> str | Response:
+    async def _do_key_exchange(self, key: str) -> str | Response:  # type: ignore[explicit-any]
         """Do the key exchange for the method."""
