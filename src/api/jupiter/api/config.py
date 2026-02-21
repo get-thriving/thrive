@@ -1,45 +1,34 @@
 """The API configuration."""
 
-import enum
-import inspect
-import json
 import os
-import re
-import sys
-import types as types_mod
 from dataclasses import dataclass
 from pathlib import Path
 from typing import (
     Any,
-    Awaitable,
-    Callable,
     Generic,
-    Literal,
-    Mapping,
-    Protocol,
     TypeVar,
     Union,
     cast,
-    get_args,
-    get_origin,
-    get_type_hints,
 )
 
-import attr
 import dotenv
-import httpx
-from fastapi import Request, Response, status
-from fastapi.responses import JSONResponse
-from jupiter.framework.service.rest.api_gateway_method import RestApiGatewayMethod, WebApiClientCallable, WebApiClientErrorResponse, WebApiClientSerializable, WebApiUnsetMarker
+from fastapi import Response, status
 from jupiter.api.headers import build_response_headers
 from jupiter.api.webapi_client import WebApiClient
 from jupiter.core.config import JupiterGlobalProperties
 from jupiter.framework.ports import Ports
+from jupiter.framework.service.rest.api_gateway_method import (
+    RestApiGatewayMethod,
+    WebApiClientCallable,
+    WebApiClientErrorResponse,
+    WebApiClientSerializable,
+    WebApiUnsetMarker,
+)
 from jupiter.framework.service.rest.method import RestMethod
 from jupiter.framework.service.rest.resource import RestResource
 from jupiter.framework.service.rest.service import RestService
 from jupiter.framework.service_properties import ServiceProperties
-from jupiter_webapi_client import AuthenticatedClient, Client, errors
+from jupiter_webapi_client import AuthenticatedClient
 from jupiter_webapi_client.api.api_key.a_pi_key_exchange import (
     asyncio_detailed as api_key_exchange,
 )
@@ -49,12 +38,10 @@ from jupiter_webapi_client.models import (
     ErrorResponse,
 )
 from jupiter_webapi_client.types import UNSET, Unset
-from jupiter_webapi_client.types import Response as WebApiClientResponse
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
 _ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
 _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # type: ignore[explicit-any]
-
 
 
 @dataclass(frozen=True)
@@ -118,7 +105,6 @@ class JupiterApiResource(
         return f"/v{self._global_properties.version.major_version}{path}"
 
 
-
 class JupiterApiMethod(
     RestMethod[JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties]
 ):
@@ -127,21 +113,19 @@ class JupiterApiMethod(
 
 class JupiterApiGatewayMethod(
     Generic[_ApiArgsT, _ApiResultT, _ApiCallT],
-    RestApiGatewayMethod[JupiterApiPorts, JupiterGlobalProperties, JupiterApiProperties, Client, AuthenticatedClient, _ApiArgsT, _ApiResultT, _ApiCallT]
+    RestApiGatewayMethod[
+        JupiterApiPorts,
+        JupiterGlobalProperties,
+        JupiterApiProperties,
+        AuthenticatedClient,
+        Unset,
+        ErrorResponse,
+        _ApiArgsT,
+        _ApiResultT,
+        _ApiCallT,
+    ],
 ):
     """The Jupiter API gateway method."""
-
-    @staticmethod
-    def unset_marker() -> WebApiUnsetMarker:
-        return UNSET
-
-    @staticmethod
-    def unset_marker_type() -> type[WebApiUnsetMarker]:
-        return Unset
-
-    @staticmethod
-    def error_response_type() -> type[WebApiClientErrorResponse]:
-        return ErrorResponse
 
     def get_authenticated_client(self, token: str) -> AuthenticatedClient:
         return AuthenticatedClient(
@@ -153,19 +137,9 @@ class JupiterApiGatewayMethod(
     async def _do_key_exchange(self, key: str) -> str | Response:
         client = self._ports.webapi_client.client
 
-        try:
-            resp = await api_key_exchange(
-                client=client, body=APIKeyExchangeArgs(api_key_external=key)
-            )
-        except errors.UnexpectedStatus as e:
-            return Response(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=e.content,
-            )
-        except httpx.TimeoutException:
-            return Response(
-                status_code=status.HTTP_504_GATEWAY_TIMEOUT, content="Timeout"
-            )
+        resp = await api_key_exchange(
+            client=client, body=APIKeyExchangeArgs(api_key_external=key)
+        )
 
         if not resp.status_code.is_success:
             error_resp = cast(WebApiClientErrorResponse, resp.parsed)
