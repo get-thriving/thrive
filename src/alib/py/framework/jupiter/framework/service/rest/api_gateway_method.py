@@ -29,6 +29,7 @@ import httpx
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
 from jupiter.framework.global_properties import GlobalProperties
+from jupiter.framework.openapi import OPENAPI_ERROR_RESPONSES
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.rest.method import RestMethod
 from jupiter.framework.service_properties import ServiceProperties
@@ -267,39 +268,6 @@ def _build_query_parameters(  # type: ignore[explicit-any]
         parameters.append(param)
 
     return parameters
-
-
-OPENAPI_ERROR_RESPONSES: dict[str, Any] = {  # type: ignore[explicit-any]
-    "ErrorResponse": {
-        "title": "ErrorResponse",
-        "type": "object",
-        "required": ["reason", "detail"],
-        "properties": {
-            "reason": {"type": "string"},
-            "detail": {
-                "oneOf": [
-                    {"type": "string"},
-                    {
-                        "type": "array",
-                        "items": {"$ref": "#/components/schemas/ErrorDetailItem"},
-                    },
-                ]
-            },
-        },
-        "additionalProperties": False,
-    },
-    "ErrorDetailItem": {
-        "title": "ErrorDetailItem",
-        "type": "object",
-        "required": ["loc", "msg", "type"],
-        "properties": {
-            "loc": {"type": "array", "items": {"type": "string"}},
-            "msg": {"type": "string"},
-            "type": {"type": "string"},
-        },
-        "additionalProperties": False,
-    },
-}
 
 
 def _resolve_attrs_hints(cls: type[Any]) -> dict[str, Any]:  # type: ignore[explicit-any]

@@ -18,7 +18,7 @@ from jupiter.core.users.root import (
     UserNotFoundError,
 )
 from jupiter.core.workspaces.root import WorkspaceNotFoundError
-from jupiter.framework.appform.webapi.exception import ExceptionDetailT
+from jupiter.framework.appform.webapi.exception import WebApiError
 from jupiter.webapi.config import JupiterExceptionHandler
 from starlette import status
 
@@ -31,20 +31,14 @@ class UserAlreadyExistsHandler(JupiterExceptionHandler[UserAlreadyExistsError]):
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: UserAlreadyExistsError) -> ExceptionDetailT:
+    def get_detail(self, exception: UserAlreadyExistsError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "A user with the same identity already seems to exist here!",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": f"{exception}",
-                    "type": "value_error.useralreadyexistserror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "A user with the same identity already seems to exist here!",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.useralreadyexistserror",
+        )
 
 
 class InvalidLoginCredentialsHandler(
@@ -57,20 +51,14 @@ class InvalidLoginCredentialsHandler(
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: InvalidLoginCredentialsError) -> ExceptionDetailT:
+    def get_detail(self, exception: InvalidLoginCredentialsError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "User email or password invalid",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "User email or password invalid",
-                    "type": "value_error.invalidlogincredentialserror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "User email or password invalid",
+            loc=["body"],
+            msg="User email or password invalid",
+            error_type="value_error.invalidlogincredentialserror",
+        )
 
 
 class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
@@ -81,20 +69,14 @@ class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: InvalidAPIKeyError) -> ExceptionDetailT:
+    def get_detail(self, exception: InvalidAPIKeyError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Invalid API key",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": f"{exception}",
-                    "type": "value_error.invalidapikeyerror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Invalid API key",
+            loc=["body"],
+            msg=str(exception),
+            error_type="value_error.invalidapikeyerror",
+        )
 
 
 class ProjectInSignificantUseHandler(
@@ -107,20 +89,14 @@ class ProjectInSignificantUseHandler(
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: ProjectInSignificantUseError) -> ExceptionDetailT:
+    def get_detail(self, exception: ProjectInSignificantUseError) -> WebApiError:
         """Handle project in significant use errors."""
-        return {
-            "reason": "Cannot remove because project",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": f"Cannot remove because: {exception}",
-                    "type": "value_error.projectinsignificantuserror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Cannot remove because project",
+            loc=["body"],
+            msg=f"Cannot remove because: {exception}",
+            error_type="value_error.projectinsignificantuserror",
+        )
 
 
 class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
@@ -131,20 +107,14 @@ class UserNotFoundHandler(JupiterExceptionHandler[UserNotFoundError]):
         """Get the status code for the exception."""
         return status.HTTP_410_GONE
 
-    def get_detail(self, exception: UserNotFoundError) -> ExceptionDetailT:
+    def get_detail(self, exception: UserNotFoundError) -> WebApiError:
         """Handle user not found errors."""
-        return {
-            "reason": "User does not exist",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "User does not exist",
-                    "type": "value_error.usernotfounderror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "User does not exist",
+            loc=["body"],
+            msg="User does not exist",
+            error_type="value_error.usernotfounderror",
+        )
 
 
 class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
@@ -155,20 +125,14 @@ class WorkspaceNotFoundHandler(JupiterExceptionHandler[WorkspaceNotFoundError]):
         """Get the status code for the exception."""
         return status.HTTP_410_GONE
 
-    def get_detail(self, exception: WorkspaceNotFoundError) -> ExceptionDetailT:
+    def get_detail(self, exception: WorkspaceNotFoundError) -> WebApiError:
         """Handle workspace not found errors."""
-        return {
-            "reason": "Workspace does not exist",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "Workspace does not exist",
-                    "type": "value_error.workspacenotfounderror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Workspace does not exist",
+            loc=["body"],
+            msg="Workspace does not exist",
+            error_type="value_error.workspacenotfounderror",
+        )
 
 
 class TimePlanExistsForDatePeriodCombinationHandler(
@@ -183,20 +147,14 @@ class TimePlanExistsForDatePeriodCombinationHandler(
 
     def get_detail(
         self, exception: TimePlanExistsForDatePeriodCombinationError
-    ) -> ExceptionDetailT:
+    ) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Time plan already exists for this date and period combination",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "Time plan already exists for this date and period combination",
-                    "type": "value_error.timeplanexistsfordateperiodcombinationerror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Time plan already exists for this date and period combination",
+            loc=["body"],
+            msg="Time plan already exists for this date and period combination",
+            error_type="value_error.timeplanexistsfordateperiodcombinationerror",
+        )
 
 
 class BigPlanMilestoneAlreadyExistsForDateHandler(
@@ -211,20 +169,14 @@ class BigPlanMilestoneAlreadyExistsForDateHandler(
 
     def get_detail(
         self, exception: BigPlanMilestoneAlreadyExistsForDateError
-    ) -> ExceptionDetailT:
+    ) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Big plan milestone already exists for this date",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "Big plan milestone already exists for this date",
-                    "type": "value_error.bigplanmilestonealreadyexistsfordateerror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Big plan milestone already exists for this date",
+            loc=["body"],
+            msg="Big plan milestone already exists for this date",
+            error_type="value_error.bigplanmilestonealreadyexistsfordateerror",
+        )
 
 
 class JournalExistsForDatePeriodCombinationHandler(
@@ -239,20 +191,14 @@ class JournalExistsForDatePeriodCombinationHandler(
 
     def get_detail(
         self, exception: JournalExistsForDatePeriodCombinationError
-    ) -> ExceptionDetailT:
+    ) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Journal already exists for this date and period combination",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "Journal already exists for this date and period combination",
-                    "type": "value_error.journalexistsfordateperiodcombinationerror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Journal already exists for this date and period combination",
+            loc=["body"],
+            msg="Journal already exists for this date and period combination",
+            error_type="value_error.journalexistsfordateperiodcombinationerror",
+        )
 
 
 class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
@@ -263,17 +209,11 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
         """Get the status code for the exception."""
         return status.HTTP_409_CONFLICT
 
-    def get_detail(self, exception: TagAlreadyExistsError) -> ExceptionDetailT:
+    def get_detail(self, exception: TagAlreadyExistsError) -> WebApiError:
         """Get the detail for the exception."""
-        return {
-            "reason": "Tag already exists",
-            "detail": [
-                {
-                    "loc": [
-                        "body",
-                    ],
-                    "msg": "Tag already exists",
-                    "type": "value_error.tagalreadyexistserror",
-                },
-            ],
-        }
+        return WebApiError.validation(
+            "Tag already exists",
+            loc=["body"],
+            msg="Tag already exists",
+            error_type="value_error.tagalreadyexistserror",
+        )

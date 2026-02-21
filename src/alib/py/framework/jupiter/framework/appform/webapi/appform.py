@@ -68,6 +68,7 @@ from jupiter.framework.global_properties import (
 from jupiter.framework.mutation_inovcation.recorder import (
     MutationInvocationRecorder,
 )
+from jupiter.framework.openapi import OPENAPI_ERROR_RESPONSES
 from jupiter.framework.optional import normalize_optional
 from jupiter.framework.ports import Ports
 from jupiter.framework.primitive import Primitive
@@ -1007,35 +1008,7 @@ class WebApiAppForm(
                 "post"
             ] = paths_object
 
-        openapi_schema["components"]["schemas"]["ErrorResponse"] = {
-            "title": "ErrorResponse",
-            "type": "object",
-            "required": ["reason", "detail"],
-            "properties": {
-                "reason": {"type": "string"},
-                "detail": {
-                    "oneOf": [
-                        {"type": "string"},
-                        {
-                            "type": "array",
-                            "items": {"$ref": "#/components/schemas/ErrorDetailItem"},
-                        },
-                    ]
-                },
-            },
-            "additionalProperties": False,
-        }
-        openapi_schema["components"]["schemas"]["ErrorDetailItem"] = {
-            "title": "ErrorDetailItem",
-            "type": "object",
-            "required": ["loc", "msg", "type"],
-            "properties": {
-                "loc": {"type": "array", "items": {"type": "string"}},
-                "msg": {"type": "string"},
-                "type": {"type": "string"},
-            },
-            "additionalProperties": False,
-        }
+        openapi_schema["components"]["schemas"].update(OPENAPI_ERROR_RESPONSES)
 
         del openapi_schema["paths"][self.healthz_route]
         del openapi_schema["paths"][self.simple_login_route]
