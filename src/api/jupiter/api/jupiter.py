@@ -154,6 +154,41 @@ from jupiter_webapi_client.api.inbox_tasks.inbox_task_remove import (
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     asyncio_detailed as inbox_task_update,
 )
+# --- Journals API ---
+from jupiter_webapi_client.api.journals.journal_archive import (
+    asyncio_detailed as journal_archive,
+)
+from jupiter_webapi_client.api.journals.journal_change_time_config import (
+    asyncio_detailed as journal_change_time_config,
+)
+from jupiter_webapi_client.api.journals.journal_create import (
+    asyncio_detailed as journal_create,
+)
+from jupiter_webapi_client.api.journals.journal_find import (
+    asyncio_detailed as journal_find,
+)
+from jupiter_webapi_client.api.journals.journal_load import (
+    asyncio_detailed as journal_load,
+)
+from jupiter_webapi_client.api.journals.journal_load_for_date_and_period import (
+    asyncio_detailed as journal_load_for_date_and_period,
+)
+from jupiter_webapi_client.api.journals.journal_load_settings import (
+    asyncio_detailed as journal_load_settings,
+)
+from jupiter_webapi_client.api.journals.journal_refresh_stats import (
+    asyncio_detailed as journal_refresh_stats,
+)
+from jupiter_webapi_client.api.journals.journal_regen import (
+    asyncio_detailed as journal_regen,
+)
+from jupiter_webapi_client.api.journals.journal_remove import (
+    asyncio_detailed as journal_remove,
+)
+from jupiter_webapi_client.api.journals.journal_update_settings import (
+    asyncio_detailed as journal_update_settings,
+)
+
 from jupiter_webapi_client.api.life_plan.chapter_archive import (
     asyncio_detailed as chapter_archive,
 )
@@ -958,6 +993,42 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "change-parent",
                     JupiterApiGatewayMethod.post(doc_change_parent),
+                ),
+            ),
+        ),
+        # Journals
+        JupiterApiResource.build(
+            "journals",
+            JupiterApiGatewayMethod.get(journal_find),
+            JupiterApiGatewayMethod.post(journal_create),
+            JupiterApiResource.build(
+                "settings",
+                JupiterApiGatewayMethod.get(journal_load_settings),
+                JupiterApiGatewayMethod.put(journal_update_settings),
+            ),
+            JupiterApiResource.build(
+                "for-date-and-period",
+                JupiterApiGatewayMethod.get(journal_load_for_date_and_period),
+            ),
+            JupiterApiResource.build(
+                "regen",
+                JupiterApiGatewayMethod.post(journal_regen),
+            ),
+            JupiterApiResource.build(
+                ":ref_id",
+                JupiterApiGatewayMethod.get(journal_load),
+                JupiterApiGatewayMethod.delete(journal_archive),
+                JupiterApiResource.build(
+                    "remove",
+                    JupiterApiGatewayMethod.delete(journal_remove),
+                ),
+                JupiterApiResource.build(
+                    "change-time-config",
+                    JupiterApiGatewayMethod.post(journal_change_time_config),
+                ),
+                JupiterApiResource.build(
+                    "refresh-stats",
+                    JupiterApiGatewayMethod.post(journal_refresh_stats),
                 ),
             ),
         ),
