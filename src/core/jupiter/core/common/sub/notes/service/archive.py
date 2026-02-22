@@ -22,7 +22,7 @@ class NoteArchiveService:
         if note.archived:
             return
 
-        if note.can_be_removed_independently:
+        if not note.can_be_removed_independently:
             raise Exception(f"Note {note.ref_id} cannot be removed independently")
 
         note = note.mark_archived(ctx, archival_reason)

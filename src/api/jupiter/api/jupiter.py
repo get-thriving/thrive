@@ -1275,7 +1275,7 @@ async def main() -> None:
             ),
         ),
         JupiterApiResource.build(
-            "core",
+            "common",
             # Notes
             JupiterApiResource.build(
                 "notes",
