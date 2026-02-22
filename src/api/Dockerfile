@@ -25,6 +25,10 @@ COPY src/alib/py/framework src/alib/py/framework
 COPY src/alib/py/framework/pyproject.toml src/alib/py/framework/pyproject.toml
 COPY src/alib/py/framework/jupiter src/alib/py/framework/jupiter
 COPY gen/py/webapi-client gen/py/webapi-client
+COPY src/core/README.md src/core/README.md
+COPY src/core/pyproject.toml src/core/pyproject.toml
+COPY src/core/jupiter src/core/jupiter
+COPY src/core/migrations src/core/migrations
 COPY src/api/README.md src/api/README.md
 COPY src/api/pyproject.toml src/api/pyproject.toml
 COPY src/api/Config.project src/api/Config.project

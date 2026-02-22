@@ -380,9 +380,7 @@ class _ListDecoder(RealmDecoder[list[DomainThing], _RealmT], Generic[_RealmT]):
     def decode(self, value: RealmThing) -> list[DomainThing]:
         """Decode a realm from a string."""
         if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
@@ -440,9 +438,7 @@ class _SetDecoder(RealmDecoder[set[DomainThing], _RealmT], Generic[_RealmT]):
     def decode(self, value: RealmThing) -> set[DomainThing]:
         """Decode a realm from a string."""
         if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
