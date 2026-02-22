@@ -47,11 +47,11 @@ from jupiter.framework.use_case_io import (
 class ChoreFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_tags: bool
-    include_life_plan: bool
-    include_inbox_tasks: bool
-    include_notes: bool
+    allow_archived: bool | None
+    include_tags: bool | None
+    include_life_plan: bool | None
+    include_inbox_tasks: bool | None
+    include_notes: bool | None
     filter_ref_ids: list[EntityId] | None
     filter_project_ref_ids: list[EntityId] | None
 
@@ -89,6 +89,11 @@ class ChoreFindUseCase(
         args: ChoreFindArgs,
     ) -> ChoreFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_tags = args.include_tags or False
+        include_life_plan = args.include_life_plan or False
+        include_inbox_tasks = args.include_inbox_tasks or False
+        include_notes = args.include_notes or False
         workspace = context.workspace
 
         if (
@@ -101,22 +106,22 @@ class ChoreFindUseCase(
             workspace.ref_id,
         )
 
-        if args.include_life_plan:
+        if include_life_plan:
             projects = await uow.get_for(Project).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=args.filter_project_ref_ids or NoFilter(),
             )
             project_by_ref_id = {p.ref_id: p for p in projects}
             chapters = await uow.get_for(Chapter).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=NoFilter(),
             )
             chapter_by_ref_id = {c.ref_id: c for c in chapters}
             goals = await uow.get_for(Goal).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=NoFilter(),
             )
             goal_by_ref_id = {g.ref_id: g for g in goals}
@@ -134,12 +139,12 @@ class ChoreFindUseCase(
 
         chores = await uow.get_for(Chore).find_all_generic(
             parent_ref_id=chore_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             project_ref_id=args.filter_project_ref_ids or NoFilter(),
         )
 
-        if args.include_inbox_tasks:
+        if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
@@ -150,7 +155,7 @@ class ChoreFindUseCase(
             inbox_tasks = None
 
         notes_by_chore_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -163,7 +168,7 @@ class ChoreFindUseCase(
             for note in notes:
                 notes_by_chore_ref_id[note.source_entity_ref_id] = note
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

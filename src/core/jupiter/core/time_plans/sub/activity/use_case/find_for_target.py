@@ -29,7 +29,7 @@ from jupiter.framework.use_case_io import (
 class TimePlanActivityFindForTargetArgs(UseCaseArgsBase):
     """Args."""
 
-    allow_archived: bool
+    allow_archived: bool | None
     target: TimePlanActivityTarget
     target_ref_id: EntityId
 
@@ -70,7 +70,7 @@ class TimePlanActivityFindForTargetUseCase(
 
         time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
             parent_ref_id=None,
-            allow_archived=args.allow_archived,
+            allow_archived=args.allow_archived or False,
             target=args.target,
             target_ref_id=args.target_ref_id,
         )

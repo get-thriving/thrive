@@ -32,10 +32,10 @@ class SmartListLoadArgs(UseCaseArgsBase):
     """SmartListLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
-    allow_archived_items: bool
-    allow_archived_tags: bool
-    include_item_tags_and_notes: bool = False
+    allow_archived: bool | None
+    allow_archived_items: bool | None
+    allow_archived_tags: bool | None
+    include_item_tags_and_notes: bool | None = None
 
 
 @use_case_result
@@ -63,9 +63,14 @@ class SmartListLoadUseCase(
         args: SmartListLoadArgs,
     ) -> SmartListLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        allow_archived_items = args.allow_archived_items or False
+        allow_archived_tags = args.allow_archived_tags or False
+        include_item_tags_and_notes = args.include_item_tags_and_notes or False
+
         smart_list = await uow.get_for(SmartList).load_by_id(
             args.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
         tag_link = await uow.get(
             TagLinkRepository
@@ -82,25 +87,25 @@ class SmartListLoadUseCase(
         else:
             tags = []
         smart_list_items = await uow.get_for(SmartListItem).find_all_generic(
-            parent_ref_id=smart_list.ref_id, allow_archived=args.allow_archived_items
+            parent_ref_id=smart_list.ref_id, allow_archived=allow_archived_items
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.SMART_LIST,
             smart_list.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         smart_list_item_notes: list[Note] | None = None
         smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None = None
-        if args.include_item_tags_and_notes and len(smart_list_items) > 0:
+        if include_item_tags_and_notes and len(smart_list_items) > 0:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 context.workspace.ref_id,
             )
             smart_list_item_notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.SMART_LIST_ITEM,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 source_entity_ref_id=[item.ref_id for item in smart_list_items],
             )
 

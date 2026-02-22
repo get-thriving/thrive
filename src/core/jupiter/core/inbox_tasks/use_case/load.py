@@ -51,7 +51,7 @@ class InboxTaskLoadArgs(UseCaseArgsBase):
     """InboxTaskLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -91,12 +91,14 @@ class InboxTaskLoadUseCase(
         args: InboxTaskLoadArgs,
     ) -> InboxTaskLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
         time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
             workspace.ref_id
         )
         inbox_task = await uow.get_for(InboxTask).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
 
         project = await uow.get_for(Project).load_by_id(inbox_task.project_ref_id)
@@ -189,7 +191,7 @@ class InboxTaskLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.INBOX_TASK,
             inbox_task.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
         tag_link = await uow.get(
             TagLinkRepository

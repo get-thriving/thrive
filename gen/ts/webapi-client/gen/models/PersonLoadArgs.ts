@@ -8,7 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type PersonLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     catch_up_task_retrieve_offset?: (number | null);
     occasion_task_retrieve_offset?: (number | null);
 };

@@ -34,7 +34,7 @@ class DocRemoveService:
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.DOC, doc.ref_id
+            ctx, uow, NoteNamespace.DOC, doc.ref_id, root_is_removed=True
         )
 
         tag_link_remove_service = TagLinkRemoveService()

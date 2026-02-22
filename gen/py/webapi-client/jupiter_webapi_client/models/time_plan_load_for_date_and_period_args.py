@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.recurring_task_period import RecurringTaskPeriod
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="TimePlanLoadForDateAndPeriodArgs")
 
@@ -18,12 +19,12 @@ class TimePlanLoadForDateAndPeriodArgs:
     Attributes:
         right_now (str): A date or possibly a datetime for the application.
         period (RecurringTaskPeriod): A period for a particular task.
-        allow_archived (bool):
+        allow_archived (bool | None | Unset):
     """
 
     right_now: str
     period: RecurringTaskPeriod
-    allow_archived: bool
+    allow_archived: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,7 +32,11 @@ class TimePlanLoadForDateAndPeriodArgs:
 
         period = self.period.value
 
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -39,9 +44,10 @@ class TimePlanLoadForDateAndPeriodArgs:
             {
                 "right_now": right_now,
                 "period": period,
-                "allow_archived": allow_archived,
             }
         )
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
 
         return field_dict
 
@@ -52,7 +58,14 @@ class TimePlanLoadForDateAndPeriodArgs:
 
         period = RecurringTaskPeriod(d.pop("period"))
 
-        allow_archived = d.pop("allow_archived")
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
 
         time_plan_load_for_date_and_period_args = cls(
             right_now=right_now,

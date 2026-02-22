@@ -32,7 +32,7 @@ class TimeEventInDayBlockLoadArgs(UseCaseArgsBase):
     """InDayBlockLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -59,23 +59,24 @@ class TimeEventInDayBlockLoadUseCase(
         args: TimeEventInDayBlockLoadArgs,
     ) -> TimeEventInDayBlockLoadResult:
         """Load a in day block and associated data."""
+        allow_archived = args.allow_archived or False
         in_day_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
             args.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         schedule_event = None
         if in_day_block.namespace == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
             schedule_event = await uow.get_for(ScheduleEventInDay).load_by_id(
                 in_day_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         inbox_task = None
         if in_day_block.namespace == TimeEventNamespace.INBOX_TASK:
             inbox_task = await uow.get_for(InboxTask).load_by_id(
                 in_day_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         return TimeEventInDayBlockLoadResult(

@@ -28,7 +28,7 @@ class TimePlanActivityLoadArgs(UseCaseArgsBase):
     """TimePlanActivityLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -55,6 +55,7 @@ class TimePlanActivityLoadUseCase(
         args: TimePlanActivityLoadArgs,
     ) -> TimePlanActivityLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         workspace = context.workspace
 
         time_plan_activity, target_inbox_task, target_big_plan = await generic_loader(
@@ -63,8 +64,8 @@ class TimePlanActivityLoadUseCase(
             args.ref_id,
             TimePlanActivity.target_inbox_task,
             TimePlanActivity.target_big_plan,
-            allow_archived=args.allow_archived,
-            allow_subentity_archived=args.allow_archived,
+            allow_archived=allow_archived,
+            allow_subentity_archived=allow_archived,
         )
 
         if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):

@@ -20,8 +20,8 @@ run_tests() {
     export DOCS_URL=$docs_url
     # shellcheck disable=SC2068
     pytest itests \
-        --retries=3 \
         -o log_cli=true \
+        --retries=3 \
         ${headed:+--headed} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \

@@ -32,7 +32,7 @@ class VacationLoadArgs(UseCaseArgsBase):
     """VacationLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -58,13 +58,15 @@ class VacationLoadUseCase(
         args: VacationLoadArgs,
     ) -> VacationLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         vacation, note, time_event_block = await generic_loader(
             uow,
             Vacation,
             args.ref_id,
             Vacation.note,
             Vacation.time_event_block,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

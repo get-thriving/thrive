@@ -248,6 +248,7 @@ def test_api_vacation_remove(api_url: str, api_key: str, create_vacation) -> Non
         headers=_headers(api_key),
     )
     assert load_response.status_code == 502
+    assert load_response.json()["status"] == 404
 
 
 def test_api_vacation_requires_auth(api_url: str) -> None:

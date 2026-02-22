@@ -25,7 +25,7 @@ class HomeTabLoadArgs(UseCaseArgsBase):
     """The arguments for loading a home tab."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -49,12 +49,13 @@ class HomeTabLoadUseCase(
         args: HomeTabLoadArgs,
     ) -> HomeTabLoadResult:
         """Execute the use case's action."""
+        allow_archived = args.allow_archived or False
         tab, widgets = await generic_loader(
             uow,
             HomeTab,
             args.ref_id,
             HomeTab.widgets,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             allow_subentity_archived=True,
         )
 

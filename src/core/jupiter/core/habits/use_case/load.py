@@ -46,7 +46,7 @@ class HabitLoadArgs(UseCaseArgsBase):
     """HabitLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
     inbox_task_retrieve_offset: int | None
     include_streak_marks_earliest_date: ADate | None
     include_streak_marks_latest_date: ADate | None
@@ -83,6 +83,8 @@ class HabitLoadUseCase(
         args: HabitLoadArgs,
     ) -> HabitLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         if (
             args.inbox_task_retrieve_offset is not None
             and args.inbox_task_retrieve_offset < 0
@@ -100,7 +102,7 @@ class HabitLoadUseCase(
 
         workspace = context.workspace
         habit = await uow.get_for(Habit).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         project = await uow.get_for(Project).load_by_id(habit.project_ref_id)
         chapter = (
@@ -119,7 +121,7 @@ class HabitLoadUseCase(
 
         inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_source(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             source=InboxTaskSource.HABIT,
             source_entity_ref_id=habit.ref_id,
         )
@@ -167,7 +169,7 @@ class HabitLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.HABIT,
             habit.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         return HabitLoadResult(

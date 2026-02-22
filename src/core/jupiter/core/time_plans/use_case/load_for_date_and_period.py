@@ -33,7 +33,7 @@ class TimePlanLoadForDateAndPeriodArgs(UseCaseArgsBase):
 
     right_now: ADate
     period: RecurringTaskPeriod
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result

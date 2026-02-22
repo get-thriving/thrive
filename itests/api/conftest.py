@@ -2,26 +2,22 @@
 
 from typing import Iterator
 
-from jupiter_webapi_client.models.api_key_create_args import APIKeyCreateArgs
-from jupiter_webapi_client.models.api_key_create_result import APIKeyCreateResult
 import pytest
-from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
-from jupiter_webapi_client.api.test_helper.clear_all import (
-    sync_detailed as clear_all_sync,
+from jupiter_webapi_client.api.api_key.a_pi_key_create import (
+    sync_detailed as api_key_create_sync,
 )
+from jupiter_webapi_client.api.application.init import sync_detailed as init_sync
 from jupiter_webapi_client.api.test_helper.remove_all import (
     sync_detailed as remove_all_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
-from jupiter_webapi_client.models.clear_all_args import ClearAllArgs
+from jupiter_webapi_client.models.api_key_create_args import APIKeyCreateArgs
+from jupiter_webapi_client.models.api_key_create_result import APIKeyCreateResult
 from jupiter_webapi_client.models.init_args import InitArgs
 from jupiter_webapi_client.models.init_result import InitResult
 from jupiter_webapi_client.models.remove_all_args import RemoveAllArgs
 from jupiter_webapi_client.models.user_feature import UserFeature
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
-from jupiter_webapi_client.api.api_key.a_pi_key_create import (
-    sync_detailed as api_key_create_sync,
-)
 
 from itests.conftest import TestUser
 from itests.helpers import get_parsed_from_response

@@ -8,9 +8,9 @@ import type { EntityId } from './EntityId';
  */
 export type TimePlanLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
-    include_targets: boolean;
-    include_completed_nontarget: boolean;
-    include_other_time_plans: boolean;
+    allow_archived?: (boolean | null);
+    include_targets?: (boolean | null);
+    include_completed_nontarget?: (boolean | null);
+    include_other_time_plans?: (boolean | null);
 };
 

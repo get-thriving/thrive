@@ -44,9 +44,10 @@ class WorkspaceSetFeatureUseCase(
         workspace = context.workspace
         feature = args.feature
         value = args.value
+
         # TODO(horia141): param
         _, feature_flag_controls = infer_feature_flag_controls(
-            cast(JupiterGlobalProperties, self._global_properties)
+            self._global_properties
         )
 
         workspace = workspace.change_feature_flags(

@@ -457,6 +457,9 @@ from jupiter_webapi_client.api.smart_lists.smart_list_create import (
 from jupiter_webapi_client.api.smart_lists.smart_list_find import (
     asyncio_detailed as smart_list_find,
 )
+from jupiter_webapi_client.api.smart_lists.smart_list_item_archive import (
+    asyncio_detailed as smart_list_item_archive,
+)
 from jupiter_webapi_client.api.smart_lists.smart_list_item_create import (
     asyncio_detailed as smart_list_item_create,
 )
@@ -477,26 +480,6 @@ from jupiter_webapi_client.api.smart_lists.smart_list_remove import (
 )
 from jupiter_webapi_client.api.smart_lists.smart_list_update import (
     asyncio_detailed as smart_list_update,
-)
-
-# --- Vacations API ---
-from jupiter_webapi_client.api.vacations.vacation_archive import (
-    asyncio_detailed as vacation_archive,
-)
-from jupiter_webapi_client.api.vacations.vacation_create import (
-    asyncio_detailed as vacation_create,
-)
-from jupiter_webapi_client.api.vacations.vacation_find import (
-    asyncio_detailed as vacation_find,
-)
-from jupiter_webapi_client.api.vacations.vacation_load import (
-    asyncio_detailed as vacation_load,
-)
-from jupiter_webapi_client.api.vacations.vacation_remove import (
-    asyncio_detailed as vacation_remove,
-)
-from jupiter_webapi_client.api.vacations.vacation_update import (
-    asyncio_detailed as vacation_update,
 )
 
 # --- Tags API ---
@@ -605,6 +588,26 @@ from jupiter_webapi_client.api.time_plans.time_plan_remove import (
 )
 from jupiter_webapi_client.api.time_plans.time_plan_update_settings import (
     asyncio_detailed as time_plan_update_settings,
+)
+
+# --- Vacations API ---
+from jupiter_webapi_client.api.vacations.vacation_archive import (
+    asyncio_detailed as vacation_archive,
+)
+from jupiter_webapi_client.api.vacations.vacation_create import (
+    asyncio_detailed as vacation_create,
+)
+from jupiter_webapi_client.api.vacations.vacation_find import (
+    asyncio_detailed as vacation_find,
+)
+from jupiter_webapi_client.api.vacations.vacation_load import (
+    asyncio_detailed as vacation_load,
+)
+from jupiter_webapi_client.api.vacations.vacation_remove import (
+    asyncio_detailed as vacation_remove,
+)
+from jupiter_webapi_client.api.vacations.vacation_update import (
+    asyncio_detailed as vacation_update,
 )
 
 # --- Working Mem API ---
@@ -1175,7 +1178,7 @@ async def main() -> None:
                         ":items:ref_id",
                         JupiterApiGatewayMethod.get(smart_list_item_load),
                         JupiterApiGatewayMethod.put(smart_list_item_update),
-                        JupiterApiGatewayMethod.delete(smart_list_item_remove),
+                        JupiterApiGatewayMethod.delete(smart_list_item_archive),
                         JupiterApiResource.build(
                             "remove",
                             JupiterApiGatewayMethod.delete(smart_list_item_remove),

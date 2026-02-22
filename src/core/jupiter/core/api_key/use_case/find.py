@@ -19,7 +19,7 @@ from jupiter.framework.use_case_io import (
 class APIKeyFindArgs(UseCaseArgsBase):
     """APIKeyFind args."""
 
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -41,9 +41,11 @@ class APIKeyFindUseCase(
         args: APIKeyFindArgs,
     ) -> APIKeyFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         user = context.user
         api_keys = await uow.get_for(APIKey).find_all(
             parent_ref_id=user.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
         return APIKeyFindResult(api_keys=[ak.summary for ak in api_keys])

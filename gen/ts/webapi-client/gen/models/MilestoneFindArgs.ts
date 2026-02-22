@@ -7,9 +7,9 @@ import type { EntityId } from './EntityId';
  * MilestoneFindArgs.
  */
 export type MilestoneFindArgs = {
-    allow_archived: boolean;
-    include_notes: boolean;
-    include_tags: boolean;
+    allow_archived?: (boolean | null);
+    include_notes?: (boolean | null);
+    include_tags?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

@@ -42,7 +42,7 @@ class BigPlanLoadArgs(UseCaseArgsBase):
     """BigPlanLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -73,10 +73,12 @@ class BigPlanLoadUseCase(
         args: BigPlanLoadArgs,
     ) -> BigPlanLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
 
         big_plan = await uow.get_for(BigPlan).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         project = await uow.get_for(Project).load_by_id(big_plan.project_ref_id)
         chapter = (
@@ -100,7 +102,7 @@ class BigPlanLoadUseCase(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             source=InboxTaskSource.BIG_PLAN,
             source_entity_ref_id=big_plan.ref_id,
         )
@@ -123,7 +125,7 @@ class BigPlanLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.BIG_PLAN,
             big_plan.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
         stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
             big_plan.ref_id

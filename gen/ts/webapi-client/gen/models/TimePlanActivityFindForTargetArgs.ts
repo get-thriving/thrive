@@ -8,7 +8,7 @@ import type { TimePlanActivityTarget } from './TimePlanActivityTarget';
  * Args.
  */
 export type TimePlanActivityFindForTargetArgs = {
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     target: TimePlanActivityTarget;
     target_ref_id: EntityId;
 };

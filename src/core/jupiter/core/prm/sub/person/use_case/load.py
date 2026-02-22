@@ -49,7 +49,7 @@ class PersonLoadArgs(UseCaseArgsBase):
     """PersonLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
     catch_up_task_retrieve_offset: int | None
     occasion_task_retrieve_offset: int | None
 
@@ -86,6 +86,7 @@ class PersonLoadUseCase(
         args: PersonLoadArgs,
     ) -> PersonLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         if (
             args.catch_up_task_retrieve_offset is not None
             and args.catch_up_task_retrieve_offset < 0
@@ -99,7 +100,7 @@ class PersonLoadUseCase(
 
         workspace = context.workspace
         person = await uow.get_for(Person).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
 
         occasions = await uow.get_for(Occasion).find_all_generic(
@@ -111,7 +112,7 @@ class PersonLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.PERSON,
             person.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         occasion_time_event_blocks = await uow.get(
@@ -119,7 +120,7 @@ class PersonLoadUseCase(
         ).find_for_namespace(
             TimeEventNamespace.PERSON_OCCASION,
             [o.ref_id for o in occasions],
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(

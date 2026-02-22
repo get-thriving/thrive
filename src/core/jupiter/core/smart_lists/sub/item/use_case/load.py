@@ -29,7 +29,7 @@ class SmartListItemLoadArgs(UseCaseArgsBase):
     """SmartListItemLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -56,14 +56,15 @@ class SmartListItemLoadUseCase(
         args: SmartListItemLoadArgs,
     ) -> SmartListItemLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         item, note = await generic_loader(
             uow,
             SmartListItem,
             args.ref_id,
             SmartListItem.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
+            allow_subentity_archived=allow_archived,
         )
-
         tag_link = await uow.get(
             TagLinkRepository
         ).load_optional_for_namespace_and_source(

@@ -17,13 +17,13 @@ class PersonLoadArgs:
 
     Attributes:
         ref_id (str): A generic entity id.
-        allow_archived (bool):
+        allow_archived (bool | None | Unset):
         catch_up_task_retrieve_offset (int | None | Unset):
         occasion_task_retrieve_offset (int | None | Unset):
     """
 
     ref_id: str
-    allow_archived: bool
+    allow_archived: bool | None | Unset = UNSET
     catch_up_task_retrieve_offset: int | None | Unset = UNSET
     occasion_task_retrieve_offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -31,7 +31,11 @@ class PersonLoadArgs:
     def to_dict(self) -> dict[str, Any]:
         ref_id = self.ref_id
 
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
         catch_up_task_retrieve_offset: int | None | Unset
         if isinstance(self.catch_up_task_retrieve_offset, Unset):
@@ -50,9 +54,10 @@ class PersonLoadArgs:
         field_dict.update(
             {
                 "ref_id": ref_id,
-                "allow_archived": allow_archived,
             }
         )
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
         if catch_up_task_retrieve_offset is not UNSET:
             field_dict["catch_up_task_retrieve_offset"] = catch_up_task_retrieve_offset
         if occasion_task_retrieve_offset is not UNSET:
@@ -65,7 +70,14 @@ class PersonLoadArgs:
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        allow_archived = d.pop("allow_archived")
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
 
         def _parse_catch_up_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:

@@ -22,7 +22,7 @@ class TagLoadArgs(UseCaseArgsBase):
     """TagLoad args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -45,7 +45,8 @@ class TagLoadUseCase(
         args: TagLoadArgs,
     ) -> TagLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         tag = await uow.get_for(Tag).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         return TagLoadResult(tag=tag)

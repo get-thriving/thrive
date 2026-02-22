@@ -21,7 +21,7 @@ class APIKeyLoadArgs(UseCaseArgsBase):
     """APIKeyLoad args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -43,8 +43,9 @@ class APIKeyLoadUseCase(
         args: APIKeyLoadArgs,
     ) -> APIKeyLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         api_key = await uow.get_for(APIKey).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         if api_key.user.ref_id != context.user.ref_id:
             raise EntityNotFoundError("API key not found")

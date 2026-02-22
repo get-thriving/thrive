@@ -36,8 +36,8 @@ from jupiter.framework.use_case_io import (
 class SlackTaskFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_inbox_tasks: bool
+    allow_archived: bool | None
+    include_inbox_tasks: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -70,6 +70,9 @@ class SlackTaskFindUseCase(
         args: SlackTaskFindArgs,
     ) -> SlackTaskFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_inbox_tasks = args.include_inbox_tasks or False
+
         workspace = context.workspace
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -84,7 +87,7 @@ class SlackTaskFindUseCase(
 
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
@@ -92,7 +95,7 @@ class SlackTaskFindUseCase(
             slack_task_collection.generation_project_ref_id,
         )
 
-        if args.include_inbox_tasks:
+        if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,

@@ -50,14 +50,14 @@ from jupiter.framework.use_case_io import (
 class PersonFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_occasions: bool
-    include_circle_ref_ids: bool
-    include_notes: bool
-    include_occasion_time_event_blocks: bool
-    include_catch_up_inbox_tasks: bool
-    include_occasion_inbox_tasks: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_occasions: bool | None
+    include_circle_ref_ids: bool | None
+    include_notes: bool | None
+    include_occasion_time_event_blocks: bool | None
+    include_catch_up_inbox_tasks: bool | None
+    include_occasion_inbox_tasks: bool | None
+    include_tags: bool | None
     filter_person_ref_ids: list[EntityId] | None
 
 
@@ -96,6 +96,15 @@ class PersonFindUseCase(
         args: PersonFindArgs,
     ) -> PersonFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_occasions = args.include_occasions or False
+        include_circle_ref_ids = args.include_circle_ref_ids or False
+        include_notes = args.include_notes or False
+        include_occasion_time_event_blocks = args.include_occasion_time_event_blocks or False
+        include_catch_up_inbox_tasks = args.include_catch_up_inbox_tasks or False
+        include_occasion_inbox_tasks = args.include_occasion_inbox_tasks or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -112,14 +121,14 @@ class PersonFindUseCase(
         )
         persons = await uow.get_for(Person).find_all(
             parent_ref_id=prm.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_person_ref_ids,
         )
 
-        if args.include_occasions:
+        if include_occasions:
             occasions = await uow.get_for(Occasion).find_all_generic(
                 person_ref_id=[p.ref_id for p in persons],
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
             occasions_by_person_ref_id: dict[EntityId, list[Occasion]] = defaultdict(
                 list
@@ -129,7 +138,7 @@ class PersonFindUseCase(
         else:
             occasions_by_person_ref_id = defaultdict(list)
 
-        if args.include_circle_ref_ids:
+        if include_circle_ref_ids:
             all_circle_links = await uow.get_for_record(PersonCircleLink).find_all(
                 prm.ref_id
             )
@@ -144,7 +153,7 @@ class PersonFindUseCase(
             circle_ref_ids_by_person_ref_id = defaultdict(list)
 
         all_notes_by_person_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             notes_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -157,7 +166,7 @@ class PersonFindUseCase(
             for n in all_notes:
                 all_notes_by_person_ref_id[cast(EntityId, n.source_entity_ref_id)] = n
 
-        if args.include_occasion_time_event_blocks and len(occasions) > 0:
+        if include_occasion_time_event_blocks and len(occasions) > 0:
             occasion_time_event_blocks = await uow.get_for(
                 TimeEventFullDaysBlock
             ).find_all_generic(
@@ -169,7 +178,7 @@ class PersonFindUseCase(
         else:
             occasion_time_event_blocks = None
 
-        if args.include_catch_up_inbox_tasks:
+        if include_catch_up_inbox_tasks:
             catch_up_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
@@ -179,7 +188,7 @@ class PersonFindUseCase(
         else:
             catch_up_inbox_tasks = None
 
-        if args.include_occasion_inbox_tasks and len(occasions) > 0:
+        if include_occasion_inbox_tasks and len(occasions) > 0:
             birthday_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
@@ -189,7 +198,7 @@ class PersonFindUseCase(
         else:
             birthday_inbox_tasks = None
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

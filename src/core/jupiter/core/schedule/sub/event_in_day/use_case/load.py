@@ -34,7 +34,7 @@ class ScheduleEventInDayLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -62,13 +62,14 @@ class ScheduleEventInDayLoadUseCase(
         args: ScheduleEventInDayLoadArgs,
     ) -> ScheduleEventInDayLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         schedule_event_in_day, time_event_in_day_block, note = await generic_loader(
             uow,
             ScheduleEventInDay,
             args.ref_id,
             ScheduleEventInDay.time_event_in_day_block,
             ScheduleEventInDay.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

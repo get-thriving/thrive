@@ -32,9 +32,9 @@ from jupiter.framework.use_case_io import (
 class ChapterFindArgs(UseCaseArgsBase):
     """ChapterFindArgs."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -67,6 +67,10 @@ class ChapterFindUseCase(
         args: ChapterFindArgs,
     ) -> ChapterFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(
@@ -74,12 +78,12 @@ class ChapterFindUseCase(
         )
         chapters = await uow.get_for(Chapter).find_all_generic(
             parent_ref_id=life_plan.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 
         notes_by_chapter_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
@@ -92,7 +96,7 @@ class ChapterFindUseCase(
             for note in notes:
                 notes_by_chapter_ref_id[note.parent_ref_id] = note
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

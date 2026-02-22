@@ -36,7 +36,7 @@ class JournalLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -64,13 +64,15 @@ class JournalLoadUseCase(
         args: JournalLoadArgs,
     ) -> JournalLoadResult:
         """Execute the command's actions."""
+        allow_archived = args.allow_archived or False
+
         journal, note, writing_task = await generic_loader(
             uow,
             Journal,
             args.ref_id,
             Journal.note,
             Journal.writing_task,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             allow_subentity_archived=True,
         )
 

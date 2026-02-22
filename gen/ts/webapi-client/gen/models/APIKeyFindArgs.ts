@@ -6,6 +6,6 @@
  * APIKeyFind args.
  */
 export type APIKeyFindArgs = {
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
 };
 

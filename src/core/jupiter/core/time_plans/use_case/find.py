@@ -43,11 +43,11 @@ from jupiter.framework.use_case_io import (
 class TimePlanFindArgs(UseCaseArgsBase):
     """Args."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_planning_tasks: bool
-    include_life_plan_ref_ids: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_planning_tasks: bool | None
+    include_life_plan_ref_ids: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None = None
 
 
@@ -84,6 +84,12 @@ class TimePlanFindUseCase(
         args: TimePlanFindArgs,
     ) -> TimePlanFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_planning_tasks = args.include_planning_tasks or False
+        include_life_plan_ref_ids = args.include_life_plan_ref_ids or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
@@ -97,7 +103,7 @@ class TimePlanFindUseCase(
         )
         time_plans = await uow.get_for(TimePlan).find_all(
             parent_ref_id=time_plan_domain.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
@@ -105,7 +111,7 @@ class TimePlanFindUseCase(
         project_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
         goal_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
         if (
-            args.include_life_plan_ref_ids
+            include_life_plan_ref_ids
             and workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
             and time_plans
         ):
@@ -134,7 +140,7 @@ class TimePlanFindUseCase(
                 ).append(goal_link.goal_ref_id)
 
         notes_by_time_plan_ref_id = {}
-        if args.include_notes:
+        if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.JOURNAL,
@@ -145,11 +151,11 @@ class TimePlanFindUseCase(
                 notes_by_time_plan_ref_id[note.source_entity_ref_id] = note
 
         planning_tasks_by_time_plan_ref_id = {}
-        if args.include_planning_tasks:
+        if include_planning_tasks:
             planning_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 source=[InboxTaskSource.TIME_PLAN],
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 source_entity_ref_id=[time_plan.ref_id for time_plan in time_plans],
             )
             for planning_task in planning_tasks:
@@ -157,7 +163,7 @@ class TimePlanFindUseCase(
                     planning_task.source_entity_ref_id
                 ] = planning_task
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
@@ -197,17 +203,17 @@ class TimePlanFindUseCase(
                     ),
                     chapter_ref_ids=(
                         chapter_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
-                        if args.include_life_plan_ref_ids
+                        if include_life_plan_ref_ids
                         else None
                     ),
                     project_ref_ids=(
                         project_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
-                        if args.include_life_plan_ref_ids
+                        if include_life_plan_ref_ids
                         else None
                     ),
                     goal_ref_ids=(
                         goal_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
-                        if args.include_life_plan_ref_ids
+                        if include_life_plan_ref_ids
                         else None
                     ),
                 )

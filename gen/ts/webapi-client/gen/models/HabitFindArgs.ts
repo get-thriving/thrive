@@ -7,11 +7,11 @@ import type { EntityId } from './EntityId';
  * PersonFindArgs.
  */
 export type HabitFindArgs = {
-    allow_archived: boolean;
-    include_tags: boolean;
-    include_notes: boolean;
-    include_life_plan: boolean;
-    include_inbox_tasks: boolean;
+    allow_archived?: (boolean | null);
+    include_tags?: (boolean | null);
+    include_notes?: (boolean | null);
+    include_life_plan?: (boolean | null);
+    include_inbox_tasks?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
     filter_project_ref_ids?: (Array<EntityId> | null);
 };

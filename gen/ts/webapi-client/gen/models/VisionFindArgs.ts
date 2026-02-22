@@ -7,7 +7,7 @@ import type { EntityId } from './EntityId';
  * Vision find args.
  */
 export type VisionFindArgs = {
-    include_notes: boolean;
+    include_notes?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

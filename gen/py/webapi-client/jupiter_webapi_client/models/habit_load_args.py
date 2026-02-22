@@ -17,14 +17,14 @@ class HabitLoadArgs:
 
     Attributes:
         ref_id (str): A generic entity id.
-        allow_archived (bool):
+        allow_archived (bool | None | Unset):
         inbox_task_retrieve_offset (int | None | Unset):
         include_streak_marks_earliest_date (None | str | Unset):
         include_streak_marks_latest_date (None | str | Unset):
     """
 
     ref_id: str
-    allow_archived: bool
+    allow_archived: bool | None | Unset = UNSET
     inbox_task_retrieve_offset: int | None | Unset = UNSET
     include_streak_marks_earliest_date: None | str | Unset = UNSET
     include_streak_marks_latest_date: None | str | Unset = UNSET
@@ -33,7 +33,11 @@ class HabitLoadArgs:
     def to_dict(self) -> dict[str, Any]:
         ref_id = self.ref_id
 
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
         inbox_task_retrieve_offset: int | None | Unset
         if isinstance(self.inbox_task_retrieve_offset, Unset):
@@ -58,9 +62,10 @@ class HabitLoadArgs:
         field_dict.update(
             {
                 "ref_id": ref_id,
-                "allow_archived": allow_archived,
             }
         )
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
         if inbox_task_retrieve_offset is not UNSET:
             field_dict["inbox_task_retrieve_offset"] = inbox_task_retrieve_offset
         if include_streak_marks_earliest_date is not UNSET:
@@ -75,7 +80,14 @@ class HabitLoadArgs:
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        allow_archived = d.pop("allow_archived")
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
 
         def _parse_inbox_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:

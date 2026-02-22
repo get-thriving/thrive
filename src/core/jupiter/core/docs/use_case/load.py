@@ -30,7 +30,7 @@ class DocLoadArgs(UseCaseArgsBase):
     """DocLoad args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -56,15 +56,17 @@ class DocLoadUseCase(
         args: DocLoadArgs,
     ) -> DocLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         doc = await uow.get_for(Doc).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         note = await uow.get(NoteRepository).load_for_source(
-            NoteNamespace.DOC, doc.ref_id, allow_archived=args.allow_archived
+            NoteNamespace.DOC, doc.ref_id, allow_archived=allow_archived
         )
         subdocs = await uow.get_for(Doc).find_all_generic(
             parent_ref_id=doc.doc_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             parent_doc_ref_id=[doc.ref_id],
         )
 

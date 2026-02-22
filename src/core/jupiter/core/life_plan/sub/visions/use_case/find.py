@@ -28,7 +28,7 @@ from jupiter.framework.use_case_io import (
 class VisionFindArgs(UseCaseArgsBase):
     """Vision find args."""
 
-    include_notes: bool
+    include_notes: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -60,6 +60,8 @@ class VisionFindUseCase(
         args: VisionFindArgs,
     ) -> VisionFindResult:
         """Execute the command's action."""
+        include_notes = args.include_notes or False
+
         workspace = context.workspace
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
@@ -71,7 +73,7 @@ class VisionFindUseCase(
         )
 
         notes_by_vision_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes and len(visions) > 0:
+        if include_notes and len(visions) > 0:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -82,7 +84,7 @@ class VisionFindUseCase(
                 source_entity_ref_id=[v.ref_id for v in visions],
             )
             for note in notes:
-                notes_by_vision_ref_id[note.parent_ref_id] = note
+                notes_by_vision_ref_id[note.source_entity_ref_id] = note
 
         return VisionFindResult(
             entries=[
