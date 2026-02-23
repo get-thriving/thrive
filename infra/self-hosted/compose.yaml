@@ -28,6 +28,7 @@ services:
       - PORT=10020
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
+      - MOUNT_PATH=/api
     restart: always
     image: ${DOCKER_IMAGE_API:-horia141/jupiter-api:${VERSION:-latest}}
     ports:
@@ -49,7 +50,7 @@ services:
       - WEBAPI_SERVER_PORT=2000
       - WEBAPI_PROGRESS_REPORTER_URL=ws://webapi:2000/progress-reporter
       - WEBAPI_URL=${WEBAPI_SERVER_URL:-http://webapi:2000}
-      - API_URL=${API_SERVER_URL:-http://api:2000}
+      - API_URL=${API_SERVER_URL:-http://api:2000}/api
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
@@ -86,6 +87,7 @@ services:
       - "${WEBUI_PORT:-0}:443"
     depends_on:
       - webui
+      - api
       - webapi
       - docs
     volumes:

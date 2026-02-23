@@ -36,6 +36,7 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
+from pathlib import Path
 from jupiter_webapi_client.types import Unset
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
@@ -58,6 +59,7 @@ class JupiterApiProperties(ServiceProperties):
     port: int
     sentry_dsn: str
     webapi_url: str
+    mount_path: str
 
 
 def build_api_properties() -> JupiterApiProperties:
@@ -85,12 +87,14 @@ def build_api_properties() -> JupiterApiProperties:
     webapi_server_host = cast(str, os.getenv("WEBAPI_SERVER_HOST"))
     webapi_server_port = int(cast(str, os.getenv("WEBAPI_SERVER_PORT")))
     webapi_url = f"http://{webapi_server_host}:{webapi_server_port}"
+    mount_path = cast(str, os.getenv("MOUNT_PATH") or "/")
 
     return JupiterApiProperties(
         host=host,
         port=port,
         sentry_dsn=sentry_dsn,
         webapi_url=webapi_url,
+        mount_path=mount_path,
     )
 
 
@@ -101,7 +105,10 @@ class JupiterApiResource(
 
     def _build_final_api_path(self, path: str) -> str:
         """Build the final API path."""
-        return f"/v{self._global_properties.version.major_version}{path}"
+        base_path = Path(self._service_properties.mount_path)
+        version_segment = f"v{self._global_properties.version.major_version}"
+        api_path = Path(path.lstrip("/"))
+        return str(base_path / version_segment / api_path)
 
 
 class JupiterApiMethod(
@@ -181,6 +188,30 @@ class JupiterApiService(
     def is_live(self) -> bool:
         """Whether the app is live."""
         return self._global_properties.env.is_live
+
+    @property
+    def healthz_route(self) -> str:
+        """The healthz route of the app."""
+        path = Path(self._service_properties.mount_path) / "healthz"
+        return str(path)
+
+    @property
+    def openapi_json_route(self) -> str:
+        """The openapi json route of the app."""
+        path = Path(self._service_properties.mount_path) / "openapi.json"
+        return str(path)
+
+    @property
+    def openapi_docs_route(self) -> str:
+        """The openapi docs route of the app."""
+        path = Path(self._service_properties.mount_path) / "docs"
+        return str(path)
+
+    @property
+    def openapi_redoc_route(self) -> str:
+        """The openapi redoc route of the app."""
+        path = Path(self._service_properties.mount_path) / "redoc"
+        return str(path)
 
     def add_headers_to_response(self, response: Response) -> None:
         """Add standard Jupiter headers to the response."""
