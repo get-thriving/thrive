@@ -3,26 +3,34 @@ import type {
   JournalStats,
   Tag,
 } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Link, Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
+import { Button, Stack } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
-import { sortJournalsNaturally } from "@jupiter/core/journals/root";
+import {
+  findJournalsThatAreActive,
+  sortJournalsNaturally,
+} from "@jupiter/core/journals/root";
 import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
+import { JournalCard } from "@jupiter/core/journals/component/card";
 import { JournalStack } from "@jupiter/core/journals/component/stack";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import {
   FilterManyOptions,
   SectionActions,
@@ -32,6 +40,7 @@ import {
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import type { ADate, Journal } from "@jupiter/webapi-client";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -47,6 +56,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_tags: true,
   });
 
+  const journalSettingsResponse =
+    await apiClient.journals.journalLoadSettings({});
+
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
     filter_namespace: [TagNamespace.JOURNAL],
@@ -54,6 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     entries: response.entries,
+    journalSettings: journalSettingsResponse,
     allTags: allTags.tags,
   });
 }
@@ -65,6 +78,7 @@ export default function Journals() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const shouldShowABranch = useTrunkNeedsToShowBranch();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
@@ -76,6 +90,28 @@ export default function Journals() {
   for (const entry of entries) {
     entriesByRefId.set(entry.journal.ref_id, entry);
   }
+
+  const activeJournals = findJournalsThatAreActive(
+    entries.map((e) => e.journal),
+    topLevelInfo.today,
+  );
+
+  const yearJournal = activeJournals.find(
+    (j) => j.period === RecurringTaskPeriod.YEARLY,
+  );
+  const quarterJournal = activeJournals.find(
+    (j) => j.period === RecurringTaskPeriod.QUARTERLY,
+  );
+  const monthJournal = activeJournals.find(
+    (j) => j.period === RecurringTaskPeriod.MONTHLY,
+  );
+  const weekJournal = activeJournals.find(
+    (j) => j.period === RecurringTaskPeriod.WEEKLY,
+  );
+  const dayJournal = activeJournals.find(
+    (j) => j.period === RecurringTaskPeriod.DAILY,
+  );
+
   const sortedJournals = sortJournalsNaturally(
     entries.map((e) => e.journal),
   ).filter((journal) => {
@@ -137,6 +173,118 @@ export default function Journals() {
           />
         )}
 
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.YEARLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.YEARLY}
+              topLevelInfo={topLevelInfo}
+              journal={yearJournal}
+              journalStats={
+                yearJournal
+                  ? journalStatsByJournalRefId.get(yearJournal.ref_id)
+                  : undefined
+              }
+              label="Yearly Journal"
+              tags={
+                yearJournal
+                  ? (journalTagsByJournalRefId.get(yearJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.QUARTERLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.QUARTERLY}
+              topLevelInfo={topLevelInfo}
+              journal={quarterJournal}
+              journalStats={
+                quarterJournal
+                  ? journalStatsByJournalRefId.get(quarterJournal.ref_id)
+                  : undefined
+              }
+              label="Quarterly Journal"
+              tags={
+                quarterJournal
+                  ? (journalTagsByJournalRefId.get(quarterJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.MONTHLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.MONTHLY}
+              topLevelInfo={topLevelInfo}
+              journal={monthJournal}
+              journalStats={
+                monthJournal
+                  ? journalStatsByJournalRefId.get(monthJournal.ref_id)
+                  : undefined
+              }
+              label="Monthly Journal"
+              tags={
+                monthJournal
+                  ? (journalTagsByJournalRefId.get(monthJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.WEEKLY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.WEEKLY}
+              topLevelInfo={topLevelInfo}
+              journal={weekJournal}
+              journalStats={
+                weekJournal
+                  ? journalStatsByJournalRefId.get(weekJournal.ref_id)
+                  : undefined
+              }
+              label="Weekly Journal"
+              tags={
+                weekJournal
+                  ? (journalTagsByJournalRefId.get(weekJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+
+          {loaderData.journalSettings.periods.includes(
+            RecurringTaskPeriod.DAILY,
+          ) && (
+            <CurrentJournal
+              today={topLevelInfo.today}
+              period={RecurringTaskPeriod.DAILY}
+              topLevelInfo={topLevelInfo}
+              journal={dayJournal}
+              journalStats={
+                dayJournal
+                  ? journalStatsByJournalRefId.get(dayJournal.ref_id)
+                  : undefined
+              }
+              label="Daily Journal"
+              tags={
+                dayJournal
+                  ? (journalTagsByJournalRefId.get(dayJournal.ref_id) ?? [])
+                  : []
+              }
+            />
+          )}
+        </Stack>
+
         <JournalStack
           topLevelInfo={topLevelInfo}
           journals={sortedJournals}
@@ -149,6 +297,45 @@ export default function Journals() {
         <Outlet />
       </AnimatePresence>
     </TrunkPanel>
+  );
+}
+
+interface CurrentJournalProps {
+  label: string;
+  today: ADate;
+  period: RecurringTaskPeriod;
+  journal?: Journal;
+  journalStats?: JournalStats;
+  tags: Array<Tag>;
+  topLevelInfo: TopLevelInfo;
+}
+
+function CurrentJournal(props: CurrentJournalProps) {
+  if (!props.journal) {
+    return (
+      <Button
+        variant="outlined"
+        component={Link}
+        to={`/app/workspace/journals/new?initialPeriod=${props.period}&initialRightNow=${props.today}`}
+      >
+        Create a {props.label}
+      </Button>
+    );
+  }
+
+  return (
+    <JournalCard
+      key={`journal-${props.journal.ref_id}`}
+      topLevelInfo={props.topLevelInfo}
+      journal={props.journal}
+      journalStats={props.journalStats}
+      tags={props.tags}
+      label={props.label}
+      showOptions={{
+        showSource: false,
+        showPeriod: false,
+      }}
+    />
   );
 }
 
