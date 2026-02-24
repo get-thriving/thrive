@@ -26,7 +26,9 @@ from itests.helpers import get_parsed_from_response
 
 @pytest.fixture()
 def create_habit(logged_in_client: AuthenticatedClient):
-    def _create(name: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY) -> Habit:
+    def _create(
+        name: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY
+    ) -> Habit:
         result = habit_create_sync(
             client=logged_in_client,
             body=HabitCreateArgs(
@@ -178,6 +180,7 @@ def test_api_habit_archive(api_url: str, api_key: str, create_habit) -> None:
     )
     assert response2.status_code == 200
     assert response2.json()["habit"]["archived"] is True
+
 
 def test_api_habit_remove(api_url: str, api_key: str, create_habit) -> None:
     created = create_habit("Remove Habit")

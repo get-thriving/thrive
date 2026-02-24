@@ -152,9 +152,7 @@ def test_api_smart_list_update(api_url: str, api_key: str, create_smart_list) ->
     assert response2.json()["smart_list"]["name"] == "New List"
 
 
-def test_api_smart_list_archive(
-    api_url: str, api_key: str, create_smart_list
-) -> None:
+def test_api_smart_list_archive(api_url: str, api_key: str, create_smart_list) -> None:
     created = create_smart_list("Archive List")
 
     response = requests.delete(
@@ -170,13 +168,13 @@ def test_api_smart_list_archive(
     assert response2.status_code == 200
     assert response2.json()["smart_list"]["archived"] is True
 
-
     response3 = requests.get(
         f"{api_url}/v1/smart-lists/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
+
 
 def test_api_smart_list_remove(api_url: str, api_key: str, create_smart_list) -> None:
     created = create_smart_list("Remove List")

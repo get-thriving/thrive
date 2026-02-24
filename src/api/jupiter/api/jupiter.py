@@ -154,6 +154,7 @@ from jupiter_webapi_client.api.inbox_tasks.inbox_task_remove import (
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     asyncio_detailed as inbox_task_update,
 )
+
 # --- Journals API ---
 from jupiter_webapi_client.api.journals.journal_archive import (
     asyncio_detailed as journal_archive,
@@ -188,7 +189,6 @@ from jupiter_webapi_client.api.journals.journal_remove import (
 from jupiter_webapi_client.api.journals.journal_update_settings import (
     asyncio_detailed as journal_update_settings,
 )
-
 from jupiter_webapi_client.api.life_plan.chapter_archive import (
     asyncio_detailed as chapter_archive,
 )

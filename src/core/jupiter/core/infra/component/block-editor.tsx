@@ -27,6 +27,7 @@ import { useEffect, useRef } from "react";
 import type { OneOfNoteContentBlock } from "#/core/common/sub/notes/root";
 
 export interface BlockEditorProps {
+  editorSlug: string;
   autofocus: boolean;
   initialContent: Array<OneOfNoteContentBlock>;
   inputsEnabled: boolean;
@@ -38,7 +39,7 @@ export default function BlockEditor(props: BlockEditorProps) {
 
   const initEditor = () => {
     const editor = new EditorJS({
-      holder: "editorjs",
+      holder: `editorjs-${props.editorSlug}`,
       placeholder: "Start writing...",
       autofocus: props.autofocus,
       readOnly: !props.inputsEnabled,
@@ -105,7 +106,7 @@ export default function BlockEditor(props: BlockEditorProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div id="editorjs"></div>;
+  return <div id={`editorjs-${props.editorSlug}`}></div>;
 }
 
 type EditorJsListItem = {

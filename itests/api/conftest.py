@@ -81,8 +81,11 @@ def logged_in_client(
         base_url=webapi_url, token=new_user_and_workspace.auth_token_ext
     )
 
+
 @pytest.fixture(autouse=True, scope="package")
 def api_key(logged_in_client: AuthenticatedClient) -> str:
     """The URL of the local API server."""
-    response = api_key_create_sync(client=logged_in_client, body=APIKeyCreateArgs(name="Test API Key"))
+    response = api_key_create_sync(
+        client=logged_in_client, body=APIKeyCreateArgs(name="Test API Key")
+    )
     return get_parsed_from_response(APIKeyCreateResult, response).api_key

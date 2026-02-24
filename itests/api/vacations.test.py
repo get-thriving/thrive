@@ -117,9 +117,7 @@ def test_api_vacation_find(api_url: str, api_key: str, create_vacation) -> None:
     entries = data["entries"]
     assert len(entries) >= 2
 
-    vacations = sorted(
-        [e["vacation"] for e in entries], key=lambda v: v["start_date"]
-    )
+    vacations = sorted([e["vacation"] for e in entries], key=lambda v: v["start_date"])
     names = [v["name"] for v in vacations]
     assert "First Vacation" in names
     assert "Second Vacation" in names

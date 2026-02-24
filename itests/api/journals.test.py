@@ -28,9 +28,7 @@ def _enable_journals_feature(logged_in_client: AuthenticatedClient) -> Iterator[
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.JOURNALS, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.JOURNALS, value=True),
         )
         yield
     finally:
@@ -206,9 +204,7 @@ def test_api_journal_regen(api_url: str, api_key: str, create_journal) -> None:
     assert response.status_code == 200
 
 
-def test_api_journal_refresh_stats(
-    api_url: str, api_key: str, create_journal
-) -> None:
+def test_api_journal_refresh_stats(api_url: str, api_key: str, create_journal) -> None:
     created = create_journal("2024-09-09")
 
     response = requests.post(

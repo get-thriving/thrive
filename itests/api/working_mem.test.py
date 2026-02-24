@@ -15,7 +15,9 @@ from jupiter_webapi_client.models.workspace_set_feature_args import (
 
 
 @pytest.fixture(autouse=True, scope="module")
-def _enable_working_mem_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+def _enable_working_mem_feature(
+    logged_in_client: AuthenticatedClient,
+) -> Iterator[None]:
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
@@ -37,9 +39,7 @@ def _enable_working_mem_feature(logged_in_client: AuthenticatedClient) -> Iterat
 def enable_working_mem_feature(logged_in_client: AuthenticatedClient) -> None:
     workspace_set_feature_sync(
         client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(
-            feature=WorkspaceFeature.LIFE_PLAN, value=True
-        ),
+        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.LIFE_PLAN, value=True),
     )
 
 
@@ -71,7 +71,9 @@ def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:
     assert "clean_up_inbox_tasks" in response.json()
 
 
-def test_api_working_mem_update_settings(api_url: str, api_key: str, enable_working_mem_feature) -> None:
+def test_api_working_mem_update_settings(
+    api_url: str, api_key: str, enable_working_mem_feature
+) -> None:
     response = requests.put(
         f"{api_url}/v1/working-mem/settings",
         headers=_headers(api_key),

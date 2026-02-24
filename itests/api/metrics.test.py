@@ -35,17 +35,13 @@ def _enable_metrics_feature(logged_in_client: AuthenticatedClient) -> Iterator[N
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.METRICS, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=True),
         )
         yield
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.METRICS, value=False
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.METRICS, value=False),
         )
 
 
@@ -209,9 +205,7 @@ def test_api_metric_remove(api_url: str, api_key: str, create_metric) -> None:
     assert response2.json()["status"] == 404
 
 
-def test_api_metric_entry_create(
-    api_url: str, api_key: str, create_metric
-) -> None:
+def test_api_metric_entry_create(api_url: str, api_key: str, create_metric) -> None:
     metric = create_metric("Entry Metric")
 
     response = requests.post(
@@ -288,13 +282,13 @@ def test_api_metric_entry_archive(
     assert response2.status_code == 200
     assert response2.json()["metric_entry"]["archived"] is True
 
-
     response3 = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=false",
         headers=_headers(api_key),
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
+
 
 def test_api_metric_entry_remove(
     api_url: str, api_key: str, create_metric, create_metric_entry

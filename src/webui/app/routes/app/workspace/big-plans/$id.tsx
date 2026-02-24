@@ -20,15 +20,6 @@ import {
   WorkspaceFeature,
   SyncTarget,
 } from "@jupiter/webapi-client";
-import {
-  Button,
-  ButtonGroup,
-  FormControl,
-  FormLabel,
-  InputLabel,
-  OutlinedInput,
-  Stack,
-} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -43,22 +34,15 @@ import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
-import { aDateToDate } from "@jupiter/core/common/adate";
-import { bigPlanDonePct } from "@jupiter/core/big_plans/root";
-import {
-  getSuggestedDatesForBigPlanActionableDate,
-  getSuggestedDatesForBigPlanDueDate,
-} from "@jupiter/core/common/suggested-date";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
-import { BigPlanStatusBigTag } from "@jupiter/core/big_plans/component/status-big-tag";
+import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
-import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
 import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
@@ -67,20 +51,13 @@ import {
   useLeafNeedsToShowLeaflet,
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
-import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import {
   SectionActions,
   ActionSingle,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
-import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
-import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
-import { BigPlanDonePctBigTag } from "@jupiter/core/big_plans/component/done-pct-big-tag";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -382,6 +359,18 @@ export default function BigPlan() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.bigPlan.archived;
 
+  const bigPlanInfo = {
+    big_plan: loaderData.bigPlan,
+    project: loaderData.project,
+    chapter: loaderData.chapter,
+    goal: loaderData.goal,
+    milestones: loaderData.milestones,
+    inbox_tasks: loaderData.inboxTasks,
+    tags: loaderData.tags,
+    note: loaderData.note,
+    stats: loaderData.stats,
+  };
+
   const bigPlansByRefId = new Map();
   bigPlansByRefId.set(loaderData.bigPlan.ref_id, loaderData.bigPlan);
 
@@ -400,9 +389,6 @@ export default function BigPlan() {
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
-  const milestonesLeft = loaderData.milestones.filter(
-    (m) => aDateToDate(m.date) > aDateToDate(topLevelInfo.today),
-  ).length;
 
   const cardActionFetcher = useFetcher();
 
@@ -444,312 +430,22 @@ export default function BigPlan() {
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
-        <SectionCard
-          id="big-plan-properties"
+        <BigPlanPropertiesEditor
           title="Properties"
-          actions={
-            <SectionActions
-              id="big-plan-properties"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                }),
-                ActionSingle({
-                  text: "Refresh Stats",
-                  value: "refresh-stats",
-                }),
-              ]}
-            />
-          }
-        >
-          <Stack direction="row" spacing={1}>
-            <FormControl sx={{ flexGrow: 3 }}>
-              <InputLabel id="name">Name</InputLabel>
-              <OutlinedInput
-                label="Name"
-                name="name"
-                readOnly={!inputsEnabled}
-                defaultValue={loaderData.bigPlan.name}
-              />
-              <FieldError actionResult={actionData} fieldName="/name" />
-            </FormControl>
-
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
-              <TagsEditor
-                name="tags"
-                label={null}
-                allTags={loaderData.allTags}
-                defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
-                inputsEnabled={inputsEnabled}
-                namespace={TagNamespace.BIG_PLAN}
-                sourceEntityRefId={loaderData.bigPlan.ref_id}
-              />
-            </FormControl>
-            <FormControl sx={{ flexGrow: 1 }}>
-              <IsKeySelect
-                name="isKey"
-                defaultValue={loaderData.bigPlan.is_key}
-                inputsEnabled={inputsEnabled}
-              />
-            </FormControl>
-          </Stack>
-
-          <Stack direction="row" spacing={2}>
-            <FormControl sx={{ flexGrow: 1 }}>
-              <BigPlanStatusBigTag status={loaderData.bigPlan.status} />
-              <input
-                type="hidden"
-                name="status"
-                value={loaderData.bigPlan.status}
-              />
-              <FieldError actionResult={actionData} fieldName="/status" />
-            </FormControl>
-
-            <FormControl sx={{ flexGrow: 1 }}>
-              <BigPlanDonePctBigTag
-                donePct={bigPlanDonePct(loaderData.bigPlan, loaderData.stats)}
-                shouldShowMilestonesLeft={loaderData.milestones.length > 0}
-                milestonesLeft={milestonesLeft}
-              />
-            </FormControl>
-          </Stack>
-
-          {isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.LIFE_PLAN,
-          ) && (
-            <FormControl fullWidth>
-              <LifePlanAssociations
-                inputsEnabled={inputsEnabled}
-                allProjects={loaderData.allProjects}
-                projectDefaultValue={loaderData.project.ref_id}
-                allChapters={loaderData.allChapters}
-                chapterDefaultValue={loaderData.chapter?.ref_id}
-                allGoals={loaderData.allGoals}
-                goalDefaultValue={loaderData.goal?.ref_id}
-                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                today={aDateToDate(topLevelInfo.today)}
-                allMilestones={loaderData.allMilestones}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/project_ref_id"
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/chapter_ref_id"
-              />
-              <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
-            </FormControl>
-          )}
-
-          <FormControl fullWidth>
-            <FormLabel id="eisen">Eisenhower</FormLabel>
-            <EisenhowerSelect
-              name="eisen"
-              defaultValue={loaderData.bigPlan.eisen}
-              inputsEnabled={inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/eisen" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <FormLabel id="difficulty">Difficulty</FormLabel>
-            <DifficultySelect
-              name="difficulty"
-              defaultValue={loaderData.bigPlan.difficulty}
-              inputsEnabled={inputsEnabled}
-            />
-            <FieldError actionResult={actionData} fieldName="/difficulty" />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel id="actionableDate" shrink>
-              Actionable From [Optional]
-            </InputLabel>
-            <DateInputWithSuggestions
-              name="actionableDate"
-              label="actionableDate"
-              inputsEnabled={inputsEnabled}
-              defaultValue={loaderData.bigPlan.actionable_date}
-              suggestedDates={getSuggestedDatesForBigPlanActionableDate(
-                topLevelInfo.today,
-              )}
-            />
-          </FormControl>
-
-          <FormControl fullWidth>
-            <InputLabel id="dueDate" shrink>
-              Due At [Optional]
-            </InputLabel>
-            <DateInputWithSuggestions
-              name="dueDate"
-              label="dueDate"
-              inputsEnabled={inputsEnabled}
-              defaultValue={loaderData.bigPlan.due_date}
-              suggestedDates={getSuggestedDatesForBigPlanDueDate(
-                topLevelInfo.today,
-              )}
-            />
-          </FormControl>
-
-          <Stack direction="column" spacing={2} sx={{ width: "100%" }}>
-            {loaderData.bigPlan.status === BigPlanStatus.NOT_STARTED && (
-              <ButtonGroup fullWidth>
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-done"
-                >
-                  Mark Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-not-done"
-                >
-                  Mark Not Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="start"
-                >
-                  Start
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="block"
-                >
-                  Block
-                </Button>
-              </ButtonGroup>
-            )}
-
-            {loaderData.bigPlan.status === BigPlanStatus.IN_PROGRESS && (
-              <ButtonGroup fullWidth>
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-done"
-                >
-                  Mark Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-not-done"
-                >
-                  Mark Not Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="block"
-                >
-                  Block
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="stop"
-                >
-                  Stop
-                </Button>
-              </ButtonGroup>
-            )}
-
-            {loaderData.bigPlan.status === BigPlanStatus.BLOCKED && (
-              <ButtonGroup fullWidth>
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-done"
-                >
-                  Mark Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="mark-not-done"
-                >
-                  Mark Not Done
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="restart"
-                >
-                  Restart
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="stop"
-                >
-                  Stop
-                </Button>
-              </ButtonGroup>
-            )}
-
-            {(loaderData.bigPlan.status === BigPlanStatus.DONE ||
-              loaderData.bigPlan.status === BigPlanStatus.NOT_DONE) && (
-              <ButtonGroup fullWidth>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  disabled={!inputsEnabled}
-                  type="submit"
-                  name="intent"
-                  value="reactivate"
-                >
-                  Reactivate
-                </Button>
-              </ButtonGroup>
-            )}
-          </Stack>
-        </SectionCard>
+          showRefreshStats
+          topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
+          allProjects={loaderData.allProjects}
+          allChapters={loaderData.allChapters}
+          allGoals={loaderData.allGoals}
+          allMilestones={loaderData.allMilestones}
+          allTags={loaderData.allTags}
+          tags={loaderData.tags}
+          inputsEnabled={inputsEnabled}
+          bigPlan={loaderData.bigPlan}
+          bigPlanInfo={bigPlanInfo}
+          actionData={actionData}
+        />
 
         <SectionCard
           title="Note"

@@ -93,7 +93,9 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
 
 @pytest.fixture()
 def create_time_plan(logged_in_client: AuthenticatedClient):
-    def _create(right_now: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY) -> TimePlan:
+    def _create(
+        right_now: str, period: RecurringTaskPeriod = RecurringTaskPeriod.WEEKLY
+    ) -> TimePlan:
         result = time_plan_create_sync(
             client=logged_in_client,
             body=TimePlanCreateArgs(
@@ -203,9 +205,7 @@ def test_api_time_plan_create(api_url: str, api_key: str) -> None:
     assert "ref_id" in tp
 
 
-def test_api_time_plan_load(
-    api_url: str, api_key: str, create_time_plan
-) -> None:
+def test_api_time_plan_load(api_url: str, api_key: str, create_time_plan) -> None:
     created = create_time_plan("2024-07-01")
 
     response = requests.get(
@@ -219,9 +219,7 @@ def test_api_time_plan_load(
     assert tp["period"] == "weekly"
 
 
-def test_api_time_plan_find(
-    api_url: str, api_key: str, create_time_plan
-) -> None:
+def test_api_time_plan_find(api_url: str, api_key: str, create_time_plan) -> None:
     tp1 = create_time_plan("2024-08-05")
     tp2 = create_time_plan("2024-08-12")
 
@@ -304,9 +302,7 @@ def test_api_time_plan_load_settings(api_url: str, api_key: str) -> None:
     assert "periods" in response.json()
 
 
-def test_api_time_plan_archive(
-    api_url: str, api_key: str, create_time_plan
-) -> None:
+def test_api_time_plan_archive(api_url: str, api_key: str, create_time_plan) -> None:
     created = create_time_plan("2024-09-02")
 
     response = requests.delete(
@@ -330,9 +326,7 @@ def test_api_time_plan_archive(
     assert response3.json()["status"] == 404
 
 
-def test_api_time_plan_remove(
-    api_url: str, api_key: str, create_time_plan
-) -> None:
+def test_api_time_plan_remove(api_url: str, api_key: str, create_time_plan) -> None:
     created = create_time_plan("2024-09-09")
 
     response = requests.delete(
@@ -534,8 +528,7 @@ def test_api_time_plan_activity_find_for_target_inbox_task(
     entries = response.json()["entries"]
     assert len(entries) >= 1
     match = [
-        e for e in entries
-        if e["time_plan_activity"]["target_ref_id"] == task.ref_id
+        e for e in entries if e["time_plan_activity"]["target_ref_id"] == task.ref_id
     ]
     assert len(match) == 1
     assert match[0]["time_plan_activity"]["target"] == "inbox-task"
@@ -562,8 +555,7 @@ def test_api_time_plan_activity_find_for_target_big_plan(
     entries = response.json()["entries"]
     assert len(entries) >= 1
     match = [
-        e for e in entries
-        if e["time_plan_activity"]["target_ref_id"] == bp.ref_id
+        e for e in entries if e["time_plan_activity"]["target_ref_id"] == bp.ref_id
     ]
     assert len(match) == 1
     assert match[0]["time_plan_activity"]["target"] == "big-plan"

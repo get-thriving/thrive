@@ -40,17 +40,13 @@ def _enable_prm_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.PRM, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PRM, value=True),
         )
         yield
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.PRM, value=False
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.PRM, value=False),
         )
 
 
@@ -416,6 +412,7 @@ def test_api_prm_occasion_archive(
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
+
 
 def test_api_prm_occasion_remove(
     api_url: str, api_key: str, create_person, create_occasion

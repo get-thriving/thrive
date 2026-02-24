@@ -61,9 +61,7 @@ def _enable_schedule_feature(logged_in_client: AuthenticatedClient) -> Iterator[
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.SCHEDULE, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.SCHEDULE, value=True),
         )
         yield
     finally:
@@ -77,7 +75,9 @@ def _enable_schedule_feature(logged_in_client: AuthenticatedClient) -> Iterator[
 
 @pytest.fixture()
 def create_stream(logged_in_client: AuthenticatedClient):
-    def _create(name: str, color: ScheduleStreamColor = ScheduleStreamColor.BLUE) -> ScheduleStream:
+    def _create(
+        name: str, color: ScheduleStreamColor = ScheduleStreamColor.BLUE
+    ) -> ScheduleStream:
         result = schedule_stream_create_for_user_sync(
             client=logged_in_client,
             body=ScheduleStreamCreateForUserArgs(name=name, color=color),
@@ -100,9 +100,7 @@ def get_default_stream_ref_id(logged_in_client: AuthenticatedClient):
                 include_tags=False,
             ),
         )
-        entries = get_parsed_from_response(
-            ScheduleStreamFindResult, result
-        ).entries
+        entries = get_parsed_from_response(ScheduleStreamFindResult, result).entries
         return entries[0].schedule_stream.ref_id
 
     return _get
@@ -181,9 +179,7 @@ def test_api_schedule_stream_create(api_url: str, api_key: str) -> None:
     assert "ref_id" in stream
 
 
-def test_api_schedule_stream_load(
-    api_url: str, api_key: str, create_stream
-) -> None:
+def test_api_schedule_stream_load(api_url: str, api_key: str, create_stream) -> None:
     created = create_stream("Load Stream")
 
     response = requests.get(
@@ -197,9 +193,7 @@ def test_api_schedule_stream_load(
     assert stream["name"] == "Load Stream"
 
 
-def test_api_schedule_stream_find(
-    api_url: str, api_key: str, create_stream
-) -> None:
+def test_api_schedule_stream_find(api_url: str, api_key: str, create_stream) -> None:
     create_stream("Stream Alpha")
     create_stream("Stream Beta")
 
@@ -214,9 +208,7 @@ def test_api_schedule_stream_find(
     assert "Stream Beta" in names
 
 
-def test_api_schedule_stream_update(
-    api_url: str, api_key: str, create_stream
-) -> None:
+def test_api_schedule_stream_update(api_url: str, api_key: str, create_stream) -> None:
     created = create_stream("Old Stream")
 
     response = requests.put(
@@ -239,9 +231,7 @@ def test_api_schedule_stream_update(
     assert response2.json()["schedule_stream"]["color"] == "red"
 
 
-def test_api_schedule_stream_archive(
-    api_url: str, api_key: str, create_stream
-) -> None:
+def test_api_schedule_stream_archive(api_url: str, api_key: str, create_stream) -> None:
     created = create_stream("Archive Stream")
 
     response = requests.delete(
@@ -265,9 +255,7 @@ def test_api_schedule_stream_archive(
     assert response3.json()["status"] == 404
 
 
-def test_api_schedule_stream_remove(
-    api_url: str, api_key: str, create_stream
-) -> None:
+def test_api_schedule_stream_remove(api_url: str, api_key: str, create_stream) -> None:
     created = create_stream("Remove Stream")
 
     response = requests.delete(
@@ -386,7 +374,10 @@ def test_api_schedule_event_full_days_change_stream(
         headers=_headers(api_key),
     )
     assert response2.status_code == 200
-    assert response2.json()["schedule_event_full_days"]["schedule_stream_ref_id"] == stream2.ref_id
+    assert (
+        response2.json()["schedule_event_full_days"]["schedule_stream_ref_id"]
+        == stream2.ref_id
+    )
 
 
 def test_api_schedule_event_full_days_archive(
@@ -473,7 +464,9 @@ def test_api_schedule_event_in_day_load(
     api_url: str, api_key: str, create_stream, create_event_in_day
 ) -> None:
     stream = create_stream("ID Load Stream")
-    event = create_event_in_day(stream.ref_id, "Load ID Event", "2024-08-01", "14:00", 60)
+    event = create_event_in_day(
+        stream.ref_id, "Load ID Event", "2024-08-01", "14:00", 60
+    )
 
     response = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=false",
@@ -495,7 +488,9 @@ def test_api_schedule_event_in_day_update(
     api_url: str, api_key: str, create_stream, create_event_in_day
 ) -> None:
     stream = create_stream("ID Update Stream")
-    event = create_event_in_day(stream.ref_id, "Old ID Event", "2024-09-01", "10:00", 45)
+    event = create_event_in_day(
+        stream.ref_id, "Old ID Event", "2024-09-01", "10:00", 45
+    )
 
     response = requests.put(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}",
@@ -526,7 +521,9 @@ def test_api_schedule_event_in_day_change_stream(
 ) -> None:
     stream1 = create_stream("ID Stream 1")
     stream2 = create_stream("ID Stream 2")
-    event = create_event_in_day(stream1.ref_id, "Move ID Event", "2024-09-10", "08:00", 30)
+    event = create_event_in_day(
+        stream1.ref_id, "Move ID Event", "2024-09-10", "08:00", 30
+    )
 
     response = requests.post(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}/change-stream",
@@ -543,14 +540,19 @@ def test_api_schedule_event_in_day_change_stream(
         headers=_headers(api_key),
     )
     assert response2.status_code == 200
-    assert response2.json()["schedule_event_in_day"]["schedule_stream_ref_id"] == stream2.ref_id
+    assert (
+        response2.json()["schedule_event_in_day"]["schedule_stream_ref_id"]
+        == stream2.ref_id
+    )
 
 
 def test_api_schedule_event_in_day_archive(
     api_url: str, api_key: str, create_stream, create_event_in_day
 ) -> None:
     stream = create_stream("ID Archive Stream")
-    event = create_event_in_day(stream.ref_id, "Archive ID Event", "2024-10-01", "16:00", 60)
+    event = create_event_in_day(
+        stream.ref_id, "Archive ID Event", "2024-10-01", "16:00", 60
+    )
 
     response = requests.delete(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}",
@@ -577,7 +579,9 @@ def test_api_schedule_event_in_day_remove(
     api_url: str, api_key: str, create_stream, create_event_in_day
 ) -> None:
     stream = create_stream("ID Remove Stream")
-    event = create_event_in_day(stream.ref_id, "Remove ID Event", "2024-10-15", "12:00", 30)
+    event = create_event_in_day(
+        stream.ref_id, "Remove ID Event", "2024-10-15", "12:00", 30
+    )
 
     response = requests.delete(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}/remove",

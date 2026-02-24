@@ -36,7 +36,6 @@ from jupiter_webapi_client.models import (
     APIKeyExchangeResult,
     ErrorResponse,
 )
-from pathlib import Path
 from jupiter_webapi_client.types import Unset
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)

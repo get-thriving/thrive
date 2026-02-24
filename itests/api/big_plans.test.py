@@ -238,7 +238,6 @@ def test_api_big_plan_milestone_create(
     assert milestone["big_plan_ref_id"] == bp.ref_id
 
 
-
 def test_api_big_plan_milestone_load(
     api_url: str, api_key: str, create_big_plan, create_big_plan_milestone
 ) -> None:

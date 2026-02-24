@@ -38,17 +38,13 @@ def _enable_chores_feature(logged_in_client: AuthenticatedClient) -> Iterator[No
     try:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.CHORES, value=True
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.CHORES, value=True),
         )
         yield
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(
-                feature=WorkspaceFeature.CHORES, value=False
-            ),
+            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.CHORES, value=False),
         )
 
 

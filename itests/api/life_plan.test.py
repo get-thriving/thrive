@@ -248,7 +248,9 @@ def test_api_life_plan_vision_load_active(
     assert response.json()["vision"]["ref_id"] == vision.ref_id
 
 
-def test_api_life_plan_vision_archive(api_url: str, api_key: str, create_vision) -> None:
+def test_api_life_plan_vision_archive(
+    api_url: str, api_key: str, create_vision
+) -> None:
     vision = create_vision()
 
     response = requests.delete(
@@ -315,7 +317,9 @@ def test_api_life_plan_chapter_create(
 def test_api_life_plan_chapter_load(
     api_url: str, api_key: str, root_project_ref_id: str, create_chapter
 ) -> None:
-    chapter = create_chapter("Load Chapter", root_project_ref_id, "2024 01 01", "2024 12 31")
+    chapter = create_chapter(
+        "Load Chapter", root_project_ref_id, "2024 01 01", "2024 12 31"
+    )
 
     response = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
@@ -325,9 +329,15 @@ def test_api_life_plan_chapter_load(
     assert response.json()["chapter"]["name"] == "Load Chapter"
 
 
-def test_api_life_plan_chapter_find(api_url: str, api_key: str, root_project_ref_id: str, create_chapter) -> None:
-    chapter1 = create_chapter("Find Chapter 1", root_project_ref_id, "2024 01 01", "2024 06 30")
-    chapter2 = create_chapter("Find Chapter 2", root_project_ref_id, "2024 01 01", "2024 06 30")
+def test_api_life_plan_chapter_find(
+    api_url: str, api_key: str, root_project_ref_id: str, create_chapter
+) -> None:
+    chapter1 = create_chapter(
+        "Find Chapter 1", root_project_ref_id, "2024 01 01", "2024 06 30"
+    )
+    chapter2 = create_chapter(
+        "Find Chapter 2", root_project_ref_id, "2024 01 01", "2024 06 30"
+    )
 
     response = requests.get(
         f"{api_url}/v1/life-plan/chapters",
@@ -344,7 +354,9 @@ def test_api_life_plan_chapter_find(api_url: str, api_key: str, root_project_ref
 def test_api_life_plan_chapter_update(
     api_url: str, api_key: str, root_project_ref_id: str, create_chapter
 ) -> None:
-    chapter = create_chapter("Old Chapter", root_project_ref_id, "2024 01 01", "2024 06 30")
+    chapter = create_chapter(
+        "Old Chapter", root_project_ref_id, "2024 01 01", "2024 06 30"
+    )
 
     response = requests.put(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
@@ -354,7 +366,10 @@ def test_api_life_plan_chapter_update(
             "name": {"should_change": True, "value": "New Chapter"},
             "project_ref_id": {"should_change": False},
             "start_date": {"should_change": False},
-            "end_date": {"should_change": True, "value": "absolute-year-month-day 2024 12 31"},
+            "end_date": {
+                "should_change": True,
+                "value": "absolute-year-month-day 2024 12 31",
+            },
         },
     )
     assert response.status_code == 200
@@ -370,7 +385,9 @@ def test_api_life_plan_chapter_update(
 def test_api_life_plan_chapter_archive(
     api_url: str, api_key: str, root_project_ref_id: str, create_chapter
 ) -> None:
-    chapter = create_chapter("Archive Chapter", root_project_ref_id, "2024 01 01", "2024 03 31")
+    chapter = create_chapter(
+        "Archive Chapter", root_project_ref_id, "2024 01 01", "2024 03 31"
+    )
 
     response = requests.delete(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
@@ -396,7 +413,9 @@ def test_api_life_plan_chapter_archive(
 def test_api_life_plan_chapter_remove(
     api_url: str, api_key: str, root_project_ref_id: str, create_chapter
 ) -> None:
-    chapter = create_chapter("Remove Chapter", root_project_ref_id, "2024 01 01", "2024 03 31")
+    chapter = create_chapter(
+        "Remove Chapter", root_project_ref_id, "2024 01 01", "2024 03 31"
+    )
 
     response = requests.delete(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}/remove",
@@ -446,7 +465,9 @@ def test_api_life_plan_goal_load(
     assert response.json()["goal"]["name"] == "Load Goal"
 
 
-def test_api_life_plan_goal_find(api_url: str, api_key: str, root_project_ref_id: str, create_goal) -> None:
+def test_api_life_plan_goal_find(
+    api_url: str, api_key: str, root_project_ref_id: str, create_goal
+) -> None:
     goal1 = create_goal("Find Goal 1", root_project_ref_id)
     goal2 = create_goal("Find Goal 2", root_project_ref_id)
 
@@ -460,6 +481,7 @@ def test_api_life_plan_goal_find(api_url: str, api_key: str, root_project_ref_id
     assert "entries" in data
     assert "Find Goal 1" in [entry["goal"]["name"] for entry in data["entries"]]
     assert "Find Goal 2" in [entry["goal"]["name"] for entry in data["entries"]]
+
 
 def test_api_life_plan_goal_update(
     api_url: str, api_key: str, root_project_ref_id: str, create_goal
@@ -510,6 +532,7 @@ def test_api_life_plan_goal_archive(
     )
     assert response4.status_code == 200
     assert response4.json()["goal"]["archived"] is True
+
 
 def test_api_life_plan_goal_remove(
     api_url: str, api_key: str, root_project_ref_id: str, create_goal
@@ -565,7 +588,9 @@ def test_api_life_plan_milestone_load(
     assert response.json()["milestone"]["name"] == "Load Milestone"
 
 
-def test_api_life_plan_milestone_find(api_url: str, api_key: str, root_project_ref_id: str, create_milestone) -> None:
+def test_api_life_plan_milestone_find(
+    api_url: str, api_key: str, root_project_ref_id: str, create_milestone
+) -> None:
     milestone1 = create_milestone("Find Milestone 1", "2024-01-01", root_project_ref_id)
     milestone2 = create_milestone("Find Milestone 2", "2024-01-01", root_project_ref_id)
 
@@ -577,8 +602,12 @@ def test_api_life_plan_milestone_find(api_url: str, api_key: str, root_project_r
     assert "entries" in response.json()
     data = response.json()
     assert "entries" in data
-    assert "Find Milestone 1" in [entry["milestone"]["name"] for entry in data["entries"]]
-    assert "Find Milestone 2" in [entry["milestone"]["name"] for entry in data["entries"]]
+    assert "Find Milestone 1" in [
+        entry["milestone"]["name"] for entry in data["entries"]
+    ]
+    assert "Find Milestone 2" in [
+        entry["milestone"]["name"] for entry in data["entries"]
+    ]
 
 
 def test_api_life_plan_milestone_update(
@@ -685,7 +714,9 @@ def test_api_life_plan_project_load(
     assert response.json()["project"]["name"] == "Load Project"
 
 
-def test_api_life_plan_project_find(api_url: str, api_key: str, root_project_ref_id: str, create_project) -> None:
+def test_api_life_plan_project_find(
+    api_url: str, api_key: str, root_project_ref_id: str, create_project
+) -> None:
     project1 = create_project(root_project_ref_id, "Find Project 1")
     project2 = create_project(root_project_ref_id, "Find Project 2")
     response = requests.get(

@@ -8,12 +8,15 @@ import {
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import {
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { DateTime } from "luxon";
 import { useContext } from "react";
 import { z } from "zod";
-import { parseForm } from "zodix";
+import { parseForm, parseQuery } from "zodix";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -34,6 +37,11 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
+
+const QuerySchema = z.object({
+  initialToday: z.string().optional(),
+  initialPeriod: z.nativeEnum(RecurringTaskPeriod).optional(),
+});
 
 const CreateFormSchema = z.object({
   rightNow: z.string(),
@@ -78,13 +86,17 @@ export default function NewJournal() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-
+  const [queryRaw] = useSearchParams();
   const inputsEnabled = navigation.state === "idle";
+
+  const query = parseQuery(queryRaw, QuerySchema);
+  const initialToday = query.initialToday || topLevelInfo.today;
+  const initialPeriod = query.initialPeriod || RecurringTaskPeriod.WEEKLY;
 
   return (
     <LeafPanel
       key="journals/new"
-      fakeKey={"journasl/new"}
+      fakeKey={`journals-${initialToday}-${initialPeriod}/new`}
       returnLocation="/app/workspace/journals"
       inputsEnabled={inputsEnabled}
     >
@@ -119,9 +131,7 @@ export default function NewJournal() {
             name="rightNow"
             readOnly={!inputsEnabled}
             disabled={!inputsEnabled}
-            defaultValue={DateTime.local({
-              zone: topLevelInfo.user.timezone,
-            }).toISODate()}
+            defaultValue={initialToday}
           />
 
           <FieldError actionResult={actionData} fieldName="/right_now" />
@@ -134,7 +144,7 @@ export default function NewJournal() {
             label="Period"
             name="period"
             inputsEnabled={inputsEnabled}
-            defaultValue={RecurringTaskPeriod.WEEKLY}
+            defaultValue={initialPeriod}
           />
           <FieldError actionResult={actionData} fieldName="/period" />
         </FormControl>

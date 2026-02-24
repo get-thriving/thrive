@@ -1,9 +1,7 @@
 """Set a particular feature in the workspace."""
 
-from typing import cast
 
 from jupiter.core.config import (
-    JupiterGlobalProperties,
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
