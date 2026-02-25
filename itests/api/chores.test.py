@@ -105,6 +105,7 @@ def test_api_chore_create(api_url: str, api_key: str) -> None:
             "difficulty": "medium",
             "must_do": True,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -125,6 +126,7 @@ def test_api_chore_load(api_url: str, api_key: str, create_chore) -> None:
     response = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -140,6 +142,7 @@ def test_api_chore_find(api_url: str, api_key: str, create_chore) -> None:
     response = requests.get(
         f"{api_url}/v1/chores?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -173,12 +176,14 @@ def test_api_chore_update(api_url: str, api_key: str, create_chore) -> None:
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["chore"]["name"] == "New Chore"
@@ -190,12 +195,14 @@ def test_api_chore_archive(api_url: str, api_key: str, create_chore) -> None:
     response = requests.delete(
         f"{api_url}/v1/chores/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response1 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response1.status_code == 502
     assert response1.json()["status"] == 404
@@ -203,6 +210,7 @@ def test_api_chore_archive(api_url: str, api_key: str, create_chore) -> None:
     response2 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["chore"]["archived"] is True
@@ -214,12 +222,14 @@ def test_api_chore_remove(api_url: str, api_key: str, create_chore) -> None:
     response = requests.delete(
         f"{api_url}/v1/chores/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -232,12 +242,14 @@ def test_api_chore_suspend(api_url: str, api_key: str, create_chore) -> None:
         f"{api_url}/v1/chores/{created.ref_id}/suspend",
         headers=_headers(api_key),
         json={"ref_id": created.ref_id},
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["chore"]["suspended"] is True
@@ -253,12 +265,14 @@ def test_api_chore_unsuspend(
         f"{api_url}/v1/chores/{created.ref_id}/unsuspend",
         headers=_headers(api_key),
         json={"ref_id": created.ref_id},
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/chores/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["chore"]["suspended"] is False
@@ -267,5 +281,6 @@ def test_api_chore_unsuspend(
 def test_api_chore_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/chores?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

@@ -44,6 +44,7 @@ def test_api_common_time_event_full_days_block_load(
     load_response = requests.get(
         f"{api_url}/v1/inbox-tasks/{task.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert load_response.status_code == 200
 
@@ -53,6 +54,7 @@ def test_api_common_time_event_full_days_block_load(
         response = requests.get(
             f"{api_url}/v1/common/time-events/full-days-blocks/{block_ref_id}?allow_archived=false",
             headers=_headers(api_key),
+            timeout=10,
         )
         assert response.status_code == 200
         assert response.json()["full_days_block"]["ref_id"] == block_ref_id

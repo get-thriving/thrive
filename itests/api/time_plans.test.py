@@ -195,6 +195,7 @@ def test_api_time_plan_create(api_url: str, api_key: str) -> None:
             "right_now": "2024-06-10",
             "period": "weekly",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -211,6 +212,7 @@ def test_api_time_plan_load(api_url: str, api_key: str, create_time_plan) -> Non
     response = requests.get(
         f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -226,6 +228,7 @@ def test_api_time_plan_find(api_url: str, api_key: str, create_time_plan) -> Non
     response = requests.get(
         f"{api_url}/v1/time-plans?allow_archived=false&include_notes=false&include_planning_tasks=false&include_life_plan_ref_ids=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -242,6 +245,7 @@ def test_api_time_plan_load_for_date_and_period(
     response = requests.get(
         f"{api_url}/v1/time-plans/for-date-and-period?right_now=2024-08-19&period=weekly",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -257,6 +261,7 @@ def test_api_time_plan_load_for_date_and_period_not_found(
     response = requests.get(
         f"{api_url}/v1/time-plans/for-date-and-period?right_now=2099-01-01&period=weekly",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -280,12 +285,14 @@ def test_api_time_plan_change_time_config(
             "project_ref_ids": {"should_change": False},
             "goal_ref_ids": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     tp = response2.json()["time_plan"]
@@ -297,6 +304,7 @@ def test_api_time_plan_load_settings(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/time-plans/settings",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "periods" in response.json()
@@ -308,12 +316,14 @@ def test_api_time_plan_archive(api_url: str, api_key: str, create_time_plan) -> 
     response = requests.delete(
         f"{api_url}/v1/time-plans/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["time_plan"]["archived"] is True
@@ -321,6 +331,7 @@ def test_api_time_plan_archive(api_url: str, api_key: str, create_time_plan) -> 
     response3 = requests.get(
         f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -332,12 +343,14 @@ def test_api_time_plan_remove(api_url: str, api_key: str, create_time_plan) -> N
     response = requests.delete(
         f"{api_url}/v1/time-plans/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -364,6 +377,7 @@ def test_api_time_plan_associate_inbox_task(
             "kind": "finish",
             "feasability": "must-do",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -393,6 +407,7 @@ def test_api_time_plan_associate_big_plan(
             "kind": "make-progress",
             "feasability": "nice-to-have",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -424,6 +439,7 @@ def test_api_time_plan_associate_with_inbox_tasks(
             "kind": "finish",
             "feasability": "must-do",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -458,6 +474,7 @@ def test_api_time_plan_associate_with_big_plans(
             "kind": "make-progress",
             "feasability": "nice-to-have",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -496,6 +513,7 @@ def test_api_time_plan_associate_with_activities(
             "feasability": "stretch",
             "override_existing_dates": False,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -522,6 +540,7 @@ def test_api_time_plan_activity_find_for_target_inbox_task(
     response = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target?target=inbox-task&target_ref_id={task.ref_id}&allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -549,6 +568,7 @@ def test_api_time_plan_activity_find_for_target_big_plan(
     response = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/find-for-target?target=big-plan&target_ref_id={bp.ref_id}&allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -576,6 +596,7 @@ def test_api_time_plan_activity_load(
     response = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -606,12 +627,14 @@ def test_api_time_plan_activity_update(
             "kind": {"should_change": True, "value": "make-progress"},
             "feasability": {"should_change": True, "value": "nice-to-have"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["time_plan_activity"]["kind"] == "make-progress"
@@ -632,12 +655,14 @@ def test_api_time_plan_activity_archive(
     response = requests.delete(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["time_plan_activity"]["archived"] is True
@@ -645,6 +670,7 @@ def test_api_time_plan_activity_archive(
     response3 = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -664,12 +690,14 @@ def test_api_time_plan_activity_remove(
     response = requests.delete(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/time-plans/{tp.ref_id}/activities/{activity.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -681,5 +709,6 @@ def test_api_time_plan_activity_remove(
 def test_api_time_plan_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/time-plans?allow_archived=false&include_notes=false&include_planning_tasks=false&include_life_plan_ref_ids=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

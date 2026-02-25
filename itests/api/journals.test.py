@@ -72,6 +72,7 @@ def test_api_journal_create(api_url: str, api_key: str) -> None:
             "right_now": "2024-06-10",
             "period": "weekly",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -88,6 +89,7 @@ def test_api_journal_load(api_url: str, api_key: str, create_journal) -> None:
     response = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -103,6 +105,7 @@ def test_api_journal_find(api_url: str, api_key: str, create_journal) -> None:
     response = requests.get(
         f"{api_url}/v1/journals?allow_archived=false&include_notes=false&include_journal_stats=false&include_writing_tasks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -119,6 +122,7 @@ def test_api_journal_load_for_date_and_period(
     response = requests.get(
         f"{api_url}/v1/journals/for-date-and-period?right_now=2024-08-19&period=weekly",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -134,6 +138,7 @@ def test_api_journal_load_for_date_and_period_not_found(
     response = requests.get(
         f"{api_url}/v1/journals/for-date-and-period?right_now=2099-01-01&period=weekly",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -154,12 +159,14 @@ def test_api_journal_change_time_config(
             "right_now": {"should_change": True, "value": "2024-09-02"},
             "period": {"should_change": True, "value": "monthly"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     journal = response2.json()["journal"]
@@ -171,6 +178,7 @@ def test_api_journal_load_settings(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/journals/settings",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "periods" in response.json()
@@ -189,6 +197,7 @@ def test_api_journal_update_settings(api_url: str, api_key: str) -> None:
             "writing_task_eisen": {"should_change": False},
             "writing_task_difficulty": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -200,6 +209,7 @@ def test_api_journal_regen(api_url: str, api_key: str, create_journal) -> None:
         f"{api_url}/v1/journals/regen",
         headers=_headers(api_key),
         json={},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -211,6 +221,7 @@ def test_api_journal_refresh_stats(api_url: str, api_key: str, create_journal) -
         f"{api_url}/v1/journals/{created.ref_id}/refresh-stats",
         headers=_headers(api_key),
         json={"ref_id": created.ref_id},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -221,12 +232,14 @@ def test_api_journal_archive(api_url: str, api_key: str, create_journal) -> None
     response = requests.delete(
         f"{api_url}/v1/journals/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["journal"]["archived"] is True
@@ -234,6 +247,7 @@ def test_api_journal_archive(api_url: str, api_key: str, create_journal) -> None
     response3 = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -245,12 +259,14 @@ def test_api_journal_remove(api_url: str, api_key: str, create_journal) -> None:
     response = requests.delete(
         f"{api_url}/v1/journals/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/journals/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -262,5 +278,6 @@ def test_api_journal_remove(api_url: str, api_key: str, create_journal) -> None:
 def test_api_journal_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/journals?allow_archived=false&include_notes=false&include_journal_stats=false&include_writing_tasks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

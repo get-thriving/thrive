@@ -187,6 +187,7 @@ def test_api_life_plan_vision_create_draft(api_url: str, api_key: str) -> None:
         f"{api_url}/v1/life-plan/visions/create-draft",
         headers=_headers(api_key),
         json={},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -203,6 +204,7 @@ def test_api_life_plan_vision_mark_active(
     response = requests.post(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}/mark-active",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -213,6 +215,7 @@ def test_api_life_plan_vision_load(api_url: str, api_key: str, create_vision) ->
     response = requests.get(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["vision"]["ref_id"] == vision.ref_id
@@ -224,6 +227,7 @@ def test_api_life_plan_vision_find(api_url: str, api_key: str, create_vision) ->
     response = requests.get(
         f"{api_url}/v1/life-plan/visions?include_notes=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     data = response.json()
     assert response.status_code == 200
@@ -242,6 +246,7 @@ def test_api_life_plan_vision_load_active(
     response = requests.get(
         f"{api_url}/v1/life-plan/visions/active",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "vision" in response.json()
@@ -256,12 +261,14 @@ def test_api_life_plan_vision_archive(
     response = requests.delete(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -269,6 +276,7 @@ def test_api_life_plan_vision_archive(
     response3 = requests.get(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 200
     assert response3.json()["vision"]["archived"] is True
@@ -280,12 +288,14 @@ def test_api_life_plan_vision_remove(api_url: str, api_key: str, create_vision) 
     response = requests.delete(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/visions/{vision.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -306,6 +316,7 @@ def test_api_life_plan_chapter_create(
             "start_date": "absolute-year-month-day 2024 01 01",
             "end_date": "absolute-year-month-day 2024 06 30",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -324,6 +335,7 @@ def test_api_life_plan_chapter_load(
     response = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["chapter"]["name"] == "Load Chapter"
@@ -338,6 +350,7 @@ def test_api_life_plan_chapter_find(
     response = requests.get(
         f"{api_url}/v1/life-plan/chapters",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "entries" in response.json()
@@ -367,12 +380,14 @@ def test_api_life_plan_chapter_update(
                 "value": "absolute-year-month-day 2024 12 31",
             },
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["chapter"]["name"] == "New Chapter"
@@ -388,12 +403,14 @@ def test_api_life_plan_chapter_archive(
     response = requests.delete(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response3 = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -401,6 +418,7 @@ def test_api_life_plan_chapter_archive(
     response4 = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response4.status_code == 200
     assert response4.json()["chapter"]["archived"] is True
@@ -416,12 +434,14 @@ def test_api_life_plan_chapter_remove(
     response = requests.delete(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/chapters/{chapter.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -440,6 +460,7 @@ def test_api_life_plan_goal_create(
             "name": "Learn Piano",
             "project_ref_id": root_project_ref_id,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -456,6 +477,7 @@ def test_api_life_plan_goal_load(
     response = requests.get(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["goal"]["name"] == "Load Goal"
@@ -470,6 +492,7 @@ def test_api_life_plan_goal_find(
     response = requests.get(
         f"{api_url}/v1/life-plan/goals",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "entries" in response.json()
@@ -493,12 +516,14 @@ def test_api_life_plan_goal_update(
             "project_ref_id": {"should_change": False},
             "parent_goal_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["goal"]["name"] == "New Goal"
@@ -512,12 +537,14 @@ def test_api_life_plan_goal_archive(
     response = requests.delete(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response3 = requests.get(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -525,6 +552,7 @@ def test_api_life_plan_goal_archive(
     response4 = requests.get(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response4.status_code == 200
     assert response4.json()["goal"]["archived"] is True
@@ -538,12 +566,14 @@ def test_api_life_plan_goal_remove(
     response = requests.delete(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/goals/{goal.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -563,6 +593,7 @@ def test_api_life_plan_milestone_create(
             "date": "2024-09-01",
             "project_ref_id": root_project_ref_id,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -579,6 +610,7 @@ def test_api_life_plan_milestone_load(
     response = requests.get(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["milestone"]["name"] == "Load Milestone"
@@ -593,6 +625,7 @@ def test_api_life_plan_milestone_find(
     response = requests.get(
         f"{api_url}/v1/life-plan/milestones",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "entries" in response.json()
@@ -620,12 +653,14 @@ def test_api_life_plan_milestone_update(
             "date": {"should_change": True, "value": "2024-12-15"},
             "project_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["milestone"]["name"] == "New Milestone"
@@ -639,12 +674,14 @@ def test_api_life_plan_milestone_archive(
     response = requests.delete(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response3 = requests.get(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -652,6 +689,7 @@ def test_api_life_plan_milestone_archive(
     response4 = requests.get(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response4.status_code == 200
     assert response4.json()["milestone"]["archived"] is True
@@ -665,12 +703,14 @@ def test_api_life_plan_milestone_remove(
     response = requests.delete(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/milestones/{milestone.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -689,6 +729,7 @@ def test_api_life_plan_project_create(
             "parent_project_ref_id": root_project_ref_id,
             "name": "Sub Project",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -705,6 +746,7 @@ def test_api_life_plan_project_load(
     response = requests.get(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["project"]["name"] == "Load Project"
@@ -718,6 +760,7 @@ def test_api_life_plan_project_find(
     response = requests.get(
         f"{api_url}/v1/life-plan/projects?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "entries" in response.json()
@@ -740,12 +783,14 @@ def test_api_life_plan_project_update(
             "name": {"should_change": True, "value": "New Project"},
             "parent_project_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["project"]["name"] == "New Project"
@@ -759,12 +804,14 @@ def test_api_life_plan_project_archive(
     response = requests.delete(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response3 = requests.get(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -772,6 +819,7 @@ def test_api_life_plan_project_archive(
     response4 = requests.get(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response4.status_code == 200
     assert response4.json()["project"]["archived"] is True
@@ -785,12 +833,14 @@ def test_api_life_plan_project_remove(
     response = requests.delete(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/life-plan/projects/{project.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -802,5 +852,6 @@ def test_api_life_plan_project_remove(
 def test_api_life_plan_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/life-plan/visions?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

@@ -66,6 +66,7 @@ def test_api_common_tag_create(api_url: str, api_key: str) -> None:
             "namespace": "inbox-task",
             "name": "urgent",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -82,6 +83,7 @@ def test_api_common_tag_load(api_url: str, api_key: str, create_tag) -> None:
     response = requests.get(
         f"{api_url}/v1/common/tags/{tag.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -97,6 +99,7 @@ def test_api_common_tag_find(api_url: str, api_key: str, create_tag) -> None:
     response = requests.get(
         f"{api_url}/v1/common/tags?allow_archived=false&filter_namespace=inbox-task",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -115,12 +118,14 @@ def test_api_common_tag_update(api_url: str, api_key: str, create_tag) -> None:
             "ref_id": tag.ref_id,
             "name": {"should_change": True, "value": "new-tag"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/tags/{tag.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["tag"]["name"] == "new-tag"
@@ -140,6 +145,7 @@ def test_api_common_tag_link_upsert(
             "source_entity_ref_id": task.ref_id,
             "tag_names": ["link-tag"],
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -154,12 +160,14 @@ def test_api_common_tag_archive(api_url: str, api_key: str, create_tag) -> None:
     response = requests.delete(
         f"{api_url}/v1/common/tags/{tag.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/tags/{tag.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["tag"]["archived"] is True
@@ -167,6 +175,7 @@ def test_api_common_tag_archive(api_url: str, api_key: str, create_tag) -> None:
     response3 = requests.get(
         f"{api_url}/v1/common/tags/{tag.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -178,12 +187,14 @@ def test_api_common_tag_remove(api_url: str, api_key: str, create_tag) -> None:
     response = requests.delete(
         f"{api_url}/v1/common/tags/{tag.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/tags/{tag.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -192,5 +203,6 @@ def test_api_common_tag_remove(api_url: str, api_key: str, create_tag) -> None:
 def test_api_common_tags_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/common/tags?allow_archived=false",
+        timeout=10,
     )
     assert response.status_code == 401

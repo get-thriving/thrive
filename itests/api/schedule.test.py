@@ -168,6 +168,7 @@ def test_api_schedule_stream_create(api_url: str, api_key: str) -> None:
             "name": "Work",
             "color": "green",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -185,6 +186,7 @@ def test_api_schedule_stream_load(api_url: str, api_key: str, create_stream) -> 
     response = requests.get(
         f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -200,6 +202,7 @@ def test_api_schedule_stream_find(api_url: str, api_key: str, create_stream) -> 
     response = requests.get(
         f"{api_url}/v1/schedule/streams?allow_archived=false&include_notes=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -219,12 +222,14 @@ def test_api_schedule_stream_update(api_url: str, api_key: str, create_stream) -
             "name": {"should_change": True, "value": "New Stream"},
             "color": {"should_change": True, "value": "red"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_stream"]["name"] == "New Stream"
@@ -237,12 +242,14 @@ def test_api_schedule_stream_archive(api_url: str, api_key: str, create_stream) 
     response = requests.delete(
         f"{api_url}/v1/schedule/streams/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_stream"]["archived"] is True
@@ -250,6 +257,7 @@ def test_api_schedule_stream_archive(api_url: str, api_key: str, create_stream) 
     response3 = requests.get(
         f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -261,12 +269,14 @@ def test_api_schedule_stream_remove(api_url: str, api_key: str, create_stream) -
     response = requests.delete(
         f"{api_url}/v1/schedule/streams/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/streams/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -289,6 +299,7 @@ def test_api_schedule_event_full_days_create(
             "start_date": "2024-07-15",
             "duration_days": 3,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -312,6 +323,7 @@ def test_api_schedule_event_full_days_load(
     response = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -339,12 +351,14 @@ def test_api_schedule_event_full_days_update(
             "start_date": {"should_change": True, "value": "2024-09-05"},
             "duration_days": {"should_change": True, "value": 4},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_event_full_days"]["name"] == "New FD Event"
@@ -366,12 +380,14 @@ def test_api_schedule_event_full_days_change_stream(
             "ref_id": event.ref_id,
             "schedule_stream_ref_id": stream2.ref_id,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert (
@@ -389,12 +405,14 @@ def test_api_schedule_event_full_days_archive(
     response = requests.delete(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_event_full_days"]["archived"] is True
@@ -402,6 +420,7 @@ def test_api_schedule_event_full_days_archive(
     response3 = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -416,12 +435,14 @@ def test_api_schedule_event_full_days_remove(
     response = requests.delete(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-full-days/{event.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -445,6 +466,7 @@ def test_api_schedule_event_in_day_create(
             "start_time_in_day": "09:00",
             "duration_mins": 30,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -471,6 +493,7 @@ def test_api_schedule_event_in_day_load(
     response = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -502,12 +525,14 @@ def test_api_schedule_event_in_day_update(
             "start_time_in_day": {"should_change": True, "value": "11:30"},
             "duration_mins": {"should_change": True, "value": 90},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_event_in_day"]["name"] == "New ID Event"
@@ -532,12 +557,14 @@ def test_api_schedule_event_in_day_change_stream(
             "ref_id": event.ref_id,
             "schedule_stream_ref_id": stream2.ref_id,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert (
@@ -557,12 +584,14 @@ def test_api_schedule_event_in_day_archive(
     response = requests.delete(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["schedule_event_in_day"]["archived"] is True
@@ -570,6 +599,7 @@ def test_api_schedule_event_in_day_archive(
     response3 = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -586,12 +616,14 @@ def test_api_schedule_event_in_day_remove(
     response = requests.delete(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/schedule/events-in-day/{event.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -603,5 +635,6 @@ def test_api_schedule_event_in_day_remove(
 def test_api_schedule_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/schedule/streams?allow_archived=false&include_notes=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

@@ -85,6 +85,7 @@ def test_api_metric_create(api_url: str, api_key: str) -> None:
             "icon": "⚖️",
             "metric_unit": "weight",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -101,6 +102,7 @@ def test_api_metric_load(api_url: str, api_key: str, create_metric) -> None:
     response = requests.get(
         f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -116,6 +118,7 @@ def test_api_metric_find(api_url: str, api_key: str, create_metric) -> None:
     response = requests.get(
         f"{api_url}/v1/metrics?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -128,6 +131,7 @@ def test_api_metric_load_settings(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/metrics/settings",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "collection_project" in response.json()
@@ -153,12 +157,14 @@ def test_api_metric_update(api_url: str, api_key: str, create_metric) -> None:
             "collection_due_at_month": {"should_change": False},
             "metric_unit": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["metric"]["name"] == "New Metric"
@@ -170,12 +176,14 @@ def test_api_metric_archive(api_url: str, api_key: str, create_metric) -> None:
     response = requests.delete(
         f"{api_url}/v1/metrics/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response3 = requests.get(
         f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 200
     assert response3.json()["metric"]["archived"] is True
@@ -183,6 +191,7 @@ def test_api_metric_archive(api_url: str, api_key: str, create_metric) -> None:
     response4 = requests.get(
         f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response4.status_code == 502
     assert response4.json()["status"] == 404
@@ -194,12 +203,14 @@ def test_api_metric_remove(api_url: str, api_key: str, create_metric) -> None:
     response = requests.delete(
         f"{api_url}/v1/metrics/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/metrics/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -216,6 +227,7 @@ def test_api_metric_entry_create(api_url: str, api_key: str, create_metric) -> N
             "value": 75.5,
             "collection_time": "2024-06-15",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -233,6 +245,7 @@ def test_api_metric_entry_load(
     response = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["metric_entry"]["value"] == 42.0
@@ -252,12 +265,14 @@ def test_api_metric_entry_update(
             "value": {"should_change": True, "value": 20.0},
             "collection_time": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["metric_entry"]["value"] == 20.0
@@ -272,12 +287,14 @@ def test_api_metric_entry_archive(
     response = requests.delete(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["metric_entry"]["archived"] is True
@@ -285,6 +302,7 @@ def test_api_metric_entry_archive(
     response3 = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -299,12 +317,14 @@ def test_api_metric_entry_remove(
     response = requests.delete(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/metrics/{metric.ref_id}/entries/{entry.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -313,5 +333,6 @@ def test_api_metric_entry_remove(
 def test_api_metric_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/metrics?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

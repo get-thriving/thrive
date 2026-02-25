@@ -78,6 +78,7 @@ def test_api_inbox_task_create(api_url: str, api_key: str) -> None:
             "actionable_date": "2024-06-01",
             "due_date": "2024-06-10",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -96,6 +97,7 @@ def test_api_inbox_task_load(api_url: str, api_key: str, create_inbox_task) -> N
     response = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -113,6 +115,7 @@ def test_api_inbox_task_find(api_url: str, api_key: str, create_inbox_task) -> N
     response = requests.get(
         f"{api_url}/v1/inbox-tasks?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -141,12 +144,14 @@ def test_api_inbox_task_update(api_url: str, api_key: str, create_inbox_task) ->
             "goal_ref_id": {"should_change": False},
             "big_plan_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["inbox_task"]["name"] == "New Task Name"
@@ -174,12 +179,14 @@ def test_api_inbox_task_update_partial(
             "goal_ref_id": {"should_change": False},
             "big_plan_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["inbox_task"]["eisen"] == "urgent"
@@ -194,6 +201,7 @@ def test_api_inbox_task_find_excludes_archived(
     response = requests.get(
         f"{api_url}/v1/inbox-tasks",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     names = [e["inbox_task"]["name"] for e in response.json()["entries"]]
@@ -206,12 +214,14 @@ def test_api_inbox_task_archive(api_url: str, api_key: str, create_inbox_task) -
     response = requests.delete(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response1 = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response1.status_code == 502
     assert response1.json()["status"] == 404
@@ -219,6 +229,7 @@ def test_api_inbox_task_archive(api_url: str, api_key: str, create_inbox_task) -
     response2 = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["inbox_task"]["archived"] is True
@@ -230,12 +241,14 @@ def test_api_inbox_task_remove(api_url: str, api_key: str, create_inbox_task) ->
     response = requests.delete(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -244,11 +257,13 @@ def test_api_inbox_task_remove(api_url: str, api_key: str, create_inbox_task) ->
 def test_api_inbox_task_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/inbox-tasks?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401
 
     response_bad = requests.get(
         f"{api_url}/v1/inbox-tasks?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers={"Authorization": "Bearer invalid-token"},
+        timeout=10,
     )
     assert response_bad.status_code == 401

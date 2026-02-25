@@ -72,6 +72,7 @@ def test_api_vacation_create(api_url: str, api_key: str) -> None:
             "start_date": "2024-07-01",
             "end_date": "2024-07-14",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -90,6 +91,7 @@ def test_api_vacation_load(api_url: str, api_key: str, create_vacation) -> None:
     response = requests.get(
         f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -110,6 +112,7 @@ def test_api_vacation_find(api_url: str, api_key: str, create_vacation) -> None:
     response = requests.get(
         f"{api_url}/v1/vacations?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -139,11 +142,13 @@ def test_api_vacation_find_excludes_archived(
     requests.delete(
         f"{api_url}/v1/vacations/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
 
     response = requests.get(
         f"{api_url}/v1/vacations?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     names = [e["vacation"]["name"] for e in response.json()["entries"]]
@@ -152,6 +157,7 @@ def test_api_vacation_find_excludes_archived(
     response_with_archived = requests.get(
         f"{api_url}/v1/vacations?allow_archived=true&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response_with_archived.status_code == 200
     names_with_archived = [
@@ -172,12 +178,14 @@ def test_api_vacation_update(api_url: str, api_key: str, create_vacation) -> Non
             "start_date": {"should_change": True, "value": "2024-06-05"},
             "end_date": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     load_response = requests.get(
         f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert load_response.status_code == 200
 
@@ -201,12 +209,14 @@ def test_api_vacation_update_partial(
             "start_date": {"should_change": False},
             "end_date": {"should_change": True, "value": "2024-09-20"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     load_response = requests.get(
         f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     vacation = load_response.json()["vacation"]
     assert vacation["name"] == "Keep This Name"
@@ -220,12 +230,14 @@ def test_api_vacation_archive(api_url: str, api_key: str, create_vacation) -> No
     response = requests.delete(
         f"{api_url}/v1/vacations/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     load_response = requests.get(
         f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert load_response.status_code == 200
     vacation = load_response.json()["vacation"]
@@ -238,12 +250,14 @@ def test_api_vacation_remove(api_url: str, api_key: str, create_vacation) -> Non
     response = requests.delete(
         f"{api_url}/v1/vacations/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     load_response = requests.get(
         f"{api_url}/v1/vacations/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert load_response.status_code == 502
     assert load_response.json()["status"] == 404
@@ -252,11 +266,13 @@ def test_api_vacation_remove(api_url: str, api_key: str, create_vacation) -> Non
 def test_api_vacation_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/vacations?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401
 
     response_bad_token = requests.get(
         f"{api_url}/v1/vacations?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers={"Authorization": "Bearer invalid-token"},
+        timeout=10,
     )
     assert response_bad_token.status_code == 401

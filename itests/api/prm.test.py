@@ -110,6 +110,7 @@ def test_api_prm_person_create(api_url: str, api_key: str) -> None:
             "catch_up_eisen": "regular",
             "catch_up_difficulty": "easy",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -125,6 +126,7 @@ def test_api_prm_person_load(api_url: str, api_key: str, create_person) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -140,6 +142,7 @@ def test_api_prm_person_find(api_url: str, api_key: str, create_person) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/persons?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -166,12 +169,14 @@ def test_api_prm_person_update(api_url: str, api_key: str, create_person) -> Non
             "catch_up_due_at_month": {"should_change": False},
             "circle_ref_ids": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["person"]["name"] == "New Name"
@@ -183,12 +188,14 @@ def test_api_prm_person_archive(api_url: str, api_key: str, create_person) -> No
     response = requests.delete(
         f"{api_url}/v1/prm/persons/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/persons/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -196,6 +203,7 @@ def test_api_prm_person_archive(api_url: str, api_key: str, create_person) -> No
     response3 = requests.get(
         f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 200
     assert response3.json()["person"]["name"] == "Archive Person"
@@ -207,12 +215,14 @@ def test_api_prm_person_remove(api_url: str, api_key: str, create_person) -> Non
     response = requests.delete(
         f"{api_url}/v1/prm/persons/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/persons/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -226,6 +236,7 @@ def test_api_prm_circle_create(api_url: str, api_key: str) -> None:
         f"{api_url}/v1/prm/circles",
         headers=_headers(api_key),
         json={"name": "Family"},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -241,6 +252,7 @@ def test_api_prm_circle_load(api_url: str, api_key: str, create_circle) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/circles/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -256,6 +268,7 @@ def test_api_prm_circle_find(api_url: str, api_key: str, create_circle) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/circles",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     data = response.json()
@@ -274,12 +287,14 @@ def test_api_prm_circle_update(api_url: str, api_key: str, create_circle) -> Non
             "ref_id": created.ref_id,
             "name": {"should_change": True, "value": "New Circle"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/circles/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["circle"]["name"] == "New Circle"
@@ -291,12 +306,14 @@ def test_api_prm_circle_archive(api_url: str, api_key: str, create_circle) -> No
     response = requests.delete(
         f"{api_url}/v1/prm/circles/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/circles/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["circle"]["name"] == "Archive Circle"
@@ -304,6 +321,7 @@ def test_api_prm_circle_archive(api_url: str, api_key: str, create_circle) -> No
     response3 = requests.get(
         f"{api_url}/v1/prm/circles/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -315,12 +333,14 @@ def test_api_prm_circle_remove(api_url: str, api_key: str, create_circle) -> Non
     response = requests.delete(
         f"{api_url}/v1/prm/circles/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/circles/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -341,6 +361,7 @@ def test_api_prm_occasion_create(api_url: str, api_key: str, create_person) -> N
             "name": "Eve's Birthday",
             "date": "15 Feb",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -361,6 +382,7 @@ def test_api_prm_occasion_load(
     response = requests.get(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["occasion"]["name"] == "Work Anniversary"
@@ -381,6 +403,7 @@ def test_api_prm_occasion_update(
             "kind": {"should_change": False},
             "date": {"should_change": True, "value": "15 Mar"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -396,12 +419,14 @@ def test_api_prm_occasion_archive(
     response = requests.delete(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["occasion"]["name"] == "Archive Occasion"
@@ -409,6 +434,7 @@ def test_api_prm_occasion_archive(
     response3 = requests.get(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -425,12 +451,14 @@ def test_api_prm_occasion_remove(
     response = requests.delete(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/prm/persons/{person.ref_id}/occasions/{occ.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -443,6 +471,7 @@ def test_api_prm_prm_load_settings(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/settings",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "catch_up_project" in response.json()
@@ -455,5 +484,6 @@ def test_api_prm_prm_load_settings(api_url: str, api_key: str) -> None:
 def test_api_prm_prm_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/prm/persons?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

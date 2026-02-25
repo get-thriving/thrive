@@ -79,6 +79,7 @@ def test_api_common_time_event_in_day_block_create(
             "start_time_in_day": "10:00",
             "duration_mins": 45,
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -99,6 +100,7 @@ def test_api_common_time_event_in_day_block_load(
     response = requests.get(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -123,12 +125,14 @@ def test_api_common_time_event_in_day_block_update(
             "start_time_in_day": {"should_change": True, "value": "14:30"},
             "duration_mins": {"should_change": True, "value": 90},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     loaded = response2.json()["in_day_block"]
@@ -146,12 +150,14 @@ def test_api_common_time_event_in_day_block_archive(
     response = requests.delete(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["in_day_block"]["archived"] is True
@@ -159,6 +165,7 @@ def test_api_common_time_event_in_day_block_archive(
     response3 = requests.get(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -173,12 +180,14 @@ def test_api_common_time_event_in_day_block_remove(
     response = requests.delete(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/time-events/in-day-blocks/{block.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404

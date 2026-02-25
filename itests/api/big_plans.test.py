@@ -104,6 +104,7 @@ def test_api_big_plan_create(api_url: str, api_key: str) -> None:
             "actionable_date": "2024-03-01",
             "due_date": "2024-06-30",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -122,6 +123,7 @@ def test_api_big_plan_load(api_url: str, api_key: str, create_big_plan) -> None:
     response = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -137,6 +139,7 @@ def test_api_big_plan_find(api_url: str, api_key: str, create_big_plan) -> None:
     response = requests.get(
         f"{api_url}/v1/big-plans?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -164,12 +167,14 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan"]["name"] == "New Plan"
@@ -181,12 +186,14 @@ def test_api_big_plan_archive(api_url: str, api_key: str, create_big_plan) -> No
     response = requests.delete(
         f"{api_url}/v1/big-plans/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response1 = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response1.status_code == 502
     assert response1.json()["status"] == 404
@@ -194,6 +201,7 @@ def test_api_big_plan_archive(api_url: str, api_key: str, create_big_plan) -> No
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan"]["archived"] is True
@@ -205,12 +213,14 @@ def test_api_big_plan_remove(api_url: str, api_key: str, create_big_plan) -> Non
     response = requests.delete(
         f"{api_url}/v1/big-plans/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -229,6 +239,7 @@ def test_api_big_plan_milestone_create(
             "name": "Milestone 1",
             "date": "2024-04-15",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -247,6 +258,7 @@ def test_api_big_plan_milestone_load(
     response = requests.get(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert response.json()["big_plan_milestone"]["name"] == "Load MS"
@@ -266,12 +278,14 @@ def test_api_big_plan_milestone_update(
             "name": {"should_change": True, "value": "New MS"},
             "date": {"should_change": True, "value": "2024-08-01"},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan_milestone"]["name"] == "New MS"
@@ -286,12 +300,14 @@ def test_api_big_plan_milestone_archive(
     response = requests.delete(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["big_plan_milestone"]["archived"] is True
@@ -306,12 +322,14 @@ def test_api_big_plan_milestone_remove(
     response = requests.delete(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/big-plans/{bp.ref_id}/milestones/{ms.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -320,5 +338,6 @@ def test_api_big_plan_milestone_remove(
 def test_api_big_plan_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/big-plans?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

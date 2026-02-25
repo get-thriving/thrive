@@ -81,6 +81,7 @@ def test_api_habit_create(api_url: str, api_key: str) -> None:
             "eisen": "important",
             "difficulty": "hard",
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -100,6 +101,7 @@ def test_api_habit_load(api_url: str, api_key: str, create_habit) -> None:
     response = requests.get(
         f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -115,6 +117,7 @@ def test_api_habit_find(api_url: str, api_key: str, create_habit) -> None:
     response = requests.get(
         f"{api_url}/v1/habits?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -147,12 +150,14 @@ def test_api_habit_update(api_url: str, api_key: str, create_habit) -> None:
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/habits/{created.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["habit"]["name"] == "New Habit"
@@ -164,12 +169,14 @@ def test_api_habit_archive(api_url: str, api_key: str, create_habit) -> None:
     response = requests.delete(
         f"{api_url}/v1/habits/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response1 = requests.get(
         f"{api_url}/v1/habits/{created.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response1.status_code == 502
     assert response1.json()["status"] == 404
@@ -177,6 +184,7 @@ def test_api_habit_archive(api_url: str, api_key: str, create_habit) -> None:
     response2 = requests.get(
         f"{api_url}/v1/habits/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["habit"]["archived"] is True
@@ -188,12 +196,14 @@ def test_api_habit_remove(api_url: str, api_key: str, create_habit) -> None:
     response = requests.delete(
         f"{api_url}/v1/habits/{created.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/habits/{created.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -206,6 +216,7 @@ def test_api_habit_suspend(api_url: str, api_key: str, create_habit) -> None:
         f"{api_url}/v1/habits/{created.ref_id}/suspend",
         headers=_headers(api_key),
         json={"ref_id": created.ref_id},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -220,6 +231,7 @@ def test_api_habit_unsuspend(
         f"{api_url}/v1/habits/{created.ref_id}/unsuspend",
         headers=_headers(api_key),
         json={"ref_id": created.ref_id},
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -227,5 +239,6 @@ def test_api_habit_unsuspend(
 def test_api_habit_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/habits?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
+        timeout=10,
     )
     assert response.status_code == 401

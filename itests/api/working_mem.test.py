@@ -56,6 +56,7 @@ def test_api_working_mem_load(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/working-mem",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     entry = response.json()["entry"]
@@ -69,6 +70,7 @@ def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:
     response = requests.get(
         f"{api_url}/v1/working-mem/settings",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
     assert "generation_period" in response.json()
@@ -87,13 +89,14 @@ def test_api_working_mem_update_settings(
             "generation_period": {"should_change": True, "value": "daily"},
             "cleanup_project_ref_id": {"should_change": False},
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
 
 def test_api_working_mem_requires_auth(api_url: str) -> None:
-    response = requests.get(f"{api_url}/v1/working-mem")
+    response = requests.get(f"{api_url}/v1/working-mem", timeout=10)
     assert response.status_code == 401
 
-    response = requests.get(f"{api_url}/v1/working-mem/settings")
+    response = requests.get(f"{api_url}/v1/working-mem/settings", timeout=10)
     assert response.status_code == 401

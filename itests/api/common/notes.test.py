@@ -84,6 +84,7 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
                 }
             ],
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -105,6 +106,7 @@ def test_api_common_note_load(
     response = requests.get(
         f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -122,6 +124,7 @@ def test_api_common_note_find(
     response = requests.get(
         f"{api_url}/v1/common/notes?allow_archived=false&filter_namespace=inbox-task",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
@@ -151,12 +154,14 @@ def test_api_common_note_update(
                 ],
             },
         },
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["note"]["content"][0]["text"] == "New content"
@@ -171,12 +176,14 @@ def test_api_common_note_archive(
     response = requests.delete(
         f"{api_url}/v1/common/notes/{note.ref_id}",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 200
     assert response2.json()["note"]["archived"] is True
@@ -184,6 +191,7 @@ def test_api_common_note_archive(
     response3 = requests.get(
         f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=false",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response3.status_code == 502
     assert response3.json()["status"] == 404
@@ -198,12 +206,14 @@ def test_api_common_note_remove(
     response = requests.delete(
         f"{api_url}/v1/common/notes/{note.ref_id}/remove",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response.status_code == 200
 
     response2 = requests.get(
         f"{api_url}/v1/common/notes/{note.ref_id}?allow_archived=true",
         headers=_headers(api_key),
+        timeout=10,
     )
     assert response2.status_code == 502
     assert response2.json()["status"] == 404
@@ -212,5 +222,6 @@ def test_api_common_note_remove(
 def test_api_common_notes_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/common/notes?allow_archived=false",
+        timeout=10,
     )
     assert response.status_code == 401
