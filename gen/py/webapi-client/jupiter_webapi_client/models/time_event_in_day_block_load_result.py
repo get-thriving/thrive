@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.big_plan import BigPlan
     from ..models.inbox_task import InboxTask
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -25,14 +26,17 @@ class TimeEventInDayBlockLoadResult:
         in_day_block (TimeEventInDayBlock): Time event.
         schedule_event (None | ScheduleEventInDay | Unset):
         inbox_task (InboxTask | None | Unset):
+        big_plan (BigPlan | None | Unset):
     """
 
     in_day_block: TimeEventInDayBlock
     schedule_event: None | ScheduleEventInDay | Unset = UNSET
     inbox_task: InboxTask | None | Unset = UNSET
+    big_plan: BigPlan | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.big_plan import BigPlan
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
 
@@ -54,6 +58,14 @@ class TimeEventInDayBlockLoadResult:
         else:
             inbox_task = self.inbox_task
 
+        big_plan: dict[str, Any] | None | Unset
+        if isinstance(self.big_plan, Unset):
+            big_plan = UNSET
+        elif isinstance(self.big_plan, BigPlan):
+            big_plan = self.big_plan.to_dict()
+        else:
+            big_plan = self.big_plan
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -65,11 +77,14 @@ class TimeEventInDayBlockLoadResult:
             field_dict["schedule_event"] = schedule_event
         if inbox_task is not UNSET:
             field_dict["inbox_task"] = inbox_task
+        if big_plan is not UNSET:
+            field_dict["big_plan"] = big_plan
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.big_plan import BigPlan
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -111,10 +126,28 @@ class TimeEventInDayBlockLoadResult:
 
         inbox_task = _parse_inbox_task(d.pop("inbox_task", UNSET))
 
+        def _parse_big_plan(data: object) -> BigPlan | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                big_plan_type_0 = BigPlan.from_dict(data)
+
+                return big_plan_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(BigPlan | None | Unset, data)
+
+        big_plan = _parse_big_plan(d.pop("big_plan", UNSET))
+
         time_event_in_day_block_load_result = cls(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
             inbox_task=inbox_task,
+            big_plan=big_plan,
         )
 
         time_event_in_day_block_load_result.additional_properties = d

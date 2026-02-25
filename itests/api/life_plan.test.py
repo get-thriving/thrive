@@ -219,7 +219,7 @@ def test_api_life_plan_vision_load(api_url: str, api_key: str, create_vision) ->
 
 
 def test_api_life_plan_vision_find(api_url: str, api_key: str, create_vision) -> None:
-    vision = create_vision()
+    create_vision()
 
     response = requests.get(
         f"{api_url}/v1/life-plan/visions?include_notes=true",
@@ -332,12 +332,8 @@ def test_api_life_plan_chapter_load(
 def test_api_life_plan_chapter_find(
     api_url: str, api_key: str, root_project_ref_id: str, create_chapter
 ) -> None:
-    chapter1 = create_chapter(
-        "Find Chapter 1", root_project_ref_id, "2024 01 01", "2024 06 30"
-    )
-    chapter2 = create_chapter(
-        "Find Chapter 2", root_project_ref_id, "2024 01 01", "2024 06 30"
-    )
+    create_chapter("Find Chapter 1", root_project_ref_id, "2024 01 01", "2024 06 30")
+    create_chapter("Find Chapter 2", root_project_ref_id, "2024 01 01", "2024 06 30")
 
     response = requests.get(
         f"{api_url}/v1/life-plan/chapters",
@@ -468,8 +464,8 @@ def test_api_life_plan_goal_load(
 def test_api_life_plan_goal_find(
     api_url: str, api_key: str, root_project_ref_id: str, create_goal
 ) -> None:
-    goal1 = create_goal("Find Goal 1", root_project_ref_id)
-    goal2 = create_goal("Find Goal 2", root_project_ref_id)
+    create_goal("Find Goal 1", root_project_ref_id)
+    create_goal("Find Goal 2", root_project_ref_id)
 
     response = requests.get(
         f"{api_url}/v1/life-plan/goals",
@@ -591,8 +587,8 @@ def test_api_life_plan_milestone_load(
 def test_api_life_plan_milestone_find(
     api_url: str, api_key: str, root_project_ref_id: str, create_milestone
 ) -> None:
-    milestone1 = create_milestone("Find Milestone 1", "2024-01-01", root_project_ref_id)
-    milestone2 = create_milestone("Find Milestone 2", "2024-01-01", root_project_ref_id)
+    create_milestone("Find Milestone 1", "2024-01-01", root_project_ref_id)
+    create_milestone("Find Milestone 2", "2024-01-01", root_project_ref_id)
 
     response = requests.get(
         f"{api_url}/v1/life-plan/milestones",
@@ -717,8 +713,8 @@ def test_api_life_plan_project_load(
 def test_api_life_plan_project_find(
     api_url: str, api_key: str, root_project_ref_id: str, create_project
 ) -> None:
-    project1 = create_project(root_project_ref_id, "Find Project 1")
-    project2 = create_project(root_project_ref_id, "Find Project 2")
+    create_project(root_project_ref_id, "Find Project 1")
+    create_project(root_project_ref_id, "Find Project 2")
     response = requests.get(
         f"{api_url}/v1/life-plan/projects?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
         headers=_headers(api_key),

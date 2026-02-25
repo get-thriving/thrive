@@ -5,6 +5,8 @@
 import type { TimeEventFullDaysBlockLoadArgs } from '../models/TimeEventFullDaysBlockLoadArgs';
 import type { TimeEventFullDaysBlockLoadResult } from '../models/TimeEventFullDaysBlockLoadResult';
 import type { TimeEventInDayBlockArchiveArgs } from '../models/TimeEventInDayBlockArchiveArgs';
+import type { TimeEventInDayBlockCreateForBigPlanArgs } from '../models/TimeEventInDayBlockCreateForBigPlanArgs';
+import type { TimeEventInDayBlockCreateForBigPlanResult } from '../models/TimeEventInDayBlockCreateForBigPlanResult';
 import type { TimeEventInDayBlockCreateForInboxTaskArgs } from '../models/TimeEventInDayBlockCreateForInboxTaskArgs';
 import type { TimeEventInDayBlockCreateForInboxTaskResult } from '../models/TimeEventInDayBlockCreateForInboxTaskResult';
 import type { TimeEventInDayBlockLoadArgs } from '../models/TimeEventInDayBlockLoadArgs';
@@ -53,6 +55,32 @@ export class TimeEventsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/time-event-in-day-block-archive',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating a time event associated with a big plan.
+     * @param requestBody The input data
+     * @returns TimeEventInDayBlockCreateForBigPlanResult Successful response
+     * @throws ApiError
+     */
+    public timeEventInDayBlockCreateForBigPlan(
+        requestBody?: TimeEventInDayBlockCreateForBigPlanArgs,
+    ): CancelablePromise<TimeEventInDayBlockCreateForBigPlanResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-event-in-day-block-create-for-big-plan',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

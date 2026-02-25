@@ -181,13 +181,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
 
           <FormControl sx={{ flexGrow: 1 }}>
             <BigPlanDonePctBigTag
-              donePct={bigPlanDonePct(
-                props.bigPlan,
-                props.bigPlanInfo.stats,
-              )}
-              shouldShowMilestonesLeft={
-                props.bigPlanInfo.milestones.length > 0
-              }
+              donePct={bigPlanDonePct(props.bigPlan, props.bigPlanInfo.stats)}
+              shouldShowMilestonesLeft={props.bigPlanInfo.milestones.length > 0}
               milestonesLeft={milestonesLeft}
             />
           </FormControl>
@@ -328,10 +323,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value={constructIntentName(
-                  props.intentPrefix,
-                  "mark-not-done",
-                )}
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>
@@ -376,10 +368,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value={constructIntentName(
-                  props.intentPrefix,
-                  "mark-not-done",
-                )}
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>
@@ -424,10 +413,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value={constructIntentName(
-                  props.intentPrefix,
-                  "mark-not-done",
-                )}
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>

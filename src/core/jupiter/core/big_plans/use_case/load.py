@@ -8,6 +8,11 @@ from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -57,6 +62,7 @@ class BigPlanLoadResult(UseCaseResultBase):
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
 
 
@@ -127,6 +133,15 @@ class BigPlanLoadUseCase(
             big_plan.ref_id,
             allow_archived=allow_archived,
         )
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.BIG_PLAN,
+            source_entity_ref_id=[big_plan.ref_id],
+        )
         stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
             big_plan.ref_id
         )
@@ -142,5 +157,6 @@ class BigPlanLoadUseCase(
             inbox_tasks=inbox_tasks,
             tags=tags,
             note=note,
+            time_event_blocks=time_event_blocks,
             stats=stats,
         )

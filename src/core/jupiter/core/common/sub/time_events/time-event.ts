@@ -1,5 +1,6 @@
 import {
   ADate,
+  BigPlanEntry,
   EntityId,
   InboxTaskEntry,
   Person,
@@ -41,6 +42,7 @@ export function occasionTimeEventName(
 }
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const BIG_PLAN_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIRTHDAY_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const VACATION_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
 
@@ -70,7 +72,7 @@ export interface CombinedTimeEventFullDaysEntry {
 
 export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
-  entry: ScheduleInDayEventEntry | InboxTaskEntry;
+  entry: ScheduleInDayEventEntry | InboxTaskEntry | BigPlanEntry;
 }
 
 const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
@@ -91,6 +93,9 @@ export function compareNamespaceForSortingFullDaysTimeEvents(
 
 export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
   if (namespace === TimeEventNamespace.INBOX_TASK) {
+    return true;
+  }
+  if (namespace === TimeEventNamespace.BIG_PLAN) {
     return true;
   }
 

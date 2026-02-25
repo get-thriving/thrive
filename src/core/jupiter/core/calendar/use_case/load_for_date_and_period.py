@@ -1,6 +1,8 @@
 """Load all the calendar specific entities for a given date and period."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.big_plans.collection import BigPlanCollection
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -95,6 +97,14 @@ class InboxTaskEntry(UseCaseResultBase):
 
 
 @use_case_result_part
+class BigPlanEntry(UseCaseResultBase):
+    """Result entry."""
+
+    big_plan: BigPlan
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
 class PersonOccasionEntry(UseCaseResultBase):
     """Result entry."""
 
@@ -118,6 +128,7 @@ class CalendarEventsEntries(UseCaseResultBase):
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
     inbox_task_entries: list[InboxTaskEntry]
+    big_plan_entries: list[BigPlanEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
 
@@ -131,6 +142,7 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     schedule_event_full_days_cnt: int
     schedule_event_in_day_cnt: int
     inbox_task_cnt: int
+    big_plan_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
 
@@ -407,6 +419,32 @@ class CalendarLoadForDateAndPeriodUseCase(
             for inbox_task in inbox_tasks
         ]
 
+        time_events_in_day_for_big_plans: dict[EntityId, list[TimeEventInDayBlock]] = {
+            te.source_entity_ref_id: []
+            for te in time_events_in_day
+            if te.namespace == TimeEventNamespace.BIG_PLAN
+        }
+        for te in time_events_in_day:
+            if te.namespace == TimeEventNamespace.BIG_PLAN:
+                time_events_in_day_for_big_plans[te.source_entity_ref_id].append(te)
+        big_plans: list[BigPlan] = []
+        if len(time_events_in_day_for_big_plans) > 0:
+            big_plan_collection = await uow.get_for(BigPlanCollection).load_by_parent(
+                workspace.ref_id,
+            )
+            big_plans = await uow.get_for(BigPlan).find_all_generic(
+                parent_ref_id=big_plan_collection.ref_id,
+                allow_archived=JupiterArchivalReason.GC,
+                ref_id=list(time_events_in_day_for_big_plans.keys()),
+            )
+        big_plan_entries = [
+            BigPlanEntry(
+                big_plan=big_plan,
+                time_events=time_events_in_day_for_big_plans[big_plan.ref_id],
+            )
+            for big_plan in big_plans
+        ]
+
         time_events_full_days_for_occasions: dict[EntityId, TimeEventFullDaysBlock] = {
             te.source_entity_ref_id: te
             for te in time_events_full_days
@@ -468,6 +506,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
             inbox_task_entries=inbox_task_entries,
+            big_plan_entries=big_plan_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )
@@ -508,6 +547,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             schedule_event_full_days_cnt = 0
             schedule_event_in_day_cnt = 0
             inbox_task_cnt = 0
+            big_plan_cnt = 0
             person_birthday_cnt = 0
             vacation_cnt = 0
 
@@ -540,6 +580,8 @@ class CalendarLoadForDateAndPeriodUseCase(
                         schedule_event_in_day_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.INBOX_TASK:
                         inbox_task_cnt += in_day_stats.cnt
+                    elif in_day_stats.namespace == TimeEventNamespace.BIG_PLAN:
+                        big_plan_cnt += in_day_stats.cnt
 
             per_subperiod.append(
                 CalendarEventsStatsPerSubperiod(
@@ -548,6 +590,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                     schedule_event_full_days_cnt=schedule_event_full_days_cnt,
                     schedule_event_in_day_cnt=schedule_event_in_day_cnt,
                     inbox_task_cnt=inbox_task_cnt,
+                    big_plan_cnt=big_plan_cnt,
                     person_birthday_cnt=person_birthday_cnt,
                     vacation_cnt=vacation_cnt,
                 )

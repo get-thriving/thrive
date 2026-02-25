@@ -36,11 +36,16 @@ def _enable_working_mem_feature(
 
 
 @pytest.fixture()
-def enable_working_mem_feature(logged_in_client: AuthenticatedClient) -> None:
-    workspace_set_feature_sync(
-        client=logged_in_client,
-        body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.LIFE_PLAN, value=True),
-    )
+def enable_life_plan_feature(logged_in_client: AuthenticatedClient):
+    def do_it() -> None:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.LIFE_PLAN, value=True
+            ),
+        )
+
+    return do_it
 
 
 def _headers(api_key: str) -> dict[str, str]:
@@ -72,8 +77,9 @@ def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:
 
 
 def test_api_working_mem_update_settings(
-    api_url: str, api_key: str, enable_working_mem_feature
+    api_url: str, api_key: str, enable_life_plan_feature
 ) -> None:
+    enable_life_plan_feature()
     response = requests.put(
         f"{api_url}/v1/working-mem/settings",
         headers=_headers(api_key),

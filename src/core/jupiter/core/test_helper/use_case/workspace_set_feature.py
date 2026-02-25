@@ -1,6 +1,5 @@
 """Set a particular feature in the workspace."""
 
-
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -44,9 +43,7 @@ class WorkspaceSetFeatureUseCase(
         value = args.value
 
         # TODO(horia141): param
-        _, feature_flag_controls = infer_feature_flag_controls(
-            self._global_properties
-        )
+        _, feature_flag_controls = infer_feature_flag_controls(self._global_properties)
 
         workspace = workspace.change_feature_flags(
             context.domain_context,

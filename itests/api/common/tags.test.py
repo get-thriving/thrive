@@ -91,8 +91,8 @@ def test_api_common_tag_load(api_url: str, api_key: str, create_tag) -> None:
 
 
 def test_api_common_tag_find(api_url: str, api_key: str, create_tag) -> None:
-    tag1 = create_tag("find-tag-1")
-    tag2 = create_tag("find-tag-2")
+    create_tag("find-tag-1")
+    create_tag("find-tag-2")
 
     response = requests.get(
         f"{api_url}/v1/common/tags?allow_archived=false&filter_namespace=inbox-task",

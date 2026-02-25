@@ -99,6 +99,36 @@ class TimeEventInDayBlock(LeafSupportEntity):
             duration_mins=duration_mins,
         )
 
+    @staticmethod
+    @create_entity_action
+    def new_time_event_for_big_plan(
+        ctx: MutationContext,
+        time_event_domain_ref_id: EntityId,
+        big_plan_ref_id: EntityId,
+        start_date: ADate,
+        start_time_in_day: TimeInDay,
+        duration_mins: int,
+    ) -> "TimeEventInDayBlock":
+        """Create a new time event for a big plan."""
+        if duration_mins < MIN_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at least {MIN_DURATION_MINS} minute."
+            )
+        if duration_mins > MAX_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
+            )
+        return TimeEventInDayBlock._create(
+            ctx,
+            time_event_domain=ParentLink(time_event_domain_ref_id),
+            namespace=TimeEventNamespace.BIG_PLAN,
+            source_entity_ref_id=big_plan_ref_id,
+            name=NOT_USED_NAME,
+            start_date=start_date,
+            start_time_in_day=start_time_in_day,
+            duration_mins=duration_mins,
+        )
+
     @update_entity_action
     def update(
         self,
@@ -127,6 +157,10 @@ class TimeEventInDayBlock(LeafSupportEntity):
     def can_be_modified_independently(self) -> bool:
         """Check if the time event can be archived independently."""
         if self.namespace == TimeEventNamespace.INBOX_TASK:
+            return True
+        if self.namespace == TimeEventNamespace.BIG_PLAN:
+            return True
+        if self.namespace == TimeEventNamespace.PERSON_OCCASION:
             return True
         return False
 

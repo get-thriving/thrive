@@ -100,7 +100,9 @@ class PersonFindUseCase(
         include_occasions = args.include_occasions or False
         include_circle_ref_ids = args.include_circle_ref_ids or False
         include_notes = args.include_notes or False
-        include_occasion_time_event_blocks = args.include_occasion_time_event_blocks or False
+        include_occasion_time_event_blocks = (
+            args.include_occasion_time_event_blocks or False
+        )
         include_catch_up_inbox_tasks = args.include_catch_up_inbox_tasks or False
         include_occasion_inbox_tasks = args.include_occasion_inbox_tasks or False
         include_tags = args.include_tags or False

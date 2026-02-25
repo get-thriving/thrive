@@ -42,6 +42,7 @@ from .big_plan_archive_service_result import BigPlanArchiveServiceResult
 from .big_plan_collection import BigPlanCollection
 from .big_plan_create_args import BigPlanCreateArgs
 from .big_plan_create_result import BigPlanCreateResult
+from .big_plan_entry import BigPlanEntry
 from .big_plan_find_args import BigPlanFindArgs
 from .big_plan_find_result import BigPlanFindResult
 from .big_plan_find_result_entry import BigPlanFindResultEntry
@@ -693,6 +694,8 @@ from .time_event_full_days_block_stats import TimeEventFullDaysBlockStats
 from .time_event_full_days_block_stats_per_group import TimeEventFullDaysBlockStatsPerGroup
 from .time_event_in_day_block import TimeEventInDayBlock
 from .time_event_in_day_block_archive_args import TimeEventInDayBlockArchiveArgs
+from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBlockCreateForBigPlanArgs
+from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
 from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
 from .time_event_in_day_block_load_args import TimeEventInDayBlockLoadArgs
@@ -883,6 +886,7 @@ __all__ = (
     "BigPlanCollection",
     "BigPlanCreateArgs",
     "BigPlanCreateResult",
+    "BigPlanEntry",
     "BigPlanFindArgs",
     "BigPlanFindResult",
     "BigPlanFindResultEntry",
@@ -1526,6 +1530,8 @@ __all__ = (
     "TimeEventFullDaysBlockStatsPerGroup",
     "TimeEventInDayBlock",
     "TimeEventInDayBlockArchiveArgs",
+    "TimeEventInDayBlockCreateForBigPlanArgs",
+    "TimeEventInDayBlockCreateForBigPlanResult",
     "TimeEventInDayBlockCreateForInboxTaskArgs",
     "TimeEventInDayBlockCreateForInboxTaskResult",
     "TimeEventInDayBlockLoadArgs",

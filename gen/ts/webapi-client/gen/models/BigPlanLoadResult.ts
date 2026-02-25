@@ -11,6 +11,7 @@ import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
 import type { Tag } from './Tag';
+import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
  * BigPlanLoadResult.
  */
@@ -23,6 +24,7 @@ export type BigPlanLoadResult = {
     inbox_tasks: Array<InboxTask>;
     tags: Array<Tag>;
     note?: (Note | null);
+    time_event_blocks: Array<TimeEventInDayBlock>;
     stats: BigPlanStats;
 };
 

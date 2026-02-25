@@ -35,6 +35,11 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -177,6 +182,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: result.inbox_tasks,
       tags: result.tags,
       note: result.note,
+      timeEventBlocks: result.time_event_blocks,
       timePlanEntries: timePlanEntries,
       lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
@@ -368,6 +374,7 @@ export default function BigPlan() {
     inbox_tasks: loaderData.inboxTasks,
     tags: loaderData.tags,
     note: loaderData.note,
+    time_event_blocks: loaderData.timeEventBlocks,
     stats: loaderData.stats,
   };
 
@@ -389,6 +396,19 @@ export default function BigPlan() {
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
+
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      big_plan: loaderData.bigPlan,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
   const cardActionFetcher = useFetcher();
 
@@ -530,6 +550,19 @@ export default function BigPlan() {
             />
           )}
         </SectionCard>
+
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.SCHEDULE,
+        ) && (
+          <TimeEventInDayBlockStack
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            title="Time Events"
+            createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-big-plan?bigPlanRefId=${loaderData.bigPlan.ref_id}`}
+            entries={sortedTimeEventEntries}
+          />
+        )}
 
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,

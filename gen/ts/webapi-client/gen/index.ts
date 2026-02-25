@@ -40,6 +40,7 @@ export type { BigPlanArchiveServiceResult } from './models/BigPlanArchiveService
 export type { BigPlanCollection } from './models/BigPlanCollection';
 export type { BigPlanCreateArgs } from './models/BigPlanCreateArgs';
 export type { BigPlanCreateResult } from './models/BigPlanCreateResult';
+export type { BigPlanEntry } from './models/BigPlanEntry';
 export type { BigPlanFindArgs } from './models/BigPlanFindArgs';
 export type { BigPlanFindResult } from './models/BigPlanFindResult';
 export type { BigPlanFindResultEntry } from './models/BigPlanFindResultEntry';
@@ -558,6 +559,8 @@ export type { TimeEventFullDaysBlockStats } from './models/TimeEventFullDaysBloc
 export type { TimeEventFullDaysBlockStatsPerGroup } from './models/TimeEventFullDaysBlockStatsPerGroup';
 export type { TimeEventInDayBlock } from './models/TimeEventInDayBlock';
 export type { TimeEventInDayBlockArchiveArgs } from './models/TimeEventInDayBlockArchiveArgs';
+export type { TimeEventInDayBlockCreateForBigPlanArgs } from './models/TimeEventInDayBlockCreateForBigPlanArgs';
+export type { TimeEventInDayBlockCreateForBigPlanResult } from './models/TimeEventInDayBlockCreateForBigPlanResult';
 export type { TimeEventInDayBlockCreateForInboxTaskArgs } from './models/TimeEventInDayBlockCreateForInboxTaskArgs';
 export type { TimeEventInDayBlockCreateForInboxTaskResult } from './models/TimeEventInDayBlockCreateForInboxTaskResult';
 export type { TimeEventInDayBlockLoadArgs } from './models/TimeEventInDayBlockLoadArgs';

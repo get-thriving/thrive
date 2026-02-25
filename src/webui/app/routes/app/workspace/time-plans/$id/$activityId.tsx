@@ -38,8 +38,10 @@ import {
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
-import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import {
+  isInboxTaskCoreFieldEditable,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
@@ -298,24 +300,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "target-inbox-task-create-note": {
-        const activityResult =
-          await apiClient.timePlans.timePlanActivityLoad({
-            ref_id: activityId,
-            allow_archived: true,
-          });
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
 
         if (activityResult.target_inbox_task) {
           await apiClient.notes.noteCreate({
             namespace: NoteNamespace.INBOX_TASK,
-            source_entity_ref_id:
-              activityResult.target_inbox_task.ref_id,
+            source_entity_ref_id: activityResult.target_inbox_task.ref_id,
             content: [],
           });
         }
 
-        return redirect(
-          `/app/workspace/time-plans/${id}/${activityId}`,
-        );
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
       case "target-inbox-task-mark-done":
@@ -535,24 +533,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       case "target-big-plan-create-note": {
-        const activityResult =
-          await apiClient.timePlans.timePlanActivityLoad({
-            ref_id: activityId,
-            allow_archived: true,
-          });
+        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
+          ref_id: activityId,
+          allow_archived: true,
+        });
 
         if (activityResult.target_big_plan) {
           await apiClient.notes.noteCreate({
             namespace: NoteNamespace.BIG_PLAN,
-            source_entity_ref_id:
-              activityResult.target_big_plan.ref_id,
+            source_entity_ref_id: activityResult.target_big_plan.ref_id,
             content: [],
           });
         }
 
-        return redirect(
-          `/app/workspace/time-plans/${id}/${activityId}`,
-        );
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
       default:
@@ -738,7 +732,9 @@ export default function TimePlanActivity() {
                     text: "Create",
                     value: "target-inbox-task-create-note",
                     highlight: false,
-                    disabled: loaderData.targetInboxTaskInfo?.note !== null && loaderData.targetInboxTaskInfo?.note !== undefined,
+                    disabled:
+                      loaderData.targetInboxTaskInfo?.note !== null &&
+                      loaderData.targetInboxTaskInfo?.note !== undefined,
                   }),
                 ]}
               />
@@ -746,7 +742,7 @@ export default function TimePlanActivity() {
           >
             {loaderData.targetInboxTaskInfo?.note && (
               <>
-              <EntityNoteEditor
+                <EntityNoteEditor
                   initialNote={loaderData.targetInboxTaskInfo.note}
                   inputsEnabled={inputsEnabled}
                 />

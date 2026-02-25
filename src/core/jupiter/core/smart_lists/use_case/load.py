@@ -81,7 +81,7 @@ class SmartListLoadUseCase(
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
                 parent_ref_id=tag_link.tag_domain.ref_id,
-                allow_archived=False,
+                allow_archived=allow_archived_tags,
                 ref_id=tag_link.ref_ids,
             )
         else:
@@ -114,7 +114,7 @@ class SmartListLoadUseCase(
             )
             all_item_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
-                allow_archived=False,
+                allow_archived=allow_archived_tags,
                 namespace=TagNamespace.SMART_LIST_ITEM,
             )
             all_item_tags_by_ref_id = {t.ref_id: t for t in all_item_tags}

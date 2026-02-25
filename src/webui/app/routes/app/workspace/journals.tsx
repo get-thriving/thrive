@@ -2,8 +2,14 @@ import type {
   JournalFindResultEntry,
   JournalStats,
   Tag,
+  ADate,
+  Journal,
 } from "@jupiter/webapi-client";
-import { RecurringTaskPeriod } from "@jupiter/webapi-client";
+import {
+  RecurringTaskPeriod,
+  DocsHelpSubject,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -16,7 +22,6 @@ import {
   findJournalsThatAreActive,
   sortJournalsNaturally,
 } from "@jupiter/core/journals/root";
-import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
@@ -40,7 +45,6 @@ import {
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import type { ADate, Journal } from "@jupiter/webapi-client";
 
 export const handle = {
   displayType: DisplayType.TRUNK,
@@ -56,8 +60,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_tags: true,
   });
 
-  const journalSettingsResponse =
-    await apiClient.journals.journalLoadSettings({});
+  const journalSettingsResponse = await apiClient.journals.journalLoadSettings(
+    {},
+  );
 
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
