@@ -335,6 +335,45 @@ def test_api_big_plan_milestone_remove(
     assert response2.json()["status"] == 404
 
 
+def test_api_big_plan_load_includes_time_event_blocks(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    bp = create_big_plan("BP With Time Events")
+
+    response = requests.get(
+        f"{api_url}/v1/big-plans/{bp.ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response.status_code == 200
+    assert response.json()["time_event_blocks"] == []
+
+    create_response = requests.post(
+        f"{api_url}/v1/common/time-events/in-day-blocks/for-big-plan",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": bp.ref_id,
+            "start_date": "2024-08-01",
+            "start_time_in_day": "11:00",
+            "duration_mins": 30,
+        },
+        timeout=10,
+    )
+    assert create_response.status_code == 200
+
+    response2 = requests.get(
+        f"{api_url}/v1/big-plans/{bp.ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert response2.status_code == 200
+    time_event_blocks = response2.json()["time_event_blocks"]
+    assert len(time_event_blocks) == 1
+    assert time_event_blocks[0]["start_date"] == "2024-08-01"
+    assert time_event_blocks[0]["start_time_in_day"] == "11:00"
+    assert time_event_blocks[0]["duration_mins"] == 30
+
+
 def test_api_big_plan_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/big-plans?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",
