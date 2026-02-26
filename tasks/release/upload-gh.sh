@@ -96,6 +96,13 @@ fi
 
 gh release upload "${release_tag}" --clobber .build-cache/cloc/"${usage_version}"/cloc.txt
 
+if [ ! -f .build-cache/cloc/"${usage_version}"/stats-over-time.csv ]; then
+    log info "Stats over time file does not exist"
+    exit 1
+fi
+
+gh release upload "${release_tag}" --clobber .build-cache/cloc/"${usage_version}"/stats-over-time.csv
+
 if [ "${desktop_macos}" = true ]; then
     log info "Uploading desktop macOS releases ${usage_version} on GitHub"
 
