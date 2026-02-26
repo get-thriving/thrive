@@ -18,18 +18,11 @@ cloc_file=.build-cache/cloc/$VERSION/cloc.txt
 cloc \
   --report-file="${cloc_file}" \
   --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
-  --not-match-f="(pnpm-lock.json|uv.lock)" \
-  .dockerignore \
-  .eslintignore \
-  .prettierignore \
-  .gitignore \
-  .github/ \
-  LICENSE \
-  Makefile \
-  README.md \
+  --not-match-f="(pnpm-lock.json|uv.lock|.hcl)" \
   docs/ \
-  scripts/ \
-  src/ \
+  infra/ \
   itests/ \
+  src/ \
+  tasks/ \
 
 cat "${cloc_file}"

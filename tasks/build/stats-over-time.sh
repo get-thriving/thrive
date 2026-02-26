@@ -14,6 +14,25 @@ source src/Config.global
 mkdir -p .build-cache/cloc/$VERSION
 output_file="$(pwd)/.build-cache/cloc/$VERSION/stats-over-time.csv"
 
+# Run for the latest (current) version on the default branch
+log info "Processing latest version ..."
+
+latest_total_loc=$(cloc \
+    --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
+    --not-match-f="(pnpm-lock.json|uv.lock|.hcl)" \
+    docs/ \
+    infra/ \
+    itests/ \
+    src/ \
+    scripts/ \
+    jupiter/ \
+    tests/ \
+    migrations/ \
+    tasks/ \
+    2>/dev/null \
+    | grep '^SUM' \
+    | awk '{print $NF}') || true
+
 
 # Create a temporary directory and ensure cleanup on exit
 tmp_dir=$(mktemp -d)
@@ -44,19 +63,16 @@ for tag in $tags; do
     # Run cloc and extract total lines of code from the SUM line (last column)
     total_loc=$(cloc \
         --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
-        --not-match-f="(pnpm-lock.json|uv.lock)" \
-        .dockerignore \
-        .eslintignore \
-        .prettierignore \
-        .gitignore \
-        .github/ \
-        LICENSE \
-        Makefile \
-        README.md \
+        --not-match-f="(pnpm-lock.json|uv.lock|.hcl)" \
         docs/ \
-        scripts/ \
-        src/ \
+        infra/ \
         itests/ \
+        src/ \
+        scripts/ \
+        jupiter/ \
+        tests/ \
+        migrations/ \
+        tasks/ \
         2>/dev/null \
         | grep '^SUM' \
         | awk '{print $NF}') || true
@@ -69,6 +85,13 @@ for tag in $tags; do
     echo "$tag,$tag_date,$total_loc" >> "$output_file"
     log info "$tag,$tag_date,$total_loc"
 done
+
+if [[ -n "$latest_total_loc" ]]; then
+    echo "latest,$tag_date,$latest_total_loc" >> "$output_file"
+    log info "latest,$tag_date,$latest_total_loc"
+else
+    log info "No SUM line found for latest version, skipping"
+fi
 
 log info "Done. Results:"
 echo ""
