@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#MISE description="Generate historical lines-of-code statistics via monthly commits on develop"
+#MISE description="Generate historical lines-of-code statistics via monthly commits on current branch"
 #USAGE flag "--log <log>" default="info" help="Log output" {
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
@@ -11,22 +11,24 @@ source tasks/_common.sh
 
 source src/Config.global
 
+branch=$(git branch --show-current)
+
 mkdir -p .build-cache/cloc/$VERSION
 output_file="$(pwd)/.build-cache/cloc/$VERSION/stats-over-time.csv"
 
 # Create a temporary directory and ensure cleanup on exit
 tmp_dir=$(mktemp -d)
-# trap 'rm -rf "$tmp_dir"' EXIT
+trap 'rm -rf "$tmp_dir"' EXIT
 
 log info "Cloning thrive repo into $tmp_dir ..."
-git clone --quiet --branch develop https://github.com/horia141/thrive.git "$tmp_dir/thrive"
+git clone --quiet --branch "$branch" https://github.com/horia141/thrive.git "$tmp_dir/thrive"
 
 cd "$tmp_dir/thrive"
 
-# --- Build list of commits: first, one per month, and last on develop ---
+# --- Build list of commits: first, one per month, and last on current branch ---
 
-first_commit=$(git rev-list --max-parents=0 develop | tail -1)
-last_commit=$(git rev-parse develop)
+first_commit=$(git rev-list --max-parents=0 "$branch" | tail -1)
+last_commit=$(git rev-parse "$branch")
 
 first_date=$(git log -1 --format='%ai' "$first_commit" | cut -d' ' -f1)
 last_date=$(git log -1 --format='%ai' "$last_commit" | cut -d' ' -f1)
@@ -69,7 +71,7 @@ add_commit() {
 add_commit "$first_commit"
 
 for boundary in $month_boundaries; do
-    sha=$(git log develop --before="$boundary" --format='%H' -1 2>/dev/null || true)
+    sha=$(git log "$branch" --before="$boundary" --format='%H' -1 2>/dev/null || true)
     if [[ -n "$sha" ]]; then
         add_commit "$sha"
     fi
