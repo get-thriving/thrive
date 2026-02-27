@@ -404,9 +404,19 @@ def _extract_component_from_frontdoor(request: Request) -> JupiterComponentPrope
             app_platform = _APP_PLATFORM_DECODER.decode(bits[2])
             app_distribution = _APP_DISTRIBUTION_DECODER.decode(bits[3])
     return JupiterComponentProperties.for_app(
-        core=AppCore.WEBUI,
+        core=_infer_app_core_from_shell(app_shell),
         the_shell=app_shell,
         platform=app_platform,
         distribution=app_distribution,
         version=app_client_version,
     )
+
+
+def _infer_app_core_from_shell(app_shell: AppShell) -> AppCore:
+    """Infer the AppCore from the AppShell value."""
+    if app_shell == AppShell.API:
+        return AppCore.API
+    elif app_shell == AppShell.CLI:
+        return AppCore.CLI
+    else:
+        return AppCore.WEBUI

@@ -13,7 +13,11 @@ from typing import (
 
 import dotenv
 from fastapi import Response, status
-from jupiter.api.headers import build_response_headers
+from jupiter.api.headers import (
+    FRONTDOOR_HEADER,
+    build_frontdoor_header,
+    build_response_headers,
+)
 from jupiter.api.webapi_client import WebApiClient
 from jupiter.core.config import JupiterGlobalProperties
 from jupiter.framework.ports import Ports
@@ -138,6 +142,7 @@ class JupiterApiGatewayMethod(
             base_url=self._ports.webapi_client.client._base_url,
             raise_on_unexpected_status=True,
             token=token,
+            headers={FRONTDOOR_HEADER: build_frontdoor_header(self._global_properties)},
         )
 
     async def _do_key_exchange(self, key: str) -> str | Response:  # type: ignore[explicit-any]

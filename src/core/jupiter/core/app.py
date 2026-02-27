@@ -25,6 +25,7 @@ class AppCore(EnumValue):
 
     CLI = "cli"
     WEBUI = "webui"
+    API = "api"
 
 
 @enum_value
@@ -36,6 +37,7 @@ class AppShell(EnumValue):
     DESKTOP_ELECTRON = "desktop-electron"
     MOBILE_CAPACITOR = "mobile-capacitor"
     PWA = "pwa"
+    API = "api"
 
 
 @enum_value
@@ -47,6 +49,7 @@ class AppPlatform(EnumValue):
     MOBILE_ANDROID = "mobile-android"
     TABLET_IOS = "tablet-ios"
     TABLET_ANDROID = "tablet-android"
+    API = "api"
 
 
 @enum_value
@@ -58,6 +61,7 @@ class AppDistribution(EnumValue):
     MAC_STORE = "mac-store"
     APP_STORE = "app-store"
     GOOGLE_PLAY_STORE = "google-play-store"
+    API = "api"
 
 
 @enum_value
