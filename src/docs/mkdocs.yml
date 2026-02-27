@@ -59,6 +59,7 @@ nav:
           - 'Tasks Generation': 'concepts/tasks-generation.md'
           - 'Garbage Collection': 'concepts/garbage-collection.md'
           - 'Removal': 'concepts/archival-and-removal.md'
+          - 'API': 'concepts/api.md'
     - 'Tools':
           - 'Pomodoro Timer': 'tools/pomodoro-timer.md'
           - 'Search': 'tools/search.md'
