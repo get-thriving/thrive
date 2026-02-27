@@ -270,10 +270,10 @@ _run_dev_jupiter_webapp_with_docker() {
 
 _run_thrive_sh_test_webapp() {
     local instance=$1
-    local should_wait=$7
-    local should_monit=$8
-    local in_ci=$9
-    shift 9
+    local should_wait=$6
+    local should_monit=$7
+    local in_ci=$8
+    shift 8
     local source=$1
     local version=$2
     local clear_first=$3

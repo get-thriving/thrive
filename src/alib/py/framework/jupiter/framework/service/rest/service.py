@@ -50,9 +50,9 @@ class RestService(
             title=self.description,
             version=self.version,
             generate_unique_id_function=self._custom_generate_unique_id,
-            openapi_url=self.openapi_json_route if not self.is_live else None,
-            docs_url=self.openapi_docs_route if not self.is_live else None,
-            redoc_url=self.openapi_redoc_route if not self.is_live else None,
+            openapi_url=self.openapi_json_route,
+            docs_url=self.openapi_docs_route,
+            redoc_url=self.openapi_redoc_route,
         )
         self._fast_app.openapi = self._custom_openapi  # type: ignore[method-assign]
         self._resources = resources
