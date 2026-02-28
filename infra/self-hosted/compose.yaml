@@ -50,7 +50,7 @@ services:
       - WEBAPI_SERVER_PORT=2000
       - WEBAPI_PROGRESS_REPORTER_URL=ws://webapi:2000/progress-reporter
       - WEBAPI_URL=${WEBAPI_SERVER_URL:-http://webapi:2000}
-      - API_URL=${API_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/api}
+      - API_URL=${API_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/api
       - DOCS_URL=${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}/docs/
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}

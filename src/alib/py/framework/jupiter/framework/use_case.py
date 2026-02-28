@@ -833,6 +833,7 @@ class LoggedInReadonlyUseCase(
     ) -> _LoggedInReadonlyContextT:
         if not self.is_allowed_globally:
             from rich import print
+
             print("Here")
             raise UnavailableGloballyError(
                 "This action is not available in this environment"

@@ -44,9 +44,6 @@ from jupiter_webapi_client.api.big_plans.big_plan_milestone_remove import (
 from jupiter_webapi_client.api.big_plans.big_plan_milestone_update import (
     asyncio_detailed as big_plan_milestone_update,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_refresh_stats import (
-    asyncio_detailed as big_plan_refresh_stats,
-)
 from jupiter_webapi_client.api.big_plans.big_plan_remove import (
     asyncio_detailed as big_plan_remove,
 )
@@ -67,9 +64,6 @@ from jupiter_webapi_client.api.chores.chore_find import (
 from jupiter_webapi_client.api.chores.chore_load import (
     asyncio_detailed as chore_load,
 )
-from jupiter_webapi_client.api.chores.chore_regen import (
-    asyncio_detailed as chore_regen,
-)
 from jupiter_webapi_client.api.chores.chore_remove import (
     asyncio_detailed as chore_remove,
 )
@@ -86,9 +80,6 @@ from jupiter_webapi_client.api.chores.chore_update import (
 # --- Docs API ---
 from jupiter_webapi_client.api.docs.doc_archive import (
     asyncio_detailed as doc_archive,
-)
-from jupiter_webapi_client.api.docs.doc_change_parent import (
-    asyncio_detailed as doc_change_parent,
 )
 from jupiter_webapi_client.api.docs.doc_create import (
     asyncio_detailed as doc_create,
@@ -118,9 +109,6 @@ from jupiter_webapi_client.api.habits.habit_find import (
 )
 from jupiter_webapi_client.api.habits.habit_load import (
     asyncio_detailed as habit_load,
-)
-from jupiter_webapi_client.api.habits.habit_regen import (
-    asyncio_detailed as habit_regen,
 )
 from jupiter_webapi_client.api.habits.habit_remove import (
     asyncio_detailed as habit_remove,
@@ -176,12 +164,6 @@ from jupiter_webapi_client.api.journals.journal_load_for_date_and_period import 
 )
 from jupiter_webapi_client.api.journals.journal_load_settings import (
     asyncio_detailed as journal_load_settings,
-)
-from jupiter_webapi_client.api.journals.journal_refresh_stats import (
-    asyncio_detailed as journal_refresh_stats,
-)
-from jupiter_webapi_client.api.journals.journal_regen import (
-    asyncio_detailed as journal_regen,
 )
 from jupiter_webapi_client.api.journals.journal_remove import (
     asyncio_detailed as journal_remove,
@@ -325,9 +307,6 @@ from jupiter_webapi_client.api.metrics.metric_load import (
 from jupiter_webapi_client.api.metrics.metric_load_settings import (
     asyncio_detailed as metric_load_settings,
 )
-from jupiter_webapi_client.api.metrics.metric_regen import (
-    asyncio_detailed as metric_regen,
-)
 from jupiter_webapi_client.api.metrics.metric_remove import (
     asyncio_detailed as metric_remove,
 )
@@ -407,9 +386,6 @@ from jupiter_webapi_client.api.prm.person_load import (
 from jupiter_webapi_client.api.prm.person_load_settings import (
     asyncio_detailed as person_load_settings,
 )
-from jupiter_webapi_client.api.prm.person_regen import (
-    asyncio_detailed as person_regen,
-)
 from jupiter_webapi_client.api.prm.person_remove import (
     asyncio_detailed as person_remove,
 )
@@ -451,12 +427,6 @@ from jupiter_webapi_client.api.schedule.schedule_event_in_day_remove import (
 )
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_update import (
     asyncio_detailed as schedule_event_in_day_update,
-)
-from jupiter_webapi_client.api.schedule.schedule_external_sync_do import (
-    asyncio_detailed as schedule_external_sync_do,
-)
-from jupiter_webapi_client.api.schedule.schedule_external_sync_load_runs import (
-    asyncio_detailed as schedule_external_sync_load_runs,
 )
 
 # --- Schedule API ---
@@ -606,9 +576,6 @@ from jupiter_webapi_client.api.time_plans.time_plan_create import (
 from jupiter_webapi_client.api.time_plans.time_plan_find import (
     asyncio_detailed as time_plan_find,
 )
-from jupiter_webapi_client.api.time_plans.time_plan_gen_for_time_plan import (
-    asyncio_detailed as time_plan_gen_for_time_plan,
-)
 from jupiter_webapi_client.api.time_plans.time_plan_load import (
     asyncio_detailed as time_plan_load,
 )
@@ -617,9 +584,6 @@ from jupiter_webapi_client.api.time_plans.time_plan_load_for_time_date_and_perio
 )
 from jupiter_webapi_client.api.time_plans.time_plan_load_settings import (
     asyncio_detailed as time_plan_load_settings,
-)
-from jupiter_webapi_client.api.time_plans.time_plan_regen import (
-    asyncio_detailed as time_plan_regen,
 )
 from jupiter_webapi_client.api.time_plans.time_plan_remove import (
     asyncio_detailed as time_plan_remove,
@@ -776,14 +740,6 @@ async def main() -> None:
                     ),
                 ),
                 JupiterApiResource.build(
-                    "gen",
-                    JupiterApiGatewayMethod.post(time_plan_gen_for_time_plan),
-                ),
-                JupiterApiResource.build(
-                    "regen",
-                    JupiterApiGatewayMethod.post(time_plan_regen),
-                ),
-                JupiterApiResource.build(
                     "activities",
                     JupiterApiResource.build(
                         "find-for-target",
@@ -875,17 +831,6 @@ async def main() -> None:
                     ),
                 ),
             ),
-            JupiterApiResource.build(
-                "external-sync",
-                JupiterApiResource.build(
-                    "do",
-                    JupiterApiGatewayMethod.post(schedule_external_sync_do),
-                ),
-                JupiterApiResource.build(
-                    "load-runs",
-                    JupiterApiGatewayMethod.get(schedule_external_sync_load_runs),
-                ),
-            ),
         ),
         # Habits
         JupiterApiResource.build(
@@ -908,10 +853,6 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "unsuspend",
                     JupiterApiGatewayMethod.post(habit_unsuspend),
-                ),
-                JupiterApiResource.build(
-                    "regen",
-                    JupiterApiGatewayMethod.post(habit_regen),
                 ),
             ),
         ),
@@ -937,10 +878,6 @@ async def main() -> None:
                     "unsuspend",
                     JupiterApiGatewayMethod.post(chore_unsuspend),
                 ),
-                JupiterApiResource.build(
-                    "regen",
-                    JupiterApiGatewayMethod.post(chore_regen),
-                ),
             ),
         ),
         # Big Plans
@@ -956,10 +893,6 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "remove",
                     JupiterApiGatewayMethod.delete(big_plan_remove),
-                ),
-                JupiterApiResource.build(
-                    "refresh-stats",
-                    JupiterApiGatewayMethod.post(big_plan_refresh_stats),
                 ),
                 JupiterApiResource.build(
                     "milestones",
@@ -993,10 +926,6 @@ async def main() -> None:
                     "remove",
                     JupiterApiGatewayMethod.delete(doc_remove),
                 ),
-                JupiterApiResource.build(
-                    "change-parent",
-                    JupiterApiGatewayMethod.post(doc_change_parent),
-                ),
             ),
         ),
         # Journals
@@ -1014,10 +943,6 @@ async def main() -> None:
                 JupiterApiGatewayMethod.get(journal_load_for_date_and_period),
             ),
             JupiterApiResource.build(
-                "regen",
-                JupiterApiGatewayMethod.post(journal_regen),
-            ),
-            JupiterApiResource.build(
                 ":ref_id",
                 JupiterApiGatewayMethod.get(journal_load),
                 JupiterApiGatewayMethod.delete(journal_archive),
@@ -1028,10 +953,6 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "change-time-config",
                     JupiterApiGatewayMethod.post(journal_change_time_config),
-                ),
-                JupiterApiResource.build(
-                    "refresh-stats",
-                    JupiterApiGatewayMethod.post(journal_refresh_stats),
                 ),
             ),
         ),
@@ -1148,10 +1069,6 @@ async def main() -> None:
                     JupiterApiGatewayMethod.delete(metric_remove),
                 ),
                 JupiterApiResource.build(
-                    "regen",
-                    JupiterApiGatewayMethod.post(metric_regen),
-                ),
-                JupiterApiResource.build(
                     "change-collection-project",
                     JupiterApiGatewayMethod.post(metric_change_collection_project),
                 ),
@@ -1194,10 +1111,6 @@ async def main() -> None:
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(person_remove),
-                    ),
-                    JupiterApiResource.build(
-                        "regen",
-                        JupiterApiGatewayMethod.post(person_regen),
                     ),
                     JupiterApiResource.build(
                         "occasions",

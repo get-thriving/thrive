@@ -44,7 +44,9 @@ class TimePlanLoadForDateAndPeriodResult(UseCaseResultBase):
     sub_period_time_plans: list[TimePlan]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanLoadForTimeDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanLoadForDateAndPeriodArgs, TimePlanLoadForDateAndPeriodResult

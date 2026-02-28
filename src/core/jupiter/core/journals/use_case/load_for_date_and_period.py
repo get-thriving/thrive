@@ -46,7 +46,9 @@ class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
     sub_period_journals: list[Journal]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@readonly_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalLoadForDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult

@@ -89,6 +89,13 @@ class RestService(
             """Health check endpoint."""
             return None
 
+        @service._fast_app.get(
+            service.default_healthz_route, status_code=status.HTTP_200_OK
+        )
+        async def default_healthz() -> None:
+            """Default health check endpoint."""
+            return None
+
         for resource in service._resources:
             resource.attach_route(service._fast_app, [])
 
@@ -161,6 +168,11 @@ class RestService(
     @property
     def healthz_route(self) -> str:
         """The healthz route of the app."""
+        return "/healthz"
+
+    @property
+    def default_healthz_route(self) -> str:
+        """The default healthz route of the app."""
         return "/healthz"
 
     @property

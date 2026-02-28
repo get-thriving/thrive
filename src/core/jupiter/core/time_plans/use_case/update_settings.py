@@ -54,7 +54,9 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
     planning_task_difficulty: UpdateAction[Difficulty | None]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanUpdateSettingsUseCase(
     JupiterLoggedInMutationUseCase[TimePlanUpdateSettingsArgs, None]
 ):

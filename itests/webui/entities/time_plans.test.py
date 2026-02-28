@@ -332,22 +332,24 @@ def test_webui_time_plan_change_note(page: Page, create_time_plan) -> None:
 
     page.wait_for_selector("#entity-block-editor")
 
-    page.locator('#trunk-panel div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#trunk-panel div[contenteditable="true"]').first.fill(
+        "This is a note."
+    )
 
     page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
 
-    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
-        "This is a note."
-    )
+    expect(
+        page.locator('#trunk-panel div[contenteditable="true"]').first
+    ).to_contain_text("This is a note.")
     time.sleep(1)  # Wait for the update to be saved.
 
     page.reload()
 
     page.wait_for_selector("#branch-panel")
 
-    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
-        "This is a note."
-    )
+    expect(
+        page.locator('#trunk-panel div[contenteditable="true"]').first
+    ).to_contain_text("This is a note.")
 
 
 def test_webui_time_plan_archive(page: Page, create_time_plan) -> None:
@@ -446,7 +448,9 @@ def test_webui_time_plan_link_previous_time_plan(page: Page, create_time_plan) -
     )
 
 
-def test_webui_time_plan_create_new_inbox_task_activity(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_create_new_inbox_task_activity(
+    page: Page, create_time_plan
+) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 

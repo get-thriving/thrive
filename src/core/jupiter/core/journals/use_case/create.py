@@ -47,7 +47,9 @@ class JournalCreateResult(UseCaseResultBase):
     new_note: Note
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@mutation_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalCreateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[JournalCreateArgs, JournalCreateResult]
 ):

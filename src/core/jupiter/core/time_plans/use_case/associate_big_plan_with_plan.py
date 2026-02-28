@@ -52,7 +52,9 @@ class TimePlanAssociateBigPlanWithPlanResult(UseCaseResultBase):
     new_time_plan_activities: list[TimePlanActivity]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanAssociateBigPlanWithPlanUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         TimePlanAssociateBigPlanWithPlanArgs, TimePlanAssociateBigPlanWithPlanResult

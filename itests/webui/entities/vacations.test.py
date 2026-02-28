@@ -149,22 +149,24 @@ def test_webui_vacation_create_note(page: Page, create_vacation) -> None:
     page.locator("button[id='vacation-create-note']").click()
     page.wait_for_selector("#entity-block-editor")
 
-    page.locator('#leaf-panel div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#leaf-panel div[contenteditable="true"]').first.fill(
+        "This is a note."
+    )
 
     page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
 
-    expect(page.locator('#leaf-panel div[contenteditable="true"]').first).to_contain_text(
-        "This is a note."
-    )
+    expect(
+        page.locator('#leaf-panel div[contenteditable="true"]').first
+    ).to_contain_text("This is a note.")
     time.sleep(1)  # Wait for the update to be saved.
 
     page.reload()
 
     page.wait_for_selector("#leaf-panel")
 
-    expect(page.locator('#leaf-panel div[contenteditable="true"]').first).to_contain_text(
-        "This is a note."
-    )
+    expect(
+        page.locator('#leaf-panel div[contenteditable="true"]').first
+    ).to_contain_text("This is a note.")
 
 
 def test_webui_vacation_archive(page: Page, create_vacation) -> None:

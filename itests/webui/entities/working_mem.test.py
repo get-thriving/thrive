@@ -38,12 +38,14 @@ def test_webui_working_mem_write(page: Page) -> None:
 
     expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
 
-    page.locator('#trunk-panel div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#trunk-panel div[contenteditable="true"]').first.fill(
+        "This is a note."
+    )
 
     time.sleep(1)
 
     page.reload()
 
-    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
-        "This is a note."
-    )
+    expect(
+        page.locator('#trunk-panel div[contenteditable="true"]').first
+    ).to_contain_text("This is a note.")

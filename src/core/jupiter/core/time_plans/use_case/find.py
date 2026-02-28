@@ -71,7 +71,9 @@ class TimePlanFindResult(UseCaseResultBase):
     entries: list[TimePlanFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanFindArgs, TimePlanFindResult]
 ):

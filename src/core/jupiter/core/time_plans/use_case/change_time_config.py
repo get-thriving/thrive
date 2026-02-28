@@ -42,7 +42,9 @@ class TimePlanChangeTimeConfigArgs(UseCaseArgsBase):
     goal_ref_ids: UpdateAction[list[EntityId]]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@mutation_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanChangeTimeConfigUseCase(
     JupiterTransactionalLoggedInMutationUseCase[TimePlanChangeTimeConfigArgs, None]
 ):

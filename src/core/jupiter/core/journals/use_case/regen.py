@@ -20,7 +20,9 @@ class JournalRegenArgs(UseCaseArgsBase):
     """The arguments for the journal regen use case."""
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@mutation_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalRegenUseCase(JupiterLoggedInMutationUseCase[JournalRegenArgs, None]):
     """A use case for regenerating journals."""
 

@@ -68,7 +68,9 @@ class JournalFindResult(UseCaseResultBase):
     entries: list[JournalFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
+@readonly_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[JournalFindArgs, JournalFindResult]
 ):

@@ -202,30 +202,6 @@ def test_api_journal_update_settings(api_url: str, api_key: str) -> None:
     assert response.status_code == 200
 
 
-def test_api_journal_regen(api_url: str, api_key: str, create_journal) -> None:
-    create_journal("2024-10-07")
-
-    response = requests.post(
-        f"{api_url}/v1/journals/regen",
-        headers=_headers(api_key),
-        json={},
-        timeout=10,
-    )
-    assert response.status_code == 200
-
-
-def test_api_journal_refresh_stats(api_url: str, api_key: str, create_journal) -> None:
-    created = create_journal("2024-09-09")
-
-    response = requests.post(
-        f"{api_url}/v1/journals/{created.ref_id}/refresh-stats",
-        headers=_headers(api_key),
-        json={"ref_id": created.ref_id},
-        timeout=10,
-    )
-    assert response.status_code == 200
-
-
 def test_api_journal_archive(api_url: str, api_key: str, create_journal) -> None:
     created = create_journal("2024-09-16")
 
