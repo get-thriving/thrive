@@ -92,6 +92,8 @@ services:
       value: /jupiter/src/core/migrations
 - type: web
   name: jupiter-api
+  domains:
+    - api.get-thriving.com
   runtime: docker
   dockerfilePath: ./src/api/Dockerfile
   dockerContext: .
