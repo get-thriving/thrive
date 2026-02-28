@@ -192,36 +192,41 @@ class JupiterComponentProperties(ComponentProperties):
         """Whether this global properties allows for a given filter."""
         if only_for is not None:
             for filter_val in only_for:
-                if isinstance(filter_val, AppComponent):
-                    return self._component == filter_val
-                elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core == filter_val
-                elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell == filter_val
-                elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform == filter_val
-                elif self._distribution is not None and isinstance(
-                    filter_val, AppDistribution
-                ):
-                    return self._distribution == filter_val
-                else:
+                if isinstance(filter_val, AppComponent) and self._component == filter_val:
+                    return True
+                elif self._core is not None and isinstance(filter_val, AppCore) and self._core == filter_val:
+                    return True
+                elif self._the_shell is not None and isinstance(filter_val, AppShell) and self._the_shell == filter_val:
+                    return True
+                elif self._platform is not None and isinstance(filter_val, AppPlatform) and self._platform == filter_val:
+                    return True
+                elif self._distribution is not None and isinstance(filter_val, AppDistribution) and self._distribution == filter_val:
+                    return True
+                elif not (isinstance(filter_val, AppComponent) or isinstance(filter_val, AppCore) or isinstance(filter_val, AppShell) or isinstance(filter_val, AppPlatform) or isinstance(filter_val, AppDistribution)):
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return False
         if excluded is not None:
             for filter_val in excluded:
                 if isinstance(filter_val, AppComponent):
-                    return self._component != filter_val
+                    if self._component == filter_val:
+                        return False
                 elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core != filter_val
+                    if self._core == filter_val:
+                        return False
                 elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell != filter_val
+                    if self._the_shell == filter_val:
+                        return False
                 elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform != filter_val
-                elif self._distribution is not None and isinstance(
-                    filter_val, AppDistribution
-                ):
-                    return self._distribution != filter_val
+                    if self._platform == filter_val:
+                        return False
+                elif self._distribution is not None and isinstance(filter_val, AppDistribution):
+                    if self._distribution == filter_val:
+                        return False
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return True
         return True
 
     def as_event_source(self) -> str:

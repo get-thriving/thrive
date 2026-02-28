@@ -4,7 +4,7 @@ from playwright.sync_api import Page, expect
 from itests.conftest import TestUser
 
 
-def test_login(page: Page, new_user: TestUser):
+def test_webui_login(page: Page, new_user: TestUser):
     page.goto("/app/workspace")
 
     page.wait_for_load_state("networkidle")
@@ -23,7 +23,7 @@ def test_login(page: Page, new_user: TestUser):
     page.wait_for_url("/app/workspace")
 
 
-def test_login_bad_user_name(
+def test_webui_login_bad_user_name(
     page: Page, new_user: TestUser, pytestconfig: pytest.Config
 ):
     page.goto("/app/workspace")
@@ -38,7 +38,7 @@ def test_login_bad_user_name(
     expect(page.locator("body")).to_contain_text("User email or password invalid")
 
 
-def test_login_bad_password(page: Page, new_user: TestUser):
+def test_webui_login_bad_password(page: Page, new_user: TestUser):
     page.goto("/app/workspace")
 
     expect(page.locator("body")).to_contain_text("Login")

@@ -87,14 +87,14 @@ def create_project(
     return _create_project
 
 
-def test_project_view_nothing(page: Page) -> None:
+def test_webui_project_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/life-plan")
 
     # Projects always has at least the root project, so we check for the root project instead
     expect(page.locator("#trunk-panel")).to_contain_text("Root Project")
 
 
-def test_project_view_all(page: Page, create_project) -> None:
+def test_webui_project_view_all(page: Page, create_project) -> None:
     project1 = create_project("Project 1")
     project2 = create_project("Project 2")
     project3 = create_project("Project 3", project1.ref_id)

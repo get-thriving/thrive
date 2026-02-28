@@ -11,7 +11,7 @@ from playwright.sync_api import Page, expect
 from itests.conftest import TestUser
 
 
-def test_recover_password(
+def test_webui_recover_password(
     page: Page,
     new_user: TestUser,
     webapi_url: str,

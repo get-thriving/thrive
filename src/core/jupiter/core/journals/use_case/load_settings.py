@@ -47,7 +47,7 @@ class JournalLoadSettingsResult(UseCaseResultBase):
     writing_tasks: list[InboxTask]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class JournalLoadSettingsUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         JournalLoadSettingsArgs, JournalLoadSettingsResult

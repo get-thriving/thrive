@@ -1,15 +1,9 @@
-from jupiter_webapi_client.models.init_result import InitResult
 from playwright.sync_api import Page, expect
 
 from itests.conftest import TestUser
 
 
-def test_close_account(
-    page: Page,
-    webapi_url: str,
-    new_user: TestUser,
-    new_user_and_workspace: InitResult,
-) -> None:
+def test_webui_logout(page: Page, new_user: TestUser):
     page.goto("/app/workspace")
 
     expect(page.locator("body")).to_contain_text("Login")
@@ -25,9 +19,9 @@ def test_close_account(
     # here then the redirect from "post /login" with cookies will not work!
     page.wait_for_url("/app/workspace")
 
-    page.goto("/app/workspace/account")
+    page.locator("#account-menu").click()
+    page.locator("#logout").click()
 
-    page.locator("#close-account-initialize").click()
-    page.locator("#close-account").click()
+    page.wait_for_url("/app/login")
 
-    page.wait_for_url("/app/init")
+    expect(page.locator("body")).to_contain_text("Login")

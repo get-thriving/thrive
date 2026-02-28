@@ -40,7 +40,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     target_big_plan: BigPlan | None
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class TimePlanActivityLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityLoadArgs, TimePlanActivityLoadResult

@@ -61,7 +61,7 @@ def create_journal(logged_in_client: AuthenticatedClient):
     return _create_journal
 
 
-def test_journal_view_nothing(page: Page) -> None:
+def test_webui_journal_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/journals")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
@@ -69,7 +69,7 @@ def test_journal_view_nothing(page: Page) -> None:
     )
 
 
-def test_journal_view_all(page: Page, create_journal) -> None:
+def test_webui_journal_view_all(page: Page, create_journal) -> None:
     # Create journals for different periods and dates
     journal1 = create_journal(period=RecurringTaskPeriod.DAILY)
     journal2 = create_journal(
@@ -85,12 +85,12 @@ def test_journal_view_all(page: Page, create_journal) -> None:
 
     # Journals are displayed by their timeline/name, not by ref_id
     # The name is built from the date and period
-    expect(page.locator(f"#journal-{journal1.ref_id}")).to_contain_text(
+    expect(page.locator(f"#journal-{journal1.ref_id}").last).to_contain_text(
         f"Daily journal for {pendulum.now().format('YYYY-MM-DD')}"
     )
-    expect(page.locator(f"#journal-{journal2.ref_id}")).to_contain_text(
+    expect(page.locator(f"#journal-{journal2.ref_id}").last).to_contain_text(
         f"Weekly journal for {pendulum.now().subtract(days=1).format('YYYY-MM-DD')}"
     )
-    expect(page.locator(f"#journal-{journal3.ref_id}")).to_contain_text(
+    expect(page.locator(f"#journal-{journal3.ref_id}").last).to_contain_text(
         f"Monthly journal for {pendulum.now().subtract(days=7).format('YYYY-MM-DD')}"
     )

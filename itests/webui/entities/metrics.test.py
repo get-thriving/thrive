@@ -97,13 +97,13 @@ def create_metric_entry(logged_in_client: AuthenticatedClient):
     return _create_metric_entry
 
 
-def test_metric_view_nothing(page: Page) -> None:
+def test_webui_metric_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/metrics")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no metrics to show")
 
 
-def test_metric_view_all(page: Page, create_metric) -> None:
+def test_webui_metric_view_all(page: Page, create_metric) -> None:
     metric1 = create_metric("Metric 1")
     metric2 = create_metric("Metric 2", True, "📊", MetricUnit.COUNT)
     metric3 = create_metric(
@@ -123,7 +123,7 @@ def test_metric_view_all(page: Page, create_metric) -> None:
     expect(page.locator(f"#metric-{metric3.ref_id}")).to_contain_text("Metric 3")
 
 
-def test_metric_view_one_nothing(page: Page, create_metric) -> None:
+def test_webui_metric_view_one_nothing(page: Page, create_metric) -> None:
     metric = create_metric("Metric 1")
     page.goto(f"/app/workspace/metrics/{metric.ref_id}")
 
@@ -132,7 +132,7 @@ def test_metric_view_one_nothing(page: Page, create_metric) -> None:
     )
 
 
-def test_metric_view_one_entries(
+def test_webui_metric_view_one_entries(
     page: Page, create_metric, create_metric_entry
 ) -> None:
     metric = create_metric("Metric 1", metric_unit=MetricUnit.COUNT)

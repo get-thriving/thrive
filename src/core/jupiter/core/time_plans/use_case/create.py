@@ -58,7 +58,7 @@ class TimePlanCreateResult(UseCaseResultBase):
     new_note: Note
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class TimePlanCreateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         TimePlanCreateArgs, TimePlanCreateResult

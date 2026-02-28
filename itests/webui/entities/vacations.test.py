@@ -61,7 +61,7 @@ def create_vacation(logged_in_client: AuthenticatedClient):
     return _create_vacation
 
 
-def test_vacation_view_all(page: Page, create_vacation) -> None:
+def test_webui_vacation_view_all(page: Page, create_vacation) -> None:
     vacation1 = create_vacation("First Vacation", 12, 10, 12, 15)
     vacation2 = create_vacation("Second Vacation", 12, 20, 12, 25)
     vacation3 = create_vacation("Third Vacation", 12, 22, 12, 27)
@@ -79,7 +79,7 @@ def test_vacation_view_all(page: Page, create_vacation) -> None:
     )
 
 
-def test_vacation_view_one(page: Page, create_vacation) -> None:
+def test_webui_vacation_view_one(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
@@ -89,7 +89,7 @@ def test_vacation_view_one(page: Page, create_vacation) -> None:
     expect(page.locator('input[name="endDate"]')).to_have_value("2024-12-15")
 
 
-def test_vacation_create(page: Page, browser: Browser) -> None:
+def test_webui_vacation_create(page: Page, browser: Browser) -> None:
     page.goto("/app/workspace/vacations")
     page.wait_for_selector("#trunk-panel")
     page.locator("a[id='trunk-new-leaf-entity']").click()
@@ -109,7 +109,7 @@ def test_vacation_create(page: Page, browser: Browser) -> None:
     expect(page.locator(f"#vacation-{entity_id}")).to_contain_text("First Vacation")
 
 
-def test_vacation_update(page: Page, create_vacation) -> None:
+def test_webui_vacation_update(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
 
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
@@ -141,7 +141,7 @@ def test_vacation_update(page: Page, create_vacation) -> None:
     expect(page.locator(f"#vacation-{entity_id}")).to_contain_text("Updated Vacation")
 
 
-def test_vacation_create_note(page: Page, create_vacation) -> None:
+def test_webui_vacation_create_note(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")
@@ -149,11 +149,11 @@ def test_vacation_create_note(page: Page, create_vacation) -> None:
     page.locator("button[id='vacation-create-note']").click()
     page.wait_for_selector("#entity-block-editor")
 
-    page.locator('#editorjs div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#leaf-panel div[contenteditable="true"]').first.fill("This is a note.")
 
     page.wait_for_url(re.compile(r"/app/workspace/vacations/\d+"))
 
-    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+    expect(page.locator('#leaf-panel div[contenteditable="true"]').first).to_contain_text(
         "This is a note."
     )
     time.sleep(1)  # Wait for the update to be saved.
@@ -162,12 +162,12 @@ def test_vacation_create_note(page: Page, create_vacation) -> None:
 
     page.wait_for_selector("#leaf-panel")
 
-    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+    expect(page.locator('#leaf-panel div[contenteditable="true"]').first).to_contain_text(
         "This is a note."
     )
 
 
-def test_vacation_archive(page: Page, create_vacation) -> None:
+def test_webui_vacation_archive(page: Page, create_vacation) -> None:
     vacation = create_vacation("First Vacation", 12, 10, 12, 15)
     page.goto(f"/app/workspace/vacations/{vacation.ref_id}")
     page.wait_for_selector("#leaf-panel")

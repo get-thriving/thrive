@@ -33,17 +33,17 @@ def _enable_working_mem_feature(logged_in_client: AuthenticatedClient):
         )
 
 
-def test_working_mem_write(page: Page) -> None:
+def test_webui_working_mem_write(page: Page) -> None:
     page.goto("/app/workspace/working-mem")
 
     expect(page.locator("#trunk-panel")).to_contain_text("Working Mem")
 
-    page.locator('#editorjs div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#trunk-panel div[contenteditable="true"]').first.fill("This is a note.")
 
     time.sleep(1)
 
     page.reload()
 
-    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
         "This is a note."
     )

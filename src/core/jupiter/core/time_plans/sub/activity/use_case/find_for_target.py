@@ -49,7 +49,7 @@ class TimePlanActivityFindForTargetResult(UseCaseResultBase):
     entries: list[TimePlanActivityFindForTargetResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class TimePlanActivityFindForTargetUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         TimePlanActivityFindForTargetArgs, TimePlanActivityFindForTargetResult

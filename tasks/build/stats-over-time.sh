@@ -107,7 +107,7 @@ for sha in "${commits_ordered[@]}"; do
     total_loc=$(cloc \
         --exclude-dir="node_modules,.build-cache,build,public,.mypy_cache,ios,android" \
         --not-match-f="(pnpm-lock.json|uv.lock|.hcl)" \
-        $cloc_dirs \
+        "$cloc_dirs" \
         2>/dev/null \
         | grep '^SUM' \
         | awk '{print $NF}') || true

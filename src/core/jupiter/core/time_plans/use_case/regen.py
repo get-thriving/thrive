@@ -20,7 +20,7 @@ class TimePlanRegenArgs(UseCaseArgsBase):
     """The arguments for the time plan regen use case."""
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class TimePlanRegenUseCase(JupiterLoggedInMutationUseCase[TimePlanRegenArgs, None]):
     """A use case for regenerating time plans."""
 

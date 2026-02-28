@@ -51,7 +51,7 @@ class JournalLoadResult(UseCaseResultBase):
     sub_period_journals: list[Journal]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class JournalLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[JournalLoadArgs, JournalLoadResult]
 ):

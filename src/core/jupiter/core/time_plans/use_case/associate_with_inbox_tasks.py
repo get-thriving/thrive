@@ -58,7 +58,7 @@ class TimePlanAssociateWithInboxTasksResult(UseCaseResultBase):
     new_time_plan_activities: list[TimePlanActivity]
 
 
-@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class TimePlanAssociateWithInboxTasksUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         TimePlanAssociateWithInboxTasksArgs, TimePlanAssociateWithInboxTasksResult

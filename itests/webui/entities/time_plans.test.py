@@ -264,7 +264,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
     return _create_big_plan
 
 
-def test_time_plan_view_all(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_view_all(page: Page, create_time_plan) -> None:
     time_plan1 = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     time_plan2 = create_time_plan("2024-06-19", RecurringTaskPeriod.DAILY)
     time_plan3 = create_time_plan("2024-06-19", RecurringTaskPeriod.WEEKLY)
@@ -282,7 +282,7 @@ def test_time_plan_view_all(page: Page, create_time_plan) -> None:
     )
 
 
-def test_time_plan_view_one(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_view_one(page: Page, create_time_plan) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
@@ -291,7 +291,7 @@ def test_time_plan_view_one(page: Page, create_time_plan) -> None:
     expect(page.locator('input[name="period"]')).to_have_value("daily")
 
 
-def test_time_plan_create(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_create(page: Page, create_time_plan) -> None:
     page.goto("/app/workspace/time-plans/new")
     page.wait_for_selector("#leaf-panel")
 
@@ -307,7 +307,7 @@ def test_time_plan_create(page: Page, create_time_plan) -> None:
     expect(page.locator('input[name="period"]')).to_have_value("weekly")
 
 
-def test_time_plan_update(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_update(page: Page, create_time_plan) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
@@ -325,18 +325,18 @@ def test_time_plan_update(page: Page, create_time_plan) -> None:
     expect(page.locator('input[name="period"]')).to_have_value("daily")
 
 
-def test_time_plan_change_note(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_change_note(page: Page, create_time_plan) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
 
     page.wait_for_selector("#entity-block-editor")
 
-    page.locator('#editorjs div[contenteditable="true"]').first.fill("This is a note.")
+    page.locator('#trunk-panel div[contenteditable="true"]').first.fill("This is a note.")
 
     page.wait_for_url(re.compile(r"/app/workspace/time-plans/\d+"))
 
-    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
         "This is a note."
     )
     time.sleep(1)  # Wait for the update to be saved.
@@ -345,12 +345,12 @@ def test_time_plan_change_note(page: Page, create_time_plan) -> None:
 
     page.wait_for_selector("#branch-panel")
 
-    expect(page.locator('#editorjs div[contenteditable="true"]').first).to_contain_text(
+    expect(page.locator('#trunk-panel div[contenteditable="true"]').first).to_contain_text(
         "This is a note."
     )
 
 
-def test_time_plan_archive(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_archive(page: Page, create_time_plan) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
     page.wait_for_selector("#branch-panel")
@@ -369,7 +369,7 @@ def test_time_plan_archive(page: Page, create_time_plan) -> None:
     expect(page.locator(f"#time-plan-{entity_id}")).to_have_count(0)
 
 
-def test_time_plan_link_untracked_inbox_tasks(
+def test_webui_time_plan_link_untracked_inbox_tasks(
     logged_in_client: AuthenticatedClient,
     page: Page,
     create_time_plan,
@@ -388,7 +388,7 @@ def test_time_plan_link_untracked_inbox_tasks(
     )
 
 
-def test_time_plan_link_untracked_big_plans(
+def test_webui_time_plan_link_untracked_big_plans(
     logged_in_client: AuthenticatedClient, page: Page, create_time_plan, create_big_plan
 ) -> None:
     this_year = pendulum.now().year
@@ -404,7 +404,7 @@ def test_time_plan_link_untracked_big_plans(
     )
 
 
-def test_time_plan_link_lower_time_plans(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_link_lower_time_plans(page: Page, create_time_plan) -> None:
     _ = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     _ = create_time_plan("2024-06-19", RecurringTaskPeriod.DAILY)
     time_plan2 = create_time_plan("2024-06-19", RecurringTaskPeriod.WEEKLY)
@@ -420,7 +420,7 @@ def test_time_plan_link_lower_time_plans(page: Page, create_time_plan) -> None:
     )
 
 
-def test_time_plan_link_higher_time_plan(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_link_higher_time_plan(page: Page, create_time_plan) -> None:
     time_plan1 = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     _ = create_time_plan("2024-06-19", RecurringTaskPeriod.DAILY)
     _ = create_time_plan("2024-06-19", RecurringTaskPeriod.WEEKLY)
@@ -433,7 +433,7 @@ def test_time_plan_link_higher_time_plan(page: Page, create_time_plan) -> None:
     )
 
 
-def test_time_plan_link_previous_time_plan(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_link_previous_time_plan(page: Page, create_time_plan) -> None:
     _ = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     time_plan1 = create_time_plan("2024-06-19", RecurringTaskPeriod.DAILY)
     _ = create_time_plan("2024-06-19", RecurringTaskPeriod.WEEKLY)
@@ -446,7 +446,7 @@ def test_time_plan_link_previous_time_plan(page: Page, create_time_plan) -> None
     )
 
 
-def test_time_plan_create_new_inbox_task_activity(page: Page, create_time_plan) -> None:
+def test_webui_time_plan_create_new_inbox_task_activity(page: Page, create_time_plan) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
@@ -471,7 +471,7 @@ def test_time_plan_create_new_inbox_task_activity(page: Page, create_time_plan) 
     )
 
 
-def test_time_plan_create_new_inbox_task_with_big_plan_activity(
+def test_webui_time_plan_create_new_inbox_task_with_big_plan_activity(
     page: Page, create_time_plan, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
@@ -518,7 +518,7 @@ def test_time_plan_create_new_inbox_task_with_big_plan_activity(
     ).to_have_attribute("aria-pressed", "true")
 
 
-def test_time_plan_create_new_big_plan_activity(
+def test_webui_time_plan_create_new_big_plan_activity(
     page: Page, create_time_plan, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
@@ -541,10 +541,12 @@ def test_time_plan_create_new_big_plan_activity(
         page.locator("button[id='time-plan-activity-feasability-nice-to-have']")
     ).to_have_attribute("aria-pressed", "true")
 
-    expect(page.locator("#target")).to_contain_text("New Big Plan")
+    expect(page.locator("input[name='targetBigPlanName']")).to_have_value(
+        "New Big Plan"
+    )
 
 
-def test_time_plan_create_new_inbox_task_from_big_plan_activity(
+def test_webui_time_plan_create_new_inbox_task_from_big_plan_activity(
     page: Page,
     create_time_plan,
     create_big_plan,
@@ -587,7 +589,7 @@ def test_time_plan_create_new_inbox_task_from_big_plan_activity(
     ).to_have_attribute("aria-pressed", "true")
 
 
-def test_time_plan_create_activities_from_inbox_tasks_of_an_associated_big_plan(
+def test_webui_time_plan_create_activities_from_inbox_tasks_of_an_associated_big_plan(
     page: Page,
     create_time_plan,
     create_big_plan,
@@ -634,7 +636,7 @@ def test_time_plan_create_activities_from_inbox_tasks_of_an_associated_big_plan(
     )
 
 
-def test_time_plan_associate_with_inbox_task(
+def test_webui_time_plan_associate_with_inbox_task(
     page: Page, create_time_plan, create_inbox_task
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
@@ -666,7 +668,7 @@ def test_time_plan_associate_with_inbox_task(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_time_plan_associate_with_inbox_task_no_dates(
+def test_webui_time_plan_associate_with_inbox_task_no_dates(
     page: Page, create_time_plan, create_inbox_task
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -698,7 +700,7 @@ def test_time_plan_associate_with_inbox_task_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_associate_with_inbox_task_and_override_dates(
+def test_webui_time_plan_associate_with_inbox_task_and_override_dates(
     page: Page, create_time_plan, create_inbox_task
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -730,7 +732,7 @@ def test_time_plan_associate_with_inbox_task_and_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_associate_with_inbox_task_and_pulls_big_plan(
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan(
     page: Page, create_time_plan, create_inbox_task, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -766,7 +768,7 @@ def test_time_plan_associate_with_inbox_task_and_pulls_big_plan(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_with_inbox_task_and_pulls_big_plan_no_dates(
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_no_dates(
     page: Page, create_time_plan, create_inbox_task, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -800,7 +802,7 @@ def test_time_plan_associate_with_inbox_task_and_pulls_big_plan_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_associate_with_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
+def test_webui_time_plan_associate_with_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
     page: Page, create_time_plan, create_inbox_task, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -836,7 +838,7 @@ def test_time_plan_associate_with_inbox_task_and_pulls_big_plan_but_overwrites_d
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_with_two_out_of_three_inbox_tasks(
+def test_webui_time_plan_associate_with_two_out_of_three_inbox_tasks(
     page: Page, create_time_plan, create_inbox_task
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -873,7 +875,7 @@ def test_time_plan_associate_with_two_out_of_three_inbox_tasks(
     )
 
 
-def test_time_plan_associate_with_tasks_that_pull_in_some_more_big_plans(
+def test_webui_time_plan_associate_with_tasks_that_pull_in_some_more_big_plans(
     page: Page, create_time_plan, create_inbox_task, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -922,7 +924,7 @@ def test_time_plan_associate_with_tasks_that_pull_in_some_more_big_plans(
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
 
 
-def test_time_plan_associate_with_big_plan(
+def test_webui_time_plan_associate_with_big_plan(
     page: Page, create_time_plan, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -956,7 +958,7 @@ def test_time_plan_associate_with_big_plan(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_with_big_plan_no_dates(
+def test_webui_time_plan_associate_with_big_plan_no_dates(
     page: Page, create_time_plan, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -988,7 +990,7 @@ def test_time_plan_associate_with_big_plan_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_associate_with_big_plan_and_override_dates(
+def test_webui_time_plan_associate_with_big_plan_and_override_dates(
     page: Page, create_time_plan, create_big_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.WEEKLY)
@@ -1022,7 +1024,7 @@ def test_time_plan_associate_with_big_plan_and_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_associate_previous_activity_inbox_task(
+def test_webui_time_plan_associate_previous_activity_inbox_task(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1072,7 +1074,7 @@ def test_time_plan_associate_previous_activity_inbox_task(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_time_plan_associate_previous_activity_inbox_task_no_dates(
+def test_webui_time_plan_associate_previous_activity_inbox_task_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1124,7 +1126,7 @@ def test_time_plan_associate_previous_activity_inbox_task_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_time_plan_associate_previous_activity_inbox_task_override_dates(
+def test_webui_time_plan_associate_previous_activity_inbox_task_override_dates(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1174,7 +1176,7 @@ def test_time_plan_associate_previous_activity_inbox_task_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1228,7 +1230,7 @@ def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_no_dates(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1282,7 +1284,7 @@ def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_no_
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
+def test_webui_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_but_overwrites_dates_leave_alone(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1336,7 +1338,7 @@ def test_time_plan_associate_previous_activity_inbox_task_and_pulls_big_plan_but
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_previous_activity_two_of_three_inbox_tasks(
+def test_webui_time_plan_associate_previous_activity_two_of_three_inbox_tasks(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1398,7 +1400,7 @@ def test_time_plan_associate_previous_activity_two_of_three_inbox_tasks(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
 
 
-def test_time_plan_associate_previous_activity_tasks_that_pull_in_some_more_big_plans(
+def test_webui_time_plan_associate_previous_activity_tasks_that_pull_in_some_more_big_plans(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1475,7 +1477,7 @@ def test_time_plan_associate_previous_activity_tasks_that_pull_in_some_more_big_
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
 
 
-def test_time_plan_associate_previous_activity_big_plan(
+def test_webui_time_plan_associate_previous_activity_big_plan(
     page: Page,
     create_time_plan,
     create_big_plan,
@@ -1526,7 +1528,7 @@ def test_time_plan_associate_previous_activity_big_plan(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_associate_previous_activity_big_plan_no_dates(
+def test_webui_time_plan_associate_previous_activity_big_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1577,7 +1579,7 @@ def test_time_plan_associate_previous_activity_big_plan_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_time_plan_associate_previous_activity_big_plan_and_override_dates(
+def test_webui_time_plan_associate_previous_activity_big_plan_and_override_dates(
     page: Page,
     create_time_plan,
     create_big_plan,
@@ -1628,7 +1630,7 @@ def test_time_plan_associate_previous_activity_big_plan_and_override_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-30")
 
 
-def test_time_plan_associate_previous_activity_some_already_associated(
+def test_webui_time_plan_associate_previous_activity_some_already_associated(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -1691,7 +1693,7 @@ def test_time_plan_associate_previous_activity_some_already_associated(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
 
 
-def test_time_plan_add_an_inbox_task_to_a_big_plan_updates_all_time_plans(
+def test_webui_time_plan_add_an_inbox_task_to_a_big_plan_updates_all_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1731,7 +1733,7 @@ def test_time_plan_add_an_inbox_task_to_a_big_plan_updates_all_time_plans(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1764,7 +1766,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan(
     )
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_no_dates(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1801,7 +1803,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_dates(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1838,7 +1840,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_dates
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1883,7 +1885,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_no_dates(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1926,7 +1928,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_but_overwrites_dates_leave_alone(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_big_plan_but_overwrites_dates_leave_alone(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1971,7 +1973,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_and_pulls_
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-19")
 
 
-def test_time_plan_add_an_inbox_task_to_multiple_already_existing_time_plans(
+def test_webui_time_plan_add_an_inbox_task_to_multiple_already_existing_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2017,7 +2019,7 @@ def test_time_plan_add_an_inbox_task_to_multiple_already_existing_time_plans(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
 
 
-def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_tasks_that_pull_in_some_more_big_plans(
+def test_webui_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_tasks_that_pull_in_some_more_big_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2088,7 +2090,7 @@ def test_time_plan_add_an_inbox_task_to_an_already_existing_time_plan_with_tasks
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan 3")
 
 
-def test_time_plan_show_activity_doneness(
+def test_webui_time_plan_show_activity_doneness(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2113,7 +2115,7 @@ def test_time_plan_show_activity_doneness(
     ).to_have_css("font-weight", "700")
 
 
-def test_time_plan_activity_update(
+def test_webui_time_plan_activity_update(
     page: Page,
     create_time_plan,
     create_inbox_task,
@@ -2154,7 +2156,7 @@ def test_time_plan_activity_update(
     ).to_have_attribute("aria-pressed", "true")
 
 
-def test_time_plan_activity_archive_inbox_task(
+def test_webui_time_plan_activity_archive_inbox_task(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2193,7 +2195,7 @@ def test_time_plan_activity_archive_inbox_task(
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Inbox Task")
 
 
-def test_time_plan_activity_archive_big_plan_with_inbox_task(
+def test_webui_time_plan_activity_archive_big_plan_with_inbox_task(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2238,14 +2240,14 @@ def test_time_plan_activity_archive_big_plan_with_inbox_task(
     expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan")
 
 
-def test_time_plan_periods_settings_standard(page: Page) -> None:
+def test_webui_time_plan_periods_settings_standard(page: Page) -> None:
     page.goto("/app/workspace/time-plans")
 
     expect(page.locator("a", has_text="Create a quarterly time plan")).to_be_attached()
     expect(page.locator("a", has_text="Create a weekly time plan")).to_be_attached()
 
 
-def test_time_plan_periods_settings_add_monthly(page: Page) -> None:
+def test_webui_time_plan_periods_settings_add_monthly(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="Monthly").click()
@@ -2263,7 +2265,7 @@ def test_time_plan_periods_settings_add_monthly(page: Page) -> None:
     expect(page.locator("a", has_text="Create a weekly time plan")).to_be_attached()
 
 
-def test_time_plan_generate_standard_config_via_gen(page: Page, new_user) -> None:
+def test_webui_time_plan_generate_standard_config_via_gen(page: Page, new_user) -> None:
     page.goto("/app/workspace/tools/gen")
 
     page.locator("#generate").click()
@@ -2282,7 +2284,7 @@ def test_time_plan_generate_standard_config_via_gen(page: Page, new_user) -> Non
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_standard_config_via_save(page: Page) -> None:
+def test_webui_time_plan_generate_standard_config_via_save(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("#time-plans-settings-save").click()
@@ -2301,7 +2303,7 @@ def test_time_plan_generate_standard_config_via_save(page: Page) -> None:
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_different_config_add_monthly(page: Page) -> None:
+def test_webui_time_plan_generate_different_config_add_monthly(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="Monthly").click()
@@ -2324,7 +2326,7 @@ def test_time_plan_generate_different_config_add_monthly(page: Page) -> None:
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_different_config_remove_quarterly(page: Page) -> None:
+def test_webui_time_plan_generate_different_config_remove_quarterly(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="Quarterly").click()
@@ -2345,7 +2347,7 @@ def test_time_plan_generate_different_config_remove_quarterly(page: Page) -> Non
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_no_planning_tasks(page: Page) -> None:
+def test_webui_time_plan_generate_no_planning_tasks(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="Only Plan").click()
@@ -2366,7 +2368,7 @@ def test_time_plan_generate_no_planning_tasks(page: Page) -> None:
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_no_nothing(page: Page) -> None:
+def test_webui_time_plan_generate_no_nothing(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="None").click()
@@ -2387,7 +2389,7 @@ def test_time_plan_generate_no_nothing(page: Page) -> None:
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
+def test_webui_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
     page.goto("/app/workspace/time-plans/settings")
 
     page.locator("button", has_text="None").click()
@@ -2420,7 +2422,7 @@ def test_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_does_not_override_existing_time_plans(
+def test_webui_time_plan_generate_does_not_override_existing_time_plans(
     page: Page, create_time_plan
 ) -> None:
     # We add a couple of days in advance here to match the behaviour of the gen tool.
@@ -2451,7 +2453,7 @@ def test_time_plan_generate_does_not_override_existing_time_plans(
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_does_not_override_existing_time_plans_with_no_periods(
+def test_webui_time_plan_generate_does_not_override_existing_time_plans_with_no_periods(
     page: Page, create_time_plan
 ) -> None:
     right_now = pendulum.now(tz="UTC").add(days=3)
@@ -2483,7 +2485,7 @@ def test_time_plan_generate_does_not_override_existing_time_plans_with_no_period
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
 
-def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
+def test_webui_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
     page.goto("/app/workspace/tools/gen")
 
     page.locator("#generate").click()
@@ -2500,7 +2502,7 @@ def test_time_plan_generate_time_plan_is_not_editable(page: Page) -> None:
     )
 
 
-def test_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:
+def test_webui_time_plan_generate_planning_task_links_to_time_plan(page: Page) -> None:
     page.goto("/app/workspace/tools/gen")
 
     page.locator("#generate").click()
@@ -2640,7 +2642,7 @@ def _clear_big_plan_dates(
     )
 
 
-def test_time_plan_add_big_plan_to_an_already_existing_time_plan(
+def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2673,7 +2675,7 @@ def test_time_plan_add_big_plan_to_an_already_existing_time_plan(
     )
 
 
-def test_time_plan_add_big_plan_to_an_already_existing_time_plan_no_dates(
+def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_no_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2710,7 +2712,7 @@ def test_time_plan_add_big_plan_to_an_already_existing_time_plan_no_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-23")
 
 
-def test_time_plan_add_big_plan_to_an_already_existing_time_plan_with_dates(
+def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_dates(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2749,7 +2751,7 @@ def test_time_plan_add_big_plan_to_an_already_existing_time_plan_with_dates(
     expect(page.locator("input[name='dueDate']")).to_have_value("2024-06-18")
 
 
-def test_time_plan_add_big_plan_to_multiple_already_existing_time_plans(
+def test_webui_time_plan_add_big_plan_to_multiple_already_existing_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -2795,7 +2797,7 @@ def test_time_plan_add_big_plan_to_multiple_already_existing_time_plans(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
 
 
-def test_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbox_tasks(
+def test_webui_time_plan_add_big_plan_to_an_already_existing_time_plan_with_inbox_tasks(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,

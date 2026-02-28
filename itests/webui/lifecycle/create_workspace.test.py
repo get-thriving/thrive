@@ -6,7 +6,7 @@ from playwright.sync_api import Page, expect
 from itests.conftest import TestUser
 
 
-def test_create_workspace(page: Page, new_random_user: TestUser) -> None:
+def test_webui_create_workspace(page: Page, new_random_user: TestUser) -> None:
     page.goto("/app")
 
     page.get_by_role("link", name="Go To The Workspace").click()
@@ -26,7 +26,7 @@ def test_create_workspace(page: Page, new_random_user: TestUser) -> None:
     )
 
 
-def test_create_workspace_already_exists(
+def test_webui_create_workspace_already_exists(
     page: Page, new_user_and_workspace: InitResult
 ) -> None:
     page.goto("/app")

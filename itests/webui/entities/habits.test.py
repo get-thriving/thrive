@@ -67,13 +67,13 @@ def create_habit(logged_in_client: AuthenticatedClient):
     return _create_habit
 
 
-def test_habit_view_nothing(page: Page) -> None:
+def test_webui_habit_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/habits")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no habits to show")
 
 
-def test_habit_view_all(page: Page, create_habit) -> None:
+def test_webui_habit_view_all(page: Page, create_habit) -> None:
     habit1 = create_habit(
         "Habit 1", RecurringTaskPeriod.DAILY, False, Eisen.REGULAR, Difficulty.MEDIUM
     )

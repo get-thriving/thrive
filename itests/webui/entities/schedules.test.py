@@ -104,7 +104,7 @@ def create_schedule_event_in_day(logged_in_client: AuthenticatedClient):
     return _create_schedule_event_in_day
 
 
-def test_schedule_view_empty_calendar(page: Page) -> None:
+def test_webui_schedule_view_empty_calendar(page: Page) -> None:
     page.goto("/app/workspace/calendar")
 
     # Calendar view shows empty state - no specific text to check for empty calendar
@@ -112,7 +112,7 @@ def test_schedule_view_empty_calendar(page: Page) -> None:
     expect(page.locator("body")).to_be_visible()
 
 
-def test_schedule_view_with_events(
+def test_webui_schedule_view_with_events(
     page: Page, create_schedule_stream, create_schedule_event_in_day
 ) -> None:
     # Create a schedule stream first

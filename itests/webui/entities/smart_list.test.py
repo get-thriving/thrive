@@ -83,7 +83,7 @@ def create_smart_list_item(logged_in_client: AuthenticatedClient):
     return _create_smart_list_item
 
 
-def test_smart_list_view_nothing(page: Page) -> None:
+def test_webui_smart_list_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/smart-lists")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
@@ -91,7 +91,7 @@ def test_smart_list_view_nothing(page: Page) -> None:
     )
 
 
-def test_smart_list_view_all(page: Page, create_smart_list) -> None:
+def test_webui_smart_list_view_all(page: Page, create_smart_list) -> None:
     smart_list1 = create_smart_list("Smart List 1")
     smart_list2 = create_smart_list("Smart List 2", "📝")
     smart_list3 = create_smart_list("Smart List 3", "⭐")
@@ -109,14 +109,14 @@ def test_smart_list_view_all(page: Page, create_smart_list) -> None:
     )
 
 
-def test_smart_list_view_one_nothing(page: Page, create_smart_list) -> None:
+def test_webui_smart_list_view_one_nothing(page: Page, create_smart_list) -> None:
     smart_list = create_smart_list("Smart List 1")
     page.goto(f"/app/workspace/smart-lists/{smart_list.ref_id}/items")
 
     expect(page.locator("#branch-panel")).to_contain_text("There are no items to show")
 
 
-def test_smart_list_view_one_items(
+def test_webui_smart_list_view_one_items(
     page: Page, create_smart_list, create_smart_list_item
 ) -> None:
     smart_list = create_smart_list("Smart List 1")

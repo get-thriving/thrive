@@ -64,13 +64,13 @@ def create_chore(logged_in_client: AuthenticatedClient):
     return _create_chore
 
 
-def test_chore_view_nothing(page: Page) -> None:
+def test_webui_chore_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/chores")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no chores to show")
 
 
-def test_chore_view_all(page: Page, create_chore) -> None:
+def test_webui_chore_view_all(page: Page, create_chore) -> None:
     chore1 = create_chore(
         "Chore 1",
         RecurringTaskPeriod.WEEKLY,

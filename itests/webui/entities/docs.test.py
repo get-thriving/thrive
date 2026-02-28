@@ -67,13 +67,13 @@ def create_doc(logged_in_client: AuthenticatedClient):
     return _create_doc
 
 
-def test_doc_view_nothing(page: Page) -> None:
+def test_webui_doc_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/docs")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no docs to show")
 
 
-def test_doc_view_all(page: Page, create_doc) -> None:
+def test_webui_doc_view_all(page: Page, create_doc) -> None:
     doc1 = create_doc("Doc 1", "This is the first test document.")
     doc2 = create_doc("Doc 2", "This is the second test document.")
     doc3 = create_doc("Doc 3", "This is the third test document.", doc1.ref_id)

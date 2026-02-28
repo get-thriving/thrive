@@ -8,7 +8,7 @@ access from your favorite programming language.
 All API access is scoped to a [workspace](workspaces.md). And while
 you can do many things, you cannot do all things - creating users,
 or workspaces, or any sort of operations on these are not supported.
-Ditto, any "horizontal" operations like search, or 
+Ditto, any "horizontal" operations like search, or
 [garbage collection](../concepts/garbage-collection.md), or
 [gamification](../concepts/gamification.md), are not yet exposed.
 
@@ -31,7 +31,7 @@ All API endpoints start with `/v1/` to account for this.
 ## API Keys
 
 In order to access any API method, you need an API key. This can be
-generated from the accounts page in the application. 
+generated from the accounts page in the application.
 
 You can have as many keys as you want, and you can retire/archive
 keys as well.
@@ -96,7 +96,9 @@ x-jupiter-version: 1.3.2
 To supply some query parameters you can use:
 
 ```bash
-http get "http://api.get-thriving.com/v1/vacations" allow_archived==false include_notes==true -A bearer -a "$YOUR_KEY_HERE"
+http get "http://api.get-thriving.com/v1/vacations" \
+    allow_archived==false include_notes==true \
+    -A bearer -a "$YOUR_KEY_HERE"
 ```
 
 And you'll get something like:

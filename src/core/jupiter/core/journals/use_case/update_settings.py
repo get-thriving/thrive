@@ -51,7 +51,7 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
     writing_task_difficulty: UpdateAction[Difficulty | None]
 
 
-@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@mutation_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API])
 class JournalUpdateSettingsUseCase(
     JupiterLoggedInMutationUseCase[JournalUpdateSettingsArgs, None]
 ):

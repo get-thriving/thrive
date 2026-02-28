@@ -47,13 +47,13 @@ def create_person(logged_in_client: AuthenticatedClient):
     return _create_person
 
 
-def test_person_view_nothing(page: Page) -> None:
+def test_webui_person_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/prm/persons")
 
     expect(page.locator("#trunk-panel")).to_contain_text("There are no persons to show")
 
 
-def test_person_view_all(page: Page, create_person) -> None:
+def test_webui_person_view_all(page: Page, create_person) -> None:
     person1 = create_person("Person 1")
     person2 = create_person("Person 2")
     person3 = create_person("Person 3")

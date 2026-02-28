@@ -9,8 +9,8 @@ run_tests() {
     local api_url=$2
     local webui_url=$3
     local docs_url=$4
-    local headed=$4
-    shift 4
+    local headed=$5
+    shift 5
     
     log info "Running tests with Web API $webapi_url and API $api_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
 

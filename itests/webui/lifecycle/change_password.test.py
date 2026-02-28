@@ -9,7 +9,7 @@ from playwright.sync_api import Page, expect
 from itests.conftest import TestUser
 
 
-def test_change_password(
+def test_webui_change_password(
     page: Page,
     webapi_url: str,
     new_user: TestUser,

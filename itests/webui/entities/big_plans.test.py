@@ -75,7 +75,7 @@ def create_big_plan(logged_in_client: AuthenticatedClient):
     return _create_big_plan
 
 
-def test_big_plan_view_nothing(page: Page) -> None:
+def test_webui_big_plan_view_nothing(page: Page) -> None:
     page.goto("/app/workspace/big-plans")
 
     expect(page.locator("#trunk-panel")).to_contain_text(
@@ -83,7 +83,7 @@ def test_big_plan_view_nothing(page: Page) -> None:
     )
 
 
-def test_big_plan_view_all(page: Page, create_big_plan) -> None:
+def test_webui_big_plan_view_all(page: Page, create_big_plan) -> None:
     big_plan1 = create_big_plan("Big Plan 1", False, Eisen.REGULAR, Difficulty.MEDIUM)
     big_plan2 = create_big_plan(
         "Big Plan 2", True, Eisen.IMPORTANT, Difficulty.HARD, "2024-01-01", "2024-12-31"
