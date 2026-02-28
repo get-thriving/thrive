@@ -25,6 +25,12 @@ docker tag jupiter/api:${VERSION}-amd64 ${DOCKER_REGISTRY_NAME}/jupiter-api:${VE
 docker tag jupiter/api:latest-arm64   ${DOCKER_REGISTRY_NAME}/jupiter-api:latest-arm64
 docker tag jupiter/api:${VERSION}-arm64 ${DOCKER_REGISTRY_NAME}/jupiter-api:${VERSION}-arm64
 
+# mcp
+docker tag jupiter/mcp:latest-amd64     ${DOCKER_REGISTRY_NAME}/jupiter-mcp:latest-amd64
+docker tag jupiter/mcp:${VERSION}-amd64   ${DOCKER_REGISTRY_NAME}/jupiter-mcp:${VERSION}-amd64
+docker tag jupiter/mcp:latest-arm64     ${DOCKER_REGISTRY_NAME}/jupiter-mcp:latest-arm64
+docker tag jupiter/mcp:${VERSION}-arm64   ${DOCKER_REGISTRY_NAME}/jupiter-mcp:${VERSION}-arm64
+
 # webui
 docker tag jupiter/webui:latest-amd64    ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-amd64
 docker tag jupiter/webui:${VERSION}-amd64  ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-amd64
@@ -49,6 +55,14 @@ docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-amd64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-amd64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:latest-arm64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webapi:${VERSION}-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-api:latest-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-api:${VERSION}-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-api:latest-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-api:${VERSION}-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-mcp:latest-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-mcp:${VERSION}-amd64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-mcp:latest-arm64
+docker image push ${DOCKER_REGISTRY_NAME}/jupiter-mcp:${VERSION}-arm64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-amd64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:${VERSION}-amd64
 docker image push ${DOCKER_REGISTRY_NAME}/jupiter-webui:latest-arm64
@@ -77,12 +91,16 @@ create_manifest() {
 
 # latest manifests
 create_manifest "jupiter-webapi" "latest"
+create_manifest "jupiter-api" "latest"
+create_manifest "jupiter-mcp" "latest"
 create_manifest "jupiter-webui" "latest"
 create_manifest "jupiter-docs" "latest"
 create_manifest "jupiter-cli" "latest"
 
 # versioned manifests
 create_manifest "jupiter-webapi" "${VERSION}"
+create_manifest "jupiter-api" "${VERSION}"
+create_manifest "jupiter-mcp" "${VERSION}"
 create_manifest "jupiter-webui" "${VERSION}"
 create_manifest "jupiter-docs" "${VERSION}"
 create_manifest "jupiter-cli" "${VERSION}"

@@ -18,6 +18,7 @@ members = [
     "src/alib/py/framework",
     "src/webapi",
     "src/api",
+    "src/mcp",
     "src/core",
     "src/docs",
     "src/cli",

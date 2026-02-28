@@ -1,0 +1,37 @@
+[project]
+name = "jupiter-mcp"
+version = "0.1.0"
+description = "An MCP server for Thrive."
+authors = [{ name = "Horia Coman", email = "horia141@gmail.com" }]
+requires-python = ">=3.13,<4"
+readme = "README.md"
+license = "MIT"
+dependencies = [
+    "jupiter-framework",
+    "jupiter-core",
+    "fastapi>=0.115.11,<0.116",
+    "uvicorn>=0.34.0,<0.35",
+    "pydantic>=2.10.6,<3",
+    "gunicorn>=23.0.0,<24",
+    "python-dotenv>=1.0.1,<2",
+    "greenlet>=3.1.1,<4",
+]
+
+[project.urls]
+Homepage = "https://get-thriving.com"
+Repository = "https://github.com/horia141/thrive"
+Documentation = "https://docs.get-thriving.com"
+
+[dependency-groups]
+dev = []
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+jupiter-framework = { workspace = true }
+jupiter-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

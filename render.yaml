@@ -48,6 +48,11 @@ services:
         name: jupiter-api
         type: web
         envVarKey: RENDER_EXTERNAL_URL
+    - key: MCP_URL
+      fromService:
+        name: jupiter-mcp
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
     - key: DOCS_URL
       fromService:
         name: jupiter-docs
@@ -96,6 +101,41 @@ services:
     - api.get-thriving.com
   runtime: docker
   dockerfilePath: ./src/api/Dockerfile
+  dockerContext: .
+  region: frankfurt
+  plan: starter
+  autoDeploy: true
+  rootDir: .
+  numInstances: 1
+  healthCheckPath: /healthz
+  previews:
+    generation: automatic
+    plan: starter
+  envVars:
+    - key: UNIVERSE
+      value: thrive
+    - key: ENV
+      value: production
+      previewValue: staging
+    - key: INSTANCE
+      value: Main
+      previewValue: TO-FILL
+    - key: WEBAPI_SERVER_HOST
+      fromService:
+        name: jupiter-webapi
+        type: web
+        property: host
+    - key: WEBAPI_SERVER_PORT
+      fromService:
+        name: jupiter-webapi
+        type: web
+        property: port
+- type: web
+  name: jupiter-mcp
+  runtime: docker
+  dockerfilePath: ./src/mcp/Dockerfile
+  domains:
+    - mcp.get-thriving.com
   dockerContext: .
   region: frankfurt
   plan: starter

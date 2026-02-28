@@ -2,6 +2,8 @@ WEBAPI_SERVER_HOST=127.0.0.1
 WEBAPI_SERVER_PORT=8010
 WEBAPI_PROGRESS_REPORTER_URL="ws://localhost:8010/progress-reporter"
 WEBAPI_URL=http://localhost:8004/
+API_URL=http://localhost:8020/
+MCP_URL=http://localhost:8030/
 DOCS_URL=http://localhost:8000/
 PWA_START_URL=/frontdoor?clientVersion=to-fill&appShell=pwa&appPlatform=to-fill&appDistribution=web
 SESSION_COOKIE_SECURE=false
