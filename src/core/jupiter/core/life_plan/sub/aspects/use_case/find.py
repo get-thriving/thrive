@@ -92,10 +92,10 @@ class ProjectFindUseCase(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.PROJECT,
                 allow_archived=True,
-                ref_id=[p.ref_id for p in projects],
+                source_entity_ref_id=[p.ref_id for p in projects],
             )
             for note in notes:
-                notes_by_project_ref_id[note.parent_ref_id] = note
+                notes_by_project_ref_id[note.source_entity_ref_id] = note
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)

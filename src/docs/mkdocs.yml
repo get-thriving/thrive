@@ -109,3 +109,10 @@ nav:
                       - 'Version 0.0.3': 'releases/version-0.0.3.md'
                       - 'Version 0.0.2': 'releases/version-0.0.2.md'
                       - 'Version 0.0.1': 'releases/version-0.0.1.md'
+
+plugins:
+    - search
+    - macros
+
+extra:
+   api_url: !ENV API_URL

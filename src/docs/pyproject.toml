@@ -8,6 +8,7 @@ readme = "README.md"
 license = "MIT"
 dependencies = [
     "mkdocs>=1.6.1,<2",
+    "mkdocs-macros-plugin>=1.5.0",
     "mkdocs-material>=9.6.9,<10",
 ]
 

@@ -57,3 +57,8 @@ thrive inbox-task-update --id 5 --status done
 thrive gc
 thrive report
 ```
+
+## The API
+
+There is an API for programmatic access to Thrive too. The
+[dedicated section](api.md) goes into much more detail.

@@ -91,10 +91,10 @@ class GoalFindUseCase(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.GOAL,
                 allow_archived=True,
-                ref_id=[g.ref_id for g in goals],
+                source_entity_ref_id=[g.ref_id for g in goals],
             )
             for note in notes:
-                notes_by_goal_ref_id[note.parent_ref_id] = note
+                notes_by_goal_ref_id[note.source_entity_ref_id] = note
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)

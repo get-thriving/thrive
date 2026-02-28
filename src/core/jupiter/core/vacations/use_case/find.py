@@ -104,7 +104,7 @@ class VacationFindUseCase(
                 source_entity_ref_id=[vacation.ref_id for vacation in vacations],
             )
             for note in notes:
-                notes_by_vacation_ref_id[note.parent_ref_id] = note
+                notes_by_vacation_ref_id[note.source_entity_ref_id] = note
 
         time_event_blocks_by_vacation_ref_id: defaultdict[
             EntityId, TimeEventFullDaysBlock

@@ -145,3 +145,8 @@ services:
       value: 0.9.11
     - key: PYTHON_VERSION
       value: 3.13.0
+    - key: API_URL
+      fromService:
+        name: jupiter-api
+        type: web
+        envVarKey: RENDER_EXTERNAL_URL
