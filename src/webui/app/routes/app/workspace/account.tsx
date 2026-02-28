@@ -47,6 +47,7 @@ import {
 } from "@jupiter/core/infra/component/entity-card";
 import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
 import { ApiKeyView } from "@jupiter/core/api_key/components/api-key-view";
+import { McpKeyView } from "@jupiter/core/mcp_key/components/mcp-key-view";
 import { getHosting } from "#/core/universe";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -83,10 +84,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
   const apiKeys = apiKeysResult.api_keys;
+  const mcpKeysResult = await apiClient.mcpKey.mCpKeyFind({
+    allow_archived: false,
+  });
+  const mcpKeys = mcpKeysResult.mcp_keys;
 
   return json({
     user: result.user,
     apiKeys,
+    mcpKeys,
   });
 }
 
@@ -280,6 +286,39 @@ export default function Account() {
                     to={`/app/workspace/account/api-key/${apiKey.ref_id}`}
                   >
                     <ApiKeyView apiKey={apiKey} />
+                  </EntityLink>
+                </EntityCard>
+              ))}
+            </EntityStack>
+          </SectionCard>
+
+          <SectionCard
+            title="MCP Keys"
+            actions={
+              <SectionActions
+                id="mcp-keys-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  NavSingle({
+                    text: "Add",
+                    link: "/app/workspace/account/mcp-key/new",
+                    highlight: true,
+                  }),
+                ]}
+              />
+            }
+          >
+            <EntityStack>
+              {loaderData.mcpKeys.map((mcpKey) => (
+                <EntityCard
+                  entityId={`mcp-key-${mcpKey.ref_id}`}
+                  key={`mcp-key-${mcpKey.ref_id}`}
+                >
+                  <EntityLink
+                    to={`/app/workspace/account/mcp-key/${mcpKey.ref_id}`}
+                  >
+                    <McpKeyView mcpKey={mcpKey} />
                   </EntityLink>
                 </EntityCard>
               ))}

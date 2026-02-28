@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { MCPKeyName } from './MCPKeyName';
 /**
- * A client facing application.
+ * MCPKeyCreateArgs.
  */
-export enum AppCore {
-    CLI = 'cli',
-    WEBUI = 'webui',
-    API = 'api',
-}
+export type MCPKeyCreateArgs = {
+    name: MCPKeyName;
+};
+

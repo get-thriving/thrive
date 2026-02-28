@@ -380,6 +380,16 @@ from .load_top_level_info_result_default_workspace_feature_flags import (
 )
 from .login_args import LoginArgs
 from .login_result import LoginResult
+from .mcp_key_archive_args import MCPKeyArchiveArgs
+from .mcp_key_create_args import MCPKeyCreateArgs
+from .mcp_key_create_result import MCPKeyCreateResult
+from .mcp_key_find_args import MCPKeyFindArgs
+from .mcp_key_find_result import MCPKeyFindResult
+from .mcp_key_load_args import MCPKeyLoadArgs
+from .mcp_key_load_result import MCPKeyLoadResult
+from .mcp_key_summary import MCPKeySummary
+from .mcp_key_update_args import MCPKeyUpdateArgs
+from .mcp_key_update_args_name import MCPKeyUpdateArgsName
 from .metric import Metric
 from .metric_archive_args import MetricArchiveArgs
 from .metric_change_collection_project_args import MetricChangeCollectionProjectArgs
@@ -1220,6 +1230,16 @@ __all__ = (
     "LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags",
     "LoginArgs",
     "LoginResult",
+    "MCPKeyArchiveArgs",
+    "MCPKeyCreateArgs",
+    "MCPKeyCreateResult",
+    "MCPKeyFindArgs",
+    "MCPKeyFindResult",
+    "MCPKeyLoadArgs",
+    "MCPKeyLoadResult",
+    "MCPKeySummary",
+    "MCPKeyUpdateArgs",
+    "MCPKeyUpdateArgsName",
     "Metric",
     "MetricArchiveArgs",
     "MetricChangeCollectionProjectArgs",

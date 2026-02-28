@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { MCPKeySummary } from './MCPKeySummary';
 /**
- * A client facing application.
+ * MCPKeyLoad result.
  */
-export enum AppCore {
-    CLI = 'cli',
-    WEBUI = 'webui',
-    API = 'api',
-}
+export type MCPKeyLoadResult = {
+    mcp_key: MCPKeySummary;
+};
+

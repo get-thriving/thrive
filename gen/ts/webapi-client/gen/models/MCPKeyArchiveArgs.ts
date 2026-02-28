@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { EntityId } from './EntityId';
 /**
- * A client facing application.
+ * MCP key archive args.
  */
-export enum AppCore {
-    CLI = 'cli',
-    WEBUI = 'webui',
-    API = 'api',
-}
+export type MCPKeyArchiveArgs = {
+    ref_id: EntityId;
+};
+

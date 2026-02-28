@@ -3,10 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * A client facing application.
+ * The name of an MCP key.
  */
-export enum AppCore {
-    CLI = 'cli',
-    WEBUI = 'webui',
-    API = 'api',
-}
+export type MCPKeyName = string;

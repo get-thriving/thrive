@@ -3,10 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * A client facing application.
+ * MCPKeyFind args.
  */
-export enum AppCore {
-    CLI = 'cli',
-    WEBUI = 'webui',
-    API = 'api',
-}
+export type MCPKeyFindArgs = {
+    allow_archived?: (boolean | null);
+};
+
