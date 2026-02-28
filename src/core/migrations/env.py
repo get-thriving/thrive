@@ -1,7 +1,4 @@
 from alembic import context
-from sqlalchemy import create_engine
-
-from jupiter.core.config import build_global_properties
 
 
 def run_migrations_offline() -> None:
@@ -16,33 +13,35 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    global_properties = build_global_properties()
+    connection = context.config.attributes.get("connection", None)
+    if connection is None:
+        raise RuntimeError(
+            "No connection provided. Set alembic_cfg.attributes['connection']."
+        )
+
     context.configure(
-        url=global_properties.sqlite_db_url,
-        target_metadata=None,
-        literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        connection=connection,
+        target_metadata=None,  # or your metadata if you do autogenerate
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+def run_migrations_online():
+    connection = context.config.attributes.get("connection", None)
+    if connection is None:
+        raise RuntimeError(
+            "No connection provided. Set alembic_cfg.attributes['connection']."
+        )
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    context.configure(
+        connection=connection,
+        target_metadata=None,  # or your metadata if you do autogenerate
+    )
 
-    """
-    global_properties = build_global_properties()
-    engine = create_engine(global_properties.sync_sqlite_db_url)
-
-    with engine.connect() as connection:
-        context.configure(connection=connection, target_metadata=None)
-
-        with context.begin_transaction():
-            context.run_migrations()
+    with context.begin_transaction():
+        context.run_migrations()
 
 
 if context.is_offline_mode():

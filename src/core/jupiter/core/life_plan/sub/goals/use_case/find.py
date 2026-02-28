@@ -32,9 +32,9 @@ from jupiter.framework.use_case_io import (
 class GoalFindArgs(UseCaseArgsBase):
     """GoalFindArgs."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -67,6 +67,10 @@ class GoalFindUseCase(
         args: GoalFindArgs,
     ) -> GoalFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         life_plan = await uow.get_for(LifePlan).load_by_parent(
@@ -74,12 +78,12 @@ class GoalFindUseCase(
         )
         goals = await uow.get_for(Goal).find_all_generic(
             parent_ref_id=life_plan.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 
         notes_by_goal_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
@@ -87,12 +91,12 @@ class GoalFindUseCase(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.GOAL,
                 allow_archived=True,
-                ref_id=[g.ref_id for g in goals],
+                source_entity_ref_id=[g.ref_id for g in goals],
             )
             for note in notes:
-                notes_by_goal_ref_id[note.parent_ref_id] = note
+                notes_by_goal_ref_id[note.source_entity_ref_id] = note
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

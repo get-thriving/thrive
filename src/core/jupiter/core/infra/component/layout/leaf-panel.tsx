@@ -52,6 +52,7 @@ const SMALL_SCREEN_WIDTH = "100%";
 
 interface LeafPanelProps {
   isLeaflet?: boolean;
+  showArchiveButton?: boolean;
   showArchiveAndRemoveButton?: boolean;
   fakeKey: string;
   inputsEnabled: boolean;
@@ -87,6 +88,9 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     BIG_SCREEN_WIDTH_FULL_INT,
   );
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+
+  const showArchiveButNotRemove =
+    props.showArchiveButton && !props.showArchiveAndRemoveButton;
 
   const handleScroll = useCallback(
     (ref: HTMLDivElement, pathname: string) => {
@@ -352,14 +356,15 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
-            {props.showArchiveAndRemoveButton && (
+            {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
               <>
                 <IconButton
                   id="leaf-entity-archive"
                   sx={{ marginLeft: "auto" }}
                   disabled={
                     props.entityNotEditable ||
-                    (!props.entityArchived && !props.inputsEnabled)
+                    (!props.entityArchived && !props.inputsEnabled) ||
+                    (props.entityArchived && showArchiveButNotRemove)
                   }
                   type="button"
                   onClick={() => setShowArchiveDialog(true)}

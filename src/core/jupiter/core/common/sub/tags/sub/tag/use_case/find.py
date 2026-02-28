@@ -24,7 +24,7 @@ from jupiter.framework.use_case_io import (
 class TagFindArgs(UseCaseArgsBase):
     """TagFind args."""
 
-    allow_archived: bool
+    allow_archived: bool | None
     filter_namespace: list[TagNamespace] | None
     filter_ref_ids: list[EntityId] | None
 
@@ -49,12 +49,14 @@ class TagFindUseCase(
         args: TagFindArgs,
     ) -> TagFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
         tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
 
         tags = await uow.get_for(Tag).find_all_generic(
             parent_ref_id=tag_domain.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             namespace=args.filter_namespace or NoFilter(),
         )

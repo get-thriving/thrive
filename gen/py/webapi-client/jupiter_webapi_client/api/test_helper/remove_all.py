@@ -1,10 +1,11 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.remove_all_args import RemoveAllArgs
 from ...types import UNSET, Response, Unset
 
@@ -29,33 +30,50 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | None:
+def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | ErrorResponse | None:
     if response.status_code == 200:
-        return None
+        response_200 = cast(Any, None)
+        return response_200
 
     if response.status_code == 400:
-        return None
+        response_400 = ErrorResponse.from_dict(response.json())
+
+        return response_400
 
     if response.status_code == 401:
-        return None
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
 
     if response.status_code == 404:
-        return None
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
 
     if response.status_code == 406:
-        return None
+        response_406 = ErrorResponse.from_dict(response.json())
+
+        return response_406
 
     if response.status_code == 409:
-        return None
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
 
     if response.status_code == 410:
-        return None
+        response_410 = ErrorResponse.from_dict(response.json())
+
+        return response_410
 
     if response.status_code == 422:
-        return None
+        response_422 = ErrorResponse.from_dict(response.json())
+
+        return response_422
 
     if response.status_code == 426:
-        return None
+        response_426 = ErrorResponse.from_dict(response.json())
+
+        return response_426
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -63,7 +81,7 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any]:
+def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any | ErrorResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,7 +94,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: RemoveAllArgs | Unset = UNSET,
-) -> Response[Any]:
+) -> Response[Any | ErrorResponse]:
     """The command for removeing all branch and leaf type entities.
 
     Args:
@@ -87,7 +105,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        Response[Any | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
@@ -101,11 +119,11 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio_detailed(
+def sync(
     *,
     client: AuthenticatedClient,
     body: RemoveAllArgs | Unset = UNSET,
-) -> Response[Any]:
+) -> Any | ErrorResponse | None:
     """The command for removeing all branch and leaf type entities.
 
     Args:
@@ -116,7 +134,31 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        Any | ErrorResponse
+    """
+
+    return sync_detailed(
+        client=client,
+        body=body,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient,
+    body: RemoveAllArgs | Unset = UNSET,
+) -> Response[Any | ErrorResponse]:
+    """The command for removeing all branch and leaf type entities.
+
+    Args:
+        body (RemoveAllArgs | Unset): PersonFindArgs.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Any | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
@@ -126,3 +168,29 @@ async def asyncio_detailed(
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: AuthenticatedClient,
+    body: RemoveAllArgs | Unset = UNSET,
+) -> Any | ErrorResponse | None:
+    """The command for removeing all branch and leaf type entities.
+
+    Args:
+        body (RemoveAllArgs | Unset): PersonFindArgs.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Any | ErrorResponse
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+        )
+    ).parsed

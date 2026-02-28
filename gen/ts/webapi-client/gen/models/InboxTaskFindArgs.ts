@@ -8,10 +8,10 @@ import type { InboxTaskSource } from './InboxTaskSource';
  * PersonFindArgs.
  */
 export type InboxTaskFindArgs = {
-    allow_archived: boolean;
-    include_notes: boolean;
-    include_time_event_blocks: boolean;
-    include_tags: boolean;
+    allow_archived?: (boolean | null);
+    include_notes?: (boolean | null);
+    include_time_event_blocks?: (boolean | null);
+    include_tags?: (boolean | null);
     filter_just_workable?: (boolean | null);
     filter_just_user?: (boolean | null);
     filter_just_generated?: (boolean | null);

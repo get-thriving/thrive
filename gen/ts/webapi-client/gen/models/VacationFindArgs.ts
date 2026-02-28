@@ -7,10 +7,10 @@ import type { EntityId } from './EntityId';
  * PersonFindArgs.
  */
 export type VacationFindArgs = {
-    allow_archived: boolean;
-    include_notes: boolean;
-    include_time_event_blocks: boolean;
-    include_tags: boolean;
+    allow_archived?: (boolean | null);
+    include_notes?: (boolean | null);
+    include_time_event_blocks?: (boolean | null);
+    include_tags?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

@@ -43,12 +43,12 @@ from jupiter.framework.use_case_io import (
 class MetricFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_entries: bool
-    include_collection_inbox_tasks: bool
-    include_metric_entry_notes: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_entries: bool | None
+    include_collection_inbox_tasks: bool | None
+    include_metric_entry_notes: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
     filter_entry_ref_ids: list[EntityId] | None
 
@@ -86,6 +86,13 @@ class MetricFindUseCase(
         args: MetricFindArgs,
     ) -> MetricFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_entries = args.include_entries or False
+        include_collection_inbox_tasks = args.include_collection_inbox_tasks or False
+        include_metric_entry_notes = args.include_metric_entry_notes or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
@@ -93,7 +100,7 @@ class MetricFindUseCase(
         )
         metrics = await uow.get_for(Metric).find_all(
             parent_ref_id=metric_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
@@ -102,7 +109,7 @@ class MetricFindUseCase(
         )
 
         all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -115,13 +122,13 @@ class MetricFindUseCase(
             for n in all_notes:
                 all_notes_by_metric_ref_id[n.source_entity_ref_id] = n
 
-        if args.include_entries:
+        if include_entries:
             metric_entries_raw = []
             for metric in metrics:
                 metric_entries_raw.append(
                     await uow.get_for(MetricEntry).find_all(
                         parent_ref_id=metric.ref_id,
-                        allow_archived=args.allow_archived,
+                        allow_archived=allow_archived,
                         filter_ref_ids=args.filter_entry_ref_ids,
                     ),
                 )
@@ -141,7 +148,7 @@ class MetricFindUseCase(
         else:
             metric_entries_by_ref_ids = {}
 
-        if args.include_collection_inbox_tasks:
+        if include_collection_inbox_tasks:
             metric_collection_inbox_tasks_by_ref_id: defaultdict[
                 EntityId,
                 list[InboxTask],
@@ -168,7 +175,7 @@ class MetricFindUseCase(
         all_notes_by_metric_entry_ref_id: defaultdict[EntityId, Note] = defaultdict(
             None
         )
-        if args.include_metric_entry_notes:
+        if include_metric_entry_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -183,7 +190,7 @@ class MetricFindUseCase(
                     cast(EntityId, n.source_entity_ref_id)
                 ] = n
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

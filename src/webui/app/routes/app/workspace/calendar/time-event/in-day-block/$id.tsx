@@ -8,6 +8,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
+  BigPlanStatus,
   Difficulty,
   Eisen,
   InboxTaskSource,
@@ -43,6 +44,7 @@ import {
 import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
+import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -81,6 +83,20 @@ const UpdateFormInboxTaskSchema = {
   inboxTaskDifficulty: z.nativeEnum(Difficulty),
   inboxTaskActionableDate: z.string().optional(),
   inboxTaskDueDate: z.string().optional(),
+};
+
+const UpdateFormBigPlanSchema = {
+  bigPlanRefId: z.string(),
+  bigPlanName: z.string(),
+  bigPlanStatus: z.nativeEnum(BigPlanStatus),
+  bigPlanProject: z.string().optional(),
+  bigPlanChapter: z.string().optional(),
+  bigPlanGoal: z.string().optional(),
+  bigPlanIsKey: CheckboxAsString,
+  bigPlanEisen: z.nativeEnum(Eisen),
+  bigPlanDifficulty: z.nativeEnum(Difficulty),
+  bigPlanActionableDate: z.string().optional(),
+  bigPlanDueDate: z.string().optional(),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -129,6 +145,38 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("inbox-task-update"),
     ...UpdateFormInboxTaskSchema,
   }),
+  z.object({
+    intent: z.literal("big-plan-mark-done"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-mark-not-done"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-start"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-restart"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-block"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-stop"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-reactivate"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-update"),
+    ...UpdateFormBigPlanSchema,
+  }),
 ]);
 
 export const handle = {
@@ -163,6 +211,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    let bigPlanResult = null;
+    if (response.big_plan) {
+      bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
+        ref_id: response.big_plan.ref_id,
+        allow_archived: true,
+      });
+    }
+
     return json({
       rootProject: summaryResponse.root_project as ProjectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -175,6 +231,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       scheduleEvent: response.schedule_event,
       inboxTask: response.inbox_task,
       inboxTaskInfo: inboxTaskResult,
+      bigPlan: response.big_plan,
+      bigPlanInfo: bigPlanResult,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -352,6 +410,99 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
+      case "big-plan-mark-done":
+      case "big-plan-mark-not-done":
+      case "big-plan-start":
+      case "big-plan-restart":
+      case "big-plan-block":
+      case "big-plan-stop":
+      case "big-plan-reactivate":
+      case "big-plan-update": {
+        let status = form.bigPlanStatus;
+        if (form.intent === "big-plan-mark-done") {
+          status = BigPlanStatus.DONE;
+        } else if (form.intent === "big-plan-mark-not-done") {
+          status = BigPlanStatus.NOT_DONE;
+        } else if (form.intent === "big-plan-start") {
+          status = BigPlanStatus.IN_PROGRESS;
+        } else if (form.intent === "big-plan-restart") {
+          status = BigPlanStatus.IN_PROGRESS;
+        } else if (form.intent === "big-plan-block") {
+          status = BigPlanStatus.BLOCKED;
+        } else if (form.intent === "big-plan-stop") {
+          status = BigPlanStatus.NOT_STARTED;
+        } else if (form.intent === "big-plan-reactivate") {
+          status = BigPlanStatus.NOT_STARTED;
+        }
+
+        const result = await apiClient.bigPlans.bigPlanUpdate({
+          ref_id: form.bigPlanRefId,
+          name: {
+            should_change: true,
+            value: form.bigPlanName,
+          },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          project_ref_id: {
+            should_change: true,
+            value: form.bigPlanProject,
+          },
+          chapter_ref_id: {
+            should_change: form.bigPlanChapter !== undefined,
+            value:
+              form.bigPlanChapter !== undefined && form.bigPlanChapter !== ""
+                ? form.bigPlanChapter
+                : null,
+          },
+          goal_ref_id: {
+            should_change: form.bigPlanGoal !== undefined,
+            value:
+              form.bigPlanGoal !== undefined && form.bigPlanGoal !== ""
+                ? form.bigPlanGoal
+                : null,
+          },
+          is_key: {
+            should_change: true,
+            value: form.bigPlanIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.bigPlanEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.bigPlanDifficulty,
+          },
+          actionable_date: {
+            should_change: true,
+            value:
+              form.bigPlanActionableDate !== undefined &&
+              form.bigPlanActionableDate !== ""
+                ? form.bigPlanActionableDate
+                : undefined,
+          },
+          due_date: {
+            should_change: true,
+            value:
+              form.bigPlanDueDate !== undefined && form.bigPlanDueDate !== ""
+                ? form.bigPlanDueDate
+                : undefined,
+          },
+        });
+
+        if (result.record_score_result) {
+          return redirect(`/app/workspace/calendar?${url.searchParams}`, {
+            headers: {
+              "Set-Cookie": await saveScoreAction(result.record_score_result),
+            },
+          });
+        }
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -390,6 +541,10 @@ export default function TimeEventInDayBlockViewOne() {
 
     case TimeEventNamespace.INBOX_TASK:
       name = loaderData.inboxTask!.name;
+      break;
+
+    case TimeEventNamespace.BIG_PLAN:
+      name = loaderData.bigPlan!.name;
       break;
 
     default:
@@ -604,6 +759,25 @@ export default function TimeEventInDayBlockViewOne() {
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
           inboxTask={loaderData.inboxTask}
           inboxTaskInfo={loaderData.inboxTaskInfo!}
+          actionData={actionData}
+        />
+      )}
+
+      {loaderData.bigPlan && (
+        <BigPlanPropertiesEditor
+          title="Big Plan"
+          showLinkToBigPlan
+          intentPrefix="big-plan"
+          namePrefix="bigPlan"
+          topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
+          allProjects={loaderData.allProjects}
+          allChapters={loaderData.allChapters}
+          allGoals={loaderData.allGoals}
+          allMilestones={loaderData.allMilestones}
+          inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
+          bigPlan={loaderData.bigPlan}
+          bigPlanInfo={loaderData.bigPlanInfo!}
           actionData={actionData}
         />
       )}

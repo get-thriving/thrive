@@ -10,6 +10,6 @@ import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 export type JournalLoadForDateAndPeriodArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
 };
 

@@ -66,10 +66,10 @@ class TimePlanLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
-    include_targets: bool
-    include_completed_nontarget: bool
-    include_other_time_plans: bool
+    allow_archived: bool | None
+    include_targets: bool | None
+    include_completed_nontarget: bool | None
+    include_other_time_plans: bool | None
 
 
 @use_case_result
@@ -93,7 +93,9 @@ class TimePlanLoadResult(UseCaseResultBase):
     previous_time_plan: TimePlan | None
 
 
-@readonly_use_case(WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.TIME_PLANS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class TimePlanLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[TimePlanLoadArgs, TimePlanLoadResult]
 ):
@@ -106,6 +108,11 @@ class TimePlanLoadUseCase(
         args: TimePlanLoadArgs,
     ) -> TimePlanLoadResult:
         """Execute the command's actions."""
+        allow_archived = args.allow_archived or False
+        include_targets = args.include_targets or False
+        include_completed_nontarget = args.include_completed_nontarget or False
+        include_other_time_plans = args.include_other_time_plans or False
+
         workspace = context.workspace
 
         time_plan, activities, note = await generic_loader(
@@ -114,7 +121,7 @@ class TimePlanLoadUseCase(
             args.ref_id,
             TimePlan.activities,
             TimePlan.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             allow_subentity_archived=False,
         )
 
@@ -181,7 +188,7 @@ class TimePlanLoadUseCase(
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
         )
-        if args.include_targets:
+        if include_targets:
             target_inbox_tasks = await uow.get_for(InboxTask).find_all(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
@@ -193,7 +200,7 @@ class TimePlanLoadUseCase(
             )
 
         completed_nontarget_inbox_tasks = None
-        if args.include_completed_nontarget and target_inbox_tasks is not None:
+        if include_completed_nontarget and target_inbox_tasks is not None:
 
             # The rule here should be:
             # If this is a inbox task or big plan include it always
@@ -221,7 +228,7 @@ class TimePlanLoadUseCase(
                 workspace.ref_id
             )
 
-            if args.include_targets:
+            if include_targets:
                 target_big_plans = await uow.get_for(BigPlan).find_all(
                     parent_ref_id=big_plan_collection.ref_id,
                     allow_archived=True,
@@ -232,7 +239,7 @@ class TimePlanLoadUseCase(
                     ],
                 )
 
-            if args.include_completed_nontarget and target_big_plans is not None:
+            if include_completed_nontarget and target_big_plans is not None:
                 completed_nontarget_big_plans = await uow.get(
                     BigPlanRepository
                 ).find_completed_in_range(
@@ -244,7 +251,7 @@ class TimePlanLoadUseCase(
                 )
 
         activity_doneness = None
-        if args.include_targets:
+        if include_targets:
             activity_doneness = {}
             target_inbox_tasks_by_ref_id = {
                 it.ref_id: it for it in cast(list[InboxTask], target_inbox_tasks)
@@ -383,7 +390,7 @@ class TimePlanLoadUseCase(
         sub_period_time_plans = None
         higher_time_plan = None
         previous_time_plan = None
-        if args.include_other_time_plans:
+        if include_other_time_plans:
             sub_period_time_plans = await uow.get(TimePlanRepository).find_all_in_range(
                 parent_ref_id=time_plan.time_plan_domain.ref_id,
                 allow_archived=False,

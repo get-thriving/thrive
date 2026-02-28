@@ -50,13 +50,13 @@ from jupiter.framework.use_case_io import (
 class BigPlanFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_tags: bool
-    include_life_plan: bool
-    include_inbox_tasks: bool
-    include_notes: bool
-    include_milestones: bool
-    include_stats: bool
+    allow_archived: bool | None
+    include_tags: bool | None
+    include_life_plan: bool | None
+    include_inbox_tasks: bool | None
+    include_notes: bool | None
+    include_milestones: bool | None
+    include_stats: bool | None
     filter_just_workable: bool | None
     filter_ref_ids: list[EntityId] | None
     filter_project_ref_ids: list[EntityId] | None
@@ -97,6 +97,13 @@ class BigPlanFindUseCase(
         args: BigPlanFindArgs,
     ) -> BigPlanFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_tags = args.include_tags or False
+        include_life_plan = args.include_life_plan or False
+        include_inbox_tasks = args.include_inbox_tasks or False
+        include_notes = args.include_notes or False
+        include_milestones = args.include_milestones or False
+        include_stats = args.include_stats or False
         workspace = context.workspace
 
         if (
@@ -114,22 +121,22 @@ class BigPlanFindUseCase(
         life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
-        if args.include_life_plan:
+        if include_life_plan:
             projects = await uow.get_for(Project).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=args.filter_project_ref_ids or NoFilter(),
             )
             project_by_ref_id = {p.ref_id: p for p in projects}
             chapters = await uow.get_for(Chapter).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=NoFilter(),
             )
             chapter_by_ref_id = {c.ref_id: c for c in chapters}
             goals = await uow.get_for(Goal).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 ref_id=NoFilter(),
             )
             goal_by_ref_id = {g.ref_id: g for g in goals}
@@ -147,13 +154,13 @@ class BigPlanFindUseCase(
 
         big_plans = await uow.get_for(BigPlan).find_all_generic(
             parent_ref_id=big_plan_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             status=filter_status,
             project_ref_id=args.filter_project_ref_ids or NoFilter(),
         )
 
-        if args.include_stats:
+        if include_stats:
             stats = await uow.get(BigPlanStatsRepository).find_all(
                 [bp.ref_id for bp in big_plans]
             )
@@ -162,7 +169,7 @@ class BigPlanFindUseCase(
             stats_by_ref_id = None
 
         milestones_by_ref_id: dict[EntityId, list[BigPlanMilestone]] | None = None
-        if args.include_milestones:
+        if include_milestones:
             milestones = await uow.get_for(BigPlanMilestone).find_all_generic(
                 big_plan_ref_id=[bp.ref_id for bp in big_plans],
                 allow_archived=False,
@@ -173,7 +180,7 @@ class BigPlanFindUseCase(
         else:
             milestones_by_ref_id = None
 
-        if args.include_inbox_tasks:
+        if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
@@ -184,7 +191,7 @@ class BigPlanFindUseCase(
             inbox_tasks = None
 
         notes_by_inbox_task_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -197,7 +204,7 @@ class BigPlanFindUseCase(
             for note in notes:
                 notes_by_inbox_task_ref_id[note.source_entity_ref_id] = note
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

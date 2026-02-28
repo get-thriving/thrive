@@ -37,7 +37,7 @@ class OccasionLoadArgs(UseCaseArgsBase):
     """OccasionLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -64,6 +64,7 @@ class OccasionLoadUseCase(
         args: OccasionLoadArgs,
     ) -> OccasionLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         workspace = context.workspace
 
         occasion, note = await generic_loader(
@@ -71,7 +72,7 @@ class OccasionLoadUseCase(
             Occasion,
             args.ref_id,
             Occasion.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

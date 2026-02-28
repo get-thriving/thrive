@@ -1,8 +1,12 @@
 """Configuration for the CLI part of the app."""
 
 import abc
-from typing import Any, Generic, TypeVar, Union
+import os
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Generic, TypeVar, Union, cast
 
+import dotenv
 from jupiter.core.app import AppCore, AppDistribution, AppPlatform, AppShell
 from jupiter.core.config import (
     JupiterComponentProperties,
@@ -28,6 +32,7 @@ from jupiter.framework.appform.cli.commands import (
 )
 from jupiter.framework.appform.cli.exception import CliExceptionHandler
 from jupiter.framework.appform.cli.session_storage import SessionInfo
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.use_case_io import UseCaseResultBase
 
 _JupiterGuestMutationUseCaseT = TypeVar(  # type: ignore
@@ -46,8 +51,65 @@ _UseCaseResultT = TypeVar("_UseCaseResultT", bound=Union[None, UseCaseResultBase
 _ExceptionT = TypeVar("_ExceptionT", bound=Exception)
 
 
+@dataclass(frozen=True)
+class JupiterCliProperties(ServiceProperties):
+    """Properties of the Jupiter CLI."""
+
+    docs_url: str
+    docs_init_workspace_url: str
+    session_info_path: Path
+    sqlite_db_url: str
+    alembic_ini_path: Path
+    alembic_migrations_path: Path
+    auth_token_secret: str
+
+
+def build_cli_properties() -> JupiterCliProperties:
+    """Build the CLI properties from the environment."""
+
+    def find_up_the_dir_tree(partial_path: Union[str, Path]) -> Path:
+        last_here = None
+        right_here = Path(os.path.relpath(__file__)).parent
+        while True:
+            if last_here == right_here:
+                raise Exception(f"Critical error - missing config file {partial_path}")
+            config_file = right_here / partial_path
+            if config_file.exists():
+                return config_file
+            last_here = right_here
+            right_here = right_here.parent
+
+    service_config_path = find_up_the_dir_tree("Config.project")
+    dotenv.load_dotenv(dotenv_path=service_config_path, verbose=True)
+
+    docs_url = cast(str, os.getenv("DOCS_URL"))
+    docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
+    session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
+    sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
+    alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
+    alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
+    auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
+
+    return JupiterCliProperties(
+        docs_url=docs_url,
+        docs_init_workspace_url=docs_init_workspace_url,
+        session_info_path=session_info_path,
+        sqlite_db_url=sqlite_db_url,
+        alembic_ini_path=alembic_ini_path,
+        alembic_migrations_path=alembic_migrations_path,
+        auth_token_secret=auth_token_secret,
+    )
+
+
 class JupiterGuestMutationCommand(
-    GuestMutationCommand[_JupiterGuestMutationUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestMutationContext, _UseCaseResultT],  # type: ignore
+    GuestMutationCommand[  # type: ignore
+        _JupiterGuestMutationUseCaseT,
+        JupiterGlobalProperties,
+        JupiterCliProperties,
+        JupiterGuestSession,
+        JupiterGuestMutationContext,
+        _UseCaseResultT,
+    ],
     Generic[_JupiterGuestMutationUseCaseT, _UseCaseResultT],
 ):
     """A guest mutation commmand tailore to Jupiter."""
@@ -68,7 +130,14 @@ class JupiterGuestMutationCommand(
 
 
 class JupiterGuestReadonlyCommand(
-    GuestReadonlyCommand[_JupiterGuestReadonlyUseCaseT, JupiterGlobalProperties, JupiterGuestSession, JupiterGuestReadonlyContext, _UseCaseResultT],  # type: ignore
+    GuestReadonlyCommand[  # type: ignore
+        _JupiterGuestReadonlyUseCaseT,
+        JupiterGlobalProperties,
+        JupiterCliProperties,
+        JupiterGuestSession,
+        JupiterGuestReadonlyContext,
+        _UseCaseResultT,
+    ],
     Generic[_JupiterGuestReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A guest mutation commmand tailore to Jupiter."""
@@ -89,7 +158,14 @@ class JupiterGuestReadonlyCommand(
 
 
 class JupiterLoggedInMutationCommand(
-    LoggedInMutationCommand[_JupiterLoggedInMutationUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInMutationContext, _UseCaseResultT],  # type: ignore
+    LoggedInMutationCommand[  # type: ignore
+        _JupiterLoggedInMutationUseCaseT,
+        JupiterGlobalProperties,
+        JupiterCliProperties,
+        JupiterLoggedInSession,
+        JupiterLoggedInMutationContext,
+        _UseCaseResultT,
+    ],
     Generic[_JupiterLoggedInMutationUseCaseT, _UseCaseResultT],
 ):
     """A logged in mutation commmand tailore to Jupiter."""
@@ -110,7 +186,14 @@ class JupiterLoggedInMutationCommand(
 
 
 class JupiterLoggedInReadonlyCommand(
-    LoggedInReadonlyCommand[_JupiterLoggedInReadonlyUseCaseT, JupiterGlobalProperties, JupiterLoggedInSession, JupiterLoggedInReadonlyContext, _UseCaseResultT],  # type: ignore
+    LoggedInReadonlyCommand[  # type: ignore
+        _JupiterLoggedInReadonlyUseCaseT,
+        JupiterGlobalProperties,
+        JupiterCliProperties,
+        JupiterLoggedInSession,
+        JupiterLoggedInReadonlyContext,
+        _UseCaseResultT,
+    ],
     Generic[_JupiterLoggedInReadonlyUseCaseT, _UseCaseResultT],
 ):
     """A logged in mutation commmand tailore to Jupiter."""
@@ -131,7 +214,7 @@ class JupiterLoggedInReadonlyCommand(
 
 
 class JupiterExceptionHandler(
-    CliExceptionHandler[JupiterGlobalProperties, _ExceptionT],
+    CliExceptionHandler[JupiterGlobalProperties, JupiterCliProperties, _ExceptionT],
     abc.ABC,
     Generic[_ExceptionT],
 ):
@@ -139,7 +222,12 @@ class JupiterExceptionHandler(
 
 
 class JupiterCliAppForm(
-    CliAppForm[JupiterPorts, JupiterGlobalProperties, JupiterComponentProperties]
+    CliAppForm[
+        JupiterPorts,
+        JupiterGlobalProperties,
+        JupiterCliProperties,
+        JupiterComponentProperties,
+    ]
 ):
     """A jupiter CLI app form."""
 

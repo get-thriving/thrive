@@ -7,6 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.big_plan_entry import BigPlanEntry
     from ..models.inbox_task_entry import InboxTaskEntry
     from ..models.person_occasion_entry import PersonOccasionEntry
     from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
@@ -25,6 +26,7 @@ class CalendarEventsEntries:
         schedule_event_full_days_entries (list[ScheduleFullDaysEventEntry]):
         schedule_event_in_day_entries (list[ScheduleInDayEventEntry]):
         inbox_task_entries (list[InboxTaskEntry]):
+        big_plan_entries (list[BigPlanEntry]):
         person_occasion_entries (list[PersonOccasionEntry]):
         vacation_entries (list[VacationEntry]):
     """
@@ -32,6 +34,7 @@ class CalendarEventsEntries:
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
     inbox_task_entries: list[InboxTaskEntry]
+    big_plan_entries: list[BigPlanEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -52,6 +55,11 @@ class CalendarEventsEntries:
             inbox_task_entries_item = inbox_task_entries_item_data.to_dict()
             inbox_task_entries.append(inbox_task_entries_item)
 
+        big_plan_entries = []
+        for big_plan_entries_item_data in self.big_plan_entries:
+            big_plan_entries_item = big_plan_entries_item_data.to_dict()
+            big_plan_entries.append(big_plan_entries_item)
+
         person_occasion_entries = []
         for person_occasion_entries_item_data in self.person_occasion_entries:
             person_occasion_entries_item = person_occasion_entries_item_data.to_dict()
@@ -69,6 +77,7 @@ class CalendarEventsEntries:
                 "schedule_event_full_days_entries": schedule_event_full_days_entries,
                 "schedule_event_in_day_entries": schedule_event_in_day_entries,
                 "inbox_task_entries": inbox_task_entries,
+                "big_plan_entries": big_plan_entries,
                 "person_occasion_entries": person_occasion_entries,
                 "vacation_entries": vacation_entries,
             }
@@ -78,6 +87,7 @@ class CalendarEventsEntries:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.big_plan_entry import BigPlanEntry
         from ..models.inbox_task_entry import InboxTaskEntry
         from ..models.person_occasion_entry import PersonOccasionEntry
         from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
@@ -110,6 +120,13 @@ class CalendarEventsEntries:
 
             inbox_task_entries.append(inbox_task_entries_item)
 
+        big_plan_entries = []
+        _big_plan_entries = d.pop("big_plan_entries")
+        for big_plan_entries_item_data in _big_plan_entries:
+            big_plan_entries_item = BigPlanEntry.from_dict(big_plan_entries_item_data)
+
+            big_plan_entries.append(big_plan_entries_item)
+
         person_occasion_entries = []
         _person_occasion_entries = d.pop("person_occasion_entries")
         for person_occasion_entries_item_data in _person_occasion_entries:
@@ -128,6 +145,7 @@ class CalendarEventsEntries:
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
             inbox_task_entries=inbox_task_entries,
+            big_plan_entries=big_plan_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )

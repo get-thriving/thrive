@@ -29,7 +29,7 @@ class ScheduleStreamLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -56,14 +56,15 @@ class ScheduleStreamLoadUseCase(
         args: ScheduleStreamLoadArgs,
     ) -> ScheduleStreamLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.SCHEDULE_STREAM,
             schedule_stream.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

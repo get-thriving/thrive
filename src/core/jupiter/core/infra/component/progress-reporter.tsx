@@ -18,7 +18,7 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { z } from "zod";
 
 import { ClientOnly } from "#/core/infra/component/client-only";
-import { GlobalPropertiesContext } from "#/core/config-client";
+import { ServicePropertiesContext } from "#/core/config-client";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 enum LogMessageType {
@@ -84,14 +84,14 @@ export default function ProgressReporter(props: ProgressReporterProps) {
 }
 
 function ProgressReporterClientOnly(props: ProgressReporterProps) {
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
   const isBigScreen = useBigScreen();
   const [showContainer, setShowContainer] = useState<boolean>(false);
   const [progressLog, setProgressLog] = useState<LogMessage[]>([]);
   const [unseenMessages, setUnseenMessages] = useState<number>(0);
 
   const webApiProgressReporterUrl = new URL(
-    globalProperties.webApiProgressReporterUrl,
+    serviceProperties.webApiProgressReporterUrl,
   );
   webApiProgressReporterUrl.searchParams.append("token", props.token);
 

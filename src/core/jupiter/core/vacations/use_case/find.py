@@ -40,10 +40,10 @@ from jupiter.framework.use_case_io import (
 class VacationFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_time_event_blocks: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_time_event_blocks: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -77,6 +77,10 @@ class VacationFindUseCase(
         args: VacationFindArgs,
     ) -> VacationFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_time_event_blocks = args.include_time_event_blocks or False
+        include_tags = args.include_tags or False
         workspace = context.workspace
 
         vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
@@ -84,12 +88,12 @@ class VacationFindUseCase(
         )
         vacations = await uow.get_for(Vacation).find_all(
             parent_ref_id=vacation_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
         notes_by_vacation_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
@@ -100,12 +104,12 @@ class VacationFindUseCase(
                 source_entity_ref_id=[vacation.ref_id for vacation in vacations],
             )
             for note in notes:
-                notes_by_vacation_ref_id[note.parent_ref_id] = note
+                notes_by_vacation_ref_id[note.source_entity_ref_id] = note
 
         time_event_blocks_by_vacation_ref_id: defaultdict[
             EntityId, TimeEventFullDaysBlock
         ] = defaultdict(None)
-        if args.include_time_event_blocks:
+        if include_time_event_blocks:
             time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
                 workspace.ref_id,
             )
@@ -122,7 +126,7 @@ class VacationFindUseCase(
                     time_event_block.source_entity_ref_id
                 ] = time_event_block
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

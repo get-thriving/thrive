@@ -6,16 +6,12 @@ import { getHosting } from "#/core/universe";
 
 export interface GlobalPropertiesServer {
   publicName: string;
+  description: string;
   universe: Universe;
   env: Env;
   instance: Instance;
   version: string;
-  webApiServerUrl: string;
-  webApiProgressReporterUrl: string;
-  webApiUrl: string;
-  docsUrl: string;
   hostedGlobalWebUiUrl: string;
-  pwaStartUrl: string;
   communityUrl: string;
   appsStorageUrl: string;
   macStoreUrl: string;
@@ -23,6 +19,15 @@ export interface GlobalPropertiesServer {
   googlePlayStoreUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
+}
+
+export interface ServicePropertiesServer {
+  webApiServerUrl: string;
+  webApiProgressReporterUrl: string;
+  webApiUrl: string;
+  apiUrl: string;
+  docsUrl: string;
+  pwaStartUrl: string;
   sessionCookieSecure: boolean;
   sessionCookieSecret: string;
   inboxTasksToAskForGC: number;
@@ -34,6 +39,33 @@ export interface GlobalPropertiesServer {
 // @secureFn
 function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   config({ path: `${process.cwd()}/../Config.global` });
+
+  const globalProperties = {
+    publicName: process.env.PUBLIC_NAME as string,
+    description: process.env.DESCRIPTION as string,
+    universe: process.env.UNIVERSE as Universe,
+    env: process.env.ENV as Env,
+    instance: process.env.RENDER
+      ? newOrGenerateInstance(
+          process.env.INSTANCE as string,
+          process.env.RENDER_GIT_BRANCH as string,
+        )
+      : (process.env.INSTANCE as Instance),
+    version: process.env.VERSION as string,
+    hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
+    communityUrl: process.env.COMMUNITY_URL as string,
+    appsStorageUrl: process.env.APPS_STORAGE_URL as string,
+    macStoreUrl: process.env.MAC_STORE_URL as string,
+    appStoreUrl: process.env.APP_STORE_URL as string,
+    googlePlayStoreUrl: process.env.GOOGLE_PLAY_STORE_URL as string,
+    termsOfServiceUrl: process.env.TERMS_OF_SERVICE_URL as string,
+    privacyPolicyUrl: process.env.PRIVACY_POLICY_URL as string,
+  };
+
+  return globalProperties;
+}
+
+function loadServicePropertiesOnServer(): ServicePropertiesServer {
   config({ path: `${process.cwd()}/Config.project` });
 
   const webApiServerHost = process.env.WEBAPI_SERVER_HOST as string;
@@ -46,30 +78,13 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
   const webApiProgressReporterUrl = process.env
     .WEBAPI_PROGRESS_REPORTER_URL as string;
 
-  const globalProperties = {
-    publicName: process.env.PUBLIC_NAME as string,
-    universe: process.env.UNIVERSE as Universe,
-    env: process.env.ENV as Env,
-    instance: process.env.RENDER
-      ? newOrGenerateInstance(
-          process.env.INSTANCE as string,
-          process.env.RENDER_GIT_BRANCH as string,
-        )
-      : (process.env.INSTANCE as Instance),
-    version: process.env.VERSION as string,
-    webApiUrl: process.env.WEBAPI_URL as string,
+  const serviceProperties = {
     webApiServerUrl: webApiServerUrl,
     webApiProgressReporterUrl: webApiProgressReporterUrl,
+    webApiUrl: process.env.WEBAPI_URL as string,
+    apiUrl: process.env.API_URL as string,
     docsUrl: process.env.DOCS_URL as string,
-    hostedGlobalWebUiUrl: process.env.HOSTED_GLOBAL_WEBUI_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
-    communityUrl: process.env.COMMUNITY_URL as string,
-    appsStorageUrl: process.env.APPS_STORAGE_URL as string,
-    macStoreUrl: process.env.MAC_STORE_URL as string,
-    appStoreUrl: process.env.APP_STORE_URL as string,
-    googlePlayStoreUrl: process.env.GOOGLE_PLAY_STORE_URL as string,
-    termsOfServiceUrl: process.env.TERMS_OF_SERVICE_URL as string,
-    privacyPolicyUrl: process.env.PRIVACY_POLICY_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",
     sessionCookieSecret: process.env.SESSION_COOKIE_SECRET as string,
     inboxTasksToAskForGC: parseInt(
@@ -84,10 +99,11 @@ function loadGlobalPropertiesOnServer(): GlobalPropertiesServer {
     overdueDangerDays: parseInt(process.env.OVERDUE_DANGER_DAYS as string, 10),
   };
 
-  return globalProperties;
+  return serviceProperties;
 }
 
 export const GLOBAL_PROPERTIES = loadGlobalPropertiesOnServer();
+export const SERVICE_PROPERTIES = loadServicePropertiesOnServer();
 
 // A hack!
 console.log("=".repeat(80));

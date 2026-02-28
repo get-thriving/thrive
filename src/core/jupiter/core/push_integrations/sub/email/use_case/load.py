@@ -32,7 +32,7 @@ class EmailTaskLoadArgs(UseCaseArgsBase):
     """EmailTaskLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -56,9 +56,10 @@ class EmailTaskLoadUseCase(
         args: EmailTaskLoadArgs,
     ) -> EmailTaskLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         workspace = context.workspace
         email_task = await uow.get_for(EmailTask).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,

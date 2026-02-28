@@ -8,7 +8,7 @@ import type { NoteNamespace } from './NoteNamespace';
  * NoteFind args.
  */
 export type NoteFindArgs = {
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     filter_namespace?: (Array<NoteNamespace> | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };

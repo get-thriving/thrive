@@ -17,23 +17,31 @@ class MetricLoadArgs:
 
     Attributes:
         ref_id (str): A generic entity id.
-        allow_archived (bool):
-        allow_archived_entries (bool):
+        allow_archived (bool | None | Unset):
+        allow_archived_entries (bool | None | Unset):
         collection_task_retrieve_offset (int | None | Unset):
     """
 
     ref_id: str
-    allow_archived: bool
-    allow_archived_entries: bool
+    allow_archived: bool | None | Unset = UNSET
+    allow_archived_entries: bool | None | Unset = UNSET
     collection_task_retrieve_offset: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         ref_id = self.ref_id
 
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
-        allow_archived_entries = self.allow_archived_entries
+        allow_archived_entries: bool | None | Unset
+        if isinstance(self.allow_archived_entries, Unset):
+            allow_archived_entries = UNSET
+        else:
+            allow_archived_entries = self.allow_archived_entries
 
         collection_task_retrieve_offset: int | None | Unset
         if isinstance(self.collection_task_retrieve_offset, Unset):
@@ -46,10 +54,12 @@ class MetricLoadArgs:
         field_dict.update(
             {
                 "ref_id": ref_id,
-                "allow_archived": allow_archived,
-                "allow_archived_entries": allow_archived_entries,
             }
         )
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
+        if allow_archived_entries is not UNSET:
+            field_dict["allow_archived_entries"] = allow_archived_entries
         if collection_task_retrieve_offset is not UNSET:
             field_dict["collection_task_retrieve_offset"] = collection_task_retrieve_offset
 
@@ -60,9 +70,23 @@ class MetricLoadArgs:
         d = dict(src_dict)
         ref_id = d.pop("ref_id")
 
-        allow_archived = d.pop("allow_archived")
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
 
-        allow_archived_entries = d.pop("allow_archived_entries")
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
+
+        def _parse_allow_archived_entries(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived_entries = _parse_allow_archived_entries(d.pop("allow_archived_entries", UNSET))
 
         def _parse_collection_task_retrieve_offset(data: object) -> int | None | Unset:
             if data is None:

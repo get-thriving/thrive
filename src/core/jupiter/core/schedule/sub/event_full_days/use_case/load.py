@@ -34,7 +34,7 @@ class ScheduleEventFullDaysLoadArgs(UseCaseArgsBase):
     """Args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -62,6 +62,7 @@ class ScheduleEventFullDaysLoadUseCase(
         args: ScheduleEventFullDaysLoadArgs,
     ) -> ScheduleEventFullDaysLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         (
             schedule_event_full_days,
             time_event_full_days_block,
@@ -72,7 +73,7 @@ class ScheduleEventFullDaysLoadUseCase(
             args.ref_id,
             ScheduleEventFullDays.time_event_full_days_block,
             ScheduleEventFullDays.note,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

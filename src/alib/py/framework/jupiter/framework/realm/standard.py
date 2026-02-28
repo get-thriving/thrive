@@ -380,9 +380,7 @@ class _ListDecoder(RealmDecoder[list[DomainThing], _RealmT], Generic[_RealmT]):
     def decode(self, value: RealmThing) -> list[DomainThing]:
         """Decode a realm from a string."""
         if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
@@ -440,9 +438,7 @@ class _SetDecoder(RealmDecoder[set[DomainThing], _RealmT], Generic[_RealmT]):
     def decode(self, value: RealmThing) -> set[DomainThing]:
         """Decode a realm from a string."""
         if not isinstance(value, list):
-            raise RealmDecodingError(
-                f"Expected value for {value.__class__.__name__} to be a list"
-            )
+            value = [value]
         decoder = self._realm_codec_registry.get_decoder(
             self._the_type, self._realm, self._root_type
         )
@@ -884,7 +880,7 @@ class _StandardEntityEncoder(
                 continue
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = field_value.as_int()
+                result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type
@@ -1004,7 +1000,7 @@ class _StandardEntityDecoder(
             if field.name in value:
                 field_value = value[field.name]
             elif field.type is ParentLink and field.name + "_ref_id" in value:
-                field_value = value[field.name + "_ref_id"]
+                field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"
@@ -1060,7 +1056,7 @@ class _StandardRecordEncoder(
             field_value = getattr(value, field.name)
 
             if isinstance(field_value, ParentLink):
-                result[field.name + "_ref_id"] = field_value.as_int()
+                result[field.name + "_ref_id"] = str(field_value.as_int())
             else:
                 encoder = self._realm_codec_registry.get_encoder(
                     field.type, self._realm, self._the_type
@@ -1125,7 +1121,7 @@ class _StandardRecordDecoder(
             if field.name in value:
                 field_value = value[field.name]
             elif field.type is ParentLink and field.name + "_ref_id" in value:
-                field_value = value[field.name + "_ref_id"]
+                field_value = str(value[field.name + "_ref_id"])
             else:
                 raise RealmDecodingError(
                     f"Expected value of type {self._the_type.__name__} to have field {field.name}"

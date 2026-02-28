@@ -41,8 +41,8 @@ class MetricLoadArgs(UseCaseArgsBase):
     """MetricLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
-    allow_archived_entries: bool
+    allow_archived: bool | None
+    allow_archived_entries: bool | None
     collection_task_retrieve_offset: int | None
 
 
@@ -81,6 +81,9 @@ class MetricLoadUseCase(
         args: MetricLoadArgs,
     ) -> MetricLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        allow_archived_entries = args.allow_archived_entries or False
+
         if (
             args.collection_task_retrieve_offset is not None
             and args.collection_task_retrieve_offset < 0
@@ -88,10 +91,10 @@ class MetricLoadUseCase(
             raise InputValidationError("Invalid inbox_task_retrieve_offset")
 
         metric = await uow.get_for(Metric).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         metric_entries = await uow.get_for(MetricEntry).find_all(
-            metric.ref_id, allow_archived=args.allow_archived_entries
+            metric.ref_id, allow_archived=allow_archived_entries
         )
 
         tag_link = await uow.get(
@@ -166,7 +169,7 @@ class MetricLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.METRIC,
             metric.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         return MetricLoadResult(

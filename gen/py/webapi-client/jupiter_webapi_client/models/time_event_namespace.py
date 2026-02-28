@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class TimeEventNamespace(str, Enum):
+    BIG_PLAN = "big-plan"
     INBOX_TASK = "inbox-task"
     PERSON_OCCASION = "person-occasion"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"

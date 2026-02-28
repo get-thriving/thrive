@@ -41,7 +41,7 @@ class ChoreLoadArgs(UseCaseArgsBase):
     """ChoreLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
     inbox_task_retrieve_offset: int | None
 
 
@@ -73,6 +73,8 @@ class ChoreLoadUseCase(
         args: ChoreLoadArgs,
     ) -> ChoreLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         if (
             args.inbox_task_retrieve_offset is not None
             and args.inbox_task_retrieve_offset < 0
@@ -80,7 +82,7 @@ class ChoreLoadUseCase(
             raise InputValidationError("Invalid inbox_task_retrieve_offset")
         workspace = context.workspace
         chore = await uow.get_for(Chore).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
         chapter = (
@@ -99,7 +101,7 @@ class ChoreLoadUseCase(
 
         inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_source(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             source=InboxTaskSource.CHORE,
             source_entity_ref_id=chore.ref_id,
         )
@@ -117,7 +119,7 @@ class ChoreLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.CHORE,
             chore.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         tag_link = await uow.get(

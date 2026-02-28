@@ -24,7 +24,7 @@ from jupiter.framework.use_case_io import (
 class NoteFindArgs(UseCaseArgsBase):
     """NoteFind args."""
 
-    allow_archived: bool
+    allow_archived: bool | None
     filter_namespace: list[NoteNamespace] | None
     filter_ref_ids: list[EntityId] | None
 
@@ -49,6 +49,8 @@ class NoteFindUseCase(
         args: NoteFindArgs,
     ) -> NoteFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
         note_collection = await uow.get_for(NoteCollection).load_by_parent(
             workspace.ref_id
@@ -56,7 +58,7 @@ class NoteFindUseCase(
 
         notes = await uow.get_for(Note).find_all_generic(
             parent_ref_id=note_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             namespace=args.filter_namespace or NoFilter(),
         )

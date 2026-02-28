@@ -19,6 +19,7 @@ import inflection
 from fastapi import FastAPI, Request
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.realm.realm import RealmCodecRegistry, WebRealm
+from jupiter.framework.service_properties import ServiceProperties
 from jupiter.framework.use_case import (
     BackgroundMutationUseCase,
     EmptySession,
@@ -38,6 +39,7 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, UseCaseResultBase
 
 _UseCaseT = TypeVar("_UseCaseT", bound=UseCase[Any, Any, Any, Any, Any, Any, Any])
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
+_ServicePropertiesT = TypeVar("_ServicePropertiesT", bound=ServiceProperties)
 _GuestSessionT = TypeVar("_GuestSessionT", bound=GuestSession)
 _GuestMutationContextT = TypeVar("_GuestMutationContextT", bound=GuestMutationContext)
 _GuestMutationUseCaseT = TypeVar(
@@ -79,10 +81,13 @@ class Command:
     """The base class for all commands."""
 
 
-class UseCaseCommand(Command, abc.ABC, Generic[_GlobalPropertiesT, _UseCaseT]):
+class UseCaseCommand(
+    Command, abc.ABC, Generic[_GlobalPropertiesT, _ServicePropertiesT, _UseCaseT]
+):
     """A command that is a use case."""
 
     _global_properties: _GlobalPropertiesT
+    _service_properties: _ServicePropertiesT
     _realm_codec_registry: Final[RealmCodecRegistry]
     _args_type: Final[type[UseCaseArgsBase]]
     _result_type: Final[type[UseCaseResultBase | None]]
@@ -92,12 +97,14 @@ class UseCaseCommand(Command, abc.ABC, Generic[_GlobalPropertiesT, _UseCaseT]):
     def __init__(
         self,
         global_properties: _GlobalPropertiesT,
+        service_properties: _ServicePropertiesT,
         realm_codec_registry: RealmCodecRegistry,
         use_case: _UseCaseT,
         root_module: types.ModuleType,
     ) -> None:
         """Constructor."""
         self._global_properties = global_properties
+        self._service_properties = service_properties
         self._realm_codec_registry = realm_codec_registry
         self._args_type = self._infer_args_class(use_case)
         self._result_type = self._infer_result_class(use_case)
@@ -214,11 +221,12 @@ class UseCaseCommand(Command, abc.ABC, Generic[_GlobalPropertiesT, _UseCaseT]):
 
 
 class GuestMutationCommand(
-    UseCaseCommand[_GlobalPropertiesT, _GuestMutationUseCaseT],
+    UseCaseCommand[_GlobalPropertiesT, _ServicePropertiesT, _GuestMutationUseCaseT],
     abc.ABC,
     Generic[
         _GuestMutationUseCaseT,
         _GlobalPropertiesT,
+        _ServicePropertiesT,
         _GuestSessionT,
         _GuestMutationContextT,
         _UseCaseResultT,
@@ -261,11 +269,12 @@ class GuestMutationCommand(
 
 
 class GuestReadonlyCommand(
-    UseCaseCommand[_GlobalPropertiesT, _GuestReadonlyUseCaseT],
+    UseCaseCommand[_GlobalPropertiesT, _ServicePropertiesT, _GuestReadonlyUseCaseT],
     abc.ABC,
     Generic[
         _GuestReadonlyUseCaseT,
         _GlobalPropertiesT,
+        _ServicePropertiesT,
         _GuestSessionT,
         _GuestReadonlyContextT,
         _UseCaseResultT,
@@ -307,11 +316,12 @@ class GuestReadonlyCommand(
 
 
 class LoggedInMutationCommand(
-    UseCaseCommand[_GlobalPropertiesT, _LoggedInMutationUseCaseT],
+    UseCaseCommand[_GlobalPropertiesT, _ServicePropertiesT, _LoggedInMutationUseCaseT],
     abc.ABC,
     Generic[
         _LoggedInMutationUseCaseT,
         _GlobalPropertiesT,
+        _ServicePropertiesT,
         _LoggedInSessionT,
         _LoggedInMutationContextT,
         _UseCaseResultT,
@@ -354,11 +364,12 @@ class LoggedInMutationCommand(
 
 
 class LoggedInReadonlyCommand(
-    UseCaseCommand[_GlobalPropertiesT, _LoggedInReadonlyUseCaseT],
+    UseCaseCommand[_GlobalPropertiesT, _ServicePropertiesT, _LoggedInReadonlyUseCaseT],
     abc.ABC,
     Generic[
         _LoggedInReadonlyUseCaseT,
         _GlobalPropertiesT,
+        _ServicePropertiesT,
         _LoggedInSessionT,
         _LoggedInReadonlyContextT,
         _UseCaseResultT,
@@ -401,9 +412,16 @@ class LoggedInReadonlyCommand(
 
 
 class CronCommand(
-    UseCaseCommand[_GlobalPropertiesT, _BackgroundMutationUseCaseT],
+    UseCaseCommand[
+        _GlobalPropertiesT, _ServicePropertiesT, _BackgroundMutationUseCaseT
+    ],
     abc.ABC,
-    Generic[_BackgroundMutationUseCaseT, _GlobalPropertiesT, _UseCaseResultT],
+    Generic[
+        _BackgroundMutationUseCaseT,
+        _GlobalPropertiesT,
+        _ServicePropertiesT,
+        _UseCaseResultT,
+    ],
 ):
     """Base class for commands which just read and present data."""
 

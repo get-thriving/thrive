@@ -148,6 +148,7 @@ export function DocEditor({
         {() => (
           <Suspense fallback={<div>Loading...</div>}>
             <BlockEditor
+              editorSlug={`doc-editor-${docId}-${noteId}`}
               autofocus={true}
               initialContent={noteContent}
               inputsEnabled={inputsEnabled}

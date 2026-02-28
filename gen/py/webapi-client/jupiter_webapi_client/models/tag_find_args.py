@@ -17,18 +17,22 @@ class TagFindArgs:
     """TagFind args.
 
     Attributes:
-        allow_archived (bool):
+        allow_archived (bool | None | Unset):
         filter_namespace (list[TagNamespace] | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
     """
 
-    allow_archived: bool
+    allow_archived: bool | None | Unset = UNSET
     filter_namespace: list[TagNamespace] | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        allow_archived = self.allow_archived
+        allow_archived: bool | None | Unset
+        if isinstance(self.allow_archived, Unset):
+            allow_archived = UNSET
+        else:
+            allow_archived = self.allow_archived
 
         filter_namespace: list[str] | None | Unset
         if isinstance(self.filter_namespace, Unset):
@@ -53,11 +57,9 @@ class TagFindArgs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "allow_archived": allow_archived,
-            }
-        )
+        field_dict.update({})
+        if allow_archived is not UNSET:
+            field_dict["allow_archived"] = allow_archived
         if filter_namespace is not UNSET:
             field_dict["filter_namespace"] = filter_namespace
         if filter_ref_ids is not UNSET:
@@ -68,7 +70,15 @@ class TagFindArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        allow_archived = d.pop("allow_archived")
+
+        def _parse_allow_archived(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
 
         def _parse_filter_namespace(data: object) -> list[TagNamespace] | None | Unset:
             if data is None:

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { BigPlanEntry } from './BigPlanEntry';
 import type { InboxTaskEntry } from './InboxTaskEntry';
 import type { PersonOccasionEntry } from './PersonOccasionEntry';
 import type { ScheduleFullDaysEventEntry } from './ScheduleFullDaysEventEntry';
@@ -14,6 +15,7 @@ export type CalendarEventsEntries = {
     schedule_event_full_days_entries: Array<ScheduleFullDaysEventEntry>;
     schedule_event_in_day_entries: Array<ScheduleInDayEventEntry>;
     inbox_task_entries: Array<InboxTaskEntry>;
+    big_plan_entries: Array<BigPlanEntry>;
     person_occasion_entries: Array<PersonOccasionEntry>;
     vacation_entries: Array<VacationEntry>;
 };

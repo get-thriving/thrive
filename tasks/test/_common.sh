@@ -6,20 +6,22 @@ source tasks/_common.sh
 
 run_tests() {
     local webapi_url=$1
-    local webui_url=$2
-    local docs_url=$3
-    local headed=$4
-    shift 4
+    local api_url=$2
+    local webui_url=$3
+    local docs_url=$4
+    local headed=$5
+    shift 5
     
-    log info "Running tests with Web API $webapi_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
+    log info "Running tests with Web API $webapi_url and API $api_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
 
     export WEBAPI_URL=$webapi_url 
+    export API_URL=$api_url
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
     # shellcheck disable=SC2068
     pytest itests \
-        --retries=3 \
         -o log_cli=true \
+        --retries=3 \
         ${headed:+--headed} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \

@@ -9,7 +9,7 @@ import type { EntityId } from './EntityId';
  */
 export type HabitLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     inbox_task_retrieve_offset?: (number | null);
     include_streak_marks_earliest_date?: (ADate | null);
     include_streak_marks_latest_date?: (ADate | null);

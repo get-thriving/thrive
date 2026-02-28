@@ -22,7 +22,7 @@ class NoteLoadArgs(UseCaseArgsBase):
     """NoteLoad args."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -45,7 +45,8 @@ class NoteLoadUseCase(
         args: NoteLoadArgs,
     ) -> NoteLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
         note = await uow.get_for(Note).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         return NoteLoadResult(note=note)

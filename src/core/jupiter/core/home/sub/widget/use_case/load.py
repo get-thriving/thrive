@@ -23,7 +23,7 @@ class HomeWidgetLoadArgs(UseCaseArgsBase):
     """The arguments for loading a home widget."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -48,8 +48,9 @@ class HomeWidgetLoadUseCase(
         args: HomeWidgetLoadArgs,
     ) -> HomeWidgetLoadResult:
         """Execute the use case's action."""
+        allow_archived = args.allow_archived or False
         widget = await uow.get_for(HomeWidget).load_by_id(
             args.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
         return HomeWidgetLoadResult(widget=widget)

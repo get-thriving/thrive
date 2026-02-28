@@ -66,7 +66,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
-import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import {
   ActionableTime,
@@ -135,7 +135,7 @@ export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const { entries, allTags } = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   const isBigScreen = useBigScreen();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
@@ -298,7 +298,7 @@ export default function InboxTasks() {
   const shouldDoAGc = figureOutIfGcIsRecommended(
     entries,
     optimisticUpdates,
-    globalProperties.inboxTasksToAskForGC,
+    serviceProperties.inboxTasksToAskForGC,
   );
 
   return (

@@ -1,5 +1,6 @@
 """Load an in day block with associated data."""
 
+from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -32,7 +33,7 @@ class TimeEventInDayBlockLoadArgs(UseCaseArgsBase):
     """InDayBlockLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -42,6 +43,7 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
     in_day_block: TimeEventInDayBlock
     schedule_event: ScheduleEventInDay | None
     inbox_task: InboxTask | None
+    big_plan: BigPlan | None
 
 
 @readonly_use_case()
@@ -59,27 +61,36 @@ class TimeEventInDayBlockLoadUseCase(
         args: TimeEventInDayBlockLoadArgs,
     ) -> TimeEventInDayBlockLoadResult:
         """Load a in day block and associated data."""
+        allow_archived = args.allow_archived or False
         in_day_block = await uow.get_for(TimeEventInDayBlock).load_by_id(
             args.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         schedule_event = None
         if in_day_block.namespace == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
             schedule_event = await uow.get_for(ScheduleEventInDay).load_by_id(
                 in_day_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         inbox_task = None
         if in_day_block.namespace == TimeEventNamespace.INBOX_TASK:
             inbox_task = await uow.get_for(InboxTask).load_by_id(
                 in_day_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
+            )
+
+        big_plan = None
+        if in_day_block.namespace == TimeEventNamespace.BIG_PLAN:
+            big_plan = await uow.get_for(BigPlan).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
             )
 
         return TimeEventInDayBlockLoadResult(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
             inbox_task=inbox_task,
+            big_plan=big_plan,
         )

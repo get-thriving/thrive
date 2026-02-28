@@ -73,6 +73,20 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
+    case TimeEventNamespace.BIG_PLAN: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/big-plans/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
     case TimeEventNamespace.VACATION: {
       return (
         <Button

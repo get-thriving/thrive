@@ -44,7 +44,7 @@ async def generic_destroyer(
                 await _remover(linked_stub_entity)
             elif issubclass(field.the_type, CrownEntity):
                 linked_entities = await uow.get_for(field.the_type).find_all(
-                    parent_ref_id=entity.ref_id, allow_archived=False
+                    parent_ref_id=entity.ref_id, allow_archived=True
                 )
 
                 for linked_entity in linked_entities:

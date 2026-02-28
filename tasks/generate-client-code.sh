@@ -12,13 +12,14 @@ source tasks/_common.sh
 log info "Generating client code for TypeScript and Python from OpenAPI spec"
 
 webapi_port=$(get_free_port)
+api_port=$(get_free_port)
 webapi_url=http://0.0.0.0:${webapi_port}
 webui_port=$(get_free_port)
 docs_port=$(get_free_port)
 
 log info "Starting Jupiter for API generation with port $webapi_port"
 
-run_jupiter_webapp dev apigen "$webapi_port" "$webui_port" "$docs_port" wait:webapi no-monit ci local latest pm2
+run_jupiter_webapp dev apigen "$webapi_port" "$api_port" "$webui_port" "$docs_port" wait:webapi no-monit ci local latest pm2
 
 log info "Extracting OpenAPI spec from WebAPI"
 

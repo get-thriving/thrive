@@ -1,12 +1,12 @@
 # Features Map
 
 There are many ways to run Thrive, as detailed in
-[hosting](concepts/hosting-options.md).Not all features or surfaces are going to
+[hosting](concepts/hosting-options.md). Not all features or surfaces are going to
 be availabe in all modes, due to manyof them requiring specialized
-infrastructure, or some level of centralisedcontrol.
+infrastructure, or some level of centralised control.
 
-Thrive has a set of _core features_ that basically describe the various_things_
-you can do with it.
+Thrive has a set of _core features_ that basically describe the
+various _things_ you can do with it.
 
 | Core Feature | Global Hosted | Self Hosted | Local |
 | --------- | -------------- | ------------- | -------- |
@@ -40,10 +40,12 @@ others and give an extra boost of usefulness to Thrive.
 | Pomodor Timer | ✅ | ✅ | ✅ |
 | Auto Tasks Generation | ✅ | ✅ | ❌ |
 | Auto Garbage Collection | ✅ | ✅ | ❌ |
+| API | ✅ | ✅ | ❌ |
 
-Thrive is a piece of software in the modern world, and as such itcomes with a
-number of _surfaces_ that you can use to interact with it.The core stays the
-same across years and decades, but the surfaces willcome and go.
+Thrive is a piece of software in the modern world, and as such itcomes
+with a number of _surfaces_ that you can use to interact with it.
+The core stays the same across years and decades, but the surfaces
+will come and go.
 
 | Surface | Global Hosted | Self Hosted | Local |
 | --------- | -------------- | ------------- | -------- |
@@ -53,9 +55,10 @@ same across years and decades, but the surfaces willcome and go.
 | iOS App | ✅ | ❌ | ❌ |
 | PWA | ✅ | ✅ | ❌ |
 | CLI | ❌ | ❌ | ✅ |
+| API | ✅ | ✅ | ❌ |
 
-Finally, there are a number of _non-functional_ attributes thatdepend on the way
-the software is hosted too.
+Finally, there are a number of _non-functional_ attributes that
+depend on the way the software is hosted too.
 
 | Non-Functional | Global Hosted | Self Hosted | Local |
 | --------- | -------------- | ------------- | -------- |

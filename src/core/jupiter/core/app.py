@@ -1,5 +1,8 @@
 """A client facing application."""
 
+import re
+
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.value import AtomicValue, EnumValue, enum_value, value
 
 
@@ -22,6 +25,7 @@ class AppCore(EnumValue):
 
     CLI = "cli"
     WEBUI = "webui"
+    API = "api"
 
 
 @enum_value
@@ -33,6 +37,7 @@ class AppShell(EnumValue):
     DESKTOP_ELECTRON = "desktop-electron"
     MOBILE_CAPACITOR = "mobile-capacitor"
     PWA = "pwa"
+    API = "api"
 
 
 @enum_value
@@ -44,6 +49,7 @@ class AppPlatform(EnumValue):
     MOBILE_ANDROID = "mobile-android"
     TABLET_IOS = "tablet-ios"
     TABLET_ANDROID = "tablet-android"
+    API = "api"
 
 
 @enum_value
@@ -55,6 +61,7 @@ class AppDistribution(EnumValue):
     MAC_STORE = "mac-store"
     APP_STORE = "app-store"
     GOOGLE_PLAY_STORE = "google-play-store"
+    API = "api"
 
 
 @enum_value
@@ -66,12 +73,26 @@ class AppDistributionState(EnumValue):
     NOT_AVAILABLE = "not-available"
 
 
+_VERSION_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
+
+
 @value
 class AppVersion(AtomicValue[str]):
     """The version of the app."""
 
     the_version: str
 
+    def _validate(self) -> None:
+        """Validate this version."""
+        match = _VERSION_RE.match(self.the_version)
+        if match is None:
+            raise InputValidationError(f"Invalid version: {self.the_version}")
+
     def __str__(self) -> str:
         """Transform this to a string version."""
         return self.the_version
+
+    @property
+    def major_version(self) -> int:
+        """Get the major version."""
+        return int(self.the_version.split(".")[0])

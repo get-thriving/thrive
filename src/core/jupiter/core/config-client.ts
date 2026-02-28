@@ -9,24 +9,32 @@ import {
 } from "@jupiter/webapi-client";
 import { createContext } from "react";
 
-import type { GlobalPropertiesServer } from "#/core/config-server";
+import type {
+  GlobalPropertiesServer,
+  ServicePropertiesServer,
+} from "#/core/config-server";
 import type { FrontDoorInfo } from "#/core/frontdoor";
 
 export interface GlobalPropertiesClient {
   publicName: string;
+  description: string;
   universe: Universe;
   env: Env;
   instance: Instance;
   version: string;
-  appCore: AppCore;
-  frontDoorInfo: FrontDoorInfo;
-  webApiProgressReporterUrl: string;
-  webApiUrl: string;
-  docsUrl: string;
   hostedGlobalDomain: string;
   communityUrl: string;
   termsOfServiceUrl: string;
   privacyPolicyUrl: string;
+}
+
+export interface ServicePropertiesClient {
+  appCore: AppCore;
+  frontDoorInfo: FrontDoorInfo;
+  webApiProgressReporterUrl: string;
+  webApiUrl: string;
+  apiUrl: string;
+  docsUrl: string;
   inboxTasksToAskForGC: number;
   overdueInfoDays: number;
   overdueWarningDays: number;
@@ -35,10 +43,18 @@ export interface GlobalPropertiesClient {
 
 export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   publicName: "FAKE-FAKE",
+  description: "FAKE-FAKE",
   universe: "dev",
   env: Env.LOCAL,
   instance: "Main",
   version: "FAKE-FAKE",
+  hostedGlobalDomain: "FAKE-FAKE",
+  communityUrl: "FAKE-FAKE",
+  termsOfServiceUrl: "FAKE-FAKE",
+  privacyPolicyUrl: "FAKE-FAKE",
+});
+
+export const ServicePropertiesContext = createContext<ServicePropertiesClient>({
   appCore: AppCore.WEBUI,
   frontDoorInfo: {
     clientVersion: "FAKE-FAKE",
@@ -49,11 +65,8 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
   },
   webApiProgressReporterUrl: "FAKE-FAKE",
   webApiUrl: "FAKE-FAKE",
+  apiUrl: "FAKE-FAKE",
   docsUrl: "FAKE-FAKE",
-  hostedGlobalDomain: "FAKE-FAKE",
-  communityUrl: "FAKE-FAKE",
-  termsOfServiceUrl: "FAKE-FAKE",
-  privacyPolicyUrl: "FAKE-FAKE",
   inboxTasksToAskForGC: 20,
   overdueInfoDays: 1,
   overdueWarningDays: 2,
@@ -62,26 +75,36 @@ export const GlobalPropertiesContext = createContext<GlobalPropertiesClient>({
 
 export function serverToClientGlobalProperties(
   globalPropertiesServer: GlobalPropertiesServer,
-  frontDoorInfo: FrontDoorInfo,
 ): GlobalPropertiesClient {
   return {
     publicName: globalPropertiesServer.publicName,
+    description: globalPropertiesServer.description,
     universe: globalPropertiesServer.universe,
     env: globalPropertiesServer.env,
     instance: globalPropertiesServer.instance,
     version: globalPropertiesServer.version,
-    appCore: AppCore.WEBUI,
-    frontDoorInfo: frontDoorInfo,
-    webApiProgressReporterUrl: globalPropertiesServer.webApiProgressReporterUrl,
-    webApiUrl: globalPropertiesServer.webApiUrl,
-    docsUrl: globalPropertiesServer.docsUrl,
     hostedGlobalDomain: globalPropertiesServer.hostedGlobalWebUiUrl,
     communityUrl: globalPropertiesServer.communityUrl,
     termsOfServiceUrl: globalPropertiesServer.termsOfServiceUrl,
     privacyPolicyUrl: globalPropertiesServer.privacyPolicyUrl,
-    inboxTasksToAskForGC: globalPropertiesServer.inboxTasksToAskForGC,
-    overdueInfoDays: globalPropertiesServer.overdueInfoDays,
-    overdueWarningDays: globalPropertiesServer.overdueWarningDays,
-    overdueDangerDays: globalPropertiesServer.overdueDangerDays,
+  };
+}
+
+export function serverToClientServiceProperties(
+  servicePropertiesServer: ServicePropertiesServer,
+  frontDoorInfo: FrontDoorInfo,
+): ServicePropertiesClient {
+  return {
+    appCore: AppCore.WEBUI,
+    frontDoorInfo: frontDoorInfo,
+    webApiProgressReporterUrl:
+      servicePropertiesServer.webApiProgressReporterUrl,
+    webApiUrl: servicePropertiesServer.webApiUrl,
+    apiUrl: servicePropertiesServer.apiUrl,
+    docsUrl: servicePropertiesServer.docsUrl,
+    inboxTasksToAskForGC: servicePropertiesServer.inboxTasksToAskForGC,
+    overdueInfoDays: servicePropertiesServer.overdueInfoDays,
+    overdueWarningDays: servicePropertiesServer.overdueWarningDays,
+    overdueDangerDays: servicePropertiesServer.overdueDangerDays,
   };
 }

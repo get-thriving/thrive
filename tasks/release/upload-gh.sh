@@ -96,6 +96,13 @@ fi
 
 gh release upload "${release_tag}" --clobber .build-cache/cloc/"${usage_version}"/cloc.txt
 
+if [ ! -f .build-cache/cloc/"${usage_version}"/stats-over-time.csv ]; then
+    log info "Stats over time file does not exist"
+    exit 1
+fi
+
+gh release upload "${release_tag}" --clobber .build-cache/cloc/"${usage_version}"/stats-over-time.csv
+
 if [ "${desktop_macos}" = true ]; then
     log info "Uploading desktop macOS releases ${usage_version} on GitHub"
 
@@ -137,6 +144,22 @@ gh release upload "${release_tag}" --clobber infra/self-hosted/compose.yaml
 gh release upload "${release_tag}" --clobber infra/self-hosted/nginx.conf
 gh release upload "${release_tag}" --clobber infra/self-hosted/webui.conf
 gh release upload "${release_tag}" --clobber infra/self-hosted/webui.nodomain.conf
+
+log info "Uploading docker images ${usage_version} on GitHub"
+
+for service in webapi api webui docs cli; do
+    for platform in arm64 amd64; do
+        image_name="jupiter/${service}:${usage_version}-${platform}"
+        tar_name="${service}-${platform}.tar"
+        tar_path=".build-cache/release/${usage_version}/${tar_name}"
+
+        log info "Saving docker image ${image_name} to ${tar_path}"
+        docker save -o "${tar_path}" "${image_name}"
+
+        log info "Uploading docker image ${tar_name} on GitHub"
+        gh release upload "${release_tag}" --clobber "${tar_path}"
+    done
+done
 
 log info "Closing release"
 

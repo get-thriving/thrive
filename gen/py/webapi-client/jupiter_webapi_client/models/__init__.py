@@ -18,6 +18,18 @@ from .achieved_time_and_effort_summary_total_activities_by_doneness import (
     AchievedTimeAndEffortSummaryTotalActivitiesByDoneness,
 )
 from .achieved_time_and_effort_summary_total_score_by_doneness import AchievedTimeAndEffortSummaryTotalScoreByDoneness
+from .api_key_archive_args import APIKeyArchiveArgs
+from .api_key_create_args import APIKeyCreateArgs
+from .api_key_create_result import APIKeyCreateResult
+from .api_key_exchange_args import APIKeyExchangeArgs
+from .api_key_exchange_result import APIKeyExchangeResult
+from .api_key_find_args import APIKeyFindArgs
+from .api_key_find_result import APIKeyFindResult
+from .api_key_load_args import APIKeyLoadArgs
+from .api_key_load_result import APIKeyLoadResult
+from .api_key_summary import APIKeySummary
+from .api_key_update_args import APIKeyUpdateArgs
+from .api_key_update_args_name import APIKeyUpdateArgsName
 from .app_component import AppComponent
 from .app_core import AppCore
 from .app_distribution import AppDistribution
@@ -30,6 +42,7 @@ from .big_plan_archive_service_result import BigPlanArchiveServiceResult
 from .big_plan_collection import BigPlanCollection
 from .big_plan_create_args import BigPlanCreateArgs
 from .big_plan_create_result import BigPlanCreateResult
+from .big_plan_entry import BigPlanEntry
 from .big_plan_find_args import BigPlanFindArgs
 from .big_plan_find_result import BigPlanFindResult
 from .big_plan_find_result_entry import BigPlanFindResultEntry
@@ -187,6 +200,8 @@ from .entity_reference_block import EntityReferenceBlock
 from .entity_reference_block_kind import EntityReferenceBlockKind
 from .entity_summary import EntitySummary
 from .env import Env
+from .error_detail_item import ErrorDetailItem
+from .error_response import ErrorResponse
 from .feature_control import FeatureControl
 from .gc_do_all_args import GCDoAllArgs
 from .gc_do_args import GCDoArgs
@@ -679,6 +694,8 @@ from .time_event_full_days_block_stats import TimeEventFullDaysBlockStats
 from .time_event_full_days_block_stats_per_group import TimeEventFullDaysBlockStatsPerGroup
 from .time_event_in_day_block import TimeEventInDayBlock
 from .time_event_in_day_block_archive_args import TimeEventInDayBlockArchiveArgs
+from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBlockCreateForBigPlanArgs
+from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
 from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
 from .time_event_in_day_block_load_args import TimeEventInDayBlockLoadArgs
@@ -845,6 +862,18 @@ __all__ = (
     "AchievedTimeAndEffortSummaryScoreByFeasabilityByDonenessAdditionalProperty",
     "AchievedTimeAndEffortSummaryTotalActivitiesByDoneness",
     "AchievedTimeAndEffortSummaryTotalScoreByDoneness",
+    "APIKeyArchiveArgs",
+    "APIKeyCreateArgs",
+    "APIKeyCreateResult",
+    "APIKeyExchangeArgs",
+    "APIKeyExchangeResult",
+    "APIKeyFindArgs",
+    "APIKeyFindResult",
+    "APIKeyLoadArgs",
+    "APIKeyLoadResult",
+    "APIKeySummary",
+    "APIKeyUpdateArgs",
+    "APIKeyUpdateArgsName",
     "AppComponent",
     "AppCore",
     "AppDistribution",
@@ -857,6 +886,7 @@ __all__ = (
     "BigPlanCollection",
     "BigPlanCreateArgs",
     "BigPlanCreateResult",
+    "BigPlanEntry",
     "BigPlanFindArgs",
     "BigPlanFindResult",
     "BigPlanFindResultEntry",
@@ -1014,6 +1044,8 @@ __all__ = (
     "EntityReferenceBlockKind",
     "EntitySummary",
     "Env",
+    "ErrorDetailItem",
+    "ErrorResponse",
     "FeatureControl",
     "GCDoAllArgs",
     "GCDoArgs",
@@ -1498,6 +1530,8 @@ __all__ = (
     "TimeEventFullDaysBlockStatsPerGroup",
     "TimeEventInDayBlock",
     "TimeEventInDayBlockArchiveArgs",
+    "TimeEventInDayBlockCreateForBigPlanArgs",
+    "TimeEventInDayBlockCreateForBigPlanResult",
     "TimeEventInDayBlockCreateForInboxTaskArgs",
     "TimeEventInDayBlockCreateForInboxTaskResult",
     "TimeEventInDayBlockLoadArgs",

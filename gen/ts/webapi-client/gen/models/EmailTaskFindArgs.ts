@@ -7,8 +7,8 @@ import type { EntityId } from './EntityId';
  * PersonFindArgs.
  */
 export type EmailTaskFindArgs = {
-    allow_archived: boolean;
-    include_inbox_task: boolean;
+    allow_archived?: (boolean | null);
+    include_inbox_task?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
 };
 

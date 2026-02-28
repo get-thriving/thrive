@@ -120,7 +120,11 @@ class UseCase(
     _ports: _PortsT
     _global_properties: _GlobalPropertiesT
 
-    def __init__(self, ports: _PortsT, global_properties: _GlobalPropertiesT) -> None:
+    def __init__(
+        self,
+        ports: _PortsT,
+        global_properties: _GlobalPropertiesT,
+    ) -> None:
         """Create the use case."""
         self._ports = ports
         self._global_properties = global_properties
@@ -828,6 +832,9 @@ class LoggedInReadonlyUseCase(
         self, session: _LoggedInSessionT
     ) -> _LoggedInReadonlyContextT:
         if not self.is_allowed_globally:
+            from rich import print
+
+            print("Here")
             raise UnavailableGloballyError(
                 "This action is not available in this environment"
             )

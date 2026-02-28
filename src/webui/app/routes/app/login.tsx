@@ -17,7 +17,7 @@ import { SmartAppBar } from "@jupiter/core/infra/component/smart-appbar";
 import { Logo } from "@jupiter/core/infra/component/logo";
 import { Password } from "@jupiter/core/auth/component/password";
 import { Title } from "@jupiter/core/infra/component/title";
-import { GlobalPropertiesContext } from "@jupiter/core/config-client";
+import { ServicePropertiesContext } from "@jupiter/core/config-client";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { AUTH_TOKEN_NAME } from "@jupiter/core/infra/names";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
@@ -98,7 +98,7 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
 
-  const globalProperties = useContext(GlobalPropertiesContext);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   const inputsEnabled = navigation.state === "idle";
 
@@ -149,7 +149,7 @@ export default function Login() {
                       text: "Pick Server",
                       link: "/app/pick-server/desktop",
                       disabled:
-                        globalProperties.frontDoorInfo.appShell !==
+                        serviceProperties.frontDoorInfo.appShell !==
                         AppShell.DESKTOP_ELECTRON,
                     }),
                   ],

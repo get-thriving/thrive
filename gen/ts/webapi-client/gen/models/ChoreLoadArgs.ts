@@ -8,7 +8,7 @@ import type { EntityId } from './EntityId';
  */
 export type ChoreLoadArgs = {
     ref_id: EntityId;
-    allow_archived: boolean;
+    allow_archived?: (boolean | null);
     inbox_task_retrieve_offset?: (number | null);
 };
 

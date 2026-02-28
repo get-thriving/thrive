@@ -11,4 +11,5 @@ export enum AppDistribution {
     MAC_STORE = 'mac-store',
     APP_STORE = 'app-store',
     GOOGLE_PLAY_STORE = 'google-play-store',
+    API = 'api',
 }

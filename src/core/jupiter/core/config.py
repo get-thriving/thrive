@@ -69,29 +69,12 @@ class JupiterPorts(DomainPorts):
 class JupiterGlobalProperties(GlobalProperties):
     """UseCase-level properties."""
 
+    public_name: str
+    description: str
     universe: Universe
     env: Env
     instance: Instance
-    description: str
-    host: str
-    port: int
     version: AppVersion
-    docs_init_workspace_url: str
-    session_info_path: Path
-    sqlite_db_url: str
-    alembic_ini_path: Path
-    alembic_migrations_path: Path
-    auth_token_secret: str
-    sentry_dsn: str
-    wix_api_key: str
-    wix_account_id: str
-    wix_site_id: str
-
-    @property
-    def sync_sqlite_db_url(self) -> str:
-        """A safe sync version of the Sqlite DB url."""
-        # Bit of implicit knowledge here.
-        return self.sqlite_db_url.replace("sqlite+aiosqlite", "sqlite+pysqlite")
 
     def allows(
         self, only_for: list[EnumValue] | None, excluded: list[EnumValue] | None
@@ -132,11 +115,11 @@ def build_global_properties() -> JupiterGlobalProperties:
             right_here = right_here.parent
 
     global_config_path = find_up_the_dir_tree("Config.global")
-    project_config_path = find_up_the_dir_tree("Config.project")
 
     dotenv.load_dotenv(dotenv_path=global_config_path, verbose=True)
-    dotenv.load_dotenv(dotenv_path=project_config_path, verbose=True)
 
+    public_name = cast(str, os.getenv("PUBLIC_NAME"))
+    description = cast(str, os.getenv("DESCRIPTION"))
     universe = Universe(cast(str, os.getenv("UNIVERSE")))
     env = Env(cast(str, os.getenv("ENV")))
     if os.getenv("RENDER"):
@@ -145,44 +128,15 @@ def build_global_properties() -> JupiterGlobalProperties:
         )
     else:
         instance = Instance(cast(str, os.getenv("INSTANCE")))
-    description = cast(str, os.getenv("DESCRIPTION"))
-    host = cast(str, os.getenv("HOST"))
-    port = int(cast(str, os.getenv("PORT")))
     version = AppVersion(cast(str, os.getenv("VERSION")))
-    docs_init_workspace_url = cast(str, os.getenv("DOCS_INIT_WORKSPACE_URL"))
-    session_info_path = Path(cast(str, os.getenv("SESSION_INFO_PATH")))
-    sentry_dsn = cast(str, os.getenv("SENTRY_DSN"))
-    sqlite_db_url = cast(str, os.getenv("SQLITE_DB_URL"))
-    alembic_ini_path = Path(cast(str, os.getenv("ALEMBIC_INI_PATH")))
-    alembic_migrations_path = Path(cast(str, os.getenv("ALEMBIC_MIGRATIONS_PATH")))
-    auth_token_secret = cast(str, os.getenv("AUTH_TOKEN_SECRET"))
-    wix_api_key = cast(str, os.getenv("WIX_API_KEY"))
-    wix_account_id = cast(str, os.getenv("WIX_ACCOUNT_ID"))
-    wix_site_id = cast(str, os.getenv("WIX_SITE_ID"))
-
-    if not alembic_ini_path.is_absolute():
-        alembic_ini_path = find_up_the_dir_tree(alembic_ini_path)
-    if not alembic_migrations_path.is_absolute():
-        alembic_migrations_path = find_up_the_dir_tree(alembic_migrations_path)
 
     return JupiterGlobalProperties(
+        public_name=public_name,
         universe=universe,
         env=env,
         instance=instance,
         description=description,
-        host=host,
-        port=port,
         version=version,
-        docs_init_workspace_url=docs_init_workspace_url,
-        session_info_path=session_info_path,
-        sentry_dsn=sentry_dsn,
-        sqlite_db_url=sqlite_db_url,
-        alembic_ini_path=alembic_ini_path,
-        alembic_migrations_path=alembic_migrations_path,
-        auth_token_secret=auth_token_secret,
-        wix_api_key=wix_api_key,
-        wix_account_id=wix_account_id,
-        wix_site_id=wix_site_id,
     )
 
 
@@ -238,36 +192,68 @@ class JupiterComponentProperties(ComponentProperties):
         """Whether this global properties allows for a given filter."""
         if only_for is not None:
             for filter_val in only_for:
-                if isinstance(filter_val, AppComponent):
-                    return self._component == filter_val
-                elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core == filter_val
-                elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell == filter_val
-                elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform == filter_val
-                elif self._distribution is not None and isinstance(
-                    filter_val, AppDistribution
+                if (
+                    isinstance(filter_val, AppComponent)
+                    and self._component == filter_val
                 ):
-                    return self._distribution == filter_val
-                else:
+                    return True
+                elif (
+                    self._core is not None
+                    and isinstance(filter_val, AppCore)
+                    and self._core == filter_val
+                ):
+                    return True
+                elif (
+                    self._the_shell is not None
+                    and isinstance(filter_val, AppShell)
+                    and self._the_shell == filter_val
+                ):
+                    return True
+                elif (
+                    self._platform is not None
+                    and isinstance(filter_val, AppPlatform)
+                    and self._platform == filter_val
+                ):
+                    return True
+                elif (
+                    self._distribution is not None
+                    and isinstance(filter_val, AppDistribution)
+                    and self._distribution == filter_val
+                ):
+                    return True
+                elif not (
+                    isinstance(filter_val, AppComponent)
+                    or isinstance(filter_val, AppCore)
+                    or isinstance(filter_val, AppShell)
+                    or isinstance(filter_val, AppPlatform)
+                    or isinstance(filter_val, AppDistribution)
+                ):
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return False
         if excluded is not None:
             for filter_val in excluded:
                 if isinstance(filter_val, AppComponent):
-                    return self._component != filter_val
+                    if self._component == filter_val:
+                        return False
                 elif self._core is not None and isinstance(filter_val, AppCore):
-                    return self._core != filter_val
+                    if self._core == filter_val:
+                        return False
                 elif self._the_shell is not None and isinstance(filter_val, AppShell):
-                    return self._the_shell != filter_val
+                    if self._the_shell == filter_val:
+                        return False
                 elif self._platform is not None and isinstance(filter_val, AppPlatform):
-                    return self._platform != filter_val
+                    if self._platform == filter_val:
+                        return False
                 elif self._distribution is not None and isinstance(
                     filter_val, AppDistribution
                 ):
-                    return self._distribution != filter_val
+                    if self._distribution == filter_val:
+                        return False
                 else:
                     raise Exception(f"Invalid filter type: {type(filter_val)}")
+            else:
+                return True
         return True
 
     def as_event_source(self) -> str:

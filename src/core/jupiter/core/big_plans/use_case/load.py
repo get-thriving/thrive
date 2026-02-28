@@ -8,6 +8,11 @@ from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -42,7 +47,7 @@ class BigPlanLoadArgs(UseCaseArgsBase):
     """BigPlanLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -57,6 +62,7 @@ class BigPlanLoadResult(UseCaseResultBase):
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
 
 
@@ -73,10 +79,12 @@ class BigPlanLoadUseCase(
         args: BigPlanLoadArgs,
     ) -> BigPlanLoadResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
 
         big_plan = await uow.get_for(BigPlan).load_by_id(
-            args.ref_id, allow_archived=args.allow_archived
+            args.ref_id, allow_archived=allow_archived
         )
         project = await uow.get_for(Project).load_by_id(big_plan.project_ref_id)
         chapter = (
@@ -100,7 +108,7 @@ class BigPlanLoadUseCase(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             source=InboxTaskSource.BIG_PLAN,
             source_entity_ref_id=big_plan.ref_id,
         )
@@ -123,7 +131,16 @@ class BigPlanLoadUseCase(
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.BIG_PLAN,
             big_plan.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
+        )
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.BIG_PLAN,
+            source_entity_ref_id=[big_plan.ref_id],
         )
         stats = await uow.get(BigPlanStatsRepository).load_by_key_optional(
             big_plan.ref_id
@@ -140,5 +157,6 @@ class BigPlanLoadUseCase(
             inbox_tasks=inbox_tasks,
             tags=tags,
             note=note,
+            time_event_blocks=time_event_blocks,
             stats=stats,
         )

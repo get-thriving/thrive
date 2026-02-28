@@ -42,11 +42,11 @@ from jupiter.framework.use_case_io import (
 class JournalFindArgs(UseCaseArgsBase):
     """Args."""
 
-    allow_archived: bool
-    include_notes: bool
-    include_journal_stats: bool
-    include_writing_tasks: bool
-    include_tags: bool
+    allow_archived: bool | None
+    include_notes: bool | None
+    include_journal_stats: bool | None
+    include_writing_tasks: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -68,7 +68,9 @@ class JournalFindResult(UseCaseResultBase):
     entries: list[JournalFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[JournalFindArgs, JournalFindResult]
 ):
@@ -81,6 +83,12 @@ class JournalFindUseCase(
         args: JournalFindArgs,
     ) -> JournalFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_notes = args.include_notes or False
+        include_journal_stats = args.include_journal_stats or False
+        include_writing_tasks = args.include_writing_tasks or False
+        include_tags = args.include_tags or False
+
         workspace = context.workspace
 
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
@@ -94,12 +102,12 @@ class JournalFindUseCase(
         )
         journals = await uow.get_for(Journal).find_all(
             parent_ref_id=journal_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
         notes_by_journal_ref_id = {}
-        if args.include_notes:
+        if include_notes:
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
                 namespace=NoteNamespace.JOURNAL,
@@ -110,7 +118,7 @@ class JournalFindUseCase(
                 notes_by_journal_ref_id[note.source_entity_ref_id] = note
 
         journal_stats_by_journal_ref_id = {}
-        if args.include_journal_stats:
+        if include_journal_stats:
             journal_stats = await uow.get(JournalStatsRepository).find_all(
                 [journal.ref_id for journal in journals]
             )
@@ -120,11 +128,11 @@ class JournalFindUseCase(
                 )
 
         writing_tasks_by_journal_ref_id = {}
-        if args.include_writing_tasks:
+        if include_writing_tasks:
             writing_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 source=[InboxTaskSource.JOURNAL],
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 source_entity_ref_id=[journal.ref_id for journal in journals],
             )
             for writing_task in writing_tasks:
@@ -132,7 +140,7 @@ class JournalFindUseCase(
                     writing_task
                 )
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

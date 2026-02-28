@@ -36,10 +36,10 @@ from jupiter.framework.use_case_io import (
 class DocFindArgs(UseCaseArgsBase):
     """DocFind args."""
 
-    include_notes: bool
-    allow_archived: bool
-    include_subdocs: bool
-    include_tags: bool
+    include_notes: bool | None
+    allow_archived: bool | None
+    include_subdocs: bool | None
+    include_tags: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -73,6 +73,10 @@ class DocFindUseCase(
         args: DocFindArgs,
     ) -> DocFindResult:
         """Execute the command's action."""
+        include_notes = args.include_notes or False
+        allow_archived = args.allow_archived or False
+        include_subdocs = args.include_subdocs or False
+        include_tags = args.include_tags or False
         workspace = context.workspace
         doc_collection = await uow.get_for(DocCollection).load_by_parent(
             workspace.ref_id
@@ -80,13 +84,13 @@ class DocFindUseCase(
 
         docs = await uow.get_for(Doc).find_all_generic(
             parent_ref_id=doc_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             parent_doc_ref_id=NoFilter(),
         )
 
         notes_by_doc_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -100,10 +104,10 @@ class DocFindUseCase(
                 notes_by_doc_ref_id[n.source_entity_ref_id] = n
 
         subdocs_by_parent_ref_id = defaultdict(list)
-        if args.include_subdocs:
+        if include_subdocs:
             subdocs = await uow.get_for(Doc).find_all_generic(
                 parent_ref_id=doc_collection.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
                 parent_doc_ref_id=[d.ref_id for d in docs],
             )
             for sd in subdocs:
@@ -111,7 +115,7 @@ class DocFindUseCase(
                     continue
                 subdocs_by_parent_ref_id[sd.parent_doc_ref_id].append(sd)
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

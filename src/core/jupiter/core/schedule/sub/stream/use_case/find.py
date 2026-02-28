@@ -35,9 +35,9 @@ from jupiter.framework.use_case_io import (
 class ScheduleStreamFindArgs(UseCaseArgsBase):
     """Args."""
 
-    include_notes: bool
-    include_tags: bool
-    allow_archived: bool
+    include_notes: bool | None
+    include_tags: bool | None
+    allow_archived: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -72,18 +72,22 @@ class ScheduleStreamFindUseCase(
         args: ScheduleStreamFindArgs,
     ) -> ScheduleStreamFindResult:
         """Perform the transactional read."""
+        include_notes = args.include_notes or False
+        include_tags = args.include_tags or False
+        allow_archived = args.allow_archived or False
+
         workspace = context.workspace
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
             workspace.ref_id
         )
         schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
             parent_ref_id=schedule_domain.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 
         notes_by_schedule_stream_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if args.include_notes:
+        if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -96,7 +100,7 @@ class ScheduleStreamFindUseCase(
             for n in notes:
                 notes_by_schedule_stream_ref_id[n.source_entity_ref_id] = n
 
-        if args.include_tags:
+        if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,

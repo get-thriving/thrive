@@ -36,8 +36,8 @@ from jupiter.framework.use_case_io import (
 class EmailTaskFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
-    allow_archived: bool
-    include_inbox_task: bool
+    allow_archived: bool | None
+    include_inbox_task: bool | None
     filter_ref_ids: list[EntityId] | None
 
 
@@ -70,6 +70,9 @@ class EmailTaskFindUseCase(
         args: EmailTaskFindArgs,
     ) -> EmailTaskFindResult:
         """Execute the command's action."""
+        allow_archived = args.allow_archived or False
+        include_inbox_task = args.include_inbox_task or False
+
         workspace = context.workspace
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -83,7 +86,7 @@ class EmailTaskFindUseCase(
         )
         email_tasks = await uow.get_for(EmailTask).find_all(
             parent_ref_id=email_task_collection.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
         )
 
@@ -91,7 +94,7 @@ class EmailTaskFindUseCase(
             email_task_collection.generation_project_ref_id,
         )
 
-        if args.include_inbox_task:
+        if include_inbox_task:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,

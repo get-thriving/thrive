@@ -27,7 +27,8 @@ class AuthToken(SecretValue):
     """An authentication token allows for secure and fast authentication across a session."""
 
     _AUDIENCE_GENERAL: ClassVar[str] = "general"
-    _AUDIENCE_GENERAL_DURATION: ClassVar[dict[str, int]] = {"months": 1}
+    _AUDIENCE_GENERAL_DURATION_LONG: ClassVar[dict[str, int]] = {"months": 1}
+    _AUDIENCE_GENERAL_DURATION_SHORT: ClassVar[dict[str, int]] = {"minutes": 1}
     _AUDIENCE_PROGRESS_REPORTER: ClassVar[str] = "progress-reporter"
     _AUDIENCE_PROGRESS_REPORTER_DURATION: ClassVar[dict[str, int]] = {"minutes": 10}
 
@@ -38,7 +39,7 @@ class AuthToken(SecretValue):
     auth_token_str: str
 
     @staticmethod
-    def new_for_general(
+    def new_for_general_long(
         secret: str, user_ref_id: EntityId, right_now: Timestamp
     ) -> "AuthToken":
         """Create a new auth token useful for general modifications."""
@@ -47,7 +48,20 @@ class AuthToken(SecretValue):
             user_ref_id,
             right_now,
             AuthToken._AUDIENCE_GENERAL,
-            AuthToken._AUDIENCE_GENERAL_DURATION,
+            AuthToken._AUDIENCE_GENERAL_DURATION_LONG,
+        )
+
+    @staticmethod
+    def new_for_general_short(
+        secret: str, user_ref_id: EntityId, right_now: Timestamp
+    ) -> "AuthToken":
+        """Create a new auth token useful for API modifications."""
+        return AuthToken._new_for_audience(
+            secret,
+            user_ref_id,
+            right_now,
+            AuthToken._AUDIENCE_GENERAL,
+            AuthToken._AUDIENCE_GENERAL_DURATION_SHORT,
         )
 
     @staticmethod

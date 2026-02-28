@@ -34,7 +34,7 @@ class TimeEventFullDaysBlockLoadArgs(UseCaseArgsBase):
     """FullDaysBlockLoadArgs."""
 
     ref_id: EntityId
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -63,16 +63,17 @@ class TimeEventFullDaysBlockLoadUseCase(
         args: TimeEventFullDaysBlockLoadArgs,
     ) -> TimeEventFullDaysBlockLoadResult:
         """Load a full day block and associated data."""
+        allow_archived = args.allow_archived or False
         full_days_block = await uow.get_for(TimeEventFullDaysBlock).load_by_id(
             args.ref_id,
-            allow_archived=args.allow_archived,
+            allow_archived=allow_archived,
         )
 
         schedule_event = None
         if full_days_block.namespace == TimeEventNamespace.SCHEDULE_FULL_DAYS_BLOCK:
             schedule_event = await uow.get_for(ScheduleEventFullDays).load_by_id(
                 full_days_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         person = None
@@ -80,18 +81,18 @@ class TimeEventFullDaysBlockLoadUseCase(
         if full_days_block.namespace == TimeEventNamespace.PERSON_OCCASION:
             occasion = await uow.get_for(Occasion).load_by_id(
                 full_days_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
             person = await uow.get_for(Person).load_by_id(
                 occasion.person.ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         vacation = None
         if full_days_block.namespace == TimeEventNamespace.VACATION:
             vacation = await uow.get_for(Vacation).load_by_id(
                 full_days_block.source_entity_ref_id,
-                allow_archived=args.allow_archived,
+                allow_archived=allow_archived,
             )
 
         return TimeEventFullDaysBlockLoadResult(

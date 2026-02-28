@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.project import Project
     from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="BigPlanLoadResult")
@@ -33,6 +34,7 @@ class BigPlanLoadResult:
         milestones (list[BigPlanMilestone]):
         inbox_tasks (list[InboxTask]):
         tags (list[Tag]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         stats (BigPlanStats): Stats about a big plan.
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -44,6 +46,7 @@ class BigPlanLoadResult:
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
+    time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -73,6 +76,11 @@ class BigPlanLoadResult:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
 
         stats = self.stats.to_dict()
 
@@ -109,6 +117,7 @@ class BigPlanLoadResult:
                 "milestones": milestones,
                 "inbox_tasks": inbox_tasks,
                 "tags": tags,
+                "time_event_blocks": time_event_blocks,
                 "stats": stats,
             }
         )
@@ -132,6 +141,7 @@ class BigPlanLoadResult:
         from ..models.note import Note
         from ..models.project import Project
         from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
@@ -158,6 +168,13 @@ class BigPlanLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         stats = BigPlanStats.from_dict(d.pop("stats"))
 
@@ -218,6 +235,7 @@ class BigPlanLoadResult:
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             tags=tags,
+            time_event_blocks=time_event_blocks,
             stats=stats,
             chapter=chapter,
             goal=goal,

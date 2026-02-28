@@ -34,7 +34,7 @@ class JournalLoadForDateAndPeriodArgs(UseCaseArgsBase):
 
     right_now: ADate
     period: RecurringTaskPeriod
-    allow_archived: bool
+    allow_archived: bool | None
 
 
 @use_case_result
@@ -46,7 +46,9 @@ class JournalLoadForDateAndPeriodResult(UseCaseResultBase):
     sub_period_journals: list[Journal]
 
 
-@readonly_use_case(WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI])
+@readonly_use_case(
+    WorkspaceFeature.JOURNALS, only_for_component=[AppCore.WEBUI, AppCore.API]
+)
 class JournalLoadForDateAndPeriodUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[
         JournalLoadForDateAndPeriodArgs, JournalLoadForDateAndPeriodResult

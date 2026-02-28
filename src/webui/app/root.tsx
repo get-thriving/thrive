@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-import type { LoaderFunctionArgs, SerializeFrom } from "@remix-run/node";
+import type { SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
@@ -15,7 +15,6 @@ import { StrictMode } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
-import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
 import { getPublicName } from "#/core/utils";
 
 const THEME = createTheme({
@@ -43,19 +42,9 @@ const THEME = createTheme({
   },
 });
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  // This is the only place where we can read this field.
-  const frontDoor = await loadFrontDoorInfo(
-    GLOBAL_PROPERTIES.version,
-    request.headers.get("Cookie"),
-    request.headers.get("User-Agent"),
-  );
-
+export async function loader() {
   return json({
-    globalProperties: serverToClientGlobalProperties(
-      GLOBAL_PROPERTIES,
-      frontDoor,
-    ),
+    globalProperties: serverToClientGlobalProperties(GLOBAL_PROPERTIES),
   });
 }
 
