@@ -383,6 +383,8 @@ from .login_result import LoginResult
 from .mcp_key_archive_args import MCPKeyArchiveArgs
 from .mcp_key_create_args import MCPKeyCreateArgs
 from .mcp_key_create_result import MCPKeyCreateResult
+from .mcp_key_exchange_args import MCPKeyExchangeArgs
+from .mcp_key_exchange_result import MCPKeyExchangeResult
 from .mcp_key_find_args import MCPKeyFindArgs
 from .mcp_key_find_result import MCPKeyFindResult
 from .mcp_key_load_args import MCPKeyLoadArgs
@@ -1233,6 +1235,8 @@ __all__ = (
     "MCPKeyArchiveArgs",
     "MCPKeyCreateArgs",
     "MCPKeyCreateResult",
+    "MCPKeyExchangeArgs",
+    "MCPKeyExchangeResult",
     "MCPKeyFindArgs",
     "MCPKeyFindResult",
     "MCPKeyLoadArgs",

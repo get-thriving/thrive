@@ -5,6 +5,8 @@
 import type { MCPKeyArchiveArgs } from '../models/MCPKeyArchiveArgs';
 import type { MCPKeyCreateArgs } from '../models/MCPKeyCreateArgs';
 import type { MCPKeyCreateResult } from '../models/MCPKeyCreateResult';
+import type { MCPKeyExchangeArgs } from '../models/MCPKeyExchangeArgs';
+import type { MCPKeyExchangeResult } from '../models/MCPKeyExchangeResult';
 import type { MCPKeyFindArgs } from '../models/MCPKeyFindArgs';
 import type { MCPKeyFindResult } from '../models/MCPKeyFindResult';
 import type { MCPKeyLoadArgs } from '../models/MCPKeyLoadArgs';
@@ -52,6 +54,32 @@ export class McpKeyService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/mcp-key-create',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for exchanging an MCP key for an authentication token.
+     * @param requestBody The input data
+     * @returns MCPKeyExchangeResult Successful response
+     * @throws ApiError
+     */
+    public mCpKeyExchange(
+        requestBody?: MCPKeyExchangeArgs,
+    ): CancelablePromise<MCPKeyExchangeResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/mcp-key-exchange',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

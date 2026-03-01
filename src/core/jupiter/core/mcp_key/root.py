@@ -18,6 +18,10 @@ from jupiter.framework.secure import secure_class
 from jupiter.framework.update_action import UpdateAction
 
 
+class InvalidMCPKeyError(Exception):
+    """Error raised when the MCP key is invalid."""
+
+
 @entity
 @secure_class
 @only_in_realm(DatabaseRealm)

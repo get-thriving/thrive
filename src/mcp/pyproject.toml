@@ -9,12 +9,14 @@ license = "MIT"
 dependencies = [
     "jupiter-framework",
     "jupiter-core",
+    "jupiter-webapi-client",
     "fastapi>=0.115.11,<0.116",
     "uvicorn>=0.34.0,<0.35",
     "pydantic>=2.10.6,<3",
     "gunicorn>=23.0.0,<24",
     "python-dotenv>=1.0.1,<2",
     "greenlet>=3.1.1,<4",
+    "mcp>=1.9.0,<2",
 ]
 
 [project.urls]
@@ -31,6 +33,7 @@ package = false
 [tool.uv.sources]
 jupiter-framework = { workspace = true }
 jupiter-core = { workspace = true }
+jupiter-webapi-client = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

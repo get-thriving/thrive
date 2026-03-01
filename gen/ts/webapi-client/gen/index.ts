@@ -294,6 +294,8 @@ export type { LoginResult } from './models/LoginResult';
 export type { MCPKeyArchiveArgs } from './models/MCPKeyArchiveArgs';
 export type { MCPKeyCreateArgs } from './models/MCPKeyCreateArgs';
 export type { MCPKeyCreateResult } from './models/MCPKeyCreateResult';
+export type { MCPKeyExchangeArgs } from './models/MCPKeyExchangeArgs';
+export type { MCPKeyExchangeResult } from './models/MCPKeyExchangeResult';
 export type { MCPKeyExternal } from './models/MCPKeyExternal';
 export type { MCPKeyFindArgs } from './models/MCPKeyFindArgs';
 export type { MCPKeyFindResult } from './models/MCPKeyFindResult';
