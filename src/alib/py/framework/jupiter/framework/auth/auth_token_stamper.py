@@ -37,6 +37,14 @@ class AuthTokenStamper:
             right_now=self._time_provider.get_current_time(),
         )
 
+    def stamp_for_mcp(self, user_ref_id: EntityId) -> AuthToken:
+        """Produce a token for a particular user and an MCP session."""
+        return AuthToken.new_for_mcp(
+            secret=self._auth_token_secret,
+            user_ref_id=user_ref_id,
+            right_now=self._time_provider.get_current_time(),
+        )
+
     def stamp_for_progress_reporter(self, user_ref_id: EntityId) -> AuthToken:
         """Produce a token for progress reporting."""
         return AuthToken.new_for_progress_reporter(

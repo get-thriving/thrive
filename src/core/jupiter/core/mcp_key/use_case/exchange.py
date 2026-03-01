@@ -57,7 +57,7 @@ class MCPKeyExchangeUseCase(
             if not mcp_key.key_hash.check_against(args.mcp_key_external.secret):
                 raise InvalidMCPKeyError("Invalid MCP key")
 
-            auth_token = self._auth_token_stamper.stamp_for_general_short(
+            auth_token = self._auth_token_stamper.stamp_for_mcp(
                 mcp_key.user.ref_id
             )
 

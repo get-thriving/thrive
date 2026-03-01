@@ -29,6 +29,7 @@ class AuthToken(SecretValue):
     _AUDIENCE_GENERAL: ClassVar[str] = "general"
     _AUDIENCE_GENERAL_DURATION_LONG: ClassVar[dict[str, int]] = {"months": 1}
     _AUDIENCE_GENERAL_DURATION_SHORT: ClassVar[dict[str, int]] = {"minutes": 1}
+    _AUDIENCE_GENERAL_DURATION_MCP: ClassVar[dict[str, int]] = {"hours": 1}
     _AUDIENCE_PROGRESS_REPORTER: ClassVar[str] = "progress-reporter"
     _AUDIENCE_PROGRESS_REPORTER_DURATION: ClassVar[dict[str, int]] = {"minutes": 10}
 
@@ -62,6 +63,19 @@ class AuthToken(SecretValue):
             right_now,
             AuthToken._AUDIENCE_GENERAL,
             AuthToken._AUDIENCE_GENERAL_DURATION_SHORT,
+        )
+
+    @staticmethod
+    def new_for_mcp(
+        secret: str, user_ref_id: EntityId, right_now: Timestamp
+    ) -> "AuthToken":
+        """Create a new auth token useful for MCP sessions."""
+        return AuthToken._new_for_audience(
+            secret,
+            user_ref_id,
+            right_now,
+            AuthToken._AUDIENCE_GENERAL,
+            AuthToken._AUDIENCE_GENERAL_DURATION_MCP,
         )
 
     @staticmethod
