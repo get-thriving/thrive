@@ -651,7 +651,12 @@ async def main() -> None:
         global_properties,
         service_properties,
         JupiterMcpResource.resource("jupiter://inbox-tasks", inbox_task_find),
+        JupiterMcpTool.tool("find-inbox-tasks", "Find inbox tasks", inbox_task_find),
         JupiterMcpTool.tool("create-inbox-task", "Create an inbox task", inbox_task_create),
+        JupiterMcpTool.tool("load-inbox-task", "Load an inbox task", inbox_task_load),
+        JupiterMcpTool.tool("update-inbox-task", "Update an inbox task", inbox_task_update),
+        JupiterMcpTool.tool("archive-inbox-task", "Archive an inbox task", inbox_task_archive),
+        JupiterMcpTool.tool("remove-inbox-task", "Remove an inbox task", inbox_task_remove),   
     )
 
     rich_print("=" * 80)

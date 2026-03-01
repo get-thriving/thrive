@@ -719,6 +719,63 @@ get_api_url_for_universe() {
     fi
 }
 
+get_thrive_sh_test_mcp_url() {
+    local instance=$1
+    echo "https://${instance}${THRIVE_SH_TEST_DOMAIN}/mcp"
+}
+
+get_thrive_production_mcp_url() {
+    echo "$HOSTED_GLOBAL_MCP_URL"
+}
+
+get_thrive_staging_mcp_url() {
+    local instance=$1
+    echo "https://jupiter-mcp-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_mcp_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "mcp"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_mcp_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_mcp_url
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_mcp_url "$instance"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
+}
+
 get_instance() {
     uvx codename -s '-'
 }
