@@ -583,6 +583,53 @@ get_webui_url_for_universe() {
     fi
 }
 
+get_service_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+    local service=$4
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "$service"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        if [[ "$service" == "webapi" ]]; then
+            echo "http://${instance}${THRIVE_SH_TEST_DOMAIN}:${WEBAPI_TESTING_PORT}"
+        else
+            log error "Service $service is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            if [[ "$service" == "api" ]]; then
+                echo "$HOSTED_GLOBAL_API_URL"
+            else
+                log error "Service $service does not have a public production URL"
+                exit 1
+            fi
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            echo "https://jupiter-${service}-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    else
+        log error "Unknown universe: $universe"
+        exit 1
+    fi
+}
+
 get_instance() {
     uvx codename -s '-'
 }
