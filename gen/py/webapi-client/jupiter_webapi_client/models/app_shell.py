@@ -6,6 +6,7 @@ class AppShell(str, Enum):
     BROWSER = "browser"
     CLI = "cli"
     DESKTOP_ELECTRON = "desktop-electron"
+    MCP = "mcp"
     MOBILE_CAPACITOR = "mobile-capacitor"
     PWA = "pwa"
 

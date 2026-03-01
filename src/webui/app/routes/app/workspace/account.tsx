@@ -37,17 +37,9 @@ import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result"
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   ActionSingle,
-  NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import {
-  EntityCard,
-  EntityLink,
-} from "@jupiter/core/infra/component/entity-card";
-import { EntityStack } from "@jupiter/core/infra/component/entity-stack";
-import { ApiKeyView } from "@jupiter/core/api_key/components/api-key-view";
-import { McpKeyView } from "@jupiter/core/mcp_key/components/mcp-key-view";
 import { getHosting } from "#/core/universe";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -80,19 +72,9 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const result = await apiClient.users.userLoad({});
-  const apiKeysResult = await apiClient.apiKey.aPiKeyFind({
-    allow_archived: false,
-  });
-  const apiKeys = apiKeysResult.api_keys;
-  const mcpKeysResult = await apiClient.mcpKey.mCpKeyFind({
-    allow_archived: false,
-  });
-  const mcpKeys = mcpKeysResult.mcp_keys;
 
   return json({
     user: result.user,
-    apiKeys,
-    mcpKeys,
   });
 }
 
@@ -257,72 +239,6 @@ export default function Account() {
               defaultFeatureFlags={loaderData.user.feature_flags}
               hosting={getHosting(globalProperties.universe)}
             />
-          </SectionCard>
-
-          <SectionCard
-            title="API Keys"
-            actions={
-              <SectionActions
-                id="api-keys-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    link: "/app/workspace/account/api-key/new",
-                    highlight: true,
-                  }),
-                ]}
-              />
-            }
-          >
-            <EntityStack>
-              {loaderData.apiKeys.map((apiKey) => (
-                <EntityCard
-                  entityId={`api-key-${apiKey.ref_id}`}
-                  key={`api-key-${apiKey.ref_id}`}
-                >
-                  <EntityLink
-                    to={`/app/workspace/account/api-key/${apiKey.ref_id}`}
-                  >
-                    <ApiKeyView apiKey={apiKey} />
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
-          </SectionCard>
-
-          <SectionCard
-            title="MCP Keys"
-            actions={
-              <SectionActions
-                id="mcp-keys-actions"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  NavSingle({
-                    text: "Add",
-                    link: "/app/workspace/account/mcp-key/new",
-                    highlight: true,
-                  }),
-                ]}
-              />
-            }
-          >
-            <EntityStack>
-              {loaderData.mcpKeys.map((mcpKey) => (
-                <EntityCard
-                  entityId={`mcp-key-${mcpKey.ref_id}`}
-                  key={`mcp-key-${mcpKey.ref_id}`}
-                >
-                  <EntityLink
-                    to={`/app/workspace/account/mcp-key/${mcpKey.ref_id}`}
-                  >
-                    <McpKeyView mcpKey={mcpKey} />
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
           </SectionCard>
 
           <SectionCard title="Dangerous">

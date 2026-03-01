@@ -12,4 +12,5 @@ export enum AppPlatform {
     TABLET_IOS = 'tablet-ios',
     TABLET_ANDROID = 'tablet-android',
     API = 'api',
+    MCP = 'mcp',
 }

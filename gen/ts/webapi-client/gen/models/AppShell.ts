@@ -12,4 +12,5 @@ export enum AppShell {
     MOBILE_CAPACITOR = 'mobile-capacitor',
     PWA = 'pwa',
     API = 'api',
+    MCP = 'mcp',
 }

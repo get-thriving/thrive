@@ -34,4 +34,6 @@ export enum DocsHelpSubject {
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
     SELF_HOSTING = 'self-hosting',
+    API = 'api',
+    MCP = 'mcp',
 }

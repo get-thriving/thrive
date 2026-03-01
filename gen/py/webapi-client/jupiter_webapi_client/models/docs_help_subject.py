@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DocsHelpSubject(str, Enum):
+    API = "api"
     BIG_PLANS = "big-plans"
     CHORES = "chores"
     DOCS = "docs"
@@ -17,6 +18,7 @@ class DocsHelpSubject(str, Enum):
     LIFE_PLANMILESTONES = "life-plan/milestones"
     LIFE_PLANPROJECTS = "life-plan/projects"
     LIFE_PLANVISIONS = "life-plan/visions"
+    MCP = "mcp"
     METRICS = "metrics"
     PRM = "prm"
     PRMCIRCLES = "prm/circles"

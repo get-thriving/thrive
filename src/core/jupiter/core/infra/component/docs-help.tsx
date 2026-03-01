@@ -90,6 +90,10 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/slack-tasks";
     case DocsHelpSubject.EMAIL_TASKS:
       return "concepts/email-tasks";
+    case DocsHelpSubject.API:
+      return "concepts/api";
+    case DocsHelpSubject.MCP:
+      return "concepts/mcp";
     case DocsHelpSubject.SELF_HOSTING:
       return "how-tos/self-hosting";
   }
