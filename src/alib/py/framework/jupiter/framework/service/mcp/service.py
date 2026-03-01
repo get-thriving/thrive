@@ -14,6 +14,7 @@ from jupiter.framework.ports import Ports
 from jupiter.framework.service.service import Service
 from jupiter.framework.service_properties import ServiceProperties
 from mcp.server.fastmcp import FastMCP
+from mcp.server.transport_security import TransportSecuritySettings
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -194,7 +195,12 @@ class McpService(
         """Initialise the service."""
         super().__init__(ports, global_properties, service_properties)
         self._auth_token_var = ContextVar("mcp_auth_token", default=None)
-        self._mcp_server = FastMCP(self.description)
+        self._mcp_server = FastMCP(
+            self.description,
+            transport_security=TransportSecuritySettings(
+                enable_dns_rebinding_protection=False
+            ),
+        )
         self._fast_app = FastAPI(title=self.description, version=self.version)
         self._items = items
 
