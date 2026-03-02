@@ -51,6 +51,5 @@ Check service status: `npx pm2 status`. Check logs: `tail .build-cache/run/<inst
 ### Gotchas
 
 - The `secrets/` directory is gitignored and must exist with a `Config.secrets` file (can be empty) before running services. It is sourced by `tasks/_common.sh`.
-- pnpm may fail to install via mise due to GitHub API rate limits. Fallback: `npm install -g pnpm`.
 - The generated TS WebAPI client (`gen/ts/webapi-client`) must be compiled (handled by `mise run prepare`) before the WebUI can build/run.
 - There is a pre-existing TypeScript error in `src/core/jupiter/core/infra/component/use-big-screen.ts`; `npx tsc` in `src/webui` will report it but the Remix dev server still runs fine.
