@@ -152,6 +152,22 @@ from .clear_all_args import ClearAllArgs
 from .close_account_args import CloseAccountArgs
 from .code_block import CodeBlock
 from .code_block_kind import CodeBlockKind
+from .contact import Contact
+from .contact_archive_args import ContactArchiveArgs
+from .contact_create_args import ContactCreateArgs
+from .contact_create_result import ContactCreateResult
+from .contact_domain import ContactDomain
+from .contact_find_args import ContactFindArgs
+from .contact_find_result import ContactFindResult
+from .contact_link import ContactLink
+from .contact_link_upsert_args import ContactLinkUpsertArgs
+from .contact_link_upsert_result import ContactLinkUpsertResult
+from .contact_load_args import ContactLoadArgs
+from .contact_load_result import ContactLoadResult
+from .contact_namespace import ContactNamespace
+from .contact_remove_args import ContactRemoveArgs
+from .contact_update_args import ContactUpdateArgs
+from .contact_update_args_name import ContactUpdateArgsName
 from .difficulty import Difficulty
 from .divider_block import DividerBlock
 from .divider_block_kind import DividerBlockKind
@@ -996,6 +1012,22 @@ __all__ = (
     "CloseAccountArgs",
     "CodeBlock",
     "CodeBlockKind",
+    "Contact",
+    "ContactArchiveArgs",
+    "ContactCreateArgs",
+    "ContactCreateResult",
+    "ContactDomain",
+    "ContactFindArgs",
+    "ContactFindResult",
+    "ContactLink",
+    "ContactLinkUpsertArgs",
+    "ContactLinkUpsertResult",
+    "ContactLoadArgs",
+    "ContactLoadResult",
+    "ContactNamespace",
+    "ContactRemoveArgs",
+    "ContactUpdateArgs",
+    "ContactUpdateArgsName",
     "Difficulty",
     "DividerBlock",
     "DividerBlockKind",

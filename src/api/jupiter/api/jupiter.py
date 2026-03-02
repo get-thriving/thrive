@@ -334,6 +334,29 @@ from jupiter_webapi_client.api.notes.note_update import (
     asyncio_detailed as note_update,
 )
 
+# --- Contacts API ---
+from jupiter_webapi_client.api.contacts.contact_archive import (
+    asyncio_detailed as contact_archive,
+)
+from jupiter_webapi_client.api.contacts.contact_create import (
+    asyncio_detailed as contact_create,
+)
+from jupiter_webapi_client.api.contacts.contact_find import (
+    asyncio_detailed as contact_find,
+)
+from jupiter_webapi_client.api.contacts.contact_link_upsert import (
+    asyncio_detailed as contact_link_upsert,
+)
+from jupiter_webapi_client.api.contacts.contact_load import (
+    asyncio_detailed as contact_load,
+)
+from jupiter_webapi_client.api.contacts.contact_remove import (
+    asyncio_detailed as contact_remove,
+)
+from jupiter_webapi_client.api.contacts.contact_update import (
+    asyncio_detailed as contact_update,
+)
+
 # --- PRM API ---
 from jupiter_webapi_client.api.prm.circle_archive import (
     asyncio_detailed as circle_archive,
@@ -1205,6 +1228,26 @@ async def main() -> None:
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(note_remove),
+                    ),
+                ),
+            ),
+            # Contacts
+            JupiterApiResource.build(
+                "contacts",
+                JupiterApiGatewayMethod.get(contact_find),
+                JupiterApiGatewayMethod.post(contact_create),
+                JupiterApiResource.build(
+                    "link",
+                    JupiterApiGatewayMethod.post(contact_link_upsert),
+                ),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(contact_load),
+                    JupiterApiGatewayMethod.put(contact_update),
+                    JupiterApiGatewayMethod.delete(contact_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(contact_remove),
                     ),
                 ),
             ),

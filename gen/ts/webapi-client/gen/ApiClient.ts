@@ -11,6 +11,7 @@ import { AuthService } from './services/AuthService';
 import { BigPlansService } from './services/BigPlansService';
 import { CalendarService } from './services/CalendarService';
 import { ChoresService } from './services/ChoresService';
+import { ContactsService } from './services/ContactsService';
 import { DocsService } from './services/DocsService';
 import { GcService } from './services/GcService';
 import { GenService } from './services/GenService';
@@ -45,6 +46,7 @@ export class ApiClient {
     public readonly bigPlans: BigPlansService;
     public readonly calendar: CalendarService;
     public readonly chores: ChoresService;
+    public readonly contacts: ContactsService;
     public readonly docs: DocsService;
     public readonly gc: GcService;
     public readonly gen: GenService;
@@ -90,6 +92,7 @@ export class ApiClient {
         this.bigPlans = new BigPlansService(this.request);
         this.calendar = new CalendarService(this.request);
         this.chores = new ChoresService(this.request);
+        this.contacts = new ContactsService(this.request);
         this.docs = new DocsService(this.request);
         this.gc = new GcService(this.request);
         this.gen = new GenService(this.request);
