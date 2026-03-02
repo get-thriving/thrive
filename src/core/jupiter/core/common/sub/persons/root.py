@@ -1,7 +1,7 @@
 """The person domain."""
 
-from jupiter.core.common.sub.persons.sub.link.root import CommonPersonLink
-from jupiter.core.common.sub.persons.sub.person.root import CommonPerson
+from jupiter.core.common.sub.persons.sub.link.root import PersonLink
+from jupiter.core.common.sub.persons.sub.person.root import Person
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -19,8 +19,8 @@ class PersonDomain(TrunkEntity):
 
     workspace: ParentLink
 
-    persons = ContainsMany(CommonPerson, person_domain_ref_id=IsRefId())
-    links = ContainsMany(CommonPersonLink, person_domain_ref_id=IsRefId())
+    persons = ContainsMany(Person, person_domain_ref_id=IsRefId())
+    links = ContainsMany(PersonLink, person_domain_ref_id=IsRefId())
 
     @staticmethod
     def new_person_domain(

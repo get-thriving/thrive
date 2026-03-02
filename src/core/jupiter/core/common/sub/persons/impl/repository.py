@@ -1,14 +1,14 @@
-"""SQLite implementations of common persons repositories."""
+"""SQLite implementations of persons repositories."""
 
 from jupiter.core.common.sub.persons.namespace import PersonNamespace
 from jupiter.core.common.sub.persons.sub.link.root import (
-    CommonPersonLink,
-    CommonPersonLinkRepository,
+    PersonLink,
+    PersonLinkRepository,
 )
 from jupiter.core.common.sub.persons.sub.person.root import (
-    CommonPerson,
-    CommonPersonAlreadyExistsError,
-    CommonPersonRepository,
+    Person,
+    PersonAlreadyExistsError,
+    PersonRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.realm.realm import RealmCodecRegistry
@@ -18,10 +18,8 @@ from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 
-class SqliteCommonPersonRepository(
-    SqliteLeafEntityRepository[CommonPerson], CommonPersonRepository
-):
-    """SQLite implementation of the common person repository."""
+class SqlitePersonRepository(SqliteLeafEntityRepository[Person], PersonRepository):
+    """SQLite implementation of the person repository."""
 
     def __init__(
         self,
@@ -34,11 +32,11 @@ class SqliteCommonPersonRepository(
             realm_codec_registry,
             connection,
             metadata,
-            already_exists_err_cls=CommonPersonAlreadyExistsError,
+            already_exists_err_cls=PersonAlreadyExistsError,
         )
 
-    async def upsert(self, person: CommonPerson) -> CommonPerson:
-        """Upsert a common person for a namespace and name."""
+    async def upsert(self, person: Person) -> Person:
+        """Upsert a person for a namespace and name."""
         stmt = (
             sqlite_insert(self._table)
             .values(
@@ -79,13 +77,13 @@ class SqliteCommonPersonRepository(
         return person.assign_ref_id(EntityId(new_id))
 
 
-class SqliteCommonPersonLinkRepository(
-    SqliteLeafEntityRepository[CommonPersonLink], CommonPersonLinkRepository
+class SqlitePersonLinkRepository(
+    SqliteLeafEntityRepository[PersonLink], PersonLinkRepository
 ):
-    """SQLite implementation of the common person link repository."""
+    """SQLite implementation of the person link repository."""
 
-    async def upsert(self, person_link: CommonPersonLink) -> CommonPersonLink:
-        """Upsert a common person link."""
+    async def upsert(self, person_link: PersonLink) -> PersonLink:
+        """Upsert a person link."""
         stmt = (
             sqlite_insert(self._table)
             .values(
@@ -138,8 +136,8 @@ class SqliteCommonPersonLinkRepository(
         self,
         namespace: PersonNamespace,
         source_entity_ref_id: EntityId,
-    ) -> CommonPersonLink | None:
-        """Load a common person link by its namespace and source entity reference ID."""
+    ) -> PersonLink | None:
+        """Load a person link by its namespace and source entity reference ID."""
         query_stmt = (
             select(self._table)
             .where(self._table.c.namespace == namespace.value)
