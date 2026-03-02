@@ -1,9 +1,9 @@
-"""A link between an entity and its persons."""
+"""A link between an entity and its common persons."""
 
 import abc
 
 from jupiter.core.common.sub.persons.namespace import PersonNamespace
-from jupiter.core.common.sub.persons.sub.person.root import Person
+from jupiter.core.common.sub.persons.sub.person.root import CommonPerson
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
 from jupiter.framework.context import MutationContext
@@ -21,8 +21,8 @@ from jupiter.framework.update_action import UpdateAction
 
 
 @entity
-class PersonLink(LeafSupportEntity):
-    """A link between an entity and its persons."""
+class CommonPersonLink(LeafSupportEntity):
+    """A link between an entity and its common persons."""
 
     person_domain: ParentLink
 
@@ -30,7 +30,7 @@ class PersonLink(LeafSupportEntity):
     source_entity_ref_id: EntityId
     ref_ids: list[EntityId]
 
-    persons = RefsMany(Person, ref_id=IsOneOfRefId("ref_ids"))
+    persons = RefsMany(CommonPerson, ref_id=IsOneOfRefId("ref_ids"))
 
     @staticmethod
     @create_entity_action
@@ -40,9 +40,9 @@ class PersonLink(LeafSupportEntity):
         namespace: PersonNamespace,
         source_entity_ref_id: EntityId,
         ref_ids: list[EntityId],
-    ) -> "PersonLink":
-        """Create a new person link."""
-        return PersonLink._create(
+    ) -> "CommonPersonLink":
+        """Create a new common person link."""
+        return CommonPersonLink._create(
             ctx,
             name=NOT_USED_NAME,
             person_domain=ParentLink(person_domain_ref_id),
@@ -56,8 +56,8 @@ class PersonLink(LeafSupportEntity):
         self,
         ctx: MutationContext,
         ref_ids: UpdateAction[list[EntityId]],
-    ) -> "PersonLink":
-        """Update the person link."""
+    ) -> "CommonPersonLink":
+        """Update the common person link."""
         return self._new_version(
             ctx,
             name=NOT_USED_NAME,
@@ -65,17 +65,17 @@ class PersonLink(LeafSupportEntity):
         )
 
 
-class PersonLinkRepository(LeafEntityRepository[PersonLink], abc.ABC):
-    """The repository for person links."""
+class CommonPersonLinkRepository(LeafEntityRepository[CommonPersonLink], abc.ABC):
+    """The repository for common person links."""
 
     @abc.abstractmethod
-    async def upsert(self, person_link: PersonLink) -> PersonLink:
-        """Upsert a person link."""
+    async def upsert(self, person_link: CommonPersonLink) -> CommonPersonLink:
+        """Upsert a common person link."""
 
     @abc.abstractmethod
     async def load_optional_for_namespace_and_source(
         self,
         namespace: PersonNamespace,
         source_entity_ref_id: EntityId,
-    ) -> PersonLink | None:
-        """Load a person link by its namespace and source entity reference ID."""
+    ) -> CommonPersonLink | None:
+        """Load a common person link by its namespace and source entity reference ID."""
