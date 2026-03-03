@@ -5,6 +5,7 @@ from collections.abc import Iterable
 
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -88,6 +89,7 @@ class Workspace(RootEntity):
     note_collection = ContainsOne(NoteCollection, workspace_ref_id=IsRefId())
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
     tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())
+    contact_domain = ContainsOne(ContactDomain, workspace_ref_id=IsRefId())
 
     gc_log = ContainsOne(GCLog, workspace_ref_id=IsRefId())
     gen_log = ContainsOne(GenLog, workspace_ref_id=IsRefId())

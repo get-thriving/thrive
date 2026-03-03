@@ -20,6 +20,8 @@ export function useBigScreen(): boolean {
         case AppPlatform.TABLET_IOS:
         case AppPlatform.TABLET_ANDROID:
           return true;
+        case AppPlatform.API:
+          return false;
       }
       break;
     case AppShell.DESKTOP_ELECTRON: {
@@ -49,8 +51,12 @@ export function useBigScreen(): boolean {
         case AppPlatform.TABLET_IOS:
         case AppPlatform.TABLET_ANDROID:
           return true;
+        case AppPlatform.API:
+          return false;
       }
       break;
+    case AppShell.API:
+      return false;
     default:
       return true;
   }

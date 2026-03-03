@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class AppShell(str, Enum):
+    API = "api"
     BROWSER = "browser"
     CLI = "cli"
     DESKTOP_ELECTRON = "desktop-electron"

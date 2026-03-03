@@ -7,6 +7,7 @@ from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.sub.contacts.sub.contact.root import ContactAlreadyExistsError
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
@@ -114,6 +115,15 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
     def handle(self, console: Console, exception: TagAlreadyExistsError) -> None:
         """Handle tag already exists errors."""
         print("A tag for that particular name already exists")
+        sys.exit(1)
+
+
+class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsError]):
+    """Handle contact already exists errors."""
+
+    def handle(self, console: Console, exception: ContactAlreadyExistsError) -> None:
+        """Handle contact already exists errors."""
+        print("A contact for that particular name already exists")
         sys.exit(1)
 
 

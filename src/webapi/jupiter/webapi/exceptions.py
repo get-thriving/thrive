@@ -5,6 +5,7 @@ from jupiter.core.application.use_case.login import InvalidLoginCredentialsError
 from jupiter.core.big_plans.sub.milestones.root import (
     BigPlanMilestoneAlreadyExistsForDateError,
 )
+from jupiter.core.common.sub.contacts.sub.contact.root import ContactAlreadyExistsError
 from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
@@ -198,6 +199,24 @@ class JournalExistsForDatePeriodCombinationHandler(
             loc=["body"],
             msg="Journal already exists for this date and period combination",
             error_type="value_error.journalexistsfordateperiodcombinationerror",
+        )
+
+
+class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsError]):
+    """Handle contact already exists errors."""
+
+    @staticmethod
+    def get_status_code() -> int:
+        """Get the status code for the exception."""
+        return status.HTTP_409_CONFLICT
+
+    def get_detail(self, exception: ContactAlreadyExistsError) -> WebApiError:
+        """Get the detail for the exception."""
+        return WebApiError.validation(
+            "Contact already exists",
+            loc=["body"],
+            msg="Contact already exists",
+            error_type="value_error.contactalreadyexistserror",
         )
 
 
