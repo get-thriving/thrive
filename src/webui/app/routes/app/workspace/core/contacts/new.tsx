@@ -42,7 +42,9 @@ export async function action({ request }: ActionFunctionArgs) {
       name: form.name,
     });
 
-    return redirect(`/app/workspace/core/contacts/${result.new_contact.ref_id}`);
+    return redirect(
+      `/app/workspace/core/contacts/${result.new_contact.ref_id}`,
+    );
   } catch (error) {
     if (
       error instanceof ApiError &&

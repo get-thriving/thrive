@@ -49,7 +49,9 @@ class ContactFindUseCase(
         allow_archived = args.allow_archived or False
 
         workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(workspace.ref_id)
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
 
         contacts = await uow.get_for(Contact).find_all_generic(
             parent_ref_id=contact_domain.ref_id,

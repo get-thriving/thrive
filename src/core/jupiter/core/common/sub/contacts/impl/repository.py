@@ -62,7 +62,9 @@ class SqliteContactLinkRepository(
                 contact_domain_ref_id=contact_link.contact_domain.ref_id.as_int(),
                 namespace=contact_link.namespace.value,
                 source_entity_ref_id=contact_link.source_entity_ref_id.as_int(),
-                contacts_ref_ids=[rid.as_int() for rid in contact_link.contacts_ref_ids],
+                contacts_ref_ids=[
+                    rid.as_int() for rid in contact_link.contacts_ref_ids
+                ],
             )
             .on_conflict_do_update(
                 index_elements=[

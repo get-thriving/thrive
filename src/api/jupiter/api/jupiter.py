@@ -77,6 +77,29 @@ from jupiter_webapi_client.api.chores.chore_update import (
     asyncio_detailed as chore_update,
 )
 
+# --- Contacts API ---
+from jupiter_webapi_client.api.contacts.contact_archive import (
+    asyncio_detailed as contact_archive,
+)
+from jupiter_webapi_client.api.contacts.contact_create import (
+    asyncio_detailed as contact_create,
+)
+from jupiter_webapi_client.api.contacts.contact_find import (
+    asyncio_detailed as contact_find,
+)
+from jupiter_webapi_client.api.contacts.contact_link_upsert import (
+    asyncio_detailed as contact_link_upsert,
+)
+from jupiter_webapi_client.api.contacts.contact_load import (
+    asyncio_detailed as contact_load,
+)
+from jupiter_webapi_client.api.contacts.contact_remove import (
+    asyncio_detailed as contact_remove,
+)
+from jupiter_webapi_client.api.contacts.contact_update import (
+    asyncio_detailed as contact_update,
+)
+
 # --- Docs API ---
 from jupiter_webapi_client.api.docs.doc_archive import (
     asyncio_detailed as doc_archive,
@@ -332,29 +355,6 @@ from jupiter_webapi_client.api.notes.note_remove import (
 )
 from jupiter_webapi_client.api.notes.note_update import (
     asyncio_detailed as note_update,
-)
-
-# --- Contacts API ---
-from jupiter_webapi_client.api.contacts.contact_archive import (
-    asyncio_detailed as contact_archive,
-)
-from jupiter_webapi_client.api.contacts.contact_create import (
-    asyncio_detailed as contact_create,
-)
-from jupiter_webapi_client.api.contacts.contact_find import (
-    asyncio_detailed as contact_find,
-)
-from jupiter_webapi_client.api.contacts.contact_link_upsert import (
-    asyncio_detailed as contact_link_upsert,
-)
-from jupiter_webapi_client.api.contacts.contact_load import (
-    asyncio_detailed as contact_load,
-)
-from jupiter_webapi_client.api.contacts.contact_remove import (
-    asyncio_detailed as contact_remove,
-)
-from jupiter_webapi_client.api.contacts.contact_update import (
-    asyncio_detailed as contact_update,
 )
 
 # --- PRM API ---

@@ -57,9 +57,13 @@ class ContactLinkUpsertUseCase(
     ) -> ContactLinkUpsertResult:
         """Execute the command's action."""
         workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(workspace.ref_id)
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
 
-        unique_contact_ref_ids: list[EntityId] = list(dict.fromkeys(args.contacts_ref_ids))
+        unique_contact_ref_ids: list[EntityId] = list(
+            dict.fromkeys(args.contacts_ref_ids)
+        )
         for contact_ref_id in unique_contact_ref_ids:
             contact = await uow.get_for(Contact).load_by_id(contact_ref_id)
             if contact.contact_domain.ref_id != contact_domain.ref_id:

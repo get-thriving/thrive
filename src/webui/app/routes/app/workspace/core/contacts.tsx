@@ -47,7 +47,9 @@ export default function Contacts() {
   const { contacts } = useLoaderDataSafeForAnimation<typeof loader>();
   const shouldShowALeafToo = useTrunkNeedsToShowLeaf();
 
-  const sortedContacts = [...contacts].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedContacts = [...contacts].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 
   return (
     <TrunkPanel

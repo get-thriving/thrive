@@ -47,7 +47,9 @@ class ContactCreateUseCase(
     ) -> ContactCreateResult:
         """Execute the command's action."""
         workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(workspace.ref_id)
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
 
         new_contact = Contact.new_contact(
             ctx=context.domain_context,

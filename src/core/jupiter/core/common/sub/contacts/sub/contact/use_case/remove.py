@@ -37,7 +37,9 @@ class ContactRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(workspace.ref_id)
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
 
         contact = await uow.get_for(Contact).load_by_id(args.ref_id)
         await uow.get_for(Contact).remove(args.ref_id)

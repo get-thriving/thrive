@@ -38,9 +38,13 @@ class ContactArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        contact_domain = await uow.get_for(ContactDomain).load_by_parent(workspace.ref_id)
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
         contact = await uow.get_for(Contact).load_by_id(args.ref_id)
-        contact = contact.mark_archived(context.domain_context, JupiterArchivalReason.USER)
+        contact = contact.mark_archived(
+            context.domain_context, JupiterArchivalReason.USER
+        )
         await uow.get_for(Contact).save(contact)
 
         all_contact_links = await uow.get_for(ContactLink).find_all_generic(

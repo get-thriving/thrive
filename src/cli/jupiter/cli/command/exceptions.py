@@ -118,9 +118,7 @@ class TagAlreadyExistsHandler(JupiterExceptionHandler[TagAlreadyExistsError]):
         sys.exit(1)
 
 
-class ContactAlreadyExistsHandler(
-    JupiterExceptionHandler[ContactAlreadyExistsError]
-):
+class ContactAlreadyExistsHandler(JupiterExceptionHandler[ContactAlreadyExistsError]):
     """Handle contact already exists errors."""
 
     def handle(self, console: Console, exception: ContactAlreadyExistsError) -> None:
