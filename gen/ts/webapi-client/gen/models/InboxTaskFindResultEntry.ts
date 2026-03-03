@@ -27,6 +27,7 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
 export type InboxTaskFindResultEntry = {
     inbox_task: InboxTask;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
     project: Project;
     chapter?: (Chapter | null);

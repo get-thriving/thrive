@@ -2,6 +2,10 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink, ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -60,6 +64,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
 
     inbox_task: InboxTask
     tags: list[Tag]
+    contacts: list[Contact]
     project: Project
     chapter: Chapter | None
     goal: Goal | None
@@ -207,6 +212,23 @@ class InboxTaskLoadUseCase(
             )
         else:
             tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.INBOX_TASK,
+            source_entity_ref_id=inbox_task.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
         time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
             parent_ref_id=time_event_domain.ref_id,
             allow_archived=False,
@@ -217,6 +239,7 @@ class InboxTaskLoadUseCase(
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
             tags=tags,
+            contacts=contacts,
             project=project,
             chapter=chapter,
             goal=goal,

@@ -10,7 +10,9 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -88,6 +90,9 @@ class InboxTask(LeafEntity):
 
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
+    )
+    contact_link = OwnsAtMostOne(
+        ContactLink, namespace=ContactNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
     )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()

@@ -8,6 +8,7 @@ import type {
   InboxTask,
   InboxTaskFindResultEntry,
   Tag,
+  Contact,
 } from "@jupiter/webapi-client";
 import {
   Eisen,
@@ -122,9 +123,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.INBOX_TASK],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
   return json({
     entries: response.entries,
     allTags: allTags.tags as Array<Tag>,
+    allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
@@ -133,7 +138,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { entries, allTags } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { entries, allTags, allContacts } = useLoaderDataSafeForAnimation<typeof loader>();
 
   const serviceProperties = useContext(ServicePropertiesContext);
 
@@ -157,6 +162,14 @@ export default function InboxTasks() {
     inboxTaskTagsByInboxTaskRefId.set(
       entry.inbox_task.ref_id,
       entry.tags ?? [],
+    );
+  }
+
+  const inboxTaskContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
+  for (const entry of entries) {
+    inboxTaskContactsByInboxTaskRefId.set(
+      entry.inbox_task.ref_id,
+      entry.contacts ?? [],
     );
   }
 
@@ -418,6 +431,7 @@ export default function InboxTasks() {
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
                 />
               </DragDropContext>
             )}
@@ -450,6 +464,7 @@ export default function InboxTasks() {
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
                 />
               </DragDropContext>
             )}
@@ -1357,6 +1372,7 @@ interface BigScreenKanbanByEisenProps {
   actionableTime: ActionableTime;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanbanByEisen({
@@ -1368,6 +1384,7 @@ function BigScreenKanbanByEisen({
   actionableTime,
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanByEisenProps) {
   return (
     <>
@@ -1397,6 +1414,7 @@ function BigScreenKanbanByEisen({
                   allowEisen={e}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
                 />
               </Fragment>
             );
@@ -1417,6 +1435,7 @@ interface BigScreenKanbanProps {
   allowEisen?: Eisen;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanban({
@@ -1429,6 +1448,7 @@ function BigScreenKanban({
   allowEisen,
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanProps) {
   return (
     <>
@@ -1450,6 +1470,7 @@ function BigScreenKanban({
           allowEisen={allowEisen}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       )}
     </>
@@ -1466,6 +1487,7 @@ interface KanbanBoardProps {
   allowEisen?: Eisen;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function KanbanBoard({
@@ -1478,6 +1500,7 @@ function KanbanBoard({
   optimisticUpdates,
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
 }: KanbanBoardProps) {
   return (
     <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
