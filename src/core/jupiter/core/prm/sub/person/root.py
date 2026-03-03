@@ -1,6 +1,5 @@
 """A person."""
 
-from jupiter.framework.base.entity_name import EntityName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -13,6 +12,7 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     ContainsMany,
