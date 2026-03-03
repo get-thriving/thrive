@@ -121,6 +121,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
+          return json(validationErrorToUIErrorInfo(error.body));
+        }
+
     throw error;
   }
 }
@@ -176,7 +180,6 @@ export default function ContactDetail() {
             readOnly={!inputsEnabled}
           />
           <FieldError actionResult={actionData} fieldName="/name/value" />
-          <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
 
         {/* Helpful for actions coming from LeafPanel dialog as well */}
