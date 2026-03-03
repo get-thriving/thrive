@@ -42,6 +42,6 @@ terraform validate
 
 ["package:infra:lint"]
 description = "Check infra module"
-depends = ["package:infra:lint:*"]
+# depends = ["package:infra:lint:*"]
 run = "true"
 

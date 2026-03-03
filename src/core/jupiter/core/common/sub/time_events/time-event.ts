@@ -1,9 +1,9 @@
 import {
   ADate,
   BigPlanEntry,
+  Contact,
   EntityId,
   InboxTaskEntry,
-  Person,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -25,19 +25,20 @@ import { measureText } from "#/core/utils";
 
 export function occasionTimeEventName(
   block: TimeEventFullDaysBlock,
-  person: Person,
+  contact: Contact,
   occasion: Occasion,
 ) {
   const date = aDateToDate(block.start_date);
+  const contactName = contact.name;
   switch (occasion.kind) {
     case OccasionKind.BIRTHDAY:
-      return `${person.name}'s Birthday on '${date.toFormat("yy")}`;
+      return `${contactName}'s Birthday on '${date.toFormat("yy")}'`;
     case OccasionKind.ANNIVERSARY:
-      return `${person.name}'s Anniversary for ${occasion.name} on '${date.toFormat("yy")}`;
+      return `${contactName}'s Anniversary for ${occasion.name} on '${date.toFormat("yy")}'`;
     case OccasionKind.HOLIDAY:
-      return `${person.name}'s ${occasion.name} holidays on '${date.toFormat("yy")}`;
+      return `${contactName}'s ${occasion.name} holidays on '${date.toFormat("yy")}'`;
     case OccasionKind.OTHER:
-      return `${person.name}'s ${occasion.name} on '${date.toFormat("yy")}`;
+      return `${contactName}'s ${occasion.name} on '${date.toFormat("yy")}'`;
   }
 }
 

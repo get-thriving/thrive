@@ -82,7 +82,7 @@ class CalendarShow(
                 pe.occasion_time_event.end_date,
             ),
         ):
-            person = person_entry.person
+            person = person_entry.contact
             occasion = person_entry.occasion
 
             person_text = Text("")

@@ -176,7 +176,7 @@ export default function Persons() {
               <EntityLink
                 to={`/app/workspace/prm/persons/${entry.person.ref_id}`}
               >
-                <EntityNameComponent name={entry.person.name} />
+                <EntityNameComponent name={entry.contact.name} />
                 {entry.circle_ref_ids.length > 0 && (
                   <>
                     {entry.circle_ref_ids

@@ -10,6 +10,7 @@ from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -17,7 +18,6 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
@@ -446,7 +446,7 @@ class InboxTask(LeafEntity):
         due_date: ADate,
         project_ref_id: EntityId,
         occasion_kind: OccasionKind,
-        occasion_person_name: PersonName,
+        occasion_person_name: ContactName,
         occasion_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -795,7 +795,7 @@ class InboxTask(LeafEntity):
         project_ref_id: EntityId,
         name: InboxTaskName,
         occasion_kind: OccasionKind,
-        occasion_person_name: PersonName,
+        occasion_person_name: ContactName,
         recurring_timeline: str,
         preparation_days_cnt: int,
         due_time: ADate,
@@ -1126,7 +1126,7 @@ class InboxTask(LeafEntity):
     def _build_name_for_occasion_task(
         name: InboxTaskName,
         occasion_kind: OccasionKind,
-        occasion_person_name: PersonName,
+        occasion_person_name: ContactName,
     ) -> InboxTaskName:
         match occasion_kind:
             case OccasionKind.BIRTHDAY:

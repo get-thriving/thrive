@@ -23,6 +23,7 @@ from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
@@ -31,7 +32,6 @@ from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -60,7 +60,7 @@ _CHORE_NAME_DECODER = EntityNameDatabaseDecoder(ChoreName)
 _BIG_PLAN_NAME_DECODER = EntityNameDatabaseDecoder(BigPlanName)
 _SMART_LIST_NAME_DECODER = EntityNameDatabaseDecoder(SmartListName)
 _METRIC_NAME_DECODER = EntityNameDatabaseDecoder(MetricName)
-_PERSON_NAME_DECODER = EntityNameDatabaseDecoder(PersonName)
+_PERSON_NAME_DECODER = EntityNameDatabaseDecoder(ContactName)
 _ENTITY_ICON_DECODER = EntityIconDatabaseDecoder()
 
 
@@ -468,9 +468,24 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[PersonSummary]:
         """Find all summaries about persons."""
-        query = """select ref_id, name from person where prm_ref_id = :parent_ref_id"""
+        query = """
+            select
+                person.ref_id as ref_id,
+                contact.name as name
+            from person
+            join prm on person.prm_ref_id = prm.ref_id
+            join contact_domain on contact_domain.workspace_ref_id = prm.workspace_ref_id
+            join contact_link on
+                contact_link.contact_domain_ref_id = contact_domain.ref_id
+                and contact_link.namespace = 'person'
+                and contact_link.source_entity_ref_id = person.ref_id
+            join contact on
+                contact.contact_domain_ref_id = contact_domain.ref_id
+                and contact.ref_id = json_extract(contact_link.contacts_ref_ids, '$[0]')
+            where person.prm_ref_id = :parent_ref_id
+        """
         if not allow_archived:
-            query += " and archived=0"
+            query += " and person.archived=0"
         result = (
             (
                 await self._connection.execute(

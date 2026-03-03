@@ -12,6 +12,10 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -32,7 +36,6 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.sync_target import SyncTarget
@@ -53,7 +56,7 @@ class PersonUpdateArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     ref_id: EntityId
-    name: UpdateAction[PersonName]
+    name: UpdateAction[ContactName]
     catch_up_period: UpdateAction[RecurringTaskPeriod | None]
     catch_up_eisen: UpdateAction[Eisen | None]
     catch_up_difficulty: UpdateAction[Difficulty | None]
@@ -84,6 +87,18 @@ class PersonUpdateUseCase(
             workspace.ref_id,
         )
         person = await uow.get_for(Person).load_by_id(args.ref_id)
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=person.ref_id,
+        )
+        if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
+            raise InputValidationError("Person does not have a linked contact")
+
+        contact = await uow.get_for(Contact).load_by_id(
+            contact_link.contacts_ref_ids[0]
+        )
 
         if args.circle_ref_ids.should_change:
             desired_circle_ref_ids = set(args.circle_ref_ids.just_the_value)
@@ -226,9 +241,12 @@ class PersonUpdateUseCase(
 
         person = person.update(
             ctx=context.domain_context,
-            name=args.name,
             catch_up_params=catch_up_params,
         )
+
+        if args.name.should_change:
+            contact = contact.update(ctx=context.domain_context, name=args.name)
+            await uow.get_for(Contact).save(contact)
 
         await uow.get_for(Person).save(person)
         await progress_reporter.mark_updated(person)
@@ -252,7 +270,7 @@ class PersonUpdateUseCase(
             for inbox_task in person_catch_up_tasks:
                 schedule = schedules.get_schedule(
                     person.catch_up_params.period,
-                    person.name,
+                    contact.name,
                     typing.cast(Timestamp, inbox_task.recurring_gen_right_now),
                     None,
                     person.catch_up_params.actionable_from_day,

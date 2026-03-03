@@ -6,6 +6,7 @@ from jupiter.core.big_plans.name import BigPlanName
 from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIcon
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDate
@@ -14,7 +15,6 @@ from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.metrics.name import MetricName
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.schedule.sub.stream.color import (
     ScheduleStreamColor,
 )
@@ -159,7 +159,7 @@ class PersonSummary(CompositeValue):
     """Summary information about a person."""
 
     ref_id: EntityId
-    name: PersonName
+    name: ContactName
 
 
 class FastInfoRepository(Repository, abc.ABC):

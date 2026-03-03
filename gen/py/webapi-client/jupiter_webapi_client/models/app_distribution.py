@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class AppDistribution(str, Enum):
+    API = "api"
     APP_STORE = "app-store"
     GOOGLE_PLAY_STORE = "google-play-store"
     MAC_STORE = "mac-store"

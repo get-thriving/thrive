@@ -590,7 +590,7 @@ get_instance() {
 get_free_port() {
     local port=
     while
-        port=$(jot -r 1 49152 65535)
+        port=$((RANDOM % 16384 + 49152))
         netstat -atun | grep -q "$port"
     do
         continue

@@ -19,7 +19,7 @@ class PersonCreateArgs:
     """Person create args..
 
     Attributes:
-        name (str): The person name.
+        name (str): The name of a contact.
         catch_up_period (None | RecurringTaskPeriod | Unset):
         catch_up_eisen (Eisen | None | Unset):
         catch_up_difficulty (Difficulty | None | Unset):

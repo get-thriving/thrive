@@ -7,8 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.occasion import Occasion
-    from ..models.person import Person
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
 
@@ -20,18 +20,18 @@ class PersonOccasionEntry:
     """Result entry.
 
     Attributes:
-        person (Person): A person.
+        contact (Contact): A contact.
         occasion (Occasion): An occasion.
         occasion_time_event (TimeEventFullDaysBlock): A full day block of time.
     """
 
-    person: Person
+    contact: Contact
     occasion: Occasion
     occasion_time_event: TimeEventFullDaysBlock
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        person = self.person.to_dict()
+        contact = self.contact.to_dict()
 
         occasion = self.occasion.to_dict()
 
@@ -41,7 +41,7 @@ class PersonOccasionEntry:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "person": person,
+                "contact": contact,
                 "occasion": occasion,
                 "occasion_time_event": occasion_time_event,
             }
@@ -51,19 +51,19 @@ class PersonOccasionEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.occasion import Occasion
-        from ..models.person import Person
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
 
         d = dict(src_dict)
-        person = Person.from_dict(d.pop("person"))
+        contact = Contact.from_dict(d.pop("contact"))
 
         occasion = Occasion.from_dict(d.pop("occasion"))
 
         occasion_time_event = TimeEventFullDaysBlock.from_dict(d.pop("occasion_time_event"))
 
         person_occasion_entry = cls(
-            person=person,
+            contact=contact,
             occasion=occasion,
             occasion_time_event=occasion_time_event,
         )

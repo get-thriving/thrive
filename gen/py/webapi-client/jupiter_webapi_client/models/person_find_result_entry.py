@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.occasion import Occasion
@@ -26,6 +27,7 @@ class PersonFindResultEntry:
 
     Attributes:
         person (Person): A person.
+        contact (Contact): A contact.
         occasions (list[Occasion]):
         circle_ref_ids (list[str]):
         tags (list[Tag]):
@@ -36,6 +38,7 @@ class PersonFindResultEntry:
     """
 
     person: Person
+    contact: Contact
     occasions: list[Occasion]
     circle_ref_ids: list[str]
     tags: list[Tag]
@@ -49,6 +52,8 @@ class PersonFindResultEntry:
         from ..models.note import Note
 
         person = self.person.to_dict()
+
+        contact = self.contact.to_dict()
 
         occasions = []
         for occasions_item_data in self.occasions:
@@ -111,6 +116,7 @@ class PersonFindResultEntry:
         field_dict.update(
             {
                 "person": person,
+                "contact": contact,
                 "occasions": occasions,
                 "circle_ref_ids": circle_ref_ids,
                 "tags": tags,
@@ -129,6 +135,7 @@ class PersonFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.occasion import Occasion
@@ -138,6 +145,8 @@ class PersonFindResultEntry:
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        contact = Contact.from_dict(d.pop("contact"))
 
         occasions = []
         _occasions = d.pop("occasions")
@@ -242,6 +251,7 @@ class PersonFindResultEntry:
 
         person_find_result_entry = cls(
             person=person,
+            contact=contact,
             occasions=occasions,
             circle_ref_ids=circle_ref_ids,
             tags=tags,

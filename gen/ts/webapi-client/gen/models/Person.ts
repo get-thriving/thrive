@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EntityId } from './EntityId';
-import type { PersonName } from './PersonName';
+import type { EntityName } from './EntityName';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { Timestamp } from './Timestamp';
 /**
@@ -17,7 +17,7 @@ export type Person = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
-    name: PersonName;
+    name: EntityName;
     prm_ref_id: string;
     catch_up_params?: (RecurringTaskGenParams | null);
 };

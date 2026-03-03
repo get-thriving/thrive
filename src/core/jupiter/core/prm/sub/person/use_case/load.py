@@ -1,5 +1,8 @@
 """Use case for loading a person."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -59,6 +62,7 @@ class PersonLoadResult(UseCaseResultBase):
     """PersonLoadResult."""
 
     person: Person
+    contact: Contact
     circle_ref_ids: list[EntityId]
     occasions: list[Occasion]
     occasion_tags_by_ref_id: dict[EntityId, list[Tag]]
@@ -101,6 +105,17 @@ class PersonLoadUseCase(
         workspace = context.workspace
         person = await uow.get_for(Person).load_by_id(
             args.ref_id, allow_archived=allow_archived
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=person.ref_id,
+        )
+        if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
+            raise InputValidationError("Person does not have a linked contact")
+        contact = await uow.get_for(Contact).load_by_id(
+            contact_link.contacts_ref_ids[0]
         )
 
         occasions = await uow.get_for(Occasion).find_all_generic(
@@ -214,6 +229,7 @@ class PersonLoadUseCase(
 
         return PersonLoadResult(
             person=person,
+            contact=contact,
             occasions=occasions,
             occasion_tags_by_ref_id=occasion_tags_by_ref_id,
             circle_ref_ids=circle_ref_ids,

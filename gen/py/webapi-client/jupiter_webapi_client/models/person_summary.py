@@ -15,7 +15,7 @@ class PersonSummary:
 
     Attributes:
         ref_id (str): A generic entity id.
-        name (str): The person name.
+        name (str): The name of a contact.
     """
 
     ref_id: str

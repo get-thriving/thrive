@@ -1,5 +1,8 @@
 """Load a full day block and associated data."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -44,6 +47,7 @@ class TimeEventFullDaysBlockLoadResult(UseCaseResultBase):
     full_days_block: TimeEventFullDaysBlock
     schedule_event: ScheduleEventFullDays | None
     person: Person | None
+    contact: Contact | None
     occasion: Occasion | None
     vacation: Vacation | None
 
@@ -77,6 +81,7 @@ class TimeEventFullDaysBlockLoadUseCase(
             )
 
         person = None
+        contact = None
         occasion = None
         if full_days_block.namespace == TimeEventNamespace.PERSON_OCCASION:
             occasion = await uow.get_for(Occasion).load_by_id(
@@ -87,6 +92,16 @@ class TimeEventFullDaysBlockLoadUseCase(
                 occasion.person.ref_id,
                 allow_archived=allow_archived,
             )
+            contact_link = await uow.get(
+                ContactLinkRepository
+            ).load_optional_for_namespace_and_source(
+                namespace=ContactNamespace.PERSON,
+                source_entity_ref_id=person.ref_id,
+            )
+            if contact_link is not None and len(contact_link.contacts_ref_ids) > 0:
+                contact = await uow.get_for(Contact).load_by_id(
+                    contact_link.contacts_ref_ids[0]
+                )
 
         vacation = None
         if full_days_block.namespace == TimeEventNamespace.VACATION:
@@ -99,6 +114,7 @@ class TimeEventFullDaysBlockLoadUseCase(
             full_days_block=full_days_block,
             schedule_event=schedule_event,
             person=person,
+            contact=contact,
             occasion=occasion,
             vacation=vacation,
         )

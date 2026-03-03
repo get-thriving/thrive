@@ -1,6 +1,10 @@
 """Archive a person."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.link.service.archive import (
+    ContactLinkArchiveService,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -38,6 +42,14 @@ class PersonArchiveUseCase(
         args: PersonArchiveArgs,
     ) -> None:
         """Execute the command's action."""
+        await ContactLinkArchiveService().archive_for_entity(
+            context.domain_context,
+            uow,
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=args.ref_id,
+            archival_reason=JupiterArchivalReason.USER,
+        )
+
         await generic_crown_archiver(
             context.domain_context,
             uow,

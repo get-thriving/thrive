@@ -136,6 +136,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       allCircles: circlesResult.circles,
       person: result.person,
+      contact: result.contact,
       occasions: result.occasions,
       occasionTagsByRefId: result.occasion_tags_by_ref_id,
       circleRefIds: result.circle_ref_ids,
@@ -291,6 +292,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return json(validationErrorToUIErrorInfo(error.body));
     }
 
+    if (error instanceof ApiError && error.status === StatusCodes.CONFLICT) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
     throw error;
   }
 }
@@ -306,6 +311,7 @@ export default function Person() {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
+  const personName = loaderData.contact.name;
   const allOccasionsByRefId = new Map(
     loaderData.occasions.map((o) => [o.ref_id, o]),
   );
@@ -326,6 +332,7 @@ export default function Person() {
       time_event: block,
       entry: {
         person: person,
+        contact: loaderData.contact,
         occasion: allOccasionsByRefId.get(block.source_entity_ref_id)!,
         occasion_time_event: block,
       },
@@ -405,7 +412,7 @@ export default function Person() {
                 label="Name"
                 name="name"
                 readOnly={!inputsEnabled}
-                defaultValue={person.name}
+                defaultValue={personName}
               />
               <FieldError actionResult={actionData} fieldName="/name" />
             </FormControl>
