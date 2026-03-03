@@ -61,6 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       fullDaysBlock: response.full_days_block,
       scheduleEvent: response.schedule_event,
       person: response.person,
+      contact: response.contact,
       occasion: response.occasion,
       vacation: response.vacation,
     });
@@ -113,7 +114,7 @@ export default function TimeEventFullDaysBlockViewOne() {
     case TimeEventNamespace.PERSON_OCCASION:
       name = occasionTimeEventName(
         loaderData.fullDaysBlock,
-        loaderData.person!,
+        loaderData.contact!,
         loaderData.occasion!,
       );
       break;

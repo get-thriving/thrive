@@ -13,6 +13,11 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -632,6 +637,43 @@ class GenService:
                         parent_ref_id=prm.ref_id,
                         filter_ref_ids=filter_person_ref_ids,
                     )
+                    contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+                        workspace.ref_id
+                    )
+                    all_person_contact_links = await uow.get(
+                        ContactLinkRepository
+                    ).find_all_generic(
+                        namespace=ContactNamespace.PERSON,
+                        source_entity_ref_id=(
+                            [p.ref_id for p in all_persons]
+                            if all_persons
+                            else NoFilter()
+                        ),
+                    )
+                    person_contact_ref_id_by_person_ref_id = {
+                        link.source_entity_ref_id: link.contacts_ref_ids[0]
+                        for link in all_person_contact_links
+                        if len(link.contacts_ref_ids) > 0
+                    }
+                    all_person_contacts = await uow.get_for(Contact).find_all_generic(
+                        parent_ref_id=contact_domain.ref_id,
+                        allow_archived=True,
+                        ref_id=(
+                            list(person_contact_ref_id_by_person_ref_id.values())
+                            if person_contact_ref_id_by_person_ref_id
+                            else NoFilter()
+                        ),
+                    )
+                    all_person_contacts_by_ref_id = {
+                        contact.ref_id: contact for contact in all_person_contacts
+                    }
+                    person_contact_name_by_person_ref_id = {
+                        person_ref_id: all_person_contacts_by_ref_id[
+                            contact_ref_id
+                        ].name
+                        for person_ref_id, contact_ref_id in person_contact_ref_id_by_person_ref_id.items()
+                        if contact_ref_id in all_person_contacts_by_ref_id
+                    }
 
                     all_catch_up_inbox_tasks = await uow.get_for(
                         InboxTask
@@ -692,6 +734,11 @@ class GenService:
                 for person in all_persons:
                     if person.catch_up_params is None:
                         continue
+                    person_contact_name = person_contact_name_by_person_ref_id.get(
+                        person.ref_id
+                    )
+                    if person_contact_name is None:
+                        continue
 
                     # MyPy not smart enough to infer that if (not A and not B) then (A or B)
 
@@ -704,6 +751,7 @@ class GenService:
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         person=person,
+                        person_contact_name=person_contact_name,
                         catch_up_params=person.catch_up_params,
                         all_inbox_tasks_by_person_ref_id_and_timeline=all_catch_up_inbox_tasks_by_person_ref_id_and_timeline,
                         gen_even_if_not_modified=gen_even_if_not_modified,
@@ -733,6 +781,11 @@ class GenService:
 
             for occasion in all_occasions:
                 person = all_persons_by_ref_id[occasion.person.ref_id]
+                person_contact_name = person_contact_name_by_person_ref_id.get(
+                    person.ref_id
+                )
+                if person_contact_name is None:
+                    continue
 
                 for idx in range(5):
                     gen_log_entry = await self._generate_time_event_block_for_occasion(
@@ -754,6 +807,7 @@ class GenService:
                         project=project,
                         today=today.add_days(idx * 365),
                         person=person,
+                        person_contact_name=person_contact_name,
                         occasion=occasion,
                         all_inbox_tasks_by_occasion_ref_id_and_timeline=all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline,
                         gen_even_if_not_modified=gen_even_if_not_modified,
@@ -1563,6 +1617,7 @@ class GenService:
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         person: Person,
+        person_contact_name: ContactName,
         catch_up_params: RecurringTaskGenParams,
         all_inbox_tasks_by_person_ref_id_and_timeline: dict[
             tuple[EntityId, str],
@@ -1576,7 +1631,7 @@ class GenService:
 
         schedule = schedules.get_schedule(
             typing.cast(RecurringTaskPeriod, catch_up_params.period),
-            person.name,
+            person_contact_name,
             today.to_timestamp_at_end_of_day(),
             None,
             catch_up_params.actionable_from_day,
@@ -1700,6 +1755,7 @@ class GenService:
         project: Project,
         today: ADate,
         person: Person,
+        person_contact_name: ContactName,
         occasion: Occasion,
         all_inbox_tasks_by_occasion_ref_id_and_timeline: dict[
             tuple[EntityId, str],
@@ -1743,7 +1799,7 @@ class GenService:
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,
-                occasion_person_name=person.name,
+                occasion_person_name=person_contact_name,
                 preparation_days_cnt=person.preparation_days_cnt_for_birthday,
                 due_time=schedule.due_date,
             )
@@ -1763,7 +1819,7 @@ class GenService:
                 name=schedule.full_name,
                 project_ref_id=project.ref_id,
                 occasion_kind=occasion.kind,
-                occasion_person_name=person.name,
+                occasion_person_name=person_contact_name,
                 occasion_ref_id=occasion.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 preparation_days_cnt=person.preparation_days_cnt_for_birthday,

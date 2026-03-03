@@ -5,6 +5,10 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -108,7 +112,7 @@ class BigPlanEntry(UseCaseResultBase):
 class PersonOccasionEntry(UseCaseResultBase):
     """Result entry."""
 
-    person: Person
+    contact: Contact
     occasion: Occasion
     occasion_time_event: TimeEventFullDaysBlock
 
@@ -453,6 +457,8 @@ class CalendarLoadForDateAndPeriodUseCase(
         persons = []
         persons_by_ref_id: dict[EntityId, Person] = {}
         occasions = []
+        contact_domain = None
+        contact_links_by_person: dict[EntityId, ContactLink] = {}
         if len(time_events_full_days_for_occasions) > 0:
             prm = await uow.get_for(PRM).load_by_parent(
                 workspace.ref_id,
@@ -468,16 +474,37 @@ class CalendarLoadForDateAndPeriodUseCase(
                 allow_archived=True,
                 ref_id=list(time_events_full_days_for_occasions.keys()),
             )
-        person_occasion_entries = [
-            PersonOccasionEntry(
-                person=persons_by_ref_id[occasion.person.ref_id],
-                occasion=occasion,
-                occasion_time_event=time_events_full_days_for_occasions[
-                    occasion.ref_id
-                ],
+
+            # Load contact domain and links for persons
+            contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+                workspace.ref_id,
             )
-            for occasion in occasions
-        ]
+            contact_links = await uow.get_for(ContactLink).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                namespace=ContactNamespace.PERSON,
+                allow_archived=False,
+            )
+            for link in contact_links:
+                contact_links_by_person[link.source_entity_ref_id] = link
+
+        person_occasion_entries = []
+        for occasion in occasions:
+            person = persons_by_ref_id[occasion.person.ref_id]
+            contact_link = contact_links_by_person.get(person.ref_id)
+            if contact_link and contact_link.contacts_ref_ids:
+                # Use the first contact associated with this person
+                # In a real scenario, you might want a more sophisticated selection
+                contact_ref_id = contact_link.contacts_ref_ids[0]
+                contact = await uow.get_for(Contact).load_by_id(contact_ref_id)
+                person_occasion_entries.append(
+                    PersonOccasionEntry(
+                        contact=contact,
+                        occasion=occasion,
+                        occasion_time_event=time_events_full_days_for_occasions[
+                            occasion.ref_id
+                        ],
+                    )
+                )
 
         time_event_full_days_for_vacations: dict[EntityId, TimeEventFullDaysBlock] = {
             te.source_entity_ref_id: te

@@ -1,5 +1,9 @@
 """Remove a person."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.link.service.remove import (
+    ContactLinkRemoveService,
+)
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
@@ -84,6 +88,12 @@ class PersonRemoveService:
 
         await tag_link_remove_service.remove_for_entity(
             ctx, uow, TagNamespace.PERSON, person.ref_id
+        )
+        await ContactLinkRemoveService().remove_for_entity(
+            ctx,
+            uow,
+            ContactNamespace.PERSON,
+            person.ref_id,
         )
 
         all_links = await uow.get_for_record(PersonCircleLink).find_all(prm.ref_id)

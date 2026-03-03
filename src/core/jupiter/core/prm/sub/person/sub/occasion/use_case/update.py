@@ -7,6 +7,9 @@ from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.recurring_task_due_at_day import RecurringTaskDueAtDay
 from jupiter.core.common.recurring_task_due_at_month import RecurringTaskDueAtMonth
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlockRepository,
@@ -29,6 +32,7 @@ from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -75,6 +79,17 @@ class OccasionUpdateUseCase(
         await progress_reporter.mark_updated(occasion)
 
         person = await uow.get_for(Person).load_by_id(occasion.person.ref_id)
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=person.ref_id,
+        )
+        if contact_link is None or len(contact_link.contacts_ref_ids) == 0:
+            raise InputValidationError("Person does not have a linked contact")
+        contact = await uow.get_for(Contact).load_by_id(
+            contact_link.contacts_ref_ids[0]
+        )
 
         prm = await uow.get_for(PRM).load_by_id(person.prm.ref_id)
 
@@ -115,7 +130,7 @@ class OccasionUpdateUseCase(
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,
-                occasion_person_name=person.name,
+                occasion_person_name=contact.name,
                 preparation_days_cnt=person.preparation_days_cnt_for_birthday,
                 due_time=schedule.due_date,
             )

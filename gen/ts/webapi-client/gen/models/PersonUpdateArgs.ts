@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ContactName } from './ContactName';
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
-import type { PersonName } from './PersonName';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
@@ -16,7 +16,7 @@ export type PersonUpdateArgs = {
     ref_id: EntityId;
     name: {
         should_change: boolean;
-        value?: PersonName;
+        value?: ContactName;
     };
     catch_up_period: {
         should_change: boolean;

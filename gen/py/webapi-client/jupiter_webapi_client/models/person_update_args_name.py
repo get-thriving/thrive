@@ -16,7 +16,7 @@ class PersonUpdateArgsName:
     """
     Attributes:
         should_change (bool):
-        value (str | Unset): The person name.
+        value (str | Unset): The name of a contact.
     """
 
     should_change: bool

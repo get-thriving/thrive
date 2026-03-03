@@ -25,7 +25,7 @@ class Person:
         archived (bool):
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
-        name (str): The person name.
+        name (str): The name for an entity which acts as both name and unique identifier.
         prm_ref_id (str):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):

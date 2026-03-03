@@ -59,3 +59,11 @@ class Contact(LeafSupportEntity):
 
 class ContactRepository(LeafEntityRepository[Contact], abc.ABC):
     """The repository for contacts."""
+
+    @abc.abstractmethod
+    async def get_by_name(
+        self,
+        contact_domain_ref_id: EntityId,
+        name: ContactName,
+    ) -> Contact:
+        """Load a contact by its domain and name."""

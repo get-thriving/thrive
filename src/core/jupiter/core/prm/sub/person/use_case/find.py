@@ -3,6 +3,10 @@
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -33,6 +37,7 @@ from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -66,6 +71,7 @@ class PersonFindResultEntry(UseCaseResultBase):
     """A single person result."""
 
     person: Person
+    contact: Contact
     occasions: list[Occasion]
     circle_ref_ids: list[EntityId]
     tags: list[Tag]
@@ -126,6 +132,29 @@ class PersonFindUseCase(
             allow_archived=allow_archived,
             filter_ref_ids=args.filter_person_ref_ids,
         )
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id
+        )
+
+        contact_links = await uow.get(ContactLinkRepository).find_all_generic(
+            allow_archived=True,
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=[p.ref_id for p in persons],
+        )
+        contact_link_by_person_ref_id = {
+            link.source_entity_ref_id: link for link in contact_links
+        }
+        contact_ref_ids = [
+            link.contacts_ref_ids[0]
+            for link in contact_links
+            if len(link.contacts_ref_ids) > 0
+        ]
+        contacts = await uow.get_for(Contact).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            allow_archived=True,
+            ref_id=contact_ref_ids,
+        )
+        contacts_by_ref_id = {contact.ref_id: contact for contact in contacts}
 
         if include_occasions:
             occasions = await uow.get_for(Occasion).find_all_generic(
@@ -217,11 +246,25 @@ class PersonFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_person_ref_id = {}
 
-        return PersonFindResult(
-            catch_up_project=catch_up_project,
-            entries=[
+        entries: list[PersonFindResultEntry] = []
+        for p in persons:
+            if p.ref_id not in contact_link_by_person_ref_id:
+                raise InputValidationError(
+                    f"Person #{p.ref_id} does not have a linked contact"
+                )
+            contact_link = contact_link_by_person_ref_id[p.ref_id]
+            if len(contact_link.contacts_ref_ids) == 0:
+                raise InputValidationError(f"Person #{p.ref_id} contact link is empty")
+            contact_ref_id = contact_link.contacts_ref_ids[0]
+            if contact_ref_id not in contacts_by_ref_id:
+                raise InputValidationError(
+                    f"Person #{p.ref_id} linked contact could not be loaded"
+                )
+
+            entries.append(
                 PersonFindResultEntry(
                     person=p,
+                    contact=contacts_by_ref_id[contact_ref_id],
                     occasions=occasions_by_person_ref_id.get(p.ref_id, []),
                     circle_ref_ids=circle_ref_ids_by_person_ref_id.get(p.ref_id, []),
                     tags=(
@@ -262,6 +305,9 @@ class PersonFindUseCase(
                         else None
                     ),
                 )
-                for p in persons
-            ],
+            )
+
+        return PersonFindResult(
+            catch_up_project=catch_up_project,
+            entries=entries,
         )

@@ -1,22 +1,23 @@
 import {
   BigPlan,
+  Chapter,
   Chore,
+  Contact,
+  Difficulty,
   Eisen,
   EmailTask,
   EntityId,
+  Goal,
   Habit,
   InboxTask,
   InboxTaskFindResultEntry,
+  InboxTaskSource,
+  InboxTaskStatus,
   Metric,
   Person,
   Project,
   RecurringTaskPeriod,
   SlackTask,
-  Difficulty,
-  InboxTaskSource,
-  InboxTaskStatus,
-  Chapter,
-  Goal,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
@@ -39,6 +40,7 @@ export interface InboxTaskParent {
   chore?: Chore;
   metric?: Metric;
   person?: Person;
+  contact?: Contact;
   slackTask?: SlackTask;
   emailTask?: EmailTask;
 }
@@ -55,6 +57,7 @@ export function inboxTaskFindEntryToParent(
     chore: entry.chore ?? undefined,
     metric: entry.metric ?? undefined,
     person: entry.person ?? undefined,
+    contact: entry.contact ?? undefined,
     slackTask: entry.slack_task ?? undefined,
     emailTask: entry.email_task ?? undefined,
   };

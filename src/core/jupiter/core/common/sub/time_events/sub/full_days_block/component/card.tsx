@@ -29,7 +29,7 @@ export function TimeEventFullDaysBlockCard(
       const entry = props.entry.entry as PersonOccasionEntry;
       name = occasionTimeEventName(
         entry.occasion_time_event,
-        entry.person,
+        entry.contact,
         entry.occasion,
       );
       break;

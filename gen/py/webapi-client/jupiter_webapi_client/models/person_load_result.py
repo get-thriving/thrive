@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.occasion import Occasion
@@ -27,6 +28,7 @@ class PersonLoadResult:
 
     Attributes:
         person (Person): A person.
+        contact (Contact): A contact.
         circle_ref_ids (list[str]):
         occasions (list[Occasion]):
         occasion_tags_by_ref_id (PersonLoadResultOccasionTagsByRefId):
@@ -42,6 +44,7 @@ class PersonLoadResult:
     """
 
     person: Person
+    contact: Contact
     circle_ref_ids: list[str]
     occasions: list[Occasion]
     occasion_tags_by_ref_id: PersonLoadResultOccasionTagsByRefId
@@ -60,6 +63,8 @@ class PersonLoadResult:
         from ..models.note import Note
 
         person = self.person.to_dict()
+
+        contact = self.contact.to_dict()
 
         circle_ref_ids = self.circle_ref_ids
 
@@ -111,6 +116,7 @@ class PersonLoadResult:
         field_dict.update(
             {
                 "person": person,
+                "contact": contact,
                 "circle_ref_ids": circle_ref_ids,
                 "occasions": occasions,
                 "occasion_tags_by_ref_id": occasion_tags_by_ref_id,
@@ -131,6 +137,7 @@ class PersonLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.occasion import Occasion
@@ -141,6 +148,8 @@ class PersonLoadResult:
 
         d = dict(src_dict)
         person = Person.from_dict(d.pop("person"))
+
+        contact = Contact.from_dict(d.pop("contact"))
 
         circle_ref_ids = cast(list[str], d.pop("circle_ref_ids"))
 
@@ -208,6 +217,7 @@ class PersonLoadResult:
 
         person_load_result = cls(
             person=person,
+            contact=contact,
             circle_ref_ids=circle_ref_ids,
             occasions=occasions,
             occasion_tags_by_ref_id=occasion_tags_by_ref_id,

@@ -6,6 +6,10 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -115,6 +119,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     journal: Journal | None
     metric: Metric | None
     person: Person | None
+    contact: Contact | None
     occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
@@ -344,6 +349,30 @@ class InboxTaskFindUseCase(
         )
         persons_by_ref_id = {p.ref_id: p for p in persons}
 
+        # Load contacts for persons
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.PERSON,
+            allow_archived=False,
+        )
+        contact_ref_id_by_person_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids[0]
+            for link in contact_links
+            if link.contacts_ref_ids
+        }
+        contact_ref_ids = list(contact_ref_id_by_person_ref_id.values())
+        contacts = []
+        if contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_ref_ids,
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
             allow_archived=True,
@@ -481,6 +510,25 @@ class InboxTaskFindUseCase(
                                     it.source_entity_ref_id_for_sure
                                 ].person.ref_id
                             ]
+                            if it.source == InboxTaskSource.PERSON_OCCASION
+                            else None
+                        )
+                    ),
+                    contact=(
+                        contacts_by_ref_id.get(
+                            contact_ref_id_by_person_ref_id[
+                                it.source_entity_ref_id_for_sure
+                            ]
+                        )
+                        if it.source == InboxTaskSource.PERSON_CATCH_UP
+                        else (
+                            contacts_by_ref_id.get(
+                                contact_ref_id_by_person_ref_id[
+                                    occasions_by_ref_id[
+                                        it.source_entity_ref_id_for_sure
+                                    ].person.ref_id
+                                ]
+                            )
                             if it.source == InboxTaskSource.PERSON_OCCASION
                             else None
                         )

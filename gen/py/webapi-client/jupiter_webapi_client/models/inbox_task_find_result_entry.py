@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.chore import Chore
+    from ..models.contact import Contact
     from ..models.email_task import EmailTask
     from ..models.goal import Goal
     from ..models.habit import Habit
@@ -52,6 +53,7 @@ class InboxTaskFindResultEntry:
         journal (Journal | None | Unset):
         metric (Metric | None | Unset):
         person (None | Person | Unset):
+        contact (Contact | None | Unset):
         occasion (None | Occasion | Unset):
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
@@ -72,6 +74,7 @@ class InboxTaskFindResultEntry:
     journal: Journal | None | Unset = UNSET
     metric: Metric | None | Unset = UNSET
     person: None | Person | Unset = UNSET
+    contact: Contact | None | Unset = UNSET
     occasion: None | Occasion | Unset = UNSET
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
@@ -81,6 +84,7 @@ class InboxTaskFindResultEntry:
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
@@ -202,6 +206,14 @@ class InboxTaskFindResultEntry:
         else:
             person = self.person
 
+        contact: dict[str, Any] | None | Unset
+        if isinstance(self.contact, Unset):
+            contact = UNSET
+        elif isinstance(self.contact, Contact):
+            contact = self.contact.to_dict()
+        else:
+            contact = self.contact
+
         occasion: dict[str, Any] | None | Unset
         if isinstance(self.occasion, Unset):
             occasion = UNSET
@@ -259,6 +271,8 @@ class InboxTaskFindResultEntry:
             field_dict["metric"] = metric
         if person is not UNSET:
             field_dict["person"] = person
+        if contact is not UNSET:
+            field_dict["contact"] = contact
         if occasion is not UNSET:
             field_dict["occasion"] = occasion
         if slack_task is not UNSET:
@@ -273,6 +287,7 @@ class InboxTaskFindResultEntry:
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
@@ -510,6 +525,23 @@ class InboxTaskFindResultEntry:
 
         person = _parse_person(d.pop("person", UNSET))
 
+        def _parse_contact(data: object) -> Contact | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                contact_type_0 = Contact.from_dict(data)
+
+                return contact_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Contact | None | Unset, data)
+
+        contact = _parse_contact(d.pop("contact", UNSET))
+
         def _parse_occasion(data: object) -> None | Occasion | Unset:
             if data is None:
                 return data
@@ -577,6 +609,7 @@ class InboxTaskFindResultEntry:
             journal=journal,
             metric=metric,
             person=person,
+            contact=contact,
             occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,

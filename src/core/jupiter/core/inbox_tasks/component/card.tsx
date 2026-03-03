@@ -2,12 +2,12 @@ import type {
   ADate,
   BigPlan,
   Chore,
+  Contact,
   EmailTask,
   Habit,
   InboxTask,
   InboxTaskStatus,
   Metric,
-  Person,
   SlackTask,
   Tag,
 } from "@jupiter/webapi-client";
@@ -54,7 +54,7 @@ import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
 import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
-import { PersonTag } from "#/core/prm/sub/person/component/tag";
+import { ContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
 import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
@@ -288,8 +288,8 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                   WorkspaceFeature.PRM,
                 ) &&
                   props.parent &&
-                  props.parent.person && (
-                    <PersonTag person={props.parent.person as Person} />
+                  props.parent.contact && (
+                    <ContactTag contact={props.parent.contact as Contact} />
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,

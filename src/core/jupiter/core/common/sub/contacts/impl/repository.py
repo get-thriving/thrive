@@ -1,6 +1,7 @@
 """Sqlite implementations of contacts repositories."""
 
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     Contact,
     ContactAlreadyExistsError,
@@ -34,6 +35,27 @@ class SqliteContactRepository(SqliteLeafEntityRepository[Contact], ContactReposi
             metadata,
             already_exists_err_cls=ContactAlreadyExistsError,
         )
+
+    async def get_by_name(
+        self,
+        contact_domain_ref_id: EntityId,
+        name: ContactName,
+    ) -> Contact:
+        """Load a contact by its domain and name."""
+        query_stmt = (
+            select(self._table)
+            .where(
+                self._table.c.contact_domain_ref_id == contact_domain_ref_id.as_int()
+            )
+            .where(self._table.c.name == name.the_name)
+            .limit(1)
+        )
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            raise ValueError(
+                f"Could not find contact '{name}' in domain #{contact_domain_ref_id}"
+            )
+        return self._row_to_entity(result)
 
 
 class SqliteContactLinkRepository(

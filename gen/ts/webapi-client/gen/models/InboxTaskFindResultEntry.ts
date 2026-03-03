@@ -5,6 +5,7 @@
 import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
+import type { Contact } from './Contact';
 import type { EmailTask } from './EmailTask';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
@@ -39,6 +40,7 @@ export type InboxTaskFindResultEntry = {
     journal?: (Journal | null);
     metric?: (Metric | null);
     person?: (Person | null);
+    contact?: (Contact | null);
     occasion?: (Occasion | null);
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);

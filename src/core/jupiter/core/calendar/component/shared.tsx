@@ -353,7 +353,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       const clippedName = clipTimeEventFullDaysNameToWhatFits(
         `👨 ${occasionTimeEventName(
           props.entry.time_event,
-          fullDaysEntry.person,
+          fullDaysEntry.contact,
           fullDaysEntry.occasion,
         )}`,
         12,
@@ -363,7 +363,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
       return (
         <Box
           ref={containerRef}
-          id={`birthday-event-${fullDaysEntry.person.ref_id}`}
+          id={`birthday-event-${fullDaysEntry.contact.ref_id}`}
           sx={{
             minWidth: "7rem",
             fontSize: "10px",
@@ -378,7 +378,7 @@ export function ViewAsCalendarTimeEventFullDaysCell(
           }}
         >
           <EntityLink
-            key={`birthday-event-${fullDaysEntry.person.ref_id}`}
+            key={`birthday-event-${fullDaysEntry.contact.ref_id}`}
             to={`/app/workspace/calendar/time-event/full-days-block/${fullDaysEntry.occasion_time_event.ref_id}?${query}`}
             inline
             block={props.isAdding}
@@ -1058,7 +1058,7 @@ export function ViewAsScheduleTimeEventFullDaysRows(
               <EntityNameComponent
                 name={`👨 ${occasionTimeEventName(
                   fullDaysEntry.occasion_time_event,
-                  fullDaysEntry.person,
+                  fullDaysEntry.contact,
                   fullDaysEntry.occasion,
                 )}`}
                 color={scheduleStreamColorContrastingHex(

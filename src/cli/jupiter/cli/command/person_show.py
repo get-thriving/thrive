@@ -53,7 +53,7 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
             person_text = entity_id_to_rich_text(person.ref_id)
 
             person_text.append(" ")
-            person_text.append(entity_name_to_rich_text(person.name))
+            person_text.append(entity_name_to_rich_text(entry.contact.name))
 
             person_text.append(" ")
             if person.catch_up_params:

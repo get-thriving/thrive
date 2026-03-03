@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { EntityId } from './EntityId';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
@@ -14,6 +15,7 @@ import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
  */
 export type PersonLoadResult = {
     person: Person;
+    contact: Contact;
     circle_ref_ids: Array<EntityId>;
     occasions: Array<Occasion>;
     occasion_tags_by_ref_id: Record<string, Array<Tag>>;

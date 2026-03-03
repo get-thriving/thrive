@@ -8,6 +8,18 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import (
+    Contact,
+    ContactAlreadyExistsError,
+    ContactRepository,
+)
+from jupiter.core.common.sub.contacts.sub.link.root import (
+    ContactLink,
+    ContactLinkRepository,
+)
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -16,7 +28,6 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.prm.sub.person.name import PersonName
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.core.sync_target import SyncTarget
@@ -39,7 +50,7 @@ from jupiter.framework.use_case_io import (
 class PersonCreateArgs(UseCaseArgsBase):
     """Person create args.."""
 
-    name: PersonName
+    name: ContactName
     catch_up_period: RecurringTaskPeriod | None
     catch_up_eisen: Eisen | None
     catch_up_difficulty: Difficulty | None
@@ -76,6 +87,9 @@ class PersonCreateUseCase(
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
 
         catch_up_params = None
         if args.catch_up_period is not None:
@@ -92,14 +106,43 @@ class PersonCreateUseCase(
                 skip_rule=None,
             )
 
+        contact = Contact.new_contact(
+            ctx=context.domain_context,
+            contact_domain_ref_id=contact_domain.ref_id,
+            name=args.name,
+        )
+        try:
+            contact = await uow.get_for(Contact).create(contact)
+        except ContactAlreadyExistsError:
+            contact = await uow.get(ContactRepository).get_by_name(
+                contact_domain_ref_id=contact_domain.ref_id,
+                name=args.name,
+            )
+
+        all_person_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            allow_archived=False,
+            namespace=ContactNamespace.PERSON,
+        )
+        if any(contact.ref_id in link.contacts_ref_ids for link in all_person_links):
+            raise InputValidationError("Person already exists")
+
         new_person = Person.new_person(
             ctx=context.domain_context,
             prm_ref_id=prm.ref_id,
-            name=args.name,
             catch_up_params=catch_up_params,
         )
         new_person = await uow.get_for(Person).create(new_person)
         await progress_reporter.mark_created(new_person)
+
+        contact_link = ContactLink.new_contact_link(
+            ctx=context.domain_context,
+            contact_domain_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.PERSON,
+            source_entity_ref_id=new_person.ref_id,
+            contacts_ref_ids=[contact.ref_id],
+        )
+        await uow.get(ContactLinkRepository).upsert(contact_link)
 
         desired_circle_ref_ids = set(args.circle_ref_ids or [])
         if len(desired_circle_ref_ids) > prm.max_circles_per_person:

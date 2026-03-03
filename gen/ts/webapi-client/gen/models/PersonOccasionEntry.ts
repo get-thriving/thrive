@@ -2,14 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { Occasion } from './Occasion';
-import type { Person } from './Person';
 import type { TimeEventFullDaysBlock } from './TimeEventFullDaysBlock';
 /**
  * Result entry.
  */
 export type PersonOccasionEntry = {
-    person: Person;
+    contact: Contact;
     occasion: Occasion;
     occasion_time_event: TimeEventFullDaysBlock;
 };
