@@ -210,14 +210,10 @@ def upgrade() -> None:
         """
     )
 
-    op.execute("""ALTER TABLE person DROP COLUMN name""")
+    op.execute("""update person set name="A Person";""")
 
 
 def downgrade() -> None:
-    op.execute(
-        """ALTER TABLE person ADD COLUMN name VARCHAR(255) NOT NULL DEFAULT 'Unknown person'"""
-    )
-
     op.execute(
         """
         UPDATE person

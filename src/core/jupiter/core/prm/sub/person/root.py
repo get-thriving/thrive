@@ -1,5 +1,6 @@
 """A person."""
 
+from jupiter.framework.base.entity_name import EntityName
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
@@ -67,6 +68,7 @@ class Person(LeafEntity):
         return Person._create(
             ctx,
             prm=ParentLink(prm_ref_id),
+            name=EntityName("A Person"),
             catch_up_params=catch_up_params,
         )
 
