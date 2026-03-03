@@ -66,6 +66,7 @@ class PersonCreateResult(UseCaseResultBase):
     """Person create result."""
 
     new_person: Person
+    new_contact: Contact
 
 
 @mutation_use_case(WorkspaceFeature.PRM)
@@ -169,7 +170,7 @@ class PersonCreateUseCase(
                 )
                 await uow.get_for_record(PersonCircleLink).create(link)
 
-        return PersonCreateResult(new_person=new_person)
+        return PersonCreateResult(new_person=new_person, new_contact=contact)
 
     async def _perform_post_transactional_mutation_work(
         self,

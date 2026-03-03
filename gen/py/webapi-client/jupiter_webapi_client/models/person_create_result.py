@@ -7,6 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.person import Person
 
 
@@ -19,19 +20,24 @@ class PersonCreateResult:
 
     Attributes:
         new_person (Person): A person.
+        new_contact (Contact): A contact.
     """
 
     new_person: Person
+    new_contact: Contact
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         new_person = self.new_person.to_dict()
+
+        new_contact = self.new_contact.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "new_person": new_person,
+                "new_contact": new_contact,
             }
         )
 
@@ -39,13 +45,17 @@ class PersonCreateResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.person import Person
 
         d = dict(src_dict)
         new_person = Person.from_dict(d.pop("new_person"))
 
+        new_contact = Contact.from_dict(d.pop("new_contact"))
+
         person_create_result = cls(
             new_person=new_person,
+            new_contact=new_contact,
         )
 
         person_create_result.additional_properties = d

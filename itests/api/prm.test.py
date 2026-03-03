@@ -115,9 +115,11 @@ def test_api_prm_person_create(api_url: str, api_key: str) -> None:
     assert response.status_code == 200
 
     person = response.json()["new_person"]
-    assert person["name"] == "Alice"
     assert person["archived"] is False
     assert "ref_id" in person
+    contact = response.json()["new_contact"]
+    assert contact["name"] == "Alice"
+    assert contact["archived"] is False
 
 
 def test_api_prm_person_load(api_url: str, api_key: str, create_person) -> None:
@@ -132,7 +134,8 @@ def test_api_prm_person_load(api_url: str, api_key: str, create_person) -> None:
 
     person = response.json()["person"]
     assert person["ref_id"] == created.ref_id
-    assert person["name"] == "Bob"
+    contact = response.json()["contact"]
+    assert contact["name"] == "Bob"
 
 
 def test_api_prm_person_find(api_url: str, api_key: str, create_person) -> None:
@@ -146,7 +149,7 @@ def test_api_prm_person_find(api_url: str, api_key: str, create_person) -> None:
     )
     assert response.status_code == 200
 
-    names = [e["person"]["name"] for e in response.json()["entries"]]
+    names = [e["contact"]["name"] for e in response.json()["entries"]]
     assert "Charlie" in names
     assert "Diana" in names
 
@@ -179,7 +182,7 @@ def test_api_prm_person_update(api_url: str, api_key: str, create_person) -> Non
         timeout=10,
     )
     assert response2.status_code == 200
-    assert response2.json()["person"]["name"] == "New Name"
+    assert response2.json()["contact"]["name"] == "New Name"
 
 
 def test_api_prm_person_archive(api_url: str, api_key: str, create_person) -> None:
@@ -206,7 +209,7 @@ def test_api_prm_person_archive(api_url: str, api_key: str, create_person) -> No
         timeout=10,
     )
     assert response3.status_code == 200
-    assert response3.json()["person"]["name"] == "Archive Person"
+    assert response3.json()["contact"]["name"] == "Archive Person"
 
 
 def test_api_prm_person_remove(api_url: str, api_key: str, create_person) -> None:
