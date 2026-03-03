@@ -59,7 +59,7 @@ class ContactArchiveUseCase(
                 contact_link.namespace == ContactNamespace.PERSON
                 and not contact_link.archived
             ):
-                raise ContactInSignificantUseError
+                raise ContactInSignificantUseError("Contact is tied to a person and cannot be archived.")
             new_contact_ref_ids = [
                 ref_id
                 for ref_id in contact_link.contacts_ref_ids

@@ -4,7 +4,7 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import (
     Contact,
-    ContactInSignificantUseException,
+    ContactInSignificantUseError,
 )
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.config import (
@@ -56,7 +56,7 @@ class ContactRemoveUseCase(
             if contact.ref_id not in contact_link.contacts_ref_ids:
                 continue
             if contact_link.namespace == ContactNamespace.PERSON:
-                raise ContactInSignificantUseException
+                raise ContactInSignificantUseError("Contact is tied to a person and cannot be removed")
             new_contact_ref_ids = [
                 ref_id
                 for ref_id in contact_link.contacts_ref_ids
