@@ -23,6 +23,10 @@ class ContactAlreadyExistsError(EntityAlreadyExistsError):
     """Error raised when a contact already exists."""
 
 
+class ContactInSignificantUseError(Exception):
+    """Error raised when trying to archive a contact with an active person link."""
+
+
 @entity
 class Contact(LeafSupportEntity):
     """A contact."""

@@ -1,7 +1,11 @@
 """Use case for removing a contact."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
-from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.contact.root import (
+    Contact,
+    ContactInSignificantUseException,
+)
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -42,7 +46,6 @@ class ContactRemoveUseCase(
         )
 
         contact = await uow.get_for(Contact).load_by_id(args.ref_id)
-        await uow.get_for(Contact).remove(args.ref_id)
 
         all_contact_links = await uow.get_for(ContactLink).find_all_generic(
             parent_ref_id=contact_domain.ref_id,
@@ -52,6 +55,8 @@ class ContactRemoveUseCase(
         for contact_link in all_contact_links:
             if contact.ref_id not in contact_link.contacts_ref_ids:
                 continue
+            if contact_link.namespace == ContactNamespace.PERSON:
+                raise ContactInSignificantUseException
             new_contact_ref_ids = [
                 ref_id
                 for ref_id in contact_link.contacts_ref_ids
@@ -62,3 +67,5 @@ class ContactRemoveUseCase(
                 contacts_ref_ids=UpdateAction.change_to(new_contact_ref_ids),
             )
             await uow.get_for(ContactLink).save(contact_link)
+
+        await uow.get_for(Contact).remove(args.ref_id)
