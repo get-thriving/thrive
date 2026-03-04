@@ -6,6 +6,7 @@ import type { BigPlan } from './BigPlan';
 import type { BigPlanMilestone } from './BigPlanMilestone';
 import type { BigPlanStats } from './BigPlanStats';
 import type { Chapter } from './Chapter';
+import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
@@ -23,6 +24,7 @@ export type BigPlanLoadResult = {
     milestones: Array<BigPlanMilestone>;
     inbox_tasks: Array<InboxTask>;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     stats: BigPlanStats;

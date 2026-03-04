@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { MetricEntry } from './MetricEntry';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
@@ -11,6 +12,7 @@ import type { Tag } from './Tag';
 export type MetricEntryLoadResult = {
     metric_entry: MetricEntry;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
 };
 

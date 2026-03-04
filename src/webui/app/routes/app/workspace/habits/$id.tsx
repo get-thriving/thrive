@@ -1,5 +1,6 @@
 import type {
   ChapterSummary,
+  Contact,
   GoalSummary,
   InboxTask,
   LifePlan,
@@ -11,6 +12,7 @@ import {
   Difficulty,
   Eisen,
   HabitRepeatsStrategy,
+  ContactNamespace,
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
@@ -56,6 +58,7 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -139,6 +142,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.HABIT],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   try {
     const result = await apiClient.habits.habitLoad({
@@ -168,6 +174,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allTags: allTags.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -442,6 +455,17 @@ export default function Habit() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={loaderData.habit.is_key}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        <Stack direction="row" spacing={2}>
           <FormControl sx={{ flexGrow: 3 }}>
             <TagsEditor
               name="tags"
@@ -454,13 +478,17 @@ export default function Habit() {
             <FieldError actionResult={actionData} fieldName="/tags_names" />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name="isKey"
-              defaultValue={loaderData.habit.is_key}
+          <FormControl sx={{ flexGrow: 3 }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
               inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.HABIT}
+              sourceEntityRefId={loaderData.habit.ref_id}
             />
-            <FieldError actionResult={actionData} fieldName="/is_key" />
           </FormControl>
         </Stack>
 

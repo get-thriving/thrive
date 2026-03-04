@@ -1,5 +1,6 @@
 import type {
   ChapterSummary,
+  Contact,
   GoalSummary,
   InboxTask,
   LifePlan,
@@ -9,6 +10,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   ApiError,
+  ContactNamespace,
   Difficulty,
   Eisen,
   InboxTaskStatus,
@@ -55,6 +57,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -126,6 +129,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.CHORE],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   try {
     const result = await apiClient.chores.choreLoad({
@@ -150,6 +156,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allTags: allTags.tags as Array<Tag>,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -418,6 +431,17 @@ export default function Chore() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={loaderData.chore.is_key}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        <Stack direction="row" spacing={2}>
           <FormControl fullWidth sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"
@@ -430,13 +454,18 @@ export default function Chore() {
             />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name="isKey"
-              defaultValue={loaderData.chore.is_key}
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <ContactsEditor
+              name="contacts_names"
+              label={null}
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
               inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.CHORE}
+              sourceEntityRefId={loaderData.chore.ref_id}
             />
-            <FieldError actionResult={actionData} fieldName="/is_key" />
           </FormControl>
         </Stack>
 

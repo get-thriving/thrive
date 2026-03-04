@@ -1,5 +1,7 @@
 import {
   ApiError,
+  Contact,
+  ContactNamespace,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -30,6 +32,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -70,6 +73,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.VACATION],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
 
     const result = await apiClient.vacations.vacationLoad({
       ref_id: id,
@@ -81,7 +87,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note,
       timeEventBlock: result.time_event_block,
       tags: result.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -165,8 +178,15 @@ export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
 export default function Vacation() {
-  const { vacation, note, timeEventBlock, tags, allTags } =
-    useLoaderDataSafeForAnimation<typeof loader>();
+  const {
+    vacation,
+    note,
+    timeEventBlock,
+    tags,
+    contacts,
+    allTags,
+    allContacts,
+  } = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -221,18 +241,38 @@ export default function Vacation() {
             />
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
+        </Stack>
 
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
-            <TagsEditor
-              name="tags"
-              label={null}
-              allTags={allTags}
-              defaultValue={tags.map((tag) => tag.ref_id)}
-              inputsEnabled={inputsEnabled}
-              namespace={TagNamespace.VACATION}
-              sourceEntityRefId={vacation.ref_id}
-            />
-          </FormControl>
+        <Stack direction="row" spacing={2}>
+          {allTags && tags && (
+            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+              <TagsEditor
+                name="tags"
+                label={null}
+                allTags={allTags}
+                defaultValue={tags.map((tag: Tag) => tag.ref_id)}
+                inputsEnabled={inputsEnabled}
+                namespace={TagNamespace.VACATION}
+                sourceEntityRefId={vacation.ref_id}
+              />
+            </FormControl>
+          )}
+
+          {allContacts && contacts && (
+            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+              <ContactsEditor
+                name="contacts_names"
+                label={null}
+                allContacts={allContacts}
+                defaultValue={contacts.map(
+                  (contact: Contact) => contact.ref_id,
+                )}
+                inputsEnabled={inputsEnabled}
+                namespace={ContactNamespace.VACATION}
+                sourceEntityRefId={vacation.ref_id}
+              />
+            </FormControl>
+          )}
         </Stack>
 
         <FormControl fullWidth>

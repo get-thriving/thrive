@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.habit_streak_mark import HabitStreakMark
@@ -36,6 +37,7 @@ class HabitLoadResult:
         streak_mark_earliest_date (str): A date or possibly a datetime for the application.
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
         tags (list[Tag]):
+        contacts (list[Contact]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -50,6 +52,7 @@ class HabitLoadResult:
     streak_mark_earliest_date: str
     streak_mark_latest_date: str
     tags: list[Tag]
+    contacts: list[Contact]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -86,6 +89,11 @@ class HabitLoadResult:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -124,6 +132,7 @@ class HabitLoadResult:
                 "streak_mark_earliest_date": streak_mark_earliest_date,
                 "streak_mark_latest_date": streak_mark_latest_date,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if chapter is not UNSET:
@@ -138,6 +147,7 @@ class HabitLoadResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.habit_streak_mark import HabitStreakMark
@@ -179,6 +189,13 @@ class HabitLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -241,6 +258,7 @@ class HabitLoadResult:
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,
             tags=tags,
+            contacts=contacts,
             chapter=chapter,
             goal=goal,
             note=note,

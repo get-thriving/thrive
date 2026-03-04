@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.note import Note
     from ..models.smart_list_item import SmartListItem
     from ..models.tag import Tag
@@ -24,11 +25,13 @@ class SmartListItemLoadResult:
     Attributes:
         item (SmartListItem): A smart list item.
         generic_tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
     """
 
     item: SmartListItem
     generic_tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -41,6 +44,11 @@ class SmartListItemLoadResult:
         for generic_tags_item_data in self.generic_tags:
             generic_tags_item = generic_tags_item_data.to_dict()
             generic_tags.append(generic_tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -56,6 +64,7 @@ class SmartListItemLoadResult:
             {
                 "item": item,
                 "generic_tags": generic_tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -65,6 +74,7 @@ class SmartListItemLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.note import Note
         from ..models.smart_list_item import SmartListItem
         from ..models.tag import Tag
@@ -78,6 +88,13 @@ class SmartListItemLoadResult:
             generic_tags_item = Tag.from_dict(generic_tags_item_data)
 
             generic_tags.append(generic_tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -99,6 +116,7 @@ class SmartListItemLoadResult:
         smart_list_item_load_result = cls(
             item=item,
             generic_tags=generic_tags,
+            contacts=contacts,
             note=note,
         )
 

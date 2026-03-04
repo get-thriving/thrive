@@ -1,6 +1,10 @@
 """Use case for loading a particular chore."""
 
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -57,6 +61,7 @@ class ChoreLoadResult(UseCaseResultBase):
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
 
 
@@ -136,6 +141,23 @@ class ChoreLoadUseCase(
             )
         else:
             tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.CHORE,
+            source_entity_ref_id=chore.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
 
         return ChoreLoadResult(
             chore=chore,
@@ -146,5 +168,6 @@ class ChoreLoadUseCase(
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
             tags=tags,
+            contacts=contacts,
             note=note,
         )

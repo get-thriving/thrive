@@ -3,6 +3,10 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -61,6 +65,7 @@ class BigPlanLoadResult(UseCaseResultBase):
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
@@ -127,6 +132,23 @@ class BigPlanLoadUseCase(
             )
         else:
             tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.BIG_PLAN,
+            source_entity_ref_id=big_plan.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
 
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.BIG_PLAN,
@@ -156,6 +178,7 @@ class BigPlanLoadUseCase(
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             tags=tags,
+            contacts=contacts,
             note=note,
             time_event_blocks=time_event_blocks,
             stats=stats,

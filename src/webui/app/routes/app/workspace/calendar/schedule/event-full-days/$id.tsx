@@ -1,6 +1,8 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import {
   ApiError,
+  Contact,
+  ContactNamespace,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -42,6 +44,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -95,6 +98,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
 
     return json({
       allScheduleStreams:
@@ -103,7 +109,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventFullDaysBlock: response.time_event_full_days_block,
       note: response.note,
       tags: response.tags as Array<Tag>,
+      contacts:
+        (
+          response as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -294,7 +307,9 @@ export default function ScheduleEventFullDaysViewOne() {
             />
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
+        </Stack>
 
+        <Stack direction="row" useFlexGap gap={2}>
           <FormControl fullWidth={!isBigScreen}>
             <TagsEditor
               name="tags_names"
@@ -302,6 +317,20 @@ export default function ScheduleEventFullDaysViewOne() {
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
               namespace={TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK}
+              sourceEntityRefId={loaderData.scheduleEventFullDays.ref_id}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+
+          <FormControl fullWidth={!isBigScreen}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK}
               sourceEntityRefId={loaderData.scheduleEventFullDays.ref_id}
               aloneOnLine={!isBigScreen}
             />

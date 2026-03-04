@@ -1,5 +1,10 @@
-import type { Tag } from "@jupiter/webapi-client";
-import { ApiError, NoteNamespace, TagNamespace } from "@jupiter/webapi-client";
+import type { Contact, Tag } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  ContactNamespace,
+  NoteNamespace,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import {
   FormControl,
   FormControlLabel,
@@ -21,6 +26,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -78,11 +84,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.SMART_LIST_ITEM],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
 
     return json({
       item: result.item,
       genericTags: result.generic_tags as Array<Tag>,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
       note: result.note,
     });
   } catch (error) {
@@ -217,7 +233,9 @@ export default function SmartListItem() {
 
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
+        </Stack>
 
+        <Stack direction="row" spacing={2}>
           <FormControl sx={{ flexGrow: 1, width: "50%" }}>
             <TagsEditor
               name="generic_tags_names"
@@ -227,6 +245,18 @@ export default function SmartListItem() {
               namespace={TagNamespace.SMART_LIST_ITEM}
               sourceEntityRefId={loaderData.item.ref_id}
               label="Tags"
+            />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 1, width: "50%" }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map((c) => c.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.SMART_LIST_ITEM}
+              sourceEntityRefId={loaderData.item.ref_id}
+              label="Contacts"
             />
           </FormControl>
         </Stack>

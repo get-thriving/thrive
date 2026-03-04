@@ -1,5 +1,9 @@
 """Use case for loading a schedule in day event."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -45,6 +49,7 @@ class ScheduleEventInDayLoadResult(UseCaseResultBase):
     time_event_in_day_block: TimeEventInDayBlock
     note: Note | None
     tags: list[Tag]
+    contacts: list[Contact]
 
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
@@ -86,10 +91,28 @@ class ScheduleEventInDayLoadUseCase(
             )
         else:
             tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            context.workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.SCHEDULE_EVENT_IN_DAY,
+            source_entity_ref_id=schedule_event_in_day.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
 
         return ScheduleEventInDayLoadResult(
             schedule_event_in_day=schedule_event_in_day,
             time_event_in_day_block=time_event_in_day_block,
             note=note,
             tags=tags,
+            contacts=contacts,
         )

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { Note } from './Note';
 import type { ScheduleEventFullDays } from './ScheduleEventFullDays';
 import type { Tag } from './Tag';
@@ -14,5 +15,6 @@ export type ScheduleEventFullDaysLoadResult = {
     time_event_full_days_block: TimeEventFullDaysBlock;
     note?: (Note | null);
     tags: Array<Tag>;
+    contacts: Array<Contact>;
 };
 

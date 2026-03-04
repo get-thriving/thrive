@@ -1,5 +1,9 @@
 """Use case for loading a metric entry."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -38,6 +42,7 @@ class MetricEntryLoadResult(UseCaseResultBase):
 
     metric_entry: MetricEntry
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
 
 
@@ -81,5 +86,27 @@ class MetricEntryLoadUseCase(
             )
         else:
             tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            context.workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.METRIC_ENTRY,
+            source_entity_ref_id=metric_entry.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
 
-        return MetricEntryLoadResult(metric_entry=metric_entry, tags=tags, note=note)
+        return MetricEntryLoadResult(
+            metric_entry=metric_entry,
+            tags=tags,
+            contacts=contacts,
+            note=note,
+        )

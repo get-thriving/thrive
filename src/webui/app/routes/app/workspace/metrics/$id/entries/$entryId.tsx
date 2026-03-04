@@ -1,5 +1,7 @@
 import {
   ApiError,
+  Contact,
+  ContactNamespace,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -28,6 +30,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -68,6 +71,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.METRIC_ENTRY],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
 
     const result = await apiClient.metrics.metricEntryLoad({
       ref_id: entryId,
@@ -78,7 +84,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       metricEntry: result.metric_entry,
       note: result.note,
       tags: result.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -211,6 +224,20 @@ export default function MetricEntry() {
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
               namespace={TagNamespace.METRIC_ENTRY}
+              sourceEntityRefId={loaderData.metricEntry.ref_id}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <ContactsEditor
+              name="contacts_names"
+              label={null}
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.METRIC_ENTRY}
               sourceEntityRefId={loaderData.metricEntry.ref_id}
             />
           </FormControl>
