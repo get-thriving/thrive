@@ -17,7 +17,6 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   TagNamespace,
-  ContactNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";

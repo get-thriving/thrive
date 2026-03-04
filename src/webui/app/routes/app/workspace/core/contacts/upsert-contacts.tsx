@@ -24,24 +24,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, UpsertContactsFormSchema);
 
   try {
-    // First, find all contacts to get their ref_ids
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
-    // Map contact names to ref_ids
-    const contactRefIds = form.contacts
-      .map((name) => {
-        const contact = allContacts.contacts.find((c) => c.name === name);
-        return contact?.ref_id;
-      })
-      .filter((id): id is string => Boolean(id));
-
     await apiClient.contacts.contactLinkUpsert({
       namespace: form.namespace,
       source_entity_ref_id: form.sourceEntityRefId,
-      contacts_ref_ids: contactRefIds,
-    });
+      contact_names: form.contacts,
+    } as unknown as Parameters<typeof apiClient.contacts.contactLinkUpsert>[0]);
 
     return json(noErrorNoData());
   } catch (error) {

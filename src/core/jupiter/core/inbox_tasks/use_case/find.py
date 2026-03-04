@@ -485,7 +485,9 @@ class InboxTaskFindUseCase(
                     ),
                     contacts=[
                         contacts_by_ref_id[contact_ref_id]
-                        for contact_ref_id in inbox_task_contacts_by_ref_id.get(it.ref_id, [])
+                        for contact_ref_id in inbox_task_contacts_by_ref_id.get(
+                            it.ref_id, []
+                        )
                         if contact_ref_id in contacts_by_ref_id
                     ],
                     project=project_by_ref_id[it.project_ref_id],

@@ -138,7 +138,8 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { entries, allTags, allContacts } = useLoaderDataSafeForAnimation<typeof loader>();
+  const { entries, allTags, allContacts } =
+    useLoaderDataSafeForAnimation<typeof loader>();
 
   const serviceProperties = useContext(ServicePropertiesContext);
 
@@ -178,12 +179,28 @@ export default function InboxTasks() {
   }
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
   const filteredSortedInboxTasks = sortedInboxTasks.filter((it) => {
-    if (selectedTagsRefId.length === 0) {
-      return true;
-    }
+    // Filter by both tags and contacts
+    const noTagFilter = selectedTagsRefId.length === 0;
+    const noContactFilter = selectedContactsRefId.length === 0;
+
     const tags = inboxTaskTagsByInboxTaskRefId.get(it.ref_id) ?? [];
-    return tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    const contacts = inboxTaskContactsByInboxTaskRefId.get(it.ref_id) ?? [];
+
+    const matchTag =
+      noTagFilter ||
+      tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+
+    const matchContact =
+      noContactFilter ||
+      contacts.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+
+    return matchTag && matchContact;
   });
 
   const [selectedView, setSelectedView] = useState(View.SWIFTVIEW);
@@ -383,6 +400,14 @@ export default function InboxTasks() {
               })),
               setSelectedTagsRefId,
             ),
+            FilterManyOptions(
+              "Contacts",
+              allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
           ]}
         />
       }
@@ -438,7 +463,9 @@ export default function InboxTasks() {
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
                 />
               </DragDropContext>
             )}
@@ -474,7 +501,9 @@ export default function InboxTasks() {
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
                 />
               </DragDropContext>
             )}
@@ -1476,7 +1505,9 @@ function BigScreenKanbanByEisen({
                   allowEisen={e}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-                  inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
                 />
               </Fragment>
             );

@@ -92,7 +92,9 @@ class InboxTask(LeafEntity):
         TagLink, namespace=TagNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
     )
     contact_link = OwnsAtMostOne(
-        ContactLink, namespace=ContactNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
+        ContactLink,
+        namespace=ContactNamespace.INBOX_TASK,
+        source_entity_ref_id=IsRefId(),
     )
     note = OwnsAtMostOne(
         Note, namespace=NoteNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()

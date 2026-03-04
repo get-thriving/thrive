@@ -294,7 +294,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 ) &&
                   props.parent &&
                   props.parent.contact && (
-                    <ParentContactTag contact={props.parent.contact as Contact} />
+                    <ParentContactTag
+                      contact={props.parent.contact as Contact}
+                    />
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,

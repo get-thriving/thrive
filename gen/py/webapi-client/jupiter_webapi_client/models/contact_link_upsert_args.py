@@ -18,12 +18,12 @@ class ContactLinkUpsertArgs:
     Attributes:
         namespace (ContactNamespace): The namespace of a contact link.
         source_entity_ref_id (str): A generic entity id.
-        contacts_ref_ids (list[str]):
+        contact_names (list[str]):
     """
 
     namespace: ContactNamespace
     source_entity_ref_id: str
-    contacts_ref_ids: list[str]
+    contact_names: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,7 +31,7 @@ class ContactLinkUpsertArgs:
 
         source_entity_ref_id = self.source_entity_ref_id
 
-        contacts_ref_ids = self.contacts_ref_ids
+        contact_names = self.contact_names
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -39,7 +39,7 @@ class ContactLinkUpsertArgs:
             {
                 "namespace": namespace,
                 "source_entity_ref_id": source_entity_ref_id,
-                "contacts_ref_ids": contacts_ref_ids,
+                "contact_names": contact_names,
             }
         )
 
@@ -52,12 +52,12 @@ class ContactLinkUpsertArgs:
 
         source_entity_ref_id = d.pop("source_entity_ref_id")
 
-        contacts_ref_ids = cast(list[str], d.pop("contacts_ref_ids"))
+        contact_names = cast(list[str], d.pop("contact_names"))
 
         contact_link_upsert_args = cls(
             namespace=namespace,
             source_entity_ref_id=source_entity_ref_id,
-            contacts_ref_ids=contacts_ref_ids,
+            contact_names=contact_names,
         )
 
         contact_link_upsert_args.additional_properties = d

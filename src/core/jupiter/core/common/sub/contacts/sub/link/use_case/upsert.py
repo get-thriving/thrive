@@ -2,7 +2,12 @@
 
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
-from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.contacts.sub.contact.root import (
+    Contact,
+    ContactAlreadyExistsError,
+    ContactRepository,
+)
 from jupiter.core.common.sub.contacts.sub.link.root import (
     ContactLink,
     ContactLinkRepository,
@@ -30,7 +35,7 @@ class ContactLinkUpsertArgs(UseCaseArgsBase):
 
     namespace: ContactNamespace
     source_entity_ref_id: EntityId
-    contacts_ref_ids: list[EntityId]
+    contact_names: set[ContactName]
 
 
 @use_case_result
@@ -61,22 +66,35 @@ class ContactLinkUpsertUseCase(
             workspace.ref_id
         )
 
-        unique_contact_ref_ids: list[EntityId] = list(
-            dict.fromkeys(args.contacts_ref_ids)
-        )
-        for contact_ref_id in unique_contact_ref_ids:
-            contact = await uow.get_for(Contact).load_by_id(contact_ref_id)
+        unique_contact_names = set(args.contact_names)
+        contact_ref_ids: list[EntityId] = []
+        contact_repository = uow.get(ContactRepository)
+        for contact_name in unique_contact_names:
+            new_contact = Contact.new_contact(
+                ctx=context.domain_context,
+                contact_domain_ref_id=contact_domain.ref_id,
+                name=contact_name,
+            )
+            try:
+                contact = await contact_repository.create(new_contact)
+            except ContactAlreadyExistsError:
+                contact = await contact_repository.get_by_name(
+                    contact_domain.ref_id,
+                    contact_name,
+                )
+
             if contact.contact_domain.ref_id != contact_domain.ref_id:
                 raise InputValidationError(
                     f"Contact #{contact.ref_id} does not belong to this workspace"
                 )
+            contact_ref_ids.append(contact.ref_id)
 
         contact_link = ContactLink.new_contact_link(
             ctx=context.domain_context,
             contact_domain_ref_id=contact_domain.ref_id,
             namespace=args.namespace,
             source_entity_ref_id=args.source_entity_ref_id,
-            contacts_ref_ids=unique_contact_ref_ids,
+            contacts_ref_ids=contact_ref_ids,
         )
         contact_link = await uow.get(ContactLinkRepository).upsert(contact_link)
 

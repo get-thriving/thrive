@@ -16,7 +16,6 @@ import {
   NoteNamespace,
   RecurringTaskPeriod,
   TagNamespace,
-  ContactNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   WorkspaceFeature,

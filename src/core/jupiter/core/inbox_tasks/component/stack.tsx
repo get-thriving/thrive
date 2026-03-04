@@ -86,7 +86,8 @@ export function InboxTaskStack(props: InboxTaskStackProps) {
                     props.inboxTaskTagsByInboxTaskRefId?.get(it.ref_id) ?? []
                   }
                   contacts={
-                    props.inboxTaskContactsByInboxTaskRefId?.get(it.ref_id) ?? []
+                    props.inboxTaskContactsByInboxTaskRefId?.get(it.ref_id) ??
+                    []
                   }
                   optimisticState={props.optimisticUpdates?.[it.ref_id]}
                   parent={props.moreInfoByRefId?.[it.ref_id]}

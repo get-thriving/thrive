@@ -17,7 +17,6 @@ import {
   InboxTaskStatus,
   TimeEventNamespace,
   TagNamespace,
-  ContactNamespace,
 } from "@jupiter/webapi-client";
 import {
   Box,

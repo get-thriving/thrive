@@ -261,7 +261,7 @@ export function InboxTaskPropertiesEditor(
         </Box>
 
         <Stack direction="row" useFlexGap spacing={1}>
-        {props.allTags && props.tags && (
+          {props.allTags && props.tags && (
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags_names"
