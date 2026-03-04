@@ -40,6 +40,17 @@ mise run run:web --instance <instance-name>
 
 Check service status: `npx pm2 status`. Check logs: `tail .build-cache/run/<instance-name>/<service>.log`.
 
+## Generating code
+
+Whenever some model from the core package is changed, code on the
+client-side needs to be updated too. This is achieved by running:
+
+```bash
+mise run generate-client-code
+```
+
+This is the **only** way to properly update the code in `gen`.
+
 ### Lint, fix & check commands
 
 - Auto-fix: `mise run lint:fix`

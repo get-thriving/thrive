@@ -169,7 +169,11 @@ export default function InboxTasks() {
   for (const entry of entries) {
     inboxTaskContactsByInboxTaskRefId.set(
       entry.inbox_task.ref_id,
-      entry.contacts ?? [],
+      (
+        entry as InboxTaskFindResultEntry & {
+          contacts?: Array<Contact>;
+        }
+      ).contacts ?? [],
     );
   }
 
@@ -415,6 +419,9 @@ export default function InboxTasks() {
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
             inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+            inboxTaskContactsByInboxTaskRefId={
+              inboxTaskContactsByInboxTaskRefId
+            }
           />
         )}
 
@@ -446,6 +453,9 @@ export default function InboxTasks() {
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
                 inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                inboxTaskContactsByInboxTaskRefId={
+                  inboxTaskContactsByInboxTaskRefId
+                }
               />
             )}
           </>
@@ -479,6 +489,9 @@ export default function InboxTasks() {
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
                 inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                inboxTaskContactsByInboxTaskRefId={
+                  inboxTaskContactsByInboxTaskRefId
+                }
               />
             )}
           </>
@@ -493,6 +506,9 @@ export default function InboxTasks() {
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
             inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+            inboxTaskContactsByInboxTaskRefId={
+              inboxTaskContactsByInboxTaskRefId
+            }
           />
         )}
       </NestingAwareBlock>
@@ -524,6 +540,7 @@ interface SwiftViewProps {
   onCardMarkDone: (inboxTask: InboxTask) => void;
   onCardMarkNotDone: (inboxTask: InboxTask) => void;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SwiftView(props: SwiftViewProps) {
@@ -908,6 +925,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -929,6 +949,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -951,6 +974,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -973,6 +999,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -995,6 +1024,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1022,6 +1054,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1043,6 +1078,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1065,6 +1103,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1087,6 +1128,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1109,6 +1153,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1137,6 +1184,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1159,6 +1209,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1182,6 +1235,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1205,6 +1261,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1228,6 +1287,9 @@ function SwiftView(props: SwiftViewProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1523,6 +1585,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1545,6 +1608,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1567,6 +1631,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1589,6 +1654,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1611,6 +1677,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
 
@@ -1633,6 +1700,7 @@ function KanbanBoard({
           }}
           draggedInboxTaskId={draggedInboxTaskId}
           inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       </Grid>
     </Grid>
@@ -1648,6 +1716,7 @@ interface SmallScreenKanbanByEisenProps {
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
@@ -1746,6 +1815,9 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
         />
       </TabPanel>
 
@@ -1760,6 +1832,9 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
         />
       </TabPanel>
 
@@ -1774,6 +1849,9 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
         />
       </TabPanel>
 
@@ -1788,6 +1866,9 @@ function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
         />
       </TabPanel>
     </>
@@ -1804,6 +1885,7 @@ interface SmallScreenKanbanProps {
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SmallScreenKanban(props: SmallScreenKanbanProps) {
@@ -1965,6 +2047,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1993,6 +2078,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2021,6 +2109,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2049,6 +2140,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2077,6 +2171,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2105,6 +2202,9 @@ function SmallScreenKanban(props: SmallScreenKanbanProps) {
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
           inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+          inboxTaskContactsByInboxTaskRefId={
+            props.inboxTaskContactsByInboxTaskRefId
+          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -2121,6 +2221,7 @@ interface ListProps {
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function List({
@@ -2131,6 +2232,7 @@ function List({
   onCardMarkDone,
   onCardMarkNotDone,
   inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
 }: ListProps) {
   return (
     <>
@@ -2158,6 +2260,7 @@ function List({
         inboxTasks={inboxTasks}
         moreInfoByRefId={moreInfoByRefId}
         inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+        inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={optimisticUpdates}
         onCardMarkDone={onCardMarkDone}
         onCardMarkNotDone={onCardMarkNotDone}
@@ -2179,6 +2282,7 @@ interface InboxTasksColumnProps {
   showOptions: InboxTaskShowOptions;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function InboxTasksColumn(props: InboxTasksColumnProps) {
@@ -2301,6 +2405,9 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
                 inboxTaskTagsByInboxTaskRefId={
                   props.inboxTaskTagsByInboxTaskRefId
                 }
+                inboxTaskContactsByInboxTaskRefId={
+                  props.inboxTaskContactsByInboxTaskRefId
+                }
               />
             )}
 
@@ -2338,6 +2445,7 @@ interface InboxTaskColumnTasksProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   showOptions: InboxTaskShowOptions;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
@@ -2374,6 +2482,11 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
                   tags={
                     props.inboxTaskTagsByInboxTaskRefId.get(inboxTask.ref_id) ??
                     []
+                  }
+                  contacts={
+                    props.inboxTaskContactsByInboxTaskRefId.get(
+                      inboxTask.ref_id,
+                    ) ?? []
                   }
                   parent={entry}
                 />

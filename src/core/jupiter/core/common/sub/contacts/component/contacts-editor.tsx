@@ -101,25 +101,16 @@ export function ContactsEditor({
     ) {
       setIsActing(false);
       if (shouldAct) {
+        act();
         setShouldAct(false);
-        setDataModified(true);
       } else {
         setHasActed(true);
+        setTimeout(() => {
+          setHasActed(false);
+        }, 1000);
       }
     }
-  }, [cardActionFetcher.state, cardActionFetcher.data, isActing, shouldAct]);
-
-  useEffect(() => {
-    setContactsHiddenValue(initialDefaultValue.join(","));
-  }, [initialDefaultValue]);
-
-  const tagOptions = useMemo(() => {
-    const selected = contactsHiddenValue
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag);
-    return [...new Set([...selected, ...allContactsAsOptions])];
-  }, [contactsHiddenValue, allContactsAsOptions]);
+  }, [act, isActing, cardActionFetcher, shouldAct]);
 
   return (
     <Box sx={{ position: "relative" }}>
@@ -155,40 +146,58 @@ export function ContactsEditor({
         </Box>
       )}
       <Autocomplete
-        fullWidth
+        disablePortal
         multiple
-        options={tagOptions}
-        value={contactsHiddenValue
-          .split(",")
-          .map((tag) => tag.trim())
-          .filter((tag) => tag)}
-        readOnly={!inputsEnabled}
-        size="small"
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            label={label || "Contacts"}
-            placeholder="Add contacts..."
-          />
-        )}
+        limitTags={2}
+        filterSelectedOptions
+        freeSolo
         onChange={(event, newValue) => {
-          const value = (newValue as string[]).join(",");
-          setContactsHiddenValue(value);
+          setContactsHiddenValue(newValue.join(","));
           setDataModified(true);
         }}
+        options={allContactsAsOptions}
+        readOnly={!inputsEnabled}
+        disableCloseOnSelect
+        defaultValue={initialDefaultValue}
+        renderOption={(props, option, { selected }) => (
+          <li {...props}>
+            <Checkbox
+              style={{ marginRight: 8, padding: 0 }}
+              checked={selected}
+              tabIndex={-1}
+              disableRipple
+            />
+            {option}
+          </li>
+        )}
+        renderInput={(params) => (
+          <TextField {...params} label={label ?? "Contacts"} />
+        )}
         sx={{
-          ...(aloneOnLine
-            ? {}
-            : {
-                backgroundColor: theme.palette.background.paper,
-              }),
+          maxWidth: aloneOnLine ? "100%" : "14rem",
+          minWidth: isBigScreen ? "8rem" : "4rem",
+          "& .MuiAutocomplete-inputRoot": {
+            flexWrap: "nowrap",
+            overflowX: "auto",
+            overflowY: "hidden",
+            alignItems: "center",
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          },
+
+          "& .MuiAutocomplete-tag": {
+            maxWidth: 140,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          },
+
+          "& .MuiAutocomplete-input": {
+            minWidth: 60,
+            flexGrow: 1,
+          },
         }}
       />
-      <input
-        type="hidden"
-        name={name}
-        value={contactsHiddenValue}
-      />
+      <input name={name} type="hidden" value={contactsHiddenValue} />
     </Box>
   );
 }

@@ -251,7 +251,17 @@ export function InboxTaskPropertiesEditor(
             />
           </FormControl>
 
-          {props.allTags && props.tags && (
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name={constructFieldName(props.namePrefix, "isKey")}
+              defaultValue={props.inboxTask.is_key}
+              inputsEnabled={props.inputsEnabled && corePropertyEditable}
+            />
+          </FormControl>
+        </Box>
+
+        <Stack direction="row" useFlexGap spacing={1}>
+        {props.allTags && props.tags && (
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags_names"
@@ -276,15 +286,7 @@ export function InboxTaskPropertiesEditor(
               />
             </FormControl>
           )}
-
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name={constructFieldName(props.namePrefix, "isKey")}
-              defaultValue={props.inboxTask.is_key}
-              inputsEnabled={props.inputsEnabled && corePropertyEditable}
-            />
-          </FormControl>
-        </Box>
+        </Stack>
 
         <Stack direction="row" useFlexGap spacing={1}>
           <FormControl sx={{ flexGrow: 1, minWidth: "unset" }}>

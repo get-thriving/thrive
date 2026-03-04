@@ -54,7 +54,8 @@ import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
 import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
-import { ContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
+import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
@@ -84,6 +85,7 @@ export interface InboxTaskCardProps {
   showOptions: InboxTaskShowOptions;
   inboxTask: InboxTask;
   tags?: Array<Tag>;
+  contacts?: Array<Contact>;
   optimisticState?: InboxTaskOptimisticState;
   parent?: InboxTaskParent;
   onClick?: (it: InboxTask) => void;
@@ -201,6 +203,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             {props.tags?.map((tag) => (
               <TagTag key={tag.ref_id} tag={tag} />
             ))}
+            {props.contacts?.map((contact) => (
+              <ContactTag key={contact.ref_id} contact={contact} />
+            ))}
             {props.showOptions.showStatus && (
               <InboxTaskStatusTag
                 status={props.optimisticState?.status ?? props.inboxTask.status}
@@ -289,7 +294,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                 ) &&
                   props.parent &&
                   props.parent.contact && (
-                    <ContactTag contact={props.parent.contact as Contact} />
+                    <ParentContactTag contact={props.parent.contact as Contact} />
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,
