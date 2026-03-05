@@ -223,8 +223,7 @@ class MetricFindUseCase(
             source_entity_ref_id=[m.ref_id for m in metrics],
         )
         metric_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_metric_contact_ref_ids = []
         for contact_ref_ids in metric_contacts_by_ref_id.values():

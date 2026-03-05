@@ -161,8 +161,7 @@ class VacationFindUseCase(
             source_entity_ref_id=[v.ref_id for v in vacations],
         )
         vacation_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_vacation_contact_ref_ids = []
         for contact_ref_ids in vacation_contacts_by_ref_id.values():

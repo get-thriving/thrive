@@ -201,8 +201,7 @@ class ChoreFindUseCase(
             source_entity_ref_id=[c.ref_id for c in chores],
         )
         chore_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_chore_contact_ref_ids = []
         for contact_ref_ids in chore_contacts_by_ref_id.values():

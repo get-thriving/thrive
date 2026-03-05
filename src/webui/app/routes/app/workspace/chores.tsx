@@ -1,5 +1,6 @@
 import type {
   Chapter,
+  Contact,
   ChoreFindResultEntry,
   Goal,
   GoalSummary,
@@ -63,6 +64,7 @@ import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -108,12 +110,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.CHORE],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   return json({
     chores: response.entries,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags as Array<Tag>,
+    allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
@@ -133,6 +139,9 @@ export default function Chores() {
   }
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const sortedChores = sortChoresNaturally(
     (loaderData.chores as Array<ChoreFindResultEntry>).map((e) => e.chore),
@@ -141,7 +150,12 @@ export default function Chores() {
     const tagsOk =
       selectedTagsRefId.length === 0 ||
       entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
-    return tagsOk;
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      entry?.contacts?.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+    return tagsOk && contactsOk;
   });
 
   const lifePlanAvailable = isWorkspaceFeatureAvailable(
@@ -250,6 +264,14 @@ export default function Chores() {
                 text: tag.name,
               })),
               setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
             ),
           ]}
         />
@@ -385,6 +407,9 @@ function ChoreRow(props: ChoreRowProps) {
         )}
         {entry.tags?.map((tag: Tag) => (
           <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+        {entry.contacts?.map((contact: Contact) => (
+          <ContactTag key={contact.ref_id} contact={contact} />
         ))}
       </EntityLink>
     </EntityCard>

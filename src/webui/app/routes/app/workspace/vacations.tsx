@@ -1,5 +1,6 @@
 import type {
   ADate,
+  Contact,
   Vacation,
   VacationFindResultEntry,
   Tag,
@@ -40,6 +41,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -62,10 +64,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.VACATION],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   return json({
     entries: response.entries,
     allTags: allTags.tags as Array<Tag>,
+    allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
@@ -78,6 +84,9 @@ export default function Vacations() {
 
   const entries = loaderData.entries as Array<VacationFindResultEntry>;
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const entriesByRefId = new Map<string, VacationFindResultEntry>();
   for (const entry of entries) {
@@ -88,13 +97,18 @@ export default function Vacations() {
     entries
       .map((e) => e.vacation)
       .filter((vacation) => {
-        if (selectedTagsRefId.length === 0) {
-          return true;
-        }
         const entry = entriesByRefId.get(vacation.ref_id);
-        return entry?.tags?.some((tag: Tag) =>
-          selectedTagsRefId.includes(tag.ref_id),
-        );
+        const tagsOk =
+          selectedTagsRefId.length === 0 ||
+          entry?.tags?.some((tag: Tag) =>
+            selectedTagsRefId.includes(tag.ref_id),
+          );
+        const contactsOk =
+          selectedContactsRefId.length === 0 ||
+          entry?.contacts?.some((contact: Contact) =>
+            selectedContactsRefId.includes(contact.ref_id),
+          );
+        return tagsOk && contactsOk;
       }),
   );
 
@@ -118,6 +132,14 @@ export default function Vacations() {
                 text: tag.name,
               })),
               setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
             ),
           ]}
         />
@@ -157,6 +179,11 @@ export default function Vacations() {
                     .get(vacation.ref_id)
                     ?.tags?.map((tag: Tag) => (
                       <TagTag key={tag.ref_id} tag={tag} />
+                    ))}
+                  {entriesByRefId
+                    .get(vacation.ref_id)
+                    ?.contacts?.map((contact: Contact) => (
+                      <ContactTag key={contact.ref_id} contact={contact} />
                     ))}
                 </EntityLink>
               </EntityCard>

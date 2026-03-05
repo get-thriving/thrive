@@ -62,7 +62,6 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
   SectionActions,
-  FilterFewOptionsSpread,
   FilterManyOptions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
@@ -346,7 +345,7 @@ export default function InboxTasks() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterFewOptionsSpread(
+            FilterFewOptionsCompact(
               "View",
               selectedView,
               [

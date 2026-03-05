@@ -202,8 +202,7 @@ class HabitFindUseCase(
             source_entity_ref_id=[h.ref_id for h in habits],
         )
         habit_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_habit_contact_ref_ids = []
         for contact_ref_ids in habit_contacts_by_ref_id.values():

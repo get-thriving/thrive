@@ -1,4 +1,4 @@
-import type { MetricEntry, Tag } from "@jupiter/webapi-client";
+import type { Contact, MetricEntry, Tag } from "@jupiter/webapi-client";
 import {
   ApiError,
   DocsHelpSubject,
@@ -41,6 +41,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -78,12 +79,32 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.METRIC_ENTRY],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
+    const metricEntryContactPairs = await Promise.all(
+      response.metric_entries.map(async (entry) => {
+        const entryLoadResult = await apiClient.metrics.metricEntryLoad({
+          ref_id: entry.ref_id,
+          allow_archived: true,
+        });
+        return [
+          entry.ref_id,
+          entryLoadResult.contacts as Array<Contact>,
+        ] as const;
+      }),
+    );
+    const metricEntryContactsByRefId: { [key: string]: Array<Contact> } =
+      Object.fromEntries(metricEntryContactPairs);
 
     return json({
       metric: response.metric,
       metricEntries: response.metric_entries,
       metricEntryTags: response.metric_entry_tags,
       allTags: allTags.tags,
+      allContacts: allContacts.contacts as Array<Contact>,
+      metricEntryContactsByRefId,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -145,6 +166,9 @@ export default function Metric() {
   const inputsEnabled = navigation.state === "idle";
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const tagsByMetricEntryRefId = new Map<string, Tag[]>();
   for (const et of loaderData.metricEntryTags) {
@@ -156,11 +180,18 @@ export default function Metric() {
       return -compareADate(e1.collection_time, e2.collection_time);
     })
     .filter((entry) => {
-      if (selectedTagsRefId.length === 0) {
-        return true;
-      }
       const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
-      return tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+      const tagsOk =
+        selectedTagsRefId.length === 0 ||
+        tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+      const contacts =
+        loaderData.metricEntryContactsByRefId[entry.ref_id] || [];
+      const contactsOk =
+        selectedContactsRefId.length === 0 ||
+        contacts.some((contact: Contact) =>
+          selectedContactsRefId.includes(contact.ref_id),
+        );
+      return tagsOk && contactsOk;
     });
 
   return (
@@ -189,6 +220,14 @@ export default function Metric() {
                 text: tag.name,
               })),
               setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
             ),
           ]}
         />
@@ -223,6 +262,11 @@ export default function Metric() {
                 />
                 {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map((tag) => (
                   <TagTag key={tag.ref_id} tag={tag} />
+                ))}
+                {(
+                  loaderData.metricEntryContactsByRefId[entry.ref_id] || []
+                ).map((contact: Contact) => (
+                  <ContactTag key={contact.ref_id} contact={contact} />
                 ))}
               </EntityLink>
             </EntityCard>

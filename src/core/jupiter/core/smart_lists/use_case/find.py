@@ -150,8 +150,7 @@ class SmartListFindUseCase(
             source_entity_ref_id=[sl.ref_id for sl in smart_lists],
         )
         smart_list_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_smart_list_contact_ref_ids = []
         for contact_ref_ids in smart_list_contacts_by_ref_id.values():

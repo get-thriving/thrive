@@ -239,8 +239,7 @@ class BigPlanFindUseCase(
             source_entity_ref_id=[bp.ref_id for bp in big_plans],
         )
         big_plan_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
         }
         all_big_plan_contact_ref_ids = []
         for contact_ref_ids in big_plan_contacts_by_ref_id.values():
