@@ -465,10 +465,11 @@ export default function Habit() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
-          <FormControl sx={{ flexGrow: 3 }}>
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"
+              aloneOnLine
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
@@ -478,9 +479,10 @@ export default function Habit() {
             <FieldError actionResult={actionData} fieldName="/tags_names" />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 3 }}>
+          <FormControl fullWidth sx={{ flexGrow: 2 }}>
             <ContactsEditor
               name="contacts_names"
+              aloneOnLine
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map(
                 (contact) => contact.ref_id,

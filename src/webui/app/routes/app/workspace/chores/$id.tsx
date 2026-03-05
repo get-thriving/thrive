@@ -441,11 +441,11 @@ export default function Chore() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"
-              label={null}
+              aloneOnLine
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
@@ -454,10 +454,10 @@ export default function Chore() {
             />
           </FormControl>
 
-          <FormControl fullWidth sx={{ flexGrow: 2 }}>
+          <FormControl sx={{ flexGrow: 2 }}>
             <ContactsEditor
               name="contacts_names"
-              label={null}
+              aloneOnLine
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map(
                 (contact) => contact.ref_id,

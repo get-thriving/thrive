@@ -239,6 +239,7 @@ export default function SmartListItem() {
           <FormControl sx={{ flexGrow: 1, width: "50%" }}>
             <TagsEditor
               name="generic_tags_names"
+              aloneOnLine
               allTags={loaderData.allTags}
               defaultValue={loaderData.genericTags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
@@ -251,6 +252,7 @@ export default function SmartListItem() {
           <FormControl sx={{ flexGrow: 1, width: "50%" }}>
             <ContactsEditor
               name="contacts_names"
+              aloneOnLine
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map((c) => c.ref_id)}
               inputsEnabled={inputsEnabled}

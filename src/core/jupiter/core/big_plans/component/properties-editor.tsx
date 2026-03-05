@@ -156,12 +156,12 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" useFlexGap spacing={1}>
           {props.allTags && props.tags && (
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags"
-                label={null}
+                aloneOnLine
                 allTags={props.allTags}
                 defaultValue={props.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={props.inputsEnabled}
@@ -172,10 +172,10 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
           )}
 
           {props.allContacts && props.contacts && (
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <FormControl sx={{ flexGrow: 2 }}>
               <ContactsEditor
                 name="contacts_names"
-                label={null}
+                aloneOnLine
                 allContacts={props.allContacts}
                 defaultValue={props.contacts.map((contact) => contact.ref_id)}
                 inputsEnabled={props.inputsEnabled}

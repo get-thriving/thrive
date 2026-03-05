@@ -366,7 +366,7 @@ export default function ScheduleEventInDayViewOne() {
         </FormControl>
 
         <Stack direction="row" useFlexGap gap={2}>
-          <FormControl fullWidth={!isBigScreen}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"
               allTags={loaderData.allTags}
@@ -378,7 +378,7 @@ export default function ScheduleEventInDayViewOne() {
             />
           </FormControl>
 
-          <FormControl fullWidth={!isBigScreen}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <ContactsEditor
               name="contacts_names"
               allContacts={loaderData.allContacts}

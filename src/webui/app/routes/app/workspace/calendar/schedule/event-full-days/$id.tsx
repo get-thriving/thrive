@@ -310,7 +310,7 @@ export default function ScheduleEventFullDaysViewOne() {
         </Stack>
 
         <Stack direction="row" useFlexGap gap={2}>
-          <FormControl fullWidth={!isBigScreen}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"
               allTags={loaderData.allTags}
@@ -322,7 +322,7 @@ export default function ScheduleEventFullDaysViewOne() {
             />
           </FormControl>
 
-          <FormControl fullWidth={!isBigScreen}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <ContactsEditor
               name="contacts_names"
               allContacts={loaderData.allContacts}
