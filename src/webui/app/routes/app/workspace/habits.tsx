@@ -1,6 +1,7 @@
 import type {
   ADate,
   Chapter,
+  Contact,
   Goal,
   GoalSummary,
   HabitFindResultEntry,
@@ -70,6 +71,7 @@ import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -121,6 +123,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.HABIT],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   let earliestDate = query.includeStreakMarksEarliestDate;
   let latestDate = query.includeStreakMarksLatestDate;
@@ -152,6 +157,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags,
+    allContacts: allContacts.contacts as Array<Contact>,
     keyHabitStreaks: keyHabitResults.map((h) => ({
       habitRefId: h.habit.ref_id,
       streakMarkEarliestDate: h.streak_mark_earliest_date,
@@ -186,6 +192,9 @@ export default function Habits() {
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
     useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const tagsByRefId: { [tag: string]: Tag } = {};
   for (const tag of loaderData.allTags) {
@@ -205,7 +214,14 @@ export default function Habits() {
       entriesByRefId
         .get(habit.ref_id)
         ?.tags?.some((tag) => selectedTagsRefId.includes(tag.ref_id));
-    return tagsOk;
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      entriesByRefId
+        .get(habit.ref_id)
+        ?.contacts?.some((contact) =>
+          selectedContactsRefId.includes(contact.ref_id),
+        );
+    return tagsOk && contactsOk;
   });
 
   const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
@@ -330,6 +346,14 @@ export default function Habits() {
                 text: tag.name,
               })),
               setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
             ),
           ]}
         />
@@ -469,6 +493,9 @@ function HabitRow(props: HabitRowProps) {
         )}
         {entry.tags?.map((tag) => (
           <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+        {entry.contacts?.map((contact) => (
+          <ContactTag key={contact.ref_id} contact={contact} />
         ))}
       </EntityLink>
     </EntityCard>

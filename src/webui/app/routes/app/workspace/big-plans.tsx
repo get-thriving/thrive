@@ -1,5 +1,6 @@
 import type {
   BigPlanFindResultEntry,
+  Contact,
   BigPlanMilestone,
   BigPlanStats,
   Tag,
@@ -76,10 +77,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.BIG_PLAN],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
   return json({
     bigPlans: response.entries,
     allProjects: summaryResponse.projects || undefined,
     allTags: allTags.tags as Array<Tag>,
+    allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
@@ -99,6 +104,9 @@ export default function BigPlans() {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const entriesByRefId = new Map<string, BigPlanParent>();
   for (const entry of loaderData.bigPlans as Array<BigPlanFindResultEntry>) {
@@ -114,7 +122,12 @@ export default function BigPlans() {
     const tagsOk =
       selectedTagsRefId.length === 0 ||
       entry?.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
-    return tagsOk;
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      entry?.contacts?.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+    return tagsOk && contactsOk;
   });
 
   const topLevelInfo = useContext(TopLevelInfoContext);
@@ -184,6 +197,14 @@ export default function BigPlans() {
                 text: tag.name,
               })),
               setSelectedTagsRefId,
+            ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
             ),
           ]}
         />

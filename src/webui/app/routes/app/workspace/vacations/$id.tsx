@@ -243,12 +243,12 @@ export default function Vacation() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" useFlexGap spacing={1}>
           {allTags && tags && (
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags"
-                label={null}
+                aloneOnLine
                 allTags={allTags}
                 defaultValue={tags.map((tag: Tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}
@@ -259,10 +259,10 @@ export default function Vacation() {
           )}
 
           {allContacts && contacts && (
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <FormControl sx={{ flexGrow: 2 }}>
               <ContactsEditor
                 name="contacts_names"
-                label={null}
+                aloneOnLine
                 allContacts={allContacts}
                 defaultValue={contacts.map(
                   (contact: Contact) => contact.ref_id,

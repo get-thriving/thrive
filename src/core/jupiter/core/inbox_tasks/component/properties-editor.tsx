@@ -265,6 +265,7 @@ export function InboxTaskPropertiesEditor(
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags_names"
+                aloneOnLine
                 allTags={props.allTags}
                 defaultValue={props.tags.map((t) => t.ref_id)}
                 inputsEnabled={props.inputsEnabled}
@@ -278,6 +279,7 @@ export function InboxTaskPropertiesEditor(
             <FormControl sx={{ flexGrow: 2 }}>
               <ContactsEditor
                 name="contacts_names"
+                aloneOnLine
                 allContacts={props.allContacts}
                 defaultValue={props.contacts.map((c) => c.ref_id)}
                 inputsEnabled={props.inputsEnabled}

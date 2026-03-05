@@ -220,6 +220,7 @@ export default function MetricEntry() {
             <TagsEditor
               name="tags"
               label={null}
+              aloneOnLine
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}
@@ -232,6 +233,7 @@ export default function MetricEntry() {
             <ContactsEditor
               name="contacts_names"
               label={null}
+              aloneOnLine
               allContacts={loaderData.allContacts}
               defaultValue={loaderData.contacts.map(
                 (contact) => contact.ref_id,

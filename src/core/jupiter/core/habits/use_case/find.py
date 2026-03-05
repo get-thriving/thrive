@@ -2,6 +2,10 @@
 
 from collections import defaultdict
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -66,6 +70,7 @@ class HabitFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
 
 
@@ -186,6 +191,31 @@ class HabitFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_habit_ref_id = {}
 
+        # Load contacts linked to habits
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.HABIT,
+            allow_archived=False,
+            source_entity_ref_id=[h.ref_id for h in habits],
+        )
+        habit_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+        }
+        all_habit_contact_ref_ids = []
+        for contact_ref_ids in habit_contacts_by_ref_id.values():
+            all_habit_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_habit_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_habit_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         return HabitFindResult(
             entries=[
                 HabitFindResultEntry(
@@ -222,6 +252,13 @@ class HabitFindUseCase(
                         if rt.ref_id in tag_links_by_habit_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in habit_contacts_by_ref_id.get(
+                            rt.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=notes_by_habit_ref_id.get(rt.ref_id, None),
                 )
                 for rt in habits

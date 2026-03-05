@@ -1,4 +1,4 @@
-import type { Tag } from "@jupiter/webapi-client";
+import type { Contact, Tag } from "@jupiter/webapi-client";
 import {
   ApiError,
   DocsHelpSubject,
@@ -27,6 +27,7 @@ import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-bou
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TagTag } from "@jupiter/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "@jupiter/core/common/sub/contacts/component/contact-tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   DisplayType,
@@ -78,6 +79,24 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.SMART_LIST_ITEM],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
+    const itemContactPairs = await Promise.all(
+      response.smart_list_items.map(async (item) => {
+        const itemLoadResult = await apiClient.smartLists.smartListItemLoad({
+          ref_id: item.ref_id,
+          allow_archived: true,
+        });
+        return [
+          item.ref_id,
+          itemLoadResult.contacts as Array<Contact>,
+        ] as const;
+      }),
+    );
+    const contactsByItemRefId: { [key: string]: Array<Contact> } =
+      Object.fromEntries(itemContactPairs);
 
     const genericTagsByItemRefId: { [key: string]: Array<Tag> } =
       response.smart_list_item_generic_tags ?? {};
@@ -86,7 +105,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       smartList: response.smart_list,
       smartListItems: response.smart_list_items,
       allItemTags: allItemTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
       genericTagsByItemRefId,
+      contactsByItemRefId,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -140,6 +161,9 @@ export default function SmartListViewItems() {
 
   const [selectedDoneness, setSelectedDoneness] = useState<boolean[]>([]);
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
+  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
+    [],
+  );
 
   const filteredSmartListItems = loaderData.smartListItems.filter((item) => {
     const doneOk =
@@ -150,7 +174,14 @@ export default function SmartListViewItems() {
       selectedTagsRefId.length === 0 ||
       tags.some((tag) => selectedTagsRefId.includes(tag.ref_id));
 
-    return doneOk && tagsOk;
+    const contacts = loaderData.contactsByItemRefId[item.ref_id] ?? [];
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      contacts.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+
+    return doneOk && tagsOk && contactsOk;
   });
 
   return (
@@ -198,6 +229,14 @@ export default function SmartListViewItems() {
               })),
               setSelectedTagsRefId,
             ),
+            FilterManyOptions(
+              "Contacts",
+              loaderData.allContacts.map((contact) => ({
+                value: contact.ref_id,
+                text: contact.name,
+              })),
+              setSelectedContactsRefId,
+            ),
           ]}
         />
       }
@@ -226,6 +265,11 @@ export default function SmartListViewItems() {
                 {(loaderData.genericTagsByItemRefId[item.ref_id] ?? []).map(
                   (tag) => (
                     <TagTag key={tag.ref_id} tag={tag} />
+                  ),
+                )}
+                {(loaderData.contactsByItemRefId[item.ref_id] ?? []).map(
+                  (contact: Contact) => (
+                    <ContactTag key={contact.ref_id} contact={contact} />
                   ),
                 )}
               </EntityLink>
