@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.note import Note
     from ..models.smart_list import SmartList
     from ..models.smart_list_find_response_entry_smart_list_item_generic_tags_type_0 import (
@@ -28,6 +29,7 @@ class SmartListFindResponseEntry:
     Attributes:
         smart_list (SmartList): A smart list.
         tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
         smart_list_items (list[SmartListItem] | None | Unset):
         smart_list_item_generic_tags (None | SmartListFindResponseEntrySmartListItemGenericTagsType0 | Unset):
@@ -36,6 +38,7 @@ class SmartListFindResponseEntry:
 
     smart_list: SmartList
     tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     smart_list_items: list[SmartListItem] | None | Unset = UNSET
     smart_list_item_generic_tags: None | SmartListFindResponseEntrySmartListItemGenericTagsType0 | Unset = UNSET
@@ -54,6 +57,11 @@ class SmartListFindResponseEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -101,6 +109,7 @@ class SmartListFindResponseEntry:
             {
                 "smart_list": smart_list,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -116,6 +125,7 @@ class SmartListFindResponseEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.note import Note
         from ..models.smart_list import SmartList
         from ..models.smart_list_find_response_entry_smart_list_item_generic_tags_type_0 import (
@@ -133,6 +143,13 @@ class SmartListFindResponseEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -219,6 +236,7 @@ class SmartListFindResponseEntry:
         smart_list_find_response_entry = cls(
             smart_list=smart_list,
             tags=tags,
+            contacts=contacts,
             note=note,
             smart_list_items=smart_list_items,
             smart_list_item_generic_tags=smart_list_item_generic_tags,

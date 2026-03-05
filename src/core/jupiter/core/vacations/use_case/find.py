@@ -2,6 +2,10 @@
 
 from collections import defaultdict
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -53,6 +57,7 @@ class VacationFindResultEntry(UseCaseResultBase):
 
     vacation: Vacation
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
     time_event_block: TimeEventFullDaysBlock | None
 
@@ -145,6 +150,32 @@ class VacationFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_vacation_ref_id = {}
 
+        # Load contacts linked to vacations
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.VACATION,
+            allow_archived=False,
+            source_entity_ref_id=[v.ref_id for v in vacations],
+        )
+        vacation_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids
+            for link in contact_links
+        }
+        all_vacation_contact_ref_ids = []
+        for contact_ref_ids in vacation_contacts_by_ref_id.values():
+            all_vacation_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_vacation_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_vacation_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         return VacationFindResult(
             entries=[
                 VacationFindResultEntry(
@@ -160,6 +191,13 @@ class VacationFindUseCase(
                         if vacation.ref_id in tag_links_by_vacation_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in vacation_contacts_by_ref_id.get(
+                            vacation.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=notes_by_vacation_ref_id.get(vacation.ref_id, None),
                     time_event_block=time_event_blocks_by_vacation_ref_id.get(
                         vacation.ref_id, None

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
@@ -30,6 +31,7 @@ class BigPlanFindResultEntry:
     Attributes:
         big_plan (BigPlan): A big plan.
         tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
         milestones (list[BigPlanMilestone] | None | Unset):
         stats (BigPlanStats | None | Unset):
@@ -41,6 +43,7 @@ class BigPlanFindResultEntry:
 
     big_plan: BigPlan
     tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
@@ -63,6 +66,11 @@ class BigPlanFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -134,6 +142,7 @@ class BigPlanFindResultEntry:
             {
                 "big_plan": big_plan,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -159,6 +168,7 @@ class BigPlanFindResultEntry:
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
@@ -174,6 +184,13 @@ class BigPlanFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -307,6 +324,7 @@ class BigPlanFindResultEntry:
         big_plan_find_result_entry = cls(
             big_plan=big_plan,
             tags=tags,
+            contacts=contacts,
             note=note,
             milestones=milestones,
             stats=stats,

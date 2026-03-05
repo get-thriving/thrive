@@ -4,6 +4,10 @@ from collections import defaultdict
 
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -67,6 +71,7 @@ class ChoreFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
+    contacts: list[Contact]
 
 
 @use_case_result
@@ -185,6 +190,32 @@ class ChoreFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_chore_ref_id = {}
 
+        # Load contacts linked to chores
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.CHORE,
+            allow_archived=False,
+            source_entity_ref_id=[c.ref_id for c in chores],
+        )
+        chore_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids
+            for link in contact_links
+        }
+        all_chore_contact_ref_ids = []
+        for contact_ref_ids in chore_contacts_by_ref_id.values():
+            all_chore_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_chore_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_chore_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         return ChoreFindResult(
             entries=[
                 ChoreFindResultEntry(
@@ -222,6 +253,13 @@ class ChoreFindUseCase(
                         if rt.ref_id in tag_links_by_chore_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in chore_contacts_by_ref_id.get(
+                            rt.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=notes_by_chore_ref_id.get(rt.ref_id, None),
                 )
                 for rt in chores

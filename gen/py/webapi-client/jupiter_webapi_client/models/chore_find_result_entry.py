@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.chapter import Chapter
     from ..models.chore import Chore
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
@@ -28,6 +29,7 @@ class ChoreFindResultEntry:
     Attributes:
         chore (Chore): A chore.
         tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
         project (None | Project | Unset):
         chapter (Chapter | None | Unset):
@@ -37,6 +39,7 @@ class ChoreFindResultEntry:
 
     chore: Chore
     tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     project: None | Project | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
@@ -56,6 +59,11 @@ class ChoreFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -107,6 +115,7 @@ class ChoreFindResultEntry:
             {
                 "chore": chore,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -126,6 +135,7 @@ class ChoreFindResultEntry:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
@@ -141,6 +151,13 @@ class ChoreFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -235,6 +252,7 @@ class ChoreFindResultEntry:
         chore_find_result_entry = cls(
             chore=chore,
             tags=tags,
+            contacts=contacts,
             note=note,
             project=project,
             chapter=chapter,

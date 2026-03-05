@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.contact import Contact
     from ..models.note import Note
     from ..models.tag import Tag
     from ..models.time_event_full_days_block import TimeEventFullDaysBlock
@@ -25,12 +26,14 @@ class VacationFindResultEntry:
     Attributes:
         vacation (Vacation): A vacation.
         tags (list[Tag]):
+        contacts (list[Contact]):
         note (None | Note | Unset):
         time_event_block (None | TimeEventFullDaysBlock | Unset):
     """
 
     vacation: Vacation
     tags: list[Tag]
+    contacts: list[Contact]
     note: None | Note | Unset = UNSET
     time_event_block: None | TimeEventFullDaysBlock | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -45,6 +48,11 @@ class VacationFindResultEntry:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -68,6 +76,7 @@ class VacationFindResultEntry:
             {
                 "vacation": vacation,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if note is not UNSET:
@@ -79,6 +88,7 @@ class VacationFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.contact import Contact
         from ..models.note import Note
         from ..models.tag import Tag
         from ..models.time_event_full_days_block import TimeEventFullDaysBlock
@@ -93,6 +103,13 @@ class VacationFindResultEntry:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -131,6 +148,7 @@ class VacationFindResultEntry:
         vacation_find_result_entry = cls(
             vacation=vacation,
             tags=tags,
+            contacts=contacts,
             note=note,
             time_event_block=time_event_block,
         )

@@ -7,6 +7,10 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -75,6 +79,7 @@ class BigPlanFindResultEntry(UseCaseResultBase):
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
     tags: list[Tag]
+    contacts: list[Contact]
 
 
 @use_case_result
@@ -223,6 +228,32 @@ class BigPlanFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_big_plan_ref_id = {}
 
+        # Load contacts linked to big plans
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.BIG_PLAN,
+            allow_archived=False,
+            source_entity_ref_id=[bp.ref_id for bp in big_plans],
+        )
+        big_plan_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids
+            for link in contact_links
+        }
+        all_big_plan_contact_ref_ids = []
+        for contact_ref_ids in big_plan_contacts_by_ref_id.values():
+            all_big_plan_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_big_plan_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_big_plan_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         return BigPlanFindResult(
             entries=[
                 BigPlanFindResultEntry(
@@ -270,6 +301,13 @@ class BigPlanFindUseCase(
                         if bp.ref_id in tag_links_by_big_plan_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in big_plan_contacts_by_ref_id.get(
+                            bp.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=notes_by_inbox_task_ref_id.get(bp.ref_id, None),
                 )
                 for bp in big_plans
