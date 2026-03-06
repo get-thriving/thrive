@@ -14,6 +14,13 @@ import type { LoadTopLevelInfoResult } from '../models/LoadTopLevelInfoResult';
 import type { LoginArgs } from '../models/LoginArgs';
 import type { LoginResult } from '../models/LoginResult';
 import type { NoOpArgs } from '../models/NoOpArgs';
+import type { TaskArchiveArgs } from '../models/TaskArchiveArgs';
+import type { TaskFindArgs } from '../models/TaskFindArgs';
+import type { TaskFindResult } from '../models/TaskFindResult';
+import type { TaskLoadArgs } from '../models/TaskLoadArgs';
+import type { TaskLoadResult } from '../models/TaskLoadResult';
+import type { TaskRemoveArgs } from '../models/TaskRemoveArgs';
+import type { TaskUpdateArgs } from '../models/TaskUpdateArgs';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class ApplicationService {
@@ -160,6 +167,136 @@ export class ApplicationService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/login',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for archiving a task.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public taskArchive(
+        requestBody?: TaskArchiveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/task-archive',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for finding tasks.
+     * @param requestBody The input data
+     * @returns TaskFindResult Successful response
+     * @throws ApiError
+     */
+    public taskFind(
+        requestBody?: TaskFindArgs,
+    ): CancelablePromise<TaskFindResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/task-find',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for loading a task.
+     * @param requestBody The input data
+     * @returns TaskLoadResult Successful response
+     * @throws ApiError
+     */
+    public taskLoad(
+        requestBody?: TaskLoadArgs,
+    ): CancelablePromise<TaskLoadResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/task-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for removing a task.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public taskRemove(
+        requestBody?: TaskRemoveArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/task-remove',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Update a task use case.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public taskUpdate(
+        requestBody?: TaskUpdateArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/task-update',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

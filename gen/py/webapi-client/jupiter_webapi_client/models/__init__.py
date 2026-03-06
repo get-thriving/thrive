@@ -701,6 +701,27 @@ from .tag_namespace import TagNamespace
 from .tag_remove_args import TagRemoveArgs
 from .tag_update_args import TagUpdateArgs
 from .tag_update_args_name import TagUpdateArgsName
+from .task import Task
+from .task_archive_args import TaskArchiveArgs
+from .task_domain import TaskDomain
+from .task_find_args import TaskFindArgs
+from .task_find_result import TaskFindResult
+from .task_load_args import TaskLoadArgs
+from .task_load_result import TaskLoadResult
+from .task_namespace import TaskNamespace
+from .task_remove_args import TaskRemoveArgs
+from .task_status import TaskStatus
+from .task_update_args import TaskUpdateArgs
+from .task_update_args_actionable_date import TaskUpdateArgsActionableDate
+from .task_update_args_difficulty import TaskUpdateArgsDifficulty
+from .task_update_args_due_date import TaskUpdateArgsDueDate
+from .task_update_args_eisen import TaskUpdateArgsEisen
+from .task_update_args_is_key import TaskUpdateArgsIsKey
+from .task_update_args_name import TaskUpdateArgsName
+from .task_update_args_recurring_gen_right_now import TaskUpdateArgsRecurringGenRightNow
+from .task_update_args_recurring_repeat_index import TaskUpdateArgsRecurringRepeatIndex
+from .task_update_args_recurring_timeline import TaskUpdateArgsRecurringTimeline
+from .task_update_args_status import TaskUpdateArgsStatus
 from .time_and_effort_summary import TimeAndEffortSummary
 from .time_event_domain import TimeEventDomain
 from .time_event_full_days_block import TimeEventFullDaysBlock
@@ -1553,6 +1574,27 @@ __all__ = (
     "TagRemoveArgs",
     "TagUpdateArgs",
     "TagUpdateArgsName",
+    "Task",
+    "TaskArchiveArgs",
+    "TaskDomain",
+    "TaskFindArgs",
+    "TaskFindResult",
+    "TaskLoadArgs",
+    "TaskLoadResult",
+    "TaskNamespace",
+    "TaskRemoveArgs",
+    "TaskStatus",
+    "TaskUpdateArgs",
+    "TaskUpdateArgsActionableDate",
+    "TaskUpdateArgsDifficulty",
+    "TaskUpdateArgsDueDate",
+    "TaskUpdateArgsEisen",
+    "TaskUpdateArgsIsKey",
+    "TaskUpdateArgsName",
+    "TaskUpdateArgsRecurringGenRightNow",
+    "TaskUpdateArgsRecurringRepeatIndex",
+    "TaskUpdateArgsRecurringTimeline",
+    "TaskUpdateArgsStatus",
     "TimeAndEffortSummary",
     "TimeEventDomain",
     "TimeEventFullDaysBlock",
