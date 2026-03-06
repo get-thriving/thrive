@@ -6,6 +6,9 @@ from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task, TaskRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
@@ -19,14 +22,6 @@ from jupiter.core.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -51,7 +46,7 @@ class HabitLoadArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     allow_archived: bool | None
-    inbox_task_retrieve_offset: int | None
+    task_retrieve_offset: int | None
     include_streak_marks_earliest_date: ADate | None
     include_streak_marks_latest_date: ADate | None
 
@@ -64,9 +59,9 @@ class HabitLoadResult(UseCaseResultBase):
     project: Project
     chapter: Chapter | None
     goal: Goal | None
-    inbox_tasks: list[InboxTask]
-    inbox_tasks_total_cnt: int
-    inbox_tasks_page_size: int
+    tasks: list[Task]
+    tasks_total_cnt: int
+    tasks_page_size: int
     streak_marks: list[HabitStreakMark]
     streak_mark_earliest_date: ADate
     streak_mark_latest_date: ADate
@@ -90,11 +85,8 @@ class HabitLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
 
-        if (
-            args.inbox_task_retrieve_offset is not None
-            and args.inbox_task_retrieve_offset < 0
-        ):
-            raise InputValidationError("Invalid inbox_task_retrieve_offset")
+        if args.task_retrieve_offset is not None and args.task_retrieve_offset < 0:
+            raise InputValidationError("Invalid task_retrieve_offset")
         if (
             args.include_streak_marks_earliest_date is not None
             and args.include_streak_marks_latest_date is not None
@@ -120,25 +112,25 @@ class HabitLoadUseCase(
             if habit.goal_ref_id
             else None
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        task_domain = await uow.get_for(TaskDomain).load_by_parent(
             workspace.ref_id,
         )
 
-        inbox_tasks_total_cnt = await uow.get(InboxTaskRepository).count_all_for_source(
-            parent_ref_id=inbox_task_collection.ref_id,
+        tasks_total_cnt = await uow.get(TaskRepository).count_all_for_source(
+            parent_ref_id=task_domain.ref_id,
             allow_archived=allow_archived,
-            source=InboxTaskSource.HABIT,
+            namespace=TaskNamespace.HABIT,
             source_entity_ref_id=habit.ref_id,
         )
-        inbox_tasks = await uow.get(
-            InboxTaskRepository
+        tasks = await uow.get(
+            TaskRepository
         ).find_all_for_source_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
+            parent_ref_id=task_domain.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.HABIT,
+            namespace=TaskNamespace.HABIT,
             source_entity_ref_id=habit.ref_id,
-            retrieve_offset=args.inbox_task_retrieve_offset or 0,
-            retrieve_limit=InboxTaskRepository.PAGE_SIZE,
+            retrieve_offset=args.task_retrieve_offset or 0,
+            retrieve_limit=TaskRepository.PAGE_SIZE,
         )
 
         streak_mark_earliest_date = (
@@ -199,9 +191,9 @@ class HabitLoadUseCase(
             project=project,
             chapter=chapter,
             goal=goal,
-            inbox_tasks=inbox_tasks,
-            inbox_tasks_total_cnt=inbox_tasks_total_cnt,
-            inbox_tasks_page_size=InboxTaskRepository.PAGE_SIZE,
+            tasks=tasks,
+            tasks_total_cnt=tasks_total_cnt,
+            tasks_page_size=TaskRepository.PAGE_SIZE,
             streak_marks=streak_marks,
             streak_mark_earliest_date=streak_mark_earliest_date,
             streak_mark_latest_date=streak_mark_latest_date,

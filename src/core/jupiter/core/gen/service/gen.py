@@ -21,6 +21,10 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task
+from jupiter.core.common.sub.tasks.service.remove import TaskRemoveService
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -40,9 +44,6 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
-)
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
@@ -202,6 +203,9 @@ class GenService:
                 workspace.ref_id,
             )
             time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
+                workspace.ref_id,
+            )
+            task_domain = await uow.get_for(TaskDomain).load_by_parent(
                 workspace.ref_id,
             )
             habit_collection = await uow.get_for(HabitCollection).load_by_parent(
@@ -373,11 +377,11 @@ class GenService:
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_collection_inbox_tasks = await uow.get_for(
-                        InboxTask
+                    all_collection_tasks = await uow.get_for(
+                        Task
                     ).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
-                        source=[InboxTaskSource.HABIT],
+                        parent_ref_id=task_domain.ref_id,
+                        namespace=TaskNamespace.HABIT,
                         allow_archived=True,
                         source_entity_ref_id=(
                             [rt.ref_id for rt in all_habits]
@@ -386,34 +390,31 @@ class GenService:
                         ),
                     )
 
-                all_inbox_tasks_by_habit_ref_id_and_timeline: dict[
+                all_tasks_by_habit_ref_id_and_timeline: dict[
                     tuple[EntityId, str],
-                    list[InboxTask],
+                    list[Task],
                 ] = defaultdict(list)
-                for inbox_task in all_collection_inbox_tasks:
-                    if (
-                        inbox_task.source_entity_ref_id is None
-                        or inbox_task.recurring_timeline is None
-                    ):
+                for task in all_collection_tasks:
+                    if task.recurring_timeline is None:
                         raise Exception(
-                            f"Expected that inbox task with id='{inbox_task.ref_id}'",
+                            f"Expected that task with id='{task.ref_id}'",
                         )
-                    all_inbox_tasks_by_habit_ref_id_and_timeline[
-                        (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
-                    ].append(inbox_task)
+                    all_tasks_by_habit_ref_id_and_timeline[
+                        (task.source_entity_ref_id, task.recurring_timeline)
+                    ].append(task)
 
                 for habit in all_habits:
                     project = all_projects_by_ref_id[habit.project_ref_id]
-                    gen_log_entry = await self._generate_inbox_tasks_for_habit(
+                    gen_log_entry = await self._generate_tasks_for_habit(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
-                        inbox_task_collection=inbox_task_collection,
+                        task_domain=task_domain,
                         project=project,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         habit=habit,
-                        all_inbox_tasks_by_habit_ref_id_and_timeline=all_inbox_tasks_by_habit_ref_id_and_timeline,
+                        all_tasks_by_habit_ref_id_and_timeline=all_tasks_by_habit_ref_id_and_timeline,
                         gen_even_if_not_modified=gen_even_if_not_modified,
                         gen_log_entry=gen_log_entry,
                     )
@@ -949,19 +950,19 @@ class GenService:
 
         return gen_log_entry
 
-    async def _generate_inbox_tasks_for_habit(
+    async def _generate_tasks_for_habit(
         self,
         ctx: MutationContext,
         progress_reporter: ProgressReporter,
         user: User,
-        inbox_task_collection: InboxTaskCollection,
+        task_domain: TaskDomain,
         project: Project,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         habit: Habit,
-        all_inbox_tasks_by_habit_ref_id_and_timeline: dict[
+        all_tasks_by_habit_ref_id_and_timeline: dict[
             tuple[EntityId, str],
-            list[InboxTask],
+            list[Task],
         ],
         gen_even_if_not_modified: bool,
         gen_log_entry: GenLogEntry,
@@ -986,9 +987,9 @@ class GenService:
         if not schedule.should_keep:
             return gen_log_entry
 
-        all_found_tasks_by_repeat_index: dict[int, InboxTask] = {
+        all_found_tasks_by_repeat_index: dict[int, Task] = {
             cast(int, ft.recurring_repeat_index): ft
-            for ft in all_inbox_tasks_by_habit_ref_id_and_timeline.get(
+            for ft in all_tasks_by_habit_ref_id_and_timeline.get(
                 (habit.ref_id, schedule.timeline),
                 [],
             )
@@ -1007,7 +1008,7 @@ class GenService:
         else:
             task_ranges = [(schedule.actionable_date, schedule.due_date)]
 
-        remaining_tasks: set[InboxTask] = set()
+        remaining_tasks: set[Task] = set()
 
         for task_idx in range(habit.repeats_in_period_count or 1):
             found_task = all_found_tasks_by_repeat_index.get(task_idx, None)
@@ -1038,7 +1039,7 @@ class GenService:
                 )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    found_task = await uow.get_for(InboxTask).save(found_task)
+                    found_task = await uow.get_for(Task).save(found_task)
                     await progress_reporter.mark_updated(found_task)
 
                 remaining_tasks.add(found_task)
@@ -1047,14 +1048,11 @@ class GenService:
                     found_task,
                 )
             else:
-                inbox_task = InboxTask.new_inbox_task_for_habit(
+                task = Task.new_task_for_habit(
                     ctx,
-                    inbox_task_collection_ref_id=inbox_task_collection.ref_id,
+                    task_domain_ref_id=task_domain.ref_id,
                     name=schedule.full_name,
-                    habit_project_ref_id=project.ref_id,
-                    habit_chapter_ref_id=habit.chapter_ref_id,
-                    habit_goal_ref_id=habit.goal_ref_id,
-                    habit_ref_id=habit.ref_id,
+                    source_entity_ref_id=habit.ref_id,
                     recurring_task_timeline=schedule.timeline,
                     recurring_task_repeat_index=task_idx,
                     recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -1067,25 +1065,24 @@ class GenService:
                 )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    inbox_task = await uow.get_for(InboxTask).create(
-                        inbox_task,
-                    )
-                    await progress_reporter.mark_created(inbox_task)
+                    task = await uow.get_for(Task).create(task)
+                    await progress_reporter.mark_created(task)
 
-                remaining_tasks.add(inbox_task)
+                remaining_tasks.add(task)
                 gen_log_entry = gen_log_entry.add_entity_created(
                     ctx,
-                    inbox_task,
+                    task,
                 )
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
-            inbox_task_remove_service = InboxTaskRemoveService()
+            task_remove_service = TaskRemoveService()
             for task in all_found_tasks_by_repeat_index.values():
                 if task.recurring_repeat_index is None:
                     continue
                 if task.recurring_repeat_index in repeat_idx_to_keep:
                     continue
-                await inbox_task_remove_service.do_it(ctx, uow, progress_reporter, task)
+                await task_remove_service.remove(ctx, uow, task)
+                await progress_reporter.mark_removed(task)
                 gen_log_entry = gen_log_entry.add_entity_removed(
                     ctx,
                     task,
@@ -1098,7 +1095,7 @@ class GenService:
                 uow=uow,
                 today=today,
                 habit=habit,
-                inbox_tasks=remaining_tasks,
+                tasks=remaining_tasks,
             )
 
         return gen_log_entry

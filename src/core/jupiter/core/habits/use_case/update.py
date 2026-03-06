@@ -12,6 +12,9 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task, TaskRepository
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -26,14 +29,6 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -110,7 +105,7 @@ class HabitUpdateUseCase(
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
-        need_to_change_inbox_tasks = (
+        need_to_change_tasks = (
             args.name.should_change
             or args.project_ref_id.should_change
             or args.chapter_ref_id.should_change
@@ -136,7 +131,7 @@ class HabitUpdateUseCase(
             or args.due_at_month.should_change
             or args.skip_rule.should_change
         ):
-            need_to_change_inbox_tasks = True
+            need_to_change_tasks = True
             habit_gen_params = UpdateAction.change_to(
                 RecurringTaskGenParams(
                     args.period.or_else(habit.gen_params.period),
@@ -206,26 +201,24 @@ class HabitUpdateUseCase(
                 alternative_period=initial_period,
             )
 
-        if need_to_change_inbox_tasks:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(
+        if need_to_change_tasks:
+            task_domain = await uow.get_for(TaskDomain).load_by_parent(
                 workspace.ref_id,
             )
-            all_inbox_tasks = await uow.get(
-                InboxTaskRepository
+            all_tasks = await uow.get(
+                TaskRepository
             ).find_all_for_source_created_desc(
-                parent_ref_id=inbox_task_collection.ref_id,
+                parent_ref_id=task_domain.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.HABIT,
+                namespace=TaskNamespace.HABIT,
                 source_entity_ref_id=habit.ref_id,
             )
 
-            for inbox_task in all_inbox_tasks:
+            for task in all_tasks:
                 schedule = schedules.get_schedule(
                     habit.gen_params.period,
                     habit.name,
-                    cast(Timestamp, inbox_task.recurring_gen_right_now),
+                    cast(Timestamp, task.recurring_gen_right_now),
                     habit.gen_params.skip_rule,
                     habit.gen_params.actionable_from_day,
                     habit.gen_params.actionable_from_month,
@@ -245,16 +238,13 @@ class HabitUpdateUseCase(
                 else:
                     task_ranges = [(schedule.actionable_date, schedule.due_date)]
 
-                recurring_repeat_index = cast(int, inbox_task.recurring_repeat_index)
+                recurring_repeat_index = cast(int, task.recurring_repeat_index)
                 repeat_index = cast(
                     int, min(len(task_ranges) - 1, recurring_repeat_index)
                 )
 
-                inbox_task = inbox_task.update_link_to_habit(
+                task = task.update_link_to_habit(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
-                    chapter_ref_id=habit.chapter_ref_id,
-                    goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=habit.is_key,
@@ -266,8 +256,7 @@ class HabitUpdateUseCase(
                     difficulty=habit.gen_params.difficulty,
                 )
 
-                await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
+                await uow.get_for(Task).save(task)
 
     async def _perform_post_transactional_mutation_work(
         self,

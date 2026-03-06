@@ -9,6 +9,9 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -22,11 +25,6 @@ from jupiter.core.features import (
 )
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
@@ -55,7 +53,7 @@ class HabitFindArgs(UseCaseArgsBase):
     include_tags: bool | None
     include_notes: bool | None
     include_life_plan: bool | None
-    include_inbox_tasks: bool | None
+    include_tasks: bool | None
     filter_ref_ids: list[EntityId] | None
     filter_project_ref_ids: list[EntityId] | None
 
@@ -68,7 +66,7 @@ class HabitFindResultEntry(UseCaseResultBase):
     project: Project | None
     chapter: Chapter | None
     goal: Goal | None
-    inbox_tasks: list[InboxTask] | None
+    tasks: list[Task] | None
     tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
@@ -98,7 +96,7 @@ class HabitFindUseCase(
         include_tags = args.include_tags or False
         include_notes = args.include_notes or False
         include_life_plan = args.include_life_plan or False
-        include_inbox_tasks = args.include_inbox_tasks or False
+        include_tasks = args.include_tasks or False
         workspace = context.workspace
 
         if (
@@ -135,7 +133,7 @@ class HabitFindUseCase(
             chapter_by_ref_id = None
             goal_by_ref_id = None
 
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        task_domain = await uow.get_for(TaskDomain).load_by_parent(
             workspace.ref_id,
         )
         habit_collection = await uow.get_for(HabitCollection).load_by_parent(
@@ -149,15 +147,15 @@ class HabitFindUseCase(
             project_ref_id=args.filter_project_ref_ids or NoFilter(),
         )
 
-        if include_inbox_tasks:
-            inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
+        if include_tasks:
+            tasks = await uow.get_for(Task).find_all_generic(
+                parent_ref_id=task_domain.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.HABIT,
+                namespace=TaskNamespace.HABIT,
                 source_entity_ref_id=[bp.ref_id for bp in habits],
             )
         else:
-            inbox_tasks = None
+            tasks = None
 
         notes_by_habit_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
 
@@ -249,13 +247,13 @@ class HabitFindUseCase(
                             all_tags_by_ref_id[rid]
                             for rid in tag_links_by_habit_ref_id[rt.ref_id].ref_ids
                         ]
-                        if rt.ref_id in tag_links_by_habit_ref_id
+                    tasks=(
                         else []
                     ),
-                    contacts=[
-                        contacts_by_ref_id[contact_ref_id]
+                            for it in tasks or []
+                            if it.source_entity_ref_id_for_sure == rt.ref_id
                         for contact_ref_id in habit_contacts_by_ref_id.get(
-                            rt.ref_id, []
+                        if tasks is not None
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],

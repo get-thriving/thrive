@@ -1,6 +1,7 @@
 """A task in the task domain."""
 
 import abc
+from collections.abc import Iterable
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
@@ -42,6 +43,22 @@ class Task(LeafSupportEntity):
     working_time: Timestamp | None
     completed_time: Timestamp | None
 
+    @property
+    def source_entity_ref_id_for_sure(self) -> EntityId:
+        """Get the source entity ref id."""
+        return self.source_entity_ref_id
+
+    @staticmethod
+    def _build_name_for_habit(
+        name: EntityName,
+        repeat_index: int,
+        repeats_in_period_count: int | None,
+    ) -> EntityName:
+        """Build the persisted task name for a habit occurrence."""
+        if repeats_in_period_count is None:
+            return name
+        return EntityName(f"{name} ({repeat_index + 1}/{repeats_in_period_count})")
+
     @staticmethod
     @create_entity_action
     def new_task(
@@ -78,6 +95,45 @@ class Task(LeafSupportEntity):
             recurring_gen_right_now=recurring_gen_right_now,
             working_time=ctx.action_timestamp if status.is_working_or_more else None,
             completed_time=ctx.action_timestamp if status.is_completed else None,
+        )
+
+    @staticmethod
+    @create_entity_action
+    def new_task_for_habit(
+        ctx: MutationContext,
+        task_domain_ref_id: EntityId,
+        source_entity_ref_id: EntityId,
+        name: EntityName,
+        is_key: bool,
+        eisen: Eisen,
+        difficulty: Difficulty,
+        actionable_date: ADate | None,
+        due_date: ADate | None,
+        recurring_timeline: str,
+        recurring_repeat_index: int,
+        recurring_gen_right_now: Timestamp,
+        repeats_in_period_count: int | None,
+    ) -> "Task":
+        """Create a task linked to a habit."""
+        return Task._create(
+            ctx,
+            task_domain=ParentLink(task_domain_ref_id),
+            namespace=TaskNamespace.HABIT,
+            source_entity_ref_id=source_entity_ref_id,
+            name=Task._build_name_for_habit(
+                name, recurring_repeat_index, repeats_in_period_count
+            ),
+            status=TaskStatus.NOT_STARTED_GEN,
+            is_key=is_key,
+            eisen=eisen,
+            difficulty=difficulty,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            recurring_timeline=recurring_timeline,
+            recurring_repeat_index=recurring_repeat_index,
+            recurring_gen_right_now=recurring_gen_right_now,
+            working_time=None,
+            completed_time=None,
         )
 
     @update_entity_action
@@ -126,9 +182,44 @@ class Task(LeafSupportEntity):
             ),
         )
 
+    @update_entity_action
+    def update_link_to_habit(
+        self,
+        ctx: MutationContext,
+        name: EntityName,
+        timeline: str,
+        repeat_index: int,
+        repeats_in_period_count: int | None,
+        is_key: bool,
+        actionable_date: ADate | None,
+        due_date: ADate,
+        eisen: Eisen,
+        difficulty: Difficulty,
+    ) -> "Task":
+        """Update all the info associated with a habit."""
+        if self.namespace is not TaskNamespace.HABIT:
+            raise Exception(
+                f"Cannot associate a task which is not a habit for '{self.name}'"
+            )
+        return self._new_version(
+            ctx,
+            name=Task._build_name_for_habit(
+                name, repeat_index, repeats_in_period_count
+            ),
+            is_key=is_key,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            eisen=eisen,
+            difficulty=difficulty,
+            recurring_timeline=timeline,
+            recurring_repeat_index=repeat_index,
+        )
+
 
 class TaskRepository(LeafEntityRepository[Task], abc.ABC):
     """A repository of tasks."""
+
+    PAGE_SIZE = 10
 
     @abc.abstractmethod
     async def load_for_source(
@@ -147,3 +238,37 @@ class TaskRepository(LeafEntityRepository[Task], abc.ABC):
         allow_archived: bool = False,
     ) -> Task | None:
         """Load a particular task via its source entity."""
+
+    @abc.abstractmethod
+    async def count_all_for_source(
+        self,
+        parent_ref_id: EntityId,
+        namespace: TaskNamespace,
+        source_entity_ref_id: EntityId | list[EntityId],
+        allow_archived: bool = False,
+    ) -> int:
+        """Count all tasks for a source or a set of sources."""
+
+    @abc.abstractmethod
+    async def find_all_for_source_created_desc(
+        self,
+        parent_ref_id: EntityId,
+        namespace: TaskNamespace,
+        source_entity_ref_id: EntityId | list[EntityId],
+        allow_archived: bool = False,
+        retrieve_offset: int | None = None,
+        retrieve_limit: int | None = None,
+    ) -> list[Task]:
+        """Find all tasks for a source ordered from newest to oldest."""
+
+    @abc.abstractmethod
+    async def find_completed_in_range(
+        self,
+        parent_ref_id: EntityId,
+        namespace: TaskNamespace,
+        allow_archived: bool,
+        filter_start_completed_date: ADate,
+        filter_end_completed_date: ADate,
+        filter_source_entity_ref_ids: Iterable[EntityId] | None = None,
+    ) -> list[Task]:
+        """Find completed tasks in a date range for a namespace."""

@@ -4,6 +4,8 @@ from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.habits.name import HabitName
@@ -11,8 +13,6 @@ from jupiter.core.habits.repeats_strategy import (
     HabitRepeatsStrategy,
 )
 from jupiter.core.habits.streak_mark import HabitStreakMark
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
@@ -45,9 +45,7 @@ class Habit(LeafEntity):
     repeats_strategy: HabitRepeatsStrategy | None
     repeats_in_period_count: int | None
 
-    inbox_tasks = OwnsMany(
-        InboxTask, source=InboxTaskSource.HABIT, source_entity_ref_id=IsRefId()
-    )
+    tasks = OwnsMany(Task, namespace=TaskNamespace.HABIT, source_entity_ref_id=IsRefId())
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.HABIT, source_entity_ref_id=IsRefId()
     )

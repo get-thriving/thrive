@@ -1,6 +1,10 @@
 """Shared service for removing a habit."""
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import TaskRepository
+from jupiter.core.common.sub.tasks.service.remove import TaskRemoveService
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
@@ -11,14 +15,6 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMarkRepository,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -40,24 +36,23 @@ class HabitRemoveService:
         habit_collection = await uow.get_for(HabitCollection).load_by_id(
             habit.habit_collection.ref_id,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        task_domain = await uow.get_for(TaskDomain).load_by_parent(
             habit_collection.workspace.ref_id,
         )
-        inbox_tasks_to_archive = await uow.get(
-            InboxTaskRepository
+        tasks_to_remove = await uow.get(
+            TaskRepository
         ).find_all_for_source_created_desc(
-            parent_ref_id=inbox_task_collection.ref_id,
+            parent_ref_id=task_domain.ref_id,
             allow_archived=True,
-            source=InboxTaskSource.HABIT,
+            namespace=TaskNamespace.HABIT,
             source_entity_ref_id=habit.ref_id,
         )
 
-        inbox_task_remove_service = InboxTaskRemoveService()
+        task_remove_service = TaskRemoveService()
 
-        for inbox_task in inbox_tasks_to_archive:
-            await inbox_task_remove_service.do_it(
-                ctx, uow, progress_reporter, inbox_task
-            )
+        for task in tasks_to_remove:
+            await task_remove_service.remove(ctx, uow, task)
+            await progress_reporter.mark_removed(task)
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(

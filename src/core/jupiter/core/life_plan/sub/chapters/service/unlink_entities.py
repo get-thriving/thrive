@@ -125,6 +125,7 @@ class ChapterUnlinkEntitiesService:
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
             chapter_ref_id=chapter.ref_id,
+            source=[InboxTaskSource.USER, InboxTaskSource.BIG_PLAN, InboxTaskSource.CHORE],
         )
 
         for inbox_task in inbox_tasks:
@@ -179,33 +180,6 @@ class ChapterUnlinkEntitiesService:
                         due_date=schedule.due_date,
                         eisen=chore.gen_params.eisen,
                         difficulty=chore.gen_params.difficulty,
-                    )
-                case InboxTaskSource.HABIT:
-                    habit = habits_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
-                    schedule = schedules.get_schedule(
-                        habit.gen_params.period,
-                        habit.name,
-                        cast(Timestamp, inbox_task.recurring_gen_right_now),
-                        habit.gen_params.skip_rule,
-                        habit.gen_params.actionable_from_day,
-                        habit.gen_params.actionable_from_month,
-                        habit.gen_params.due_at_day,
-                        habit.gen_params.due_at_month,
-                    )
-                    updated_inbox_task = inbox_task.update_link_to_habit(
-                        ctx,
-                        project_ref_id=habit.project_ref_id,
-                        chapter_ref_id=None,
-                        goal_ref_id=habit.goal_ref_id,
-                        name=schedule.full_name,
-                        timeline=cast(str, inbox_task.recurring_timeline),
-                        repeat_index=cast(int, inbox_task.recurring_repeat_index),
-                        repeats_in_period_count=habit.repeats_in_period_count,
-                        is_key=habit.is_key,
-                        actionable_date=schedule.actionable_date,
-                        due_date=schedule.due_date,
-                        eisen=habit.gen_params.eisen,
-                        difficulty=habit.gen_params.difficulty,
                     )
                 case _:
                     raise Exception(f"Unknown inbox task source: {inbox_task.source}")

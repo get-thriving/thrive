@@ -4,12 +4,12 @@ from typing import Iterable, cast
 
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.tasks.root import Task
 from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMark,
     HabitStreakMarkRepository,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import MutationContext
@@ -25,7 +25,7 @@ class HabitStreakRecorderService:
         uow: DomainUnitOfWork,
         today: ADate,
         habit: Habit,
-        inbox_tasks: Iterable[InboxTask],
+        tasks: Iterable[Task],
     ) -> None:
         """Record a streak mark."""
         schedule = schedules.get_schedule(
@@ -34,7 +34,7 @@ class HabitStreakRecorderService:
             right_now=today.to_timestamp_at_start_of_day(),
         )
 
-        statuses = {inbox_task.ref_id: inbox_task.status for inbox_task in inbox_tasks}
+        statuses = {task.ref_id: task.status for task in tasks}
 
         start_date = schedule.first_day
         while start_date <= schedule.end_day:
@@ -52,13 +52,13 @@ class HabitStreakRecorderService:
         ctx: MutationContext,
         uow: DomainUnitOfWork,
         habit: Habit,
-        inbox_task: InboxTask,
+        task: Task,
     ) -> None:
         """Update a streak mark with a new status."""
         schedule = schedules.get_schedule(
             period=habit.gen_params.period,
             name=habit.name,
-            right_now=cast(Timestamp, inbox_task.recurring_gen_right_now),
+            right_now=cast(Timestamp, task.recurring_gen_right_now),
         )
 
         start_date = schedule.first_day
@@ -71,11 +71,11 @@ class HabitStreakRecorderService:
                     ctx=ctx,
                     habit_ref_id=habit.ref_id,
                     date=start_date,
-                    statuses={inbox_task.ref_id: inbox_task.status},
+                    statuses={task.ref_id: task.status},
                 )
             else:
                 habit_streak_mark = habit_streak_mark.update_status(
-                    ctx, inbox_task.ref_id, inbox_task.status
+                    ctx, task.ref_id, task.status
                 )
 
             await uow.get(HabitStreakMarkRepository).upsert(habit_streak_mark)
@@ -86,13 +86,13 @@ class HabitStreakRecorderService:
         ctx: MutationContext,
         uow: DomainUnitOfWork,
         habit: Habit,
-        inbox_task: InboxTask,
+        task: Task,
     ) -> None:
         """Remove a streak mark."""
         schedule = schedules.get_schedule(
             period=habit.gen_params.period,
             name=habit.name,
-            right_now=cast(Timestamp, inbox_task.recurring_gen_right_now),
+            right_now=cast(Timestamp, task.recurring_gen_right_now),
         )
 
         start_date = schedule.first_day
@@ -103,9 +103,7 @@ class HabitStreakRecorderService:
             if habit_streak_mark is None:
                 continue
             else:
-                habit_streak_mark = habit_streak_mark.remove_status(
-                    ctx, inbox_task.ref_id
-                )
+                habit_streak_mark = habit_streak_mark.remove_status(ctx, task.ref_id)
 
             await uow.get(HabitStreakMarkRepository).upsert(habit_streak_mark)
             start_date = start_date.add_days(1)

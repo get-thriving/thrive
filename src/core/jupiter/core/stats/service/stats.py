@@ -6,6 +6,9 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
@@ -78,6 +81,7 @@ class StatsService:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
+            task_domain = await uow.get_for(TaskDomain).load_by_parent(workspace.ref_id)
             habit_collection = await uow.get_for(HabitCollection).load_by_parent(
                 workspace.ref_id
             )
@@ -103,14 +107,14 @@ class StatsService:
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    all_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
+                    all_tasks = await uow.get_for(Task).find_all_generic(
+                        parent_ref_id=task_domain.ref_id,
                         allow_archived=True,
-                        source=InboxTaskSource.HABIT,
+                        namespace=TaskNamespace.HABIT,
                         source_entity_ref_id=(
                             [habit.ref_id for habit in all_habits]
                             if all_habits
-                            else None  # This will find no inbox tasks if there are no habits
+                            else None
                         ),
                     )
 
@@ -120,7 +124,7 @@ class StatsService:
                     workspace=workspace,
                     progress_reporter=progress_reporter,
                     all_habits=all_habits,
-                    all_inbox_tasks=all_inbox_tasks,
+                    all_tasks=all_tasks,
                     stats_log_entry=stats_log_entry,
                 )
 
@@ -242,33 +246,28 @@ class StatsService:
         workspace: Workspace,
         progress_reporter: ProgressReporter,
         all_habits: list[Habit],
-        all_inbox_tasks: list[InboxTask],
+        all_tasks: list[Task],
         stats_log_entry: StatsLogEntry,
     ) -> StatsLogEntry:
-        # Group inbox tasks by habit ref id
-        inbox_tasks_by_habit_ref_id: dict[EntityId, list[InboxTask]] = {}
-        for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
-            if inbox_task.source_entity_ref_id not in inbox_tasks_by_habit_ref_id:
-                inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id] = []
-            inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id].append(
-                inbox_task
-            )
+        tasks_by_habit_ref_id: dict[EntityId, list[Task]] = {}
+        for task in all_tasks:
+            if task.source_entity_ref_id not in tasks_by_habit_ref_id:
+                tasks_by_habit_ref_id[task.source_entity_ref_id] = []
+            tasks_by_habit_ref_id[task.source_entity_ref_id].append(task)
 
         # Compute stats for each habit
         streak_recorder_service = HabitStreakRecorderService()
 
         for habit in all_habits:
-            habit_inbox_tasks = inbox_tasks_by_habit_ref_id.get(habit.ref_id, [])
+            habit_tasks = tasks_by_habit_ref_id.get(habit.ref_id, [])
 
-            for inbox_task in habit_inbox_tasks:
+            for task in habit_tasks:
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
                     await streak_recorder_service.update_with_status(
                         ctx=ctx,
                         uow=uow,
                         habit=habit,
-                        inbox_task=inbox_task,
+                        task=task,
                     )
 
             await progress_reporter.mark_updated(habit)

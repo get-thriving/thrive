@@ -92,6 +92,24 @@ def upgrade() -> None:
     )
     op.execute(
         """
+        CREATE INDEX ix_task_task_domain_ref_id_namespace_source_entity_ref_id
+        ON task (task_domain_ref_id, namespace, source_entity_ref_id)
+        """
+    )
+    op.execute(
+        """
+        CREATE INDEX ix_task_task_domain_ref_id_namespace_created_time
+        ON task (task_domain_ref_id, namespace, created_time)
+        """
+    )
+    op.execute(
+        """
+        CREATE INDEX ix_task_task_domain_ref_id_namespace_completed_time
+        ON task (task_domain_ref_id, namespace, completed_time)
+        """
+    )
+    op.execute(
+        """
         CREATE TABLE task_event (
             owner_ref_id INTEGER NOT NULL,
             timestamp DATETIME NOT NULL,

@@ -14,6 +14,9 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.schedules import Schedule
+from jupiter.core.common.sub.tasks.domain import TaskDomain
+from jupiter.core.common.sub.tasks.namespace import TaskNamespace
+from jupiter.core.common.sub.tasks.root import Task
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -171,6 +174,9 @@ class ReportService:
             ).load_by_parent(
                 workspace.ref_id,
             )
+            task_domain = await uow.get_for(TaskDomain).load_by_parent(
+                workspace.ref_id,
+            )
             habit_collection = await uow.get_for(HabitCollection).load_by_parent(
                 workspace.ref_id,
             )
@@ -217,7 +223,7 @@ class ReportService:
             ).find_modified_in_range(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                filter_sources=sources,
+                filter_sources=[s for s in sources if s is not InboxTaskSource.HABIT],
                 filter_project_ref_ids=filter_project_ref_ids,
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
@@ -271,6 +277,23 @@ class ReportService:
                 rt.ref_id: rt for rt in all_habits
             }
 
+            if (
+                workspace.is_feature_available(WorkspaceFeature.HABITS)
+                and InboxTaskSource.HABIT in sources
+            ):
+                all_habit_tasks = await uow.get_for(Task).find_all_generic(
+                    parent_ref_id=task_domain.ref_id,
+                    allow_archived=True,
+                    namespace=TaskNamespace.HABIT,
+                    source_entity_ref_id=(
+                        [habit.ref_id for habit in all_habits]
+                        if all_habits
+                        else NoFilter()
+                    ),
+                )
+            else:
+                all_habit_tasks = []
+
             all_chores = await uow.get_for(Chore).find_all_generic(
                 parent_ref_id=chore_collection.ref_id,
                 allow_archived=True,
@@ -293,7 +316,7 @@ class ReportService:
 
         global_inbox_tasks_summary = self._run_report_for_inbox_tasks(
             schedule,
-            all_inbox_tasks,
+            [*all_inbox_tasks, *all_habit_tasks],
         )
 
         if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
@@ -384,7 +407,9 @@ class ReportService:
                 curr_date = curr_date.next_day()
 
             per_period_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(v, all_inbox_tasks)
+                k: self._run_report_for_inbox_tasks(
+                    v, [*all_inbox_tasks, *all_habit_tasks]
+                )
                 for (k, v) in all_schedules.items()
             }
             per_period_big_plans_summary = {
@@ -425,8 +450,7 @@ class ReportService:
                         sorted(
                             [
                                 (it.source_entity_ref_id, it)
-                                for it in all_inbox_tasks
-                                if it.source == InboxTaskSource.HABIT
+                                for it in all_habit_tasks
                             ],
                             key=itemgetter(0),
                         ),
@@ -533,7 +557,7 @@ class ReportService:
     @staticmethod
     def _run_report_for_inbox_tasks(
         schedule: Schedule,
-        inbox_tasks: Iterable[InboxTask],
+        inbox_tasks: Iterable[InboxTask | Task],
     ) -> InboxTasksSummary:
         created_cnt_total = 0
         created_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
@@ -547,27 +571,28 @@ class ReportService:
         not_done_per_source_cnt: defaultdict[InboxTaskSource, int] = defaultdict(int)
 
         for inbox_task in inbox_tasks:
+            source = ReportService._source_for_work_item(inbox_task)
             if schedule.contains_timestamp(inbox_task.created_time):
                 created_cnt_total += 1
-                created_per_source_cnt[inbox_task.source] += 1
+                created_per_source_cnt[source] += 1
 
             if inbox_task.status.is_completed and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.completed_time),
             ):
-                if inbox_task.status == InboxTaskStatus.DONE:
+                if ReportService._is_done_work_item(inbox_task):
                     done_cnt_total += 1
-                    done_per_source_cnt[inbox_task.source] += 1
+                    done_per_source_cnt[source] += 1
                 else:
                     not_done_cnt_total += 1
-                    not_done_per_source_cnt[inbox_task.source] += 1
+                    not_done_per_source_cnt[source] += 1
             elif inbox_task.status.is_working and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.working_time),
             ):
                 working_cnt_total += 1
-                working_per_source_cnt[inbox_task.source] += 1
+                working_per_source_cnt[source] += 1
             else:
                 not_started_cnt_total += 1
-                not_started_per_source_cnt[inbox_task.source] += 1
+                not_started_per_source_cnt[source] += 1
 
         return InboxTasksSummary(
             created=NestedResult(
@@ -650,7 +675,7 @@ class ReportService:
     @staticmethod
     def _run_report_for_inbox_for_recurring_tasks(
         schedule: Schedule,
-        inbox_tasks: list[InboxTask],
+        inbox_tasks: list[InboxTask | Task],
     ) -> RecurringTaskWorkSummary:
         # The simple summary computations here.
         created_cnt = 0
@@ -666,7 +691,7 @@ class ReportService:
             if inbox_task.status.is_completed and schedule.contains_timestamp(
                 cast(Timestamp, inbox_task.completed_time),
             ):
-                if inbox_task.status == InboxTaskStatus.DONE:
+                if ReportService._is_done_work_item(inbox_task):
                     done_cnt += 1
                 else:
                     not_done_cnt += 1
@@ -689,6 +714,18 @@ class ReportService:
             done_ratio=done_cnt / float(created_cnt) if created_cnt > 0 else 0.0,
             streak_plot="",
         )
+
+    @staticmethod
+    def _source_for_work_item(work_item: InboxTask | Task) -> InboxTaskSource:
+        """Resolve the report source for an inbox task or common task."""
+        if isinstance(work_item, Task):
+            return InboxTaskSource.HABIT
+        return work_item.source
+
+    @staticmethod
+    def _is_done_work_item(work_item: InboxTask | Task) -> bool:
+        """Check whether a work item is done."""
+        return work_item.status.value == InboxTaskStatus.DONE.value
 
     @staticmethod
     def _run_report_for_big_plan(
