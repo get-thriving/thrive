@@ -58,8 +58,6 @@ const _SOURCES_TO_REPORT = [
   InboxTaskSource.METRIC,
   InboxTaskSource.PERSON_CATCH_UP,
   InboxTaskSource.PERSON_OCCASION,
-  InboxTaskSource.SLACK_TASK,
-  InboxTaskSource.EMAIL_TASK,
 ];
 
 interface ShowReportProps {

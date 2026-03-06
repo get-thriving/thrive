@@ -36,6 +36,4 @@ export enum NamedEntityTag {
     PERSON = 'Person',
     OCCASION = 'Occasion',
     CIRCLE = 'Circle',
-    SLACK_TASK = 'SlackTask',
-    EMAIL_TASK = 'EmailTask',
 }

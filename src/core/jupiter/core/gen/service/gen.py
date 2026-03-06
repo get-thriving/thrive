@@ -61,17 +61,6 @@ from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task import EmailTask
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.push_integrations.sub.slack.task import SlackTask
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.core.sync_target import (
     SyncTarget,
 )
@@ -124,8 +113,6 @@ class GenService:
         filter_chore_ref_ids: list[EntityId] | None = None,
         filter_metric_ref_ids: list[EntityId] | None = None,
         filter_person_ref_ids: list[EntityId] | None = None,
-        filter_slack_task_ref_ids: list[EntityId] | None = None,
-        filter_email_task_ref_ids: list[EntityId] | None = None,
     ) -> None:
         """Execute the service's action."""
         big_diff = list(
@@ -163,16 +150,6 @@ class GenService:
             and filter_person_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.PRM)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
-            and filter_slack_task_ref_ids is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.SLACK_TASKS)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS)
-            and filter_email_task_ref_ids is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.EMAIL_TASKS)
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             gen_log = await uow.get_for(GenLog).load_by_parent(workspace.ref_id)
@@ -188,8 +165,6 @@ class GenService:
                 filter_chore_ref_ids=filter_chore_ref_ids,
                 filter_metric_ref_ids=filter_metric_ref_ids,
                 filter_person_ref_ids=filter_person_ref_ids,
-                filter_slack_task_ref_ids=filter_slack_task_ref_ids,
-                filter_email_task_ref_ids=filter_email_task_ref_ids,
             )
             gen_log_entry = await uow.get_for(GenLogEntry).create(gen_log_entry)
 
@@ -812,120 +787,6 @@ class GenService:
                         all_inbox_tasks_by_occasion_ref_id_and_timeline=all_occasion_inbox_tasks_by_occasion_ref_id_and_timeline,
                         gen_even_if_not_modified=gen_even_if_not_modified,
                         gen_log_entry=gen_log_entry,
-                    )
-
-        if (
-            workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
-            and SyncTarget.SLACK_TASKS in gen_targets
-        ):
-            async with progress_reporter.section("Generating for Slack tasks"):
-                async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    push_integration_group = await uow.get_for(
-                        PushIntegrationGroup
-                    ).load_by_parent(
-                        workspace.ref_id,
-                    )
-                    slack_collection = await uow.get_for(
-                        SlackTaskCollection
-                    ).load_by_parent(
-                        push_integration_group.ref_id,
-                    )
-
-                    all_slack_tasks = await uow.get_for(SlackTask).find_all(
-                        parent_ref_id=slack_collection.ref_id,
-                        filter_ref_ids=filter_slack_task_ref_ids,
-                    )
-                    all_slack_inbox_tasks = await uow.get_for(
-                        InboxTask
-                    ).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
-                        allow_archived=True,
-                        source=[InboxTaskSource.SLACK_TASK],
-                        source_entity_ref_id=(
-                            [st.ref_id for st in all_slack_tasks]
-                            if all_slack_tasks
-                            else NoFilter()
-                        ),
-                    )
-
-                all_inbox_tasks_by_slack_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_slack_inbox_tasks
-                }
-                for slack_task in all_slack_tasks:
-                    project = all_projects_by_ref_id[
-                        slack_collection.generation_project_ref_id
-                    ]
-                    gen_log_entry = (
-                        await self._generate_slack_inbox_task_for_slack_task(
-                            ctx,
-                            progress_reporter=progress_reporter,
-                            slack_task=slack_task,
-                            inbox_task_collection=inbox_task_collection,
-                            project=project,
-                            all_inbox_tasks_by_slack_task_ref_id=typing.cast(
-                                dict[EntityId, InboxTask],
-                                all_inbox_tasks_by_slack_task_ref_id,
-                            ),
-                            gen_even_if_not_modified=gen_even_if_not_modified,
-                            gen_log_entry=gen_log_entry,
-                        )
-                    )
-
-        if (
-            workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS)
-            and SyncTarget.EMAIL_TASKS in gen_targets
-        ):
-            async with progress_reporter.section("Generating for email tasks"):
-                async with self._domain_storage_engine.get_unit_of_work() as uow:
-                    push_integration_group = await uow.get_for(
-                        PushIntegrationGroup
-                    ).load_by_parent(
-                        workspace.ref_id,
-                    )
-                    email_collection = await uow.get_for(
-                        EmailTaskCollection
-                    ).load_by_parent(
-                        push_integration_group.ref_id,
-                    )
-
-                    all_email_tasks = await uow.get_for(EmailTask).find_all(
-                        parent_ref_id=email_collection.ref_id,
-                        filter_ref_ids=filter_email_task_ref_ids,
-                    )
-                    all_email_inbox_tasks = await uow.get_for(
-                        InboxTask
-                    ).find_all_generic(
-                        parent_ref_id=inbox_task_collection.ref_id,
-                        allow_archived=True,
-                        source=[InboxTaskSource.EMAIL_TASK],
-                        source_entity_ref_id=(
-                            [st.ref_id for st in all_email_tasks]
-                            if all_email_tasks
-                            else NoFilter()
-                        ),
-                    )
-
-                all_inbox_tasks_by_email_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_email_inbox_tasks
-                }
-                for email_task in all_email_tasks:
-                    project = all_projects_by_ref_id[
-                        email_collection.generation_project_ref_id
-                    ]
-                    gen_log_entry = (
-                        await self._generate_email_inbox_task_for_email_task(
-                            ctx,
-                            progress_reporter=progress_reporter,
-                            email_task=email_task,
-                            inbox_task_collection=inbox_task_collection,
-                            project=project,
-                            all_inbox_tasks_by_email_task_ref_id=typing.cast(
-                                dict[EntityId, InboxTask],
-                                all_inbox_tasks_by_email_task_ref_id,
-                            ),
-                            gen_even_if_not_modified=gen_even_if_not_modified,
-                            gen_log_entry=gen_log_entry,
-                        )
                     )
 
         async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -1828,144 +1689,6 @@ class GenService:
             )
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
-
-            gen_log_entry = gen_log_entry.add_entity_created(
-                ctx,
-                inbox_task,
-            )
-
-        return gen_log_entry
-
-    async def _generate_slack_inbox_task_for_slack_task(
-        self,
-        ctx: MutationContext,
-        progress_reporter: ProgressReporter,
-        slack_task: SlackTask,
-        inbox_task_collection: InboxTaskCollection,
-        project: Project,
-        all_inbox_tasks_by_slack_task_ref_id: dict[EntityId, InboxTask],
-        gen_even_if_not_modified: bool,
-        gen_log_entry: GenLogEntry,
-    ) -> GenLogEntry:
-        found_task = all_inbox_tasks_by_slack_task_ref_id.get(
-            slack_task.ref_id,
-            None,
-        )
-
-        if found_task:
-            if (
-                not gen_even_if_not_modified
-                and found_task.last_modified_time >= slack_task.last_modified_time
-            ):
-                return gen_log_entry
-
-            found_task = found_task.update_link_to_slack_task(
-                ctx,
-                project_ref_id=project.ref_id,
-                user=slack_task.user,
-                channel=slack_task.channel,
-                message=slack_task.message,
-                generation_extra_info=slack_task.generation_extra_info,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
-
-            gen_log_entry = gen_log_entry.add_entity_updated(
-                ctx,
-                found_task,
-            )
-        else:
-            inbox_task = InboxTask.new_inbox_task_for_slack_task(
-                ctx,
-                inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                project_ref_id=project.ref_id,
-                slack_task_ref_id=slack_task.ref_id,
-                user=slack_task.user,
-                channel=slack_task.channel,
-                generation_extra_info=slack_task.generation_extra_info,
-                message=slack_task.message,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                slack_task = slack_task.mark_as_used_for_generation(ctx)
-                await uow.get_for(SlackTask).save(slack_task)
-                await progress_reporter.mark_updated(slack_task)
-
-                inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
-
-            gen_log_entry = gen_log_entry.add_entity_created(
-                ctx,
-                inbox_task,
-            )
-
-        return gen_log_entry
-
-    async def _generate_email_inbox_task_for_email_task(
-        self,
-        ctx: MutationContext,
-        progress_reporter: ProgressReporter,
-        email_task: EmailTask,
-        inbox_task_collection: InboxTaskCollection,
-        project: Project,
-        all_inbox_tasks_by_email_task_ref_id: dict[EntityId, InboxTask],
-        gen_even_if_not_modified: bool,
-        gen_log_entry: GenLogEntry,
-    ) -> GenLogEntry:
-        found_task = all_inbox_tasks_by_email_task_ref_id.get(
-            email_task.ref_id,
-            None,
-        )
-
-        if found_task:
-            if (
-                not gen_even_if_not_modified
-                and found_task.last_modified_time >= email_task.last_modified_time
-            ):
-                return gen_log_entry
-
-            found_task = found_task.update_link_to_email_task(
-                ctx,
-                project_ref_id=project.ref_id,
-                from_address=email_task.from_address,
-                from_name=email_task.from_name,
-                to_address=email_task.to_address,
-                subject=email_task.subject,
-                body=email_task.body,
-                generation_extra_info=email_task.generation_extra_info,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
-
-            gen_log_entry = gen_log_entry.add_entity_updated(
-                ctx,
-                found_task,
-            )
-        else:
-            inbox_task = InboxTask.new_inbox_task_for_email_task(
-                ctx,
-                inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                project_ref_id=project.ref_id,
-                email_task_ref_id=email_task.ref_id,
-                from_address=email_task.from_address,
-                from_name=email_task.from_name,
-                to_address=email_task.to_address,
-                subject=email_task.subject,
-                body=email_task.body,
-                generation_extra_info=email_task.generation_extra_info,
-            )
-
-            async with self._domain_storage_engine.get_unit_of_work() as uow:
-                email_task = email_task.mark_as_used_for_generation(ctx)
-                await uow.get_for(EmailTask).save(email_task)
-                await progress_reporter.mark_updated(email_task)
-
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
                 await progress_reporter.mark_created(inbox_task)
 

@@ -43,8 +43,6 @@ class NamedEntityTag(EnumValue):
     PERSON = "Person"  # Person.__name__
     OCCASION = "Occasion"  # Occasion.__name__
     CIRCLE = "Circle"  # Circle.__name__
-    SLACK_TASK = "SlackTask"  # SlackTask.__name__
-    EMAIL_TASK = "EmailTask"  # EmailTask.__name__
 
     @staticmethod
     def from_entity(entity: CrownEntity) -> "NamedEntityTag":

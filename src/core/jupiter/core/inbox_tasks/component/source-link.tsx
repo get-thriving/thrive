@@ -152,36 +152,6 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.SLACK_TASK: {
-      return (
-        <Button
-          startIcon={<LaunchIcon />}
-          variant="outlined"
-          size="small"
-          component={Link}
-          to={`/app/workspace/push-integration/slack-tasks/${props.inboxTaskResult.slack_task?.ref_id}`}
-          sx={{ flexGrow: 1 }}
-        >
-          {isBigScreen ? "Slack Task" : "ST"}
-        </Button>
-      );
-    }
-
-    case InboxTaskSource.EMAIL_TASK: {
-      return (
-        <Button
-          startIcon={<LaunchIcon />}
-          variant="outlined"
-          size="small"
-          component={Link}
-          to={`/app/workspace/push-integration/email-tasks/${props.inboxTaskResult.email_task?.ref_id}`}
-          sx={{ flexGrow: 1 }}
-        >
-          {isBigScreen ? "Email Task" : "ET"}
-        </Button>
-      );
-    }
-
     default: {
       return null;
     }

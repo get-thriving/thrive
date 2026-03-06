@@ -34,8 +34,6 @@ class GenDoArgs(UseCaseArgsBase):
     filter_chore_ref_ids: list[EntityId] | None
     filter_metric_ref_ids: list[EntityId] | None
     filter_person_ref_ids: list[EntityId] | None
-    filter_slack_task_ref_ids: list[EntityId] | None
-    filter_email_task_ref_ids: list[EntityId] | None
 
 
 @mutation_use_case()
@@ -77,6 +75,4 @@ class GenDoUseCase(JupiterLoggedInMutationUseCase[GenDoArgs, None]):
             filter_chore_ref_ids=args.filter_chore_ref_ids,
             filter_metric_ref_ids=args.filter_metric_ref_ids,
             filter_person_ref_ids=args.filter_person_ref_ids,
-            filter_slack_task_ref_ids=args.filter_slack_task_ref_ids,
-            filter_email_task_ref_ids=args.filter_email_task_ref_ids,
         )

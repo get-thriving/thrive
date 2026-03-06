@@ -49,15 +49,6 @@ from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.core.prm.sub.circle.root import Circle
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.external_sync_log.root import (
     ScheduleExternalSyncLog,
@@ -421,34 +412,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     name=CircleName(circle_name),
                 )
                 await uow.get_for(Circle).create(new_circle)
-
-            new_push_integration_group = (
-                PushIntegrationGroup.new_push_integration_group(
-                    ctx=context.domain_context,
-                    workspace_ref_id=new_workspace.ref_id,
-                )
-            )
-            new_push_integration_group = await uow.get_for(PushIntegrationGroup).create(
-                new_push_integration_group,
-            )
-
-            new_slack_task_collection = SlackTaskCollection.new_slack_task_collection(
-                ctx=context.domain_context,
-                push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
-            )
-            new_slack_task_collection = await uow.get_for(SlackTaskCollection).create(
-                new_slack_task_collection,
-            )
-
-            new_email_task_collection = EmailTaskCollection.new_email_task_collection(
-                ctx=context.domain_context,
-                push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
-            )
-            new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
-                new_email_task_collection,
-            )
 
             new_time_event_domain = TimeEventDomain.new_time_event_domain(
                 ctx=context.domain_context,

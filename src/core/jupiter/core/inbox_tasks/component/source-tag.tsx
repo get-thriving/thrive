@@ -35,9 +35,5 @@ function sourceToClass(source: InboxTaskSource): "info" | "warning" | "error" {
       return "warning";
     case InboxTaskSource.PERSON_CATCH_UP:
       return "warning";
-    case InboxTaskSource.SLACK_TASK:
-      return "error";
-    case InboxTaskSource.EMAIL_TASK:
-      return "error";
   }
 }

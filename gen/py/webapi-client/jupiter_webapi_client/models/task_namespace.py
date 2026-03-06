@@ -4,13 +4,11 @@ from enum import Enum
 class TaskNamespace(str, Enum):
     BIG_PLAN = "big-plan"
     CHORE = "chore"
-    EMAIL_TASK = "email-task"
     HABIT = "habit"
     JOURNAL = "journal"
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
     PERSON_OCCASION = "person-occasion"
-    SLACK_TASK = "slack-task"
     TIME_PLAN = "time-plan"
     TODO = "todo"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"

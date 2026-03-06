@@ -102,8 +102,6 @@ class WorkspaceFeature(EnumValue):
     SMART_LISTS = "smart-lists"
     METRICS = "metrics"
     PRM = "prm"
-    SLACK_TASKS = "slack-tasks"
-    EMAIL_TASKS = "email-tasks"
 
 
 WorkspaceFeatureFlags = dict[WorkspaceFeature, bool]
@@ -175,8 +173,6 @@ BASIC_WORKSPACE_FEATURE_FLAGS = {
     WorkspaceFeature.SMART_LISTS: False,
     WorkspaceFeature.METRICS: False,
     WorkspaceFeature.PRM: False,
-    WorkspaceFeature.SLACK_TASKS: False,
-    WorkspaceFeature.EMAIL_TASKS: False,
 }
 BASIC_WORKSPACE_FEATURE_FLAGS_ARR = [
     f for f, v in BASIC_WORKSPACE_FEATURE_FLAGS.items() if v is True
@@ -199,8 +195,6 @@ HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
         WorkspaceFeature.PRM: FeatureControl.USER,
-        WorkspaceFeature.SLACK_TASKS: FeatureControl.ALWAYS_OFF_TECH,
-        WorkspaceFeature.EMAIL_TASKS: FeatureControl.ALWAYS_OFF_TECH,
     }
 )
 
@@ -221,7 +215,5 @@ LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
         WorkspaceFeature.SMART_LISTS: FeatureControl.USER,
         WorkspaceFeature.METRICS: FeatureControl.USER,
         WorkspaceFeature.PRM: FeatureControl.USER,
-        WorkspaceFeature.SLACK_TASKS: FeatureControl.ALWAYS_OFF_HOSTING,
-        WorkspaceFeature.EMAIL_TASKS: FeatureControl.ALWAYS_OFF_HOSTING,
     }
 )

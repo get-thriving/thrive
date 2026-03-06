@@ -36,8 +36,6 @@ class GenLogEntry(LeafSupportEntity):
     filter_chore_ref_ids: list[EntityId] | None
     filter_metric_ref_ids: list[EntityId] | None
     filter_person_ref_ids: list[EntityId] | None
-    filter_slack_task_ref_ids: list[EntityId] | None
-    filter_email_task_ref_ids: list[EntityId] | None
     opened: bool
     entity_created_records: list[EntitySummary]
     entity_updated_records: list[EntitySummary]
@@ -57,8 +55,6 @@ class GenLogEntry(LeafSupportEntity):
         filter_chore_ref_ids: list[EntityId] | None,
         filter_metric_ref_ids: list[EntityId] | None,
         filter_person_ref_ids: list[EntityId] | None,
-        filter_slack_task_ref_ids: list[EntityId] | None,
-        filter_email_task_ref_ids: list[EntityId] | None,
     ) -> "GenLogEntry":
         """Create a new task generation log entry."""
         return GenLogEntry._create(
@@ -75,8 +71,6 @@ class GenLogEntry(LeafSupportEntity):
             filter_chore_ref_ids=filter_chore_ref_ids,
             filter_metric_ref_ids=filter_metric_ref_ids,
             filter_person_ref_ids=filter_person_ref_ids,
-            filter_slack_task_ref_ids=filter_slack_task_ref_ids,
-            filter_email_task_ref_ids=filter_email_task_ref_ids,
             opened=True,
             entity_created_records=[],
             entity_updated_records=[],

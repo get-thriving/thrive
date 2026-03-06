@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.contact import Contact
-    from ..models.email_task import EmailTask
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
@@ -23,7 +22,6 @@ if TYPE_CHECKING:
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.project import Project
-    from ..models.slack_task import SlackTask
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
@@ -54,8 +52,6 @@ class InboxTaskLoadResult:
         metric (Metric | None | Unset):
         person (None | Person | Unset):
         occasion (None | Occasion | Unset):
-        slack_task (None | SlackTask | Unset):
-        email_task (EmailTask | None | Unset):
         note (None | Note | Unset):
     """
 
@@ -75,8 +71,6 @@ class InboxTaskLoadResult:
     metric: Metric | None | Unset = UNSET
     person: None | Person | Unset = UNSET
     occasion: None | Occasion | Unset = UNSET
-    slack_task: None | SlackTask | Unset = UNSET
-    email_task: EmailTask | None | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -84,7 +78,6 @@ class InboxTaskLoadResult:
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
-        from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.journal import Journal
@@ -92,7 +85,6 @@ class InboxTaskLoadResult:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
-        from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
         from ..models.working_mem_collection import WorkingMemCollection
 
@@ -203,22 +195,6 @@ class InboxTaskLoadResult:
         else:
             occasion = self.occasion
 
-        slack_task: dict[str, Any] | None | Unset
-        if isinstance(self.slack_task, Unset):
-            slack_task = UNSET
-        elif isinstance(self.slack_task, SlackTask):
-            slack_task = self.slack_task.to_dict()
-        else:
-            slack_task = self.slack_task
-
-        email_task: dict[str, Any] | None | Unset
-        if isinstance(self.email_task, Unset):
-            email_task = UNSET
-        elif isinstance(self.email_task, EmailTask):
-            email_task = self.email_task.to_dict()
-        else:
-            email_task = self.email_task
-
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -260,10 +236,6 @@ class InboxTaskLoadResult:
             field_dict["person"] = person
         if occasion is not UNSET:
             field_dict["occasion"] = occasion
-        if slack_task is not UNSET:
-            field_dict["slack_task"] = slack_task
-        if email_task is not UNSET:
-            field_dict["email_task"] = email_task
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -275,7 +247,6 @@ class InboxTaskLoadResult:
         from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.contact import Contact
-        from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
@@ -285,7 +256,6 @@ class InboxTaskLoadResult:
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.project import Project
-        from ..models.slack_task import SlackTask
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
@@ -504,40 +474,6 @@ class InboxTaskLoadResult:
 
         occasion = _parse_occasion(d.pop("occasion", UNSET))
 
-        def _parse_slack_task(data: object) -> None | SlackTask | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                slack_task_type_0 = SlackTask.from_dict(data)
-
-                return slack_task_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | SlackTask | Unset, data)
-
-        slack_task = _parse_slack_task(d.pop("slack_task", UNSET))
-
-        def _parse_email_task(data: object) -> EmailTask | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                email_task_type_0 = EmailTask.from_dict(data)
-
-                return email_task_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(EmailTask | None | Unset, data)
-
-        email_task = _parse_email_task(d.pop("email_task", UNSET))
-
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -572,8 +508,6 @@ class InboxTaskLoadResult:
             metric=metric,
             person=person,
             occasion=occasion,
-            slack_task=slack_task,
-            email_task=email_task,
             note=note,
         )
 

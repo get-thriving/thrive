@@ -112,28 +112,6 @@ class GenShow(JupiterLoggedInReadonlyCommand[GenLoadRunsUseCase, GenLoadRunsResu
                 filter_person_ref_ids_text.append(" All")
             entry_tree.add(filter_person_ref_ids_text)
 
-            filter_slack_task_ref_ids_text = Text("Filter Slack task ref ids:")
-            if entry.filter_slack_task_ref_ids is not None:
-                for ref_id in entry.filter_slack_task_ref_ids:
-                    filter_slack_task_ref_ids_text.append(" ")
-                    filter_slack_task_ref_ids_text.append(
-                        entity_id_to_rich_text(ref_id)
-                    )
-            else:
-                filter_slack_task_ref_ids_text.append(" All")
-            entry_tree.add(filter_slack_task_ref_ids_text)
-
-            filter_email_task_ref_ids_text = Text("Filter email task ref ids:")
-            if entry.filter_email_task_ref_ids is not None:
-                for ref_id in entry.filter_email_task_ref_ids:
-                    filter_email_task_ref_ids_text.append(" ")
-                    filter_email_task_ref_ids_text.append(
-                        entity_id_to_rich_text(ref_id)
-                    )
-            else:
-                filter_email_task_ref_ids_text.append(" All")
-            entry_tree.add(filter_email_task_ref_ids_text)
-
             if len(entry.entity_created_records) > 0:
                 created_entity_tree = entry_tree.add("Created entities:")
 

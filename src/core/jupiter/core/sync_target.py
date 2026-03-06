@@ -27,6 +27,4 @@ class SyncTarget(EnumValue):
     PERSONS = "persons"
     OCCASIONS = "occasions"
     CIRCLES = "circles"
-    SLACK_TASKS = "slack-tasks"
-    EMAIL_TASKS = "email-tasks"
     GAMIFICATION = "gamification"

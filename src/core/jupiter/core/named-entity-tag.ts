@@ -62,9 +62,5 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Occasion";
     case NamedEntityTag.CIRCLE:
       return "Circle";
-    case NamedEntityTag.SLACK_TASK:
-      return "Slack Task";
-    case NamedEntityTag.EMAIL_TASK:
-      return "Email Task";
   }
 }

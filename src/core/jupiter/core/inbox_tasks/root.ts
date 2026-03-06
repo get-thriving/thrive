@@ -5,7 +5,6 @@ import {
   Contact,
   Difficulty,
   Eisen,
-  EmailTask,
   EntityId,
   Goal,
   Habit,
@@ -17,7 +16,6 @@ import {
   Person,
   Project,
   RecurringTaskPeriod,
-  SlackTask,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
@@ -41,8 +39,6 @@ export interface InboxTaskParent {
   metric?: Metric;
   person?: Person;
   contact?: Contact;
-  slackTask?: SlackTask;
-  emailTask?: EmailTask;
 }
 
 export function inboxTaskFindEntryToParent(
@@ -58,8 +54,6 @@ export function inboxTaskFindEntryToParent(
     metric: entry.metric ?? undefined,
     person: entry.person ?? undefined,
     contact: entry.contact ?? undefined,
-    slackTask: entry.slack_task ?? undefined,
-    emailTask: entry.email_task ?? undefined,
   };
 }
 
@@ -294,8 +288,6 @@ export function canInboxTaskBeInStatus(
     case InboxTaskSource.METRIC:
     case InboxTaskSource.PERSON_OCCASION:
     case InboxTaskSource.PERSON_CATCH_UP:
-    case InboxTaskSource.SLACK_TASK:
-    case InboxTaskSource.EMAIL_TASK:
       if (status === InboxTaskStatus.NOT_STARTED) {
         return false;
       }

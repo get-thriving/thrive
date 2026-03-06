@@ -797,8 +797,6 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.METRIC,
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
       ],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
@@ -826,8 +824,6 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.METRIC,
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
       ],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
@@ -856,8 +852,6 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.METRIC,
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
       ],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
@@ -886,8 +880,6 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.METRIC,
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
       ],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
@@ -916,8 +908,6 @@ function SwiftView(props: SwiftViewProps) {
         InboxTaskSource.METRIC,
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
       ],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,

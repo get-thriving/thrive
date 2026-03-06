@@ -16,6 +16,4 @@ export enum InboxTaskSource {
     METRIC = 'metric',
     PERSON_CATCH_UP = 'person-catch-up',
     PERSON_OCCASION = 'person-occasion',
-    SLACK_TASK = 'slack-task',
-    EMAIL_TASK = 'email-task',
 }

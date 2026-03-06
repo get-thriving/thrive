@@ -1,14 +1,12 @@
 """An inbox task."""
 
 import abc
-import textwrap
 from collections.abc import Iterable
 from typing import ClassVar
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
-from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
@@ -21,18 +19,6 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
-from jupiter.core.push_integrations.extra_info import (
-    PushGenerationExtraInfo,
-)
-from jupiter.core.push_integrations.sub.email.user_name import (
-    EmailUserName,
-)
-from jupiter.core.push_integrations.sub.slack.channel_name import (
-    SlackChannelName,
-)
-from jupiter.core.push_integrations.sub.slack.user_name import (
-    SlackUserName,
-)
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
@@ -485,95 +471,6 @@ class InboxTask(LeafEntity):
             completed_time=None,
         )
 
-    @staticmethod
-    @create_entity_action
-    def new_inbox_task_for_slack_task(
-        ctx: MutationContext,
-        inbox_task_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
-        slack_task_ref_id: EntityId,
-        user: SlackUserName,
-        channel: SlackChannelName | None,
-        message: str,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> "InboxTask":
-        """Create an inbox task."""
-        return InboxTask._create(
-            ctx,
-            inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.SLACK_TASK,
-            name=InboxTask._build_name_for_slack_task(
-                user,
-                channel,
-                generation_extra_info,
-            ),
-            status=generation_extra_info.status or InboxTaskStatus.NOT_STARTED,
-            is_key=False,
-            eisen=generation_extra_info.eisen,
-            difficulty=generation_extra_info.difficulty,
-            actionable_date=generation_extra_info.actionable_date,
-            due_date=generation_extra_info.due_date,
-            project_ref_id=project_ref_id,
-            chapter_ref_id=None,
-            goal_ref_id=None,
-            source_entity_ref_id=slack_task_ref_id,
-            notes=InboxTask._build_notes_for_slack_task(user, channel, message),
-            recurring_timeline=None,
-            recurring_repeat_index=None,
-            recurring_gen_right_now=None,
-            working_time=None,
-            completed_time=None,
-        )
-
-    @staticmethod
-    @create_entity_action
-    def new_inbox_task_for_email_task(
-        ctx: MutationContext,
-        inbox_task_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
-        email_task_ref_id: EntityId,
-        from_address: EmailAddress,
-        from_name: EmailUserName,
-        to_address: EmailAddress,
-        subject: str,
-        body: str,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> "InboxTask":
-        """Create an inbox task."""
-        return InboxTask._create(
-            ctx,
-            inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.EMAIL_TASK,
-            name=InboxTask._build_name_for_email_task(
-                from_address,
-                from_name,
-                to_address,
-                generation_extra_info,
-            ),
-            status=generation_extra_info.status or InboxTaskStatus.NOT_STARTED,
-            is_key=False,
-            eisen=generation_extra_info.eisen,
-            difficulty=generation_extra_info.difficulty,
-            actionable_date=generation_extra_info.actionable_date,
-            due_date=generation_extra_info.due_date,
-            project_ref_id=project_ref_id,
-            chapter_ref_id=None,
-            goal_ref_id=None,
-            source_entity_ref_id=email_task_ref_id,
-            notes=InboxTask._build_notes_for_email_task(
-                from_address,
-                from_name,
-                to_address,
-                subject,
-                body,
-            ),
-            recurring_timeline=None,
-            recurring_repeat_index=None,
-            recurring_gen_right_now=None,
-            working_time=None,
-            completed_time=None,
-        )
-
     @update_entity_action
     def update_link_to_working_mem_cleanup(
         self,
@@ -821,71 +718,6 @@ class InboxTask(LeafEntity):
             actionable_date=due_time.subtract_days(preparation_days_cnt),
             due_date=due_time,
             recurring_timeline=recurring_timeline,
-        )
-
-    @update_entity_action
-    def update_link_to_slack_task(
-        self,
-        ctx: MutationContext,
-        project_ref_id: EntityId,
-        user: SlackUserName,
-        channel: SlackChannelName | None,
-        message: str,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> "InboxTask":
-        """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.SLACK_TASK:
-            raise Exception(
-                f"Cannot update a task which is not a Slack one '{self.name}'",
-            )
-        return self._new_version(
-            ctx,
-            project_ref_id=project_ref_id,
-            name=self._build_name_for_slack_task(user, channel, generation_extra_info),
-            eisen=generation_extra_info.eisen,
-            difficulty=generation_extra_info.difficulty,
-            actionable_date=generation_extra_info.actionable_date,
-            due_date=generation_extra_info.due_date,
-            notes=InboxTask._build_notes_for_slack_task(user, channel, message),
-        )
-
-    @update_entity_action
-    def update_link_to_email_task(
-        self,
-        ctx: MutationContext,
-        project_ref_id: EntityId,
-        from_address: EmailAddress,
-        from_name: EmailUserName,
-        to_address: EmailAddress,
-        subject: str,
-        body: str,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> "InboxTask":
-        """Update all the info associated with a person."""
-        if self.source is not InboxTaskSource.EMAIL_TASK:
-            raise Exception(
-                f"Cannot update a task which is not a email one '{self.name}'",
-            )
-        return self._new_version(
-            ctx,
-            project_ref_id=project_ref_id,
-            name=self._build_name_for_email_task(
-                from_address,
-                from_name,
-                to_address,
-                generation_extra_info,
-            ),
-            eisen=generation_extra_info.eisen,
-            difficulty=generation_extra_info.difficulty,
-            actionable_date=generation_extra_info.actionable_date,
-            due_date=generation_extra_info.due_date,
-            notes=InboxTask._build_notes_for_email_task(
-                from_address,
-                from_name,
-                to_address,
-                subject,
-                body,
-            ),
         )
 
     @update_entity_action
@@ -1148,63 +980,6 @@ class InboxTask(LeafEntity):
                 )
             case OccasionKind.OTHER:
                 return InboxTaskName(f"Wish {occasion_person_name}'s on their {name}")
-
-    @staticmethod
-    def _build_name_for_slack_task(
-        user: SlackUserName,
-        channel: SlackChannelName | None,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> InboxTaskName:
-        if generation_extra_info.name is not None:
-            return generation_extra_info.name
-        if channel is not None:
-            return InboxTaskName(f"Respond to {user} on {channel}")
-        return InboxTaskName(f"Respond to {user}'s DM")
-
-    @staticmethod
-    def _build_name_for_email_task(
-        from_address: EmailAddress,
-        from_name: EmailUserName,
-        to_address: EmailAddress,
-        generation_extra_info: PushGenerationExtraInfo,
-    ) -> InboxTaskName:
-        if generation_extra_info.name is not None:
-            return generation_extra_info.name
-        return InboxTaskName(
-            f"Respond to {from_name}'s <{from_address}> message sent to {to_address}",
-        )
-
-    @staticmethod
-    def _build_notes_for_slack_task(
-        user: SlackUserName,
-        channel: SlackChannelName | None,
-        message: str,
-    ) -> str:
-        message = textwrap.dedent(
-            f"""
-            **user**: {user}
-            **channel**: {str(channel) if channel else "DM"}
-            **message**: {message}
-            """,
-        ).strip()
-        return message
-
-    @staticmethod
-    def _build_notes_for_email_task(
-        from_address: EmailAddress,
-        from_name: EmailUserName,
-        to_address: EmailAddress,
-        subject: str,
-        body: str,
-    ) -> str:
-        message = textwrap.dedent(
-            f"""
-            **from**: {from_name} <{from_address}>
-            **to**: {to_address}
-            **subject**: {subject}
-            **body**: {body}""",
-        ).strip()
-        return message
 
     @staticmethod
     def _check_actionable_and_due_dates(

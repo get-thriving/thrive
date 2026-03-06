@@ -38,8 +38,6 @@ class ReportArgs(UseCaseArgsBase):
     filter_chore_ref_ids: list[EntityId] | None
     filter_metric_ref_ids: list[EntityId] | None
     filter_person_ref_ids: list[EntityId] | None
-    filter_slack_task_ref_ids: list[EntityId] | None
-    filter_email_task_ref_ids: list[EntityId] | None
     breakdown_period: RecurringTaskPeriod | None
 
 
@@ -78,8 +76,6 @@ class ReportUseCase(JupiterLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
             filter_chore_ref_ids=args.filter_chore_ref_ids,
             filter_metric_ref_ids=args.filter_metric_ref_ids,
             filter_person_ref_ids=args.filter_person_ref_ids,
-            filter_slack_task_ref_ids=args.filter_slack_task_ref_ids,
-            filter_email_task_ref_ids=args.filter_email_task_ref_ids,
             breakdown_period=args.breakdown_period,
         )
 

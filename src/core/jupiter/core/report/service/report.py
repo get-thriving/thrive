@@ -90,8 +90,6 @@ class ReportService:
         filter_chore_ref_ids: list[EntityId] | None = None,
         filter_metric_ref_ids: list[EntityId] | None = None,
         filter_person_ref_ids: list[EntityId] | None = None,
-        filter_slack_task_ref_ids: list[EntityId] | None = None,
-        filter_email_task_ref_ids: list[EntityId] | None = None,
         breakdown_period: RecurringTaskPeriod | None = None,
     ) -> ReportPeriodResult:
         """Compute the report."""
@@ -120,16 +118,6 @@ class ReportService:
             and filter_person_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.PRM)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.SLACK_TASKS)
-            and filter_slack_task_ref_ids is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.SLACK_TASKS)
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.EMAIL_TASKS)
-            and filter_email_task_ref_ids is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.EMAIL_TASKS)
 
         sources = (
             sources
@@ -270,20 +258,6 @@ class ReportService:
                         or it.source is InboxTaskSource.PERSON_OCCASION
                     )
                     and it.source_entity_ref_id_for_sure in persons_by_ref_id
-                )
-                or (
-                    it.source is InboxTaskSource.SLACK_TASK
-                    and (
-                        not (filter_slack_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_slack_task_ref_ids
-                    )
-                )
-                or (
-                    it.source is InboxTaskSource.EMAIL_TASK
-                    and (
-                        not (filter_email_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_email_task_ref_ids
-                    )
                 )
             ]
 

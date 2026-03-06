@@ -42,10 +42,6 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Occasions";
     case SyncTarget.CIRCLES:
       return "Circles";
-    case SyncTarget.SLACK_TASKS:
-      return "Slack Tasks";
-    case SyncTarget.EMAIL_TASKS:
-      return "Email Tasks";
     case SyncTarget.GAMIFICATION:
       return "Gamification";
   }

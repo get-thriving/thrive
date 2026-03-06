@@ -92,14 +92,6 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.METRICS
         ):
             inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.SLACK_TASKS and workspace.is_feature_available(
-            WorkspaceFeature.SLACK_TASKS
-        ):
-            inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.EMAIL_TASKS and workspace.is_feature_available(
-            WorkspaceFeature.EMAIL_TASKS
-        ):
-            inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.GAMIFICATION and user.is_feature_available(
             UserFeature.GAMIFICATION
         ):

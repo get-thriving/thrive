@@ -29,8 +29,6 @@ class ReportArgs:
         filter_chore_ref_ids (list[str] | None | Unset):
         filter_metric_ref_ids (list[str] | None | Unset):
         filter_person_ref_ids (list[str] | None | Unset):
-        filter_slack_task_ref_ids (list[str] | None | Unset):
-        filter_email_task_ref_ids (list[str] | None | Unset):
         breakdown_period (None | RecurringTaskPeriod | Unset):
     """
 
@@ -44,8 +42,6 @@ class ReportArgs:
     filter_chore_ref_ids: list[str] | None | Unset = UNSET
     filter_metric_ref_ids: list[str] | None | Unset = UNSET
     filter_person_ref_ids: list[str] | None | Unset = UNSET
-    filter_slack_task_ref_ids: list[str] | None | Unset = UNSET
-    filter_email_task_ref_ids: list[str] | None | Unset = UNSET
     breakdown_period: None | RecurringTaskPeriod | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -136,24 +132,6 @@ class ReportArgs:
         else:
             filter_person_ref_ids = self.filter_person_ref_ids
 
-        filter_slack_task_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_slack_task_ref_ids, Unset):
-            filter_slack_task_ref_ids = UNSET
-        elif isinstance(self.filter_slack_task_ref_ids, list):
-            filter_slack_task_ref_ids = self.filter_slack_task_ref_ids
-
-        else:
-            filter_slack_task_ref_ids = self.filter_slack_task_ref_ids
-
-        filter_email_task_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_email_task_ref_ids, Unset):
-            filter_email_task_ref_ids = UNSET
-        elif isinstance(self.filter_email_task_ref_ids, list):
-            filter_email_task_ref_ids = self.filter_email_task_ref_ids
-
-        else:
-            filter_email_task_ref_ids = self.filter_email_task_ref_ids
-
         breakdown_period: None | str | Unset
         if isinstance(self.breakdown_period, Unset):
             breakdown_period = UNSET
@@ -187,10 +165,6 @@ class ReportArgs:
             field_dict["filter_metric_ref_ids"] = filter_metric_ref_ids
         if filter_person_ref_ids is not UNSET:
             field_dict["filter_person_ref_ids"] = filter_person_ref_ids
-        if filter_slack_task_ref_ids is not UNSET:
-            field_dict["filter_slack_task_ref_ids"] = filter_slack_task_ref_ids
-        if filter_email_task_ref_ids is not UNSET:
-            field_dict["filter_email_task_ref_ids"] = filter_email_task_ref_ids
         if breakdown_period is not UNSET:
             field_dict["breakdown_period"] = breakdown_period
 
@@ -356,40 +330,6 @@ class ReportArgs:
 
         filter_person_ref_ids = _parse_filter_person_ref_ids(d.pop("filter_person_ref_ids", UNSET))
 
-        def _parse_filter_slack_task_ref_ids(data: object) -> list[str] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_slack_task_ref_ids_type_0 = cast(list[str], data)
-
-                return filter_slack_task_ref_ids_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[str] | None | Unset, data)
-
-        filter_slack_task_ref_ids = _parse_filter_slack_task_ref_ids(d.pop("filter_slack_task_ref_ids", UNSET))
-
-        def _parse_filter_email_task_ref_ids(data: object) -> list[str] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_email_task_ref_ids_type_0 = cast(list[str], data)
-
-                return filter_email_task_ref_ids_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[str] | None | Unset, data)
-
-        filter_email_task_ref_ids = _parse_filter_email_task_ref_ids(d.pop("filter_email_task_ref_ids", UNSET))
-
         def _parse_breakdown_period(data: object) -> None | RecurringTaskPeriod | Unset:
             if data is None:
                 return data
@@ -418,8 +358,6 @@ class ReportArgs:
             filter_chore_ref_ids=filter_chore_ref_ids,
             filter_metric_ref_ids=filter_metric_ref_ids,
             filter_person_ref_ids=filter_person_ref_ids,
-            filter_slack_task_ref_ids=filter_slack_task_ref_ids,
-            filter_email_task_ref_ids=filter_email_task_ref_ids,
             breakdown_period=breakdown_period,
         )
 

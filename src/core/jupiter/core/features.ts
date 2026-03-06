@@ -51,10 +51,6 @@ export function workspaceFeatureName(feature: WorkspaceFeature): string {
       return "Metrics";
     case WorkspaceFeature.PRM:
       return "Personal Relationships Management";
-    case WorkspaceFeature.SLACK_TASKS:
-      return "Slack Tasks";
-    case WorkspaceFeature.EMAIL_TASKS:
-      return "Email Tasks";
   }
 }
 
@@ -90,10 +86,6 @@ export function workspaceFeatureToDocsHelpSubject(
       return DocsHelpSubject.METRICS;
     case WorkspaceFeature.PRM:
       return DocsHelpSubject.PRM;
-    case WorkspaceFeature.SLACK_TASKS:
-      return DocsHelpSubject.SLACK_TASKS;
-    case WorkspaceFeature.EMAIL_TASKS:
-      return DocsHelpSubject.EMAIL_TASKS;
   }
 }
 

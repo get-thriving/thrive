@@ -21,8 +21,6 @@ export type ReportArgs = {
     filter_chore_ref_ids?: (Array<EntityId> | null);
     filter_metric_ref_ids?: (Array<EntityId> | null);
     filter_person_ref_ids?: (Array<EntityId> | null);
-    filter_slack_task_ref_ids?: (Array<EntityId> | null);
-    filter_email_task_ref_ids?: (Array<EntityId> | null);
     breakdown_period?: (RecurringTaskPeriod | null);
 };
 

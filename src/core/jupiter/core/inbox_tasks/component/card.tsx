@@ -3,12 +3,10 @@ import type {
   BigPlan,
   Chore,
   Contact,
-  EmailTask,
   Habit,
   InboxTask,
   InboxTaskStatus,
   Metric,
-  SlackTask,
   Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
@@ -47,7 +45,6 @@ import { BigPlanTag } from "#/core/big_plans/component/tag";
 import { ChoreTag } from "#/core/chores/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
-import { EmailTaskTag } from "#/core/push_integrations/sub/email/component/tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { HabitTag } from "#/core/habits/component/habit-tag";
 import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
@@ -57,7 +54,6 @@ import { MetricTag } from "#/core/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
-import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
@@ -296,26 +292,6 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                   props.parent.contact && (
                     <ParentContactTag
                       contact={props.parent.contact as Contact}
-                    />
-                  )}
-                {isWorkspaceFeatureAvailable(
-                  props.topLevelInfo.workspace,
-                  WorkspaceFeature.SLACK_TASKS,
-                ) &&
-                  props.parent &&
-                  props.parent.slackTask && (
-                    <SlackTaskTag
-                      slackTask={props.parent.slackTask as SlackTask}
-                    />
-                  )}
-                {isWorkspaceFeatureAvailable(
-                  props.topLevelInfo.workspace,
-                  WorkspaceFeature.EMAIL_TASKS,
-                ) &&
-                  props.parent &&
-                  props.parent.emailTask && (
-                    <EmailTaskTag
-                      emailTask={props.parent.emailTask as EmailTask}
                     />
                   )}
               </>

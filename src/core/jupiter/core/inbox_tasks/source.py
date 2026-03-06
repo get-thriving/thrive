@@ -17,8 +17,6 @@ class InboxTaskSource(EnumValue):
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
     PERSON_OCCASION = "person-occasion"
-    SLACK_TASK = "slack-task"
-    EMAIL_TASK = "email-task"
 
     @property
     def allow_user_changes(self) -> bool:
@@ -27,6 +25,4 @@ class InboxTaskSource(EnumValue):
         return self in (
             InboxTaskSource.USER,
             InboxTaskSource.BIG_PLAN,
-            InboxTaskSource.SLACK_TASK,
-            InboxTaskSource.EMAIL_TASK,
         )

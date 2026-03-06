@@ -20,6 +20,4 @@ export enum WorkspaceFeature {
     SMART_LISTS = 'smart-lists',
     METRICS = 'metrics',
     PRM = 'prm',
-    SLACK_TASKS = 'slack-tasks',
-    EMAIL_TASKS = 'email-tasks',
 }

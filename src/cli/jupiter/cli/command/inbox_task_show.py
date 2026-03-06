@@ -56,8 +56,6 @@ class InboxTaskShow(
             big_plan = inbox_task_entry.big_plan
             metric = inbox_task_entry.metric
             person = inbox_task_entry.person
-            slack_task = inbox_task_entry.slack_task
-            email_task = inbox_task_entry.email_task
 
             inbox_task_text = inbox_task_status_to_rich_text(
                 inbox_task.status,
@@ -111,20 +109,6 @@ class InboxTaskShow(
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(
                     parent_entity_name_to_rich_text(person.name),
-                )
-            elif slack_task is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.SLACK_TASKS
-            ):
-                inbox_task_info_text.append(" ")
-                inbox_task_info_text.append(
-                    parent_entity_name_to_rich_text(slack_task.name),
-                )
-            elif email_task is not None and context.workspace.is_feature_available(
-                WorkspaceFeature.EMAIL_TASKS
-            ):
-                inbox_task_info_text.append(" ")
-                inbox_task_info_text.append(
-                    parent_entity_name_to_rich_text(email_task.name),
                 )
 
             if inbox_task.actionable_date:

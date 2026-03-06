@@ -86,10 +86,6 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/prm/persons";
     case DocsHelpSubject.PRM_OCCASIONS:
       return "concepts/prm/occasions";
-    case DocsHelpSubject.SLACK_TASKS:
-      return "concepts/slack-tasks";
-    case DocsHelpSubject.EMAIL_TASKS:
-      return "concepts/email-tasks";
     case DocsHelpSubject.SELF_HOSTING:
       return "how-tos/self-hosting";
   }

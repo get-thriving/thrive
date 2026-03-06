@@ -27,8 +27,6 @@ class GenDoArgs:
         filter_chore_ref_ids (list[str] | None | Unset):
         filter_metric_ref_ids (list[str] | None | Unset):
         filter_person_ref_ids (list[str] | None | Unset):
-        filter_slack_task_ref_ids (list[str] | None | Unset):
-        filter_email_task_ref_ids (list[str] | None | Unset):
     """
 
     gen_even_if_not_modified: bool
@@ -40,8 +38,6 @@ class GenDoArgs:
     filter_chore_ref_ids: list[str] | None | Unset = UNSET
     filter_metric_ref_ids: list[str] | None | Unset = UNSET
     filter_person_ref_ids: list[str] | None | Unset = UNSET
-    filter_slack_task_ref_ids: list[str] | None | Unset = UNSET
-    filter_email_task_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -122,24 +118,6 @@ class GenDoArgs:
         else:
             filter_person_ref_ids = self.filter_person_ref_ids
 
-        filter_slack_task_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_slack_task_ref_ids, Unset):
-            filter_slack_task_ref_ids = UNSET
-        elif isinstance(self.filter_slack_task_ref_ids, list):
-            filter_slack_task_ref_ids = self.filter_slack_task_ref_ids
-
-        else:
-            filter_slack_task_ref_ids = self.filter_slack_task_ref_ids
-
-        filter_email_task_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_email_task_ref_ids, Unset):
-            filter_email_task_ref_ids = UNSET
-        elif isinstance(self.filter_email_task_ref_ids, list):
-            filter_email_task_ref_ids = self.filter_email_task_ref_ids
-
-        else:
-            filter_email_task_ref_ids = self.filter_email_task_ref_ids
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -163,10 +141,6 @@ class GenDoArgs:
             field_dict["filter_metric_ref_ids"] = filter_metric_ref_ids
         if filter_person_ref_ids is not UNSET:
             field_dict["filter_person_ref_ids"] = filter_person_ref_ids
-        if filter_slack_task_ref_ids is not UNSET:
-            field_dict["filter_slack_task_ref_ids"] = filter_slack_task_ref_ids
-        if filter_email_task_ref_ids is not UNSET:
-            field_dict["filter_email_task_ref_ids"] = filter_email_task_ref_ids
 
         return field_dict
 
@@ -313,40 +287,6 @@ class GenDoArgs:
 
         filter_person_ref_ids = _parse_filter_person_ref_ids(d.pop("filter_person_ref_ids", UNSET))
 
-        def _parse_filter_slack_task_ref_ids(data: object) -> list[str] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_slack_task_ref_ids_type_0 = cast(list[str], data)
-
-                return filter_slack_task_ref_ids_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[str] | None | Unset, data)
-
-        filter_slack_task_ref_ids = _parse_filter_slack_task_ref_ids(d.pop("filter_slack_task_ref_ids", UNSET))
-
-        def _parse_filter_email_task_ref_ids(data: object) -> list[str] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_email_task_ref_ids_type_0 = cast(list[str], data)
-
-                return filter_email_task_ref_ids_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[str] | None | Unset, data)
-
-        filter_email_task_ref_ids = _parse_filter_email_task_ref_ids(d.pop("filter_email_task_ref_ids", UNSET))
-
         gen_do_args = cls(
             gen_even_if_not_modified=gen_even_if_not_modified,
             today=today,
@@ -357,8 +297,6 @@ class GenDoArgs:
             filter_chore_ref_ids=filter_chore_ref_ids,
             filter_metric_ref_ids=filter_metric_ref_ids,
             filter_person_ref_ids=filter_person_ref_ids,
-            filter_slack_task_ref_ids=filter_slack_task_ref_ids,
-            filter_email_task_ref_ids=filter_email_task_ref_ids,
         )
 
         gen_do_args.additional_properties = d

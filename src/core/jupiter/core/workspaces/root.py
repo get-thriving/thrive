@@ -28,9 +28,6 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.root import PRM
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
@@ -82,9 +79,6 @@ class Workspace(RootEntity):
     smart_list_collection = ContainsOne(SmartListCollection, workspace_ref_id=IsRefId())
     metric_collection = ContainsOne(MetricCollection, workspace_ref_id=IsRefId())
     prm = ContainsOne(PRM, workspace_ref_id=IsRefId())
-    push_integration_group = ContainsOne(
-        PushIntegrationGroup, workspace_ref_id=IsRefId()
-    )
 
     note_collection = ContainsOne(NoteCollection, workspace_ref_id=IsRefId())
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
@@ -248,14 +242,6 @@ class Workspace(RootEntity):
                 WorkspaceFeature.PRM
             ):
                 inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.SLACK_TASK and self.is_feature_available(
-                WorkspaceFeature.SLACK_TASKS
-            ):
-                inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.EMAIL_TASK and self.is_feature_available(
-                WorkspaceFeature.EMAIL_TASKS
-            ):
-                inferred_entity_tags.append(entity_tag)
         return inferred_entity_tags
 
     def infer_sources_for_enabled_features(
@@ -309,14 +295,6 @@ class Workspace(RootEntity):
             elif (
                 source is InboxTaskSource.PERSON_CATCH_UP
                 and self.is_feature_available(WorkspaceFeature.PRM)
-            ):
-                inferred_sources.append(source)
-            elif source is InboxTaskSource.SLACK_TASK and self.is_feature_available(
-                WorkspaceFeature.SLACK_TASKS
-            ):
-                inferred_sources.append(source)
-            elif source is InboxTaskSource.EMAIL_TASK and self.is_feature_available(
-                WorkspaceFeature.EMAIL_TASKS
             ):
                 inferred_sources.append(source)
         return inferred_sources

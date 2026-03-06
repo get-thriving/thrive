@@ -297,46 +297,7 @@ export default function Sidebar(props: SidebarProps) {
               </ListItem>
             )}
 
-            {(isWorkspaceFeatureAvailable(
-              topLevelInfo.workspace,
-              WorkspaceFeature.SLACK_TASKS,
-            ) ||
-              isWorkspaceFeatureAvailable(
-                topLevelInfo.workspace,
-                WorkspaceFeature.EMAIL_TASKS,
-              )) && <StandardDivider title="Push Integrations" size="small" />}
-
-            {isWorkspaceFeatureAvailable(
-              topLevelInfo.workspace,
-              WorkspaceFeature.SLACK_TASKS,
-            ) && (
-              <ListItem disablePadding>
-                <ListItemButton
-                  to="/app/workspace/push-integrations/slack-tasks"
-                  component={Link}
-                  onClick={onClickNavigation}
-                >
-                  <ListItemIcon>💬</ListItemIcon>
-                  <ListItemText primary="Slack Tasks" />
-                </ListItemButton>
-              </ListItem>
-            )}
-
-            {isWorkspaceFeatureAvailable(
-              topLevelInfo.workspace,
-              WorkspaceFeature.EMAIL_TASKS,
-            ) && (
-              <ListItem disablePadding>
-                <ListItemButton
-                  to="/app/workspace/push-integrations/email-tasks"
-                  component={Link}
-                  onClick={onClickNavigation}
-                >
-                  <ListItemIcon>📧</ListItemIcon>
-                  <ListItemText primary="Email Tasks" />
-                </ListItemButton>
-              </ListItem>
-            )}
+            {/* Push integrations section removed */}
 
             <StandardDivider title="Tools" size="small" />
 

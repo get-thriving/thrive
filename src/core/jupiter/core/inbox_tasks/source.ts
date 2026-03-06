@@ -2,12 +2,7 @@ import { InboxTaskSource } from "@jupiter/webapi-client";
 
 export function allowUserChanges(source: InboxTaskSource): boolean {
   // Keep synced with python:source.py
-  return (
-    source === InboxTaskSource.USER ||
-    source === InboxTaskSource.BIG_PLAN ||
-    source === InboxTaskSource.SLACK_TASK ||
-    source === InboxTaskSource.EMAIL_TASK
-  );
+  return source === InboxTaskSource.USER || source === InboxTaskSource.BIG_PLAN;
 }
 
 export function inboxTaskSourceName(source: InboxTaskSource): string {
@@ -32,9 +27,5 @@ export function inboxTaskSourceName(source: InboxTaskSource): string {
       return "Catch Up";
     case InboxTaskSource.PERSON_OCCASION:
       return "Occasion";
-    case InboxTaskSource.SLACK_TASK:
-      return "Slack";
-    case InboxTaskSource.EMAIL_TASK:
-      return "Email";
   }
 }

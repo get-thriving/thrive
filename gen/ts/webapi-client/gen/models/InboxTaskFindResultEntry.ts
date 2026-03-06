@@ -6,7 +6,6 @@ import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
 import type { Contact } from './Contact';
-import type { EmailTask } from './EmailTask';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
@@ -16,7 +15,6 @@ import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { Project } from './Project';
-import type { SlackTask } from './SlackTask';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
@@ -43,7 +41,5 @@ export type InboxTaskFindResultEntry = {
     person?: (Person | null);
     contact?: (Contact | null);
     occasion?: (Occasion | null);
-    slack_task?: (SlackTask | null);
-    email_task?: (EmailTask | null);
 };
 

@@ -25,15 +25,6 @@ from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
-from jupiter.core.push_integrations.sub.email.user_name import (
-    EmailUserName,
-)
-from jupiter.core.push_integrations.sub.slack.channel_name import (
-    SlackChannelName,
-)
-from jupiter.core.push_integrations.sub.slack.user_name import (
-    SlackUserName,
-)
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.source import TimePlanSource
 from jupiter.core.time_plans.sub.activity.feasability import (
@@ -160,6 +151,11 @@ def entity_name_to_rich_text(name: EntityName) -> Text:
     return Text(str(name), style="green bold underline")
 
 
+def email_address_to_rich_text(email_address: EmailAddress) -> Text:
+    """Transform an email address into text."""
+    return Text(str(email_address), style="blue italic")
+
+
 def parent_entity_name_to_rich_text(parent_name: EntityName) -> Text:
     """Transform a parent entity name into text."""
     return Text("From @").append(str(parent_name), style="underline italic")
@@ -242,54 +238,6 @@ def inbox_task_summary_to_rich_text(inbox_task: InboxTask) -> Text:
     if inbox_task.archived:
         text.stylize("grey62")
 
-    return text
-
-
-def slack_user_name_to_rich_text(user: SlackUserName) -> Text:
-    """Transform a slack user name to rich text."""
-    return Text("@").append(str(user), style="bold on white underline")
-
-
-def slack_channel_name_to_rich_text(channel: SlackChannelName) -> Text:
-    """Transform a slack channel name to rich text."""
-    return Text("in #").append(str(channel), style="italic green")
-
-
-def slack_task_message_to_rich_text(message: str) -> Text:
-    """Transform a message to rich text."""
-    text = Text("")
-    message = " ".join(m.strip() for m in message.strip().split("\n"))
-    if len(message) <= 100:
-        text.append(" said 💬 ")
-        text.append(message)
-    else:
-        text.append(" said 💬 ")
-        text.append(message[0:98])
-        text.append("...")
-    return text
-
-
-def email_user_name_to_rich_text(user: EmailUserName) -> Text:
-    """Transform an email name to rich text."""
-    return Text(str(user), style="bold on white underline")
-
-
-def email_address_to_rich_text(address: EmailAddress) -> Text:
-    """Transform an email address to rich text."""
-    return Text(str(address), style="underline")
-
-
-def email_task_subject_to_rich_text(subject: str) -> Text:
-    """Transform a subject to rich text."""
-    text = Text("")
-    subject = " ".join(m.strip() for m in subject.strip().split("\n"))
-    if len(subject) <= 100:
-        text.append(" on 💬 ")
-        text.append(subject)
-    else:
-        text.append(" on 💬 ")
-        text.append(subject[0:98])
-        text.append("...")
     return text
 
 

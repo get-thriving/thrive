@@ -535,22 +535,6 @@ export default function Gen() {
                   ))}
                 {!entry.filter_person_ref_ids && <SlimChip label={"All"} />}
               </GenTargetsSection>
-              <GenTargetsSection>
-                Filter Slack task ref ids:{" "}
-                {entry.filter_slack_task_ref_ids &&
-                  entry.filter_slack_task_ref_ids.map((refId) => (
-                    <Fragment key={refId}>{refId}</Fragment>
-                  ))}
-                {!entry.filter_slack_task_ref_ids && <SlimChip label={"All"} />}
-              </GenTargetsSection>
-              <GenTargetsSection>
-                Filter email task ref ids:{" "}
-                {entry.filter_email_task_ref_ids &&
-                  entry.filter_email_task_ref_ids.map((refId) => (
-                    <Fragment key={refId}>{refId}</Fragment>
-                  ))}
-                {!entry.filter_email_task_ref_ids && <SlimChip label={"All"} />}
-              </GenTargetsSection>
 
               {entry.entity_created_records.length > 0 && (
                 <>

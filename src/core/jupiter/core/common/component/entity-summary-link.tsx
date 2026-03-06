@@ -246,20 +246,6 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
-    case NamedEntityTag.SLACK_TASK:
-      return (
-        <EntityLink to={`/app/workspace/slack-tasks/${summary.ref_id}`}>
-          <SlimChip label={"Slack Tasks"} color={"primary"} />
-          {commonSequence}
-        </EntityLink>
-      );
-    case NamedEntityTag.EMAIL_TASK:
-      return (
-        <EntityLink to={`/app/workspace/email-tasks/${summary.ref_id}`}>
-          <SlimChip label={"Email Tasks"} color={"primary"} />
-          {commonSequence}
-        </EntityLink>
-      );
   }
 }
 

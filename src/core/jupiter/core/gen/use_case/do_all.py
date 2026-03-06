@@ -79,8 +79,6 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
                 filter_chore_ref_ids=None,
                 filter_metric_ref_ids=None,
                 filter_person_ref_ids=None,
-                filter_slack_task_ref_ids=None,
-                filter_email_task_ref_ids=None,
             )
 
             async with (

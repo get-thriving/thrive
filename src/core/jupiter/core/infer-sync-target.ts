@@ -114,16 +114,6 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
-      syncTarget === SyncTarget.SLACK_TASKS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SLACK_TASKS)
-    ) {
-      inferredSyncTargets.push(syncTarget);
-    } else if (
-      syncTarget === SyncTarget.EMAIL_TASKS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
-    ) {
-      inferredSyncTargets.push(syncTarget);
-    } else if (
       syncTarget === SyncTarget.GAMIFICATION &&
       isUserFeatureAvailable(user, UserFeature.GAMIFICATION)
     ) {

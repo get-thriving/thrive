@@ -50,17 +50,6 @@ from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task import EmailTask
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.push_integrations.sub.slack.task import SlackTask
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.collection import (
@@ -122,8 +111,6 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     person: Person | None
     contact: Contact | None
     occasion: Occasion | None
-    slack_task: SlackTask | None
-    email_task: EmailTask | None
 
 
 @use_case_result
@@ -217,17 +204,6 @@ class InboxTaskFindUseCase(
         )
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
-        )
-        push_integrations_group = await uow.get_for(
-            PushIntegrationGroup
-        ).load_by_parent(
-            workspace.ref_id,
-        )
-        slack_task_collection = await uow.get_for(SlackTaskCollection).load_by_parent(
-            push_integrations_group.ref_id,
-        )
-        email_task_collection = await uow.get_for(EmailTaskCollection).load_by_parent(
-            push_integrations_group.ref_id,
         )
 
         projects = await uow.get_for(Project).find_all_generic(
@@ -397,28 +373,6 @@ class InboxTaskFindUseCase(
             for contact in additional_contacts:
                 contacts_by_ref_id[contact.ref_id] = contact
 
-        slack_tasks = await uow.get_for(SlackTask).find_all(
-            parent_ref_id=slack_task_collection.ref_id,
-            allow_archived=True,
-            filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
-                for it in inbox_tasks
-                if it.source == InboxTaskSource.SLACK_TASK
-            ],
-        )
-        slack_tasks_by_ref_id = {p.ref_id: p for p in slack_tasks}
-
-        email_tasks = await uow.get_for(EmailTask).find_all(
-            parent_ref_id=email_task_collection.ref_id,
-            allow_archived=True,
-            filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
-                for it in inbox_tasks
-                if it.source == InboxTaskSource.EMAIL_TASK
-            ],
-        )
-        email_tasks_by_ref_id = {p.ref_id: p for p in email_tasks}
-
         notes_by_inbox_task_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
@@ -567,16 +521,6 @@ class InboxTaskFindUseCase(
                     occasion=(
                         occasions_by_ref_id[it.source_entity_ref_id_for_sure]
                         if it.source == InboxTaskSource.PERSON_OCCASION
-                        else None
-                    ),
-                    slack_task=(
-                        slack_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
-                        if it.source == InboxTaskSource.SLACK_TASK
-                        else None
-                    ),
-                    email_task=(
-                        email_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
-                        if it.source == InboxTaskSource.EMAIL_TASK
                         else None
                     ),
                     note=notes_by_inbox_task_ref_id.get(it.ref_id, None),

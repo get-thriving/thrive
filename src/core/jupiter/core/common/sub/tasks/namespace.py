@@ -17,8 +17,6 @@ class TaskNamespace(EnumValue):
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
     PERSON_OCCASION = "person-occasion"
-    SLACK_TASK = "slack-task"
-    EMAIL_TASK = "email-task"
 
     @property
     def allow_user_changes(self) -> bool:
@@ -26,6 +24,4 @@ class TaskNamespace(EnumValue):
         return self in (
             TaskNamespace.TODO,
             TaskNamespace.BIG_PLAN,
-            TaskNamespace.SLACK_TASK,
-            TaskNamespace.EMAIL_TASK,
         )

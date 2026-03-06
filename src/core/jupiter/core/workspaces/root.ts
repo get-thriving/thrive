@@ -132,16 +132,6 @@ export function inferEntityTagsForEnabledFeatures(
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
     ) {
       inferredEntityTags.push(entityTag);
-    } else if (
-      entityTag === NamedEntityTag.SLACK_TASK &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SLACK_TASKS)
-    ) {
-      inferredEntityTags.push(entityTag);
-    } else if (
-      entityTag === NamedEntityTag.EMAIL_TASK &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
-    ) {
-      inferredEntityTags.push(entityTag);
     }
   }
 
@@ -201,16 +191,6 @@ export function inferSourcesForEnabledFeatures(
     } else if (
       source === InboxTaskSource.PERSON_CATCH_UP &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)
-    ) {
-      inferredSources.push(source);
-    } else if (
-      source === InboxTaskSource.SLACK_TASK &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SLACK_TASKS)
-    ) {
-      inferredSources.push(source);
-    } else if (
-      source === InboxTaskSource.EMAIL_TASK &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
     ) {
       inferredSources.push(source);
     }

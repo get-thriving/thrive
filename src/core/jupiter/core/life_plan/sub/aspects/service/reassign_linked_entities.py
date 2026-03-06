@@ -19,9 +19,6 @@ from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.prm.root import PRM
-from jupiter.core.push_integrations.group import PushIntegrationGroup
-from jupiter.core.push_integrations.sub.email.task_collection import EmailTaskCollection
-from jupiter.core.push_integrations.sub.slack.task_collection import SlackTaskCollection
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
     TimePlanProjectLinkRepository,
@@ -93,32 +90,6 @@ class ProjectReassignLinkedEntitiesService:
                 new_project.ref_id,
             )
             await uow.get_for(PRM).save(prm)
-
-        push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-            workspace.ref_id,
-        )
-        slack_task_collection = await uow.get_for(SlackTaskCollection).load_by_parent(
-            push_integration_group.ref_id,
-        )
-        if slack_task_collection.generation_project_ref_id == old_project.ref_id:
-            slack_task_collection = slack_task_collection.change_generation_project(
-                ctx,
-                new_project.ref_id,
-            )
-            await uow.get_for(SlackTaskCollection).save(slack_task_collection)
-
-        push_integration_group = await uow.get_for(PushIntegrationGroup).load_by_parent(
-            workspace.ref_id,
-        )
-        email_task_collection = await uow.get_for(EmailTaskCollection).load_by_parent(
-            push_integration_group.ref_id,
-        )
-        if email_task_collection.generation_project_ref_id == old_project.ref_id:
-            email_task_collection = email_task_collection.change_generation_project(
-                ctx,
-                new_project.ref_id,
-            )
-            await uow.get_for(EmailTaskCollection).save(email_task_collection)
 
         working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_parent(
             workspace.ref_id
@@ -302,11 +273,6 @@ class ProjectReassignLinkedEntitiesService:
                         due_date=schedule.due_date,
                         eisen=habit.gen_params.eisen,
                         difficulty=habit.gen_params.difficulty,
-                    )
-                case InboxTaskSource.EMAIL_TASK | InboxTaskSource.SLACK_TASK:
-                    updated_inbox_task = inbox_task.just_update_project(
-                        ctx,
-                        project_ref_id=new_project.ref_id,
                     )
                 case _:
                     raise Exception(f"Unknown inbox task source: {inbox_task.source}")

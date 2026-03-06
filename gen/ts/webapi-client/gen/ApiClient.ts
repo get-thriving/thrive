@@ -24,7 +24,6 @@ import { MetricsService } from './services/MetricsService';
 import { MotdService } from './services/MotdService';
 import { NotesService } from './services/NotesService';
 import { PrmService } from './services/PrmService';
-import { PushIntegrationsService } from './services/PushIntegrationsService';
 import { ReportService } from './services/ReportService';
 import { ScheduleService } from './services/ScheduleService';
 import { SearchService } from './services/SearchService';
@@ -59,7 +58,6 @@ export class ApiClient {
     public readonly motd: MotdService;
     public readonly notes: NotesService;
     public readonly prm: PrmService;
-    public readonly pushIntegrations: PushIntegrationsService;
     public readonly report: ReportService;
     public readonly schedule: ScheduleService;
     public readonly search: SearchService;
@@ -105,7 +103,6 @@ export class ApiClient {
         this.motd = new MotdService(this.request);
         this.notes = new NotesService(this.request);
         this.prm = new PrmService(this.request);
-        this.pushIntegrations = new PushIntegrationsService(this.request);
         this.report = new ReportService(this.request);
         this.schedule = new ScheduleService(this.request);
         this.search = new SearchService(this.request);
