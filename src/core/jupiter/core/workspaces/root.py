@@ -7,6 +7,7 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
+from jupiter.core.common.sub.tasks.domain import TaskDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.docs.collection import DocCollection
@@ -80,6 +81,7 @@ class Workspace(RootEntity):
     metric_collection = ContainsOne(MetricCollection, workspace_ref_id=IsRefId())
     prm = ContainsOne(PRM, workspace_ref_id=IsRefId())
 
+    task_domain = ContainsOne(TaskDomain, workspace_ref_id=IsRefId())
     note_collection = ContainsOne(NoteCollection, workspace_ref_id=IsRefId())
     time_event_domain = ContainsOne(TimeEventDomain, workspace_ref_id=IsRefId())
     tag_domain = ContainsOne(TagDomain, workspace_ref_id=IsRefId())

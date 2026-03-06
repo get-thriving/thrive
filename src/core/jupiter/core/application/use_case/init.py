@@ -17,6 +17,7 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tasks.domain import TaskDomain
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.timezone import Timezone
@@ -434,6 +435,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_contact_domain = await uow.get_for(ContactDomain).create(
                 new_contact_domain
             )
+
+            new_task_domain = TaskDomain.new_task_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_task_domain = await uow.get_for(TaskDomain).create(new_task_domain)
 
             new_gc_log = GCLog.new_gc_log(
                 ctx=context.domain_context,
