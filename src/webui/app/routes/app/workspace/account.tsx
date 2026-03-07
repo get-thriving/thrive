@@ -6,8 +6,10 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  FormControlLabel,
   InputLabel,
   OutlinedInput,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -68,6 +70,13 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
       .transform((v) => (v ? (Array.isArray(v) ? v : [v]) : [])),
   }),
   z.object({
+    intent: z.literal("update-appearance"),
+    useNightMode: z
+      .string()
+      .optional()
+      .transform((v) => v === "on"),
+  }),
+  z.object({
     intent: z.literal("close-account"),
   }),
 ]);
@@ -83,10 +92,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
   const apiKeys = apiKeysResult.api_keys;
+  const webUiSettingsResult = await apiClient.users.webUiSettingsLoad({});
 
   return json({
     user: result.user,
     apiKeys,
+    webUiSettings: webUiSettingsResult.web_ui_settings,
   });
 }
 
@@ -120,6 +131,17 @@ export async function action({ request }: ActionFunctionArgs) {
       case "change-feature-flags": {
         await apiClient.users.userChangeFeatureFlags({
           feature_flags: form.featureFlags,
+        });
+
+        return redirect(`/app/workspace/account?invalidateTopLevel=true`);
+      }
+
+      case "update-appearance": {
+        await apiClient.users.webUiSettingsUpdate({
+          use_night_mode: {
+            should_change: true,
+            value: form.useNightMode,
+          },
         });
 
         return redirect(`/app/workspace/account?invalidateTopLevel=true`);
@@ -251,6 +273,38 @@ export default function Account() {
               defaultFeatureFlags={loaderData.user.feature_flags}
               hosting={getHosting(globalProperties.universe)}
             />
+          </SectionCard>
+
+          <SectionCard
+            title="Appearance"
+            actions={
+              <SectionActions
+                id="appearance-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    text: "Save",
+                    value: "update-appearance",
+                    highlight: true,
+                  }),
+                ]}
+              />
+            }
+          >
+            <GlobalError intent="update-appearance" actionResult={actionData} />
+            <FormControl fullWidth>
+              <FormControlLabel
+                control={
+                  <Switch
+                    name="useNightMode"
+                    disabled={!inputsEnabled}
+                    defaultChecked={loaderData.webUiSettings.use_night_mode}
+                  />
+                }
+                label="Night Mode"
+              />
+            </FormControl>
           </SectionCard>
 
           <SectionCard

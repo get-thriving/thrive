@@ -31,6 +31,7 @@ from jupiter.core.features import (
     WorkspaceFeature,
 )
 from jupiter.core.gamification.score_log import ScoreLog
+from jupiter.core.users.web_ui_settings import WebUiSettings
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
@@ -200,6 +201,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 user_ref_id=new_user.ref_id,
             )
             new_score_log = await uow.get_for(ScoreLog).create(new_score_log)
+
+            new_web_ui_settings = WebUiSettings.new_web_ui_settings(
+                ctx=context.domain_context,
+                user_ref_id=new_user.ref_id,
+            )
+            await uow.get_for(WebUiSettings).create(new_web_ui_settings)
 
             new_workspace = Workspace.new_workspace(
                 ctx=context.domain_context,
