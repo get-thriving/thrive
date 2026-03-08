@@ -81,6 +81,7 @@ import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
+import { LifeWeeksGrid } from "#/core/life_plan/component/life-weeks-grid";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -336,6 +337,17 @@ export default function LifePlanView() {
                 note={loaderData.activeVisionNote ?? undefined}
               />
             </SectionLabeled>
+
+            {!isBigScreen && (
+              <SectionLabeled label="Life Weeks">
+                <LifeWeeksGrid
+                  birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                  today={today}
+                  cellSizePx={4}
+                  showYearLabels={false}
+                />
+              </SectionLabeled>
+            )}
 
             {isBigScreen && (
               <SectionLabeled label="Milestones">
