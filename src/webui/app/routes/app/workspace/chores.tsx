@@ -4,6 +4,7 @@ import type {
   ChoreFindResultEntry,
   Goal,
   GoalSummary,
+  InboxTask,
   Project,
   ProjectSummary,
   Tag,
@@ -11,8 +12,11 @@ import type {
 import {
   WorkspaceFeature,
   DocsHelpSubject,
+  InboxTaskSource,
+  InboxTaskStatus,
   RecurringTaskPeriod,
   TagNamespace,
+  WidgetDimension,
 } from "@jupiter/webapi-client";
 import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
@@ -21,10 +25,19 @@ import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { Box } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
+import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
+import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
+import { WidgetProps } from "@jupiter/core/home/component/common";
+import {
+  inboxTaskFindEntryToParent,
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortChoresNaturally } from "@jupiter/core/chores/root";
 import Check from "@jupiter/core/infra/component/check";
@@ -114,12 +127,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
   });
 
+  const choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
+    allow_archived: false,
+    include_tags: true,
+    include_notes: false,
+    include_time_event_blocks: false,
+    filter_sources: [InboxTaskSource.CHORE],
+  });
+
   return json({
     chores: response.entries,
     allProjects: summaryResponse.projects as Array<ProjectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags as Array<Tag>,
     allContacts: allContacts.contacts as Array<Contact>,
+    choreInboxTasks: choreInboxTasksResponse.entries,
   });
 }
 
@@ -142,6 +164,81 @@ export default function Chores() {
   const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
     [],
   );
+
+  const [mobileTab, setMobileTab] = useState<"chores" | "inbox-tasks">(
+    "chores",
+  );
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{
+    [key: string]: InboxTaskOptimisticState;
+  }>({});
+  const kanbanBoardMoveFetcher = useFetcher();
+
+  const sortedChoreInboxTasks = sortInboxTasksNaturally(
+    loaderData.choreInboxTasks.map((e) => e.inbox_task),
+  );
+  const choreEntriesByRefId: { [key: string]: InboxTaskParent } = {};
+  for (const entry of loaderData.choreInboxTasks) {
+    choreEntriesByRefId[entry.inbox_task.ref_id] =
+      inboxTaskFindEntryToParent(entry);
+  }
+
+  function handleCardMarkDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.DONE },
+        {
+          method: "post",
+          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.NOT_DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+        {
+          method: "post",
+          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
+  }
+
+  const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
+
+  const widgetProps: WidgetProps = {
+    rightNow,
+    timezone: topLevelInfo.user.timezone,
+    topLevelInfo,
+    choreTasks: {
+      choreInboxTasks: sortedChoreInboxTasks,
+      choreEntriesByRefId,
+      optimisticUpdates,
+      onCardMarkDone: handleCardMarkDone,
+      onCardMarkNotDone: handleCardMarkNotDone,
+    },
+    geometry: {
+      row: 0,
+      col: 0,
+      dimension: WidgetDimension.DIM_1X3,
+    },
+  };
 
   const sortedChores = sortChoresNaturally(
     (loaderData.chores as Array<ChoreFindResultEntry>).map((e) => e.chore),
@@ -278,73 +375,163 @@ export default function Chores() {
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        {sortedChores.length === 0 && (
-          <EntityNoNothingCard
-            title="You Have To Start Somewhere"
-            message="There are no chores to show. You can create a new chore."
-            newEntityLocations="/app/workspace/chores/new"
-            helpSubject={DocsHelpSubject.CHORES}
-          />
-        )}
-
-        {selectedGrouping === Grouping.FLAT &&
-          isBigScreen &&
-          selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
-            <ChoresByPeriodsStack
-              chores={sortedChores}
-              renderStack={(subset) => (
-                <ChoresFlatStack
-                  chores={subset}
-                  entriesByRefId={entriesByRefId}
-                  topLevelInfo={topLevelInfo}
-                  showPeriodTag={false}
+        {isBigScreen ? (
+          <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              {sortedChores.length === 0 && (
+                <EntityNoNothingCard
+                  title="You Have To Start Somewhere"
+                  message="There are no chores to show. You can create a new chore."
+                  newEntityLocations="/app/workspace/chores/new"
+                  helpSubject={DocsHelpSubject.CHORES}
                 />
               )}
-            />
-          )}
 
-        {selectedGrouping === Grouping.FLAT &&
-          !(
-            isBigScreen && selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD
-          ) && (
-            <ChoresFlatStack
-              chores={sortedChores}
-              entriesByRefId={entriesByRefId}
-              topLevelInfo={topLevelInfo}
-              showPeriodTag={true}
-            />
-          )}
+              {selectedGrouping === Grouping.FLAT &&
+                selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
+                  <ChoresByPeriodsStack
+                    chores={sortedChores}
+                    renderStack={(subset) => (
+                      <ChoresFlatStack
+                        chores={subset}
+                        entriesByRefId={entriesByRefId}
+                        topLevelInfo={topLevelInfo}
+                        showPeriodTag={false}
+                      />
+                    )}
+                  />
+                )}
 
-        {selectedGrouping === Grouping.BY_PROJECT && (
-          <ChoresByProjectStack
-            chores={sortedChores}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
-        )}
+              {selectedGrouping === Grouping.FLAT &&
+                selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD && (
+                  <ChoresFlatStack
+                    chores={sortedChores}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                    showPeriodTag={true}
+                  />
+                )}
 
-        {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-          <ChoresByProjectAndGoalStack
-            chores={sortedChores}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            sortedGoals={sortedGoals}
-            allGoalsByRefId={allGoalsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
+              {selectedGrouping === Grouping.BY_PROJECT && (
+                <ChoresByProjectStack
+                  chores={sortedChores}
+                  isBigScreen={isBigScreen}
+                  selectedPeriodBreakdown={selectedPeriodBreakdown}
+                  showEmptyGroups={
+                    selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                  }
+                  sortedProjects={sortedProjects}
+                  allProjectsByRefId={allProjectsByRefId}
+                  entriesByRefId={entriesByRefId}
+                  topLevelInfo={topLevelInfo}
+                />
+              )}
+
+              {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
+                <ChoresByProjectAndGoalStack
+                  chores={sortedChores}
+                  isBigScreen={isBigScreen}
+                  selectedPeriodBreakdown={selectedPeriodBreakdown}
+                  showEmptyGroups={
+                    selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                  }
+                  sortedProjects={sortedProjects}
+                  allProjectsByRefId={allProjectsByRefId}
+                  sortedGoals={sortedGoals}
+                  allGoalsByRefId={allGoalsByRefId}
+                  entriesByRefId={entriesByRefId}
+                  topLevelInfo={topLevelInfo}
+                />
+              )}
+            </Box>
+
+            <Box
+              sx={{
+                width: "320px",
+                flexShrink: 0,
+                position: "sticky",
+                top: "1rem",
+                maxHeight: "calc(100vh - 8rem)",
+                overflowY: "auto",
+                border: (theme) =>
+                  `2px dotted ${theme.palette.primary.main}`,
+                borderRadius: "4px",
+                padding: "0.4rem",
+              }}
+            >
+              <ChoreInboxTasksWidget {...widgetProps} />
+            </Box>
+          </Box>
+        ) : (
+          <>
+            <Tabs
+              value={mobileTab}
+              variant="scrollable"
+              scrollButtons="auto"
+              onChange={(_, v) => setMobileTab(v)}
+            >
+              <Tab label="Chores" value="chores" />
+              <Tab label="Tasks" value="inbox-tasks" />
+            </Tabs>
+
+            {mobileTab === "chores" && (
+              <>
+                {sortedChores.length === 0 && (
+                  <EntityNoNothingCard
+                    title="You Have To Start Somewhere"
+                    message="There are no chores to show. You can create a new chore."
+                    newEntityLocations="/app/workspace/chores/new"
+                    helpSubject={DocsHelpSubject.CHORES}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.FLAT && (
+                  <ChoresFlatStack
+                    chores={sortedChores}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                    showPeriodTag={true}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_PROJECT && (
+                  <ChoresByProjectStack
+                    chores={sortedChores}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
+                  <ChoresByProjectAndGoalStack
+                    chores={sortedChores}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    sortedGoals={sortedGoals}
+                    allGoalsByRefId={allGoalsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+              </>
+            )}
+
+            {mobileTab === "inbox-tasks" && (
+              <ChoreInboxTasksWidget {...widgetProps} />
+            )}
+          </>
         )}
       </NestingAwareBlock>
 
