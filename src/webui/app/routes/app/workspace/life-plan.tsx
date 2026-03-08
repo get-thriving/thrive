@@ -40,6 +40,7 @@ import {
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
+import GridViewIcon from "@mui/icons-material/GridView";
 import HistoryIcon from "@mui/icons-material/History";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
@@ -310,6 +311,11 @@ export default function LifePlanView() {
                   text: "History of Work",
                   link: `/app/workspace/life-plan/history-of-work`,
                   icon: <HistoryIcon />,
+                }),
+                NavSingle({
+                  text: "Life Weeks",
+                  link: `/app/workspace/life-plan/life-weeks`,
+                  icon: <GridViewIcon />,
                 }),
               ],
             }),
