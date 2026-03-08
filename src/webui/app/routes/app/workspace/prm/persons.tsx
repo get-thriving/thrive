@@ -52,7 +52,8 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { UpcomingCatchUpsWidget } from "@jupiter/core/prm/sub/person/component/upcoming-catch-ups-widget";
-import { Box, Divider, Typography } from "@mui/material";
+import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
+import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
 import { DateTime } from "luxon";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -221,8 +222,9 @@ export default function Persons() {
         }
       : undefined;
 
-  const showSidebar =
-    isBigScreen && personTasks !== undefined;
+  const showSidebar = isBigScreen && personTasks !== undefined;
+
+  const [smallScreenTab, setSmallScreenTab] = useState(0);
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
@@ -271,116 +273,190 @@ export default function Persons() {
         />
       }
     >
-      <Box
-        sx={
-          showSidebar
-            ? { display: "flex", alignItems: "flex-start", gap: 2 }
-            : {}
-        }
-      >
-        <Box sx={showSidebar ? { flex: 1, minWidth: 0 } : {}}>
-          <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
-            {filteredEntries.length === 0 && (
-              <EntityNoNothingCard
-                title="You Have To Start Somewhere"
-                message="There are no persons to show with the current filters. You can create a new person."
-                newEntityLocations="/app/workspace/prm/persons/new"
-                helpSubject={DocsHelpSubject.PRM}
-              />
+      <NestingAwareBlock shouldHide={shouldShowALeaf || shouldShowALeaflet}>
+        {/* Big screen: two-column layout with sidebar */}
+        {isBigScreen && (
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              {filteredEntries.length === 0 && (
+                <EntityNoNothingCard
+                  title="You Have To Start Somewhere"
+                  message="There are no persons to show with the current filters. You can create a new person."
+                  newEntityLocations="/app/workspace/prm/persons/new"
+                  helpSubject={DocsHelpSubject.PRM}
+                />
+              )}
+              <EntityStack>
+                {filteredEntries.map((entry) => (
+                  <PersonCard
+                    key={entry.person.ref_id}
+                    entry={entry}
+                    circlesByRefId={circlesByRefId}
+                  />
+                ))}
+              </EntityStack>
+            </Box>
+
+            {showSidebar && (
+              <Box
+                sx={{
+                  width: "320px",
+                  flexShrink: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Upcoming Celebrations
+                  </Typography>
+                  <UpcomingBirthdaysWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                  />
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 1 }}>
+                    Upcoming Catch Ups
+                  </Typography>
+                  <UpcomingCatchUpsWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                  />
+                </Box>
+              </Box>
             )}
-
-            <EntityStack>
-              {filteredEntries.map((entry) => (
-                <EntityCard
-                  entityId={`person-${entry.person.ref_id}`}
-                  key={`person-${entry.person.ref_id}`}
-                >
-                  <EntityLink
-                    to={`/app/workspace/prm/persons/${entry.person.ref_id}`}
-                  >
-                    <EntityNameComponent name={entry.contact.name} />
-                    {entry.circle_ref_ids.length > 0 && (
-                      <>
-                        {entry.circle_ref_ids
-                          .map((circleRefId) => circlesByRefId.get(circleRefId))
-                          .filter((c): c is NonNullable<typeof c> => Boolean(c))
-                          .map((circle) => (
-                            <CircleTag
-                              key={`circle-${circle.ref_id}`}
-                              circle={circle}
-                            />
-                          ))}
-                      </>
-                    )}
-
-                    {entry.person.catch_up_params && (
-                      <>
-                        <PeriodTag period={entry.person.catch_up_params.period} />
-                        {entry.person.catch_up_params.eisen && (
-                          <EisenTag eisen={entry.person.catch_up_params.eisen} />
-                        )}
-                        {entry.person.catch_up_params.difficulty && (
-                          <DifficultyTag
-                            difficulty={entry.person.catch_up_params.difficulty}
-                          />
-                        )}
-                      </>
-                    )}
-
-                    {entry.tags?.map((tag: Tag) => (
-                      <TagTag key={tag.ref_id} tag={tag} />
-                    ))}
-                  </EntityLink>
-                </EntityCard>
-              ))}
-            </EntityStack>
-          </NestingAwareBlock>
-        </Box>
-
-        {showSidebar && !shouldShowALeaf && !shouldShowALeaflet && (
-          <Box
-            sx={{
-              width: "320px",
-              flexShrink: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            <Box>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Upcoming Celebrations
-              </Typography>
-              <UpcomingBirthdaysWidget
-                rightNow={rightNow}
-                timezone={topLevelInfo.user.timezone}
-                topLevelInfo={topLevelInfo}
-                personTasks={personTasks}
-                geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-              />
-            </Box>
-
-            <Divider />
-
-            <Box>
-              <Typography variant="h6" sx={{ mb: 1 }}>
-                Upcoming Catch Ups
-              </Typography>
-              <UpcomingCatchUpsWidget
-                rightNow={rightNow}
-                timezone={topLevelInfo.user.timezone}
-                topLevelInfo={topLevelInfo}
-                personTasks={personTasks}
-                geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-              />
-            </Box>
           </Box>
         )}
-      </Box>
+
+        {/* Small screen: tab view */}
+        {!isBigScreen && (
+          <>
+            <Tabs
+              value={smallScreenTab}
+              variant="fullWidth"
+              onChange={(_, newValue) => setSmallScreenTab(newValue)}
+            >
+              <Tab label="People" />
+              <Tab label="Celebrations" />
+              <Tab label="Catch Ups" />
+            </Tabs>
+
+            <TabPanel value={smallScreenTab} index={0}>
+              {filteredEntries.length === 0 && (
+                <EntityNoNothingCard
+                  title="You Have To Start Somewhere"
+                  message="There are no persons to show with the current filters. You can create a new person."
+                  newEntityLocations="/app/workspace/prm/persons/new"
+                  helpSubject={DocsHelpSubject.PRM}
+                />
+              )}
+              <EntityStack>
+                {filteredEntries.map((entry) => (
+                  <PersonCard
+                    key={entry.person.ref_id}
+                    entry={entry}
+                    circlesByRefId={circlesByRefId}
+                  />
+                ))}
+              </EntityStack>
+            </TabPanel>
+
+            <TabPanel value={smallScreenTab} index={1}>
+              {personTasks ? (
+                <UpcomingBirthdaysWidget
+                  rightNow={rightNow}
+                  timezone={topLevelInfo.user.timezone}
+                  topLevelInfo={topLevelInfo}
+                  personTasks={personTasks}
+                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                />
+              ) : (
+                <EntityNoNothingCard
+                  title="You Have To Start Somewhere"
+                  message="There are no upcoming celebrations."
+                  newEntityLocations="/app/workspace/prm/persons/new"
+                  helpSubject={DocsHelpSubject.PRM}
+                />
+              )}
+            </TabPanel>
+
+            <TabPanel value={smallScreenTab} index={2}>
+              {personTasks ? (
+                <UpcomingCatchUpsWidget
+                  rightNow={rightNow}
+                  timezone={topLevelInfo.user.timezone}
+                  topLevelInfo={topLevelInfo}
+                  personTasks={personTasks}
+                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                />
+              ) : (
+                <EntityNoNothingCard
+                  title="You Have To Start Somewhere"
+                  message="There are no upcoming catch ups."
+                  newEntityLocations="/app/workspace/prm/persons/new"
+                  helpSubject={DocsHelpSubject.PRM}
+                />
+              )}
+            </TabPanel>
+          </>
+        )}
+      </NestingAwareBlock>
       <AnimatePresence mode="wait" initial={false}>
         <Outlet />
       </AnimatePresence>
     </TrunkPanel>
+  );
+}
+
+interface PersonCardProps {
+  entry: PersonFindResultEntry;
+  circlesByRefId: Map<string, { ref_id: string; name: unknown }>;
+}
+
+function PersonCard({ entry, circlesByRefId }: PersonCardProps) {
+  return (
+    <EntityCard entityId={`person-${entry.person.ref_id}`}>
+      <EntityLink to={`/app/workspace/prm/persons/${entry.person.ref_id}`}>
+        <EntityNameComponent name={entry.contact.name} />
+        {entry.circle_ref_ids.length > 0 && (
+          <>
+            {entry.circle_ref_ids
+              .map((circleRefId) => circlesByRefId.get(circleRefId))
+              .filter((c): c is NonNullable<typeof c> => Boolean(c))
+              .map((circle) => (
+                <CircleTag key={`circle-${circle.ref_id}`} circle={circle} />
+              ))}
+          </>
+        )}
+        {entry.person.catch_up_params && (
+          <>
+            <PeriodTag period={entry.person.catch_up_params.period} />
+            {entry.person.catch_up_params.eisen && (
+              <EisenTag eisen={entry.person.catch_up_params.eisen} />
+            )}
+            {entry.person.catch_up_params.difficulty && (
+              <DifficultyTag
+                difficulty={entry.person.catch_up_params.difficulty}
+              />
+            )}
+          </>
+        )}
+        {entry.tags?.map((tag: Tag) => (
+          <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+      </EntityLink>
+    </EntityCard>
   );
 }
 
