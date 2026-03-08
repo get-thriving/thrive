@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.users.web_ui_settings import WebUiSettings
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction

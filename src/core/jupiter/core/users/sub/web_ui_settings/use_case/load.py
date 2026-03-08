@@ -4,7 +4,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.users.web_ui_settings import WebUiSettings
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,

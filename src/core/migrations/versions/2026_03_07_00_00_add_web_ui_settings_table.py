@@ -54,6 +54,36 @@ def upgrade() -> None:
         );
         """
     )
+    op.execute(
+        """
+        INSERT INTO web_ui_settings
+        SELECT
+            ref_id as ref_id,
+            1 as version,
+            0 as archived,
+            created_time as created_time,
+            created_time as last_modified_time,
+            null as archived_time,
+            ref_id as user_ref_id,
+            0 as use_night_mode
+        FROM user;
+        """
+    )
+    op.execute(
+        """
+        INSERT INTO web_ui_settings_event
+        SELECT
+            ref_id as owner_ref_id,
+            created_time as timestamp,
+            0 as session_index,
+            'new_web_ui_settings' as name,
+            'CLI' as source,
+            1 as owner_version,
+            'Created' as kind,
+            '{}' as data
+        FROM user;
+        """
+    )
 
 
 def downgrade() -> None:

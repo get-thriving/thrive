@@ -14,7 +14,7 @@ from jupiter.core.gamification.score_log import ScoreLog
 from jupiter.core.users.avatar import Avatar
 from jupiter.core.users.category import UserCategory
 from jupiter.core.users.name import UserName
-from jupiter.core.users.web_ui_settings import WebUiSettings
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     ContainsOne,
