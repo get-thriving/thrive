@@ -13,7 +13,19 @@ export function getSuggestedDatesForInboxTaskActionableDate(
   timePlan?: TimePlan | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
+
+  const pastSuggestions: SuggestedDate[] = [];
+  const startOfWeek = dateToAdate(todayDate.startOf("week"));
+  if (startOfWeek < today) {
+    pastSuggestions.push({ date: startOfWeek, label: "Start of the week" });
+  }
+  const startOfMonth = dateToAdate(todayDate.startOf("month"));
+  if (startOfMonth < today) {
+    pastSuggestions.push({ date: startOfMonth, label: "Start of the month" });
+  }
+
   const suggestedDates: SuggestedDate[] = [
+    ...pastSuggestions.reverse(),
     {
       date: today,
       label: "Today",
@@ -88,7 +100,30 @@ export function getSuggestedDatesForBigPlanActionableDate(
   timePlan?: TimePlan | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
+
+  const pastSuggestions: SuggestedDate[] = [];
+  const startOfWeek = dateToAdate(todayDate.startOf("week"));
+  if (startOfWeek < today) {
+    pastSuggestions.push({ date: startOfWeek, label: "Start of the week" });
+  }
+  const startOfMonth = dateToAdate(todayDate.startOf("month"));
+  if (startOfMonth < today) {
+    pastSuggestions.push({ date: startOfMonth, label: "Start of the month" });
+  }
+  const startOfQuarter = dateToAdate(todayDate.startOf("quarter"));
+  if (startOfQuarter < today) {
+    pastSuggestions.push({
+      date: startOfQuarter,
+      label: "Start of the quarter",
+    });
+  }
+  const startOfYear = dateToAdate(todayDate.startOf("year"));
+  if (startOfYear < today) {
+    pastSuggestions.push({ date: startOfYear, label: "Start of the year" });
+  }
+
   const suggestedDates: SuggestedDate[] = [
+    ...pastSuggestions.reverse(),
     {
       date: today,
       label: "Today",
