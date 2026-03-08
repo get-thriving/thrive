@@ -127,7 +127,6 @@ def test_api_common_contact_link_upsert(
     api_url: str, api_key: str, create_inbox_task, create_contact
 ) -> None:
     task = create_inbox_task("Task With Contact")
-    contact = create_contact("Link Contact")
 
     response = requests.post(
         f"{api_url}/v1/common/contacts/link",
