@@ -309,7 +309,7 @@ export default function Persons() {
               >
                 <Box>
                   <Typography variant="h6" sx={{ mb: 1 }}>
-                    Upcoming Celebrations
+                    Upcoming Occasions
                   </Typography>
                   <UpcomingBirthdaysWidget
                     rightNow={rightNow}
