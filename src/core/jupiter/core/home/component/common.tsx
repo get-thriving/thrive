@@ -1,6 +1,7 @@
 import {
   ADate,
   InboxTask,
+  LifePlan,
   MOTD,
   Timezone,
   TimePlanActivityDoneness,
@@ -124,6 +125,7 @@ export interface WidgetProps {
   };
   gamificationOverview?: UserScoreOverview;
   gamificationHistory?: UserScoreHistory;
+  lifePlan?: LifePlan;
   geometry: WidgetGeometry;
 }
 

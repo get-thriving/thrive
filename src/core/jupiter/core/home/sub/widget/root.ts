@@ -36,6 +36,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Weekly Score History";
     case WidgetType.GAMIFICATION_HISTORY_MONTHLY:
       return "Monthly Score History";
+    case WidgetType.LIFE_WEEKS:
+      return "Life Weeks";
   }
 }
 
