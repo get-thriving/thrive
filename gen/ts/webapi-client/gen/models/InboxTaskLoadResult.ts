@@ -17,6 +17,7 @@ import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
+import type { SuggestedDate } from './SuggestedDate';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
@@ -44,5 +45,7 @@ export type InboxTaskLoadResult = {
     email_task?: (EmailTask | null);
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
+    actionable_date_suggested_dates: Array<SuggestedDate>;
+    due_date_suggested_dates: Array<SuggestedDate>;
 };
 

@@ -11,6 +11,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Project } from './Project';
+import type { SuggestedDate } from './SuggestedDate';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
@@ -28,5 +29,7 @@ export type BigPlanLoadResult = {
     note?: (Note | null);
     time_event_blocks: Array<TimeEventInDayBlock>;
     stats: BigPlanStats;
+    actionable_date_suggested_dates: Array<SuggestedDate>;
+    due_date_suggested_dates: Array<SuggestedDate>;
 };
 

@@ -443,6 +443,7 @@ export function InboxTaskPropertiesEditor(
               props.topLevelInfo.today,
               props.inboxTaskInfo.big_plan,
               props.inboxTaskInfo.time_plan,
+              props.inboxTaskInfo.actionable_date_suggested_dates,
             )}
           />
 
@@ -468,6 +469,7 @@ export function InboxTaskPropertiesEditor(
               props.topLevelInfo.today,
               props.inboxTaskInfo.big_plan,
               props.inboxTaskInfo.time_plan,
+              props.inboxTaskInfo.due_date_suggested_dates,
             )}
           />
 

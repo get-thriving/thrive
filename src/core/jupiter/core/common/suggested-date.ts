@@ -1,4 +1,4 @@
-import { ADate, BigPlan, TimePlan } from "@jupiter/webapi-client";
+import { ADate, BigPlan, SuggestedDate as ServerSuggestedDate, TimePlan } from "@jupiter/webapi-client";
 
 import { aDateToDate, dateToAdate } from "#/core/common/adate";
 
@@ -7,10 +7,15 @@ export interface SuggestedDate {
   label: string;
 }
 
+function serverToLocal(serverDates: ServerSuggestedDate[]): SuggestedDate[] {
+  return serverDates.map((d) => ({ date: d.date, label: d.description }));
+}
+
 export function getSuggestedDatesForInboxTaskActionableDate(
   today: ADate,
   bigPlan?: BigPlan | null,
   timePlan?: TimePlan | null,
+  serverSuggestedDates?: ServerSuggestedDate[],
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
 
@@ -54,6 +59,10 @@ export function getSuggestedDatesForInboxTaskActionableDate(
     });
   }
 
+  if (serverSuggestedDates) {
+    suggestedDates.push(...serverToLocal(serverSuggestedDates));
+  }
+
   return suggestedDates;
 }
 
@@ -61,6 +70,7 @@ export function getSuggestedDatesForInboxTaskDueDate(
   today: ADate,
   bigPlan?: BigPlan | null,
   timePlan?: TimePlan | null,
+  serverSuggestedDates?: ServerSuggestedDate[],
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
@@ -92,12 +102,17 @@ export function getSuggestedDatesForInboxTaskDueDate(
     });
   }
 
+  if (serverSuggestedDates) {
+    suggestedDates.push(...serverToLocal(serverSuggestedDates));
+  }
+
   return suggestedDates;
 }
 
 export function getSuggestedDatesForBigPlanActionableDate(
   today: ADate,
   timePlan?: TimePlan | null,
+  serverSuggestedDates?: ServerSuggestedDate[],
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
 
@@ -145,12 +160,17 @@ export function getSuggestedDatesForBigPlanActionableDate(
     });
   }
 
+  if (serverSuggestedDates) {
+    suggestedDates.push(...serverToLocal(serverSuggestedDates));
+  }
+
   return suggestedDates;
 }
 
 export function getSuggestedDatesForBigPlanDueDate(
   today: ADate,
   timePlan?: TimePlan | null,
+  serverSuggestedDates?: ServerSuggestedDate[],
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
@@ -177,6 +197,10 @@ export function getSuggestedDatesForBigPlanDueDate(
       date: timePlan.end_date,
       label: "Associated time plan end date",
     });
+  }
+
+  if (serverSuggestedDates) {
+    suggestedDates.push(...serverToLocal(serverSuggestedDates));
   }
 
   return suggestedDates;

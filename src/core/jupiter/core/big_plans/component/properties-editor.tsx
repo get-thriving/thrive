@@ -293,6 +293,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             defaultValue={props.bigPlan.actionable_date}
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               props.topLevelInfo.today,
+              undefined,
+              props.bigPlanInfo.actionable_date_suggested_dates,
             )}
           />
           <FieldError
@@ -315,6 +317,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             defaultValue={props.bigPlan.due_date}
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               props.topLevelInfo.today,
+              undefined,
+              props.bigPlanInfo.due_date_suggested_dates,
             )}
           />
           <FieldError

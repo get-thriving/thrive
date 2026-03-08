@@ -18,6 +18,7 @@ from jupiter.core.common.sub.time_events.namespace import (
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.common.suggested_date import SuggestedDate
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -27,9 +28,11 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.root import Journal
+from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -37,6 +40,7 @@ from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.working_mem.collection import WorkingMemCollection
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -81,6 +85,8 @@ class InboxTaskLoadResult(UseCaseResultBase):
     email_task: EmailTask | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
+    actionable_date_suggested_dates: list[SuggestedDate]
+    due_date_suggested_dates: list[SuggestedDate]
 
 
 @readonly_use_case(WorkspaceFeature.INBOX_TASKS)
@@ -236,6 +242,43 @@ class InboxTaskLoadUseCase(
             source_entity_ref_id=[inbox_task.ref_id],
         )
 
+        actionable_date_suggested_dates: list[SuggestedDate] = []
+        due_date_suggested_dates: list[SuggestedDate] = []
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
+            milestones_for_lp = await uow.get_for(Milestone).find_all(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+            )
+            milestone_dates_by_ref_id = {
+                m.ref_id: m.date for m in milestones_for_lp
+            }
+            all_chapters = await uow.get_for(Chapter).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+            )
+            today = ADate.from_timestamp(context.domain_context.action_timestamp)
+            for lp_chapter in all_chapters:
+                chapter_start = lp_chapter.start_date.earliest_relative_to(
+                    life_plan.birthday_date, today, milestone_dates_by_ref_id
+                )
+                chapter_end = lp_chapter.end_date.latest_relative_to(
+                    life_plan.birthday_date, today, milestone_dates_by_ref_id
+                )
+                if chapter_start <= today <= chapter_end:
+                    actionable_date_suggested_dates.append(
+                        SuggestedDate(
+                            date=chapter_start,
+                            description=f"Start of chapter '{lp_chapter.name}'",
+                        )
+                    )
+                    due_date_suggested_dates.append(
+                        SuggestedDate(
+                            date=chapter_end,
+                            description=f"End of chapter '{lp_chapter.name}'",
+                        )
+                    )
+
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
             tags=tags,
@@ -256,4 +299,6 @@ class InboxTaskLoadUseCase(
             email_task=email_task,
             note=note,
             time_event_blocks=time_event_blocks,
+            actionable_date_suggested_dates=actionable_date_suggested_dates,
+            due_date_suggested_dates=due_date_suggested_dates,
         )
