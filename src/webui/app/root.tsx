@@ -11,7 +11,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import { SnackbarProvider } from "notistack";
-import { StrictMode, useMemo } from "react";
+import { StrictMode, useEffect, useMemo, useState } from "react";
 import { EnvBanner } from "@jupiter/core/infra/component/env-banner";
 import { serverToClientGlobalProperties } from "@jupiter/core/config-client";
 import { GLOBAL_PROPERTIES } from "@jupiter/core/config-server";
@@ -49,13 +49,13 @@ function buildTheme(useNightMode: boolean) {
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  let useNightMode = false;
+  let useNightMode: boolean | null = null;
   try {
     const apiClient = await getGuestApiClient(request);
     const result = await apiClient.users.webUiSettingsLoad({});
     useNightMode = result.web_ui_settings.use_night_mode;
   } catch {
-    // Not authenticated or settings not found - use default light mode
+    // Not authenticated or settings not found - fall back to OS preference on the client
   }
 
   return json({
@@ -81,9 +81,26 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({ nextUrl }) => {
 
 export default function Root() {
   const loaderData = useLoaderData<typeof loader>();
+
+  const osPrefersDark =
+    typeof window !== "undefined"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+      : false;
+  const [systemNightMode, setSystemNightMode] = useState(osPrefersDark);
+
+  useEffect(() => {
+    if (loaderData.useNightMode !== null) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    setSystemNightMode(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setSystemNightMode(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [loaderData.useNightMode]);
+
+  const effectiveNightMode = loaderData.useNightMode ?? systemNightMode;
   const theme = useMemo(
-    () => buildTheme(loaderData.useNightMode),
-    [loaderData.useNightMode],
+    () => buildTheme(effectiveNightMode),
+    [effectiveNightMode],
   );
   return (
     <html lang="en">
