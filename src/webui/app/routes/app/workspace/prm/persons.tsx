@@ -48,6 +48,7 @@ import {
   sortInboxTasksNaturally,
 } from "@jupiter/core/inbox_tasks/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { WidgetContainer } from "@jupiter/core/home/component/common";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { UpcomingCatchUpsWidget } from "@jupiter/core/prm/sub/person/component/upcoming-catch-ups-widget";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
@@ -302,21 +303,25 @@ export default function Persons() {
                   gap: 2,
                 }}
               >
-                <UpcomingBirthdaysWidget
-                  rightNow={rightNow}
-                  timezone={topLevelInfo.user.timezone}
-                  topLevelInfo={topLevelInfo}
-                  personTasks={personTasks}
-                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                />
+                <WidgetContainer geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}>
+                  <UpcomingBirthdaysWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                  />
+                </WidgetContainer>
 
-                <UpcomingCatchUpsWidget
-                  rightNow={rightNow}
-                  timezone={topLevelInfo.user.timezone}
-                  topLevelInfo={topLevelInfo}
-                  personTasks={personTasks}
-                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                />
+                <WidgetContainer geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}>
+                  <UpcomingCatchUpsWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                  />
+                </WidgetContainer>
               </Box>
             )}
           </Box>
