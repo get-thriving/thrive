@@ -30,7 +30,6 @@ class WebUiSettings(StubEntity):
         return WebUiSettings._create(
             ctx,
             user=ParentLink(user_ref_id),
-            name=EntityName("Web UI Settings"),
             use_night_mode=False,
         )
 
