@@ -13,7 +13,6 @@ import {
   InboxTaskStatus,
   TagNamespace,
   WidgetDimension,
-  WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { PersonFindResultEntry, Tag } from "@jupiter/webapi-client";
 import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
@@ -48,7 +47,6 @@ import {
   InboxTaskOptimisticState,
   sortInboxTasksNaturally,
 } from "@jupiter/core/inbox_tasks/root";
-import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { UpcomingCatchUpsWidget } from "@jupiter/core/prm/sub/person/component/upcoming-catch-ups-widget";
@@ -93,25 +91,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
     filter_namespace: [TagNamespace.PERSON],
   });
 
-  let personInboxTasksResponse = undefined;
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
-    personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
-      allow_archived: false,
-      include_tags: true,
-      include_notes: false,
-      include_time_event_blocks: false,
-      filter_sources: [
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-      ],
-    });
-  }
+  const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
+    allow_archived: false,
+    include_tags: true,
+    include_notes: false,
+    include_time_event_blocks: false,
+    filter_sources: [
+      InboxTaskSource.PERSON_OCCASION,
+      InboxTaskSource.PERSON_CATCH_UP,
+    ],
+  });
 
   return json({
     entries: body.entries,
     allCircles: circlesResult.circles,
     allTags: allTags.tags,
-    personInboxTasks: personInboxTasksResponse?.entries,
+    personInboxTasks: personInboxTasksResponse.entries,
   });
 }
 
