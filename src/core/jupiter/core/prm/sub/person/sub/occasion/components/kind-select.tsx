@@ -3,6 +3,7 @@ import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import { occasionKindName } from "#/core/prm/sub/person/sub/occasion/kind";
+import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface OccasionKindSelectProps {
   name: string;
@@ -11,6 +12,7 @@ interface OccasionKindSelectProps {
 }
 
 export function OccasionKindSelect(props: OccasionKindSelectProps) {
+  const isBigScreen = useBigScreen();
   const [kind, setKind] = useState<OccasionKind>(props.defaultValue);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
           disabled={!props.inputsEnabled}
           value={OccasionKind.BIRTHDAY}
         >
-          {occasionKindName(OccasionKind.BIRTHDAY)}
+          {occasionKindName(OccasionKind.BIRTHDAY, isBigScreen)}
         </ToggleButton>
         <ToggleButton
           size="small"
@@ -39,7 +41,7 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
           disabled={!props.inputsEnabled}
           value={OccasionKind.ANNIVERSARY}
         >
-          {occasionKindName(OccasionKind.ANNIVERSARY)}
+          {occasionKindName(OccasionKind.ANNIVERSARY, isBigScreen)}
         </ToggleButton>
         <ToggleButton
           size="small"
@@ -47,7 +49,7 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
           disabled={!props.inputsEnabled}
           value={OccasionKind.HOLIDAY}
         >
-          {occasionKindName(OccasionKind.HOLIDAY)}
+          {occasionKindName(OccasionKind.HOLIDAY, isBigScreen)}
         </ToggleButton>
         <ToggleButton
           size="small"
@@ -55,7 +57,7 @@ export function OccasionKindSelect(props: OccasionKindSelectProps) {
           disabled={!props.inputsEnabled}
           value={OccasionKind.OTHER}
         >
-          {occasionKindName(OccasionKind.OTHER)}
+          {occasionKindName(OccasionKind.OTHER, isBigScreen)}
         </ToggleButton>
       </ToggleButtonGroup>
       <input name={props.name} type="hidden" value={kind} />
