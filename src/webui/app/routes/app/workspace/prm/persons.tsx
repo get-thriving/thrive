@@ -348,7 +348,7 @@ export default function Persons() {
               onChange={(_, newValue) => setSmallScreenTab(newValue)}
             >
               <Tab label="People" />
-              <Tab label="Celebrations" />
+              <Tab label="Occasions" />
               <Tab label="Catch Ups" />
             </Tabs>
 
