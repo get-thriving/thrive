@@ -53,7 +53,7 @@ import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { UpcomingCatchUpsWidget } from "@jupiter/core/prm/sub/person/component/upcoming-catch-ups-widget";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
-import { Box, Divider, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import { DateTime } from "luxon";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -307,33 +307,21 @@ export default function Persons() {
                   gap: 2,
                 }}
               >
-                <Box>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    Upcoming Occasions
-                  </Typography>
-                  <UpcomingBirthdaysWidget
-                    rightNow={rightNow}
-                    timezone={topLevelInfo.user.timezone}
-                    topLevelInfo={topLevelInfo}
-                    personTasks={personTasks}
-                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                  />
-                </Box>
+                <UpcomingBirthdaysWidget
+                  rightNow={rightNow}
+                  timezone={topLevelInfo.user.timezone}
+                  topLevelInfo={topLevelInfo}
+                  personTasks={personTasks}
+                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                />
 
-                <Divider />
-
-                <Box>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
-                    Upcoming Catch Ups
-                  </Typography>
-                  <UpcomingCatchUpsWidget
-                    rightNow={rightNow}
-                    timezone={topLevelInfo.user.timezone}
-                    topLevelInfo={topLevelInfo}
-                    personTasks={personTasks}
-                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                  />
-                </Box>
+                <UpcomingCatchUpsWidget
+                  rightNow={rightNow}
+                  timezone={topLevelInfo.user.timezone}
+                  topLevelInfo={topLevelInfo}
+                  personTasks={personTasks}
+                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                />
               </Box>
             )}
           </Box>
