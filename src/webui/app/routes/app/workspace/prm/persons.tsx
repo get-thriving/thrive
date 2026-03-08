@@ -14,7 +14,11 @@ import {
   TagNamespace,
   WidgetDimension,
 } from "@jupiter/webapi-client";
-import type { PersonFindResultEntry, Tag } from "@jupiter/webapi-client";
+import type {
+  Circle,
+  PersonFindResultEntry,
+  Tag,
+} from "@jupiter/webapi-client";
 import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
 import { EisenTag } from "@jupiter/core/common/component/eisen-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -157,7 +161,9 @@ export default function Persons() {
       )
     : undefined;
 
-  const personEntriesByRefId: { [key: string]: ReturnType<typeof inboxTaskFindEntryToParent> } = {};
+  const personEntriesByRefId: {
+    [key: string]: ReturnType<typeof inboxTaskFindEntryToParent>;
+  } = {};
   if (loaderData.personInboxTasks) {
     for (const entry of loaderData.personInboxTasks) {
       personEntriesByRefId[entry.inbox_task.ref_id] =
@@ -303,23 +309,43 @@ export default function Persons() {
                   gap: 2,
                 }}
               >
-                <WidgetContainer geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}>
+                <WidgetContainer
+                  geometry={{
+                    row: 0,
+                    col: 0,
+                    dimension: WidgetDimension.DIM_KX1,
+                  }}
+                >
                   <UpcomingBirthdaysWidget
                     rightNow={rightNow}
                     timezone={topLevelInfo.user.timezone}
                     topLevelInfo={topLevelInfo}
                     personTasks={personTasks}
-                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                    geometry={{
+                      row: 0,
+                      col: 0,
+                      dimension: WidgetDimension.DIM_KX1,
+                    }}
                   />
                 </WidgetContainer>
 
-                <WidgetContainer geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}>
+                <WidgetContainer
+                  geometry={{
+                    row: 0,
+                    col: 0,
+                    dimension: WidgetDimension.DIM_KX1,
+                  }}
+                >
                   <UpcomingCatchUpsWidget
                     rightNow={rightNow}
                     timezone={topLevelInfo.user.timezone}
                     topLevelInfo={topLevelInfo}
                     personTasks={personTasks}
-                    geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
+                    geometry={{
+                      row: 0,
+                      col: 0,
+                      dimension: WidgetDimension.DIM_KX1,
+                    }}
                   />
                 </WidgetContainer>
               </Box>
@@ -336,8 +362,7 @@ export default function Persons() {
               onChange={(_, newValue) => setSmallScreenTab(newValue)}
             >
               <Tab label="People" />
-              <Tab label="Occasions" />
-              <Tab label="Catch Ups" />
+              <Tab label="Tasks" />
             </Tabs>
 
             <TabPanel value={smallScreenTab} index={0}>
@@ -362,36 +387,34 @@ export default function Persons() {
 
             <TabPanel value={smallScreenTab} index={1}>
               {personTasks ? (
-                <UpcomingBirthdaysWidget
-                  rightNow={rightNow}
-                  timezone={topLevelInfo.user.timezone}
-                  topLevelInfo={topLevelInfo}
-                  personTasks={personTasks}
-                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                />
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <UpcomingBirthdaysWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{
+                      row: 0,
+                      col: 0,
+                      dimension: WidgetDimension.DIM_KX1,
+                    }}
+                  />
+                  <UpcomingCatchUpsWidget
+                    rightNow={rightNow}
+                    timezone={topLevelInfo.user.timezone}
+                    topLevelInfo={topLevelInfo}
+                    personTasks={personTasks}
+                    geometry={{
+                      row: 0,
+                      col: 0,
+                      dimension: WidgetDimension.DIM_KX1,
+                    }}
+                  />
+                </Box>
               ) : (
                 <EntityNoNothingCard
                   title="You Have To Start Somewhere"
-                  message="There are no upcoming celebrations."
-                  newEntityLocations="/app/workspace/prm/persons/new"
-                  helpSubject={DocsHelpSubject.PRM}
-                />
-              )}
-            </TabPanel>
-
-            <TabPanel value={smallScreenTab} index={2}>
-              {personTasks ? (
-                <UpcomingCatchUpsWidget
-                  rightNow={rightNow}
-                  timezone={topLevelInfo.user.timezone}
-                  topLevelInfo={topLevelInfo}
-                  personTasks={personTasks}
-                  geometry={{ row: 0, col: 0, dimension: WidgetDimension.DIM_KX1 }}
-                />
-              ) : (
-                <EntityNoNothingCard
-                  title="You Have To Start Somewhere"
-                  message="There are no upcoming catch ups."
+                  message="There are no upcoming tasks."
                   newEntityLocations="/app/workspace/prm/persons/new"
                   helpSubject={DocsHelpSubject.PRM}
                 />
@@ -409,7 +432,7 @@ export default function Persons() {
 
 interface PersonCardProps {
   entry: PersonFindResultEntry;
-  circlesByRefId: Map<string, { ref_id: string; name: unknown }>;
+  circlesByRefId: Map<string, Circle>;
 }
 
 function PersonCard({ entry, circlesByRefId }: PersonCardProps) {
