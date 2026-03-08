@@ -840,6 +840,11 @@ from .vision_load_result import VisionLoadResult
 from .vision_mark_draft_as_active_args import VisionMarkDraftAsActiveArgs
 from .vision_remove_args import VisionRemoveArgs
 from .vision_status import VisionStatus
+from .web_ui_settings import WebUiSettings
+from .web_ui_settings_load_args import WebUiSettingsLoadArgs
+from .web_ui_settings_load_result import WebUiSettingsLoadResult
+from .web_ui_settings_update_args import WebUiSettingsUpdateArgs
+from .web_ui_settings_update_args_use_night_mode import WebUiSettingsUpdateArgsUseNightMode
 from .widget_dimension import WidgetDimension
 from .widget_geometry import WidgetGeometry
 from .widget_type import WidgetType
@@ -1688,6 +1693,11 @@ __all__ = (
     "VisionMarkDraftAsActiveArgs",
     "VisionRemoveArgs",
     "VisionStatus",
+    "WebUiSettings",
+    "WebUiSettingsLoadArgs",
+    "WebUiSettingsLoadResult",
+    "WebUiSettingsUpdateArgs",
+    "WebUiSettingsUpdateArgsUseNightMode",
     "WidgetDimension",
     "WidgetGeometry",
     "WidgetType",

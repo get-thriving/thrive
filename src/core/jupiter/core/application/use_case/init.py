@@ -31,7 +31,6 @@ from jupiter.core.features import (
     WorkspaceFeature,
 )
 from jupiter.core.gamification.score_log import ScoreLog
-from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
@@ -81,6 +80,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (

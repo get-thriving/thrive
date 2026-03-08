@@ -15,7 +15,7 @@ export type WebUiSettings = {
     created_time: Timestamp;
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
+    user_ref_id: string;
     use_night_mode: boolean;
 };
-
 

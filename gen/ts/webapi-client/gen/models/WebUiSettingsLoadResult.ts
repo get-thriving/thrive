@@ -10,4 +10,3 @@ export type WebUiSettingsLoadResult = {
     web_ui_settings: WebUiSettings;
 };
 
-

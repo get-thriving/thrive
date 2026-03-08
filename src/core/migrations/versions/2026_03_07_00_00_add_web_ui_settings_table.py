@@ -23,9 +23,11 @@ def upgrade() -> None:
         ref_id INTEGER NOT NULL,
         version INTEGER NOT NULL,
         archived BOOLEAN NOT NULL,
+        archival_reason VARCHAR,
         created_time DATETIME NOT NULL,
         last_modified_time DATETIME NOT NULL,
         archived_time DATETIME,
+        name VARCHAR(100) NOT NULL,
         user_ref_id INTEGER NOT NULL UNIQUE,
         use_night_mode BOOLEAN NOT NULL,
         PRIMARY KEY (ref_id),
@@ -61,9 +63,11 @@ def upgrade() -> None:
             ref_id as ref_id,
             1 as version,
             0 as archived,
+            null as archival_reason,
             created_time as created_time,
             created_time as last_modified_time,
             null as archived_time,
+            'Web UI Settings' as name,
             ref_id as user_ref_id,
             0 as use_night_mode
         FROM user;

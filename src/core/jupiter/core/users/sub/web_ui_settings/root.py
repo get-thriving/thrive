@@ -1,6 +1,7 @@
 """Web UI settings for a user."""
 
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     ParentLink,
@@ -29,6 +30,7 @@ class WebUiSettings(StubEntity):
         return WebUiSettings._create(
             ctx,
             user=ParentLink(user_ref_id),
+            name=EntityName("Web UI Settings"),
             use_night_mode=False,
         )
 

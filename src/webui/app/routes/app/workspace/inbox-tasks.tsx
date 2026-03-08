@@ -553,9 +553,23 @@ export const ErrorBoundary = makeTrunkErrorBoundary("/app/workspace", {
 });
 
 const GCSection = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.grey[100],
+  backgroundColor:
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[900]
+      : theme.palette.grey[100],
+  color:
+    theme.palette.mode === "dark"
+      ? theme.palette.grey[300]
+      : theme.palette.grey[900],
   padding: theme.spacing(1),
   borderRadius: theme.shape.borderRadius,
+  "& a": {
+    color:
+      theme.palette.mode === "dark"
+        ? theme.palette.grey[100]
+        : theme.palette.primary.dark,
+    fontWeight: 600,
+  },
 }));
 
 interface SwiftViewProps {

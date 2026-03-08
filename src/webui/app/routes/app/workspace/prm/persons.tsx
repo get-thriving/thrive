@@ -70,11 +70,6 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-  });
-  const workspace = summaryResponse.workspace!;
-
   const body = await apiClient.prm.personFind({
     allow_archived: false,
     include_occasions: false,
