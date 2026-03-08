@@ -1,5 +1,6 @@
 import type {
   ChapterSummary,
+  Contact,
   GoalSummary,
   InboxTask,
   LifePlan,
@@ -153,6 +154,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     filter_namespace: [TagNamespace.BIG_PLAN],
   });
+  const allContacts = await apiClient.contacts.contactFind({
+    allow_archived: false,
+  });
 
   try {
     const result = await apiClient.bigPlans.bigPlanLoad({
@@ -181,6 +185,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       milestones: result.milestones,
       inboxTasks: result.inbox_tasks,
       tags: result.tags,
+      contacts:
+        (
+          result as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       note: result.note,
       timeEventBlocks: result.time_event_blocks,
       timePlanEntries: timePlanEntries,
@@ -190,6 +200,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -373,6 +384,7 @@ export default function BigPlan() {
     milestones: loaderData.milestones,
     inbox_tasks: loaderData.inboxTasks,
     tags: loaderData.tags,
+    contacts: loaderData.contacts,
     note: loaderData.note,
     time_event_blocks: loaderData.timeEventBlocks,
     stats: loaderData.stats,
@@ -461,6 +473,8 @@ export default function BigPlan() {
           allMilestones={loaderData.allMilestones}
           allTags={loaderData.allTags}
           tags={loaderData.tags}
+          allContacts={loaderData.allContacts}
+          contacts={loaderData.contacts}
           inputsEnabled={inputsEnabled}
           bigPlan={loaderData.bigPlan}
           bigPlanInfo={bigPlanInfo}

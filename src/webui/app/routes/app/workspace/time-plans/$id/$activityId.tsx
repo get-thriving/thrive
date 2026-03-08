@@ -3,6 +3,8 @@ import type {
   LifePlan,
   ProjectSummary,
   TimePlan,
+  Tag,
+  Contact,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -13,6 +15,7 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
+  TagNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   WorkspaceFeature,
@@ -230,6 +233,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.INBOX_TASK],
+    });
+
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     return json({
       rootProject: summaryResponse.root_project as ProjectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -244,6 +256,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       targetInboxTaskTimeEventBlocks: inboxTaskResult?.time_event_blocks,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: bigPlanResult,
+      allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -712,6 +726,10 @@ export default function TimePlanActivity() {
             allGoals={loaderData.allGoals ?? []}
             allMilestones={loaderData.allMilestones ?? []}
             allBigPlans={loaderData.allBigPlans ?? []}
+            allTags={loaderData.allTags}
+            tags={loaderData.targetInboxTaskInfo?.tags}
+            allContacts={loaderData.allContacts}
+            contacts={loaderData.targetInboxTaskInfo?.contacts}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }

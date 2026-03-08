@@ -1,5 +1,9 @@
 """Use case for loading a smart list item."""
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -38,6 +42,7 @@ class SmartListItemLoadResult(UseCaseResultBase):
 
     item: SmartListItem
     generic_tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
 
 
@@ -79,5 +84,27 @@ class SmartListItemLoadUseCase(
             )
         else:
             generic_tags = []
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            context.workspace.ref_id,
+        )
+        contact_link = await uow.get(
+            ContactLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=ContactNamespace.SMART_LIST_ITEM,
+            source_entity_ref_id=item.ref_id,
+        )
+        if contact_link is not None:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=contact_link.contacts_ref_ids,
+            )
+        else:
+            contacts = []
 
-        return SmartListItemLoadResult(item=item, generic_tags=generic_tags, note=note)
+        return SmartListItemLoadResult(
+            item=item,
+            generic_tags=generic_tags,
+            contacts=contacts,
+            note=note,
+        )

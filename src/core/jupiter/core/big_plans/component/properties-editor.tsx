@@ -2,6 +2,7 @@ import type {
   BigPlan,
   BigPlanLoadResult,
   ChapterSummary,
+  Contact,
   GoalSummary,
   LifePlan,
   MilestoneSummary,
@@ -10,6 +11,7 @@ import type {
 } from "@jupiter/webapi-client";
 import {
   BigPlanStatus,
+  ContactNamespace,
   TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -52,6 +54,7 @@ import {
 } from "#/core/infra/field-names";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
@@ -70,6 +73,8 @@ interface BigPlanPropertiesEditorProps {
   allMilestones: MilestoneSummary[];
   allTags?: Array<Tag>;
   tags?: Array<Tag>;
+  allContacts?: Array<Contact>;
+  contacts?: Array<Contact>;
   inputsEnabled: boolean;
   bigPlan: BigPlan;
   bigPlanInfo: BigPlanLoadResult;
@@ -142,11 +147,21 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             />
           </FormControl>
 
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name={constructFieldName(props.namePrefix, "isKey")}
+              defaultValue={props.bigPlan.is_key}
+              inputsEnabled={props.inputsEnabled}
+            />
+          </FormControl>
+        </Stack>
+
+        <Stack direction="row" useFlexGap spacing={1}>
           {props.allTags && props.tags && (
-            <FormControl fullWidth sx={{ flexGrow: 2 }}>
+            <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags"
-                label={null}
+                aloneOnLine
                 allTags={props.allTags}
                 defaultValue={props.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={props.inputsEnabled}
@@ -156,13 +171,19 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             </FormControl>
           )}
 
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name={constructFieldName(props.namePrefix, "isKey")}
-              defaultValue={props.bigPlan.is_key}
-              inputsEnabled={props.inputsEnabled}
-            />
-          </FormControl>
+          {props.allContacts && props.contacts && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <ContactsEditor
+                name="contacts_names"
+                aloneOnLine
+                allContacts={props.allContacts}
+                defaultValue={props.contacts.map((contact) => contact.ref_id)}
+                inputsEnabled={props.inputsEnabled}
+                namespace={ContactNamespace.BIG_PLAN}
+                sourceEntityRefId={props.bigPlan.ref_id}
+              />
+            </FormControl>
+          )}
         </Stack>
 
         <Stack direction="row" spacing={2}>

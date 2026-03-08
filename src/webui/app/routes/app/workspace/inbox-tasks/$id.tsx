@@ -6,6 +6,7 @@ import type {
   MilestoneSummary,
   ProjectSummary,
   Tag,
+  Contact,
   Workspace,
 } from "@jupiter/webapi-client";
 import {
@@ -153,6 +154,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       filter_namespace: [TagNamespace.INBOX_TASK],
     });
 
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
+
     const workspace = summaryResponse.workspace as Workspace;
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
@@ -177,6 +182,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
       tags: result.tags as Array<Tag>,
       allTags: allTags.tags as Array<Tag>,
+      contacts: result.contacts as Array<Contact>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -423,6 +430,8 @@ export default function InboxTask() {
         allBigPlans={loaderData.allBigPlans}
         allTags={loaderData.allTags}
         tags={loaderData.tags}
+        allContacts={loaderData.allContacts}
+        contacts={loaderData.contacts}
         inputsEnabled={inputsEnabled}
         inboxTask={inboxTask}
         inboxTaskInfo={info}

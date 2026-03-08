@@ -4,6 +4,10 @@ import itertools
 from collections import defaultdict
 from typing import cast
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -59,6 +63,7 @@ class MetricFindResponseEntry(UseCaseResultBase):
 
     metric: Metric
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
     metric_entries: list[MetricEntry] | None
     metric_collection_inbox_tasks: list[InboxTask] | None
@@ -207,6 +212,31 @@ class MetricFindUseCase(
             all_tags_by_ref_id = {}
             tag_links_by_metric_ref_id = {}
 
+        # Load contacts linked to metrics
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.METRIC_ENTRY,
+            allow_archived=False,
+            source_entity_ref_id=[m.ref_id for m in metrics],
+        )
+        metric_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+        }
+        all_metric_contact_ref_ids = []
+        for contact_ref_ids in metric_contacts_by_ref_id.values():
+            all_metric_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_metric_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_metric_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
+
         return MetricFindResult(
             collection_project=collection_project,
             entries=[
@@ -221,6 +251,13 @@ class MetricFindUseCase(
                         if m.ref_id in tag_links_by_metric_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in metric_contacts_by_ref_id.get(
+                            m.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=all_notes_by_metric_ref_id.get(m.ref_id, None),
                     metric_entries=(
                         metric_entries_by_ref_ids.get(m.ref_id, [])

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { Note } from './Note';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { Tag } from './Tag';
@@ -14,5 +15,6 @@ export type ScheduleEventInDayLoadResult = {
     time_event_in_day_block: TimeEventInDayBlock;
     note?: (Note | null);
     tags: Array<Tag>;
+    contacts: Array<Contact>;
 };
 

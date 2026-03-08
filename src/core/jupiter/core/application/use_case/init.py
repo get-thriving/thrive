@@ -80,6 +80,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.name import UserName
 from jupiter.core.users.root import User
+from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
 from jupiter.core.utils.feature_flag_controls import infer_feature_flag_controls
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
@@ -200,6 +201,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 user_ref_id=new_user.ref_id,
             )
             new_score_log = await uow.get_for(ScoreLog).create(new_score_log)
+
+            new_web_ui_settings = WebUiSettings.new_web_ui_settings(
+                ctx=context.domain_context,
+                user_ref_id=new_user.ref_id,
+            )
+            await uow.get_for(WebUiSettings).create(new_web_ui_settings)
 
             new_workspace = Workspace.new_workspace(
                 ctx=context.domain_context,

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.chore import Chore
+    from ..models.contact import Contact
     from ..models.email_task import EmailTask
     from ..models.goal import Goal
     from ..models.habit import Habit
@@ -39,6 +40,7 @@ class InboxTaskLoadResult:
     Attributes:
         inbox_task (InboxTask): An inbox task.
         tags (list[Tag]):
+        contacts (list[Contact]):
         project (Project): The project.
         time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
@@ -59,6 +61,7 @@ class InboxTaskLoadResult:
 
     inbox_task: InboxTask
     tags: list[Tag]
+    contacts: list[Contact]
     project: Project
     time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
@@ -99,6 +102,11 @@ class InboxTaskLoadResult:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         project = self.project.to_dict()
 
@@ -225,6 +233,7 @@ class InboxTaskLoadResult:
             {
                 "inbox_task": inbox_task,
                 "tags": tags,
+                "contacts": contacts,
                 "project": project,
                 "time_event_blocks": time_event_blocks,
             }
@@ -265,6 +274,7 @@ class InboxTaskLoadResult:
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
@@ -290,6 +300,13 @@ class InboxTaskLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         project = Project.from_dict(d.pop("project"))
 
@@ -541,6 +558,7 @@ class InboxTaskLoadResult:
         inbox_task_load_result = cls(
             inbox_task=inbox_task,
             tags=tags,
+            contacts=contacts,
             project=project,
             time_event_blocks=time_event_blocks,
             chapter=chapter,

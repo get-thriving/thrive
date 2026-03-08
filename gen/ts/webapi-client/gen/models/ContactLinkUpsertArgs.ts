@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { ContactName } from './ContactName';
 import type { ContactNamespace } from './ContactNamespace';
 import type { EntityId } from './EntityId';
 /**
@@ -10,6 +11,6 @@ import type { EntityId } from './EntityId';
 export type ContactLinkUpsertArgs = {
     namespace: ContactNamespace;
     source_entity_ref_id: EntityId;
-    contacts_ref_ids: Array<EntityId>;
+    contact_names: Array<ContactName>;
 };
 

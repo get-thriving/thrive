@@ -106,6 +106,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
 
     inbox_task: InboxTask
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
     project: Project
     chapter: Chapter | None
@@ -373,6 +374,29 @@ class InboxTaskFindUseCase(
             )
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
+        # Load contacts linked to inbox tasks
+        contact_links_for_inbox_tasks = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.INBOX_TASK,
+            allow_archived=False,
+            source_entity_ref_id=[it.ref_id for it in inbox_tasks],
+        )
+        inbox_task_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids
+            for link in contact_links_for_inbox_tasks
+        }
+        all_inbox_task_contact_ref_ids = []
+        for contact_ref_ids in inbox_task_contacts_by_ref_id.values():
+            all_inbox_task_contact_ref_ids.extend(contact_ref_ids)
+        if all_inbox_task_contact_ref_ids:
+            additional_contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_inbox_task_contact_ref_ids)),
+            )
+            for contact in additional_contacts:
+                contacts_by_ref_id[contact.ref_id] = contact
+
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
             allow_archived=True,
@@ -459,6 +483,13 @@ class InboxTaskFindUseCase(
                         if it.ref_id in tag_links_by_inbox_task_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in inbox_task_contacts_by_ref_id.get(
+                            it.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     project=project_by_ref_id[it.project_ref_id],
                     chapter=(
                         chapter_by_ref_id[it.chapter_ref_id]

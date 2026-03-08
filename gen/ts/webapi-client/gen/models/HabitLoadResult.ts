@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { ADate } from './ADate';
 import type { Chapter } from './Chapter';
+import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { HabitStreakMark } from './HabitStreakMark';
@@ -26,6 +27,7 @@ export type HabitLoadResult = {
     streak_mark_earliest_date: ADate;
     streak_mark_latest_date: ADate;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
 };
 

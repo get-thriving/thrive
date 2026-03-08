@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Contact } from './Contact';
 import type { InboxTask } from './InboxTask';
 import type { Metric } from './Metric';
 import type { MetricEntry } from './MetricEntry';
@@ -13,6 +14,7 @@ import type { Tag } from './Tag';
 export type MetricFindResponseEntry = {
     metric: Metric;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
     metric_entries?: (Array<MetricEntry> | null);
     metric_collection_inbox_tasks?: (Array<InboxTask> | null);

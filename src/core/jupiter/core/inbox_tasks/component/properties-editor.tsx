@@ -8,11 +8,13 @@ import type {
   MilestoneSummary,
   ProjectSummary,
   Tag,
+  Contact,
 } from "@jupiter/webapi-client";
 import {
   InboxTaskSource,
   InboxTaskStatus,
   TagNamespace,
+  ContactNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
@@ -61,6 +63,7 @@ import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 interface InboxTaskPropertiesEditorProps {
   title: string;
@@ -78,6 +81,8 @@ interface InboxTaskPropertiesEditorProps {
   allBigPlans: BigPlanSummary[];
   allTags?: Array<Tag>;
   tags?: Array<Tag>;
+  allContacts?: Array<Contact>;
+  contacts?: Array<Contact>;
   inputsEnabled: boolean;
   inboxTask: InboxTask;
   inboxTaskInfo: InboxTaskLoadResult;
@@ -246,10 +251,21 @@ export function InboxTaskPropertiesEditor(
             />
           </FormControl>
 
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name={constructFieldName(props.namePrefix, "isKey")}
+              defaultValue={props.inboxTask.is_key}
+              inputsEnabled={props.inputsEnabled && corePropertyEditable}
+            />
+          </FormControl>
+        </Box>
+
+        <Stack direction="row" useFlexGap spacing={1}>
           {props.allTags && props.tags && (
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
                 name="tags_names"
+                aloneOnLine
                 allTags={props.allTags}
                 defaultValue={props.tags.map((t) => t.ref_id)}
                 inputsEnabled={props.inputsEnabled}
@@ -259,14 +275,20 @@ export function InboxTaskPropertiesEditor(
             </FormControl>
           )}
 
-          <FormControl sx={{ flexGrow: 1 }}>
-            <IsKeySelect
-              name={constructFieldName(props.namePrefix, "isKey")}
-              defaultValue={props.inboxTask.is_key}
-              inputsEnabled={props.inputsEnabled && corePropertyEditable}
-            />
-          </FormControl>
-        </Box>
+          {props.allContacts && props.contacts && (
+            <FormControl sx={{ flexGrow: 2 }}>
+              <ContactsEditor
+                name="contacts_names"
+                aloneOnLine
+                allContacts={props.allContacts}
+                defaultValue={props.contacts.map((c) => c.ref_id)}
+                inputsEnabled={props.inputsEnabled}
+                namespace={ContactNamespace.INBOX_TASK}
+                sourceEntityRefId={props.inboxTask.ref_id}
+              />
+            </FormControl>
+          )}
+        </Stack>
 
         <Stack direction="row" useFlexGap spacing={1}>
           <FormControl sx={{ flexGrow: 1, minWidth: "unset" }}>

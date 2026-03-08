@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Chapter } from './Chapter';
+import type { Contact } from './Contact';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
@@ -19,6 +20,7 @@ export type HabitFindResultEntry = {
     goal?: (Goal | null);
     inbox_tasks?: (Array<InboxTask> | null);
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     note?: (Note | null);
 };
 

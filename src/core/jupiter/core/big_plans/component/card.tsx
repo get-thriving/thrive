@@ -27,6 +27,7 @@ import { BigPlanMilestonesLeftTag } from "#/core/big_plans/sub/milestones/compon
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 
 export interface BigPlanShowOptions {
   showDonePct?: boolean;
@@ -155,6 +156,9 @@ export function BigPlanCard(props: BigPlanCardProps) {
 
         {props.parent?.tags?.map((tag: Tag) => (
           <TagTag key={tag.ref_id} tag={tag} />
+        ))}
+        {props.parent?.contacts?.map((contact) => (
+          <ContactTag key={contact.ref_id} contact={contact} />
         ))}
       </EntityLink>
     </EntityCard>

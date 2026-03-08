@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
     from ..models.chapter import Chapter
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
@@ -34,6 +35,7 @@ class BigPlanLoadResult:
         milestones (list[BigPlanMilestone]):
         inbox_tasks (list[InboxTask]):
         tags (list[Tag]):
+        contacts (list[Contact]):
         time_event_blocks (list[TimeEventInDayBlock]):
         stats (BigPlanStats): Stats about a big plan.
         chapter (Chapter | None | Unset):
@@ -46,6 +48,7 @@ class BigPlanLoadResult:
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
+    contacts: list[Contact]
     time_event_blocks: list[TimeEventInDayBlock]
     stats: BigPlanStats
     chapter: Chapter | None | Unset = UNSET
@@ -76,6 +79,11 @@ class BigPlanLoadResult:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         time_event_blocks = []
         for time_event_blocks_item_data in self.time_event_blocks:
@@ -117,6 +125,7 @@ class BigPlanLoadResult:
                 "milestones": milestones,
                 "inbox_tasks": inbox_tasks,
                 "tags": tags,
+                "contacts": contacts,
                 "time_event_blocks": time_event_blocks,
                 "stats": stats,
             }
@@ -136,6 +145,7 @@ class BigPlanLoadResult:
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
@@ -168,6 +178,13 @@ class BigPlanLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         time_event_blocks = []
         _time_event_blocks = d.pop("time_event_blocks")
@@ -235,6 +252,7 @@ class BigPlanLoadResult:
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             tags=tags,
+            contacts=contacts,
             time_event_blocks=time_event_blocks,
             stats=stats,
             chapter=chapter,

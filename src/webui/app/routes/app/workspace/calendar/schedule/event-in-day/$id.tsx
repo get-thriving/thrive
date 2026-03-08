@@ -1,6 +1,8 @@
 import type { ScheduleStreamSummary } from "@jupiter/webapi-client";
 import {
   ApiError,
+  Contact,
+  ContactNamespace,
   NoteNamespace,
   Tag,
   TagNamespace,
@@ -47,6 +49,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -102,6 +105,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: false,
       filter_namespace: [TagNamespace.SCHEDULE_EVENT_IN_DAY],
     });
+    const allContacts = await apiClient.contacts.contactFind({
+      allow_archived: false,
+    });
 
     return json({
       allScheduleStreams:
@@ -110,7 +116,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventInDayBlock: response.time_event_in_day_block,
       note: response.note,
       tags: response.tags as Array<Tag>,
+      contacts:
+        (
+          response as {
+            contacts?: Array<Contact>;
+          }
+        ).contacts ?? [],
       allTags: allTags.tags as Array<Tag>,
+      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -340,29 +353,40 @@ export default function ScheduleEventInDayViewOne() {
             fieldName="/schedule_stream_ref_id"
           />
         </FormControl>
-        <Stack
-          direction={isBigScreen ? "row" : "column"}
-          spacing={2}
-          useFlexGap
-        >
-          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
-            <InputLabel id="name">Name</InputLabel>
-            <OutlinedInput
-              label="name"
-              name="name"
-              readOnly={!inputsEnabled || !corePropertyEditable}
-              defaultValue={loaderData.scheduleEventInDay.name}
-            />
-            <FieldError actionResult={actionData} fieldName="/name" />
-          </FormControl>
 
-          <FormControl fullWidth={!isBigScreen}>
+        <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+          <InputLabel id="name">Name</InputLabel>
+          <OutlinedInput
+            label="name"
+            name="name"
+            readOnly={!inputsEnabled || !corePropertyEditable}
+            defaultValue={loaderData.scheduleEventInDay.name}
+          />
+          <FieldError actionResult={actionData} fieldName="/name" />
+        </FormControl>
+
+        <Stack direction="row" useFlexGap gap={2}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}
               namespace={TagNamespace.SCHEDULE_EVENT_IN_DAY}
+              sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
+              aloneOnLine={!isBigScreen}
+            />
+          </FormControl>
+
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
+            <ContactsEditor
+              name="contacts_names"
+              allContacts={loaderData.allContacts}
+              defaultValue={loaderData.contacts.map(
+                (contact) => contact.ref_id,
+              )}
+              inputsEnabled={inputsEnabled}
+              namespace={ContactNamespace.SCHEDULE_EVENT_IN_DAY}
               sourceEntityRefId={loaderData.scheduleEventInDay.ref_id}
               aloneOnLine={!isBigScreen}
             />

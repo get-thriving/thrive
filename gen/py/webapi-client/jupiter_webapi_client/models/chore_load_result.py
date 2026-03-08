@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.chapter import Chapter
     from ..models.chore import Chore
+    from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
@@ -32,6 +33,7 @@ class ChoreLoadResult:
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
         tags (list[Tag]):
+        contacts (list[Contact]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -43,6 +45,7 @@ class ChoreLoadResult:
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
     tags: list[Tag]
+    contacts: list[Contact]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -70,6 +73,11 @@ class ChoreLoadResult:
         for tags_item_data in self.tags:
             tags_item = tags_item_data.to_dict()
             tags.append(tags_item)
+
+        contacts = []
+        for contacts_item_data in self.contacts:
+            contacts_item = contacts_item_data.to_dict()
+            contacts.append(contacts_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -105,6 +113,7 @@ class ChoreLoadResult:
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
                 "tags": tags,
+                "contacts": contacts,
             }
         )
         if chapter is not UNSET:
@@ -120,6 +129,7 @@ class ChoreLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chapter import Chapter
         from ..models.chore import Chore
+        from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
@@ -148,6 +158,13 @@ class ChoreLoadResult:
             tags_item = Tag.from_dict(tags_item_data)
 
             tags.append(tags_item)
+
+        contacts = []
+        _contacts = d.pop("contacts")
+        for contacts_item_data in _contacts:
+            contacts_item = Contact.from_dict(contacts_item_data)
+
+            contacts.append(contacts_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -207,6 +224,7 @@ class ChoreLoadResult:
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,
             tags=tags,
+            contacts=contacts,
             chapter=chapter,
             goal=goal,
             note=note,

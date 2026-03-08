@@ -2,6 +2,10 @@
 
 from collections import defaultdict
 
+from jupiter.core.common.sub.contacts.namespace import ContactNamespace
+from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.contacts.sub.contact.root import Contact
+from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -57,6 +61,7 @@ class SmartListFindResponseEntry(UseCaseResultBase):
 
     smart_list: SmartList
     tags: list[Tag]
+    contacts: list[Contact]
     note: Note | None
     smart_list_items: list[SmartListItem] | None
     smart_list_item_generic_tags: dict[EntityId, list[Tag]] | None
@@ -133,6 +138,31 @@ class SmartListFindUseCase(
         else:
             all_tags_by_ref_id = {}
             tag_links_by_smart_list_ref_id = {}
+
+        # Load contacts linked to smart lists
+        contact_domain = await uow.get_for(ContactDomain).load_by_parent(
+            workspace.ref_id,
+        )
+        contact_links = await uow.get_for(ContactLink).find_all_generic(
+            parent_ref_id=contact_domain.ref_id,
+            namespace=ContactNamespace.SMART_LIST_ITEM,
+            allow_archived=False,
+            source_entity_ref_id=[sl.ref_id for sl in smart_lists],
+        )
+        smart_list_contacts_by_ref_id = {
+            link.source_entity_ref_id: link.contacts_ref_ids for link in contact_links
+        }
+        all_smart_list_contact_ref_ids = []
+        for contact_ref_ids in smart_list_contacts_by_ref_id.values():
+            all_smart_list_contact_ref_ids.extend(contact_ref_ids)
+        contacts = []
+        if all_smart_list_contact_ref_ids:
+            contacts = await uow.get_for(Contact).find_all_generic(
+                parent_ref_id=contact_domain.ref_id,
+                allow_archived=False,
+                ref_id=list(set(all_smart_list_contact_ref_ids)),
+            )
+        contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
         if include_items:
             smart_list_items_by_smart_list_ref_ids = {}
@@ -216,6 +246,13 @@ class SmartListFindUseCase(
                         if sl.ref_id in tag_links_by_smart_list_ref_id
                         else []
                     ),
+                    contacts=[
+                        contacts_by_ref_id[contact_ref_id]
+                        for contact_ref_id in smart_list_contacts_by_ref_id.get(
+                            sl.ref_id, []
+                        )
+                        if contact_ref_id in contacts_by_ref_id
+                    ],
                     note=all_notes_by_smart_list_ref_id.get(sl.ref_id, None),
                     smart_list_items=(
                         smart_list_items_by_smart_list_ref_ids.get(

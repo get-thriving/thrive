@@ -5,6 +5,7 @@
 import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
+import type { Contact } from './Contact';
 import type { EmailTask } from './EmailTask';
 import type { Goal } from './Goal';
 import type { Habit } from './Habit';
@@ -26,6 +27,7 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
 export type InboxTaskLoadResult = {
     inbox_task: InboxTask;
     tags: Array<Tag>;
+    contacts: Array<Contact>;
     project: Project;
     chapter?: (Chapter | null);
     goal?: (Goal | null);

@@ -127,7 +127,6 @@ def test_api_common_contact_link_upsert(
     api_url: str, api_key: str, create_inbox_task, create_contact
 ) -> None:
     task = create_inbox_task("Task With Contact")
-    contact = create_contact("Link Contact")
 
     response = requests.post(
         f"{api_url}/v1/common/contacts/link",
@@ -135,7 +134,7 @@ def test_api_common_contact_link_upsert(
         json={
             "namespace": "inbox-task",
             "source_entity_ref_id": task.ref_id,
-            "contacts_ref_ids": [contact.ref_id],
+            "contact_names": ["John Doe"],
         },
         timeout=10,
     )
@@ -143,7 +142,7 @@ def test_api_common_contact_link_upsert(
 
     contact_link = response.json()["contact_link"]
     assert contact_link["source_entity_ref_id"] == task.ref_id
-    assert contact.ref_id in contact_link["contacts_ref_ids"]
+    assert len(contact_link["contacts_ref_ids"]) == 1
 
 
 def test_api_common_contact_archive(api_url: str, api_key: str, create_contact) -> None:
