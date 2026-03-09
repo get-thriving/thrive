@@ -340,8 +340,8 @@ WIDGET_CONSTRAINTS = {
     ),
     WidgetType.LIFE_WEEKS: WidgetTypeConstraints(
         allowed_dimensions={
-            HomeTabTarget.BIG_SCREEN: [WidgetDimension.DIM_1x2],
-            HomeTabTarget.SMALL_SCREEN: [WidgetDimension.DIM_1x1],
+            HomeTabTarget.BIG_SCREEN: [WidgetDimension.DIM_2x1],
+            HomeTabTarget.SMALL_SCREEN: [WidgetDimension.DIM_2x1],
         },
         only_for_workspace_features=[WorkspaceFeature.LIFE_PLAN],
         only_for_user_features=None,
