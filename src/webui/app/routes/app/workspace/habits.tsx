@@ -6,6 +6,7 @@ import type {
   GoalSummary,
   HabitFindResultEntry,
   HabitLoadResult,
+  InboxTask,
   Project,
   ProjectSummary,
   Tag,
@@ -14,6 +15,8 @@ import {
   WidgetDimension,
   WorkspaceFeature,
   DocsHelpSubject,
+  InboxTaskSource,
+  InboxTaskStatus,
   RecurringTaskPeriod,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -21,11 +24,11 @@ import ViewListIcon from "@mui/icons-material/ViewList";
 import FlareIcon from "@mui/icons-material/Flare";
 import FlagIcon from "@mui/icons-material/Flag";
 import ViewTimelineIcon from "@mui/icons-material/ViewTimeline";
-import { Box } from "@mui/material";
+import { Box, Tab, Tabs } from "@mui/material";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet } from "@remix-run/react";
+import { Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { Fragment, useContext, useState } from "react";
 import { DateTime } from "luxon";
@@ -65,7 +68,14 @@ import {
 } from "@jupiter/core/infra/component/use-nested-entities";
 import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import { HabitKeyHabitStreakWidget } from "@jupiter/core/habits/component/key-habit-streak-widget";
+import { HabitInboxTasksWidget } from "@jupiter/core/habits/component/inbox-tasks-widget";
 import { WidgetProps } from "@jupiter/core/home/component/common";
+import {
+  inboxTaskFindEntryToParent,
+  InboxTaskOptimisticState,
+  InboxTaskParent,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -119,6 +129,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_inbox_tasks: false,
   });
 
+  const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
+    allow_archived: false,
+    include_tags: true,
+    include_notes: false,
+    include_time_event_blocks: false,
+    filter_sources: [InboxTaskSource.HABIT],
+  });
+
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
     filter_namespace: [TagNamespace.HABIT],
@@ -164,6 +182,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       streakMarkLatestDate: h.streak_mark_latest_date,
       streakMarks: h.streak_marks,
     })),
+    habitInboxTasks: habitInboxTasksResponse.entries,
   });
 }
 
@@ -176,6 +195,61 @@ export default function Habits() {
   const isBigScreen = useBigScreen();
 
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
+
+  const [mobileTab, setMobileTab] = useState<"streaks" | "habits" | "tasks">(
+    "streaks",
+  );
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{
+    [key: string]: InboxTaskOptimisticState;
+  }>({});
+  const kanbanBoardMoveFetcher = useFetcher();
+
+  const sortedHabitInboxTasks = sortInboxTasksNaturally(
+    loaderData.habitInboxTasks.map((e) => e.inbox_task),
+  );
+  const habitEntriesByRefId: { [key: string]: InboxTaskParent } = {};
+  for (const entry of loaderData.habitInboxTasks) {
+    habitEntriesByRefId[entry.inbox_task.ref_id] =
+      inboxTaskFindEntryToParent(entry);
+  }
+
+  function handleCardMarkDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.DONE },
+        {
+          method: "post",
+          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    setOptimisticUpdates((old) => ({
+      ...old,
+      [it.ref_id]: {
+        status: InboxTaskStatus.NOT_DONE,
+        eisen: old[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
+    setTimeout(() => {
+      kanbanBoardMoveFetcher.submit(
+        { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
+        {
+          method: "post",
+          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }, 0);
+  }
 
   const lifePlanAvailable = isWorkspaceFeatureAvailable(
     topLevelInfo.workspace,
@@ -236,7 +310,7 @@ export default function Habits() {
 
   const rightNow = DateTime.local({ zone: topLevelInfo.user.timezone });
 
-  const widgetProps: WidgetProps = {
+  const streakWidgetProps: WidgetProps = {
     rightNow,
     timezone: topLevelInfo.user.timezone,
     topLevelInfo,
@@ -262,6 +336,25 @@ export default function Habits() {
       row: 0,
       col: 0,
       dimension: WidgetDimension.DIM_3X1,
+    },
+  };
+
+  const tasksWidgetProps: WidgetProps = {
+    rightNow,
+    timezone: topLevelInfo.user.timezone,
+    topLevelInfo,
+    habitTasks: {
+      habits: loaderData.habits.map((e) => e.habit),
+      habitInboxTasks: sortedHabitInboxTasks,
+      habitEntriesByRefId,
+      optimisticUpdates,
+      onCardMarkDone: handleCardMarkDone,
+      onCardMarkNotDone: handleCardMarkNotDone,
+    },
+    geometry: {
+      row: 0,
+      col: 0,
+      dimension: WidgetDimension.DIM_1X3,
     },
   };
 
@@ -360,77 +453,186 @@ export default function Habits() {
       }
     >
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
-        {loaderData.habits.length === 0 && (
-          <EntityNoNothingCard
-            title="You Have To Start Somewhere"
-            message="There are no habits to show. You can create a new habit."
-            newEntityLocations="/app/workspace/habits/new"
-            helpSubject={DocsHelpSubject.HABITS}
-          />
-        )}
+        {isBigScreen ? (
+          <>
+            {loaderData.habits.length === 0 && (
+              <EntityNoNothingCard
+                title="You Have To Start Somewhere"
+                message="There are no habits to show. You can create a new habit."
+                newEntityLocations="/app/workspace/habits/new"
+                helpSubject={DocsHelpSubject.HABITS}
+              />
+            )}
 
-        {loaderData.keyHabitStreaks.length > 0 && (
-          <HabitKeyHabitStreakWidget {...widgetProps} />
-        )}
+            {loaderData.keyHabitStreaks.length > 0 && (
+              <HabitKeyHabitStreakWidget {...streakWidgetProps} />
+            )}
 
-        {selectedGrouping === Grouping.FLAT &&
-          isBigScreen &&
-          selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
-            <HabitsByPeriodsStack
-              habits={sortedHabits}
-              renderStack={(subset) => (
-                <HabitsFlatStack
-                  habits={subset}
-                  entriesByRefId={entriesByRefId}
-                  topLevelInfo={topLevelInfo}
-                  showPeriodTag={false}
-                />
-              )}
-            />
-          )}
+            <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                {selectedGrouping === Grouping.FLAT &&
+                  selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
+                    <HabitsByPeriodsStack
+                      habits={sortedHabits}
+                      renderStack={(subset) => (
+                        <HabitsFlatStack
+                          habits={subset}
+                          entriesByRefId={entriesByRefId}
+                          topLevelInfo={topLevelInfo}
+                          showPeriodTag={false}
+                        />
+                      )}
+                    />
+                  )}
 
-        {selectedGrouping === Grouping.FLAT &&
-          !(
-            isBigScreen && selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD
-          ) && (
-            <HabitsFlatStack
-              habits={sortedHabits}
-              entriesByRefId={entriesByRefId}
-              topLevelInfo={topLevelInfo}
-              showPeriodTag={true}
-            />
-          )}
+                {selectedGrouping === Grouping.FLAT &&
+                  selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD && (
+                    <HabitsFlatStack
+                      habits={sortedHabits}
+                      entriesByRefId={entriesByRefId}
+                      topLevelInfo={topLevelInfo}
+                      showPeriodTag={true}
+                    />
+                  )}
 
-        {selectedGrouping === Grouping.BY_PROJECT && (
-          <HabitsByProjectStack
-            habits={sortedHabits}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
-        )}
+                {selectedGrouping === Grouping.BY_PROJECT && (
+                  <HabitsByProjectStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
 
-        {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-          <HabitsByProjectAndGoalStack
-            habits={sortedHabits}
-            isBigScreen={isBigScreen}
-            selectedPeriodBreakdown={selectedPeriodBreakdown}
-            showEmptyGroups={
-              selectedGroupVisibility === GroupVisibility.SHOW_ALL
-            }
-            sortedProjects={sortedProjects}
-            allProjectsByRefId={allProjectsByRefId}
-            sortedGoals={sortedGoals}
-            allGoalsByRefId={allGoalsByRefId}
-            entriesByRefId={entriesByRefId}
-            topLevelInfo={topLevelInfo}
-          />
+                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
+                  <HabitsByProjectAndGoalStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    sortedGoals={sortedGoals}
+                    allGoalsByRefId={allGoalsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+              </Box>
+
+              <Box
+                sx={{
+                  width: "320px",
+                  flexShrink: 0,
+                  position: "sticky",
+                  top: "1rem",
+                  maxHeight: "calc(100vh - 8rem)",
+                  overflowY: "auto",
+                  border: (theme) =>
+                    `2px dotted ${theme.palette.primary.main}`,
+                  borderRadius: "4px",
+                  padding: "0.4rem",
+                }}
+              >
+                <HabitInboxTasksWidget {...tasksWidgetProps} />
+              </Box>
+            </Box>
+          </>
+        ) : (
+          <>
+            <Tabs
+              value={mobileTab}
+              variant="scrollable"
+              scrollButtons="auto"
+              onChange={(_, v) => setMobileTab(v)}
+            >
+              <Tab label="Streaks" value="streaks" />
+              <Tab label="Habits" value="habits" />
+              <Tab label="Tasks" value="tasks" />
+            </Tabs>
+
+            {mobileTab === "streaks" && (
+              <>
+                {loaderData.habits.length === 0 && (
+                  <EntityNoNothingCard
+                    title="You Have To Start Somewhere"
+                    message="There are no habits to show. You can create a new habit."
+                    newEntityLocations="/app/workspace/habits/new"
+                    helpSubject={DocsHelpSubject.HABITS}
+                  />
+                )}
+                {loaderData.keyHabitStreaks.length > 0 && (
+                  <HabitKeyHabitStreakWidget {...streakWidgetProps} />
+                )}
+              </>
+            )}
+
+            {mobileTab === "habits" && (
+              <>
+                {sortedHabits.length === 0 && (
+                  <EntityNoNothingCard
+                    title="You Have To Start Somewhere"
+                    message="There are no habits to show. You can create a new habit."
+                    newEntityLocations="/app/workspace/habits/new"
+                    helpSubject={DocsHelpSubject.HABITS}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.FLAT && (
+                  <HabitsFlatStack
+                    habits={sortedHabits}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                    showPeriodTag={true}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_PROJECT && (
+                  <HabitsByProjectStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+
+                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
+                  <HabitsByProjectAndGoalStack
+                    habits={sortedHabits}
+                    isBigScreen={isBigScreen}
+                    selectedPeriodBreakdown={selectedPeriodBreakdown}
+                    showEmptyGroups={
+                      selectedGroupVisibility === GroupVisibility.SHOW_ALL
+                    }
+                    sortedProjects={sortedProjects}
+                    allProjectsByRefId={allProjectsByRefId}
+                    sortedGoals={sortedGoals}
+                    allGoalsByRefId={allGoalsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    topLevelInfo={topLevelInfo}
+                  />
+                )}
+              </>
+            )}
+
+            {mobileTab === "tasks" && (
+              <HabitInboxTasksWidget {...tasksWidgetProps} />
+            )}
+          </>
         )}
       </NestingAwareBlock>
 
