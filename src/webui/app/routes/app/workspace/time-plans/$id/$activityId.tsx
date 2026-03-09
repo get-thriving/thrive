@@ -6,6 +6,7 @@ import type {
   Tag,
   Contact,
 } from "@jupiter/webapi-client";
+import { DateTime } from "luxon";
 import {
   ApiError,
   BigPlanStatus,
@@ -150,6 +151,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("target-inbox-task-update"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-day"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-week"),
+    ...UpdateFormTargetInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("target-inbox-task-delay-1-month"),
     ...UpdateFormTargetInboxTaskSchema,
   }),
   z.object({
@@ -446,6 +459,64 @@ export async function action({ request, params }: ActionFunctionArgs) {
             },
           });
         }
+
+        return redirect(`/app/workspace/time-plans/${id}`);
+      }
+
+      case "target-inbox-task-delay-1-day":
+      case "target-inbox-task-delay-1-week":
+      case "target-inbox-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "target-inbox-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "target-inbox-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (
+          form.targetInboxTaskDueDate !== undefined &&
+          form.targetInboxTaskDueDate !== ""
+        ) {
+          const oldDueDate = DateTime.fromISO(form.targetInboxTaskDueDate);
+          if (
+            form.targetInboxTaskActionableDate !== undefined &&
+            form.targetInboxTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.targetInboxTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.inboxTasks.inboxTaskUpdate({
+          ref_id: form.targetInboxTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          project_ref_id: { should_change: false },
+          chapter_ref_id: { should_change: false },
+          goal_ref_id: { should_change: false },
+          big_plan_ref_id: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
 
         return redirect(`/app/workspace/time-plans/${id}`);
       }

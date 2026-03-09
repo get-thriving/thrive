@@ -631,6 +631,41 @@ export function InboxTaskPropertiesEditor(
               </Button>
             </ButtonGroup>
           )}
+
+          {corePropertyEditable && (
+            <ButtonGroup fullWidth>
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={!props.inputsEnabled}
+                type="submit"
+                name="intent"
+                value={constructIntentName(props.intentPrefix, "delay-1-day")}
+              >
+                Delay by 1 Day
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={!props.inputsEnabled}
+                type="submit"
+                name="intent"
+                value={constructIntentName(props.intentPrefix, "delay-1-week")}
+              >
+                Delay by 1 Week
+              </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={!props.inputsEnabled}
+                type="submit"
+                name="intent"
+                value={constructIntentName(props.intentPrefix, "delay-1-month")}
+              >
+                Delay by 1 Month
+              </Button>
+            </ButtonGroup>
+          )}
         </Stack>
       </CardActions>
     </SectionCard>
