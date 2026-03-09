@@ -16,6 +16,7 @@ import {
   InboxTask,
   InboxTaskSource,
   InboxTaskStatus,
+  LifePlan,
   RecurringTaskPeriod,
   SmallScreenHomeTabWidgetPlacement,
   WidgetType,
@@ -85,6 +86,7 @@ import { GamificationOverviewWidget } from "@jupiter/core/gamification/component
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
 import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
+import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
 
 import { newURLParams } from "~/logic/navigation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -111,6 +113,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_chores: true,
     include_big_plans: true,
     include_persons: true,
+    include_life_plan: true,
   });
 
   const workspace = summaryResponse.workspace!;
@@ -295,6 +298,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       : undefined,
     gamificationOverview: userResponse.user_score_overview,
     gamificationHistory: userResponse.user_score_history,
+    lifePlan: summaryResponse.life_plan as LifePlan | undefined,
   });
 }
 
@@ -529,6 +533,7 @@ export default function WorkspaceHome() {
     },
     gamificationOverview: loaderData.gamificationOverview ?? undefined,
     gamificationHistory: loaderData.gamificationHistory ?? undefined,
+    lifePlan: loaderData.lifePlan ?? undefined,
   };
 
   return (
@@ -944,6 +949,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <GamificationHistoryWeeklyWidget {...widgetPropsWithGeometry} />;
     case WidgetType.GAMIFICATION_HISTORY_MONTHLY:
       return <GamificationHistoryMonthlyWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_WEEKS:
+      return <LifeWeeksWidget {...widgetPropsWithGeometry} />;
   }
 }
 
