@@ -4,6 +4,7 @@ import type {
   LifePlan,
   MilestoneSummary,
   ProjectSummary,
+  SuggestedDate,
   TimePlan,
 } from "@jupiter/webapi-client";
 import {
@@ -129,6 +130,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allChapters: summaryResponse.chapters as Array<ChapterSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+    actionableDateSuggestedDates: (summaryResponse.actionable_date_suggested_dates ?? []) as Array<SuggestedDate>,
+    dueDateSuggestedDates: (summaryResponse.due_date_suggested_dates ?? []) as Array<SuggestedDate>,
   });
 }
 
@@ -306,6 +309,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              loaderData.actionableDateSuggestedDates,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/actionable_date" />
@@ -327,6 +331,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              loaderData.dueDateSuggestedDates,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/due_date" />

@@ -29,10 +29,14 @@ from jupiter.core.inbox_tasks.collection import (
     InboxTaskCollection,
 )
 from jupiter.core.journals.collection import JournalCollection
+from jupiter.core.common.suggested_date import SuggestedDate
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
+from jupiter.core.life_plan.sub.chapters.root import Chapter
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
+from jupiter.framework.base.adate import ADate
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.prm.root import PRM
 from jupiter.core.schedule.domain import ScheduleDomain
@@ -102,6 +106,8 @@ class GetSummariesResult(UseCaseResultBase):
     smart_lists: list[SmartListSummary] | None
     metrics: list[MetricSummary] | None
     persons: list[PersonSummary] | None
+    actionable_date_suggested_dates: list[SuggestedDate] | None
+    due_date_suggested_dates: list[SuggestedDate] | None
 
 
 @readonly_use_case()
@@ -323,6 +329,47 @@ class GetSummariesUseCase(
                 allow_archived=allow_archived,
             )
 
+        actionable_date_suggested_dates: list[SuggestedDate] | None = None
+        due_date_suggested_dates: list[SuggestedDate] | None = None
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.include_chapters
+        ):
+            milestones_for_lp = await uow.get_for(Milestone).find_all(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+            )
+            milestone_dates_by_ref_id = {
+                m.ref_id: m.date for m in milestones_for_lp
+            }
+            all_chapters = await uow.get_for(Chapter).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=False,
+            )
+            today = ADate.from_timestamp(context.domain_context.action_timestamp)
+            actionable_date_suggested_dates = []
+            due_date_suggested_dates = []
+            for lp_chapter in all_chapters:
+                chapter_start = lp_chapter.start_date.earliest_relative_to(
+                    life_plan.birthday_date, today, milestone_dates_by_ref_id
+                )
+                chapter_end = lp_chapter.end_date.latest_relative_to(
+                    life_plan.birthday_date, today, milestone_dates_by_ref_id
+                )
+                if chapter_start <= today <= chapter_end:
+                    actionable_date_suggested_dates.append(
+                        SuggestedDate(
+                            date=chapter_start,
+                            description=f"Start of chapter '{lp_chapter.name}'",
+                        )
+                    )
+                    due_date_suggested_dates.append(
+                        SuggestedDate(
+                            date=chapter_end,
+                            description=f"End of chapter '{lp_chapter.name}'",
+                        )
+                    )
+
         return GetSummariesResult(
             user=user if args.include_user else None,
             workspace=workspace if args.include_workspace else None,
@@ -343,4 +390,6 @@ class GetSummariesUseCase(
             smart_lists=smart_lists,
             metrics=metrics,
             persons=persons,
+            actionable_date_suggested_dates=actionable_date_suggested_dates,
+            due_date_suggested_dates=due_date_suggested_dates,
         )

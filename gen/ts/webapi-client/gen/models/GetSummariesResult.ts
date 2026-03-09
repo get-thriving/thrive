@@ -16,6 +16,7 @@ import type { PersonSummary } from './PersonSummary';
 import type { ProjectSummary } from './ProjectSummary';
 import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
 import type { SmartListSummary } from './SmartListSummary';
+import type { SuggestedDate } from './SuggestedDate';
 import type { User } from './User';
 import type { VacationSummary } from './VacationSummary';
 import type { Vision } from './Vision';
@@ -43,5 +44,7 @@ export type GetSummariesResult = {
     smart_lists?: (Array<SmartListSummary> | null);
     metrics?: (Array<MetricSummary> | null);
     persons?: (Array<PersonSummary> | null);
+    actionable_date_suggested_dates?: (Array<SuggestedDate> | null);
+    due_date_suggested_dates?: (Array<SuggestedDate> | null);
 };
 
