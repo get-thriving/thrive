@@ -4,6 +4,9 @@
 #USAGE flag "--universe <universe>" default="dev" help="Jupiter universe" {
 #USAGE   choices "dev" "thrive-sh-test"
 #USAGE }
+#USAGE flag "--environment <environment>" default="local" help="Jupiter environment" {
+#USAGE   choices "local" "staging"
+#USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE flag "--visual" help="Open the database in a visual editor"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
@@ -12,6 +15,7 @@
 #USAGE }
 
 : "${usage_universe:=}"
+: "${usage_environment:=}"
 : "${usage_instance:=}"
 : "${usage_visual:=false}"
 
@@ -26,6 +30,11 @@ if [[ -z "$instance" ]]; then
 fi
 
 if [[ "$usage_universe" == "dev" ]]; then
+    if [[ "$usage_environment" != "local" ]]; then
+        log error "Environment $usage_environment is not supported for dev universe"
+        exit 1
+    fi
+
     db_path="$RUN_ROOT/$instance/jupiter.sqlite"
 
     if [[ ! -f "$db_path" ]]; then
@@ -43,6 +52,11 @@ if [[ "$usage_universe" == "dev" ]]; then
         sqlite3 "$db_path"
     fi
 elif [[ "$usage_universe" == "thrive-sh-test" ]]; then
+    if [[ "$usage_environment" != "staging" ]]; then
+        log error "Environment $usage_environment is not supported for thrive-sh-test universe"
+        exit 1
+    fi
+
     gcp_vm_name="thrive-sh-test-${instance}"
 
     log info "Connecting to Jupiter SQLite database for instance: $instance on GCP VM: $gcp_vm_name"
