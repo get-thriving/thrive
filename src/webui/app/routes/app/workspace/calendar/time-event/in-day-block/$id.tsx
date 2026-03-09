@@ -8,6 +8,7 @@ import type {
   Tag,
   Contact,
 } from "@jupiter/webapi-client";
+import { DateTime } from "luxon";
 import {
   ApiError,
   BigPlanStatus,
@@ -146,6 +147,18 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("inbox-task-update"),
+    ...UpdateFormInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("inbox-task-delay-1-day"),
+    ...UpdateFormInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("inbox-task-delay-1-week"),
+    ...UpdateFormInboxTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("inbox-task-delay-1-month"),
     ...UpdateFormInboxTaskSchema,
   }),
   z.object({
@@ -420,6 +433,64 @@ export async function action({ request, params }: ActionFunctionArgs) {
             },
           });
         }
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
+      case "inbox-task-delay-1-day":
+      case "inbox-task-delay-1-week":
+      case "inbox-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "inbox-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "inbox-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (
+          form.inboxTaskDueDate !== undefined &&
+          form.inboxTaskDueDate !== ""
+        ) {
+          const oldDueDate = DateTime.fromISO(form.inboxTaskDueDate);
+          if (
+            form.inboxTaskActionableDate !== undefined &&
+            form.inboxTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.inboxTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.inboxTasks.inboxTaskUpdate({
+          ref_id: form.inboxTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          project_ref_id: { should_change: false },
+          chapter_ref_id: { should_change: false },
+          goal_ref_id: { should_change: false },
+          big_plan_ref_id: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
 
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
