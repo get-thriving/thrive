@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 #MISE description="Connect to Jupiter database"
+#USAGE flag "--universe <universe>" default="dev" help="Jupiter universe" {
+#USAGE   choices "dev" "thrive-sh-test"
+#USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE flag "--visual" help="Open the database in a visual editor"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"
@@ -8,6 +11,7 @@
 #USAGE   choices "info" "debug" "trace"
 #USAGE }
 
+: "${usage_universe:=}"
 : "${usage_instance:=}"
 : "${usage_visual:=false}"
 
@@ -21,19 +25,47 @@ if [[ -z "$instance" ]]; then
     instance=$STANDARD_INSTANCE
 fi
 
-db_path="$RUN_ROOT/$instance/jupiter.sqlite"
+if [[ "$usage_universe" == "dev" ]]; then
+    db_path="$RUN_ROOT/$instance/jupiter.sqlite"
 
-if [[ ! -f "$db_path" ]]; then
-    log info "Database file not found at: $db_path"
-    log info "Make sure Jupiter is running or the database exists."
-    exit 1
-fi
+    if [[ ! -f "$db_path" ]]; then
+        log info "Database file not found at: $db_path"
+        log info "Make sure Jupiter is running or the database exists."
+        exit 1
+    fi
 
-log info "Connecting to Jupiter SQLite database for instance: $instance at path: $db_path"
+    log info "Connecting to Jupiter SQLite database for instance: $instance at path: $db_path"
 
-if [[ "$usage_visual" == true ]]; then
-    log info "Opening database in a visual editor..."
-    open -a DBeaver "$db_path"
-else
-    sqlite3 "$db_path"
+    if [[ "$usage_visual" == true ]]; then
+        log info "Opening database in a visual editor..."
+        open -a DBeaver "$db_path"
+    else
+        sqlite3 "$db_path"
+    fi
+elif [[ "$usage_universe" == "thrive-sh-test" ]]; then
+    gcp_vm_name="thrive-sh-test-${instance}"
+
+    log info "Connecting to Jupiter SQLite database for instance: $instance on GCP VM: $gcp_vm_name"
+
+    if [[ "$usage_visual" == true ]]; then
+        log info "Copying database from GCP VM for visual inspection..."
+        local_db_path="/tmp/${gcp_vm_name}-jupiter.sqlite"
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --command "sudo docker cp jupiter-webapi-1:/data/jupiter.sqlite /tmp/jupiter.sqlite"
+        gcloud compute scp \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE" \
+            "${gcp_vm_name}:/tmp/jupiter.sqlite" "$local_db_path"
+        log info "Opening database in a visual editor at: $local_db_path"
+        open -a DBeaver "$local_db_path"
+    else
+        log info "Opening interactive sqlite3 session on GCP VM..."
+        gcloud compute ssh "$gcp_vm_name" \
+            --zone "$THRIVE_GCP_ZONE" \
+            --project "$THRIVE_GCP_PROJECT" \
+            --ssh-flag="-tt" \
+            --command "sudo docker exec -it jupiter-webapi-1 sqlite3 /data/jupiter.sqlite"
+    fi
 fi
