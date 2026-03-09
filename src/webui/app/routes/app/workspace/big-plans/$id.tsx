@@ -193,6 +193,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         ).contacts ?? [],
       note: result.note,
       timeEventBlocks: result.time_event_blocks,
+      actionableDateSuggestedDates: result.actionable_date_suggested_dates,
+      dueDateSuggestedDates: result.due_date_suggested_dates,
       timePlanEntries: timePlanEntries,
       lifePlan: summaryResponse.life_plan as LifePlan,
       allProjects: summaryResponse.projects as Array<ProjectSummary>,
@@ -388,6 +390,8 @@ export default function BigPlan() {
     note: loaderData.note,
     time_event_blocks: loaderData.timeEventBlocks,
     stats: loaderData.stats,
+    actionable_date_suggested_dates: loaderData.actionableDateSuggestedDates,
+    due_date_suggested_dates: loaderData.dueDateSuggestedDates,
   };
 
   const bigPlansByRefId = new Map();
