@@ -1243,6 +1243,16 @@ function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
           </Stack>
         ))}
       </Box>
+      {isBigScreen && (
+        <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: "3rem" }}>
+          <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
+            {100 - percent}%
+          </Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem", textAlign: "center" }}>
+            left to live
+          </Typography>
+        </Stack>
+      )}
     </Stack>
   );
 }
