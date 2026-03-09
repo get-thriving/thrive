@@ -40,7 +40,7 @@ import {
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
-import GridViewIcon from "@mui/icons-material/GridView";
+
 import HistoryIcon from "@mui/icons-material/History";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
@@ -81,7 +81,6 @@ import { sortMilestonesNaturally } from "#/core/life_plan/sub/milestones/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
-import { LifeWeeksGrid } from "#/core/life_plan/component/life-weeks-grid";
 
 import { getIntent, makeIntent } from "~/logic/intent";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -313,11 +312,6 @@ export default function LifePlanView() {
                   link: `/app/workspace/life-plan/history-of-work`,
                   icon: <HistoryIcon />,
                 }),
-                NavSingle({
-                  text: "Life Weeks",
-                  link: `/app/workspace/life-plan/life-weeks`,
-                  icon: <GridViewIcon />,
-                }),
               ],
             }),
           ]}
@@ -338,16 +332,12 @@ export default function LifePlanView() {
               />
             </SectionLabeled>
 
-            {!isBigScreen && (
-              <SectionLabeled label="Life Weeks">
-                <LifeWeeksGrid
-                  birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                  today={today}
-                  cellSizePx={4}
-                  showYearLabels={false}
-                />
-              </SectionLabeled>
-            )}
+            <SectionLabeled label="Life Months">
+              <LifeMonthsGrid
+                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                today={today}
+              />
+            </SectionLabeled>
 
             {isBigScreen && (
               <SectionLabeled label="Milestones">
@@ -1177,6 +1167,64 @@ function renderGoalNode(node: GoalNode, depth: number): JSX.Element {
       </EntityLink>
       {node.children.length > 0 &&
         node.children.map((child) => renderGoalNode(child, depth + 1))}
+    </Box>
+  );
+}
+
+const TOTAL_YEARS = 100;
+const MONTHS_PER_YEAR = 12;
+
+interface LifeMonthsGridProps {
+  birthday: DateTime;
+  today: DateTime;
+}
+
+function LifeMonthsGrid({ birthday, today }: LifeMonthsGridProps) {
+  const todayMillis = today.toMillis();
+
+  return (
+    <Box sx={{ overflowX: "auto" }}>
+      {Array.from({ length: MONTHS_PER_YEAR }, (_, month) => (
+        <Stack key={month} direction="row" sx={{ alignItems: "center" }}>
+          {Array.from({ length: TOTAL_YEARS }, (_, year) => {
+            const monthStart = birthday
+              .plus({ years: year })
+              .set({ month: month + 1, day: 1 })
+              .startOf("day");
+            const monthEnd = monthStart.plus({ months: 1 });
+            const monthStartMillis = monthStart.toMillis();
+            const monthEndMillis = monthEnd.toMillis();
+
+            const isCurrent =
+              monthStartMillis <= todayMillis && todayMillis < monthEndMillis;
+            const isPast = monthEndMillis <= todayMillis;
+
+            const backgroundColor = isCurrent
+              ? "#ffd700"
+              : isPast
+                ? "#cccccc"
+                : "#f0f0f0";
+
+            return (
+              <Tooltip
+                key={year}
+                title={`Age ${year}, ${monthStart.toFormat("LLLL yyyy")}`}
+                placement="top"
+              >
+                <Box
+                  sx={{
+                    width: "4px",
+                    height: "4px",
+                    margin: "0.5px",
+                    flexShrink: 0,
+                    backgroundColor,
+                  }}
+                />
+              </Tooltip>
+            );
+          })}
+        </Stack>
+      ))}
     </Box>
   );
 }
