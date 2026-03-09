@@ -47,25 +47,10 @@ elif [[ "$usage_universe" == "thrive-sh-test" ]]; then
 
     log info "Connecting to Jupiter SQLite database for instance: $instance on GCP VM: $gcp_vm_name"
 
-    if [[ "$usage_visual" == true ]]; then
-        log info "Copying database from GCP VM for visual inspection..."
-        local_db_path="/tmp/${gcp_vm_name}-jupiter.sqlite"
-        gcloud compute ssh "$gcp_vm_name" \
-            --zone "$THRIVE_GCP_ZONE" \
-            --project "$THRIVE_GCP_PROJECT" \
-            --command "sudo docker cp jupiter-webapi-1:/data/jupiter.sqlite /tmp/jupiter.sqlite"
-        gcloud compute scp \
-            --project "$THRIVE_GCP_PROJECT" \
-            --zone "$THRIVE_GCP_ZONE" \
-            "${gcp_vm_name}:/tmp/jupiter.sqlite" "$local_db_path"
-        log info "Opening database in a visual editor at: $local_db_path"
-        open -a DBeaver "$local_db_path"
-    else
-        log info "Opening interactive sqlite3 session on GCP VM..."
-        gcloud compute ssh "$gcp_vm_name" \
-            --zone "$THRIVE_GCP_ZONE" \
-            --project "$THRIVE_GCP_PROJECT" \
-            --ssh-flag="-tt" \
-            --command "sudo docker exec -it jupiter-webapi-1 sqlite3 /data/jupiter.sqlite"
-    fi
+    log info "Opening interactive sqlite3 session on GCP VM..."
+    gcloud compute ssh "$gcp_vm_name" \
+        --zone "$THRIVE_GCP_ZONE" \
+        --project "$THRIVE_GCP_PROJECT" \
+        --ssh-flag="-tt" \
+        --command "sudo docker exec -it jupiter-webapi-1 sqlite3 /data/jupiter.sqlite"
 fi
