@@ -336,6 +336,7 @@ export default function LifePlanView() {
               <LifeMonthsGrid
                 birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
                 today={today}
+                isBigScreen={isBigScreen}
               />
             </SectionLabeled>
 
@@ -1177,54 +1178,71 @@ const MONTHS_PER_YEAR = 12;
 interface LifeMonthsGridProps {
   birthday: DateTime;
   today: DateTime;
+  isBigScreen: boolean;
 }
 
-function LifeMonthsGrid({ birthday, today }: LifeMonthsGridProps) {
+function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
   const todayMillis = today.toMillis();
 
+  const ageMs = todayMillis - birthday.toMillis();
+  const ageYears = ageMs / (365.25 * 24 * 60 * 60 * 1000);
+  const percent = Math.min(100, Math.round((ageYears / TOTAL_YEARS) * 100));
+
   return (
-    <Box sx={{ overflowX: "auto" }}>
-      {Array.from({ length: MONTHS_PER_YEAR }, (_, month) => (
-        <Stack key={month} direction="row" sx={{ alignItems: "center" }}>
-          {Array.from({ length: TOTAL_YEARS }, (_, year) => {
-            const monthStart = birthday
-              .plus({ years: year })
-              .set({ month: month + 1, day: 1 })
-              .startOf("day");
-            const monthEnd = monthStart.plus({ months: 1 });
-            const monthStartMillis = monthStart.toMillis();
-            const monthEndMillis = monthEnd.toMillis();
-
-            const isCurrent =
-              monthStartMillis <= todayMillis && todayMillis < monthEndMillis;
-            const isPast = monthEndMillis <= todayMillis;
-
-            const backgroundColor = isCurrent
-              ? "#ffd700"
-              : isPast
-                ? "#cccccc"
-                : "#f0f0f0";
-
-            return (
-              <Tooltip
-                key={year}
-                title={`Age ${year}, ${monthStart.toFormat("LLLL yyyy")}`}
-                placement="top"
-              >
-                <Box
-                  sx={{
-                    width: "4px",
-                    height: "4px",
-                    margin: "0.5px",
-                    flexShrink: 0,
-                    backgroundColor,
-                  }}
-                />
-              </Tooltip>
-            );
-          })}
+    <Stack direction="row" sx={{ alignItems: "center", gap: 2 }}>
+      {isBigScreen && (
+        <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: "3rem" }}>
+          <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
+            {percent}%
+          </Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem", textAlign: "center" }}>
+            lived so far
+          </Typography>
         </Stack>
-      ))}
-    </Box>
+      )}
+      <Box sx={{ overflowX: "auto" }}>
+        {Array.from({ length: MONTHS_PER_YEAR }, (_, month) => (
+          <Stack key={month} direction="row" sx={{ alignItems: "center" }}>
+            {Array.from({ length: TOTAL_YEARS }, (_, year) => {
+              const monthStart = birthday
+                .plus({ years: year })
+                .set({ month: month + 1, day: 1 })
+                .startOf("day");
+              const monthEnd = monthStart.plus({ months: 1 });
+              const monthStartMillis = monthStart.toMillis();
+              const monthEndMillis = monthEnd.toMillis();
+
+              const isCurrent =
+                monthStartMillis <= todayMillis && todayMillis < monthEndMillis;
+              const isPast = monthEndMillis <= todayMillis;
+
+              const backgroundColor = isCurrent
+                ? "#ffd700"
+                : isPast
+                  ? "#cccccc"
+                  : "#f0f0f0";
+
+              return (
+                <Tooltip
+                  key={year}
+                  title={`Age ${year}, ${monthStart.toFormat("LLLL yyyy")}`}
+                  placement="top"
+                >
+                  <Box
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      margin: "1px",
+                      flexShrink: 0,
+                      backgroundColor,
+                    }}
+                  />
+                </Tooltip>
+              );
+            })}
+          </Stack>
+        ))}
+      </Box>
+    </Stack>
   );
 }

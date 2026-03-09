@@ -58,7 +58,7 @@ export function LifeWeeksWidget(props: WidgetProps) {
         })}
       </Box>
 
-      <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, width: "33%" }}>
         <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
           {percent}%
         </Typography>
