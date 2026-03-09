@@ -2,10 +2,10 @@
 
 #MISE description="Connect to Jupiter database"
 #USAGE flag "--universe <universe>" default="dev" help="Jupiter universe" {
-#USAGE   choices "dev" "thrive-sh-test"
+#USAGE   choices "dev" "thrive-sh-test" "thrive"
 #USAGE }
 #USAGE flag "--environment <environment>" default="local" help="Jupiter environment" {
-#USAGE   choices "local" "staging"
+#USAGE   choices "local" "staging" "production"
 #USAGE }
 #USAGE flag "--instance <instance>" help="Jupiter instance (defaults to standard instance)"
 #USAGE flag "--visual" help="Open the database in a visual editor"
@@ -51,6 +51,15 @@ if [[ "$usage_universe" == "dev" ]]; then
     else
         sqlite3 "$db_path"
     fi
+elif [[ "$usage_universe" == "thrive" ]]; then
+    if [[ "$usage_environment" != "production" ]]; then
+        log error "Environment $usage_environment is not supported for thrive universe"
+        exit 1
+    fi
+
+    log info "Connecting to Jupiter SQLite database on Render (thrive/production)"
+
+    render ssh jupiter-webapi -- sqlite3 /data/jupiter.sqlite
 elif [[ "$usage_universe" == "thrive-sh-test" ]]; then
     if [[ "$usage_environment" != "staging" ]]; then
         log error "Environment $usage_environment is not supported for thrive-sh-test universe"
