@@ -6,6 +6,7 @@ import {
 } from "@jupiter/webapi-client";
 import TuneIcon from "@mui/icons-material/Tune";
 import { styled } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { ResponsiveLine } from "@nivo/line";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -296,6 +297,27 @@ interface MetricGraphProps {
 }
 
 function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
+  const theme = useTheme();
+  const nivoTheme = {
+    axis: {
+      ticks: {
+        text: { fill: theme.palette.text.secondary },
+      },
+      legend: {
+        text: { fill: theme.palette.text.primary },
+      },
+    },
+    legends: {
+      text: { fill: theme.palette.text.primary },
+    },
+    tooltip: {
+      container: {
+        background: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+      },
+    },
+  };
+
   const entriesForGraph = sortedMetricEntries.map((e) => ({
     x: aDateToDate(e.collection_time).toFormat("yyyy-MM-dd"),
     y: e.value,
@@ -306,6 +328,7 @@ function MetricGraph({ sortedMetricEntries }: MetricGraphProps) {
   return (
     <MetricGraphDiv>
       <ResponsiveLine
+        theme={nivoTheme}
         curve="monotoneX"
         xScale={{
           type: "time",
