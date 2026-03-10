@@ -51,9 +51,9 @@ class BigPlanUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[BigPlanName]
     status: UpdateAction[BigPlanStatus]
-    project_ref_id: UpdateAction[EntityId] = UpdateAction.do_nothing()
-    chapter_ref_id: UpdateAction[EntityId | None] = UpdateAction.do_nothing()
-    goal_ref_id: UpdateAction[EntityId | None] = UpdateAction.do_nothing()
+    project_ref_id: UpdateAction[EntityId]
+    chapter_ref_id: UpdateAction[EntityId | None]
+    goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     eisen: UpdateAction[Eisen]
     difficulty: UpdateAction[Difficulty]
