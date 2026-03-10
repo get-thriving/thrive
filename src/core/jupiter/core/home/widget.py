@@ -111,6 +111,7 @@ class WidgetType(EnumValue):
     GAMIFICATION_HISTORY_WEEKLY = "gamification-history-weekly"
     GAMIFICATION_HISTORY_MONTHLY = "gamification-history-monthly"
     LIFE_WEEKS = "life-weeks"
+    LIFE_VISION = "life-vision"
 
 
 @value
@@ -342,6 +343,20 @@ WIDGET_CONSTRAINTS = {
         allowed_dimensions={
             HomeTabTarget.BIG_SCREEN: [WidgetDimension.DIM_1x1],
             HomeTabTarget.SMALL_SCREEN: [WidgetDimension.DIM_1x1],
+        },
+        only_for_workspace_features=[WorkspaceFeature.LIFE_PLAN],
+        only_for_user_features=None,
+    ),
+    WidgetType.LIFE_VISION: WidgetTypeConstraints(
+        allowed_dimensions={
+            HomeTabTarget.BIG_SCREEN: [
+                WidgetDimension.DIM_1x1,
+                WidgetDimension.DIM_1x2,
+                WidgetDimension.DIM_1x3,
+            ],
+            HomeTabTarget.SMALL_SCREEN: [
+                WidgetDimension.DIM_1x1,
+            ],
         },
         only_for_workspace_features=[WorkspaceFeature.LIFE_PLAN],
         only_for_user_features=None,

@@ -3,6 +3,7 @@ import {
   InboxTask,
   LifePlan,
   MOTD,
+  Note,
   Timezone,
   TimePlanActivityDoneness,
   BigPlan,
@@ -15,6 +16,7 @@ import {
   UserScoreOverview,
   UserScoreHistory,
   BigPlanStats,
+  Vision,
   WidgetType,
   WorkspaceFeature,
   UserFeature,
@@ -126,6 +128,8 @@ export interface WidgetProps {
   gamificationOverview?: UserScoreOverview;
   gamificationHistory?: UserScoreHistory;
   lifePlan?: LifePlan;
+  activeVision?: Vision;
+  activeVisionNote?: Note;
   geometry: WidgetGeometry;
 }
 

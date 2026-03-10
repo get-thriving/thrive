@@ -38,6 +38,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Monthly Score History";
     case WidgetType.LIFE_WEEKS:
       return "Life Weeks";
+    case WidgetType.LIFE_VISION:
+      return "Life Vision";
   }
 }
 
