@@ -128,8 +128,7 @@ export interface WidgetProps {
   gamificationOverview?: UserScoreOverview;
   gamificationHistory?: UserScoreHistory;
   lifePlan?: LifePlan;
-  activeVision?: Vision;
-  activeVisionNote?: Note;
+  activeVision?: { vision: Vision; note: Note };
   geometry: WidgetGeometry;
 }
 

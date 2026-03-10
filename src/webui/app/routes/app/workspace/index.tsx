@@ -308,8 +308,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     gamificationOverview: userResponse.user_score_overview,
     gamificationHistory: userResponse.user_score_history,
     lifePlan: summaryResponse.life_plan as LifePlan | undefined,
-    activeVision: activeVisionResponse?.vision as Vision | undefined,
-    activeVisionNote: activeVisionResponse?.note as Note | undefined,
+    activeVision:
+      activeVisionResponse?.vision && activeVisionResponse?.note
+        ? { vision: activeVisionResponse.vision as Vision, note: activeVisionResponse.note as Note }
+        : undefined,
   });
 }
 
@@ -546,7 +548,6 @@ export default function WorkspaceHome() {
     gamificationHistory: loaderData.gamificationHistory ?? undefined,
     lifePlan: loaderData.lifePlan ?? undefined,
     activeVision: loaderData.activeVision ?? undefined,
-    activeVisionNote: loaderData.activeVisionNote ?? undefined,
   };
 
   return (
