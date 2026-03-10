@@ -76,7 +76,7 @@ const ParamsSchema = z.object({
 const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(BigPlanStatus),
-  project: z.string(),
+  project: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   isKey: CheckboxAsString,
@@ -255,24 +255,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id: {
-            should_change: true,
-            value: form.project,
-          },
-          chapter_ref_id: {
-            should_change: true,
-            value:
-              form.chapter !== undefined && form.chapter !== ""
-                ? form.chapter
-                : undefined,
-          },
-          goal_ref_id: {
-            should_change: true,
-            value:
-              form.goal !== undefined && form.goal !== ""
-                ? form.goal
-                : undefined,
-          },
+          project_ref_id:
+            form.project !== undefined
+              ? { should_change: true, value: form.project }
+              : { should_change: false },
+          chapter_ref_id:
+            form.project !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.chapter !== undefined && form.chapter !== ""
+                      ? form.chapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.project !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.goal !== undefined && form.goal !== ""
+                      ? form.goal
+                      : undefined,
+                }
+              : { should_change: false },
           is_key: {
             should_change: true,
             value: form.isKey,

@@ -123,7 +123,7 @@ class BigPlanUpdateUseCase(
                         f"Milestone {m.name} date {m.date} is after new due date {new_due}"
                     )
 
-        if (
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
             args.project_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
@@ -163,7 +163,7 @@ class BigPlanUpdateUseCase(
         await uow.get_for(BigPlan).save(big_plan)
         await progress_reporter.mark_updated(big_plan)
 
-        if args.project_ref_id.should_change:
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and args.project_ref_id.should_change:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(
