@@ -6,10 +6,6 @@ import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
 export function LifeVisionWidget(props: WidgetProps) {
   const { activeVision } = props;
 
-  const editUrl = activeVision
-    ? `/app/workspace/life-plan/visions/${activeVision.vision.ref_id}`
-    : `/app/workspace/life-plan/visions`;
-
   return (
     <Stack
       direction="column"
@@ -26,7 +22,7 @@ export function LifeVisionWidget(props: WidgetProps) {
           size="small"
           variant="outlined"
           component={Link}
-          to={editUrl}
+          to="/app/workspace/life-plan/visions/new-draft"
           sx={{ fontSize: "0.7rem", padding: "2px 8px" }}
         >
           Edit
