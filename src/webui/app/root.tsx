@@ -45,6 +45,17 @@ function buildTheme(useNightMode: boolean) {
     typography: {
       fontFamily: '"Helvetica", "Arial", sans-serif',
     },
+    ...(useNightMode && {
+      components: {
+        MuiCard: {
+          styleOverrides: {
+            root: {
+              border: "1px solid rgba(255, 255, 255, 0.12)",
+            },
+          },
+        },
+      },
+    }),
   });
 }
 
