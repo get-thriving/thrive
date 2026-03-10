@@ -156,7 +156,7 @@ class HabitUpdateUseCase(
         else:
             habit_gen_params = UpdateAction.do_nothing()
 
-        if (
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
             args.project_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
@@ -193,8 +193,6 @@ class HabitUpdateUseCase(
 
         await uow.get_for(Habit).save(habit)
         await progress_reporter.mark_updated(habit)
-
-        project = await uow.get_for(Project).load_by_id(habit.project_ref_id)
 
         if habit.gen_params.period != initial_period:
             habit_streak_recorder_service = HabitStreakRecorderService()
@@ -252,7 +250,7 @@ class HabitUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_habit(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
+                    project_ref_id=habit.project_ref_id,
                     chapter_ref_id=habit.chapter_ref_id,
                     goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,

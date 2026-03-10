@@ -200,24 +200,25 @@ class InboxTaskUpdateUseCase(
                 the_goal = args.goal_ref_id
                 new_big_plan = previous_big_plan
 
-            project = await uow.get_for(Project).load_by_id(
-                the_project.or_else(inbox_task.project_ref_id)
-            )
-
-            if the_chapter.should_change and the_chapter.just_the_value is not None:
-                chapter = await uow.get_for(Chapter).load_by_id(
-                    the_chapter.just_the_value
+            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+                project = await uow.get_for(Project).load_by_id(
+                    the_project.or_else(inbox_task.project_ref_id)
                 )
-                if chapter.project_ref_id != project.ref_id:
-                    raise InputValidationError(
-                        f"Chapter does not belong to task's project '{project.name}'"
+
+                if the_chapter.should_change and the_chapter.just_the_value is not None:
+                    chapter = await uow.get_for(Chapter).load_by_id(
+                        the_chapter.just_the_value
                     )
-            if the_goal.should_change and the_goal.just_the_value is not None:
-                goal = await uow.get_for(Goal).load_by_id(the_goal.just_the_value)
-                if goal.project_ref_id != project.ref_id:
-                    raise InputValidationError(
-                        f"Goal does not belong to task's project '{project.name}'"
-                    )
+                    if chapter.project_ref_id != project.ref_id:
+                        raise InputValidationError(
+                            f"Chapter does not belong to task's project '{project.name}'"
+                        )
+                if the_goal.should_change and the_goal.just_the_value is not None:
+                    goal = await uow.get_for(Goal).load_by_id(the_goal.just_the_value)
+                    if goal.project_ref_id != project.ref_id:
+                        raise InputValidationError(
+                            f"Goal does not belong to task's project '{project.name}'"
+                        )
 
             new_inbox_task = inbox_task.update(
                 ctx=context.domain_context,

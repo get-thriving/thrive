@@ -242,18 +242,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.period,
           },
-          chapter_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
-          },
-          project_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.projectRefIds) || [],
-          },
-          goal_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.goalRefIds) || [],
-          },
+          chapter_ref_ids:
+            form.chapterRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+                }
+              : { should_change: false },
+          project_ref_ids:
+            form.projectRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.projectRefIds) || [],
+                }
+              : { should_change: false },
+          goal_ref_ids:
+            form.goalRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.goalRefIds) || [],
+                }
+              : { should_change: false },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -267,18 +276,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
           period: {
             should_change: false,
           },
-          chapter_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.chapterRefIds) || [],
-          },
-          project_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.projectRefIds) || [],
-          },
-          goal_ref_ids: {
-            should_change: true,
-            value: fixSelectOutputEntityId(form.goalRefIds) || [],
-          },
+          chapter_ref_ids:
+            form.chapterRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.chapterRefIds) || [],
+                }
+              : { should_change: false },
+          project_ref_ids:
+            form.projectRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.projectRefIds) || [],
+                }
+              : { should_change: false },
+          goal_ref_ids:
+            form.goalRefIds !== undefined
+              ? {
+                  should_change: true,
+                  value: fixSelectOutputEntityId(form.goalRefIds) || [],
+                }
+              : { should_change: false },
         });
         return redirect(`/app/workspace/time-plans/${id}`);
       }
@@ -508,69 +526,79 @@ export default function TimePlanView() {
               />
             </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <ProjectMultiSelect
-                name="projectRefIds"
-                label="Project"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allProjects={loaderData.allProjects ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.projects.map((p) => p.ref_id)}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/projectRefIds"
-              />
-            </FormControl>
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.LIFE_PLAN,
+            ) && (
+              <>
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <ProjectMultiSelect
+                    name="projectRefIds"
+                    label="Project"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allProjects={loaderData.allProjects ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.projects.map((p) => p.ref_id)}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/projectRefIds"
+                  />
+                </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <ChapterMultiSelect
-                name="chapterRefIds"
-                label="Chapter"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allChapters={loaderData.allChapters ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.chapters.map((c) => c.ref_id)}
-                birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
-                today={aDateToDate(topLevelInfo.today)}
-                allMilestones={loaderData.allMilestones ?? []}
-                allProjects={loaderData.allProjects ?? []}
-              />
-              <FieldError
-                actionResult={actionData}
-                fieldName="/chapterRefIds"
-              />
-            </FormControl>
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <ChapterMultiSelect
+                    name="chapterRefIds"
+                    label="Chapter"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allChapters={loaderData.allChapters ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.chapters.map((c) => c.ref_id)}
+                    birthday={lifePlanBirthdayDate(loaderData.lifePlan)}
+                    today={aDateToDate(topLevelInfo.today)}
+                    allMilestones={loaderData.allMilestones ?? []}
+                    allProjects={loaderData.allProjects ?? []}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/chapterRefIds"
+                  />
+                </FormControl>
 
-            <FormControl
-              fullWidth={!isBigScreen}
-              sx={{ width: isBigScreen ? "15%" : "100%" }}
-            >
-              <GoalMultiSelect
-                name="goalRefIds"
-                label="Goal"
-                inputsEnabled={inputsEnabled}
-                disabled={false}
-                allGoals={loaderData.allGoals ?? []}
-                maxSelections={
-                  loaderData.lifePlan.time_plan_max_life_plan_links
-                }
-                defaultValue={loaderData.goals.map((g) => g.ref_id)}
-              />
-              <FieldError actionResult={actionData} fieldName="/goalRefIds" />
-            </FormControl>
+                <FormControl
+                  fullWidth={!isBigScreen}
+                  sx={{ width: isBigScreen ? "15%" : "100%" }}
+                >
+                  <GoalMultiSelect
+                    name="goalRefIds"
+                    label="Goal"
+                    inputsEnabled={inputsEnabled}
+                    disabled={false}
+                    allGoals={loaderData.allGoals ?? []}
+                    maxSelections={
+                      loaderData.lifePlan.time_plan_max_life_plan_links
+                    }
+                    defaultValue={loaderData.goals.map((g) => g.ref_id)}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/goalRefIds"
+                  />
+                </FormControl>
+              </>
+            )}
           </Stack>
         </SectionCard>
         <SectionCard title="Notes">
