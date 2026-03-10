@@ -538,6 +538,7 @@ function BigPlanTimeline(props: BigPlanTimelineProps) {
   if (isBigScreen) {
     return (
       <BigPlanTimelineBigScreen
+        today={props.topLevelInfo.today}
         thisYear={props.thisYear}
         bigPlans={props.bigPlans}
         bigPlanMilestonesByRefId={props.bigPlanMilestonesByRefId}
@@ -567,6 +568,7 @@ function BigPlanTimeline(props: BigPlanTimelineProps) {
   } else {
     return (
       <BigPlanTimelineSmallScreen
+        today={props.topLevelInfo.today}
         thisYear={props.thisYear}
         bigPlans={props.bigPlans}
         bigPlanMilestonesByRefId={props.bigPlanMilestonesByRefId}

@@ -21,6 +21,7 @@ import type { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
 import { bigPlanDonePct } from "#/core/big_plans/root";
+import { isCompleted } from "#/core/big_plans/status";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
 import { EntityLink } from "#/core/infra/component/entity-card";
@@ -36,6 +37,7 @@ interface DateMarker {
 }
 
 interface BigPlanTimelineBigScreenProps {
+  today: ADate;
   thisYear: DateTime;
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, Array<BigPlanMilestone>>;
@@ -47,6 +49,7 @@ interface BigPlanTimelineBigScreenProps {
 }
 
 export function BigPlanTimelineBigScreen({
+  today,
   thisYear,
   bigPlans,
   bigPlanMilestonesByRefId,
@@ -112,6 +115,7 @@ export function BigPlanTimelineBigScreen({
                     singleLine
                   >
                     <IsKeyTag isKey={entry.is_key} />
+                    <OverdueSign today={today} entry={entry} />
                     <EntityNameOneLineComponent name={entry.name} />
                   </EntityLink>
                 </TableCell>
@@ -286,4 +290,32 @@ function computeBigPlanGnattPosition(thisYear: DateTime, entry: BigPlan) {
   const betterLeftMargin = leftMargin > 0.6 ? 0.6 : leftMargin;
 
   return { leftMargin, width, betterWidth, betterLeftMargin };
+}
+
+interface OverdueSignProps {
+  today: ADate;
+  entry: BigPlan;
+}
+
+function OverdueSign({ today, entry }: OverdueSignProps) {
+  if (isCompleted(entry.status)) {
+    return null;
+  }
+
+  if (!entry.due_date) {
+    return null;
+  }
+
+  const theToday = aDateToDate(today);
+  const theDueDate = aDateToDate(entry.due_date);
+
+  if (theDueDate >= theToday) {
+    return null;
+  }
+
+  return (
+    <Tooltip title="Overdue" placement="top">
+      <span>⚠️</span>
+    </Tooltip>
+  );
 }

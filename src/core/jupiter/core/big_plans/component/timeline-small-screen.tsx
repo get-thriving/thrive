@@ -10,6 +10,7 @@ import type { DateTime } from "luxon";
 
 import { aDateToDate } from "#/core/common/adate";
 import { bigPlanDonePct } from "#/core/big_plans/root";
+import { isCompleted } from "#/core/big_plans/status";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameOneLineComponent } from "#/core/common/component/entity-name";
 import { EntityStack } from "#/core/infra/component/entity-stack";
@@ -22,6 +23,7 @@ interface DateMarker {
 }
 
 interface BigPlanTimelineSmallScreenProps {
+  today: ADate;
   thisYear: DateTime;
   bigPlans: Array<BigPlan>;
   bigPlanMilestonesByRefId: Map<string, Array<BigPlanMilestone>>;
@@ -33,6 +35,7 @@ interface BigPlanTimelineSmallScreenProps {
 }
 
 export function BigPlanTimelineSmallScreen({
+  today,
   thisYear,
   bigPlans,
   bigPlanMilestonesByRefId,
@@ -134,6 +137,7 @@ export function BigPlanTimelineSmallScreen({
               >
                 <BigPlanStatusTag status={bigPlan.status} format="icon" />
                 <IsKeyTag isKey={bigPlan.is_key} />
+                <OverdueSign today={today} bigPlan={bigPlan} />
                 <EntityNameOneLineComponent
                   name={`[${bigPlanDonePct(
                     bigPlan,
@@ -342,4 +346,32 @@ function computeMarkerPosition(thisYear: DateTime, date: ADate): number {
   } else {
     return markerDate.ordinal / startOfYear.daysInYear;
   }
+}
+
+interface OverdueSignProps {
+  today: ADate;
+  bigPlan: BigPlan;
+}
+
+function OverdueSign({ today, bigPlan }: OverdueSignProps) {
+  if (isCompleted(bigPlan.status)) {
+    return null;
+  }
+
+  if (!bigPlan.due_date) {
+    return null;
+  }
+
+  const theToday = aDateToDate(today);
+  const theDueDate = aDateToDate(bigPlan.due_date);
+
+  if (theDueDate >= theToday) {
+    return null;
+  }
+
+  return (
+    <Tooltip title="Overdue" placement="top">
+      <span>⚠️</span>
+    </Tooltip>
+  );
 }
