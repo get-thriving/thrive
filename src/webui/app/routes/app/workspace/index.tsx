@@ -17,8 +17,10 @@ import {
   InboxTaskSource,
   InboxTaskStatus,
   LifePlan,
+  Note,
   RecurringTaskPeriod,
   SmallScreenHomeTabWidgetPlacement,
+  Vision,
   WidgetType,
   BigPlanLoadResult,
   InboxTaskFindResult,
@@ -87,6 +89,7 @@ import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/comp
 import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/component/history-monthly-widget";
 import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
 import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
+import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
 
 import { newURLParams } from "~/logic/navigation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -255,6 +258,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const userResponse = await apiClient.users.userLoad({});
 
+  let activeVisionResponse = null;
+
+  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
+    activeVisionResponse = await apiClient.lifePlan.visionLoadActive({});
+  }
+
   return json({
     homeConfig: {
       config: homeConfigResponse.home_config,
@@ -299,6 +308,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     gamificationOverview: userResponse.user_score_overview,
     gamificationHistory: userResponse.user_score_history,
     lifePlan: summaryResponse.life_plan as LifePlan | undefined,
+    activeVision:
+      activeVisionResponse?.vision && activeVisionResponse?.note
+        ? { vision: activeVisionResponse.vision as Vision, note: activeVisionResponse.note as Note }
+        : undefined,
   });
 }
 
@@ -534,6 +547,7 @@ export default function WorkspaceHome() {
     gamificationOverview: loaderData.gamificationOverview ?? undefined,
     gamificationHistory: loaderData.gamificationHistory ?? undefined,
     lifePlan: loaderData.lifePlan ?? undefined,
+    activeVision: loaderData.activeVision ?? undefined,
   };
 
   return (
@@ -951,6 +965,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <GamificationHistoryMonthlyWidget {...widgetPropsWithGeometry} />;
     case WidgetType.LIFE_WEEKS:
       return <LifeWeeksWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_VISION:
+      return <LifeVisionWidget {...widgetPropsWithGeometry} />;
   }
 }
 
