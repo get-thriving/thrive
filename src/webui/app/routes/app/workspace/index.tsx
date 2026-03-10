@@ -9,6 +9,7 @@ import {
 } from "@remix-run/react";
 import {
   BigScreenHomeTabWidgetPlacement,
+  ChapterSummary,
   HabitLoadResult,
   HomeTab,
   HomeTabTarget,
@@ -17,6 +18,7 @@ import {
   InboxTaskSource,
   InboxTaskStatus,
   LifePlan,
+  MilestoneSummary,
   Note,
   RecurringTaskPeriod,
   SmallScreenHomeTabWidgetPlacement,
@@ -90,6 +92,10 @@ import { GamificationHistoryMonthlyWidget } from "@jupiter/core/gamification/com
 import { KeyBigPlansProgressWidget } from "@jupiter/core/big_plans/component/key-big-plans-progress-widget";
 import { LifeWeeksWidget } from "@jupiter/core/life_plan/component/life-weeks-widget";
 import { LifeVisionWidget } from "@jupiter/core/life_plan/component/life-vision-widget";
+import { LifeChaptersWidget } from "@jupiter/core/life_plan/component/life-chapters-widget";
+import { midDate } from "@jupiter/core/life_plan/partial-date";
+import { lifePlanBirthdayDate } from "@jupiter/core/life_plan/root";
+import { aDateToDate } from "@jupiter/core/common/adate";
 
 import { newURLParams } from "~/logic/navigation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -117,6 +123,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_big_plans: true,
     include_persons: true,
     include_life_plan: true,
+    include_chapters: true,
+    include_milestones: true,
   });
 
   const workspace = summaryResponse.workspace!;
@@ -308,6 +316,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     gamificationOverview: userResponse.user_score_overview,
     gamificationHistory: userResponse.user_score_history,
     lifePlan: summaryResponse.life_plan as LifePlan | undefined,
+    allChapters: summaryResponse.chapters as ChapterSummary[] | undefined,
+    allMilestones: summaryResponse.milestones as MilestoneSummary[] | undefined,
     activeVision:
       activeVisionResponse?.vision && activeVisionResponse?.note
         ? { vision: activeVisionResponse.vision as Vision, note: activeVisionResponse.note as Note }
@@ -477,6 +487,22 @@ export default function WorkspaceHome() {
     }, 0);
   }
 
+  const activeChapters: ChapterSummary[] | undefined = (() => {
+    if (!loaderData.allChapters || !loaderData.lifePlan) return undefined;
+    const birthday = lifePlanBirthdayDate(loaderData.lifePlan);
+    const todayDt = aDateToDate(topLevelInfo.today);
+    const milestones = loaderData.allMilestones ?? [];
+    return loaderData.allChapters.filter((chapter) => {
+      try {
+        const startDt = midDate(chapter.start_date, birthday, todayDt, milestones);
+        const endDt = midDate(chapter.end_date, birthday, todayDt, milestones);
+        return startDt.toMillis() <= todayDt.toMillis() && todayDt.toMillis() < endDt.toMillis();
+      } catch {
+        return false;
+      }
+    });
+  })();
+
   const widgetProps: WidgetPropsNoGeometry = {
     rightNow,
     timezone: topLevelInfo.user.timezone,
@@ -548,6 +574,7 @@ export default function WorkspaceHome() {
     gamificationHistory: loaderData.gamificationHistory ?? undefined,
     lifePlan: loaderData.lifePlan ?? undefined,
     activeVision: loaderData.activeVision ?? undefined,
+    activeChapters: activeChapters,
   };
 
   return (
@@ -967,6 +994,8 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <LifeWeeksWidget {...widgetPropsWithGeometry} />;
     case WidgetType.LIFE_VISION:
       return <LifeVisionWidget {...widgetPropsWithGeometry} />;
+    case WidgetType.LIFE_CHAPTERS:
+      return <LifeChaptersWidget {...widgetPropsWithGeometry} />;
   }
 }
 

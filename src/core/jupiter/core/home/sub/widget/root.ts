@@ -40,6 +40,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Life Weeks";
     case WidgetType.LIFE_VISION:
       return "Life Vision";
+    case WidgetType.LIFE_CHAPTERS:
+      return "Life Chapters";
   }
 }
 

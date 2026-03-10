@@ -1,5 +1,6 @@
 import {
   ADate,
+  ChapterSummary,
   InboxTask,
   LifePlan,
   MOTD,
@@ -129,6 +130,7 @@ export interface WidgetProps {
   gamificationHistory?: UserScoreHistory;
   lifePlan?: LifePlan;
   activeVision?: { vision: Vision; note: Note };
+  activeChapters?: ChapterSummary[];
   geometry: WidgetGeometry;
 }
 
