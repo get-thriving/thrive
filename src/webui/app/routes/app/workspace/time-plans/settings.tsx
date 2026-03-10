@@ -148,10 +148,10 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: generationInAdvanceDays,
           },
-          planning_task_project_ref_id: {
-            should_change: true,
-            value: form.planningTaskProject,
-          },
+          planning_task_project_ref_id:
+            form.planningTaskProject !== undefined
+              ? { should_change: true, value: form.planningTaskProject }
+              : { should_change: false },
           planning_task_eisen: {
             should_change: true,
             value: form.planningTaskEisen,
