@@ -207,22 +207,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
-            should_change: form.project ? true : false,
-            value: form.project,
-          },
-          chapter_ref_id: {
-            should_change: form.chapter !== undefined,
-            value:
-              form.chapter !== undefined && form.chapter !== ""
-                ? form.chapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.goal !== undefined,
-            value:
-              form.goal !== undefined && form.goal !== "" ? form.goal : null,
-          },
+          project_ref_id:
+            form.project !== undefined
+              ? { should_change: true, value: form.project }
+              : { should_change: false },
+          chapter_ref_id:
+            form.project !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.chapter !== undefined && form.chapter !== ""
+                      ? form.chapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.project !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.goal !== undefined && form.goal !== ""
+                      ? form.goal
+                      : undefined,
+                }
+              : { should_change: false },
           period: {
             should_change: true,
             value: form.period,
