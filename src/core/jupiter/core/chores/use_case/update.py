@@ -149,7 +149,7 @@ class ChoreUpdateUseCase(
         else:
             chore_gen_params = UpdateAction.do_nothing()
 
-        if (
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
             args.project_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
@@ -188,8 +188,6 @@ class ChoreUpdateUseCase(
         await uow.get_for(Chore).save(chore)
         await progress_reporter.mark_updated(chore)
 
-        project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
-
         if need_to_change_inbox_tasks:
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -219,7 +217,7 @@ class ChoreUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_chore(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
+                    project_ref_id=chore.project_ref_id,
                     chapter_ref_id=chore.chapter_ref_id,
                     goal_ref_id=chore.goal_ref_id,
                     name=schedule.full_name,
