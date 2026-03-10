@@ -248,6 +248,7 @@ export default function BigPlans() {
                     <>
                       {isBigScreen && (
                         <BigPlanTimelineBigScreen
+                          today={topLevelInfo.today}
                           thisYear={thisYear}
                           bigPlans={theBigPlans}
                           bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
@@ -263,6 +264,7 @@ export default function BigPlans() {
                       )}
                       {!isBigScreen && (
                         <BigPlanTimelineSmallScreen
+                          today={topLevelInfo.today}
                           thisYear={thisYear}
                           bigPlans={theBigPlans}
                           bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
@@ -287,6 +289,7 @@ export default function BigPlans() {
           <>
             {isBigScreen && (
               <BigPlanTimelineBigScreen
+                today={topLevelInfo.today}
                 thisYear={thisYear}
                 bigPlans={sortedBigPlans}
                 bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
@@ -302,6 +305,7 @@ export default function BigPlans() {
             )}
             {!isBigScreen && (
               <BigPlanTimelineSmallScreen
+                today={topLevelInfo.today}
                 thisYear={thisYear}
                 bigPlans={sortedBigPlans}
                 bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}

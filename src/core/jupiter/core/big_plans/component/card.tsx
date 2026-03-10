@@ -1,18 +1,25 @@
 import type {
+  ADate,
   BigPlan,
   BigPlanMilestone,
   BigPlanStats,
+  BigPlanStatus,
   Chapter,
   Goal,
   Project,
   Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
-import { Divider } from "@mui/material";
+import type { ChipProps } from "@mui/material";
+import { Chip, Divider, styled } from "@mui/material";
+import { useContext } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct, type BigPlanParent } from "#/core/big_plans/root";
+import { isCompleted } from "#/core/big_plans/status";
+import { ClientOnly } from "#/core/infra/component/client-only";
+import { ServicePropertiesContext } from "#/core/config-client";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
@@ -89,6 +96,11 @@ export function BigPlanCard(props: BigPlanCardProps) {
           : undefined
       }
     >
+      <OverdueWarning
+        today={props.topLevelInfo.today}
+        status={props.bigPlan.status}
+        dueDate={props.bigPlan.due_date}
+      />
       <EntityLink
         to={`/app/workspace/big-plans/${props.bigPlan.ref_id}`}
         block={props.onClick !== undefined}
@@ -164,3 +176,62 @@ export function BigPlanCard(props: BigPlanCardProps) {
     </EntityCard>
   );
 }
+
+interface OverdueWarningProps {
+  today: ADate;
+  status: BigPlanStatus;
+  dueDate?: ADate | null;
+}
+
+function OverdueWarning({ today, status, dueDate }: OverdueWarningProps) {
+  const serviceProperties = useContext(ServicePropertiesContext);
+
+  if (isCompleted(status)) {
+    return null;
+  }
+
+  if (!dueDate) {
+    return null;
+  }
+
+  const theToday = aDateToDate(today);
+  const theDueDate = aDateToDate(dueDate);
+
+  return (
+    <ClientOnly fallback={<></>}>
+      {() => {
+        if (
+          theDueDate <=
+          theToday.minus({ days: serviceProperties.overdueDangerDays })
+        ) {
+          return <OverdueWarningChip label="Overdue" color="error" />;
+        } else if (
+          theDueDate <=
+          theToday.minus({ days: serviceProperties.overdueWarningDays })
+        ) {
+          return <OverdueWarningChip label="Overdue" color="warning" />;
+        } else if (
+          theDueDate <=
+          theToday.minus({ days: serviceProperties.overdueInfoDays })
+        ) {
+          return <OverdueWarningChip label="Overdue" color="info" />;
+        }
+        return null;
+      }}
+    </ClientOnly>
+  );
+}
+
+const OverdueWarningChip = styled(Chip)<ChipProps>(() => ({
+  position: "absolute",
+  top: "0px",
+  fontSize: "0.75rem",
+  height: "1rem",
+  left: "0px",
+  paddingTop: "0.05rem",
+  paddingBottom: "0.05rem",
+  paddingRight: "0.5rem",
+  paddingLeft: "0.5rem",
+  borderRadius: "0px",
+  borderBottomRightRadius: "4px",
+}));
