@@ -1,5 +1,6 @@
 import {
   ADate,
+  ChapterSummary,
   InboxTask,
   LifePlan,
   MOTD,
@@ -22,6 +23,7 @@ import {
   UserFeature,
   WidgetGeometry,
   BigPlanMilestone,
+  ProjectSummary,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -129,6 +131,8 @@ export interface WidgetProps {
   gamificationHistory?: UserScoreHistory;
   lifePlan?: LifePlan;
   activeVision?: { vision: Vision; note: Note };
+  activeChapters?: ChapterSummary[];
+  projectsByRefId?: Record<string, ProjectSummary>;
   geometry: WidgetGeometry;
 }
 

@@ -22,4 +22,5 @@ export enum WidgetType {
     GAMIFICATION_HISTORY_MONTHLY = 'gamification-history-monthly',
     LIFE_WEEKS = 'life-weeks',
     LIFE_VISION = 'life-vision',
+    LIFE_CHAPTERS = 'life-chapters',
 }
