@@ -5,8 +5,10 @@ import type {
 } from "@hello-pangea/dnd";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import type {
+  Goal,
   InboxTask,
   InboxTaskFindResultEntry,
+  Project,
   Tag,
   Contact,
 } from "@jupiter/webapi-client";
@@ -28,11 +30,13 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link, Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { Fragment, memo, useContext, useState } from "react";
+import { Fragment, memo, useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { sortProjectsByTreeOrder } from "@jupiter/core/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "@jupiter/core/life_plan/sub/goals/root";
 import {
   inboxTaskStatusIcon,
   inboxTaskStatusName,
@@ -95,7 +99,11 @@ enum DragTargetStatus {
 enum View {
   SWIFTVIEW = "siwiftview",
   KANBAN_BY_EISEN = "kanban-by-eisen",
+  KANBAN_BY_PROJECT_AND_GOAL = "kanban-by-project-and-goal",
+  KANBAN_BY_PROJECT = "kanban-by-project",
   KANBAN = "kanban",
+  LIST_BY_PROJECT_AND_GOAL = "list-by-project-and-goal",
+  LIST_BY_PROJECT = "list-by-project",
   LIST = "list",
 }
 
@@ -361,9 +369,33 @@ export default function InboxTasks() {
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
+                  value: View.KANBAN_BY_PROJECT_AND_GOAL,
+                  text: "Kanban by Project & Goal",
+                  icon: <ViewKanbanIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
+                },
+                {
+                  value: View.KANBAN_BY_PROJECT,
+                  text: "Kanban by Project",
+                  icon: <ViewKanbanIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
+                },
+                {
                   value: View.KANBAN,
                   text: "Kanban",
                   icon: <ViewKanbanIcon />,
+                },
+                {
+                  value: View.LIST_BY_PROJECT_AND_GOAL,
+                  text: "List by Project & Goal",
+                  icon: <ViewListIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
+                },
+                {
+                  value: View.LIST_BY_PROJECT,
+                  text: "List by Project",
+                  icon: <ViewListIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
@@ -487,6 +519,82 @@ export default function InboxTasks() {
           </>
         )}
 
+        {selectedView === View.KANBAN_BY_PROJECT_AND_GOAL && (
+          <>
+            {isBigScreen && (
+              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <BigScreenKanbanByProjectAndGoal
+                  topLevelInfo={topLevelInfo}
+                  inboxTasks={filteredSortedInboxTasks}
+                  optimisticUpdates={optimisticUpdates}
+                  inboxTasksByRefId={inboxTasksByRefId}
+                  moreInfoByRefId={entriesByRefId}
+                  actionableTime={selectedActionableTime}
+                  draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
+                />
+              </DragDropContext>
+            )}
+
+            {!isBigScreen && (
+              <SmallScreenKanbanByProjectAndGoal
+                topLevelInfo={topLevelInfo}
+                inboxTasks={filteredSortedInboxTasks}
+                optimisticUpdates={optimisticUpdates}
+                moreInfoByRefId={entriesByRefId}
+                actionableTime={selectedActionableTime}
+                onCardMarkDone={handleCardMarkDone}
+                onCardMarkNotDone={handleCardMarkNotDone}
+                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                inboxTaskContactsByInboxTaskRefId={
+                  inboxTaskContactsByInboxTaskRefId
+                }
+              />
+            )}
+          </>
+        )}
+
+        {selectedView === View.KANBAN_BY_PROJECT && (
+          <>
+            {isBigScreen && (
+              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <BigScreenKanbanByProject
+                  topLevelInfo={topLevelInfo}
+                  inboxTasks={filteredSortedInboxTasks}
+                  optimisticUpdates={optimisticUpdates}
+                  inboxTasksByRefId={inboxTasksByRefId}
+                  moreInfoByRefId={entriesByRefId}
+                  actionableTime={selectedActionableTime}
+                  draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
+                />
+              </DragDropContext>
+            )}
+
+            {!isBigScreen && (
+              <SmallScreenKanbanByProject
+                topLevelInfo={topLevelInfo}
+                inboxTasks={filteredSortedInboxTasks}
+                optimisticUpdates={optimisticUpdates}
+                moreInfoByRefId={entriesByRefId}
+                actionableTime={selectedActionableTime}
+                onCardMarkDone={handleCardMarkDone}
+                onCardMarkNotDone={handleCardMarkNotDone}
+                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                inboxTaskContactsByInboxTaskRefId={
+                  inboxTaskContactsByInboxTaskRefId
+                }
+              />
+            )}
+          </>
+        )}
+
         {selectedView === View.KANBAN && (
           <>
             {isBigScreen && (
@@ -523,6 +631,36 @@ export default function InboxTasks() {
               />
             )}
           </>
+        )}
+
+        {selectedView === View.LIST_BY_PROJECT_AND_GOAL && (
+          <ListByProjectAndGoal
+            topLevelInfo={topLevelInfo}
+            inboxTasks={filteredSortedInboxTasks}
+            optimisticUpdates={optimisticUpdates}
+            moreInfoByRefId={entriesByRefId}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+            inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+            inboxTaskContactsByInboxTaskRefId={
+              inboxTaskContactsByInboxTaskRefId
+            }
+          />
+        )}
+
+        {selectedView === View.LIST_BY_PROJECT && (
+          <ListByProject
+            topLevelInfo={topLevelInfo}
+            inboxTasks={filteredSortedInboxTasks}
+            optimisticUpdates={optimisticUpdates}
+            moreInfoByRefId={entriesByRefId}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+            inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+            inboxTaskContactsByInboxTaskRefId={
+              inboxTaskContactsByInboxTaskRefId
+            }
+          />
         )}
 
         {selectedView === View.LIST && (
@@ -1551,6 +1689,7 @@ interface KanbanBoardProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   actionableTime: ActionableTime;
   allowEisen?: Eisen;
+  groupId?: string;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
@@ -1563,6 +1702,7 @@ function KanbanBoard({
   moreInfoByRefId,
   actionableTime,
   allowEisen,
+  groupId,
   optimisticUpdates,
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
@@ -1580,6 +1720,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.NOT_STARTED}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -1603,6 +1744,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.NOT_STARTED_GEN}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -1626,6 +1768,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.IN_PROGRESS}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -1649,6 +1792,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.BLOCKED}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -1672,6 +1816,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.NOT_DONE}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -1695,6 +1840,7 @@ function KanbanBoard({
           actionableTime={actionableTime}
           allowStatus={InboxTaskStatus.DONE}
           allowEisen={allowEisen}
+          groupId={groupId}
           showOptions={{
             showSource: true,
             showLifePlan: true,
@@ -2273,6 +2419,603 @@ function List({
   );
 }
 
+function getUniqueProjectsSorted(
+  moreInfoByRefId: { [key: string]: InboxTaskParent },
+): Project[] {
+  const projectMap = new Map<string, Project>();
+  for (const parent of Object.values(moreInfoByRefId)) {
+    if (parent.project) {
+      projectMap.set(parent.project.ref_id, parent.project);
+    }
+  }
+  return sortProjectsByTreeOrder([...projectMap.values()]);
+}
+
+function getUniqueGoalsForProject(
+  moreInfoByRefId: { [key: string]: InboxTaskParent },
+  projectRefId: string,
+): Goal[] {
+  const goalMap = new Map<string, Goal>();
+  for (const parent of Object.values(moreInfoByRefId)) {
+    if (parent.project?.ref_id === projectRefId && parent.goal) {
+      goalMap.set(parent.goal.ref_id, parent.goal);
+    }
+  }
+  return sortGoalsNaturally([...goalMap.values()]);
+}
+
+interface BigScreenKanbanByProjectProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  inboxTasksByRefId: { [key: string]: InboxTask };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  actionableTime: ActionableTime;
+  draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function BigScreenKanbanByProject({
+  topLevelInfo,
+  inboxTasks,
+  optimisticUpdates,
+  inboxTasksByRefId,
+  moreInfoByRefId,
+  actionableTime,
+  draggedInboxTaskId,
+  inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
+}: BigScreenKanbanByProjectProps) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(moreInfoByRefId),
+    [moreInfoByRefId],
+  );
+
+  return (
+    <>
+      {inboxTasks.length === 0 && (
+        <InboxTasksNoTasksCard
+          parent="inbox task"
+          parentLabel="New Task"
+          parentNewLocations="/app/workspace/inbox-tasks/new"
+        />
+      )}
+      {inboxTasks.length > 0 && (
+        <>
+          {projects.map((project) => {
+            const projectTasks = inboxTasks.filter(
+              (it) => it.project_ref_id === project.ref_id,
+            );
+            if (projectTasks.length === 0) return null;
+            return (
+              <Fragment key={project.ref_id}>
+                <StandardDivider title={project.name} size="large" />
+                <KanbanBoard
+                  topLevelInfo={topLevelInfo}
+                  inboxTasks={projectTasks}
+                  optimisticUpdates={optimisticUpdates}
+                  inboxTasksByRefId={inboxTasksByRefId}
+                  moreInfoByRefId={moreInfoByRefId}
+                  actionableTime={actionableTime}
+                  groupId={project.ref_id}
+                  draggedInboxTaskId={draggedInboxTaskId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
+                />
+              </Fragment>
+            );
+          })}
+        </>
+      )}
+    </>
+  );
+}
+
+interface SmallScreenKanbanByProjectProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  actionableTime: ActionableTime;
+  onCardMarkDone?: (it: InboxTask) => void;
+  onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function SmallScreenKanbanByProject(props: SmallScreenKanbanByProjectProps) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(props.moreInfoByRefId),
+    [props.moreInfoByRefId],
+  );
+
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  if (props.inboxTasks.length === 0) {
+    return (
+      <InboxTasksNoTasksCard
+        parent="inbox task"
+        parentLabel="New Task"
+        parentNewLocations="/app/workspace/inbox-tasks/new"
+      />
+    );
+  }
+
+  return (
+    <>
+      <Tabs
+        value={selectedTab}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, newValue) => setSelectedTab(newValue)}
+      >
+        {projects.map((project) => (
+          <Tab key={project.ref_id} label={project.name} />
+        ))}
+      </Tabs>
+
+      {projects.map((project, index) => {
+        const projectTasks = props.inboxTasks.filter(
+          (it) => it.project_ref_id === project.ref_id,
+        );
+        return (
+          <TabPanel key={project.ref_id} value={selectedTab} index={index}>
+            <SmallScreenKanban
+              topLevelInfo={props.topLevelInfo}
+              inboxTasks={projectTasks}
+              optimisticUpdates={props.optimisticUpdates}
+              moreInfoByRefId={props.moreInfoByRefId}
+              actionableTime={props.actionableTime}
+              onCardMarkDone={props.onCardMarkDone}
+              onCardMarkNotDone={props.onCardMarkNotDone}
+              inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+              inboxTaskContactsByInboxTaskRefId={
+                props.inboxTaskContactsByInboxTaskRefId
+              }
+            />
+          </TabPanel>
+        );
+      })}
+    </>
+  );
+}
+
+interface BigScreenKanbanByProjectAndGoalProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  inboxTasksByRefId: { [key: string]: InboxTask };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  actionableTime: ActionableTime;
+  draggedInboxTaskId?: string;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function BigScreenKanbanByProjectAndGoal({
+  topLevelInfo,
+  inboxTasks,
+  optimisticUpdates,
+  inboxTasksByRefId,
+  moreInfoByRefId,
+  actionableTime,
+  draggedInboxTaskId,
+  inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
+}: BigScreenKanbanByProjectAndGoalProps) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(moreInfoByRefId),
+    [moreInfoByRefId],
+  );
+
+  return (
+    <>
+      {inboxTasks.length === 0 && (
+        <InboxTasksNoTasksCard
+          parent="inbox task"
+          parentLabel="New Task"
+          parentNewLocations="/app/workspace/inbox-tasks/new"
+        />
+      )}
+      {inboxTasks.length > 0 && (
+        <>
+          {projects.map((project) => {
+            const projectTasks = inboxTasks.filter(
+              (it) => it.project_ref_id === project.ref_id,
+            );
+            if (projectTasks.length === 0) return null;
+
+            const goals = getUniqueGoalsForProject(
+              moreInfoByRefId,
+              project.ref_id,
+            );
+            const tasksWithoutGoal = projectTasks.filter(
+              (it) => !moreInfoByRefId[it.ref_id]?.goal,
+            );
+
+            return (
+              <Fragment key={project.ref_id}>
+                <StandardDivider title={project.name} size="large" />
+
+                {goals.map((goal) => {
+                  const goalTasks = projectTasks.filter(
+                    (it) =>
+                      moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
+                  );
+                  if (goalTasks.length === 0) return null;
+                  return (
+                    <Fragment key={goal.ref_id}>
+                      <StandardDivider title={goal.name} size="medium" />
+                      <KanbanBoard
+                        topLevelInfo={topLevelInfo}
+                        inboxTasks={goalTasks}
+                        optimisticUpdates={optimisticUpdates}
+                        inboxTasksByRefId={inboxTasksByRefId}
+                        moreInfoByRefId={moreInfoByRefId}
+                        actionableTime={actionableTime}
+                        groupId={`${project.ref_id}-${goal.ref_id}`}
+                        draggedInboxTaskId={draggedInboxTaskId}
+                        inboxTaskTagsByInboxTaskRefId={
+                          inboxTaskTagsByInboxTaskRefId
+                        }
+                        inboxTaskContactsByInboxTaskRefId={
+                          inboxTaskContactsByInboxTaskRefId
+                        }
+                      />
+                    </Fragment>
+                  );
+                })}
+
+                {tasksWithoutGoal.length > 0 && (
+                  <Fragment key="no-goal">
+                    {goals.length > 0 && (
+                      <StandardDivider title="No Goal" size="medium" />
+                    )}
+                    <KanbanBoard
+                      topLevelInfo={topLevelInfo}
+                      inboxTasks={tasksWithoutGoal}
+                      optimisticUpdates={optimisticUpdates}
+                      inboxTasksByRefId={inboxTasksByRefId}
+                      moreInfoByRefId={moreInfoByRefId}
+                      actionableTime={actionableTime}
+                      groupId={`${project.ref_id}-no-goal`}
+                      draggedInboxTaskId={draggedInboxTaskId}
+                      inboxTaskTagsByInboxTaskRefId={
+                        inboxTaskTagsByInboxTaskRefId
+                      }
+                      inboxTaskContactsByInboxTaskRefId={
+                        inboxTaskContactsByInboxTaskRefId
+                      }
+                    />
+                  </Fragment>
+                )}
+              </Fragment>
+            );
+          })}
+        </>
+      )}
+    </>
+  );
+}
+
+interface SmallScreenKanbanByProjectAndGoalProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  actionableTime: ActionableTime;
+  onCardMarkDone?: (it: InboxTask) => void;
+  onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function SmallScreenKanbanByProjectAndGoal(
+  props: SmallScreenKanbanByProjectAndGoalProps,
+) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(props.moreInfoByRefId),
+    [props.moreInfoByRefId],
+  );
+
+  const [selectedTab, setSelectedTab] = useState(0);
+
+  if (props.inboxTasks.length === 0) {
+    return (
+      <InboxTasksNoTasksCard
+        parent="inbox task"
+        parentLabel="New Task"
+        parentNewLocations="/app/workspace/inbox-tasks/new"
+      />
+    );
+  }
+
+  return (
+    <>
+      <Tabs
+        value={selectedTab}
+        variant="scrollable"
+        scrollButtons="auto"
+        onChange={(_, newValue) => setSelectedTab(newValue)}
+      >
+        {projects.map((project) => (
+          <Tab key={project.ref_id} label={project.name} />
+        ))}
+      </Tabs>
+
+      {projects.map((project, index) => {
+        const projectTasks = props.inboxTasks.filter(
+          (it) => it.project_ref_id === project.ref_id,
+        );
+        const goals = getUniqueGoalsForProject(
+          props.moreInfoByRefId,
+          project.ref_id,
+        );
+        const tasksWithoutGoal = projectTasks.filter(
+          (it) => !props.moreInfoByRefId[it.ref_id]?.goal,
+        );
+
+        return (
+          <TabPanel key={project.ref_id} value={selectedTab} index={index}>
+            {goals.map((goal) => {
+              const goalTasks = projectTasks.filter(
+                (it) =>
+                  props.moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
+              );
+              if (goalTasks.length === 0) return null;
+              return (
+                <Fragment key={goal.ref_id}>
+                  <StandardDivider title={goal.name} size="medium" />
+                  <SmallScreenKanban
+                    topLevelInfo={props.topLevelInfo}
+                    inboxTasks={goalTasks}
+                    optimisticUpdates={props.optimisticUpdates}
+                    moreInfoByRefId={props.moreInfoByRefId}
+                    actionableTime={props.actionableTime}
+                    onCardMarkDone={props.onCardMarkDone}
+                    onCardMarkNotDone={props.onCardMarkNotDone}
+                    inboxTaskTagsByInboxTaskRefId={
+                      props.inboxTaskTagsByInboxTaskRefId
+                    }
+                    inboxTaskContactsByInboxTaskRefId={
+                      props.inboxTaskContactsByInboxTaskRefId
+                    }
+                  />
+                </Fragment>
+              );
+            })}
+
+            {tasksWithoutGoal.length > 0 && (
+              <>
+                {goals.length > 0 && (
+                  <StandardDivider title="No Goal" size="medium" />
+                )}
+                <SmallScreenKanban
+                  topLevelInfo={props.topLevelInfo}
+                  inboxTasks={tasksWithoutGoal}
+                  optimisticUpdates={props.optimisticUpdates}
+                  moreInfoByRefId={props.moreInfoByRefId}
+                  actionableTime={props.actionableTime}
+                  onCardMarkDone={props.onCardMarkDone}
+                  onCardMarkNotDone={props.onCardMarkNotDone}
+                  inboxTaskTagsByInboxTaskRefId={
+                    props.inboxTaskTagsByInboxTaskRefId
+                  }
+                  inboxTaskContactsByInboxTaskRefId={
+                    props.inboxTaskContactsByInboxTaskRefId
+                  }
+                />
+              </>
+            )}
+          </TabPanel>
+        );
+      })}
+    </>
+  );
+}
+
+interface ListByProjectProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  onCardMarkDone?: (it: InboxTask) => void;
+  onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function ListByProject({
+  topLevelInfo,
+  inboxTasks,
+  moreInfoByRefId,
+  optimisticUpdates,
+  onCardMarkDone,
+  onCardMarkNotDone,
+  inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
+}: ListByProjectProps) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(moreInfoByRefId),
+    [moreInfoByRefId],
+  );
+
+  return (
+    <>
+      {inboxTasks.length === 0 && (
+        <InboxTasksNoTasksCard
+          parent="inbox task"
+          parentLabel="New Task"
+          parentNewLocations="/app/workspace/inbox-tasks/new"
+        />
+      )}
+      {projects.map((project) => {
+        const projectTasks = inboxTasks.filter(
+          (it) => it.project_ref_id === project.ref_id,
+        );
+        if (projectTasks.length === 0) return null;
+        return (
+          <Fragment key={project.ref_id}>
+            <StandardDivider title={project.name} size="large" />
+            <InboxTaskStack
+              topLevelInfo={topLevelInfo}
+              showOptions={{
+                showStatus: true,
+                showSource: true,
+                showLifePlan: true,
+                showEisen: true,
+                showDifficulty: true,
+                showActionableDate: true,
+                showDueDate: true,
+                showParent: true,
+                showHandleMarkDone: true,
+                showHandleMarkNotDone: true,
+              }}
+              inboxTasks={projectTasks}
+              moreInfoByRefId={moreInfoByRefId}
+              inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+              inboxTaskContactsByInboxTaskRefId={
+                inboxTaskContactsByInboxTaskRefId
+              }
+              optimisticUpdates={optimisticUpdates}
+              onCardMarkDone={onCardMarkDone}
+              onCardMarkNotDone={onCardMarkNotDone}
+            />
+          </Fragment>
+        );
+      })}
+    </>
+  );
+}
+
+interface ListByProjectAndGoalProps {
+  topLevelInfo: TopLevelInfo;
+  inboxTasks: Array<InboxTask>;
+  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+  moreInfoByRefId: { [key: string]: InboxTaskParent };
+  onCardMarkDone?: (it: InboxTask) => void;
+  onCardMarkNotDone?: (it: InboxTask) => void;
+  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
+}
+
+function ListByProjectAndGoal({
+  topLevelInfo,
+  inboxTasks,
+  moreInfoByRefId,
+  optimisticUpdates,
+  onCardMarkDone,
+  onCardMarkNotDone,
+  inboxTaskTagsByInboxTaskRefId,
+  inboxTaskContactsByInboxTaskRefId,
+}: ListByProjectAndGoalProps) {
+  const projects = useMemo(
+    () => getUniqueProjectsSorted(moreInfoByRefId),
+    [moreInfoByRefId],
+  );
+
+  return (
+    <>
+      {inboxTasks.length === 0 && (
+        <InboxTasksNoTasksCard
+          parent="inbox task"
+          parentLabel="New Task"
+          parentNewLocations="/app/workspace/inbox-tasks/new"
+        />
+      )}
+      {projects.map((project) => {
+        const projectTasks = inboxTasks.filter(
+          (it) => it.project_ref_id === project.ref_id,
+        );
+        if (projectTasks.length === 0) return null;
+
+        const goals = getUniqueGoalsForProject(moreInfoByRefId, project.ref_id);
+        const tasksWithoutGoal = projectTasks.filter(
+          (it) => !moreInfoByRefId[it.ref_id]?.goal,
+        );
+
+        return (
+          <Fragment key={project.ref_id}>
+            <StandardDivider title={project.name} size="large" />
+
+            {goals.map((goal) => {
+              const goalTasks = projectTasks.filter(
+                (it) =>
+                  moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
+              );
+              if (goalTasks.length === 0) return null;
+              return (
+                <Fragment key={goal.ref_id}>
+                  <StandardDivider title={goal.name} size="medium" />
+                  <InboxTaskStack
+                    topLevelInfo={topLevelInfo}
+                    showOptions={{
+                      showStatus: true,
+                      showSource: true,
+                      showLifePlan: true,
+                      showEisen: true,
+                      showDifficulty: true,
+                      showActionableDate: true,
+                      showDueDate: true,
+                      showParent: true,
+                      showHandleMarkDone: true,
+                      showHandleMarkNotDone: true,
+                    }}
+                    inboxTasks={goalTasks}
+                    moreInfoByRefId={moreInfoByRefId}
+                    inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                    inboxTaskContactsByInboxTaskRefId={
+                      inboxTaskContactsByInboxTaskRefId
+                    }
+                    optimisticUpdates={optimisticUpdates}
+                    onCardMarkDone={onCardMarkDone}
+                    onCardMarkNotDone={onCardMarkNotDone}
+                  />
+                </Fragment>
+              );
+            })}
+
+            {tasksWithoutGoal.length > 0 && (
+              <Fragment key="no-goal">
+                {goals.length > 0 && (
+                  <StandardDivider title="No Goal" size="medium" />
+                )}
+                <InboxTaskStack
+                  topLevelInfo={topLevelInfo}
+                  showOptions={{
+                    showStatus: true,
+                    showSource: true,
+                    showLifePlan: true,
+                    showEisen: true,
+                    showDifficulty: true,
+                    showActionableDate: true,
+                    showDueDate: true,
+                    showParent: true,
+                    showHandleMarkDone: true,
+                    showHandleMarkNotDone: true,
+                  }}
+                  inboxTasks={tasksWithoutGoal}
+                  moreInfoByRefId={moreInfoByRefId}
+                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                  inboxTaskContactsByInboxTaskRefId={
+                    inboxTaskContactsByInboxTaskRefId
+                  }
+                  optimisticUpdates={optimisticUpdates}
+                  onCardMarkDone={onCardMarkDone}
+                  onCardMarkNotDone={onCardMarkNotDone}
+                />
+              </Fragment>
+            )}
+          </Fragment>
+        );
+      })}
+    </>
+  );
+}
+
 interface InboxTasksColumnProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
@@ -2283,6 +3026,7 @@ interface InboxTasksColumnProps {
   collapsed?: boolean;
   allowStatus: InboxTaskStatus;
   allowEisen?: Eisen;
+  groupId?: string;
   showOptions: InboxTaskShowOptions;
   draggedInboxTaskId?: string;
   inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
@@ -2388,7 +3132,7 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
 
       <Droppable
         type="inbox-task"
-        droppableId={`inbox-tasks-column:${props.allowEisen}:${props.allowStatus}`}
+        droppableId={`inbox-tasks-column:${props.allowEisen}:${props.allowStatus}${props.groupId ? `:${props.groupId}` : ""}`}
         direction="vertical"
         isDropDisabled={
           !(allowDraggingOverStatus() && allowDraggingOverEisen())

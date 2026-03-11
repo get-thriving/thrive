@@ -45,6 +45,8 @@ from jupiter.core.journals.generation_approach import (
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.milestones.name import MilestoneName
+from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.name import CircleName
@@ -254,6 +256,15 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 eval_task_project_ref_id=new_root_project.ref_id,
             )
             new_life_plan = await uow.get_for(LifePlan).save(new_life_plan)
+
+            new_birth_milestone = Milestone.new_milestone(
+                ctx=context.domain_context,
+                life_plan_ref_id=new_life_plan.ref_id,
+                name=MilestoneName("Birth"),
+                project_ref_id=new_root_project.ref_id,
+                date=new_life_plan.birthday_date,
+            )
+            await uow.get_for(Milestone).create(new_birth_milestone)
 
             new_inbox_task_collection = InboxTaskCollection.new_inbox_task_collection(
                 ctx=context.domain_context,
