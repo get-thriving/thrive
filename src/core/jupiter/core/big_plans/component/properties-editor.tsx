@@ -32,6 +32,10 @@ import {
   getSuggestedDatesForBigPlanActionableDate,
   getSuggestedDatesForBigPlanDueDate,
 } from "#/core/common/suggested-date";
+import {
+  findActiveChapterForSuggestions,
+  resolveChapterForSuggestions,
+} from "#/core/life_plan/sub/chapters/root";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct } from "#/core/big_plans/root";
 import { BigPlanStatusBigTag } from "#/core/big_plans/component/status-big-tag";
@@ -85,6 +89,26 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
   const milestonesLeft = props.bigPlanInfo.milestones.filter(
     (m) => aDateToDate(m.date) > aDateToDate(props.topLevelInfo.today),
   ).length;
+
+  const birthday = lifePlanBirthdayDate(props.lifePlan);
+  const today = aDateToDate(props.topLevelInfo.today);
+
+  const assignedChapter = props.bigPlan.chapter_ref_id
+    ? props.allChapters.find((c) => c.ref_id === props.bigPlan.chapter_ref_id)
+    : undefined;
+  const chapterForSuggestions = assignedChapter
+    ? resolveChapterForSuggestions(
+        assignedChapter,
+        birthday,
+        today,
+        props.allMilestones,
+      )
+    : findActiveChapterForSuggestions(
+        props.allChapters,
+        birthday,
+        today,
+        props.allMilestones,
+      );
 
   const actions = [];
   if (props.showLinkToBigPlan) {
@@ -293,6 +317,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             defaultValue={props.bigPlan.actionable_date}
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               props.topLevelInfo.today,
+              undefined,
+              chapterForSuggestions,
             )}
           />
           <FieldError
@@ -315,6 +341,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             defaultValue={props.bigPlan.due_date}
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               props.topLevelInfo.today,
+              undefined,
+              chapterForSuggestions,
             )}
           />
           <FieldError

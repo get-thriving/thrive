@@ -48,6 +48,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
+import { findActiveChapterForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -204,6 +205,13 @@ export default function NewBigPlan() {
   const inputsEnabled = navigation.state === "idle";
 
   const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const todayDate = aDateToDate(topLevelInfo.today);
+  const activeChapter = findActiveChapterForSuggestions(
+    loaderData.allChapters,
+    birthdayDate,
+    todayDate,
+    loaderData.allMilestones,
+  );
 
   return (
     <LeafPanel
@@ -306,6 +314,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              activeChapter,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/actionable_date" />
@@ -327,6 +336,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
+              activeChapter,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/due_date" />
