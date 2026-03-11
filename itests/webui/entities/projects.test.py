@@ -6,6 +6,9 @@ import pytest
 from jupiter_webapi_client.api.application.get_summaries import (
     sync_detailed as get_summaries_sync,
 )
+from jupiter_webapi_client.api.life_plan.project_archive import (
+    sync_detailed as project_archive_sync,
+)
 from jupiter_webapi_client.api.life_plan.project_create import (
     sync_detailed as project_create_sync,
 )
@@ -16,6 +19,7 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.get_summaries_args import GetSummariesArgs
 from jupiter_webapi_client.models.get_summaries_result import GetSummariesResult
 from jupiter_webapi_client.models.project import Project
+from jupiter_webapi_client.models.project_archive_args import ProjectArchiveArgs
 from jupiter_webapi_client.models.project_create_args import ProjectCreateArgs
 from jupiter_webapi_client.models.project_create_result import ProjectCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
@@ -104,3 +108,65 @@ def test_webui_project_view_all(page: Page, create_project) -> None:
     expect(page.locator(f"#project-{project1.ref_id}")).to_contain_text("Project 1")
     expect(page.locator(f"#project-{project2.ref_id}")).to_contain_text("Project 2")
     expect(page.locator(f"#project-{project3.ref_id}")).to_contain_text("Project 3")
+
+
+def test_webui_project_create(page: Page) -> None:
+    page.goto("/app/workspace/life-plan/projects/new")
+
+    page.locator('input[name="name"]').fill("New WebUI Project")
+    page.locator("#project-create").click()
+
+    page.wait_for_url("/app/workspace/life-plan/projects/**")
+
+    expect(page.locator("#leaf-panel-content")).to_contain_text("New WebUI Project")
+
+
+def test_webui_project_update(
+    page: Page,
+    create_project: Callable[..., Project],
+) -> None:
+    project = create_project("Project To Update")
+
+    page.goto(f"/app/workspace/life-plan/projects/{project.ref_id}")
+
+    page.locator('input[name="name"]').fill("Updated Project Name")
+    page.locator("#project-properties").locator("button", has_text="Save").click()
+
+    page.wait_for_url(f"/app/workspace/life-plan/projects/{project.ref_id}")
+
+    expect(page.locator("#leaf-panel-content")).to_contain_text("Updated Project Name")
+
+
+def test_webui_project_archive(
+    page: Page,
+    create_project: Callable[..., Project],
+) -> None:
+    project = create_project("Project To Archive")
+
+    page.goto(f"/app/workspace/life-plan/projects/{project.ref_id}")
+
+    page.locator("#leaf-entity-archive").click()
+    page.locator("#leaf-entity-archive-confirm").click()
+
+    page.wait_for_url("/app/workspace/life-plan/projects")
+
+    expect(page.locator(f"#project-{project.ref_id}")).not_to_be_visible()
+
+
+def test_webui_project_remove(
+    page: Page,
+    create_project: Callable[..., Project],
+    logged_in_client: AuthenticatedClient,
+) -> None:
+    project = create_project("Project To Remove")
+    project_archive_sync(
+        client=logged_in_client,
+        body=ProjectArchiveArgs(ref_id=project.ref_id),
+    )
+
+    page.goto(f"/app/workspace/life-plan/projects/{project.ref_id}")
+
+    page.locator("#leaf-entity-archive").click()
+    page.locator("#leaf-entity-archive-confirm").click()
+
+    page.wait_for_url("/app/workspace/life-plan/projects")
