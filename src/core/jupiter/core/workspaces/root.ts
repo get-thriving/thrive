@@ -213,6 +213,11 @@ export function inferSourcesForEnabledFeatures(
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.EMAIL_TASKS)
     ) {
       inferredSources.push(source);
+    } else if (
+      source === InboxTaskSource.LIFE_PLAN_EVAL &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSources.push(source);
     }
   }
 

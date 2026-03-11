@@ -39,5 +39,7 @@ function sourceToClass(source: InboxTaskSource): "info" | "warning" | "error" {
       return "error";
     case InboxTaskSource.EMAIL_TASK:
       return "error";
+    case InboxTaskSource.LIFE_PLAN_EVAL:
+      return "info";
   }
 }

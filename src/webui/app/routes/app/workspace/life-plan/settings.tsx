@@ -305,27 +305,6 @@ export default function LifePlanSettings() {
           >
             <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
               <FormControl fullWidth>
-                <FormLabel id="evalPeriods">
-                  Periods You Want To Evaluate
-                </FormLabel>
-                <PeriodSelect
-                  labelId="evalPeriods"
-                  label="Periods"
-                  name="evalPeriods"
-                  multiSelect
-                  inputsEnabled={inputsEnabled}
-                  value={evalPeriods}
-                  onChange={(newPeriods) => {
-                    setEvalPeriods(newPeriods as RecurringTaskPeriod[]);
-                  }}
-                />
-                <FieldError
-                  actionResult={actionData}
-                  fieldName="/eval_periods"
-                />
-              </FormControl>
-
-              <FormControl fullWidth>
                 <FormLabel id="evalApproach">Generation Approach</FormLabel>
                 <ToggleButtonGroup
                   value={evalApproach}
@@ -362,6 +341,29 @@ export default function LifePlanSettings() {
                   fieldName="/eval_approach"
                 />
               </FormControl>
+
+              {evalApproach !== LifePlanEvalApproach.NONE && (
+                <FormControl fullWidth>
+                  <FormLabel id="evalPeriods">
+                    Periods You Want To Evaluate
+                  </FormLabel>
+                  <PeriodSelect
+                    labelId="evalPeriods"
+                    label="Periods"
+                    name="evalPeriods"
+                    multiSelect
+                    inputsEnabled={inputsEnabled}
+                    value={evalPeriods}
+                    onChange={(newPeriods) => {
+                      setEvalPeriods(newPeriods as RecurringTaskPeriod[]);
+                    }}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/eval_periods"
+                  />
+                </FormControl>
+              )}
             </Stack>
 
             {evalApproach === LifePlanEvalApproach.TASK && (

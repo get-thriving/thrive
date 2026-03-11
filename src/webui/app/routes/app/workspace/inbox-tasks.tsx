@@ -586,6 +586,21 @@ interface SwiftViewProps {
 }
 
 function SwiftView(props: SwiftViewProps) {
+  const swiftViewRestSources = [
+    InboxTaskSource.USER,
+    InboxTaskSource.WORKING_MEM_CLEANUP,
+    InboxTaskSource.TIME_PLAN,
+    InboxTaskSource.BIG_PLAN,
+    InboxTaskSource.JOURNAL,
+    InboxTaskSource.METRIC,
+    InboxTaskSource.LIFE_PLAN_EVAL,
+    InboxTaskSource.PERSON_OCCASION,
+    InboxTaskSource.PERSON_CATCH_UP,
+    InboxTaskSource.SLACK_TASK,
+    InboxTaskSource.EMAIL_TASK,
+    InboxTaskSource.LIFE_PLAN_EVAL,
+  ];
+
   const endOfTheWeek = aDateToDate(props.topLevelInfo.today)
     .endOf("week")
     .endOf("day");
@@ -802,18 +817,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [
-        InboxTaskSource.USER,
-        InboxTaskSource.WORKING_MEM_CLEANUP,
-        InboxTaskSource.TIME_PLAN,
-        InboxTaskSource.BIG_PLAN,
-        InboxTaskSource.JOURNAL,
-        InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
-      ],
+      allowSources: swiftViewRestSources,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,
@@ -831,18 +835,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [
-        InboxTaskSource.USER,
-        InboxTaskSource.WORKING_MEM_CLEANUP,
-        InboxTaskSource.TIME_PLAN,
-        InboxTaskSource.BIG_PLAN,
-        InboxTaskSource.JOURNAL,
-        InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
-      ],
+      allowSources: swiftViewRestSources,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,
@@ -861,18 +854,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [
-        InboxTaskSource.USER,
-        InboxTaskSource.WORKING_MEM_CLEANUP,
-        InboxTaskSource.TIME_PLAN,
-        InboxTaskSource.BIG_PLAN,
-        InboxTaskSource.JOURNAL,
-        InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
-      ],
+      allowSources: swiftViewRestSources,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,
@@ -891,18 +873,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [
-        InboxTaskSource.USER,
-        InboxTaskSource.WORKING_MEM_CLEANUP,
-        InboxTaskSource.TIME_PLAN,
-        InboxTaskSource.BIG_PLAN,
-        InboxTaskSource.JOURNAL,
-        InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
-      ],
+      allowSources: swiftViewRestSources,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,
@@ -921,18 +892,7 @@ function SwiftView(props: SwiftViewProps) {
     props.moreInfoByRefId,
     props.optimisticUpdates,
     {
-      allowSources: [
-        InboxTaskSource.USER,
-        InboxTaskSource.WORKING_MEM_CLEANUP,
-        InboxTaskSource.TIME_PLAN,
-        InboxTaskSource.BIG_PLAN,
-        InboxTaskSource.JOURNAL,
-        InboxTaskSource.METRIC,
-        InboxTaskSource.PERSON_OCCASION,
-        InboxTaskSource.PERSON_CATCH_UP,
-        InboxTaskSource.SLACK_TASK,
-        InboxTaskSource.EMAIL_TASK,
-      ],
+      allowSources: swiftViewRestSources,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
         InboxTaskStatus.NOT_STARTED_GEN,
