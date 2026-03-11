@@ -52,4 +52,3 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Life Plan Eval";
   }
 }
-

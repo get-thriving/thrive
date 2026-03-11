@@ -18,3 +18,4 @@ export type LifePlanLoadEvalSettingsResult = {
     eval_task_generation_in_advance_days: Record<string, number>;
     eval_tasks: Array<InboxTask>;
 };
+

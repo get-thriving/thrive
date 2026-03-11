@@ -1,4 +1,5 @@
 import { Box, Stack, Tooltip, Typography } from "@mui/material";
+
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { WidgetProps } from "#/core/home/component/common";
@@ -18,7 +19,18 @@ export function LifeWeeksWidget(props: WidgetProps) {
   const percent = Math.min(100, Math.round((ageYears / TOTAL_YEARS) * 100));
 
   return (
-    <Stack direction="row" sx={{ width: "100%", height: "100%", overflow: "hidden", gap: 1, padding: "4px", boxSizing: "border-box", alignItems: "center" }}>
+    <Stack
+      direction="row"
+      sx={{
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        gap: 1,
+        padding: "4px",
+        boxSizing: "border-box",
+        alignItems: "center",
+      }}
+    >
       <Box
         sx={{
           display: "grid",
@@ -58,11 +70,27 @@ export function LifeWeeksWidget(props: WidgetProps) {
         })}
       </Box>
 
-      <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, width: "33%" }}>
-        <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
+      <Stack
+        sx={{
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          width: "33%",
+        }}
+      >
+        <Typography
+          sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}
+        >
           {percent}%
         </Typography>
-        <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem", textAlign: "center" }}>
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+            fontSize: "0.6rem",
+            textAlign: "center",
+          }}
+        >
           lived so far
         </Typography>
       </Stack>

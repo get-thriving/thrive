@@ -380,9 +380,31 @@ from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettin
 from .journal_update_settings_args_writing_task_project_ref_id import JournalUpdateSettingsArgsWritingTaskProjectRefId
 from .jupiter_archival_reason import JupiterArchivalReason
 from .life_plan import LifePlan
+from .life_plan_eval_approach import LifePlanEvalApproach
+from .life_plan_eval_task_generation_in_advance_days import LifePlanEvalTaskGenerationInAdvanceDays
+from .life_plan_load_eval_settings_args import LifePlanLoadEvalSettingsArgs
+from .life_plan_load_eval_settings_result import LifePlanLoadEvalSettingsResult
+from .life_plan_load_eval_settings_result_eval_task_generation_in_advance_days import (
+    LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,
+)
+from .life_plan_regen_args import LifePlanRegenArgs
 from .life_plan_update_args import LifePlanUpdateArgs
 from .life_plan_update_args_birth_year import LifePlanUpdateArgsBirthYear
 from .life_plan_update_args_birthday import LifePlanUpdateArgsBirthday
+from .life_plan_update_eval_settings_args import LifePlanUpdateEvalSettingsArgs
+from .life_plan_update_eval_settings_args_eval_approach import LifePlanUpdateEvalSettingsArgsEvalApproach
+from .life_plan_update_eval_settings_args_eval_periods import LifePlanUpdateEvalSettingsArgsEvalPeriods
+from .life_plan_update_eval_settings_args_eval_task_difficulty import LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty
+from .life_plan_update_eval_settings_args_eval_task_eisen import LifePlanUpdateEvalSettingsArgsEvalTaskEisen
+from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days import (
+    LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays,
+)
+from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days_value import (
+    LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue,
+)
+from .life_plan_update_eval_settings_args_eval_task_project_ref_id import (
+    LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId,
+)
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
 from .list_item import ListItem
@@ -1243,9 +1265,23 @@ __all__ = (
     "JournalUpdateSettingsArgsWritingTaskProjectRefId",
     "JupiterArchivalReason",
     "LifePlan",
+    "LifePlanEvalApproach",
+    "LifePlanEvalTaskGenerationInAdvanceDays",
+    "LifePlanLoadEvalSettingsArgs",
+    "LifePlanLoadEvalSettingsResult",
+    "LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays",
+    "LifePlanRegenArgs",
     "LifePlanUpdateArgs",
     "LifePlanUpdateArgsBirthday",
     "LifePlanUpdateArgsBirthYear",
+    "LifePlanUpdateEvalSettingsArgs",
+    "LifePlanUpdateEvalSettingsArgsEvalApproach",
+    "LifePlanUpdateEvalSettingsArgsEvalPeriods",
+    "LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty",
+    "LifePlanUpdateEvalSettingsArgsEvalTaskEisen",
+    "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays",
+    "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue",
+    "LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",

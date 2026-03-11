@@ -298,12 +298,12 @@ export type { JournalUpdateSettingsArgs } from './models/JournalUpdateSettingsAr
 export { JupiterArchivalReason } from './models/JupiterArchivalReason';
 export type { KeySecretPlain } from './models/KeySecretPlain';
 export type { LifePlan } from './models/LifePlan';
-export type { LifePlanUpdateArgs } from './models/LifePlanUpdateArgs';
 export { LifePlanEvalApproach } from './models/LifePlanEvalApproach';
 export type { LifePlanLoadEvalSettingsArgs } from './models/LifePlanLoadEvalSettingsArgs';
 export type { LifePlanLoadEvalSettingsResult } from './models/LifePlanLoadEvalSettingsResult';
-export type { LifePlanUpdateEvalSettingsArgs } from './models/LifePlanUpdateEvalSettingsArgs';
 export type { LifePlanRegenArgs } from './models/LifePlanRegenArgs';
+export type { LifePlanUpdateArgs } from './models/LifePlanUpdateArgs';
+export type { LifePlanUpdateEvalSettingsArgs } from './models/LifePlanUpdateEvalSettingsArgs';
 export { LinkBlock } from './models/LinkBlock';
 export type { ListItem } from './models/ListItem';
 export type { LoadProgressReporterTokenArgs } from './models/LoadProgressReporterTokenArgs';

@@ -10,15 +10,15 @@ class WidgetType(str, Enum):
     HABIT_INBOX_TASKS = "habit-inbox-tasks"
     KEY_BIG_PLANS_PROGRESS = "key-big-plans-progress"
     KEY_HABITS_STREAKS = "key-habits-streaks"
+    LIFE_CHAPTERS = "life-chapters"
+    LIFE_VISION = "life-vision"
+    LIFE_WEEKS = "life-weeks"
     MOTD = "motd"
     RANDOM_CHORE = "random-chore"
     RANDOM_HABIT = "random-habit"
     SCHEDULE_DAY = "schedule-day"
     TIME_PLAN_VIEW = "time-plan-view"
     UPCOMING_BIRTHDAYS = "upcoming-birthdays"
-    LIFE_WEEKS = "life-weeks"
-    LIFE_VISION = "life-vision"
-    LIFE_CHAPTERS = "life-chapters"
 
     def __str__(self) -> str:
         return str(self.value)

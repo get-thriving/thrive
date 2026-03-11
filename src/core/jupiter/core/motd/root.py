@@ -982,22 +982,30 @@ MOTDs = [
     MOTD(
         quote="Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.",
         author="Antoine de Saint-Exupéry",
-        wikiquote_link=URL("https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"),
+        wikiquote_link=URL(
+            "https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"
+        ),
     ),
     MOTD(
         quote="If you want to build a ship, don't drum up the men to gather wood, divide the work, and give orders. Instead, teach them to yearn for the vast and endless sea.",
         author="Antoine de Saint-Exupéry",
-        wikiquote_link=URL("https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"),
+        wikiquote_link=URL(
+            "https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"
+        ),
     ),
     MOTD(
         quote="It is only with the heart that one can see rightly; what is essential is invisible to the eye.",
         author="Antoine de Saint-Exupéry",
-        wikiquote_link=URL("https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"),
+        wikiquote_link=URL(
+            "https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"
+        ),
     ),
     MOTD(
         quote="A goal without a plan is just a wish.",
         author="Antoine de Saint-Exupéry",
-        wikiquote_link=URL("https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"),
+        wikiquote_link=URL(
+            "https://en.wikiquote.org/wiki/Antoine_de_Saint-Exup%C3%A9ry"
+        ),
     ),
     MOTD(
         quote="Courage is not the absence of fear, but the triumph over it.",

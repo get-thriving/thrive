@@ -7,6 +7,7 @@ class InboxTaskSource(str, Enum):
     EMAIL_TASK = "email-task"
     HABIT = "habit"
     JOURNAL = "journal"
+    LIFE_PLAN_EVAL = "life-plan-eval"
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
     PERSON_OCCASION = "person-occasion"
@@ -14,7 +15,6 @@ class InboxTaskSource(str, Enum):
     TIME_PLAN = "time-plan"
     USER = "user"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
-    LIFE_PLAN_EVAL = "life-plan-eval"
 
     def __str__(self) -> str:
         return str(self.value)

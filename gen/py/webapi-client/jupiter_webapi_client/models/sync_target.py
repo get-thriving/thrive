@@ -13,6 +13,7 @@ class SyncTarget(str, Enum):
     HABITS = "habits"
     INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
+    LIFE_PLAN_EVAL = "life-plan-eval"
     METRICS = "metrics"
     MILESTONES = "milestones"
     OCCASIONS = "occasions"
@@ -25,7 +26,6 @@ class SyncTarget(str, Enum):
     VACATIONS = "vacations"
     VISIONS = "visions"
     WORKING_MEM = "working-mem"
-    LIFE_PLAN_EVAL = "life-plan-eval"
 
     def __str__(self) -> str:
         return str(self.value)

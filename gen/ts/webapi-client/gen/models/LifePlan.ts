@@ -3,11 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { Birthday } from './Birthday';
+import type { BirthYear } from './BirthYear';
+import type { EntityId } from './EntityId';
 import type { LifePlanEvalApproach } from './LifePlanEvalApproach';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
-import type { BirthYear } from './BirthYear';
-import type { EntityId } from './EntityId';
 import type { Timestamp } from './Timestamp';
 /**
  * A project collection.

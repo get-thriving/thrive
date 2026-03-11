@@ -54,7 +54,6 @@ from jupiter.core.journals.stats import (
     JournalStats,
     JournalStatsRepository,
 )
-from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.metrics.collection import MetricCollection

@@ -163,7 +163,10 @@ class BigPlanUpdateUseCase(
         await uow.get_for(BigPlan).save(big_plan)
         await progress_reporter.mark_updated(big_plan)
 
-        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and args.project_ref_id.should_change:
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and args.project_ref_id.should_change
+        ):
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(

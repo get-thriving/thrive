@@ -36,3 +36,4 @@ export type LifePlanUpdateEvalSettingsArgs = {
         value?: Record<string, number>;
     };
 };
+
