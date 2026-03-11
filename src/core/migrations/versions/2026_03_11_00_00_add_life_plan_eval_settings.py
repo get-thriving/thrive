@@ -20,9 +20,6 @@ def upgrade() -> None:
     with op.batch_alter_table("life_plan") as batch_op:
         batch_op.add_column(sa.Column("eval_periods", sa.String, nullable=True))
         batch_op.add_column(sa.Column("eval_approach", sa.String, nullable=True))
-        batch_op.add_column(
-            sa.Column("eval_task_project_ref_id", sa.String, nullable=True)
-        )
         batch_op.add_column(sa.Column("eval_task_gen_params", sa.String, nullable=True))
         batch_op.add_column(
             sa.Column("eval_task_generation_in_advance_days", sa.String, nullable=True)
@@ -33,7 +30,6 @@ def upgrade() -> None:
         UPDATE life_plan
         SET eval_periods = '[]',
             eval_approach = 'none',
-            eval_task_project_ref_id = NULL,
             eval_task_gen_params = NULL,
             eval_task_generation_in_advance_days = '{}'
         WHERE eval_periods IS NULL
@@ -50,6 +46,5 @@ def downgrade() -> None:
     with op.batch_alter_table("life_plan") as batch_op:
         batch_op.drop_column("eval_periods")
         batch_op.drop_column("eval_approach")
-        batch_op.drop_column("eval_task_project_ref_id")
         batch_op.drop_column("eval_task_gen_params")
         batch_op.drop_column("eval_task_generation_in_advance_days")

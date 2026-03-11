@@ -251,12 +251,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_root_project,
             )
 
-            new_life_plan = new_life_plan.change_eval_task_project_if_required(
-                ctx=context.domain_context,
-                eval_task_project_ref_id=new_root_project.ref_id,
-            )
-            new_life_plan = await uow.get_for(LifePlan).save(new_life_plan)
-
             new_birth_milestone = Milestone.new_milestone(
                 ctx=context.domain_context,
                 life_plan_ref_id=new_life_plan.ref_id,

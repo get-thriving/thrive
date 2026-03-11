@@ -402,9 +402,6 @@ from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days i
 from .life_plan_update_eval_settings_args_eval_task_generation_in_advance_days_value import (
     LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue,
 )
-from .life_plan_update_eval_settings_args_eval_task_project_ref_id import (
-    LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId,
-)
 from .link_block import LinkBlock
 from .link_block_kind import LinkBlockKind
 from .list_item import ListItem
@@ -1281,7 +1278,6 @@ __all__ = (
     "LifePlanUpdateEvalSettingsArgsEvalTaskEisen",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays",
     "LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDaysValue",
-    "LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId",
     "LinkBlock",
     "LinkBlockKind",
     "ListItem",

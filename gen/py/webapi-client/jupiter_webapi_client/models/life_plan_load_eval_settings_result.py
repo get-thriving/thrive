@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from ..models.life_plan_load_eval_settings_result_eval_task_generation_in_advance_days import (
         LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,
     )
-    from ..models.project import Project
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
 
@@ -31,7 +30,6 @@ class LifePlanLoadEvalSettingsResult:
         eval_approach (LifePlanEvalApproach): The approach to generate life plan eval tasks.
         eval_task_generation_in_advance_days (LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays):
         eval_tasks (list[InboxTask]):
-        eval_task_project (None | Project | Unset):
         eval_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
@@ -39,12 +37,10 @@ class LifePlanLoadEvalSettingsResult:
     eval_approach: LifePlanEvalApproach
     eval_task_generation_in_advance_days: LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays
     eval_tasks: list[InboxTask]
-    eval_task_project: None | Project | Unset = UNSET
     eval_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.project import Project
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
         eval_periods = []
@@ -60,14 +56,6 @@ class LifePlanLoadEvalSettingsResult:
         for eval_tasks_item_data in self.eval_tasks:
             eval_tasks_item = eval_tasks_item_data.to_dict()
             eval_tasks.append(eval_tasks_item)
-
-        eval_task_project: dict[str, Any] | None | Unset
-        if isinstance(self.eval_task_project, Unset):
-            eval_task_project = UNSET
-        elif isinstance(self.eval_task_project, Project):
-            eval_task_project = self.eval_task_project.to_dict()
-        else:
-            eval_task_project = self.eval_task_project
 
         eval_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.eval_task_gen_params, Unset):
@@ -87,8 +75,6 @@ class LifePlanLoadEvalSettingsResult:
                 "eval_tasks": eval_tasks,
             }
         )
-        if eval_task_project is not UNSET:
-            field_dict["eval_task_project"] = eval_task_project
         if eval_task_gen_params is not UNSET:
             field_dict["eval_task_gen_params"] = eval_task_gen_params
 
@@ -100,7 +86,6 @@ class LifePlanLoadEvalSettingsResult:
         from ..models.life_plan_load_eval_settings_result_eval_task_generation_in_advance_days import (
             LifePlanLoadEvalSettingsResultEvalTaskGenerationInAdvanceDays,
         )
-        from ..models.project import Project
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
         d = dict(src_dict)
@@ -124,23 +109,6 @@ class LifePlanLoadEvalSettingsResult:
 
             eval_tasks.append(eval_tasks_item)
 
-        def _parse_eval_task_project(data: object) -> None | Project | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                eval_task_project_type_0 = Project.from_dict(data)
-
-                return eval_task_project_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Project | Unset, data)
-
-        eval_task_project = _parse_eval_task_project(d.pop("eval_task_project", UNSET))
-
         def _parse_eval_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
@@ -163,7 +131,6 @@ class LifePlanLoadEvalSettingsResult:
             eval_approach=eval_approach,
             eval_task_generation_in_advance_days=eval_task_generation_in_advance_days,
             eval_tasks=eval_tasks,
-            eval_task_project=eval_task_project,
             eval_task_gen_params=eval_task_gen_params,
         )
 

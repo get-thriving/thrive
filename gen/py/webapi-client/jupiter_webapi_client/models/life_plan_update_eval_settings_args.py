@@ -16,9 +16,6 @@ if TYPE_CHECKING:
     from ..models.life_plan_update_eval_settings_args_eval_task_generation_in_advance_days import (
         LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays,
     )
-    from ..models.life_plan_update_eval_settings_args_eval_task_project_ref_id import (
-        LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId,
-    )
 
 
 T = TypeVar("T", bound="LifePlanUpdateEvalSettingsArgs")
@@ -31,7 +28,6 @@ class LifePlanUpdateEvalSettingsArgs:
     Attributes:
         eval_periods (LifePlanUpdateEvalSettingsArgsEvalPeriods):
         eval_approach (LifePlanUpdateEvalSettingsArgsEvalApproach):
-        eval_task_project_ref_id (LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId):
         eval_task_eisen (LifePlanUpdateEvalSettingsArgsEvalTaskEisen):
         eval_task_difficulty (LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty):
         eval_task_generation_in_advance_days (LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays):
@@ -39,7 +35,6 @@ class LifePlanUpdateEvalSettingsArgs:
 
     eval_periods: LifePlanUpdateEvalSettingsArgsEvalPeriods
     eval_approach: LifePlanUpdateEvalSettingsArgsEvalApproach
-    eval_task_project_ref_id: LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId
     eval_task_eisen: LifePlanUpdateEvalSettingsArgsEvalTaskEisen
     eval_task_difficulty: LifePlanUpdateEvalSettingsArgsEvalTaskDifficulty
     eval_task_generation_in_advance_days: LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays
@@ -49,8 +44,6 @@ class LifePlanUpdateEvalSettingsArgs:
         eval_periods = self.eval_periods.to_dict()
 
         eval_approach = self.eval_approach.to_dict()
-
-        eval_task_project_ref_id = self.eval_task_project_ref_id.to_dict()
 
         eval_task_eisen = self.eval_task_eisen.to_dict()
 
@@ -64,7 +57,6 @@ class LifePlanUpdateEvalSettingsArgs:
             {
                 "eval_periods": eval_periods,
                 "eval_approach": eval_approach,
-                "eval_task_project_ref_id": eval_task_project_ref_id,
                 "eval_task_eisen": eval_task_eisen,
                 "eval_task_difficulty": eval_task_difficulty,
                 "eval_task_generation_in_advance_days": eval_task_generation_in_advance_days,
@@ -88,18 +80,11 @@ class LifePlanUpdateEvalSettingsArgs:
         from ..models.life_plan_update_eval_settings_args_eval_task_generation_in_advance_days import (
             LifePlanUpdateEvalSettingsArgsEvalTaskGenerationInAdvanceDays,
         )
-        from ..models.life_plan_update_eval_settings_args_eval_task_project_ref_id import (
-            LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId,
-        )
 
         d = dict(src_dict)
         eval_periods = LifePlanUpdateEvalSettingsArgsEvalPeriods.from_dict(d.pop("eval_periods"))
 
         eval_approach = LifePlanUpdateEvalSettingsArgsEvalApproach.from_dict(d.pop("eval_approach"))
-
-        eval_task_project_ref_id = LifePlanUpdateEvalSettingsArgsEvalTaskProjectRefId.from_dict(
-            d.pop("eval_task_project_ref_id")
-        )
 
         eval_task_eisen = LifePlanUpdateEvalSettingsArgsEvalTaskEisen.from_dict(d.pop("eval_task_eisen"))
 
@@ -112,7 +97,6 @@ class LifePlanUpdateEvalSettingsArgs:
         life_plan_update_eval_settings_args = cls(
             eval_periods=eval_periods,
             eval_approach=eval_approach,
-            eval_task_project_ref_id=eval_task_project_ref_id,
             eval_task_eisen=eval_task_eisen,
             eval_task_difficulty=eval_task_difficulty,
             eval_task_generation_in_advance_days=eval_task_generation_in_advance_days,

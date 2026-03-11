@@ -42,7 +42,6 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { BirthYearSelect } from "#/core/common/component/birth-year-select";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
 import { periodName } from "@jupiter/core/common/recurring-task-period";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -70,7 +69,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     evalTaskGenerationInAdvanceDaysForMonthly: z.coerce.number().optional(),
     evalTaskGenerationInAdvanceDaysForQuarterly: z.coerce.number().optional(),
     evalTaskGenerationInAdvanceDaysForYearly: z.coerce.number().optional(),
-    evalTaskProject: z.string().optional(),
     evalTaskEisen: z.nativeEnum(Eisen).optional(),
     evalTaskDifficulty: z.nativeEnum(Difficulty).optional(),
   }),
@@ -93,7 +91,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
   });
 
   const evalSettingsResponse =
@@ -103,12 +100,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     lifePlan: summaryResponse.life_plan as LifePlan,
     evalPeriods: evalSettingsResponse.eval_periods,
     evalApproach: evalSettingsResponse.eval_approach,
-    evalTaskProject: evalSettingsResponse.eval_task_project,
     evalTaskGenParams: evalSettingsResponse.eval_task_gen_params,
     evalTaskGenerationInAdvanceDays:
       evalSettingsResponse.eval_task_generation_in_advance_days,
     evalTasks: evalSettingsResponse.eval_tasks,
-    allProjects: summaryResponse.projects || undefined,
   });
 }
 
@@ -166,10 +161,6 @@ export async function action({ request }: ActionFunctionArgs) {
           eval_approach: {
             should_change: true,
             value: form.evalApproach,
-          },
-          eval_task_project_ref_id: {
-            should_change: true,
-            value: form.evalTaskProject,
           },
           eval_task_eisen: {
             should_change: true,
@@ -377,96 +368,83 @@ export default function LifePlanSettings() {
 
             {evalApproach === LifePlanEvalApproach.TASK && (
               <>
-                <Divider>
-                  <Typography variant="h6">Eval Task Properties</Typography>
-                </Divider>
-
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                    <ProjectSelect
-                      name="evalTaskProject"
-                      label="Eval Task Project"
-                      inputsEnabled={inputsEnabled}
-                      disabled={false}
-                      allProjects={loaderData.allProjects!}
-                      defaultValue={loaderData.evalTaskProject?.ref_id}
-                    />
-                    <FieldError
-                      actionResult={actionData}
-                      fieldName="/eval_task_project_ref_id"
-                    />
-                  </FormControl>
+                  <Stack spacing={2} sx={{ flex: 1 }}>
+                    <Divider>
+                      <Typography variant="h6">Eval Task Properties</Typography>
+                    </Divider>
 
-                  <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                    <FormLabel id="evalTaskEisen">Eval Task Eisen</FormLabel>
-                    <EisenhowerSelect
-                      name="evalTaskEisen"
-                      inputsEnabled={inputsEnabled}
-                      defaultValue={
-                        loaderData.evalTaskGenParams?.eisen ?? Eisen.IMPORTANT
+                    <FormControl fullWidth>
+                      <FormLabel id="evalTaskEisen">Eval Task Eisen</FormLabel>
+                      <EisenhowerSelect
+                        name="evalTaskEisen"
+                        inputsEnabled={inputsEnabled}
+                        defaultValue={
+                          loaderData.evalTaskGenParams?.eisen ?? Eisen.IMPORTANT
+                        }
+                      />
+                      <FieldError
+                        actionResult={actionData}
+                        fieldName="/eval_task_eisen"
+                      />
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                      <FormLabel id="evalTaskDifficulty">
+                        Eval Task Difficulty
+                      </FormLabel>
+                      <DifficultySelect
+                        name="evalTaskDifficulty"
+                        inputsEnabled={inputsEnabled}
+                        defaultValue={
+                          loaderData.evalTaskGenParams?.difficulty ??
+                          Difficulty.EASY
+                        }
+                      />
+                      <FieldError
+                        actionResult={actionData}
+                        fieldName="/eval_task_difficulty"
+                      />
+                    </FormControl>
+                  </Stack>
+
+                  <Stack spacing={2} sx={{ flex: 1 }}>
+                    <Divider>
+                      <Typography variant="h6">
+                        Days To Generate In Advance
+                      </Typography>
+                    </Divider>
+
+                    {ALLOWED_EVAL_PERIODS.map((period) => {
+                      if (!evalPeriods.includes(period)) {
+                        return null;
                       }
-                    />
-                    <FieldError
-                      actionResult={actionData}
-                      fieldName="/eval_task_eisen"
-                    />
-                  </FormControl>
 
-                  <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                    <FormLabel id="evalTaskDifficulty">
-                      Eval Task Difficulty
-                    </FormLabel>
-                    <DifficultySelect
-                      name="evalTaskDifficulty"
-                      inputsEnabled={inputsEnabled}
-                      defaultValue={
-                        loaderData.evalTaskGenParams?.difficulty ??
-                        Difficulty.EASY
-                      }
-                    />
-                    <FieldError
-                      actionResult={actionData}
-                      fieldName="/eval_task_difficulty"
-                    />
-                  </FormControl>
-                </Stack>
-
-                <Divider>
-                  <Typography variant="h6">
-                    Days To Generate In Advance
-                  </Typography>
-                </Divider>
-
-                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  {ALLOWED_EVAL_PERIODS.map((period) => {
-                    if (!evalPeriods.includes(period)) {
-                      return null;
-                    }
-
-                    return (
-                      <FormControl fullWidth key={period}>
-                        <InputLabel
-                          id={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
-                        >
-                          For {periodName(period)}
-                        </InputLabel>
-                        <OutlinedInput
-                          name={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
-                          label={`For ${periodName(period)}`}
-                          disabled={!inputsEnabled}
-                          defaultValue={
-                            loaderData.evalTaskGenerationInAdvanceDays[
-                              period
-                            ] ?? 1
-                          }
-                        />
-                        <FieldError
-                          actionResult={actionData}
-                          fieldName={`/eval_task_generation_in_advance_days`}
-                        />
-                      </FormControl>
-                    );
-                  })}
+                      return (
+                        <FormControl fullWidth key={period}>
+                          <InputLabel
+                            id={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
+                          >
+                            For {periodName(period)}
+                          </InputLabel>
+                          <OutlinedInput
+                            name={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
+                            label={`For ${periodName(period)}`}
+                            disabled={!inputsEnabled}
+                            defaultValue={
+                              loaderData.evalTaskGenerationInAdvanceDays[
+                                period
+                              ] ?? 1
+                            }
+                          />
+                          <FieldError
+                            actionResult={actionData}
+                            fieldName={`/eval_task_generation_in_advance_days`}
+                          />
+                        </FormControl>
+                      );
+                    })}
+                  </Stack>
                 </Stack>
               </>
             )}

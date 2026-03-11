@@ -25,9 +25,8 @@ export type LifePlan = {
     birth_year: BirthYear;
     max_age: number;
     time_plan_max_life_plan_links: number;
-    eval_periods: Array<RecurringTaskPeriod>;
     eval_approach: LifePlanEvalApproach;
-    eval_task_project_ref_id?: (EntityId | null);
+    eval_periods: Array<RecurringTaskPeriod>;
     eval_task_gen_params?: (RecurringTaskGenParams | null);
     eval_task_generation_in_advance_days: Record<string, number>;
 };

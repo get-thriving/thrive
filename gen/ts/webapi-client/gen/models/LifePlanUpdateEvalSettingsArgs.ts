@@ -4,7 +4,6 @@
 /* eslint-disable */
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
-import type { EntityId } from './EntityId';
 import type { LifePlanEvalApproach } from './LifePlanEvalApproach';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 /**
@@ -18,10 +17,6 @@ export type LifePlanUpdateEvalSettingsArgs = {
     eval_approach: {
         should_change: boolean;
         value?: LifePlanEvalApproach;
-    };
-    eval_task_project_ref_id: {
-        should_change: boolean;
-        value?: (EntityId | null);
     };
     eval_task_eisen: {
         should_change: boolean;

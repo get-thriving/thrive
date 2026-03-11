@@ -2027,10 +2027,14 @@ class GenService:
         if life_plan.eval_approach.should_do_nothing:
             return gen_log_entry
 
-        if life_plan.eval_task_project_ref_id is None:
+        if life_plan.eval_task_gen_params is None:
             return gen_log_entry
 
-        if life_plan.eval_task_gen_params is None:
+        root_project = next(
+            (project for project in all_projects_by_ref_id.values() if project.is_root),
+            None,
+        )
+        if root_project is None:
             return gen_log_entry
 
         for period in life_plan.eval_periods:
@@ -2055,7 +2059,6 @@ class GenService:
             if life_plan.eval_approach.should_generate_an_eval_task:
                 if life_plan.eval_task_gen_params is None:
                     raise Exception("Eval task gen params is not set")
-                project = all_projects_by_ref_id[life_plan.eval_task_project_ref_id]
                 gen_params = life_plan.eval_task_gen_params
 
                 if found_eval_task:
@@ -2068,7 +2071,7 @@ class GenService:
 
                     found_eval_task = found_eval_task.update_link_to_life_plan_eval(
                         ctx,
-                        project_ref_id=project.ref_id,
+                        project_ref_id=root_project.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=schedule.due_date,
@@ -2094,7 +2097,7 @@ class GenService:
                             )
                         ),
                         due_date=schedule.due_date,
-                        project_ref_id=project.ref_id,
+                        project_ref_id=root_project.ref_id,
                         life_plan_ref_id=life_plan.ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),

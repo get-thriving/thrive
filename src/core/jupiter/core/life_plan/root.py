@@ -54,7 +54,6 @@ class LifePlan(TrunkEntity):
 
     eval_approach: LifePlanEvalApproach
     eval_periods: set[RecurringTaskPeriod]
-    eval_task_project_ref_id: EntityId | None
     eval_task_gen_params: RecurringTaskGenParams | None
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
 
@@ -83,7 +82,6 @@ class LifePlan(TrunkEntity):
             time_plan_max_life_plan_links=TIME_PLAN_MAX_LIFE_PLAN_LINKS,
             eval_approach=LifePlanEvalApproach.NONE,
             eval_periods=set(),
-            eval_task_project_ref_id=None,
             eval_task_gen_params=None,
             eval_task_generation_in_advance_days={},
         )
@@ -108,7 +106,6 @@ class LifePlan(TrunkEntity):
         ctx: MutationContext,
         eval_approach: UpdateAction[LifePlanEvalApproach],
         eval_periods: UpdateAction[set[RecurringTaskPeriod]],
-        eval_task_project_ref_id: UpdateAction[EntityId | None],
         eval_task_eisen: UpdateAction[Eisen | None],
         eval_task_difficulty: UpdateAction[Difficulty | None],
         eval_task_generation_in_advance_days: UpdateAction[
@@ -118,9 +115,6 @@ class LifePlan(TrunkEntity):
         """Update the eval settings for a life plan."""
         final_eval_approach = eval_approach.or_else(self.eval_approach)
         final_eval_periods = eval_periods.or_else(self.eval_periods)
-        final_eval_task_project_ref_id = eval_task_project_ref_id.or_else(
-            self.eval_task_project_ref_id
-        )
         final_eval_task_eisen = eval_task_eisen.or_else(
             self.eval_task_gen_params.eisen
             if self.eval_task_gen_params is not None
@@ -193,21 +187,8 @@ class LifePlan(TrunkEntity):
             ctx,
             eval_periods=final_eval_periods,
             eval_approach=final_eval_approach,
-            eval_task_project_ref_id=final_eval_task_project_ref_id,
             eval_task_gen_params=final_eval_task_gen_params,
             eval_task_generation_in_advance_days=final_eval_task_generation_in_advance_days,
-        )
-
-    @update_entity_action
-    def change_eval_task_project_if_required(
-        self,
-        ctx: MutationContext,
-        eval_task_project_ref_id: EntityId,
-    ) -> "LifePlan":
-        """Change the eval task project."""
-        return self._new_version(
-            ctx,
-            eval_task_project_ref_id=eval_task_project_ref_id,
         )
 
     @staticmethod

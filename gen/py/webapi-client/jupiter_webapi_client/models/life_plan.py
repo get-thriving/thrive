@@ -33,12 +33,11 @@ class LifePlan:
         birth_year (int): The birth year of a person.
         max_age (int):
         time_plan_max_life_plan_links (int):
-        eval_periods (list[RecurringTaskPeriod]):
         eval_approach (LifePlanEvalApproach): The approach to generate life plan eval tasks.
+        eval_periods (list[RecurringTaskPeriod]):
         eval_task_generation_in_advance_days (LifePlanEvalTaskGenerationInAdvanceDays):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
-        eval_task_project_ref_id (None | str | Unset):
         eval_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
@@ -52,12 +51,11 @@ class LifePlan:
     birth_year: int
     max_age: int
     time_plan_max_life_plan_links: int
-    eval_periods: list[RecurringTaskPeriod]
     eval_approach: LifePlanEvalApproach
+    eval_periods: list[RecurringTaskPeriod]
     eval_task_generation_in_advance_days: LifePlanEvalTaskGenerationInAdvanceDays
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
-    eval_task_project_ref_id: None | str | Unset = UNSET
     eval_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -84,12 +82,12 @@ class LifePlan:
 
         time_plan_max_life_plan_links = self.time_plan_max_life_plan_links
 
+        eval_approach = self.eval_approach.value
+
         eval_periods = []
         for eval_periods_item_data in self.eval_periods:
             eval_periods_item = eval_periods_item_data.value
             eval_periods.append(eval_periods_item)
-
-        eval_approach = self.eval_approach.value
 
         eval_task_generation_in_advance_days = self.eval_task_generation_in_advance_days.to_dict()
 
@@ -104,12 +102,6 @@ class LifePlan:
             archived_time = UNSET
         else:
             archived_time = self.archived_time
-
-        eval_task_project_ref_id: None | str | Unset
-        if isinstance(self.eval_task_project_ref_id, Unset):
-            eval_task_project_ref_id = UNSET
-        else:
-            eval_task_project_ref_id = self.eval_task_project_ref_id
 
         eval_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.eval_task_gen_params, Unset):
@@ -133,8 +125,8 @@ class LifePlan:
                 "birth_year": birth_year,
                 "max_age": max_age,
                 "time_plan_max_life_plan_links": time_plan_max_life_plan_links,
-                "eval_periods": eval_periods,
                 "eval_approach": eval_approach,
+                "eval_periods": eval_periods,
                 "eval_task_generation_in_advance_days": eval_task_generation_in_advance_days,
             }
         )
@@ -142,8 +134,6 @@ class LifePlan:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
-        if eval_task_project_ref_id is not UNSET:
-            field_dict["eval_task_project_ref_id"] = eval_task_project_ref_id
         if eval_task_gen_params is not UNSET:
             field_dict["eval_task_gen_params"] = eval_task_gen_params
 
@@ -175,14 +165,14 @@ class LifePlan:
 
         time_plan_max_life_plan_links = d.pop("time_plan_max_life_plan_links")
 
+        eval_approach = LifePlanEvalApproach(d.pop("eval_approach"))
+
         eval_periods = []
         _eval_periods = d.pop("eval_periods")
         for eval_periods_item_data in _eval_periods:
             eval_periods_item = RecurringTaskPeriod(eval_periods_item_data)
 
             eval_periods.append(eval_periods_item)
-
-        eval_approach = LifePlanEvalApproach(d.pop("eval_approach"))
 
         eval_task_generation_in_advance_days = LifePlanEvalTaskGenerationInAdvanceDays.from_dict(
             d.pop("eval_task_generation_in_advance_days")
@@ -205,15 +195,6 @@ class LifePlan:
             return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
-
-        def _parse_eval_task_project_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        eval_task_project_ref_id = _parse_eval_task_project_ref_id(d.pop("eval_task_project_ref_id", UNSET))
 
         def _parse_eval_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
@@ -243,12 +224,11 @@ class LifePlan:
             birth_year=birth_year,
             max_age=max_age,
             time_plan_max_life_plan_links=time_plan_max_life_plan_links,
-            eval_periods=eval_periods,
             eval_approach=eval_approach,
+            eval_periods=eval_periods,
             eval_task_generation_in_advance_days=eval_task_generation_in_advance_days,
             archival_reason=archival_reason,
             archived_time=archived_time,
-            eval_task_project_ref_id=eval_task_project_ref_id,
             eval_task_gen_params=eval_task_gen_params,
         )
 

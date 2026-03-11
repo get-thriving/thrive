@@ -13,7 +13,6 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -37,7 +36,6 @@ class LifePlanLoadEvalSettingsResult(UseCaseResultBase):
 
     eval_periods: list[RecurringTaskPeriod]
     eval_approach: LifePlanEvalApproach
-    eval_task_project: Project | None
     eval_task_gen_params: RecurringTaskGenParams | None
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
     eval_tasks: list[InboxTask]
@@ -69,12 +67,6 @@ class LifePlanLoadEvalSettingsUseCase(
             workspace.ref_id,
         )
 
-        eval_task_project: Project | None = None
-        if life_plan.eval_task_project_ref_id is not None:
-            eval_task_project = await uow.get_for(Project).load_by_id(
-                life_plan.eval_task_project_ref_id,
-            )
-
         eval_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
@@ -84,7 +76,6 @@ class LifePlanLoadEvalSettingsUseCase(
         return LifePlanLoadEvalSettingsResult(
             eval_periods=list(life_plan.eval_periods),
             eval_approach=life_plan.eval_approach,
-            eval_task_project=eval_task_project,
             eval_task_gen_params=life_plan.eval_task_gen_params,
             eval_task_generation_in_advance_days=life_plan.eval_task_generation_in_advance_days,
             eval_tasks=eval_tasks,

@@ -11,6 +11,7 @@ import type {
   Project,
   Tag,
   Contact,
+  ProjectSummary,
 } from "@jupiter/webapi-client";
 import {
   Eisen,
@@ -2421,7 +2422,7 @@ function List({
 
 function getUniqueProjectsSorted(moreInfoByRefId: {
   [key: string]: InboxTaskParent;
-}): Project[] {
+}): ProjectSummary[] {
   const projectMap = new Map<string, Project>();
   for (const parent of Object.values(moreInfoByRefId)) {
     if (parent.project) {

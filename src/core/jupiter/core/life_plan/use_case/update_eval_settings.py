@@ -1,7 +1,5 @@
 """Update eval settings for a life plan."""
 
-from typing import cast
-
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
@@ -19,9 +17,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.sync_target import SyncTarget
-from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
@@ -37,7 +33,6 @@ class LifePlanUpdateEvalSettingsArgs(UseCaseArgsBase):
 
     eval_periods: UpdateAction[list[RecurringTaskPeriod]]
     eval_approach: UpdateAction[LifePlanEvalApproach]
-    eval_task_project_ref_id: UpdateAction[EntityId | None]
     eval_task_eisen: UpdateAction[Eisen | None]
     eval_task_difficulty: UpdateAction[Difficulty | None]
     eval_task_generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
@@ -66,26 +61,10 @@ class LifePlanUpdateEvalSettingsUseCase(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
 
-            eval_task_project_ref_id: UpdateAction[EntityId | None] = (
-                UpdateAction.do_nothing()
-            )
-            if args.eval_task_project_ref_id.should_change:
-                project_ref_id_value = args.eval_task_project_ref_id.just_the_value
-                if project_ref_id_value is not None:
-                    project = await uow.get_for(Project).load_by_id(
-                        cast(EntityId, project_ref_id_value)
-                    )
-                    eval_task_project_ref_id = UpdateAction.change_to(project.ref_id)
-                else:
-                    eval_task_project_ref_id = UpdateAction.change_to(None)
-            else:
-                eval_task_project_ref_id = UpdateAction.do_nothing()
-
             life_plan = life_plan.update_eval_settings(
                 context.domain_context,
                 eval_periods=args.eval_periods.transform(lambda s: set(s)),
                 eval_approach=args.eval_approach,
-                eval_task_project_ref_id=eval_task_project_ref_id,
                 eval_task_eisen=args.eval_task_eisen,
                 eval_task_difficulty=args.eval_task_difficulty,
                 eval_task_generation_in_advance_days=args.eval_task_generation_in_advance_days,
