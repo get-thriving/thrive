@@ -20,12 +20,25 @@ various _things_ you can do with it.
 | Journals | ✅ | ✅ | ❌ |
 | Docs | ✅ | ✅ | ❌ |
 | Vacations | ✅ | ✅ | ✅ |
-| Projects | ✅ | ✅ | ✅ |
+| Life Plan | ✅ | ✅ | ✅ |
 | Smart Lists | ✅ | ✅ | ✅ |
 | Metrics | ✅ | ✅ | ✅ |
 | Personal Relationship Manager | ✅ | ✅ | ✅ |
 | Email Tasks | ✅ | ❌ | ❌ |
 | Slack Tasks | ✅ | ❌ | ❌ |
+
+The _Life Plan_ feature is composed of several sub-features, all of which
+are included when Life Plan is enabled:
+
+| Life Plan Sub-Feature | Global Hosted | Self Hosted | Local |
+| --------- | -------------- | ------------- | -------- |
+| Vision | ✅ | ✅ | ✅ |
+| Chapters | ✅ | ✅ | ✅ |
+| Goals | ✅ | ✅ | ✅ |
+| Milestones | ✅ | ✅ | ✅ |
+| Projects | ✅ | ✅ | ✅ |
+| Life Weeks | ✅ | ✅ | ✅ |
+| Life Plan Eval Tasks | ✅ | ✅ | ❌ |
 
 There are a number of _cross cutting features_ that interact withall of the
 others and give an extra boost of usefulness to Thrive.

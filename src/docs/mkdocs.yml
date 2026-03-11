@@ -45,7 +45,14 @@ nav:
           - 'Big Plans': 'concepts/big-plans.md'
           - 'Journals': 'concepts/journals.md'
           - 'Vacations': 'concepts/vacations.md'
-          - 'Projects': 'concepts/projects.md'
+          - 'Life Plan':
+                - 'Overview': 'concepts/life-plan/overview.md'
+                - 'Vision': 'concepts/life-plan/vision.md'
+                - 'Chapters': 'concepts/life-plan/chapters.md'
+                - 'Goals': 'concepts/life-plan/goals.md'
+                - 'Milestones': 'concepts/life-plan/milestones.md'
+                - 'Projects': 'concepts/life-plan/projects.md'
+                - 'Life Weeks': 'concepts/life-plan/life-weeks.md'
           - 'Smart Lists': 'concepts/smart-lists.md'
           - 'Metrics': 'concepts/metrics.md'
           - 'Personal Relationship Manager':
