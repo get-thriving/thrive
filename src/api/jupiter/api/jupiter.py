@@ -232,8 +232,17 @@ from jupiter_webapi_client.api.life_plan.goal_update import (
 )
 
 # --- Life Plan API ---
+from jupiter_webapi_client.api.life_plan.life_plan_load_eval_settings import (
+    asyncio_detailed as life_plan_load_eval_settings,
+)
+from jupiter_webapi_client.api.life_plan.life_plan_regen import (
+    asyncio_detailed as life_plan_regen,
+)
 from jupiter_webapi_client.api.life_plan.life_plan_update import (
     asyncio_detailed as life_plan_update,
+)
+from jupiter_webapi_client.api.life_plan.life_plan_update_eval_settings import (
+    asyncio_detailed as life_plan_update_eval_settings,
 )
 from jupiter_webapi_client.api.life_plan.milestone_archive import (
     asyncio_detailed as milestone_archive,
@@ -983,6 +992,15 @@ async def main() -> None:
         JupiterApiResource.build(
             "life-plan",
             JupiterApiGatewayMethod.put(life_plan_update),
+            JupiterApiResource.build(
+                "settings",
+                JupiterApiGatewayMethod.get(life_plan_load_eval_settings),
+                JupiterApiGatewayMethod.put(life_plan_update_eval_settings),
+                JupiterApiResource.build(
+                    "regen",
+                    JupiterApiGatewayMethod.post(life_plan_regen),
+                ),
+            ),
             JupiterApiResource.build(
                 "visions",
                 JupiterApiGatewayMethod.get(vision_find),
