@@ -9,6 +9,7 @@ export enum ReportBreakdown {
     GLOBAL = 'global',
     PERIODS = 'periods',
     PROJECTS = 'projects',
+    GOALS = 'goals',
     HABITS = 'habits',
     CHORES = 'chores',
     BIG_PLANS = 'big-plans',

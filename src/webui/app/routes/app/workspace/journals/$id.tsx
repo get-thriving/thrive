@@ -4,7 +4,7 @@ import {
   TagNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import type { Tag } from "@jupiter/webapi-client";
+import type { GoalSummary, Tag } from "@jupiter/webapi-client";
 import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -74,6 +74,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_projects: true,
+    include_goals: true,
   });
 
   try {
@@ -101,6 +102,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       allProjects: summaryResponse.projects || undefined,
+      allGoals: (summaryResponse.goals as Array<GoalSummary>) || undefined,
       journal: result.journal,
       journalStats: result.journal_stats,
       note: result.note,
@@ -297,6 +299,7 @@ export default function Journal() {
         <ShowReport
           topLevelInfo={topLevelInfo}
           allProjects={loaderData.allProjects || []}
+          allGoals={loaderData.allGoals || []}
           report={loaderData.journalStats.report}
         />
       </SectionCard>
