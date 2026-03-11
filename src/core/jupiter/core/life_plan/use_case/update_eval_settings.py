@@ -66,7 +66,9 @@ class LifePlanUpdateEvalSettingsUseCase(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
 
-            eval_task_project_ref_id: UpdateAction[EntityId | None] = UpdateAction.do_nothing()
+            eval_task_project_ref_id: UpdateAction[EntityId | None] = (
+                UpdateAction.do_nothing()
+            )
             if args.eval_task_project_ref_id.should_change:
                 project_ref_id_value = args.eval_task_project_ref_id.just_the_value
                 if project_ref_id_value is not None:

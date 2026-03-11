@@ -2419,9 +2419,9 @@ function List({
   );
 }
 
-function getUniqueProjectsSorted(
-  moreInfoByRefId: { [key: string]: InboxTaskParent },
-): Project[] {
+function getUniqueProjectsSorted(moreInfoByRefId: {
+  [key: string]: InboxTaskParent;
+}): Project[] {
   const projectMap = new Map<string, Project>();
   for (const parent of Object.values(moreInfoByRefId)) {
     if (parent.project) {
@@ -2571,7 +2571,9 @@ function SmallScreenKanbanByProject(props: SmallScreenKanbanByProjectProps) {
               actionableTime={props.actionableTime}
               onCardMarkDone={props.onCardMarkDone}
               onCardMarkNotDone={props.onCardMarkNotDone}
-              inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
+              inboxTaskTagsByInboxTaskRefId={
+                props.inboxTaskTagsByInboxTaskRefId
+              }
               inboxTaskContactsByInboxTaskRefId={
                 props.inboxTaskContactsByInboxTaskRefId
               }
@@ -2763,7 +2765,8 @@ function SmallScreenKanbanByProjectAndGoal(
             {goals.map((goal) => {
               const goalTasks = projectTasks.filter(
                 (it) =>
-                  props.moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
+                  props.moreInfoByRefId[it.ref_id]?.goal?.ref_id ===
+                  goal.ref_id,
               );
               if (goalTasks.length === 0) return null;
               return (
@@ -2966,7 +2969,9 @@ function ListByProjectAndGoal({
                     }}
                     inboxTasks={goalTasks}
                     moreInfoByRefId={moreInfoByRefId}
-                    inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
+                    inboxTaskTagsByInboxTaskRefId={
+                      inboxTaskTagsByInboxTaskRefId
+                    }
                     inboxTaskContactsByInboxTaskRefId={
                       inboxTaskContactsByInboxTaskRefId
                     }
