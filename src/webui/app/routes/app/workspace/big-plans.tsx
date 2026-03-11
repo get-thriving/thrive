@@ -1,6 +1,7 @@
 import type {
   BigPlanFindResultEntry,
   Contact,
+  Goal,
   BigPlanMilestone,
   BigPlanStats,
   Tag,
@@ -89,8 +90,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 enum View {
+  TIMELINE_BY_PROJECT_AND_GOAL = "timeline-by-project-and-goal",
   TIMELINE_BY_PROJECT = "timeline-by-project",
   TIMELINE = "timeline",
+  LIST_BY_PROJECT_AND_GOAL = "list-by-project-and-goal",
+  LIST_BY_PROJECT = "list-by-project",
   LIST = "list",
 }
 
@@ -176,6 +180,12 @@ export default function BigPlans() {
               selectedView,
               [
                 {
+                  value: View.TIMELINE_BY_PROJECT_AND_GOAL,
+                  text: "Timeline by Project & Goal",
+                  icon: <ViewTimelineIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
+                },
+                {
                   value: View.TIMELINE_BY_PROJECT,
                   text: "Timeline by Project",
                   icon: <ViewTimelineIcon />,
@@ -185,6 +195,18 @@ export default function BigPlans() {
                   value: View.TIMELINE,
                   text: "Timeline",
                   icon: <ViewTimelineIcon />,
+                },
+                {
+                  value: View.LIST_BY_PROJECT_AND_GOAL,
+                  text: "List by Project & Goal",
+                  icon: <ViewListIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
+                },
+                {
+                  value: View.LIST_BY_PROJECT,
+                  text: "List by Project",
+                  icon: <ViewListIcon />,
+                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
@@ -219,6 +241,132 @@ export default function BigPlans() {
             helpSubject={DocsHelpSubject.BIG_PLANS}
           />
         )}
+
+        {sortedBigPlans.length > 0 &&
+          isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) &&
+          selectedView === View.TIMELINE_BY_PROJECT_AND_GOAL && (
+            <>
+              {sortedProjects.map((p) => {
+                const projectBigPlans = sortedBigPlans.filter(
+                  (se) =>
+                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                );
+
+                if (projectBigPlans.length === 0) {
+                  return null;
+                }
+
+                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                  p,
+                  allProjectsByRefId,
+                );
+
+                const goalsByRefId = new Map<string, Goal>();
+                for (const bp of projectBigPlans) {
+                  const goal = entriesByRefId.get(bp.ref_id)?.goal;
+                  if (goal) {
+                    goalsByRefId.set(goal.ref_id, goal);
+                  }
+                }
+                const sortedGoals = Array.from(goalsByRefId.values()).sort(
+                  (a, b) => a.name.localeCompare(b.name),
+                );
+                const noGoalPlans = projectBigPlans.filter(
+                  (bp) => !entriesByRefId.get(bp.ref_id)?.goal,
+                );
+
+                return (
+                  <Fragment key={p.ref_id}>
+                    <StandardDivider title={fullProjectName} size="large" />
+                    {sortedGoals.map((goal) => {
+                      const goalBigPlans = projectBigPlans.filter(
+                        (bp) =>
+                          entriesByRefId.get(bp.ref_id)?.goal?.ref_id ===
+                          goal.ref_id,
+                      );
+                      return (
+                        <Fragment key={goal.ref_id}>
+                          <StandardDivider title={goal.name} size="medium" />
+                          {isBigScreen && (
+                            <BigPlanTimelineBigScreen
+                              today={topLevelInfo.today}
+                              thisYear={thisYear}
+                              bigPlans={goalBigPlans}
+                              bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                              bigPlanStatsByRefId={bigPlanStatsByRefId}
+                              dateMarkers={[
+                                {
+                                  date: topLevelInfo.today,
+                                  color: "red",
+                                  label: "Today",
+                                },
+                              ]}
+                            />
+                          )}
+                          {!isBigScreen && (
+                            <BigPlanTimelineSmallScreen
+                              today={topLevelInfo.today}
+                              thisYear={thisYear}
+                              bigPlans={goalBigPlans}
+                              bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                              bigPlanStatsByRefId={bigPlanStatsByRefId}
+                              dateMarkers={[
+                                {
+                                  date: topLevelInfo.today,
+                                  color: "red",
+                                  label: "Today",
+                                },
+                              ]}
+                            />
+                          )}
+                        </Fragment>
+                      );
+                    })}
+                    {noGoalPlans.length > 0 && (
+                      <Fragment>
+                        <StandardDivider title="No Goal" size="medium" />
+                        {isBigScreen && (
+                          <BigPlanTimelineBigScreen
+                            today={topLevelInfo.today}
+                            thisYear={thisYear}
+                            bigPlans={noGoalPlans}
+                            bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                            bigPlanStatsByRefId={bigPlanStatsByRefId}
+                            dateMarkers={[
+                              {
+                                date: topLevelInfo.today,
+                                color: "red",
+                                label: "Today",
+                              },
+                            ]}
+                          />
+                        )}
+                        {!isBigScreen && (
+                          <BigPlanTimelineSmallScreen
+                            today={topLevelInfo.today}
+                            thisYear={thisYear}
+                            bigPlans={noGoalPlans}
+                            bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                            bigPlanStatsByRefId={bigPlanStatsByRefId}
+                            dateMarkers={[
+                              {
+                                date: topLevelInfo.today,
+                                color: "red",
+                                label: "Today",
+                              },
+                            ]}
+                          />
+                        )}
+                      </Fragment>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </>
+          )}
 
         {sortedBigPlans.length > 0 &&
           isWorkspaceFeatureAvailable(
@@ -321,6 +469,149 @@ export default function BigPlans() {
             )}
           </>
         )}
+
+        {sortedBigPlans.length > 0 &&
+          isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) &&
+          selectedView === View.LIST_BY_PROJECT_AND_GOAL && (
+            <>
+              {sortedProjects.map((p) => {
+                const projectBigPlans = sortedBigPlans.filter(
+                  (se) =>
+                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                );
+
+                if (projectBigPlans.length === 0) {
+                  return null;
+                }
+
+                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                  p,
+                  allProjectsByRefId,
+                );
+
+                const goalsByRefId = new Map<string, Goal>();
+                for (const bp of projectBigPlans) {
+                  const goal = entriesByRefId.get(bp.ref_id)?.goal;
+                  if (goal) {
+                    goalsByRefId.set(goal.ref_id, goal);
+                  }
+                }
+                const sortedGoals = Array.from(goalsByRefId.values()).sort(
+                  (a, b) => a.name.localeCompare(b.name),
+                );
+                const noGoalPlans = projectBigPlans.filter(
+                  (bp) => !entriesByRefId.get(bp.ref_id)?.goal,
+                );
+
+                return (
+                  <Fragment key={p.ref_id}>
+                    <StandardDivider title={fullProjectName} size="large" />
+                    {sortedGoals.map((goal) => {
+                      const goalBigPlans = projectBigPlans.filter(
+                        (bp) =>
+                          entriesByRefId.get(bp.ref_id)?.goal?.ref_id ===
+                          goal.ref_id,
+                      );
+                      return (
+                        <BigPlanStack
+                          key={goal.ref_id}
+                          topLevelInfo={topLevelInfo}
+                          label={goal.name}
+                          bigPlans={goalBigPlans}
+                          bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                          bigPlanStatsByRefId={bigPlanStatsByRefId}
+                          entriesByRefId={entriesByRefId}
+                          showOptions={{
+                            showDonePct: true,
+                            showMilestonesLeft: true,
+                            showLifePlan: true,
+                            showEisen: true,
+                            showDifficulty: true,
+                            showActionableDate: true,
+                            showDueDate: true,
+                            showHandleMarkDone: false,
+                            showHandleMarkNotDone: false,
+                          }}
+                        />
+                      );
+                    })}
+                    {noGoalPlans.length > 0 && (
+                      <BigPlanStack
+                        topLevelInfo={topLevelInfo}
+                        label="No Goal"
+                        bigPlans={noGoalPlans}
+                        bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                        bigPlanStatsByRefId={bigPlanStatsByRefId}
+                        entriesByRefId={entriesByRefId}
+                        showOptions={{
+                          showDonePct: true,
+                          showMilestonesLeft: true,
+                          showLifePlan: true,
+                          showEisen: true,
+                          showDifficulty: true,
+                          showActionableDate: true,
+                          showDueDate: true,
+                          showHandleMarkDone: false,
+                          showHandleMarkNotDone: false,
+                        }}
+                      />
+                    )}
+                  </Fragment>
+                );
+              })}
+            </>
+          )}
+
+        {sortedBigPlans.length > 0 &&
+          isWorkspaceFeatureAvailable(
+            topLevelInfo.workspace,
+            WorkspaceFeature.LIFE_PLAN,
+          ) &&
+          selectedView === View.LIST_BY_PROJECT && (
+            <>
+              {sortedProjects.map((p) => {
+                const theBigPlans = sortedBigPlans.filter(
+                  (se) =>
+                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                );
+
+                if (theBigPlans.length === 0) {
+                  return null;
+                }
+
+                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                  p,
+                  allProjectsByRefId,
+                );
+
+                return (
+                  <BigPlanStack
+                    key={p.ref_id}
+                    topLevelInfo={topLevelInfo}
+                    label={fullProjectName}
+                    bigPlans={theBigPlans}
+                    bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                    bigPlanStatsByRefId={bigPlanStatsByRefId}
+                    entriesByRefId={entriesByRefId}
+                    showOptions={{
+                      showDonePct: true,
+                      showMilestonesLeft: true,
+                      showLifePlan: true,
+                      showEisen: true,
+                      showDifficulty: true,
+                      showActionableDate: true,
+                      showDueDate: true,
+                      showHandleMarkDone: false,
+                      showHandleMarkNotDone: false,
+                    }}
+                  />
+                );
+              })}
+            </>
+          )}
 
         {sortedBigPlans.length > 0 && selectedView === View.LIST && (
           <BigPlanStack
