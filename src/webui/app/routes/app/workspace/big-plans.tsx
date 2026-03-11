@@ -38,7 +38,7 @@ import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boun
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
 import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
-  FilterFewOptionsSpread,
+  FilterFewOptionsCompact,
   FilterManyOptions,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
@@ -175,7 +175,7 @@ export default function BigPlans() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            FilterFewOptionsSpread(
+            FilterFewOptionsCompact(
               "View",
               selectedView,
               [
