@@ -4,10 +4,10 @@ from typing import cast
 
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common import schedules
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.timeline import infer_period_from_timeline
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
@@ -22,7 +22,6 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Project
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
@@ -67,6 +66,7 @@ class LifePlanUpdateEvalSettingsUseCase(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
 
+            eval_task_project_ref_id: UpdateAction[EntityId | None] = UpdateAction.do_nothing()
             if args.eval_task_project_ref_id.should_change:
                 project_ref_id_value = args.eval_task_project_ref_id.just_the_value
                 if project_ref_id_value is not None:
@@ -106,35 +106,26 @@ class LifePlanUpdateEvalSettingsUseCase(
         )
 
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:
-            for period in RecurringTaskPeriod:
-                schedule = schedules.get_schedule(
-                    period=period,
-                    name=EntityName("Test"),
-                    right_now=self._time_provider.get_current_date().to_timestamp_at_end_of_day(),
-                )
+            eval_tasks_for_period = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=inbox_task_collection.ref_id,
+                allow_archived=False,
+                source=InboxTaskSource.LIFE_PLAN_EVAL,
+            )
 
-                eval_tasks_for_period = await uow.get_for(InboxTask).find_all_generic(
-                    parent_ref_id=inbox_task_collection.ref_id,
-                    allow_archived=False,
-                    source=InboxTaskSource.LIFE_PLAN_EVAL,
-                )
+            for eval_task in eval_tasks_for_period:
+                if eval_task.recurring_timeline is None:
+                    continue
 
-                for eval_task in eval_tasks_for_period:
-                    if eval_task.recurring_timeline is None:
-                        continue
-                    # Parse period from timeline to check if it belongs to this period
-                    if not eval_task.recurring_timeline.startswith(period.value):
-                        continue
-
-                    if (
-                        period not in life_plan.eval_periods
-                        or life_plan.eval_approach.should_not_generate_an_eval_task
-                    ):
-                        await generic_crown_archiver(
-                            context.domain_context,
-                            uow,
-                            progress_reporter,
-                            InboxTask,
-                            eval_task.ref_id,
-                            JupiterArchivalReason.USER,
-                        )
+                if (
+                    infer_period_from_timeline(eval_task.recurring_timeline)
+                    not in life_plan.eval_periods
+                    or life_plan.eval_approach.should_not_generate_an_eval_task
+                ):
+                    await generic_crown_archiver(
+                        context.domain_context,
+                        uow,
+                        progress_reporter,
+                        InboxTask,
+                        eval_task.ref_id,
+                        JupiterArchivalReason.USER,
+                    )

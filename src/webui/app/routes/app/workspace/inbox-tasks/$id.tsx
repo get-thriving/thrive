@@ -377,7 +377,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
           due_date: {
             should_change: true,
-            value: newDueDate ? (newDueDate.toISODate() ?? undefined) : undefined,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
           },
         });
 

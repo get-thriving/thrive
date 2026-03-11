@@ -79,6 +79,12 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
 ]);
 
+const ALLOWED_EVAL_PERIODS: RecurringTaskPeriod[] = [
+  RecurringTaskPeriod.MONTHLY,
+  RecurringTaskPeriod.QUARTERLY,
+  RecurringTaskPeriod.YEARLY,
+];
+
 export const handle = {
   displayType: DisplayType.BRANCH,
 };
@@ -216,14 +222,20 @@ export default function LifePlanSettings() {
   const inputsEnabled = navigation.state === "idle";
 
   const [evalPeriods, setEvalPeriods] = useState<RecurringTaskPeriod[]>(
-    loaderData.evalPeriods,
+    loaderData.evalPeriods.filter((period) =>
+      ALLOWED_EVAL_PERIODS.includes(period),
+    ),
   );
   const [evalApproach, setEvalApproach] = useState<LifePlanEvalApproach>(
     loaderData.evalApproach,
   );
 
   useEffect(() => {
-    setEvalPeriods(loaderData.evalPeriods);
+    setEvalPeriods(
+      loaderData.evalPeriods.filter((period) =>
+        ALLOWED_EVAL_PERIODS.includes(period),
+      ),
+    );
     setEvalApproach(loaderData.evalApproach);
   }, [loaderData]);
 
@@ -331,11 +343,7 @@ export default function LifePlanSettings() {
                     None
                   </ToggleButton>
                 </ToggleButtonGroup>
-                <input
-                  name="evalApproach"
-                  type="hidden"
-                  value={evalApproach}
-                />
+                <input name="evalApproach" type="hidden" value={evalApproach} />
                 <FieldError
                   actionResult={actionData}
                   fieldName="/eval_approach"
@@ -353,6 +361,7 @@ export default function LifePlanSettings() {
                     name="evalPeriods"
                     multiSelect
                     inputsEnabled={inputsEnabled}
+                    allowedValues={ALLOWED_EVAL_PERIODS}
                     value={evalPeriods}
                     onChange={(newPeriods) => {
                       setEvalPeriods(newPeriods as RecurringTaskPeriod[]);
@@ -429,7 +438,7 @@ export default function LifePlanSettings() {
                 </Divider>
 
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  {Object.values(RecurringTaskPeriod).map((period) => {
+                  {ALLOWED_EVAL_PERIODS.map((period) => {
                     if (!evalPeriods.includes(period)) {
                       return null;
                     }
@@ -463,10 +472,7 @@ export default function LifePlanSettings() {
             )}
           </SectionCard>
 
-          <SectionCard
-            id="life-plan-eval-tasks"
-            title="Generated Eval Tasks"
-          >
+          <SectionCard id="life-plan-eval-tasks" title="Generated Eval Tasks">
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
               showOptions={{

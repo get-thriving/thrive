@@ -5,6 +5,23 @@ from jupiter.framework.base.timestamp import Timestamp
 from pendulum import DateTime
 
 
+def infer_period_from_timeline(timeline: str) -> RecurringTaskPeriod:
+    """Infer the period from a timeline."""
+    parts = timeline.split(",")
+    if len(parts) == 5:
+        return RecurringTaskPeriod.DAILY
+    elif len(parts) == 4:
+        return RecurringTaskPeriod.WEEKLY
+    elif len(parts) == 3:
+        return RecurringTaskPeriod.MONTHLY
+    elif len(parts) == 2:
+        return RecurringTaskPeriod.QUARTERLY
+    elif len(parts) == 1:
+        return RecurringTaskPeriod.YEARLY
+    else:
+        raise ValueError(f"Invalid timeline: {timeline}")
+
+
 def infer_timeline(period: RecurringTaskPeriod | None, right_now: Timestamp) -> str:
     """Infer the timeline for a recurring task."""
     # Keep sync with the ts:webui:inferPeriodForRecurringTask function

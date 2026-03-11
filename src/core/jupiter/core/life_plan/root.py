@@ -1,5 +1,7 @@
 """A life plan."""
 
+from typing import ClassVar
+
 from jupiter.core.common.birth_year import BirthYear
 from jupiter.core.common.birthday import Birthday
 from jupiter.core.common.difficulty import Difficulty
@@ -37,6 +39,12 @@ TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
 class LifePlan(TrunkEntity):
     """A project collection."""
 
+    ALLOWED_EVAL_PERIODS: ClassVar[set[RecurringTaskPeriod]] = {
+        RecurringTaskPeriod.MONTHLY,
+        RecurringTaskPeriod.QUARTERLY,
+        RecurringTaskPeriod.YEARLY,
+    }
+
     workspace: ParentLink
 
     birthday: Birthday
@@ -44,8 +52,8 @@ class LifePlan(TrunkEntity):
     max_age: int
     time_plan_max_life_plan_links: int
 
-    eval_periods: set[RecurringTaskPeriod]
     eval_approach: LifePlanEvalApproach
+    eval_periods: set[RecurringTaskPeriod]
     eval_task_project_ref_id: EntityId | None
     eval_task_gen_params: RecurringTaskGenParams | None
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
@@ -73,8 +81,8 @@ class LifePlan(TrunkEntity):
             birth_year=birth_year,
             max_age=MAX_AGE,
             time_plan_max_life_plan_links=TIME_PLAN_MAX_LIFE_PLAN_LINKS,
-            eval_periods=set(),
             eval_approach=LifePlanEvalApproach.NONE,
+            eval_periods=set(),
             eval_task_project_ref_id=None,
             eval_task_gen_params=None,
             eval_task_generation_in_advance_days={},
@@ -98,8 +106,8 @@ class LifePlan(TrunkEntity):
     def update_eval_settings(
         self,
         ctx: MutationContext,
-        eval_periods: UpdateAction[set[RecurringTaskPeriod]],
         eval_approach: UpdateAction[LifePlanEvalApproach],
+        eval_periods: UpdateAction[set[RecurringTaskPeriod]],
         eval_task_project_ref_id: UpdateAction[EntityId | None],
         eval_task_eisen: UpdateAction[Eisen | None],
         eval_task_difficulty: UpdateAction[Difficulty | None],
@@ -108,8 +116,8 @@ class LifePlan(TrunkEntity):
         ],
     ) -> "LifePlan":
         """Update the eval settings for a life plan."""
-        final_eval_periods = eval_periods.or_else(self.eval_periods)
         final_eval_approach = eval_approach.or_else(self.eval_approach)
+        final_eval_periods = eval_periods.or_else(self.eval_periods)
         final_eval_task_project_ref_id = eval_task_project_ref_id.or_else(
             self.eval_task_project_ref_id
         )
@@ -129,6 +137,12 @@ class LifePlan(TrunkEntity):
             )
         )
 
+        # Ensure the keys for generation in advance days match the periods selected
+        LifePlan._validate_allowed_eval_periods(final_eval_periods)
+        LifePlan._validate_allowed_eval_periods(
+            set(final_eval_task_generation_in_advance_days.keys())
+        )
+
         if final_eval_approach == LifePlanEvalApproach.NONE:
             if len(final_eval_task_generation_in_advance_days) > 0:
                 raise InputValidationError(
@@ -144,6 +158,8 @@ class LifePlan(TrunkEntity):
                 )
             final_eval_task_gen_params = None
         elif final_eval_approach == LifePlanEvalApproach.TASK:
+            if len(final_eval_periods) == 0:
+                raise InputValidationError("Eval periods cannot be empty")
             if final_eval_periods != final_eval_task_generation_in_advance_days.keys():
                 raise InputValidationError(
                     "Periods must match generation in advance days keys"
@@ -193,6 +209,17 @@ class LifePlan(TrunkEntity):
             ctx,
             eval_task_project_ref_id=eval_task_project_ref_id,
         )
+
+    @staticmethod
+    def _validate_allowed_eval_periods(periods: set[RecurringTaskPeriod]) -> None:
+        """Validate allowed periods for life plan eval."""
+        invalid_periods = [
+            period for period in periods if period not in LifePlan.ALLOWED_EVAL_PERIODS
+        ]
+        if len(invalid_periods) > 0:
+            raise InputValidationError(
+                "Eval periods must be monthly, quarterly, or yearly"
+            )
 
     @staticmethod
     def _validate_eval_task_generation_in_advance_days(
