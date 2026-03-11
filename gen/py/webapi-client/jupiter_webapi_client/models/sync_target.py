@@ -25,6 +25,7 @@ class SyncTarget(str, Enum):
     VACATIONS = "vacations"
     VISIONS = "visions"
     WORKING_MEM = "working-mem"
+    LIFE_PLAN_EVAL = "life-plan-eval"
 
     def __str__(self) -> str:
         return str(self.value)

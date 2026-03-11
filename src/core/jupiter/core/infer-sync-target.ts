@@ -128,6 +128,11 @@ export function inferSyncTargetsForEnabledFeatures(
       isUserFeatureAvailable(user, UserFeature.GAMIFICATION)
     ) {
       inferredSyncTargets.push(syncTarget);
+    } else if (
+      syncTarget === SyncTarget.LIFE_PLAN_EVAL &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
+    ) {
+      inferredSyncTargets.push(syncTarget);
     }
   }
 

@@ -48,5 +48,8 @@ export function syncTargetName(syncTarget: SyncTarget): string {
       return "Email Tasks";
     case SyncTarget.GAMIFICATION:
       return "Gamification";
+    case SyncTarget.LIFE_PLAN_EVAL:
+      return "Life Plan Eval";
   }
 }
+

@@ -19,6 +19,7 @@ class InboxTaskSource(EnumValue):
     PERSON_OCCASION = "person-occasion"
     SLACK_TASK = "slack-task"
     EMAIL_TASK = "email-task"
+    LIFE_PLAN_EVAL = "life-plan-eval"
 
     @property
     def allow_user_changes(self) -> bool:

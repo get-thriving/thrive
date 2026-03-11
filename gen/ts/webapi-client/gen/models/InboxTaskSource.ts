@@ -18,4 +18,5 @@ export enum InboxTaskSource {
     PERSON_OCCASION = 'person-occasion',
     SLACK_TASK = 'slack-task',
     EMAIL_TASK = 'email-task',
+    LIFE_PLAN_EVAL = 'life-plan-eval',
 }

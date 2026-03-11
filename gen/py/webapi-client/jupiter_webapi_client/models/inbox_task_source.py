@@ -14,6 +14,7 @@ class InboxTaskSource(str, Enum):
     TIME_PLAN = "time-plan"
     USER = "user"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
+    LIFE_PLAN_EVAL = "life-plan-eval"
 
     def __str__(self) -> str:
         return str(self.value)
