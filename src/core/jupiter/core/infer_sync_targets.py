@@ -104,4 +104,9 @@ def infer_sync_targets_for_enabled_features(
             UserFeature.GAMIFICATION
         ):
             inferred_sync_targets.append(sync_target)
+        elif (
+            sync_target is SyncTarget.LIFE_PLAN_EVAL
+            and workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+        ):
+            inferred_sync_targets.append(sync_target)
     return inferred_sync_targets

@@ -7,6 +7,7 @@ class InboxTaskSource(str, Enum):
     EMAIL_TASK = "email-task"
     HABIT = "habit"
     JOURNAL = "journal"
+    LIFE_PLAN_EVAL = "life-plan-eval"
     METRIC = "metric"
     PERSON_CATCH_UP = "person-catch-up"
     PERSON_OCCASION = "person-occasion"

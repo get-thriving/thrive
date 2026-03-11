@@ -182,6 +182,20 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
+    case InboxTaskSource.LIFE_PLAN_EVAL: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/life-plan}`}
+        >
+          {isBigScreen ? "Life Plan Eval" : "LPE"}
+        </Button>
+      );
+    }
+
     default: {
       return null;
     }

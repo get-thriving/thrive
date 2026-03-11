@@ -928,6 +928,41 @@ class GenService:
                         )
                     )
 
+        if (
+            workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
+            and SyncTarget.LIFE_PLAN_EVAL in gen_targets
+        ):
+            async with progress_reporter.section("Generating life plan eval tasks"):
+                async with self._domain_storage_engine.get_unit_of_work() as uow:
+                    all_eval_tasks = await uow.get_for(InboxTask).find_all_generic(
+                        parent_ref_id=inbox_task_collection.ref_id,
+                        allow_archived=True,
+                        source=[InboxTaskSource.LIFE_PLAN_EVAL],
+                    )
+
+                all_eval_tasks_by_timeline: dict[str, InboxTask] = {}
+                for inbox_task in all_eval_tasks:
+                    if inbox_task.recurring_timeline is None:
+                        raise Exception(
+                            f"Expected that inbox task with id='{inbox_task.ref_id}' has a recurring timeline",
+                        )
+                    all_eval_tasks_by_timeline[inbox_task.recurring_timeline] = (
+                        inbox_task
+                    )
+
+                gen_log_entry = await self._generate_eval_tasks_for_life_plan(
+                    ctx,
+                    progress_reporter=progress_reporter,
+                    inbox_task_collection=inbox_task_collection,
+                    all_projects_by_ref_id=all_projects_by_ref_id,
+                    today=today,
+                    period_filter=frozenset(period) if period else None,
+                    life_plan=life_plan,
+                    all_eval_tasks_by_timeline=all_eval_tasks_by_timeline,
+                    gen_even_if_not_modified=gen_even_if_not_modified,
+                    gen_log_entry=gen_log_entry,
+                )
+
         async with self._domain_storage_engine.get_unit_of_work() as uow:
             gen_log_entry = gen_log_entry.close(ctx)
             gen_log_entry = await uow.get_for(GenLogEntry).save(gen_log_entry)
@@ -1973,5 +2008,107 @@ class GenService:
                 ctx,
                 inbox_task,
             )
+
+        return gen_log_entry
+
+    async def _generate_eval_tasks_for_life_plan(
+        self,
+        ctx: MutationContext,
+        progress_reporter: ProgressReporter,
+        inbox_task_collection: InboxTaskCollection,
+        all_projects_by_ref_id: dict[EntityId, Project],
+        today: ADate,
+        period_filter: frozenset[RecurringTaskPeriod] | None,
+        life_plan: LifePlan,
+        all_eval_tasks_by_timeline: dict[str, InboxTask],
+        gen_even_if_not_modified: bool,
+        gen_log_entry: GenLogEntry,
+    ) -> GenLogEntry:
+        if life_plan.eval_approach.should_do_nothing:
+            return gen_log_entry
+
+        if life_plan.eval_task_gen_params is None:
+            return gen_log_entry
+
+        root_project = next(
+            (project for project in all_projects_by_ref_id.values() if project.is_root),
+            None,
+        )
+        if root_project is None:
+            return gen_log_entry
+
+        for period in life_plan.eval_periods:
+            if period_filter is not None and period not in period_filter:
+                continue
+
+            real_today = today.add_days(
+                life_plan.eval_task_generation_in_advance_days.get(period, 0)
+            )
+
+            schedule = schedules.get_schedule(
+                period,
+                EntityName(f"Evaluate {period.value} life plan for"),
+                real_today.to_timestamp_at_end_of_day(),
+            )
+
+            if not schedule.should_keep:
+                continue
+
+            found_eval_task = all_eval_tasks_by_timeline.get(schedule.timeline, None)
+
+            if life_plan.eval_approach.should_generate_an_eval_task:
+                if life_plan.eval_task_gen_params is None:
+                    raise Exception("Eval task gen params is not set")
+                gen_params = life_plan.eval_task_gen_params
+
+                if found_eval_task:
+                    if (
+                        not gen_even_if_not_modified
+                        and found_eval_task.last_modified_time
+                        >= life_plan.last_modified_time
+                    ):
+                        continue
+
+                    found_eval_task = found_eval_task.update_link_to_life_plan_eval(
+                        ctx,
+                        project_ref_id=root_project.ref_id,
+                        eisen=gen_params.eisen,
+                        difficulty=gen_params.difficulty,
+                        due_date=schedule.due_date,
+                    )
+
+                    async with self._domain_storage_engine.get_unit_of_work() as uow:
+                        await uow.get_for(InboxTask).save(found_eval_task)
+                        await progress_reporter.mark_updated(found_eval_task)
+                    gen_log_entry = gen_log_entry.add_entity_updated(
+                        ctx,
+                        found_eval_task,
+                    )
+                else:
+                    inbox_task = InboxTask.new_inbox_task_for_life_plan_eval(
+                        ctx,
+                        inbox_task_collection_ref_id=inbox_task_collection.ref_id,
+                        name=schedule.full_name,
+                        eisen=gen_params.eisen,
+                        difficulty=gen_params.difficulty,
+                        actionable_date=schedule.due_date.add_days(
+                            -life_plan.eval_task_generation_in_advance_days.get(
+                                period, 0
+                            )
+                        ),
+                        due_date=schedule.due_date,
+                        project_ref_id=root_project.ref_id,
+                        life_plan_ref_id=life_plan.ref_id,
+                        recurring_task_timeline=schedule.timeline,
+                        recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
+                    )
+
+                    async with self._domain_storage_engine.get_unit_of_work() as uow:
+                        inbox_task = await uow.get_for(InboxTask).create(inbox_task)
+                        await progress_reporter.mark_created(inbox_task)
+                    gen_log_entry = gen_log_entry.add_entity_created(
+                        ctx,
+                        inbox_task,
+                    )
 
         return gen_log_entry

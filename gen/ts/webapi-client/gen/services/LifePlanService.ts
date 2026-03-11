@@ -20,7 +20,11 @@ import type { GoalLoadArgs } from '../models/GoalLoadArgs';
 import type { GoalLoadResult } from '../models/GoalLoadResult';
 import type { GoalRemoveArgs } from '../models/GoalRemoveArgs';
 import type { GoalUpdateArgs } from '../models/GoalUpdateArgs';
+import type { LifePlanLoadEvalSettingsArgs } from '../models/LifePlanLoadEvalSettingsArgs';
+import type { LifePlanLoadEvalSettingsResult } from '../models/LifePlanLoadEvalSettingsResult';
+import type { LifePlanRegenArgs } from '../models/LifePlanRegenArgs';
 import type { LifePlanUpdateArgs } from '../models/LifePlanUpdateArgs';
+import type { LifePlanUpdateEvalSettingsArgs } from '../models/LifePlanUpdateEvalSettingsArgs';
 import type { MilestoneArchiveArgs } from '../models/MilestoneArchiveArgs';
 import type { MilestoneCreateArgs } from '../models/MilestoneCreateArgs';
 import type { MilestoneCreateResult } from '../models/MilestoneCreateResult';
@@ -888,6 +892,58 @@ export class LifePlanService {
         });
     }
     /**
+     * The command for loading the eval settings for a life plan.
+     * @param requestBody The input data
+     * @returns LifePlanLoadEvalSettingsResult Successful response
+     * @throws ApiError
+     */
+    public lifePlanLoadEvalSettings(
+        requestBody?: LifePlanLoadEvalSettingsArgs,
+    ): CancelablePromise<LifePlanLoadEvalSettingsResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/life-plan-load-eval-settings',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * A use case for regenerating life plan eval tasks.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public lifePlanRegen(
+        requestBody?: LifePlanRegenArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/life-plan-regen',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
      * The command for updating a life plan.
      * @param requestBody The input data
      * @returns any Successful response / Empty body
@@ -899,6 +955,32 @@ export class LifePlanService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/life-plan-update',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, ProjectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Command for updating the eval settings for a life plan.
+     * @param requestBody The input data
+     * @returns any Successful response / Empty body
+     * @throws ApiError
+     */
+    public lifePlanUpdateEvalSettings(
+        requestBody?: LifePlanUpdateEvalSettingsArgs,
+    ): CancelablePromise<any> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/life-plan-update-eval-settings',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

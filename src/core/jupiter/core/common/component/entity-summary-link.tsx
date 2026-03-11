@@ -248,14 +248,18 @@ export function EntitySummaryLink({
       );
     case NamedEntityTag.SLACK_TASK:
       return (
-        <EntityLink to={`/app/workspace/push-integrations/slack-tasks/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/push-integrations/slack-tasks/${summary.ref_id}`}
+        >
           <SlimChip label={"Slack Tasks"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );
     case NamedEntityTag.EMAIL_TASK:
       return (
-        <EntityLink to={`/app/workspace/push-integrations/email-tasks/${summary.ref_id}`}>
+        <EntityLink
+          to={`/app/workspace/push-integrations/email-tasks/${summary.ref_id}`}
+        >
           <SlimChip label={"Email Tasks"} color={"primary"} />
           {commonSequence}
         </EntityLink>

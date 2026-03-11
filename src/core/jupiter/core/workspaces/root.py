@@ -301,6 +301,10 @@ class Workspace(RootEntity):
                 WorkspaceFeature.METRICS
             ):
                 inferred_sources.append(source)
+            elif source is InboxTaskSource.LIFE_PLAN_EVAL and self.is_feature_available(
+                WorkspaceFeature.LIFE_PLAN
+            ):
+                inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.PERSON_OCCASION
                 and self.is_feature_available(WorkspaceFeature.PRM)

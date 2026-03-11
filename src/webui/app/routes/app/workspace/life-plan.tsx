@@ -40,7 +40,6 @@ import {
   shiftProjectUpInListOfChildren,
   sortProjectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
-
 import HistoryIcon from "@mui/icons-material/History";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import {
@@ -1191,11 +1190,27 @@ function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
   return (
     <Stack direction="row" sx={{ alignItems: "center", gap: 2 }}>
       {isBigScreen && (
-        <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: "3rem" }}>
-          <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
+        <Stack
+          sx={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            minWidth: "3rem",
+          }}
+        >
+          <Typography
+            sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}
+          >
             {percent}%
           </Typography>
-          <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem", textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              fontSize: "0.6rem",
+              textAlign: "center",
+            }}
+          >
             lived so far
           </Typography>
         </Stack>
@@ -1244,11 +1259,27 @@ function LifeMonthsGrid({ birthday, today, isBigScreen }: LifeMonthsGridProps) {
         ))}
       </Box>
       {isBigScreen && (
-        <Stack sx={{ alignItems: "center", justifyContent: "center", flexShrink: 0, minWidth: "3rem" }}>
-          <Typography sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}>
+        <Stack
+          sx={{
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+            minWidth: "3rem",
+          }}
+        >
+          <Typography
+            sx={{ fontSize: "1.4rem", fontWeight: "bold", lineHeight: 1 }}
+          >
             {100 - percent}%
           </Typography>
-          <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.6rem", textAlign: "center" }}>
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+              fontSize: "0.6rem",
+              textAlign: "center",
+            }}
+          >
             left to live
           </Typography>
         </Stack>

@@ -13,6 +13,7 @@ class SyncTarget(str, Enum):
     HABITS = "habits"
     INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
+    LIFE_PLAN_EVAL = "life-plan-eval"
     METRICS = "metrics"
     MILESTONES = "milestones"
     OCCASIONS = "occasions"

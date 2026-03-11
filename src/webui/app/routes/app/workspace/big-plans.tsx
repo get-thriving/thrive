@@ -295,7 +295,9 @@ export default function BigPlans() {
                               today={topLevelInfo.today}
                               thisYear={thisYear}
                               bigPlans={goalBigPlans}
-                              bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                              bigPlanMilestonesByRefId={
+                                bigPlanMilestonesByRefId
+                              }
                               bigPlanStatsByRefId={bigPlanStatsByRefId}
                               dateMarkers={[
                                 {
@@ -311,7 +313,9 @@ export default function BigPlans() {
                               today={topLevelInfo.today}
                               thisYear={thisYear}
                               bigPlans={goalBigPlans}
-                              bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
+                              bigPlanMilestonesByRefId={
+                                bigPlanMilestonesByRefId
+                              }
                               bigPlanStatsByRefId={bigPlanStatsByRefId}
                               dateMarkers={[
                                 {

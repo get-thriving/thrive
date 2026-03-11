@@ -323,7 +323,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allProjects: summaryResponse.projects as ProjectSummary[] | undefined,
     activeVision:
       activeVisionResponse?.vision && activeVisionResponse?.note
-        ? { vision: activeVisionResponse.vision as Vision, note: activeVisionResponse.note as Note }
+        ? {
+            vision: activeVisionResponse.vision as Vision,
+            note: activeVisionResponse.note as Note,
+          }
         : undefined,
   });
 }
@@ -497,9 +500,17 @@ export default function WorkspaceHome() {
     const milestones = loaderData.allMilestones ?? [];
     return loaderData.allChapters.filter((chapter) => {
       try {
-        const startDt = midDate(chapter.start_date, birthday, todayDt, milestones);
+        const startDt = midDate(
+          chapter.start_date,
+          birthday,
+          todayDt,
+          milestones,
+        );
         const endDt = midDate(chapter.end_date, birthday, todayDt, milestones);
-        return startDt.toMillis() <= todayDt.toMillis() && todayDt.toMillis() < endDt.toMillis();
+        return (
+          startDt.toMillis() <= todayDt.toMillis() &&
+          todayDt.toMillis() < endDt.toMillis()
+        );
       } catch {
         return false;
       }

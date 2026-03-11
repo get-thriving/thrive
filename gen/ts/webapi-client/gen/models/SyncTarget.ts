@@ -29,4 +29,5 @@ export enum SyncTarget {
     SLACK_TASKS = 'slack-tasks',
     EMAIL_TASKS = 'email-tasks',
     GAMIFICATION = 'gamification',
+    LIFE_PLAN_EVAL = 'life-plan-eval',
 }

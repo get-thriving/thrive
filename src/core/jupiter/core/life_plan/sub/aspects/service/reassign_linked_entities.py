@@ -28,6 +28,7 @@ from jupiter.core.time_plans.life_plan_links import (
 )
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -307,6 +308,14 @@ class ProjectReassignLinkedEntitiesService:
                     updated_inbox_task = inbox_task.just_update_project(
                         ctx,
                         project_ref_id=new_project.ref_id,
+                    )
+                case InboxTaskSource.LIFE_PLAN_EVAL:
+                    updated_inbox_task = inbox_task.update_link_to_life_plan_eval(
+                        ctx,
+                        project_ref_id=new_project.ref_id,
+                        eisen=inbox_task.eisen,
+                        difficulty=inbox_task.difficulty,
+                        due_date=cast(ADate, inbox_task.due_date),
                     )
                 case _:
                     raise Exception(f"Unknown inbox task source: {inbox_task.source}")

@@ -1,12 +1,31 @@
-import { ApiError, LifePlan, WorkspaceFeature } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  Difficulty,
+  Eisen,
+  LifePlan,
+  LifePlanEvalApproach,
+  RecurringTaskPeriod,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { z } from "zod";
 import { parseForm } from "zodix";
+import {
+  Divider,
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import { BirthdaySelect } from "@jupiter/core/common/component/birthday-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -20,12 +39,18 @@ import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { FormControl, Stack } from "@mui/material";
 import { BirthYearSelect } from "#/core/common/component/birth-year-select";
+import { PeriodSelect } from "@jupiter/core/common/component/period-select";
+import { periodName } from "@jupiter/core/common/recurring-task-period";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 
 const ParamsSchema = z.object({});
 
@@ -35,7 +60,28 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     birthday: z.string(),
     birthYear: z.string().transform((value) => parseInt(value, 10)),
   }),
+  z.object({
+    intent: z.literal("update-eval-settings"),
+    evalPeriods: selectZod(z.nativeEnum(RecurringTaskPeriod)),
+    evalApproach: z.nativeEnum(LifePlanEvalApproach),
+    evalTaskGenerationInAdvanceDaysForDaily: z.coerce.number().optional(),
+    evalTaskGenerationInAdvanceDaysForWeekly: z.coerce.number().optional(),
+    evalTaskGenerationInAdvanceDaysForMonthly: z.coerce.number().optional(),
+    evalTaskGenerationInAdvanceDaysForQuarterly: z.coerce.number().optional(),
+    evalTaskGenerationInAdvanceDaysForYearly: z.coerce.number().optional(),
+    evalTaskEisen: z.nativeEnum(Eisen).optional(),
+    evalTaskDifficulty: z.nativeEnum(Difficulty).optional(),
+  }),
+  z.object({
+    intent: z.literal("regen"),
+  }),
 ]);
+
+const ALLOWED_EVAL_PERIODS: RecurringTaskPeriod[] = [
+  RecurringTaskPeriod.MONTHLY,
+  RecurringTaskPeriod.QUARTERLY,
+  RecurringTaskPeriod.YEARLY,
+];
 
 export const handle = {
   displayType: DisplayType.BRANCH,
@@ -47,8 +93,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_life_plan: true,
   });
 
+  const evalSettingsResponse =
+    await apiClient.lifePlan.lifePlanLoadEvalSettings({});
+
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
+    evalPeriods: evalSettingsResponse.eval_periods,
+    evalApproach: evalSettingsResponse.eval_approach,
+    evalTaskGenParams: evalSettingsResponse.eval_task_gen_params,
+    evalTaskGenerationInAdvanceDays:
+      evalSettingsResponse.eval_task_generation_in_advance_days,
+    evalTasks: evalSettingsResponse.eval_tasks,
   });
 }
 
@@ -70,6 +125,62 @@ export async function action({ request }: ActionFunctionArgs) {
           },
         });
 
+        return redirect(`/app/workspace/life-plan/settings`);
+      }
+
+      case "update-eval-settings": {
+        const evalTaskGenerationInAdvanceDays: Record<string, number> = {};
+        if (form.evalTaskGenerationInAdvanceDaysForDaily !== undefined) {
+          evalTaskGenerationInAdvanceDays[RecurringTaskPeriod.DAILY] =
+            form.evalTaskGenerationInAdvanceDaysForDaily;
+        }
+        if (form.evalTaskGenerationInAdvanceDaysForWeekly !== undefined) {
+          evalTaskGenerationInAdvanceDays[RecurringTaskPeriod.WEEKLY] =
+            form.evalTaskGenerationInAdvanceDaysForWeekly;
+        }
+        if (form.evalTaskGenerationInAdvanceDaysForMonthly !== undefined) {
+          evalTaskGenerationInAdvanceDays[RecurringTaskPeriod.MONTHLY] =
+            form.evalTaskGenerationInAdvanceDaysForMonthly;
+        }
+        if (form.evalTaskGenerationInAdvanceDaysForQuarterly !== undefined) {
+          evalTaskGenerationInAdvanceDays[RecurringTaskPeriod.QUARTERLY] =
+            form.evalTaskGenerationInAdvanceDaysForQuarterly;
+        }
+        if (form.evalTaskGenerationInAdvanceDaysForYearly !== undefined) {
+          evalTaskGenerationInAdvanceDays[RecurringTaskPeriod.YEARLY] =
+            form.evalTaskGenerationInAdvanceDaysForYearly;
+        }
+
+        await apiClient.lifePlan.lifePlanUpdateEvalSettings({
+          eval_periods: {
+            should_change: true,
+            value: fixSelectOutputToEnumStrict<RecurringTaskPeriod>(
+              form.evalPeriods,
+            ),
+          },
+          eval_approach: {
+            should_change: true,
+            value: form.evalApproach,
+          },
+          eval_task_eisen: {
+            should_change: true,
+            value: form.evalTaskEisen,
+          },
+          eval_task_difficulty: {
+            should_change: true,
+            value: form.evalTaskDifficulty,
+          },
+          eval_task_generation_in_advance_days: {
+            should_change: true,
+            value: evalTaskGenerationInAdvanceDays,
+          },
+        });
+
+        return redirect(`/app/workspace/life-plan/settings`);
+      }
+
+      case "regen": {
+        await apiClient.lifePlan.lifePlanRegen({});
         return redirect(`/app/workspace/life-plan/settings`);
       }
 
@@ -96,9 +207,28 @@ export default function LifePlanSettings() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
 
+  const isBigScreen = useBigScreen();
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const inputsEnabled = navigation.state === "idle";
+
+  const [evalPeriods, setEvalPeriods] = useState<RecurringTaskPeriod[]>(
+    loaderData.evalPeriods.filter((period) =>
+      ALLOWED_EVAL_PERIODS.includes(period),
+    ),
+  );
+  const [evalApproach, setEvalApproach] = useState<LifePlanEvalApproach>(
+    loaderData.evalApproach,
+  );
+
+  useEffect(() => {
+    setEvalPeriods(
+      loaderData.evalPeriods.filter((period) =>
+        ALLOWED_EVAL_PERIODS.includes(period),
+      ),
+    );
+    setEvalApproach(loaderData.evalApproach);
+  }, [loaderData]);
 
   return (
     <BranchPanel
@@ -111,45 +241,228 @@ export default function LifePlanSettings() {
         topLevelInfo.workspace,
         WorkspaceFeature.LIFE_PLAN,
       ) && (
-        <SectionCard
-          id="life-plan-settings"
-          title="Settings"
-          actions={
-            <SectionActions
-              id="life-plan-settings-actions"
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              actions={[
-                ActionSingle({
-                  id: "life-plan-settings-save",
-                  text: "Save",
-                  value: "update",
-                  highlight: true,
-                }),
-              ]}
-            />
-          }
-        >
-          <Stack spacing={2} useFlexGap direction="row">
-            <BirthdaySelect
-              name="birthday"
-              allowNoneBirthday={false}
-              inputsEnabled={inputsEnabled}
-              initialValue={loaderData.lifePlan.birthday}
-            />
-            <FormControl fullWidth>
-              <BirthYearSelect
-                label="Your Birth Year"
-                name="birthYear"
+        <>
+          <SectionCard
+            id="life-plan-settings"
+            title="Settings"
+            actions={
+              <SectionActions
+                id="life-plan-settings-actions"
+                topLevelInfo={topLevelInfo}
                 inputsEnabled={inputsEnabled}
-                defaultValue={loaderData.lifePlan.birth_year}
-                allowNoneBirthYear={false}
+                actions={[
+                  ActionSingle({
+                    id: "life-plan-settings-save",
+                    text: "Save",
+                    value: "update",
+                    highlight: true,
+                  }),
+                ]}
               />
-            </FormControl>
-            <FieldError actionResult={actionData} fieldName="/birthday" />
-            <FieldError actionResult={actionData} fieldName="/birth_year" />
-          </Stack>
-        </SectionCard>
+            }
+          >
+            <Stack spacing={2} useFlexGap direction="row">
+              <BirthdaySelect
+                name="birthday"
+                allowNoneBirthday={false}
+                inputsEnabled={inputsEnabled}
+                initialValue={loaderData.lifePlan.birthday}
+              />
+              <FormControl fullWidth>
+                <BirthYearSelect
+                  label="Your Birth Year"
+                  name="birthYear"
+                  inputsEnabled={inputsEnabled}
+                  defaultValue={loaderData.lifePlan.birth_year}
+                  allowNoneBirthYear={false}
+                />
+              </FormControl>
+              <FieldError actionResult={actionData} fieldName="/birthday" />
+              <FieldError actionResult={actionData} fieldName="/birth_year" />
+            </Stack>
+          </SectionCard>
+
+          <SectionCard
+            id="life-plan-eval-settings"
+            title="Eval Settings"
+            actions={
+              <SectionActions
+                id="life-plan-eval-settings-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={inputsEnabled}
+                actions={[
+                  ActionSingle({
+                    id: "life-plan-eval-settings-save",
+                    text: "Save",
+                    value: "update-eval-settings",
+                    highlight: true,
+                  }),
+                  ActionSingle({
+                    id: "life-plan-eval-settings-regen",
+                    text: "Regen",
+                    value: "regen",
+                  }),
+                ]}
+              />
+            }
+          >
+            <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+              <FormControl fullWidth>
+                <FormLabel id="evalApproach">Generation Approach</FormLabel>
+                <ToggleButtonGroup
+                  value={evalApproach}
+                  exclusive
+                  fullWidth
+                  onChange={(_, newApproach) =>
+                    newApproach !== null && setEvalApproach(newApproach)
+                  }
+                >
+                  <ToggleButton
+                    size="small"
+                    id="approach-task"
+                    disabled={!inputsEnabled}
+                    value={LifePlanEvalApproach.TASK}
+                  >
+                    Generate Eval Task
+                  </ToggleButton>
+                  <ToggleButton
+                    size="small"
+                    id="approach-none"
+                    disabled={!inputsEnabled}
+                    value={LifePlanEvalApproach.NONE}
+                  >
+                    None
+                  </ToggleButton>
+                </ToggleButtonGroup>
+                <input name="evalApproach" type="hidden" value={evalApproach} />
+                <FieldError
+                  actionResult={actionData}
+                  fieldName="/eval_approach"
+                />
+              </FormControl>
+
+              {evalApproach !== LifePlanEvalApproach.NONE && (
+                <FormControl fullWidth>
+                  <FormLabel id="evalPeriods">
+                    Periods You Want To Evaluate
+                  </FormLabel>
+                  <PeriodSelect
+                    labelId="evalPeriods"
+                    label="Periods"
+                    name="evalPeriods"
+                    multiSelect
+                    inputsEnabled={inputsEnabled}
+                    allowedValues={ALLOWED_EVAL_PERIODS}
+                    value={evalPeriods}
+                    onChange={(newPeriods) => {
+                      setEvalPeriods(newPeriods as RecurringTaskPeriod[]);
+                    }}
+                  />
+                  <FieldError
+                    actionResult={actionData}
+                    fieldName="/eval_periods"
+                  />
+                </FormControl>
+              )}
+            </Stack>
+
+            {evalApproach === LifePlanEvalApproach.TASK && (
+              <>
+                <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
+                  <Stack spacing={2} sx={{ flex: 1 }}>
+                    <Divider>
+                      <Typography variant="h6">Eval Task Properties</Typography>
+                    </Divider>
+
+                    <FormControl fullWidth>
+                      <FormLabel id="evalTaskEisen">Eval Task Eisen</FormLabel>
+                      <EisenhowerSelect
+                        name="evalTaskEisen"
+                        inputsEnabled={inputsEnabled}
+                        defaultValue={
+                          loaderData.evalTaskGenParams?.eisen ?? Eisen.IMPORTANT
+                        }
+                      />
+                      <FieldError
+                        actionResult={actionData}
+                        fieldName="/eval_task_eisen"
+                      />
+                    </FormControl>
+
+                    <FormControl fullWidth>
+                      <FormLabel id="evalTaskDifficulty">
+                        Eval Task Difficulty
+                      </FormLabel>
+                      <DifficultySelect
+                        name="evalTaskDifficulty"
+                        inputsEnabled={inputsEnabled}
+                        defaultValue={
+                          loaderData.evalTaskGenParams?.difficulty ??
+                          Difficulty.EASY
+                        }
+                      />
+                      <FieldError
+                        actionResult={actionData}
+                        fieldName="/eval_task_difficulty"
+                      />
+                    </FormControl>
+                  </Stack>
+
+                  <Stack spacing={2} sx={{ flex: 1 }}>
+                    <Divider>
+                      <Typography variant="h6">
+                        Days To Generate In Advance
+                      </Typography>
+                    </Divider>
+
+                    {ALLOWED_EVAL_PERIODS.map((period) => {
+                      if (!evalPeriods.includes(period)) {
+                        return null;
+                      }
+
+                      return (
+                        <FormControl fullWidth key={period}>
+                          <InputLabel
+                            id={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
+                          >
+                            For {periodName(period)}
+                          </InputLabel>
+                          <OutlinedInput
+                            name={`evalTaskGenerationInAdvanceDaysFor${period.charAt(0).toUpperCase() + period.slice(1)}`}
+                            label={`For ${periodName(period)}`}
+                            disabled={!inputsEnabled}
+                            defaultValue={
+                              loaderData.evalTaskGenerationInAdvanceDays[
+                                period
+                              ] ?? 1
+                            }
+                          />
+                          <FieldError
+                            actionResult={actionData}
+                            fieldName={`/eval_task_generation_in_advance_days`}
+                          />
+                        </FormControl>
+                      );
+                    })}
+                  </Stack>
+                </Stack>
+              </>
+            )}
+          </SectionCard>
+
+          <SectionCard id="life-plan-eval-tasks" title="Generated Eval Tasks">
+            <InboxTaskStack
+              topLevelInfo={topLevelInfo}
+              showOptions={{
+                showStatus: true,
+                showEisen: true,
+                showDifficulty: true,
+                showDueDate: true,
+              }}
+              inboxTasks={loaderData.evalTasks}
+            />
+          </SectionCard>
+        </>
       )}
     </BranchPanel>
   );

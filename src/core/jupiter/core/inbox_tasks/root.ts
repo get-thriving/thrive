@@ -296,6 +296,7 @@ export function canInboxTaskBeInStatus(
     case InboxTaskSource.PERSON_CATCH_UP:
     case InboxTaskSource.SLACK_TASK:
     case InboxTaskSource.EMAIL_TASK:
+    case InboxTaskSource.LIFE_PLAN_EVAL:
       if (status === InboxTaskStatus.NOT_STARTED) {
         return false;
       }

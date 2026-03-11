@@ -1,5 +1,6 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { Link } from "@remix-run/react";
+
 import { WidgetProps } from "#/core/home/component/common";
 import { VisionSnippet } from "#/core/life_plan/sub/visions/components/snippet";
 
@@ -15,7 +16,10 @@ export function LifeVisionWidget(props: WidgetProps) {
         direction="row"
         sx={{ alignItems: "center", justifyContent: "space-between" }}
       >
-        <Typography variant="h6" sx={{ fontSize: "0.9rem", fontWeight: "bold" }}>
+        <Typography
+          variant="h6"
+          sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
+        >
           Life Vision
         </Typography>
         <Button
@@ -30,7 +34,10 @@ export function LifeVisionWidget(props: WidgetProps) {
       </Stack>
 
       <Box sx={{ flex: 1, overflow: "hidden" }}>
-        <VisionSnippet vision={activeVision?.vision} note={activeVision?.note} />
+        <VisionSnippet
+          vision={activeVision?.vision}
+          note={activeVision?.note}
+        />
       </Box>
     </Stack>
   );

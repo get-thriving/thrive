@@ -536,8 +536,7 @@ export default function Habits() {
                   top: "1rem",
                   maxHeight: "calc(100vh - 8rem)",
                   overflowY: "auto",
-                  border: (theme) =>
-                    `2px dotted ${theme.palette.primary.main}`,
+                  border: (theme) => `2px dotted ${theme.palette.primary.main}`,
                   borderRadius: "4px",
                   padding: "0.4rem",
                 }}

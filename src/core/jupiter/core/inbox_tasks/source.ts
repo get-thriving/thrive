@@ -36,5 +36,7 @@ export function inboxTaskSourceName(source: InboxTaskSource): string {
       return "Slack";
     case InboxTaskSource.EMAIL_TASK:
       return "Email";
+    case InboxTaskSource.LIFE_PLAN_EVAL:
+      return "Life Plan Eval";
   }
 }

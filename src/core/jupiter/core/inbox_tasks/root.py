@@ -739,6 +739,67 @@ class InboxTask(LeafEntity):
             due_date=due_date,
         )
 
+    @staticmethod
+    @create_entity_action
+    def new_inbox_task_for_life_plan_eval(
+        ctx: MutationContext,
+        inbox_task_collection_ref_id: EntityId,
+        name: InboxTaskName,
+        eisen: Eisen,
+        difficulty: Difficulty,
+        actionable_date: ADate | None,
+        due_date: ADate | None,
+        project_ref_id: EntityId,
+        life_plan_ref_id: EntityId,
+        recurring_task_timeline: str,
+        recurring_task_gen_right_now: Timestamp,
+    ) -> "InboxTask":
+        """Create an inbox task for a life plan eval."""
+        return InboxTask._create(
+            ctx,
+            inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
+            source=InboxTaskSource.LIFE_PLAN_EVAL,
+            name=name,
+            status=InboxTaskStatus.NOT_STARTED_GEN,
+            is_key=False,
+            eisen=eisen,
+            difficulty=difficulty,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            project_ref_id=project_ref_id,
+            chapter_ref_id=None,
+            goal_ref_id=None,
+            source_entity_ref_id=life_plan_ref_id,
+            notes=None,
+            recurring_timeline=recurring_task_timeline,
+            recurring_repeat_index=None,
+            recurring_gen_right_now=recurring_task_gen_right_now,
+            working_time=None,
+            completed_time=None,
+        )
+
+    @update_entity_action
+    def update_link_to_life_plan_eval(
+        self,
+        ctx: MutationContext,
+        project_ref_id: EntityId,
+        eisen: Eisen,
+        difficulty: Difficulty,
+        due_date: ADate,
+    ) -> "InboxTask":
+        """Update all the info associated with a life plan eval."""
+        if self.source is not InboxTaskSource.LIFE_PLAN_EVAL:
+            raise Exception(
+                f"Cannot associate a task which is not a life plan eval for '{self.name}'",
+            )
+        return self._new_version(
+            ctx,
+            project_ref_id=project_ref_id,
+            eisen=eisen,
+            difficulty=difficulty,
+            due_date=due_date,
+        )
+
     @update_entity_action
     def update_link_to_metric(
         self,
