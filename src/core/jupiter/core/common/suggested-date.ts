@@ -97,6 +97,18 @@ export function getSuggestedDatesForBigPlanActionableDate(
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
     {
+      date: dateToAdate(todayDate.startOf("year")),
+      label: "Start of the year",
+    },
+    {
+      date: dateToAdate(todayDate.startOf("quarter")),
+      label: "Start of the quarter",
+    },
+    {
+      date: dateToAdate(todayDate.startOf("month")),
+      label: "Start of the month",
+    },
+    {
       date: today,
       label: "Today",
     },
