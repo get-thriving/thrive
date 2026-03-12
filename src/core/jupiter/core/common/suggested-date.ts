@@ -7,6 +7,12 @@ export interface SuggestedDate {
   label: string;
 }
 
+export interface ChapterForSuggestions {
+  name: string;
+  start_date: ADate;
+  end_date: ADate;
+}
+
 export function getSuggestedDatesForInboxTaskActionableDate(
   today: ADate,
   bigPlan?: BigPlan | null,
@@ -86,9 +92,22 @@ export function getSuggestedDatesForInboxTaskDueDate(
 export function getSuggestedDatesForBigPlanActionableDate(
   today: ADate,
   timePlan?: TimePlan | null,
+  chapter?: ChapterForSuggestions | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
+    {
+      date: dateToAdate(todayDate.startOf("year")),
+      label: "Start of the year",
+    },
+    {
+      date: dateToAdate(todayDate.startOf("quarter")),
+      label: "Start of the quarter",
+    },
+    {
+      date: dateToAdate(todayDate.startOf("month")),
+      label: "Start of the month",
+    },
     {
       date: today,
       label: "Today",
@@ -103,6 +122,13 @@ export function getSuggestedDatesForBigPlanActionableDate(
     },
   ];
 
+  if (chapter) {
+    suggestedDates.push({
+      date: chapter.start_date,
+      label: `Start of chapter "${chapter.name}"`,
+    });
+  }
+
   if (timePlan) {
     suggestedDates.push({
       date: timePlan.start_date,
@@ -116,6 +142,7 @@ export function getSuggestedDatesForBigPlanActionableDate(
 export function getSuggestedDatesForBigPlanDueDate(
   today: ADate,
   timePlan?: TimePlan | null,
+  chapter?: ChapterForSuggestions | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
@@ -136,6 +163,13 @@ export function getSuggestedDatesForBigPlanDueDate(
       label: "End of the year",
     },
   ];
+
+  if (chapter) {
+    suggestedDates.push({
+      date: chapter.end_date,
+      label: `End of chapter "${chapter.name}"`,
+    });
+  }
 
   if (timePlan) {
     suggestedDates.push({
