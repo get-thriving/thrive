@@ -84,6 +84,8 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
         }}
         label="Due Today"
         inboxTasks={inboxTasksForHabitsDueToday}
+        inboxTaskTagsByInboxTaskRefId={habitTasks.inboxTaskTagsByInboxTaskRefId}
+        inboxTaskContactsByInboxTaskRefId={habitTasks.inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={habitTasks.optimisticUpdates}
         moreInfoByRefId={habitTasks.habitEntriesByRefId}
         onCardMarkDone={habitTasks.onCardMarkDone}
@@ -104,6 +106,8 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
         }}
         label="Due This Week"
         inboxTasks={inboxTasksForHabitsDueThisWeek}
+        inboxTaskTagsByInboxTaskRefId={habitTasks.inboxTaskTagsByInboxTaskRefId}
+        inboxTaskContactsByInboxTaskRefId={habitTasks.inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={habitTasks.optimisticUpdates}
         moreInfoByRefId={habitTasks.habitEntriesByRefId}
         onCardMarkDone={habitTasks.onCardMarkDone}

@@ -84,6 +84,8 @@ export function ChoreInboxTasksWidget(props: WidgetProps) {
         }}
         label="Due Today"
         inboxTasks={inboxTasksForChoresDueToday}
+        inboxTaskTagsByInboxTaskRefId={choreTasks.inboxTaskTagsByInboxTaskRefId}
+        inboxTaskContactsByInboxTaskRefId={choreTasks.inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={choreTasks.optimisticUpdates}
         moreInfoByRefId={choreTasks.choreEntriesByRefId}
         onCardMarkDone={choreTasks.onCardMarkDone}
@@ -104,6 +106,8 @@ export function ChoreInboxTasksWidget(props: WidgetProps) {
         }}
         label="Due This Week"
         inboxTasks={inboxTasksForChoresDueThisWeek}
+        inboxTaskTagsByInboxTaskRefId={choreTasks.inboxTaskTagsByInboxTaskRefId}
+        inboxTaskContactsByInboxTaskRefId={choreTasks.inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={choreTasks.optimisticUpdates}
         moreInfoByRefId={choreTasks.choreEntriesByRefId}
         onCardMarkDone={choreTasks.onCardMarkDone}

@@ -1,10 +1,12 @@
 import {
   ADate,
   ChapterSummary,
+  Contact,
   InboxTask,
   LifePlan,
   MOTD,
   Note,
+  Tag,
   Timezone,
   TimePlanActivityDoneness,
   BigPlan,
@@ -74,6 +76,8 @@ export interface WidgetProps {
     habits: Habit[];
     habitInboxTasks: InboxTask[];
     habitEntriesByRefId: { [key: string]: InboxTaskParent };
+    inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+    inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
     optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
     onCardMarkDone: (it: InboxTask) => void;
     onCardMarkNotDone: (it: InboxTask) => void;
@@ -81,6 +85,8 @@ export interface WidgetProps {
   choreTasks?: {
     choreInboxTasks: InboxTask[];
     choreEntriesByRefId: { [key: string]: InboxTaskParent };
+    inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+    inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
     optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
     onCardMarkDone: (it: InboxTask) => void;
     onCardMarkNotDone: (it: InboxTask) => void;
@@ -88,6 +94,8 @@ export interface WidgetProps {
   personTasks?: {
     personInboxTasks: InboxTask[];
     personEntriesByRefId: { [key: string]: InboxTaskParent };
+    inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
+    inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
     optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
     onCardMarkDone: (it: InboxTask) => void;
     onCardMarkNotDone: (it: InboxTask) => void;

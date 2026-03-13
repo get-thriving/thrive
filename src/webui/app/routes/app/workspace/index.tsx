@@ -10,11 +10,13 @@ import {
 import {
   BigScreenHomeTabWidgetPlacement,
   ChapterSummary,
+  Contact,
   HabitLoadResult,
   HomeTab,
   HomeTabTarget,
   HomeWidget,
   InboxTask,
+  InboxTaskFindResultEntry,
   InboxTaskSource,
   InboxTaskStatus,
   LifePlan,
@@ -22,6 +24,7 @@ import {
   Note,
   RecurringTaskPeriod,
   SmallScreenHomeTabWidgetPlacement,
+  Tag,
   Vision,
   WidgetType,
   BigPlanLoadResult,
@@ -161,6 +164,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
       include_tags: true,
+      include_contacts: true,
       include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [InboxTaskSource.HABIT],
@@ -173,6 +177,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
       include_tags: true,
+      include_contacts: true,
       include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [InboxTaskSource.CHORE],
@@ -203,6 +208,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
       include_tags: true,
+      include_contacts: true,
       include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [
@@ -419,6 +425,57 @@ export default function WorkspaceHome() {
     }
   }
 
+  const habitTagsByInboxTaskRefId = new Map<string, Array<Tag>>();
+  if (loaderData.habitInboxTasks) {
+    for (const entry of loaderData.habitInboxTasks) {
+      habitTagsByInboxTaskRefId.set(entry.inbox_task.ref_id, entry.tags ?? []);
+    }
+  }
+  const habitContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
+  if (loaderData.habitInboxTasks) {
+    for (const entry of loaderData.habitInboxTasks) {
+      habitContactsByInboxTaskRefId.set(
+        entry.inbox_task.ref_id,
+        (entry as InboxTaskFindResultEntry & { contacts?: Array<Contact> })
+          .contacts ?? [],
+      );
+    }
+  }
+
+  const choreTagsByInboxTaskRefId = new Map<string, Array<Tag>>();
+  if (loaderData.choreInboxTasks) {
+    for (const entry of loaderData.choreInboxTasks) {
+      choreTagsByInboxTaskRefId.set(entry.inbox_task.ref_id, entry.tags ?? []);
+    }
+  }
+  const choreContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
+  if (loaderData.choreInboxTasks) {
+    for (const entry of loaderData.choreInboxTasks) {
+      choreContactsByInboxTaskRefId.set(
+        entry.inbox_task.ref_id,
+        (entry as InboxTaskFindResultEntry & { contacts?: Array<Contact> })
+          .contacts ?? [],
+      );
+    }
+  }
+
+  const personTagsByInboxTaskRefId = new Map<string, Array<Tag>>();
+  if (loaderData.personInboxTasks) {
+    for (const entry of loaderData.personInboxTasks) {
+      personTagsByInboxTaskRefId.set(entry.inbox_task.ref_id, entry.tags ?? []);
+    }
+  }
+  const personContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
+  if (loaderData.personInboxTasks) {
+    for (const entry of loaderData.personInboxTasks) {
+      personContactsByInboxTaskRefId.set(
+        entry.inbox_task.ref_id,
+        (entry as InboxTaskFindResultEntry & { contacts?: Array<Contact> })
+          .contacts ?? [],
+      );
+    }
+  }
+
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -527,6 +584,8 @@ export default function WorkspaceHome() {
           habits: loaderData.keyHabitResults.map((h) => h.habit),
           habitInboxTasks: sortedHabitInboxTasks!,
           habitEntriesByRefId: habitEntriesByRefId!,
+          inboxTaskTagsByInboxTaskRefId: habitTagsByInboxTaskRefId,
+          inboxTaskContactsByInboxTaskRefId: habitContactsByInboxTaskRefId,
           optimisticUpdates,
           onCardMarkDone: handleCardMarkDone,
           onCardMarkNotDone: handleCardMarkNotDone,
@@ -536,6 +595,8 @@ export default function WorkspaceHome() {
       ? {
           choreInboxTasks: sortedChoreInboxTasks!,
           choreEntriesByRefId: choreEntriesByRefId!,
+          inboxTaskTagsByInboxTaskRefId: choreTagsByInboxTaskRefId,
+          inboxTaskContactsByInboxTaskRefId: choreContactsByInboxTaskRefId,
           optimisticUpdates,
           onCardMarkDone: handleCardMarkDone,
           onCardMarkNotDone: handleCardMarkNotDone,
@@ -545,6 +606,8 @@ export default function WorkspaceHome() {
       ? {
           personInboxTasks: sortedPersonInboxTasks!,
           personEntriesByRefId: personEntriesByRefId!,
+          inboxTaskTagsByInboxTaskRefId: personTagsByInboxTaskRefId,
+          inboxTaskContactsByInboxTaskRefId: personContactsByInboxTaskRefId,
           optimisticUpdates,
           onCardMarkDone: handleCardMarkDone,
           onCardMarkNotDone: handleCardMarkNotDone,

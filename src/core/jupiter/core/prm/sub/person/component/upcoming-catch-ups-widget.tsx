@@ -57,6 +57,8 @@ export function UpcomingCatchUpsWidget(props: WidgetProps) {
       }}
       label="Upcoming Catch Ups"
       inboxTasks={upcomingCatchUps}
+      inboxTaskTagsByInboxTaskRefId={personTasks.inboxTaskTagsByInboxTaskRefId}
+      inboxTaskContactsByInboxTaskRefId={personTasks.inboxTaskContactsByInboxTaskRefId}
       optimisticUpdates={personTasks.optimisticUpdates}
       moreInfoByRefId={personTasks.personEntriesByRefId}
       onCardMarkDone={personTasks.onCardMarkDone}

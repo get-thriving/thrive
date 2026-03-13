@@ -126,6 +126,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_notes: false,
     include_time_event_blocks: false,
     include_tags: true,
+    include_contacts: true,
   });
   const allTags = await apiClient.tags.tagFind({
     allow_archived: false,
