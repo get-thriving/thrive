@@ -3,6 +3,7 @@
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -38,6 +39,14 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_creator import generic_creator
+
+_BIG_PLAN_ONLY_PERIODS = frozenset(
+    [
+        RecurringTaskPeriod.MONTHLY,
+        RecurringTaskPeriod.QUARTERLY,
+        RecurringTaskPeriod.YEARLY,
+    ]
+)
 
 
 @use_case_args
@@ -82,6 +91,11 @@ class TimePlanAssociateWithInboxTasksUseCase(
         workspace = context.workspace
 
         time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
+
+        if time_plan.period in _BIG_PLAN_ONLY_PERIODS:
+            raise InputValidationError(
+                f"Inbox tasks cannot be added to {time_plan.period.value} time plans; only big plans are allowed"
+            )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id

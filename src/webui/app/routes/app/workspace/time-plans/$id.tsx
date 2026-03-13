@@ -352,6 +352,11 @@ export default function TimePlanView() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlan.archived;
 
+  const isBigPlanOnlyPeriod =
+    loaderData.timePlan.period === RecurringTaskPeriod.MONTHLY ||
+    loaderData.timePlan.period === RecurringTaskPeriod.QUARTERLY ||
+    loaderData.timePlan.period === RecurringTaskPeriod.YEARLY;
+
   const targetInboxTasksByRefId = new Map<string, InboxTask>(
     loaderData.targetInboxTasks.map((it) => [it.ref_id, it]),
   );
@@ -635,23 +640,31 @@ export default function TimePlanView() {
               actions={[
                 NavMultipleCompact({
                   navs: [
-                    NavSingle({
-                      text: "New Inbox Task",
-                      link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
-                    }),
+                    ...(!isBigPlanOnlyPeriod
+                      ? [
+                          NavSingle({
+                            text: "New Inbox Task",
+                            link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                          }),
+                        ]
+                      : []),
                     NavSingle({
                       text: "New Big Plan",
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
-                    NavSingle({
-                      text: "From Current Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
-                    }),
-                    NavSingle({
-                      text: "From Generated Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
-                    }),
+                    ...(!isBigPlanOnlyPeriod
+                      ? [
+                          NavSingle({
+                            text: "From Current Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
+                          }),
+                          NavSingle({
+                            text: "From Generated Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                          }),
+                        ]
+                      : []),
                     NavSingle({
                       text: "From Current Big Plans",
                       link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
@@ -769,7 +782,11 @@ export default function TimePlanView() {
             <EntityNoNothingCard
               title="You Have To Start Somewhere"
               message="There are no activities to show. You can create a new activity."
-              newEntityLocations={`/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`}
+              newEntityLocations={
+                isBigPlanOnlyPeriod
+                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`
+                  : `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`
+              }
               helpSubject={DocsHelpSubject.TIME_PLANS}
             />
           )}

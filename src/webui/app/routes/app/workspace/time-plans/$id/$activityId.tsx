@@ -55,8 +55,6 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import {
   ActionSingle,
-  NavMultipleSpread,
-  NavSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
@@ -911,28 +909,6 @@ export default function TimePlanActivity() {
             <SectionCard
               id="target-big-plan-inbox-tasks"
               title="Inbox Tasks"
-              actions={
-                <SectionActions
-                  id="target-big-plan-inbox-tasks"
-                  topLevelInfo={topLevelInfo}
-                  inputsEnabled={inputsEnabled}
-                  actions={[
-                    NavMultipleSpread({
-                      navs: [
-                        NavSingle({
-                          text: "New Inbox Task",
-                          link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
-                          highlight: true,
-                        }),
-                        NavSingle({
-                          text: "From Current Inbox Tasks",
-                          link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
-                        }),
-                      ],
-                    }),
-                  ]}
-                />
-              }
             >
               {sortedBigPlanInboxTasks.length > 0 && (
                 <InboxTaskStack

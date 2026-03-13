@@ -2,6 +2,7 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -11,6 +12,14 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
+
+_BIG_PLAN_ONLY_PERIODS = frozenset(
+    [
+        RecurringTaskPeriod.MONTHLY,
+        RecurringTaskPeriod.QUARTERLY,
+        RecurringTaskPeriod.YEARLY,
+    ]
+)
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
 )
@@ -98,6 +107,9 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
         new_time_plan_activities = []
 
         for time_plan in time_plans:
+            if time_plan.period in _BIG_PLAN_ONLY_PERIODS:
+                continue
+
             try:
                 new_time_plan_activity = TimePlanActivity.new_activity_for_inbox_task(
                     context.domain_context,
