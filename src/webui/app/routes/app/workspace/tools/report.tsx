@@ -87,8 +87,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return json(
       noErrorSomeData({
-        allProjects: summaryResponse.projects as Array<ProjectSummary>,
-        allGoals: summaryResponse.goals as Array<GoalSummary>,
+        allProjects: summaryResponse.projects,
+        allGoals: summaryResponse.goals,
         report: reportResponse,
       }),
     );
@@ -242,7 +242,7 @@ export default function Report() {
         loaderData.data.report !== undefined && (
           <ShowReport
             topLevelInfo={topLevelInfo}
-            allProjects={loaderData.data.allProjects}
+            allProjects={loaderData.data.allProjects ?? []}
             allGoals={loaderData.data.allGoals ?? []}
             report={loaderData.data.report.period_result}
           />

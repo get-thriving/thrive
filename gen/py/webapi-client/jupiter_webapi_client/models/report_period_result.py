@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.inbox_tasks_summary import InboxTasksSummary
     from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem
     from ..models.per_chore_breakdown_item import PerChoreBreakdownItem
+    from ..models.per_goal_breakdown_item import PerGoalBreakdownItem
     from ..models.per_habit_breakdown_item import PerHabitBreakdownItem
     from ..models.per_period_breakdown_item import PerPeriodBreakdownItem
     from ..models.per_project_breakdown_item import PerProjectBreakdownItem
@@ -37,6 +38,7 @@ class ReportPeriodResult:
         global_inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
         global_big_plans_summary (WorkableSummary): The reporting summary.
         per_project_breakdown (list[PerProjectBreakdownItem]):
+        per_goal_breakdown (list[PerGoalBreakdownItem]):
         per_period_breakdown (list[PerPeriodBreakdownItem]):
         per_habit_breakdown (list[PerHabitBreakdownItem]):
         per_chore_breakdown (list[PerChoreBreakdownItem]):
@@ -52,6 +54,7 @@ class ReportPeriodResult:
     global_inbox_tasks_summary: InboxTasksSummary
     global_big_plans_summary: WorkableSummary
     per_project_breakdown: list[PerProjectBreakdownItem]
+    per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
     per_chore_breakdown: list[PerChoreBreakdownItem]
@@ -85,6 +88,11 @@ class ReportPeriodResult:
         for per_project_breakdown_item_data in self.per_project_breakdown:
             per_project_breakdown_item = per_project_breakdown_item_data.to_dict()
             per_project_breakdown.append(per_project_breakdown_item)
+
+        per_goal_breakdown = []
+        for per_goal_breakdown_item_data in self.per_goal_breakdown:
+            per_goal_breakdown_item = per_goal_breakdown_item_data.to_dict()
+            per_goal_breakdown.append(per_goal_breakdown_item)
 
         per_period_breakdown = []
         for per_period_breakdown_item_data in self.per_period_breakdown:
@@ -133,6 +141,7 @@ class ReportPeriodResult:
                 "global_inbox_tasks_summary": global_inbox_tasks_summary,
                 "global_big_plans_summary": global_big_plans_summary,
                 "per_project_breakdown": per_project_breakdown,
+                "per_goal_breakdown": per_goal_breakdown,
                 "per_period_breakdown": per_period_breakdown,
                 "per_habit_breakdown": per_habit_breakdown,
                 "per_chore_breakdown": per_chore_breakdown,
@@ -151,6 +160,7 @@ class ReportPeriodResult:
         from ..models.inbox_tasks_summary import InboxTasksSummary
         from ..models.per_big_plan_breakdown_item import PerBigPlanBreakdownItem
         from ..models.per_chore_breakdown_item import PerChoreBreakdownItem
+        from ..models.per_goal_breakdown_item import PerGoalBreakdownItem
         from ..models.per_habit_breakdown_item import PerHabitBreakdownItem
         from ..models.per_period_breakdown_item import PerPeriodBreakdownItem
         from ..models.per_project_breakdown_item import PerProjectBreakdownItem
@@ -186,6 +196,13 @@ class ReportPeriodResult:
             per_project_breakdown_item = PerProjectBreakdownItem.from_dict(per_project_breakdown_item_data)
 
             per_project_breakdown.append(per_project_breakdown_item)
+
+        per_goal_breakdown = []
+        _per_goal_breakdown = d.pop("per_goal_breakdown")
+        for per_goal_breakdown_item_data in _per_goal_breakdown:
+            per_goal_breakdown_item = PerGoalBreakdownItem.from_dict(per_goal_breakdown_item_data)
+
+            per_goal_breakdown.append(per_goal_breakdown_item)
 
         per_period_breakdown = []
         _per_period_breakdown = d.pop("per_period_breakdown")
@@ -257,6 +274,7 @@ class ReportPeriodResult:
             global_inbox_tasks_summary=global_inbox_tasks_summary,
             global_big_plans_summary=global_big_plans_summary,
             per_project_breakdown=per_project_breakdown,
+            per_goal_breakdown=per_goal_breakdown,
             per_period_breakdown=per_period_breakdown,
             per_habit_breakdown=per_habit_breakdown,
             per_chore_breakdown=per_chore_breakdown,

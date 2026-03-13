@@ -5,6 +5,7 @@ class ReportBreakdown(str, Enum):
     BIG_PLANS = "big-plans"
     CHORES = "chores"
     GLOBAL = "global"
+    GOALS = "goals"
     HABITS = "habits"
     PERIODS = "periods"
     PROJECTS = "projects"
