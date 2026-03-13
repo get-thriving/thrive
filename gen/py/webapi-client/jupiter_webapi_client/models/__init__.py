@@ -509,6 +509,7 @@ from .paragraph_block_kind import ParagraphBlockKind
 from .partial_date_type import PartialDateType
 from .per_big_plan_breakdown_item import PerBigPlanBreakdownItem
 from .per_chore_breakdown_item import PerChoreBreakdownItem
+from .per_goal_breakdown_item import PerGoalBreakdownItem
 from .per_habit_breakdown_item import PerHabitBreakdownItem
 from .per_period_breakdown_item import PerPeriodBreakdownItem
 from .per_project_breakdown_item import PerProjectBreakdownItem
@@ -1383,6 +1384,7 @@ __all__ = (
     "PartialDateType",
     "PerBigPlanBreakdownItem",
     "PerChoreBreakdownItem",
+    "PerGoalBreakdownItem",
     "PerHabitBreakdownItem",
     "PerPeriodBreakdownItem",
     "PerProjectBreakdownItem",

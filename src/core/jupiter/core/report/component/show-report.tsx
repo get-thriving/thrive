@@ -1,4 +1,5 @@
 import type {
+  GoalSummary,
   InboxTasksSummary,
   ProjectSummary,
   ReportPeriodResult,
@@ -36,6 +37,7 @@ import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
+import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
 import {
   inferSourcesForEnabledFeatures,
@@ -65,12 +67,14 @@ const _SOURCES_TO_REPORT = [
 interface ShowReportProps {
   topLevelInfo: TopLevelInfo;
   allProjects: ProjectSummary[];
+  allGoals: GoalSummary[];
   report: ReportPeriodResult;
 }
 
 export function ShowReport({
   topLevelInfo,
   allProjects,
+  allGoals,
   report,
 }: ShowReportProps) {
   const isBigScreen = useBigScreen();
@@ -80,9 +84,10 @@ export function ShowReport({
     global: 0,
     "by-periods": 1,
     "by-projects": 2,
-    "by-habits": 3,
-    "by-chores": 4,
-    "by-big-plans": 5,
+    "by-goals": 3,
+    "by-habits": 4,
+    "by-chores": 5,
+    "by-big-plans": 6,
   };
 
   if (
@@ -91,6 +96,7 @@ export function ShowReport({
       WorkspaceFeature.LIFE_PLAN,
     )
   ) {
+    tabIndicesMap["by-goals"] -= 1;
     tabIndicesMap["by-habits"] -= 1;
     tabIndicesMap["by-chores"] -= 1;
     tabIndicesMap["by-big-plans"] -= 1;
@@ -116,6 +122,10 @@ export function ShowReport({
   const allProjectsSorted = sortProjectsByTreeOrder(allProjects);
   const allProjectsByRefId = new Map<string, ProjectSummary>(
     allProjects.map((p) => [p.ref_id, p]),
+  );
+  const allGoalsSorted = sortGoalsNaturally(allGoals);
+  const allGoalsByRefId = new Map<string, GoalSummary>(
+    allGoals.map((g) => [g.ref_id, g]),
   );
 
   return (
@@ -155,6 +165,10 @@ export function ShowReport({
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
         ) && <Tab label="💡 By Projects" />}
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && <Tab label="🎯 By Goals" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.HABITS,
@@ -219,6 +233,43 @@ export function ShowReport({
                     topLevelInfo={topLevelInfo}
                     inboxTasksSummary={pb.inbox_tasks_summary}
                     bigPlansSummary={pb.big_plans_summary}
+                  />
+                </Fragment>
+              );
+            })}
+          </Stack>
+        </TabPanel>
+      )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.LIFE_PLAN,
+      ) && (
+        <TabPanel value={showTab} index={tabIndicesMap["by-goals"]}>
+          <Stack spacing={2} useFlexGap>
+            {allGoalsSorted.map((goal) => {
+              const gb = report.per_goal_breakdown.find(
+                (gb) => gb.ref_id === goal.ref_id,
+              );
+
+              if (gb === undefined) {
+                return null;
+              }
+
+              const parentGoal = goal.parent_goal_ref_id
+                ? allGoalsByRefId.get(goal.parent_goal_ref_id)
+                : undefined;
+              const goalLabel = parentGoal
+                ? `${parentGoal.name} / ${goal.name}`
+                : String(goal.name);
+
+              return (
+                <Fragment key={gb.ref_id}>
+                  <StandardDivider title={goalLabel} size="large" />
+                  <OverviewReport
+                    topLevelInfo={topLevelInfo}
+                    inboxTasksSummary={gb.inbox_tasks_summary}
+                    bigPlansSummary={gb.big_plans_summary}
                   />
                 </Fragment>
               );

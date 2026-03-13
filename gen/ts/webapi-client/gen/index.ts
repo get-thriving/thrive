@@ -391,6 +391,7 @@ export type { PasswordNewPlain } from './models/PasswordNewPlain';
 export type { PasswordPlain } from './models/PasswordPlain';
 export type { PerBigPlanBreakdownItem } from './models/PerBigPlanBreakdownItem';
 export type { PerChoreBreakdownItem } from './models/PerChoreBreakdownItem';
+export type { PerGoalBreakdownItem } from './models/PerGoalBreakdownItem';
 export type { PerHabitBreakdownItem } from './models/PerHabitBreakdownItem';
 export type { PerPeriodBreakdownItem } from './models/PerPeriodBreakdownItem';
 export type { PerProjectBreakdownItem } from './models/PerProjectBreakdownItem';

@@ -136,6 +136,16 @@ class PerPeriodBreakdownItem(CompositeValue):
 
 
 @value
+class PerGoalBreakdownItem(CompositeValue):
+    """The report for a particular goal."""
+
+    ref_id: EntityId
+    name: EntityName
+    inbox_tasks_summary: InboxTasksSummary
+    big_plans_summary: WorkableSummary
+
+
+@value
 class PerProjectBreakdownItem(CompositeValue):
     """The report for a particular project."""
 
@@ -157,6 +167,7 @@ class ReportPeriodResult(CompositeValue):
     global_inbox_tasks_summary: InboxTasksSummary
     global_big_plans_summary: WorkableSummary
     per_project_breakdown: list[PerProjectBreakdownItem]
+    per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
     per_chore_breakdown: list[PerChoreBreakdownItem]
@@ -221,6 +232,7 @@ class ReportPeriodResult(CompositeValue):
                 done_big_plans=[],
             ),
             per_project_breakdown=[],
+            per_goal_breakdown=[],
             per_period_breakdown=[],
             per_habit_breakdown=[],
             per_chore_breakdown=[],

@@ -35,6 +35,7 @@ from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
@@ -47,6 +48,7 @@ from jupiter.core.report.period_result import (
     NestedResultPerSource,
     PerBigPlanBreakdownItem,
     PerChoreBreakdownItem,
+    PerGoalBreakdownItem,
     PerHabitBreakdownItem,
     PerPeriodBreakdownItem,
     PerProjectBreakdownItem,
@@ -307,6 +309,13 @@ class ReportService:
                 rt.ref_id: rt for rt in all_chores
             }
 
+            all_goals = await uow.get_for(Goal).find_all_generic(
+                parent_ref_id=life_plan.ref_id,
+                allow_archived=True,
+                ref_id=NoFilter(),
+            )
+            all_goals_by_ref_id: dict[EntityId, Goal] = {g.ref_id: g for g in all_goals}
+
             all_big_plans = await uow.get_for(BigPlan).find_all_generic(
                 parent_ref_id=big_plan_collection.ref_id,
                 allow_archived=True,
@@ -388,6 +397,59 @@ class ReportService:
             ]
         else:
             per_project_breakdown = []
+
+        # Build per goal breakdown
+
+        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
+            per_goal_inbox_tasks_summary = {
+                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
+                for (k, v) in groupby(
+                    sorted(
+                        [
+                            (it.goal_ref_id, it)
+                            for it in all_inbox_tasks
+                            if it.goal_ref_id is not None
+                        ],
+                        key=itemgetter(0),
+                    ),
+                    key=itemgetter(0),
+                )
+            }
+
+            if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
+                per_goal_big_plans_summary = {
+                    k: self._run_report_for_big_plan(schedule, (vx[1] for vx in v))
+                    for (k, v) in groupby(
+                        sorted(
+                            [
+                                (bp.goal_ref_id, bp)
+                                for bp in all_big_plans
+                                if bp.goal_ref_id is not None
+                            ],
+                            key=itemgetter(0),
+                        ),
+                        key=itemgetter(0),
+                    )
+                }
+            else:
+                per_goal_big_plans_summary = {}
+
+            per_goal_breakdown = [
+                PerGoalBreakdownItem(
+                    ref_id=goal_ref_id,
+                    name=all_goals_by_ref_id[goal_ref_id].name,
+                    inbox_tasks_summary=inbox_summary,
+                    big_plans_summary=per_goal_big_plans_summary.get(
+                        goal_ref_id,
+                        WorkableSummary(0, 0, 0, 0, 0, [], []),
+                    ),
+                )
+                for (goal_ref_id, inbox_summary) in per_goal_inbox_tasks_summary.items()
+                if goal_ref_id in all_goals_by_ref_id
+                and not all_goals_by_ref_id[goal_ref_id].archived
+            ]
+        else:
+            per_goal_breakdown = []
 
         # Build per period breakdown
         per_period_breakdown = []
@@ -549,6 +611,7 @@ class ReportService:
             global_inbox_tasks_summary=global_inbox_tasks_summary,
             global_big_plans_summary=global_big_plans_summary,
             per_project_breakdown=per_project_breakdown,
+            per_goal_breakdown=per_goal_breakdown,
             per_period_breakdown=per_period_breakdown,
             per_habit_breakdown=per_habit_breakdown,
             per_chore_breakdown=per_chore_breakdown,

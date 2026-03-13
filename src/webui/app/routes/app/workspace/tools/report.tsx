@@ -1,4 +1,8 @@
-import type { ProjectSummary, ReportResult } from "@jupiter/webapi-client";
+import type {
+  GoalSummary,
+  ProjectSummary,
+  ReportResult,
+} from "@jupiter/webapi-client";
 import { ApiError, RecurringTaskPeriod } from "@jupiter/webapi-client";
 import {
   FormControl,
@@ -70,6 +74,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_projects: true,
+    include_goals: true,
   });
 
   try {
@@ -82,7 +87,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return json(
       noErrorSomeData({
-        allProjects: summaryResponse.projects as Array<ProjectSummary>,
+        allProjects: summaryResponse.projects,
+        allGoals: summaryResponse.goals,
         report: reportResponse,
       }),
     );
@@ -106,6 +112,7 @@ export default function Report() {
     typeof loader
   >() as ActionResult<{
     allProjects: Array<ProjectSummary> | undefined;
+    allGoals: Array<GoalSummary> | undefined;
     report: ReportResult | undefined;
   }>;
   const navigation = useNavigation();
@@ -235,7 +242,8 @@ export default function Report() {
         loaderData.data.report !== undefined && (
           <ShowReport
             topLevelInfo={topLevelInfo}
-            allProjects={loaderData.data.allProjects}
+            allProjects={loaderData.data.allProjects ?? []}
+            allGoals={loaderData.data.allGoals ?? []}
             report={loaderData.data.report.period_result}
           />
         )}
