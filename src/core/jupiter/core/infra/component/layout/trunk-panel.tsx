@@ -1,12 +1,10 @@
 import {
-  Add as AddIcon,
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
 import {
   Box,
-  Button,
   ButtonGroup,
   IconButton,
   Stack,
@@ -15,7 +13,7 @@ import {
 import { Link, useLocation } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 
 import { extractTrunkFromPath } from "#/core/infra/routes";
 import {
@@ -29,12 +27,17 @@ import {
   useTrunkNeedsToShowBranch,
   useTrunkNeedsToShowLeaf,
 } from "#/core/infra/component/use-nested-entities";
+import type { ActionDesc } from "#/core/infra/component/section-actions";
+import { SectionActions } from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
+
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
 
 interface TrunkPanelProps {
-  createLocation?: string;
-  actions?: JSX.Element;
+  inputsEnabled?: boolean;
+  actions?: Array<ActionDesc>;
+  extraActions?: Array<ActionDesc>;
   returnLocation: string;
 }
 
@@ -47,6 +50,7 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const shouldShowABranch = useTrunkNeedsToShowBranch();
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -139,6 +143,10 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
     });
   }
 
+  const hasActions =
+    (props.actions && props.actions.length > 0) ||
+    (props.extraActions && props.extraActions.length > 0);
+
   return (
     <TrunkPanelFrame
       id="trunk-panel"
@@ -170,18 +178,15 @@ export function TrunkPanel(props: PropsWithChildren<TrunkPanelProps>) {
                 </IconButton>
               </ButtonGroup>
 
-              {props.createLocation && (
-                <Button
-                  id="trunk-new-leaf-entity"
-                  variant="contained"
-                  to={props.createLocation}
-                  component={Link}
-                >
-                  <AddIcon />
-                </Button>
+              {hasActions && (
+                <SectionActions
+                  id="trunk-panel-section-actions"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={props.inputsEnabled ?? true}
+                  actions={props.actions ?? []}
+                  extraActions={props.extraActions}
+                />
               )}
-
-              {props.actions}
 
               <IconButton sx={{ marginLeft: "auto" }}>
                 <Link to={props.returnLocation}>

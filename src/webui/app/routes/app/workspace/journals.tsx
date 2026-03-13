@@ -18,6 +18,7 @@ import { AnimatePresence } from "framer-motion";
 import { useContext, useState } from "react";
 import { Button, Stack } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
+import AddIcon from "@mui/icons-material/Add";
 import {
   findJournalsThatAreActive,
   sortJournalsNaturally,
@@ -38,7 +39,6 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import type { TopLevelInfo } from "@jupiter/core/infra/top-level-context";
 import {
   FilterManyOptions,
-  SectionActions,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 
@@ -140,30 +140,27 @@ export default function Journals() {
   return (
     <TrunkPanel
       key={"journals"}
-      createLocation="/app/workspace/journals/new"
       returnLocation="/app/workspace"
-      actions={
-        <SectionActions
-          id="journals"
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={true}
-          actions={[
-            FilterManyOptions(
-              "Tags",
-              loaderData.allTags.map((tag) => ({
-                value: tag.ref_id,
-                text: tag.name,
-              })),
-              setSelectedTagsRefId,
-            ),
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/journals/settings`,
-              icon: <TuneIcon />,
-            }),
-          ]}
-        />
-      }
+      actions={[
+        NavSingle({
+          text: "New",
+          icon: <AddIcon />,
+          link: "/app/workspace/journals/new",
+        }),
+        FilterManyOptions(
+          "Tags",
+          loaderData.allTags.map((tag) => ({
+            value: tag.ref_id,
+            text: tag.name,
+          })),
+          setSelectedTagsRefId,
+        ),
+        NavSingle({
+          text: "Settings",
+          link: `/app/workspace/journals/settings`,
+          icon: <TuneIcon />,
+        }),
+      ]}
     >
       <NestingAwareBlock
         branchForceHide={shouldShowABranch}

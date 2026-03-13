@@ -13,6 +13,7 @@ import {
 } from "@jupiter/webapi-client";
 import { Button, Stack } from "@mui/material";
 import TuneIcon from "@mui/icons-material/Tune";
+import AddIcon from "@mui/icons-material/Add";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -31,7 +32,6 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterManyOptions,
   NavSingle,
-  SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TimePlanCard } from "@jupiter/core/time_plans/component/card";
 import { TimePlanStack } from "@jupiter/core/time_plans/component/stack";
@@ -178,30 +178,28 @@ export default function TimePlans() {
   return (
     <TrunkPanel
       key={"time-plans"}
-      createLocation="/app/workspace/time-plans/new"
       returnLocation="/app/workspace"
-      actions={
-        <SectionActions
-          id="time-plans"
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={inputsEnabled}
-          actions={[
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/time-plans/settings`,
-              icon: <TuneIcon />,
-            }),
-            FilterManyOptions(
-              "Tags",
-              loaderData.allTags.map((tag) => ({
-                value: tag.ref_id,
-                text: tag.name,
-              })),
-              setSelectedTagsRefId,
-            ),
-          ]}
-        />
-      }
+      inputsEnabled={inputsEnabled}
+      actions={[
+        NavSingle({
+          text: "New",
+          icon: <AddIcon />,
+          link: "/app/workspace/time-plans/new",
+        }),
+        NavSingle({
+          text: "Settings",
+          link: `/app/workspace/time-plans/settings`,
+          icon: <TuneIcon />,
+        }),
+        FilterManyOptions(
+          "Tags",
+          loaderData.allTags.map((tag) => ({
+            value: tag.ref_id,
+            text: tag.name,
+          })),
+          setSelectedTagsRefId,
+        ),
+      ]}
     >
       <NestingAwareBlock
         branchForceHide={shouldShowABranch}

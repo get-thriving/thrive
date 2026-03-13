@@ -104,7 +104,7 @@ interface FilterManyOptionsDesc<K> {
   hideIfOneOption?: boolean;
 }
 
-type ActionDesc =
+export type ActionDesc =
   | NavSingleDesc // A single button, as a navigation
   | NavMultipleDesc // A group of buttons, as a navigation
   | ActionSingleDesc // A single button, as an action

@@ -1,5 +1,4 @@
 import {
-  Add as AddIcon,
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
   Close as CloseIcon,
@@ -23,6 +22,7 @@ import { motion, useIsPresent } from "framer-motion";
 import {
   type PropsWithChildren,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -36,16 +36,19 @@ import {
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { useHydrated } from "#/core/infra/component/use-hidrated";
 import { useTrunkNeedsToShowLeaf } from "#/core/infra/component/use-nested-entities";
+import type { ActionDesc } from "#/core/infra/component/section-actions";
+import { ButtonSingle, SectionActions } from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 const SMALL_SCREEN_ANIMATION_START = "100vw";
 const SMALL_SCREEN_ANIMATION_END = "100vw";
 
 interface BranchPanelProps {
-  createLocation?: string;
   showArchiveAndRemoveButton?: boolean;
   inputsEnabled?: boolean;
   entityArchived?: boolean;
-  actions?: JSX.Element;
+  actions?: Array<ActionDesc>;
+  extraActions?: Array<ActionDesc>;
   returnLocation: string;
 }
 
@@ -57,6 +60,7 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
   const isHydrated = useHydrated();
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const topLevelInfo = useContext(TopLevelInfoContext);
 
   // This little function is a hack to get around the fact that Framer Motion
   // generates a translateX(Xpx) CSS applied to the StyledMotionDrawer element.
@@ -146,6 +150,23 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
     });
   }
 
+  const archiveExtraActions: Array<ActionDesc> = props.showArchiveAndRemoveButton
+    ? [
+        ButtonSingle({
+          text: props.entityArchived ? "Remove" : "Archive",
+          icon: props.entityArchived ? <DeleteForeverIcon /> : <DeleteIcon />,
+          onClick: () => setShowArchiveDialog(true),
+          disabled: !props.entityArchived && !props.inputsEnabled,
+        }),
+      ]
+    : [];
+
+  const allExtraActions = [...archiveExtraActions, ...(props.extraActions ?? [])];
+
+  const hasActions =
+    (props.actions && props.actions.length > 0) ||
+    allExtraActions.length > 0;
+
   return (
     <BranchPanelFrame
       id="branch-panel"
@@ -177,72 +198,49 @@ export function BranchPanel(props: PropsWithChildren<BranchPanelProps>) {
                 </IconButton>
               </ButtonGroup>
 
-              {props.createLocation && (
-                <Button
-                  variant="contained"
-                  to={props.createLocation}
-                  component={Link}
-                >
-                  <AddIcon />
-                </Button>
+              {hasActions && (
+                <SectionActions
+                  id="branch-panel-section-actions"
+                  topLevelInfo={topLevelInfo}
+                  inputsEnabled={props.inputsEnabled ?? true}
+                  actions={props.actions ?? []}
+                  extraActions={allExtraActions}
+                />
               )}
-
-              {props.actions}
 
               {props.showArchiveAndRemoveButton && (
-                <>
-                  <IconButton
-                    id="branch-entity-archive"
-                    sx={{ marginLeft: "auto" }}
-                    disabled={!props.entityArchived && !props.inputsEnabled}
-                    type="button"
-                    onClick={() => setShowArchiveDialog(true)}
-                  >
-                    {props.entityArchived ? (
-                      <DeleteForeverIcon />
-                    ) : (
-                      <DeleteIcon />
-                    )}
-                  </IconButton>
-                  <Dialog
-                    onClose={() => setShowArchiveDialog(false)}
-                    open={showArchiveDialog}
-                    disablePortal
-                  >
-                    <DialogTitle>Careful!</DialogTitle>
-                    <DialogContent>
-                      Are you sure you want to{" "}
-                      {props.entityArchived ? "remove" : "archive"} this entity?
-                      {props.entityArchived
-                        ? " This action cannot be undone."
-                        : ""}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button
-                        id="branch-entity-archive-confirm"
-                        sx={{ marginLeft: "auto" }}
-                        disabled={!props.entityArchived && !props.inputsEnabled}
-                        type="submit"
-                        name="intent"
-                        value={props.entityArchived ? "remove" : "archive"}
-                      >
-                        Yes
-                      </Button>
-                      <Button onClick={() => setShowArchiveDialog(false)}>
-                        No
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </>
+                <Dialog
+                  onClose={() => setShowArchiveDialog(false)}
+                  open={showArchiveDialog}
+                  disablePortal
+                >
+                  <DialogTitle>Careful!</DialogTitle>
+                  <DialogContent>
+                    Are you sure you want to{" "}
+                    {props.entityArchived ? "remove" : "archive"} this entity?
+                    {props.entityArchived
+                      ? " This action cannot be undone."
+                      : ""}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      id="branch-entity-archive-confirm"
+                      sx={{ marginLeft: "auto" }}
+                      disabled={!props.entityArchived && !props.inputsEnabled}
+                      type="submit"
+                      name="intent"
+                      value={props.entityArchived ? "remove" : "archive"}
+                    >
+                      Yes
+                    </Button>
+                    <Button onClick={() => setShowArchiveDialog(false)}>
+                      No
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               )}
 
-              <IconButton
-                sx={{
-                  marginLeft: !props.showArchiveAndRemoveButton
-                    ? "auto"
-                    : undefined,
-                }}
-              >
+              <IconButton sx={{ marginLeft: "auto" }}>
                 <Link style={{ display: "flex" }} to={props.returnLocation}>
                   <CloseIcon />
                 </Link>

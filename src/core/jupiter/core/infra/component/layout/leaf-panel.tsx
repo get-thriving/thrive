@@ -23,7 +23,7 @@ import {
 import { Form, useNavigate } from "@remix-run/react";
 import { motion, useIsPresent } from "framer-motion";
 import type { PropsWithChildren } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import {
   LeafPanelExpansionState,
@@ -36,6 +36,9 @@ import {
   saveScrollPosition,
 } from "#/core/infra/scroll-restoration";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
+import type { ActionDesc } from "#/core/infra/component/section-actions";
+import { ButtonSingle, SectionActions } from "#/core/infra/component/section-actions";
+import { TopLevelInfoContext } from "#/core/infra/top-level-context";
 
 const BIG_SCREEN_ANIMATION_START = "480px";
 const BIG_SCREEN_ANIMATION_END = "480px";
@@ -63,6 +66,8 @@ interface LeafPanelProps {
   initialExpansionState?: LeafPanelExpansionState;
   allowedExpansionStates?: LeafPanelExpansionState[];
   shouldShowALeaflet?: boolean;
+  actions?: Array<ActionDesc>;
+  extraActions?: Array<ActionDesc>;
 }
 
 export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
@@ -70,6 +75,7 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
   const navigation = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const isPresent = useIsPresent();
+  const topLevelInfo = useContext(TopLevelInfoContext);
   const [expansionState, setExpansionState] = useState<
     LeafPanelExpansionState | "shrunk" | "exit"
   >(
@@ -242,6 +248,27 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
     });
   }
 
+  const archiveExtraActions: Array<ActionDesc> =
+    props.showArchiveButton || props.showArchiveAndRemoveButton
+      ? [
+          ButtonSingle({
+            text: props.entityArchived ? "Remove" : "Archive",
+            icon: props.entityArchived ? <DeleteForeverIcon /> : <DeleteIcon />,
+            onClick: () => setShowArchiveDialog(true),
+            disabled:
+              props.entityNotEditable ||
+              (!props.entityArchived && !props.inputsEnabled) ||
+              (props.entityArchived && showArchiveButNotRemove),
+          }),
+        ]
+      : [];
+
+  const allExtraActions = [...archiveExtraActions, ...(props.extraActions ?? [])];
+
+  const hasActions =
+    (props.actions && props.actions.length > 0) ||
+    allExtraActions.length > 0;
+
   const formVariants = {
     initial: {
       opacity: 0,
@@ -356,58 +383,49 @@ export function LeafPanel(props: PropsWithChildren<LeafPanelProps>) {
               </IconButton>
             </ButtonGroup>
 
+            {hasActions && (
+              <SectionActions
+                id="leaf-panel-section-actions"
+                topLevelInfo={topLevelInfo}
+                inputsEnabled={props.inputsEnabled}
+                actions={props.actions ?? []}
+                extraActions={allExtraActions}
+              />
+            )}
+
             {(props.showArchiveButton || props.showArchiveAndRemoveButton) && (
-              <>
-                <IconButton
-                  id="leaf-entity-archive"
-                  sx={{ marginLeft: "auto" }}
-                  disabled={
-                    props.entityNotEditable ||
-                    (!props.entityArchived && !props.inputsEnabled) ||
-                    (props.entityArchived && showArchiveButNotRemove)
-                  }
-                  type="button"
-                  onClick={() => setShowArchiveDialog(true)}
-                >
-                  {props.entityArchived ? (
-                    <DeleteForeverIcon />
-                  ) : (
-                    <DeleteIcon />
-                  )}
-                </IconButton>
-                <Dialog
-                  onClose={() => setShowArchiveDialog(false)}
-                  open={showArchiveDialog}
-                  disablePortal
-                >
-                  <DialogTitle>Careful!</DialogTitle>
-                  <DialogContent>
-                    Are you sure you want to{" "}
-                    {props.entityArchived ? "remove" : "archive"} this entity?
-                    {props.entityArchived
-                      ? " This action cannot be undone."
-                      : ""}
-                  </DialogContent>
-                  <DialogActions>
-                    <Button
-                      id="leaf-entity-archive-confirm"
-                      sx={{ marginLeft: "auto" }}
-                      disabled={
-                        props.entityNotEditable ||
-                        (!props.entityArchived && !props.inputsEnabled)
-                      }
-                      type="submit"
-                      name="intent"
-                      value={props.entityArchived ? "remove" : "archive"}
-                    >
-                      Yes
-                    </Button>
-                    <Button onClick={() => setShowArchiveDialog(false)}>
-                      No
-                    </Button>
-                  </DialogActions>
-                </Dialog>
-              </>
+              <Dialog
+                onClose={() => setShowArchiveDialog(false)}
+                open={showArchiveDialog}
+                disablePortal
+              >
+                <DialogTitle>Careful!</DialogTitle>
+                <DialogContent>
+                  Are you sure you want to{" "}
+                  {props.entityArchived ? "remove" : "archive"} this entity?
+                  {props.entityArchived
+                    ? " This action cannot be undone."
+                    : ""}
+                </DialogContent>
+                <DialogActions>
+                  <Button
+                    id="leaf-entity-archive-confirm"
+                    sx={{ marginLeft: "auto" }}
+                    disabled={
+                      props.entityNotEditable ||
+                      (!props.entityArchived && !props.inputsEnabled)
+                    }
+                    type="submit"
+                    name="intent"
+                    value={props.entityArchived ? "remove" : "archive"}
+                  >
+                    Yes
+                  </Button>
+                  <Button onClick={() => setShowArchiveDialog(false)}>
+                    No
+                  </Button>
+                </DialogActions>
+              </Dialog>
             )}
           </LeafPanelControls>
         </Form>
