@@ -66,7 +66,10 @@ export function findActiveChapterForSuggestions(
         today,
         milestones,
       );
-      if (resolved.start_date <= today.toISODate()! && today.toISODate()! <= resolved.end_date) {
+      if (
+        resolved.start_date <= today.toISODate()! &&
+        today.toISODate()! <= resolved.end_date
+      ) {
         return resolved;
       }
     } catch {
@@ -74,4 +77,44 @@ export function findActiveChapterForSuggestions(
     }
   }
   return null;
+}
+
+export function resolveChaptersForSuggestions(
+  chapters: ChapterSummary[],
+  birthday: DateTime,
+  today: DateTime,
+  milestones: MilestoneSummary[],
+): ChapterForSuggestions[] {
+  const resolved: ChapterForSuggestions[] = [];
+  for (const chapter of chapters) {
+    try {
+      resolved.push(
+        resolveChapterForSuggestions(chapter, birthday, today, milestones),
+      );
+    } catch {
+      // Skip chapters whose dates can't be resolved
+    }
+  }
+  return resolved;
+}
+
+export function findActiveChaptersForSuggestions(
+  chapters: ChapterSummary[],
+  birthday: DateTime,
+  today: DateTime,
+  milestones: MilestoneSummary[],
+): ChapterForSuggestions[] {
+  const todayIso = today.toISODate();
+  if (!todayIso) {
+    return [];
+  }
+
+  return resolveChaptersForSuggestions(
+    chapters,
+    birthday,
+    today,
+    milestones,
+  ).filter(
+    (chapter) => chapter.start_date <= todayIso && todayIso <= chapter.end_date,
+  );
 }

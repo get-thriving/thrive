@@ -26,7 +26,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
@@ -48,7 +48,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
-import { findActiveChapterForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
+import { findActiveChaptersForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
@@ -206,11 +206,26 @@ export default function NewBigPlan() {
 
   const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
   const todayDate = aDateToDate(topLevelInfo.today);
-  const activeChapter = findActiveChapterForSuggestions(
-    loaderData.allChapters,
-    birthdayDate,
-    todayDate,
-    loaderData.allMilestones,
+  const [selectedProjectRefId, setSelectedProjectRefId] = useState(
+    loaderData.rootProject.ref_id,
+  );
+  const chaptersForSuggestions = useMemo(
+    () =>
+      findActiveChaptersForSuggestions(
+        loaderData.allChapters.filter(
+          (chapter) => chapter.project_ref_id === selectedProjectRefId,
+        ),
+        birthdayDate,
+        todayDate,
+        loaderData.allMilestones,
+      ),
+    [
+      loaderData.allChapters,
+      loaderData.allMilestones,
+      selectedProjectRefId,
+      birthdayDate,
+      todayDate,
+    ],
   );
 
   return (
@@ -265,6 +280,8 @@ export default function NewBigPlan() {
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
               allProjects={loaderData.allProjects}
+              projectValue={selectedProjectRefId}
+              onProjectChange={setSelectedProjectRefId}
               projectDefaultValue={loaderData.rootProject.ref_id}
               allChapters={loaderData.allChapters}
               allGoals={loaderData.allGoals}
@@ -314,7 +331,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
-              activeChapter,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/actionable_date" />
@@ -336,7 +353,7 @@ export default function NewBigPlan() {
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               topLevelInfo.today,
               loaderData.associatedTimePlan,
-              activeChapter,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/due_date" />

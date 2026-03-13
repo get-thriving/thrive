@@ -7,7 +7,7 @@ import type {
 } from "@jupiter/webapi-client";
 import { Box, Stack } from "@mui/material";
 import type { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
@@ -30,6 +30,7 @@ export interface LifePlanAssociationsProps {
   chapterValue?: EntityId | null;
   chapterDefaultValue?: EntityId | null;
   onChapterChange?: (value: EntityId | null) => void;
+  chapterOnlyForSelectedProject?: boolean;
 
   allGoals: GoalSummary[];
   goalValue?: EntityId | null;
@@ -48,8 +49,15 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
   const projectName = props.projectName ?? "project";
   const chapterName = props.chapterName ?? "chapter";
   const goalName = props.goalName ?? "goal";
+  const chapterOnlyForSelectedProject =
+    props.chapterOnlyForSelectedProject ?? true;
 
   const rootProject = props.allProjects.find((p) => !p.parent_project_ref_id);
+  const allChaptersByRefId = useMemo(
+    () =>
+      new Map(props.allChapters.map((chapter) => [chapter.ref_id, chapter])),
+    [props.allChapters],
+  );
 
   const [selectedProject, setSelectedProject] = useState<EntityId>(
     props.projectValue ??
@@ -94,6 +102,15 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
 
   function onChapterChange(value: EntityId | null) {
     setSelectedChapter(value);
+    if (!chapterOnlyForSelectedProject && value) {
+      const chapter = allChaptersByRefId.get(value);
+      if (chapter && chapter.project_ref_id !== selectedProject) {
+        setSelectedProject(chapter.project_ref_id);
+        setSelectedGoal(null);
+        props.onProjectChange?.(chapter.project_ref_id);
+        props.onGoalChange?.(null);
+      }
+    }
     props.onChapterChange?.(value);
   }
 
@@ -122,7 +139,9 @@ export function LifePlanAssociations(props: LifePlanAssociationsProps) {
           label="Chapter"
           inputsEnabled={inputsEnabled}
           disabled={false}
-          onlyForProject={selectedProject}
+          onlyForProject={
+            chapterOnlyForSelectedProject ? selectedProject : undefined
+          }
           allChapters={props.allChapters}
           value={selectedChapter}
           onChange={onChapterChange}

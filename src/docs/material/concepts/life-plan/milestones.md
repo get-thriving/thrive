@@ -11,6 +11,7 @@ moments you look back on as turning points or landmarks. Unlike
 point in time.
 
 Examples of milestones:
+
 - _"Graduated university"_ — June 2019
 - _"Got married"_ — August 2022
 - _"Moved to Berlin"_ — March 2024

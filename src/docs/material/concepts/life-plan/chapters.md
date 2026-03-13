@@ -11,6 +11,7 @@ raising children, of retirement, of adventure. Chapters let you carve your
 life into these distinct phases and reflect on them in a structured way.
 
 A chapter might be something like:
+
 - _"University years"_ — from age 18 to age 22.
 - _"Early career at Acme Corp"_ — from 2020 to 2026.
 - _"Living in Berlin"_ — from a specific date to a milestone (e.g. "Move back

@@ -20,7 +20,7 @@ more concrete pieces of work, use [big plans](../big-plans.md) instead.
 | Property | Description |
 | -------- | ----------- |
 | **Name** | A short label for the project. |
-| **Parent Project** | An optional parent project, for hierarchical organisation. |
+| **Parent Project** | An optional parent project, for hierarchies. |
 
 Projects also support a **note** for additional context and **tags** for
 organisation.
@@ -31,6 +31,7 @@ Projects can be nested within other projects, forming a tree. The maximum
 nesting depth is **5 levels** from the root.
 
 For example:
+
 - _Personal_
   - _Health_
   - _Family_

@@ -92,7 +92,7 @@ export function getSuggestedDatesForInboxTaskDueDate(
 export function getSuggestedDatesForBigPlanActionableDate(
   today: ADate,
   timePlan?: TimePlan | null,
-  chapter?: ChapterForSuggestions | null,
+  chapters?: ChapterForSuggestions[] | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
@@ -122,11 +122,13 @@ export function getSuggestedDatesForBigPlanActionableDate(
     },
   ];
 
-  if (chapter) {
-    suggestedDates.push({
-      date: chapter.start_date,
-      label: `Start of chapter "${chapter.name}"`,
-    });
+  if (chapters) {
+    for (const chapter of chapters) {
+      suggestedDates.push({
+        date: chapter.start_date,
+        label: `Start of chapter "${chapter.name}"`,
+      });
+    }
   }
 
   if (timePlan) {
@@ -142,7 +144,7 @@ export function getSuggestedDatesForBigPlanActionableDate(
 export function getSuggestedDatesForBigPlanDueDate(
   today: ADate,
   timePlan?: TimePlan | null,
-  chapter?: ChapterForSuggestions | null,
+  chapters?: ChapterForSuggestions[] | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
   const suggestedDates: SuggestedDate[] = [
@@ -164,11 +166,13 @@ export function getSuggestedDatesForBigPlanDueDate(
     },
   ];
 
-  if (chapter) {
-    suggestedDates.push({
-      date: chapter.end_date,
-      label: `End of chapter "${chapter.name}"`,
-    });
+  if (chapters) {
+    for (const chapter of chapters) {
+      suggestedDates.push({
+        date: chapter.end_date,
+        label: `End of chapter "${chapter.name}"`,
+      });
+    }
   }
 
   if (timePlan) {

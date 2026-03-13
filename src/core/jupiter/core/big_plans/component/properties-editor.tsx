@@ -26,16 +26,14 @@ import {
   OutlinedInput,
   Stack,
 } from "@mui/material";
+import { useMemo, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import {
   getSuggestedDatesForBigPlanActionableDate,
   getSuggestedDatesForBigPlanDueDate,
 } from "#/core/common/suggested-date";
-import {
-  findActiveChapterForSuggestions,
-  resolveChapterForSuggestions,
-} from "#/core/life_plan/sub/chapters/root";
+import { findActiveChaptersForSuggestions } from "#/core/life_plan/sub/chapters/root";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { bigPlanDonePct } from "#/core/big_plans/root";
 import { BigPlanStatusBigTag } from "#/core/big_plans/component/status-big-tag";
@@ -92,23 +90,28 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
 
   const birthday = lifePlanBirthdayDate(props.lifePlan);
   const today = aDateToDate(props.topLevelInfo.today);
+  const [selectedProjectRefId, setSelectedProjectRefId] = useState(
+    props.bigPlanInfo.project.ref_id,
+  );
 
-  const assignedChapter = props.bigPlan.chapter_ref_id
-    ? props.allChapters.find((c) => c.ref_id === props.bigPlan.chapter_ref_id)
-    : undefined;
-  const chapterForSuggestions = assignedChapter
-    ? resolveChapterForSuggestions(
-        assignedChapter,
+  const chaptersForSuggestions = useMemo(
+    () =>
+      findActiveChaptersForSuggestions(
+        props.allChapters.filter(
+          (chapter) => chapter.project_ref_id === selectedProjectRefId,
+        ),
         birthday,
         today,
         props.allMilestones,
-      )
-    : findActiveChapterForSuggestions(
-        props.allChapters,
-        birthday,
-        today,
-        props.allMilestones,
-      );
+      ),
+    [
+      props.allChapters,
+      props.allMilestones,
+      selectedProjectRefId,
+      birthday,
+      today,
+    ],
+  );
 
   const actions = [];
   if (props.showLinkToBigPlan) {
@@ -244,6 +247,8 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
               chapterName={constructFieldName(props.namePrefix, "chapter")}
               goalName={constructFieldName(props.namePrefix, "goal")}
               allProjects={props.allProjects}
+              projectValue={selectedProjectRefId}
+              onProjectChange={setSelectedProjectRefId}
               projectDefaultValue={props.bigPlanInfo.project.ref_id}
               allChapters={props.allChapters}
               chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
@@ -318,7 +323,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             suggestedDates={getSuggestedDatesForBigPlanActionableDate(
               props.topLevelInfo.today,
               undefined,
-              chapterForSuggestions,
+              chaptersForSuggestions,
             )}
           />
           <FieldError
@@ -342,7 +347,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
             suggestedDates={getSuggestedDatesForBigPlanDueDate(
               props.topLevelInfo.today,
               undefined,
-              chapterForSuggestions,
+              chaptersForSuggestions,
             )}
           />
           <FieldError

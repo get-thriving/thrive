@@ -11,6 +11,7 @@ tasks and big plans. They give structure to your aspirations and connect
 them to the projects that organise your day-to-day activity.
 
 Examples of goals:
+
 - _"Run a marathon"_
 - _"Become a senior engineer"_
 - _"Learn to speak Spanish"_
