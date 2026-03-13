@@ -314,9 +314,7 @@ class ReportService:
                 allow_archived=True,
                 ref_id=NoFilter(),
             )
-            all_goals_by_ref_id: dict[EntityId, Goal] = {
-                g.ref_id: g for g in all_goals
-            }
+            all_goals_by_ref_id: dict[EntityId, Goal] = {g.ref_id: g for g in all_goals}
 
             all_big_plans = await uow.get_for(BigPlan).find_all_generic(
                 parent_ref_id=big_plan_collection.ref_id,
