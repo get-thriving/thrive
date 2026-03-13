@@ -9,13 +9,13 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.chapter import Chapter
     from ..models.chore import Chore
     from ..models.contact import Contact
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
     from ..models.tag import Tag
 
 
@@ -28,7 +28,7 @@ class ChoreLoadResult:
 
     Attributes:
         chore (Chore): A chore.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
@@ -40,7 +40,7 @@ class ChoreLoadResult:
     """
 
     chore: Chore
-    project: Project
+    aspect: Aspect
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
@@ -58,7 +58,7 @@ class ChoreLoadResult:
 
         chore = self.chore.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         inbox_tasks = []
         for inbox_tasks_item_data in self.inbox_tasks:
@@ -108,7 +108,7 @@ class ChoreLoadResult:
         field_dict.update(
             {
                 "chore": chore,
-                "project": project,
+                "aspect": aspect,
                 "inbox_tasks": inbox_tasks,
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
@@ -127,19 +127,19 @@ class ChoreLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.chore import Chore
         from ..models.contact import Contact
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
         from ..models.tag import Tag
 
         d = dict(src_dict)
         chore = Chore.from_dict(d.pop("chore"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         inbox_tasks = []
         _inbox_tasks = d.pop("inbox_tasks")
@@ -219,7 +219,7 @@ class ChoreLoadResult:
 
         chore_load_result = cls(
             chore=chore,
-            project=project,
+            aspect=aspect,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,

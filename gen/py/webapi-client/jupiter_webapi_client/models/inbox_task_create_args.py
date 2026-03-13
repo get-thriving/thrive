@@ -27,7 +27,7 @@ class InboxTaskCreateArgs:
         time_plan_ref_id (None | str | Unset):
         time_plan_activity_kind (None | TimePlanActivityKind | Unset):
         time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
-        project_ref_id (None | str | Unset):
+        aspect_ref_id (None | str | Unset):
         chapter_ref_id (None | str | Unset):
         goal_ref_id (None | str | Unset):
         big_plan_ref_id (None | str | Unset):
@@ -42,7 +42,7 @@ class InboxTaskCreateArgs:
     time_plan_ref_id: None | str | Unset = UNSET
     time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
     time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
-    project_ref_id: None | str | Unset = UNSET
+    aspect_ref_id: None | str | Unset = UNSET
     chapter_ref_id: None | str | Unset = UNSET
     goal_ref_id: None | str | Unset = UNSET
     big_plan_ref_id: None | str | Unset = UNSET
@@ -81,11 +81,11 @@ class InboxTaskCreateArgs:
         else:
             time_plan_activity_feasability = self.time_plan_activity_feasability
 
-        project_ref_id: None | str | Unset
-        if isinstance(self.project_ref_id, Unset):
-            project_ref_id = UNSET
+        aspect_ref_id: None | str | Unset
+        if isinstance(self.aspect_ref_id, Unset):
+            aspect_ref_id = UNSET
         else:
-            project_ref_id = self.project_ref_id
+            aspect_ref_id = self.aspect_ref_id
 
         chapter_ref_id: None | str | Unset
         if isinstance(self.chapter_ref_id, Unset):
@@ -133,8 +133,8 @@ class InboxTaskCreateArgs:
             field_dict["time_plan_activity_kind"] = time_plan_activity_kind
         if time_plan_activity_feasability is not UNSET:
             field_dict["time_plan_activity_feasability"] = time_plan_activity_feasability
-        if project_ref_id is not UNSET:
-            field_dict["project_ref_id"] = project_ref_id
+        if aspect_ref_id is not UNSET:
+            field_dict["aspect_ref_id"] = aspect_ref_id
         if chapter_ref_id is not UNSET:
             field_dict["chapter_ref_id"] = chapter_ref_id
         if goal_ref_id is not UNSET:
@@ -204,14 +204,14 @@ class InboxTaskCreateArgs:
             d.pop("time_plan_activity_feasability", UNSET)
         )
 
-        def _parse_project_ref_id(data: object) -> None | str | Unset:
+        def _parse_aspect_ref_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        project_ref_id = _parse_project_ref_id(d.pop("project_ref_id", UNSET))
+        aspect_ref_id = _parse_aspect_ref_id(d.pop("aspect_ref_id", UNSET))
 
         def _parse_chapter_ref_id(data: object) -> None | str | Unset:
             if data is None:
@@ -266,7 +266,7 @@ class InboxTaskCreateArgs:
             time_plan_ref_id=time_plan_ref_id,
             time_plan_activity_kind=time_plan_activity_kind,
             time_plan_activity_feasability=time_plan_activity_feasability,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             big_plan_ref_id=big_plan_ref_id,

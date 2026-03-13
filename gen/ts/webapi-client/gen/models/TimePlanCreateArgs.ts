@@ -12,7 +12,7 @@ export type TimePlanCreateArgs = {
     right_now: ADate;
     period: RecurringTaskPeriod;
     chapter_ref_ids?: (Array<EntityId> | null);
-    project_ref_ids?: (Array<EntityId> | null);
+    aspect_ref_ids?: (Array<EntityId> | null);
     goal_ref_ids?: (Array<EntityId> | null);
 };
 

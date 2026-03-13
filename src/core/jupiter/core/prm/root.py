@@ -22,7 +22,7 @@ class PRM(TrunkEntity):
     """The personal relationship database."""
 
     workspace: ParentLink
-    catch_up_project_ref_id: EntityId
+    catch_up_aspect_ref_id: EntityId
     max_circles_per_person: int
 
     persons = ContainsMany(Person, prm_ref_id=IsRefId())
@@ -33,24 +33,24 @@ class PRM(TrunkEntity):
     def new_prm(
         ctx: MutationContext,
         workspace_ref_id: EntityId,
-        catch_up_project_ref_id: EntityId,
+        catch_up_aspect_ref_id: EntityId,
     ) -> "PRM":
         """Create a new personal database."""
         return PRM._create(
             ctx,
             workspace=ParentLink(workspace_ref_id),
-            catch_up_project_ref_id=catch_up_project_ref_id,
+            catch_up_aspect_ref_id=catch_up_aspect_ref_id,
             max_circles_per_person=MAX_CIRCLES_PER_PERSON,
         )
 
     @update_entity_action
-    def change_catch_up_project(
+    def change_catch_up_aspect(
         self,
         ctx: MutationContext,
-        catch_up_project_ref_id: EntityId,
+        catch_up_aspect_ref_id: EntityId,
     ) -> "PRM":
-        """Change the catch up project."""
+        """Change the catch up aspect."""
         return self._new_version(
             ctx,
-            catch_up_project_ref_id=catch_up_project_ref_id,
+            catch_up_aspect_ref_id=catch_up_aspect_ref_id,
         )

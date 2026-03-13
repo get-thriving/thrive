@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
     from ..models.tag import Tag
 
 
@@ -35,7 +35,7 @@ class BigPlanFindResultEntry:
         note (None | Note | Unset):
         milestones (list[BigPlanMilestone] | None | Unset):
         stats (BigPlanStats | None | Unset):
-        project (None | Project | Unset):
+        aspect (Aspect | None | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         inbox_tasks (list[InboxTask] | None | Unset):
@@ -47,18 +47,18 @@ class BigPlanFindResultEntry:
     note: None | Note | Unset = UNSET
     milestones: list[BigPlanMilestone] | None | Unset = UNSET
     stats: BigPlanStats | None | Unset = UNSET
-    project: None | Project | Unset = UNSET
+    aspect: Aspect | None | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     inbox_tasks: list[InboxTask] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.aspect import Aspect
         from ..models.big_plan_stats import BigPlanStats
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.note import Note
-        from ..models.project import Project
 
         big_plan = self.big_plan.to_dict()
 
@@ -100,13 +100,13 @@ class BigPlanFindResultEntry:
         else:
             stats = self.stats
 
-        project: dict[str, Any] | None | Unset
-        if isinstance(self.project, Unset):
-            project = UNSET
-        elif isinstance(self.project, Project):
-            project = self.project.to_dict()
+        aspect: dict[str, Any] | None | Unset
+        if isinstance(self.aspect, Unset):
+            aspect = UNSET
+        elif isinstance(self.aspect, Aspect):
+            aspect = self.aspect.to_dict()
         else:
-            project = self.project
+            aspect = self.aspect
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -151,8 +151,8 @@ class BigPlanFindResultEntry:
             field_dict["milestones"] = milestones
         if stats is not UNSET:
             field_dict["stats"] = stats
-        if project is not UNSET:
-            field_dict["project"] = project
+        if aspect is not UNSET:
+            field_dict["aspect"] = aspect
         if chapter is not UNSET:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
@@ -164,6 +164,7 @@ class BigPlanFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
@@ -172,7 +173,6 @@ class BigPlanFindResultEntry:
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
         from ..models.tag import Tag
 
         d = dict(src_dict)
@@ -248,7 +248,7 @@ class BigPlanFindResultEntry:
 
         stats = _parse_stats(d.pop("stats", UNSET))
 
-        def _parse_project(data: object) -> None | Project | Unset:
+        def _parse_aspect(data: object) -> Aspect | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -256,14 +256,14 @@ class BigPlanFindResultEntry:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                project_type_0 = Project.from_dict(data)
+                aspect_type_0 = Aspect.from_dict(data)
 
-                return project_type_0
+                return aspect_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | Project | Unset, data)
+            return cast(Aspect | None | Unset, data)
 
-        project = _parse_project(d.pop("project", UNSET))
+        aspect = _parse_aspect(d.pop("aspect", UNSET))
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -328,7 +328,7 @@ class BigPlanFindResultEntry:
             note=note,
             milestones=milestones,
             stats=stats,
-            project=project,
+            aspect=aspect,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,

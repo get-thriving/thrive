@@ -20,14 +20,14 @@ class HabitSummary:
         name (str): The habit name.
         is_key (bool):
         period (RecurringTaskPeriod): A period for a particular task.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
     """
 
     ref_id: str
     name: str
     is_key: bool
     period: RecurringTaskPeriod
-    project_ref_id: str
+    aspect_ref_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +39,7 @@ class HabitSummary:
 
         period = self.period.value
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -49,7 +49,7 @@ class HabitSummary:
                 "name": name,
                 "is_key": is_key,
                 "period": period,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
             }
         )
 
@@ -66,14 +66,14 @@ class HabitSummary:
 
         period = RecurringTaskPeriod(d.pop("period"))
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         habit_summary = cls(
             ref_id=ref_id,
             name=name,
             is_key=is_key,
             period=period,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
         )
 
         habit_summary.additional_properties = d

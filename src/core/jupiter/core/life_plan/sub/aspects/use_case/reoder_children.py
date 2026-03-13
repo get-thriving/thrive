@@ -1,11 +1,11 @@
-"""Reorder the children of a project."""
+"""Reorder the children of a aspect."""
 
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -17,44 +17,44 @@ from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
 
 
 @use_case_args
-class ProjectReorderChildrenArgs(UseCaseArgsBase):
-    """Project reorder children args."""
+class AspectReorderChildrenArgs(UseCaseArgsBase):
+    """Aspect reorder children args."""
 
     ref_id: EntityId
-    new_order_of_child_projects: list[EntityId]
+    new_order_of_child_aspects: list[EntityId]
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectReorderChildrenUseCase(
-    JupiterTransactionalLoggedInMutationUseCase[ProjectReorderChildrenArgs, None]
+class AspectReorderChildrenUseCase(
+    JupiterTransactionalLoggedInMutationUseCase[AspectReorderChildrenArgs, None]
 ):
-    """Reorder the children of a project."""
+    """Reorder the children of a aspect."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: ProjectReorderChildrenArgs,
+        args: AspectReorderChildrenArgs,
     ) -> None:
         """Execute the command's action."""
-        project = await uow.get_for(Project).load_by_id(args.ref_id)
-        child_projects = await uow.get_for(Project).find_all_generic(
-            parent_ref_id=project.life_plan.ref_id,
+        aspect = await uow.get_for(Aspect).load_by_id(args.ref_id)
+        child_aspects = await uow.get_for(Aspect).find_all_generic(
+            parent_ref_id=aspect.life_plan.ref_id,
             allow_archived=False,
-            parent_project_ref_id=args.ref_id,
+            parent_aspect_ref_id=args.ref_id,
         )
 
-        child_project_ref_ids = {child.ref_id for child in child_projects}
-        if set(args.new_order_of_child_projects) != child_project_ref_ids:
+        child_aspect_ref_ids = {child.ref_id for child in child_aspects}
+        if set(args.new_order_of_child_aspects) != child_aspect_ref_ids:
             raise InputValidationError(
-                "The new order of child projects does not match the actual child projects."
+                "The new order of child aspects does not match the actual child aspects."
             )
 
-        project = project.reorder_child_projects(
+        aspect = aspect.reorder_child_aspects(
             ctx=context.domain_context,
-            new_order=args.new_order_of_child_projects,
+            new_order=args.new_order_of_child_aspects,
         )
 
-        await uow.get_for(Project).save(project)
-        await progress_reporter.mark_updated(project)
+        await uow.get_for(Aspect).save(aspect)
+        await progress_reporter.mark_updated(aspect)

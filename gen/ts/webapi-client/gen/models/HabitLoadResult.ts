@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { ADate } from './ADate';
+import type { Aspect } from './Aspect';
 import type { Chapter } from './Chapter';
 import type { Contact } from './Contact';
 import type { Goal } from './Goal';
@@ -10,14 +11,13 @@ import type { Habit } from './Habit';
 import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
-import type { Project } from './Project';
 import type { Tag } from './Tag';
 /**
  * HabitLoadResult.
  */
 export type HabitLoadResult = {
     habit: Habit;
-    project: Project;
+    aspect: Aspect;
     chapter?: (Chapter | null);
     goal?: (Goal | null);
     inbox_tasks: Array<InboxTask>;

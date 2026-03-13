@@ -1,6 +1,7 @@
 """A use case for retrieving summaries about entities."""
 
 from jupiter.core.application.fast_info_repository import (
+    AspectSummary,
     BigPlanSummary,
     ChapterSummary,
     ChoreSummary,
@@ -12,7 +13,6 @@ from jupiter.core.application.fast_info_repository import (
     MetricSummary,
     MilestoneSummary,
     PersonSummary,
-    ProjectSummary,
     ScheduleStreamSummary,
     SmartListSummary,
     VacationSummary,
@@ -30,7 +30,7 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import ProjectRepository
+from jupiter.core.life_plan.sub.aspects.root import AspectRepository
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.core.metrics.collection import MetricCollection
@@ -65,7 +65,7 @@ class GetSummariesArgs(UseCaseArgsBase):
     include_active_visions: bool | None
     include_schedule_streams: bool | None
     include_vacations: bool | None
-    include_projects: bool | None
+    include_aspects: bool | None
     include_chapters: bool | None
     include_goals: bool | None
     include_milestones: bool | None
@@ -89,8 +89,8 @@ class GetSummariesResult(UseCaseResultBase):
     active_vision: Vision | None
     vacations: list[VacationSummary] | None
     schedule_streams: list[ScheduleStreamSummary] | None
-    root_project: ProjectSummary | None
-    projects: list[ProjectSummary] | None
+    root_aspect: AspectSummary | None
+    aspects: list[AspectSummary] | None
     chapters: list[ChapterSummary] | None
     goals: list[GoalSummary] | None
     milestones: list[MilestoneSummary] | None
@@ -190,21 +190,21 @@ class GetSummariesUseCase(
                 allow_archived=allow_archived,
             )
 
-        root_project_real = await uow.get(ProjectRepository).load_root_project(
+        root_aspect_real = await uow.get(AspectRepository).load_root_aspect(
             life_plan.ref_id
         )
-        root_project = ProjectSummary(
-            ref_id=root_project_real.ref_id,
-            parent_project_ref_id=root_project_real.parent_ref_id,
-            name=root_project_real.name,
-            order_of_child_projects=root_project_real.order_of_child_projects,
+        root_aspect = AspectSummary(
+            ref_id=root_aspect_real.ref_id,
+            parent_aspect_ref_id=root_aspect_real.parent_ref_id,
+            name=root_aspect_real.name,
+            order_of_child_aspects=root_aspect_real.order_of_child_aspects,
         )
-        projects = None
+        aspects = None
         if (
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.include_projects
+            and args.include_aspects
         ):
-            projects = await uow.get(FastInfoRepository).find_all_project_summaries(
+            aspects = await uow.get(FastInfoRepository).find_all_aspect_summaries(
                 parent_ref_id=life_plan.workspace.ref_id,
                 allow_archived=allow_archived,
             )
@@ -330,8 +330,8 @@ class GetSummariesUseCase(
             active_vision=active_vision,
             schedule_streams=schedule_streams,
             vacations=vacations,
-            root_project=root_project,
-            projects=projects,
+            root_aspect=root_aspect,
+            aspects=aspects,
             chapters=chapters,
             goals=goals,
             milestones=milestones,

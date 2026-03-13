@@ -22,7 +22,7 @@ class PRM:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         workspace_ref_id (str):
-        catch_up_project_ref_id (str): A generic entity id.
+        catch_up_aspect_ref_id (str): A generic entity id.
         max_circles_per_person (int):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -34,7 +34,7 @@ class PRM:
     created_time: str
     last_modified_time: str
     workspace_ref_id: str
-    catch_up_project_ref_id: str
+    catch_up_aspect_ref_id: str
     max_circles_per_person: int
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -53,7 +53,7 @@ class PRM:
 
         workspace_ref_id = self.workspace_ref_id
 
-        catch_up_project_ref_id = self.catch_up_project_ref_id
+        catch_up_aspect_ref_id = self.catch_up_aspect_ref_id
 
         max_circles_per_person = self.max_circles_per_person
 
@@ -79,7 +79,7 @@ class PRM:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "workspace_ref_id": workspace_ref_id,
-                "catch_up_project_ref_id": catch_up_project_ref_id,
+                "catch_up_aspect_ref_id": catch_up_aspect_ref_id,
                 "max_circles_per_person": max_circles_per_person,
             }
         )
@@ -105,7 +105,7 @@ class PRM:
 
         workspace_ref_id = d.pop("workspace_ref_id")
 
-        catch_up_project_ref_id = d.pop("catch_up_project_ref_id")
+        catch_up_aspect_ref_id = d.pop("catch_up_aspect_ref_id")
 
         max_circles_per_person = d.pop("max_circles_per_person")
 
@@ -134,7 +134,7 @@ class PRM:
             created_time=created_time,
             last_modified_time=last_modified_time,
             workspace_ref_id=workspace_ref_id,
-            catch_up_project_ref_id=catch_up_project_ref_id,
+            catch_up_aspect_ref_id=catch_up_aspect_ref_id,
             max_circles_per_person=max_circles_per_person,
             archival_reason=archival_reason,
             archived_time=archived_time,

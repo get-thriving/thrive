@@ -37,7 +37,7 @@ class GoalReassignChildGoalsService:
             child_goal = child_goal.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.do_nothing(),
+                aspect_ref_id=UpdateAction.do_nothing(),
                 parent_goal_ref_id=UpdateAction.change_to(new_parent_goal_ref_id),
             )
 

@@ -31,7 +31,7 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.entity_id import EntityId
@@ -63,7 +63,7 @@ class BigPlanFindArgs(UseCaseArgsBase):
     include_stats: bool | None
     filter_just_workable: bool | None
     filter_ref_ids: list[EntityId] | None
-    filter_project_ref_ids: list[EntityId] | None
+    filter_aspect_ref_ids: list[EntityId] | None
 
 
 @use_case_result_part
@@ -74,7 +74,7 @@ class BigPlanFindResultEntry(UseCaseResultBase):
     note: Note | None
     milestones: list[BigPlanMilestone] | None
     stats: BigPlanStats | None
-    project: Project | None
+    aspect: Aspect | None
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask] | None
@@ -113,7 +113,7 @@ class BigPlanFindUseCase(
 
         if (
             not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.filter_project_ref_ids is not None
+            and args.filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
@@ -127,12 +127,12 @@ class BigPlanFindUseCase(
             workspace.ref_id,
         )
         if include_life_plan:
-            projects = await uow.get_for(Project).find_all_generic(
+            aspects = await uow.get_for(Aspect).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=allow_archived,
-                ref_id=args.filter_project_ref_ids or NoFilter(),
+                ref_id=args.filter_aspect_ref_ids or NoFilter(),
             )
-            project_by_ref_id = {p.ref_id: p for p in projects}
+            aspect_by_ref_id = {p.ref_id: p for p in aspects}
             chapters = await uow.get_for(Chapter).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=allow_archived,
@@ -146,7 +146,7 @@ class BigPlanFindUseCase(
             )
             goal_by_ref_id = {g.ref_id: g for g in goals}
         else:
-            project_by_ref_id = None
+            aspect_by_ref_id = None
             chapter_by_ref_id = None
             goal_by_ref_id = None
 
@@ -162,7 +162,7 @@ class BigPlanFindUseCase(
             allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             status=filter_status,
-            project_ref_id=args.filter_project_ref_ids or NoFilter(),
+            aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
         )
 
         if include_stats:
@@ -257,9 +257,9 @@ class BigPlanFindUseCase(
             entries=[
                 BigPlanFindResultEntry(
                     big_plan=bp,
-                    project=(
-                        project_by_ref_id[bp.project_ref_id]
-                        if project_by_ref_id is not None
+                    aspect=(
+                        aspect_by_ref_id[bp.aspect_ref_id]
+                        if aspect_by_ref_id is not None
                         else None
                     ),
                     chapter=(

@@ -28,7 +28,7 @@ class TimePlanFindResultEntry:
         note (None | Note | Unset):
         planning_task (InboxTask | None | Unset):
         chapter_ref_ids (list[str] | None | Unset):
-        project_ref_ids (list[str] | None | Unset):
+        aspect_ref_ids (list[str] | None | Unset):
         goal_ref_ids (list[str] | None | Unset):
     """
 
@@ -37,7 +37,7 @@ class TimePlanFindResultEntry:
     note: None | Note | Unset = UNSET
     planning_task: InboxTask | None | Unset = UNSET
     chapter_ref_ids: list[str] | None | Unset = UNSET
-    project_ref_ids: list[str] | None | Unset = UNSET
+    aspect_ref_ids: list[str] | None | Unset = UNSET
     goal_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -77,14 +77,14 @@ class TimePlanFindResultEntry:
         else:
             chapter_ref_ids = self.chapter_ref_ids
 
-        project_ref_ids: list[str] | None | Unset
-        if isinstance(self.project_ref_ids, Unset):
-            project_ref_ids = UNSET
-        elif isinstance(self.project_ref_ids, list):
-            project_ref_ids = self.project_ref_ids
+        aspect_ref_ids: list[str] | None | Unset
+        if isinstance(self.aspect_ref_ids, Unset):
+            aspect_ref_ids = UNSET
+        elif isinstance(self.aspect_ref_ids, list):
+            aspect_ref_ids = self.aspect_ref_ids
 
         else:
-            project_ref_ids = self.project_ref_ids
+            aspect_ref_ids = self.aspect_ref_ids
 
         goal_ref_ids: list[str] | None | Unset
         if isinstance(self.goal_ref_ids, Unset):
@@ -109,8 +109,8 @@ class TimePlanFindResultEntry:
             field_dict["planning_task"] = planning_task
         if chapter_ref_ids is not UNSET:
             field_dict["chapter_ref_ids"] = chapter_ref_ids
-        if project_ref_ids is not UNSET:
-            field_dict["project_ref_ids"] = project_ref_ids
+        if aspect_ref_ids is not UNSET:
+            field_dict["aspect_ref_ids"] = aspect_ref_ids
         if goal_ref_ids is not UNSET:
             field_dict["goal_ref_ids"] = goal_ref_ids
 
@@ -184,7 +184,7 @@ class TimePlanFindResultEntry:
 
         chapter_ref_ids = _parse_chapter_ref_ids(d.pop("chapter_ref_ids", UNSET))
 
-        def _parse_project_ref_ids(data: object) -> list[str] | None | Unset:
+        def _parse_aspect_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -192,14 +192,14 @@ class TimePlanFindResultEntry:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                project_ref_ids_type_0 = cast(list[str], data)
+                aspect_ref_ids_type_0 = cast(list[str], data)
 
-                return project_ref_ids_type_0
+                return aspect_ref_ids_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[str] | None | Unset, data)
 
-        project_ref_ids = _parse_project_ref_ids(d.pop("project_ref_ids", UNSET))
+        aspect_ref_ids = _parse_aspect_ref_ids(d.pop("aspect_ref_ids", UNSET))
 
         def _parse_goal_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -224,7 +224,7 @@ class TimePlanFindResultEntry:
             note=note,
             planning_task=planning_task,
             chapter_ref_ids=chapter_ref_ids,
-            project_ref_ids=project_ref_ids,
+            aspect_ref_ids=aspect_ref_ids,
             goal_ref_ids=goal_ref_ids,
         )
 

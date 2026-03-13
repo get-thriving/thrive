@@ -11,6 +11,6 @@ import type { MilestoneName } from './MilestoneName';
 export type MilestoneCreateArgs = {
     name: MilestoneName;
     date: ADate;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
 };
 

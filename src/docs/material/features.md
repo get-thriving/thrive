@@ -36,7 +36,7 @@ are included when Life Plan is enabled:
 | Chapters | ✅ | ✅ | ✅ |
 | Goals | ✅ | ✅ | ✅ |
 | Milestones | ✅ | ✅ | ✅ |
-| Projects | ✅ | ✅ | ✅ |
+| Aspects | ✅ | ✅ | ✅ |
 | Life Weeks | ✅ | ✅ | ✅ |
 | Life Plan Eval Tasks | ✅ | ✅ | ❌ |
 

@@ -28,7 +28,7 @@ class Chapter(LeafEntity):
 
     life_plan: ParentLink
     name: ChapterName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     start_date: PartialDate
     end_date: PartialDate
 
@@ -47,7 +47,7 @@ class Chapter(LeafEntity):
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
         name: ChapterName,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         start_date: PartialDate,
         end_date: PartialDate,
     ) -> "Chapter":
@@ -72,7 +72,7 @@ class Chapter(LeafEntity):
             ctx,
             life_plan=ParentLink(life_plan_ref_id),
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             start_date=start_date,
             end_date=end_date,
         )
@@ -83,7 +83,7 @@ class Chapter(LeafEntity):
         ctx: MutationContext,
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         name: UpdateAction[ChapterName],
         start_date: UpdateAction[PartialDate],
         end_date: UpdateAction[PartialDate],
@@ -108,7 +108,7 @@ class Chapter(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             start_date=start_date.or_else(self.start_date),
             end_date=end_date.or_else(self.end_date),
         )

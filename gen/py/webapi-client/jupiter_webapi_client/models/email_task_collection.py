@@ -22,7 +22,7 @@ class EmailTaskCollection:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         push_integration_group_ref_id (str):
-        generation_project_ref_id (str): A generic entity id.
+        generation_aspect_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -33,7 +33,7 @@ class EmailTaskCollection:
     created_time: str
     last_modified_time: str
     push_integration_group_ref_id: str
-    generation_project_ref_id: str
+    generation_aspect_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -51,7 +51,7 @@ class EmailTaskCollection:
 
         push_integration_group_ref_id = self.push_integration_group_ref_id
 
-        generation_project_ref_id = self.generation_project_ref_id
+        generation_aspect_ref_id = self.generation_aspect_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -75,7 +75,7 @@ class EmailTaskCollection:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "push_integration_group_ref_id": push_integration_group_ref_id,
-                "generation_project_ref_id": generation_project_ref_id,
+                "generation_aspect_ref_id": generation_aspect_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -100,7 +100,7 @@ class EmailTaskCollection:
 
         push_integration_group_ref_id = d.pop("push_integration_group_ref_id")
 
-        generation_project_ref_id = d.pop("generation_project_ref_id")
+        generation_aspect_ref_id = d.pop("generation_aspect_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -127,7 +127,7 @@ class EmailTaskCollection:
             created_time=created_time,
             last_modified_time=last_modified_time,
             push_integration_group_ref_id=push_integration_group_ref_id,
-            generation_project_ref_id=generation_project_ref_id,
+            generation_aspect_ref_id=generation_aspect_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

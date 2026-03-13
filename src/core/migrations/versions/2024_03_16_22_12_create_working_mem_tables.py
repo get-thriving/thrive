@@ -28,10 +28,10 @@ def upgrade() -> None:
             archived_time DATETIME,
             workspace_ref_id INTEGER NOT NULL,
             generation_period VARCHAR(16) NOT NULL,
-            cleanup_project_ref_id INTEGER NOT NULL,
+            cleanup_aspect_ref_id INTEGER NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
-            FOREIGN KEY (cleanup_project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (cleanup_aspect_ref_id) REFERENCES aspect (ref_id)
             );
     """
     )

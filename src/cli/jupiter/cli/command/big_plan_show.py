@@ -4,11 +4,11 @@ from typing import cast
 
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
+    aspect_to_rich_text,
     big_plan_status_to_rich_text,
     due_date_to_rich_text,
     entity_id_to_rich_text,
     inbox_task_summary_to_rich_text,
-    project_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.big_plans.use_case.find import (
@@ -17,7 +17,7 @@ from jupiter.core.big_plans.use_case.find import (
 )
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -52,7 +52,7 @@ class BigPlanShow(
 
         for big_plan_entry in sorted_big_plans:
             big_plan = big_plan_entry.big_plan
-            project = cast(Project, big_plan_entry.project)
+            aspect = cast(Aspect, big_plan_entry.aspect)
             inbox_tasks = big_plan_entry.inbox_tasks
 
             big_plan_text = big_plan_status_to_rich_text(
@@ -75,11 +75,11 @@ class BigPlanShow(
                 big_plan_info_text.append(" ")
                 big_plan_info_text.append(due_date_to_rich_text(big_plan.due_date))
 
-            if project is not None and context.workspace.is_feature_available(
+            if aspect is not None and context.workspace.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 big_plan_info_text.append(" ")
-                big_plan_info_text.append(project_to_rich_text(project.name))
+                big_plan_info_text.append(aspect_to_rich_text(aspect.name))
 
             if big_plan.archived:
                 big_plan_text.stylize("gray62")

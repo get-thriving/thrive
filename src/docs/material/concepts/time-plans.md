@@ -30,7 +30,7 @@ There are a number of settings you can control:
   yearly and weekly plans.
 * Whether to generate time plans and planning tasks, just time plans, or
   nothing at all.
-* The eisenhower, difficulty, and [project](projects.md) to use for generating
+* The eisenhower, difficulty, and [aspect](aspects.md) to use for generating
   tasks.
 * How many days in advance to generate for each period.
 

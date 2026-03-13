@@ -33,8 +33,8 @@ from jupiter.core.inbox_tasks.root import (
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
@@ -46,12 +46,12 @@ from jupiter.core.report.period_result import (
     InboxTasksSummary,
     NestedResult,
     NestedResultPerSource,
+    PerAspectBreakdownItem,
     PerBigPlanBreakdownItem,
     PerChoreBreakdownItem,
     PerGoalBreakdownItem,
     PerHabitBreakdownItem,
     PerPeriodBreakdownItem,
-    PerProjectBreakdownItem,
     RecurringTaskWorkSummary,
     ReportPeriodResult,
     WorkableBigPlan,
@@ -86,7 +86,7 @@ class ReportService:
         period: RecurringTaskPeriod,
         sources: list[InboxTaskSource] | None = None,
         breakdowns: list[ReportBreakdown] | None = None,
-        filter_project_ref_ids: list[EntityId] | None = None,
+        filter_aspect_ref_ids: list[EntityId] | None = None,
         filter_big_plan_ref_ids: list[EntityId] | None = None,
         filter_habit_ref_ids: list[EntityId] | None = None,
         filter_chore_ref_ids: list[EntityId] | None = None,
@@ -99,7 +99,7 @@ class ReportService:
         """Compute the report."""
         if (
             not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and filter_project_ref_ids is not None
+            and filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
@@ -169,16 +169,14 @@ class ReportService:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            projects = await uow.get_for(Project).find_all_generic(
+            aspects = await uow.get_for(Aspect).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=True,
-                ref_id=filter_project_ref_ids or NoFilter(),
+                ref_id=filter_aspect_ref_ids or NoFilter(),
             )
-            filter_project_ref_ids = [p.ref_id for p in projects]
-            projects_by_ref_id: dict[EntityId, Project] = {
-                p.ref_id: p for p in projects
-            }
-            projects_by_name: dict[ProjectName, Project] = {p.name: p for p in projects}
+            filter_aspect_ref_ids = [p.ref_id for p in aspects]
+            aspects_by_ref_id: dict[EntityId, Aspect] = {p.ref_id: p for p in aspects}
+            aspects_by_name: dict[AspectName, Aspect] = {p.name: p for p in aspects}
 
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -232,7 +230,7 @@ class ReportService:
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 filter_sources=sources,
-                filter_project_ref_ids=filter_project_ref_ids,
+                filter_aspect_ref_ids=filter_aspect_ref_ids,
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )
@@ -293,7 +291,7 @@ class ReportService:
                 parent_ref_id=habit_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_habit_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             all_habits_by_ref_id: dict[EntityId, Habit] = {
                 rt.ref_id: rt for rt in all_habits
@@ -303,7 +301,7 @@ class ReportService:
                 parent_ref_id=chore_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_chore_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             all_chores_by_ref_id: dict[EntityId, Chore] = {
                 rt.ref_id: rt for rt in all_chores
@@ -320,7 +318,7 @@ class ReportService:
                 parent_ref_id=big_plan_collection.ref_id,
                 allow_archived=True,
                 ref_id=filter_big_plan_ref_ids or NoFilter(),
-                project_ref_id=filter_project_ref_ids or NoFilter(),
+                aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
             )
             big_plans_by_ref_id: dict[EntityId, BigPlan] = {
                 bp.ref_id: bp for bp in all_big_plans
@@ -347,16 +345,16 @@ class ReportService:
                 done_big_plans=[],
             )
 
-        # Build per project breakdown
+        # Build per aspect breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            # all_inbox_tasks.groupBy(it -> it.project.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-            per_project_inbox_tasks_summary = {
+            # all_inbox_tasks.groupBy(it -> it.aspect.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
+            per_aspect_inbox_tasks_summary = {
                 k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
                 for (k, v) in groupby(
                     sorted(
                         [
-                            (projects_by_ref_id[it.project_ref_id].name, it)
+                            (aspects_by_ref_id[it.aspect_ref_id].name, it)
                             for it in all_inbox_tasks
                         ],
                         key=itemgetter(0),
@@ -366,13 +364,13 @@ class ReportService:
             }
 
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                # all_big_plans.groupBy(it -> it.project..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-                per_project_big_plans_summary = {
+                # all_big_plans.groupBy(it -> it.aspect..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
+                per_aspect_big_plans_summary = {
                     k: self._run_report_for_big_plan(schedule, (vx[1] for vx in v))
                     for (k, v) in groupby(
                         sorted(
                             [
-                                (projects_by_ref_id[bp.project_ref_id].name, bp)
+                                (aspects_by_ref_id[bp.aspect_ref_id].name, bp)
                                 for bp in all_big_plans
                             ],
                             key=itemgetter(0),
@@ -381,22 +379,22 @@ class ReportService:
                     )
                 }
             else:
-                per_project_big_plans_summary = {}
+                per_aspect_big_plans_summary = {}
 
-            per_project_breakdown = [
-                PerProjectBreakdownItem(
-                    ref_id=projects_by_name[s].ref_id,
+            per_aspect_breakdown = [
+                PerAspectBreakdownItem(
+                    ref_id=aspects_by_name[s].ref_id,
                     name=s,
                     inbox_tasks_summary=v,
-                    big_plans_summary=per_project_big_plans_summary.get(
+                    big_plans_summary=per_aspect_big_plans_summary.get(
                         s,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (s, v) in per_project_inbox_tasks_summary.items()
+                for (s, v) in per_aspect_inbox_tasks_summary.items()
             ]
         else:
-            per_project_breakdown = []
+            per_aspect_breakdown = []
 
         # Build per goal breakdown
 
@@ -610,7 +608,7 @@ class ReportService:
             breakdown_period=breakdown_period,
             global_inbox_tasks_summary=global_inbox_tasks_summary,
             global_big_plans_summary=global_big_plans_summary,
-            per_project_breakdown=per_project_breakdown,
+            per_aspect_breakdown=per_aspect_breakdown,
             per_goal_breakdown=per_goal_breakdown,
             per_period_breakdown=per_period_breakdown,
             per_habit_breakdown=per_habit_breakdown,
@@ -789,8 +787,8 @@ class ReportService:
         working_cnt = 0
         not_done_cnt = 0
         done_cnt = 0
-        not_done_projects = []
-        done_projects = []
+        not_done_aspects = []
+        done_aspects = []
 
         for big_plan in big_plans:
             if schedule.contains_timestamp(big_plan.created_time):
@@ -801,7 +799,7 @@ class ReportService:
             ):
                 if big_plan.status == BigPlanStatus.DONE:
                     done_cnt += 1
-                    done_projects.append(
+                    done_aspects.append(
                         WorkableBigPlan(
                             ref_id=big_plan.ref_id,
                             name=big_plan.name,
@@ -810,7 +808,7 @@ class ReportService:
                     )
                 else:
                     not_done_cnt += 1
-                    not_done_projects.append(
+                    not_done_aspects.append(
                         WorkableBigPlan(
                             ref_id=big_plan.ref_id,
                             name=big_plan.name,
@@ -830,8 +828,8 @@ class ReportService:
             working_cnt=working_cnt,
             done_cnt=done_cnt,
             not_done_cnt=not_done_cnt,
-            not_done_big_plans=not_done_projects,
-            done_big_plans=done_projects,
+            not_done_big_plans=not_done_aspects,
+            done_big_plans=done_aspects,
         )
 
     @staticmethod

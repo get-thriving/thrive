@@ -462,7 +462,7 @@ class StubEntity(Entity):
 class TrunkEntity(Entity, abc.ABC):
     """An entity with children, which is also a singleton."""
 
-    # examples:  vacations collection, projects collection, smart list collection, integrations collection,
+    # examples:  vacations collection, aspects collection, smart list collection, integrations collection,
     # Zapier+Mail collection, etc
 
 
@@ -484,7 +484,7 @@ class BranchEntity(CrownEntity):
 class LeafEntity(CrownEntity):
     """An entity  with no children, sitting as a child of some other branch entity, at the top of the entity tree."""
 
-    # examples: inbox task, vacation, project, smart list item etc.
+    # examples: inbox task, vacation, aspect, smart list item etc.
 
 
 @dataclass(frozen=True)

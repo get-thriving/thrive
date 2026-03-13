@@ -1,4 +1,4 @@
-import type { ProjectSummary, Tag } from "@jupiter/webapi-client";
+import type { AspectSummary, Tag } from "@jupiter/webapi-client";
 import { DocsHelpSubject, TagNamespace } from "@jupiter/webapi-client";
 import AddIcon from "@mui/icons-material/Add";
 import type { LoaderFunctionArgs } from "@remix-run/node";
@@ -31,7 +31,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { sortMilestonesNaturally } from "@jupiter/core/life_plan/sub/milestones/root";
-import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -48,7 +48,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   const response = await apiClient.lifePlan.milestoneFind({
@@ -63,7 +63,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return json({
-    allProjects: summaryResponse.projects as ProjectSummary[],
+    allAspects: summaryResponse.aspects as AspectSummary[],
     entries: response.entries,
     allTags: allTags.tags,
   });
@@ -81,8 +81,8 @@ export default function Milestones() {
 
   const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
 
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects.map((project) => [project.ref_id, project]),
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects.map((aspect) => [aspect.ref_id, aspect]),
   );
 
   const entriesByRefId = new Map(
@@ -153,8 +153,8 @@ export default function Milestones() {
                 <EntityLink
                   to={`/app/workspace/life-plan/milestones/${milestone.ref_id}`}
                 >
-                  <ProjectTag
-                    project={allProjectsByRefId.get(milestone.project_ref_id)!}
+                  <AspectTag
+                    aspect={allAspectsByRefId.get(milestone.aspect_ref_id)!}
                   />
                   <EntityNameComponent name={milestone.name} />
                   {entriesByRefId

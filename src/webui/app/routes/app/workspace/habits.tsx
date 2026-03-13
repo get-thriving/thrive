@@ -7,8 +7,8 @@ import type {
   HabitFindResultEntry,
   HabitLoadResult,
   InboxTask,
-  Project,
-  ProjectSummary,
+  Aspect,
+  AspectSummary,
   Tag,
 } from "@jupiter/webapi-client";
 import {
@@ -56,10 +56,10 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import {
@@ -93,8 +93,8 @@ export const handle = {
 
 enum Grouping {
   FLAT = "flat",
-  BY_PROJECT = "by-project",
-  BY_PROJECT_AND_GOAL = "by-project-and-goal",
+  BY_ASPECT = "by-aspect",
+  BY_ASPECT_AND_GOAL = "by-aspect-and-goal",
 }
 
 enum PeriodBreakdown {
@@ -117,7 +117,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
@@ -172,7 +172,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     habits: response.entries,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags,
     allContacts: allContacts.contacts as Array<Contact>,
@@ -257,7 +257,7 @@ export default function Habits() {
   );
 
   const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(
-    lifePlanAvailable ? Grouping.BY_PROJECT_AND_GOAL : Grouping.FLAT,
+    lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
   );
   const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
     useState<PeriodBreakdown>(
@@ -298,9 +298,9 @@ export default function Habits() {
     return tagsOk && contactsOk;
   });
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
 
   const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
@@ -374,14 +374,14 @@ export default function Habits() {
               selectedGrouping,
               [
                 {
-                  value: Grouping.BY_PROJECT_AND_GOAL,
-                  text: "By Project & Goal",
+                  value: Grouping.BY_ASPECT_AND_GOAL,
+                  text: "By Aspect & Goal",
                   icon: <FlagIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: Grouping.BY_PROJECT,
-                  text: "By Project",
+                  value: Grouping.BY_ASPECT,
+                  text: "By Aspect",
                   icon: <FlareIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -495,31 +495,31 @@ export default function Habits() {
                     />
                   )}
 
-                {selectedGrouping === Grouping.BY_PROJECT && (
-                  <HabitsByProjectStack
+                {selectedGrouping === Grouping.BY_ASPECT && (
+                  <HabitsByAspectStack
                     habits={sortedHabits}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     entriesByRefId={entriesByRefId}
                     topLevelInfo={topLevelInfo}
                   />
                 )}
 
-                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-                  <HabitsByProjectAndGoalStack
+                {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                  <HabitsByAspectAndGoalStack
                     habits={sortedHabits}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     sortedGoals={sortedGoals}
                     allGoalsByRefId={allGoalsByRefId}
                     entriesByRefId={entriesByRefId}
@@ -594,31 +594,31 @@ export default function Habits() {
                   />
                 )}
 
-                {selectedGrouping === Grouping.BY_PROJECT && (
-                  <HabitsByProjectStack
+                {selectedGrouping === Grouping.BY_ASPECT && (
+                  <HabitsByAspectStack
                     habits={sortedHabits}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     entriesByRefId={entriesByRefId}
                     topLevelInfo={topLevelInfo}
                   />
                 )}
 
-                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-                  <HabitsByProjectAndGoalStack
+                {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                  <HabitsByAspectAndGoalStack
                     habits={sortedHabits}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     sortedGoals={sortedGoals}
                     allGoalsByRefId={allGoalsByRefId}
                     entriesByRefId={entriesByRefId}
@@ -650,7 +650,7 @@ interface HabitRowProps {
   habitRefId: string;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag: boolean;
+  showAspectTag: boolean;
   showGoalTag: boolean;
   showPeriodTag: boolean;
 }
@@ -670,11 +670,11 @@ function HabitRow(props: HabitRowProps) {
       <EntityLink to={`/app/workspace/habits/${habit.ref_id}`}>
         <IsKeyTag isKey={habit.is_key} />
         <EntityNameComponent name={habit.name} />
-        {props.showProjectTag &&
+        {props.showAspectTag &&
           isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
-          ) && <ProjectTag project={entry.project as Project} />}
+          ) && <AspectTag aspect={entry.aspect as Aspect} />}
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -732,13 +732,13 @@ interface HabitsFlatStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag?: boolean;
+  showAspectTag?: boolean;
   showGoalTag?: boolean;
   showPeriodTag?: boolean;
 }
 
 function HabitsFlatStack(props: HabitsFlatStackProps) {
-  const showProjectTag = props.showProjectTag ?? true;
+  const showAspectTag = props.showAspectTag ?? true;
   const showGoalTag = props.showGoalTag ?? true;
   const showPeriodTag = props.showPeriodTag ?? true;
 
@@ -750,7 +750,7 @@ function HabitsFlatStack(props: HabitsFlatStackProps) {
           habitRefId={habit.ref_id}
           entriesByRefId={props.entriesByRefId}
           topLevelInfo={props.topLevelInfo}
-          showProjectTag={showProjectTag}
+          showAspectTag={showAspectTag}
           showGoalTag={showGoalTag}
           showPeriodTag={showPeriodTag}
         />
@@ -759,52 +759,52 @@ function HabitsFlatStack(props: HabitsFlatStackProps) {
   );
 }
 
-interface HabitsByProjectStackProps {
+interface HabitsByAspectStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function HabitsByProjectStack(props: HabitsByProjectStackProps) {
+function HabitsByAspectStack(props: HabitsByAspectStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectHabits = props.habits.filter(
-          (h) => h.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectHabits = props.habits.filter(
+          (h) => h.aspect_ref_id === aspect.ref_id,
         );
-        if (projectHabits.length === 0 && !props.showEmptyGroups) {
+        if (aspectHabits.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
-            {projectHabits.length === 0 && <EmptyHabitsHint />}
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
+            {aspectHabits.length === 0 && <EmptyHabitsHint />}
 
-            {projectHabits.length > 0 &&
+            {aspectHabits.length > 0 &&
               props.isBigScreen &&
               props.selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD && (
                 <HabitsByPeriodsStack
-                  habits={projectHabits}
+                  habits={aspectHabits}
                   renderStack={(subset) => (
                     <HabitsFlatStack
                       habits={subset}
                       entriesByRefId={props.entriesByRefId}
                       topLevelInfo={props.topLevelInfo}
-                      showProjectTag={false}
+                      showAspectTag={false}
                       showGoalTag={true}
                       showPeriodTag={false}
                     />
@@ -812,15 +812,15 @@ function HabitsByProjectStack(props: HabitsByProjectStackProps) {
                 />
               )}
 
-            {projectHabits.length > 0 &&
+            {aspectHabits.length > 0 &&
               (!props.isBigScreen ||
                 props.selectedPeriodBreakdown !==
                   PeriodBreakdown.BY_PERIOD) && (
                 <HabitsFlatStack
-                  habits={projectHabits}
+                  habits={aspectHabits}
                   entriesByRefId={props.entriesByRefId}
                   topLevelInfo={props.topLevelInfo}
-                  showProjectTag={false}
+                  showAspectTag={false}
                   showGoalTag={true}
                   showPeriodTag={showPeriodTag}
                 />
@@ -832,50 +832,50 @@ function HabitsByProjectStack(props: HabitsByProjectStackProps) {
   );
 }
 
-interface HabitsByProjectAndGoalStackProps {
+interface HabitsByAspectAndGoalStackProps {
   habits: Array<HabitFindResultEntry["habit"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   sortedGoals: Array<GoalSummary>;
   allGoalsByRefId: Map<string, GoalSummary>;
   entriesByRefId: Map<string, HabitFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
+function HabitsByAspectAndGoalStack(props: HabitsByAspectAndGoalStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectHabits = props.habits.filter(
-          (h) => h.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectHabits = props.habits.filter(
+          (h) => h.aspect_ref_id === aspect.ref_id,
         );
-        if (projectHabits.length === 0 && !props.showEmptyGroups) {
+        if (aspectHabits.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
-        if (projectHabits.length === 0) {
+        if (aspectHabits.length === 0) {
           return (
-            <Fragment key={`project-${project.ref_id}`}>
-              <StandardDivider title={fullProjectName} size="large" />
+            <Fragment key={`aspect-${aspect.ref_id}`}>
+              <StandardDivider title={fullAspectName} size="large" />
               <EmptyHabitsHint />
             </Fragment>
           );
         }
 
-        const habitsByGoalRefId = new Map<string, typeof projectHabits>();
-        const noGoalHabits: typeof projectHabits = [];
-        for (const habit of projectHabits) {
+        const habitsByGoalRefId = new Map<string, typeof aspectHabits>();
+        const noGoalHabits: typeof aspectHabits = [];
+        for (const habit of aspectHabits) {
           const goalRefId = habit.goal_ref_id ?? null;
           if (!goalRefId) {
             noGoalHabits.push(habit);
@@ -886,8 +886,8 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
           habitsByGoalRefId.set(goalRefId, existing);
         }
 
-        const projectGoals = props.sortedGoals
-          .filter((g) => g.project_ref_id === project.ref_id)
+        const aspectGoals = props.sortedGoals
+          .filter((g) => g.aspect_ref_id === aspect.ref_id)
           .filter(
             (g) => props.showEmptyGroups || habitsByGoalRefId.has(g.ref_id),
           );
@@ -897,17 +897,17 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
           props.selectedPeriodBreakdown === PeriodBreakdown.BY_PERIOD;
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
 
-            {projectGoals.map((goal) => {
+            {aspectGoals.map((goal) => {
               const goalHabits = habitsByGoalRefId.get(goal.ref_id) ?? [];
               if (goalHabits.length === 0 && !props.showEmptyGroups) {
                 return null;
               }
 
               return (
-                <Fragment key={`project-${project.ref_id}-goal-${goal.ref_id}`}>
+                <Fragment key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}`}>
                   <StandardDivider
                     title={`🎯 ${fullGoalName(goal, props.allGoalsByRefId)}`}
                     size="medium"
@@ -921,7 +921,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                           habits={subset}
                           entriesByRefId={props.entriesByRefId}
                           topLevelInfo={props.topLevelInfo}
-                          showProjectTag={false}
+                          showAspectTag={false}
                           showGoalTag={false}
                           showPeriodTag={false}
                         />
@@ -933,7 +933,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                       habits={goalHabits}
                       entriesByRefId={props.entriesByRefId}
                       topLevelInfo={props.topLevelInfo}
-                      showProjectTag={false}
+                      showAspectTag={false}
                       showGoalTag={false}
                       showPeriodTag={showPeriodTag}
                     />
@@ -953,7 +953,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                         habits={subset}
                         entriesByRefId={props.entriesByRefId}
                         topLevelInfo={props.topLevelInfo}
-                        showProjectTag={false}
+                        showAspectTag={false}
                         showGoalTag={false}
                         showPeriodTag={false}
                       />
@@ -966,7 +966,7 @@ function HabitsByProjectAndGoalStack(props: HabitsByProjectAndGoalStackProps) {
                     habits={noGoalHabits}
                     entriesByRefId={props.entriesByRefId}
                     topLevelInfo={props.topLevelInfo}
-                    showProjectTag={false}
+                    showAspectTag={false}
                     showGoalTag={false}
                     showPeriodTag={showPeriodTag}
                   />

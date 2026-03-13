@@ -3,7 +3,7 @@ import {
   LifePlan,
   MilestoneSummary,
   NoteNamespace,
-  ProjectSummary,
+  AspectSummary,
   type Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -35,7 +35,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { PartialDateSelect } from "#/core/life_plan/component/partial-date-select";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
 import { useLoaderDataSafeForAnimation as useLoaderDataForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -50,7 +50,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string(),
+    aspect: z.string(),
     startDate: z.string(),
     endDate: z.string(),
   }),
@@ -75,7 +75,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_milestones: true,
   });
 
@@ -93,8 +93,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       lifePlan: summaryResponse.life_plan as LifePlan,
       allMilestones: summaryResponse.milestones as MilestoneSummary[],
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       chapter: response.chapter,
       tags: response.tags,
       note: response.note ?? null,
@@ -126,9 +126,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.project,
+            value: form.aspect,
           },
           start_date: {
             should_change: true,
@@ -250,13 +250,13 @@ export default function Chapter() {
         </Stack>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            defaultValue={loaderData.chapter.project_ref_id}
+            allAspects={loaderData.allAspects}
+            defaultValue={loaderData.chapter.aspect_ref_id}
           />
         </FormControl>
 

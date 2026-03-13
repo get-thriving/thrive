@@ -8,7 +8,7 @@ at most three of them, to signal belonging to friends, family, colleagues, etc.
 A person can have a defined _catch up period_. Some guideline for how often you
 should try tocatch up with them - a message, a call, or even a dinner would all
 count. Correspondinginbox tasks are [generated](../tasks-generation.md) in the PRM
-_catch up project_ much likewith [metrics collection](../metrics.md).
+_catch up aspect_ much likewith [metrics collection](../metrics.md).
 
 * There are a number of other optional parameters which control how the catch up
   inbox task is
@@ -22,7 +22,7 @@ yearly for each occasion, with markers in the calendar too.
 
 ## Person Settings
 
-In the web app you can change the global catch up project via the `Settings`
+In the web app you can change the global catch up aspect via the `Settings`
 button:
 
 ![Persons Settings](../../assets/persons-settings.png)

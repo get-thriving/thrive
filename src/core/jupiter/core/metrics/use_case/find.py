@@ -25,7 +25,7 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
@@ -74,7 +74,7 @@ class MetricFindResponseEntry(UseCaseResultBase):
 class MetricFindResult(UseCaseResultBase):
     """PersonFindResult object."""
 
-    collection_project: Project
+    collection_aspect: Aspect
     entries: list[MetricFindResponseEntry]
 
 
@@ -109,8 +109,8 @@ class MetricFindUseCase(
             filter_ref_ids=args.filter_ref_ids,
         )
 
-        collection_project = await uow.get_for(Project).load_by_id(
-            metric_collection.collection_project_ref_id,
+        collection_aspect = await uow.get_for(Aspect).load_by_id(
+            metric_collection.collection_aspect_ref_id,
         )
 
         all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
@@ -238,7 +238,7 @@ class MetricFindUseCase(
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
         return MetricFindResult(
-            collection_project=collection_project,
+            collection_aspect=collection_aspect,
             entries=[
                 MetricFindResponseEntry(
                     metric=m,

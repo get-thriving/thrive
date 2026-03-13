@@ -3,6 +3,7 @@
 import json
 
 from jupiter.core.application.fast_info_repository import (
+    AspectSummary,
     BigPlanSummary,
     ChapterSummary,
     ChoreSummary,
@@ -14,7 +15,6 @@ from jupiter.core.application.fast_info_repository import (
     MetricSummary,
     MilestoneSummary,
     PersonSummary,
-    ProjectSummary,
     ScheduleStreamSummary,
     SmartListSummary,
     VacationSummary,
@@ -27,7 +27,7 @@ from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
@@ -49,7 +49,7 @@ _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)
 _VACATION_NAME_DECODER = EntityNameDatabaseDecoder(VacationName)
 _INBOX_TASK_NAME_DECODER = EntityNameDatabaseDecoder(InboxTaskName)
-_PROJECT_NAME_DECODER = EntityNameDatabaseDecoder(ProjectName)
+_ASPECT_NAME_DECODER = EntityNameDatabaseDecoder(AspectName)
 _CHAPTER_NAME_DECODER = EntityNameDatabaseDecoder(ChapterName)
 _GOAL_NAME_DECODER = EntityNameDatabaseDecoder(GoalName)
 _MILESTONE_NAME_DECODER = EntityNameDatabaseDecoder(MilestoneName)
@@ -125,13 +125,13 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             for row in result
         ]
 
-    async def find_all_project_summaries(
+    async def find_all_aspect_summaries(
         self,
         parent_ref_id: EntityId,
         allow_archived: bool,
-    ) -> list[ProjectSummary]:
-        """Find all summaries about projects."""
-        query = """select ref_id, parent_project_ref_id, name, order_of_child_projects from project where life_plan_ref_id = :parent_ref_id"""
+    ) -> list[AspectSummary]:
+        """Find all summaries about aspects."""
+        query = """select ref_id, parent_aspect_ref_id, name, order_of_child_aspects from aspect where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (
@@ -144,17 +144,17 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             .all()
         )
         return [
-            ProjectSummary(
+            AspectSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
-                parent_project_ref_id=(
-                    _ENTITY_ID_DECODER.decode(str(row["parent_project_ref_id"]))
-                    if row["parent_project_ref_id"]
+                parent_aspect_ref_id=(
+                    _ENTITY_ID_DECODER.decode(str(row["parent_aspect_ref_id"]))
+                    if row["parent_aspect_ref_id"]
                     else None
                 ),
-                name=_PROJECT_NAME_DECODER.decode(row["name"]),
-                order_of_child_projects=[
+                name=_ASPECT_NAME_DECODER.decode(row["name"]),
+                order_of_child_aspects=[
                     _ENTITY_ID_DECODER.decode(idx)
-                    for idx in json.loads(row["order_of_child_projects"])
+                    for idx in json.loads(row["order_of_child_aspects"])
                 ],
             )
             for row in result
@@ -166,7 +166,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[ChapterSummary]:
         """Find all summaries about chapters."""
-        query = """select ref_id, name, start_date, end_date, project_ref_id from chapter where life_plan_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, start_date, end_date, aspect_ref_id from chapter where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
 
@@ -185,7 +185,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 name=_CHAPTER_NAME_DECODER.decode(row["name"]),
                 start_date=_PARTIAL_DATE_DECODER.decode(row["start_date"]),
                 end_date=_PARTIAL_DATE_DECODER.decode(row["end_date"]),
-                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
             )
             for row in result
         ]
@@ -196,7 +196,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[MilestoneSummary]:
         """Find all summaries about milestones."""
-        query = """select ref_id, name, date, project_ref_id from milestone where life_plan_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, date, aspect_ref_id from milestone where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
 
@@ -214,7 +214,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_MILESTONE_NAME_DECODER.decode(row["name"]),
                 date=_ADATE_DECODER.decode(row["date"]),
-                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
             )
             for row in result
         ]
@@ -225,7 +225,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[GoalSummary]:
         """Find all summaries about goals."""
-        query = """select ref_id, name, project_ref_id, parent_goal_ref_id from goal where life_plan_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, aspect_ref_id, parent_goal_ref_id from goal where life_plan_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
 
@@ -242,7 +242,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             GoalSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_GOAL_NAME_DECODER.decode(row["name"]),
-                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
                 parent_goal_ref_id=(
                     _ENTITY_ID_DECODER.decode(str(row["parent_goal_ref_id"]))
                     if row["parent_goal_ref_id"]
@@ -323,7 +323,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 name,
                 is_key,
                 json_extract(gen_params, '$.period') as period,
-                project_ref_id
+                aspect_ref_id
             from habit
             where habit_collection_ref_id = :parent_ref_id
         """
@@ -346,7 +346,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
                 period=self._realm_codec_registry.db_decode(
                     RecurringTaskPeriod, row["period"]
                 ),
-                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
             )
             for row in result
         ]
@@ -383,7 +383,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
         allow_archived: bool,
     ) -> list[BigPlanSummary]:
         """Find all summaries about big plans."""
-        query = """select ref_id, name, project_ref_id, chapter_ref_id, goal_ref_id, is_key from big_plan where big_plan_collection_ref_id = :parent_ref_id"""
+        query = """select ref_id, name, aspect_ref_id, chapter_ref_id, goal_ref_id, is_key from big_plan where big_plan_collection_ref_id = :parent_ref_id"""
         if not allow_archived:
             query += " and archived=0"
         result = (
@@ -399,7 +399,7 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             BigPlanSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_BIG_PLAN_NAME_DECODER.decode(row["name"]),
-                project_ref_id=_ENTITY_ID_DECODER.decode(str(row["project_ref_id"])),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
                 chapter_ref_id=_ENTITY_ID_DECODER.decode(str(row["chapter_ref_id"])),
                 goal_ref_id=_ENTITY_ID_DECODER.decode(str(row["goal_ref_id"])),
                 is_key=row["is_key"],

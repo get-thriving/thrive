@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect_summary import AspectSummary
     from ..models.big_plan_summary import BigPlanSummary
     from ..models.chapter_summary import ChapterSummary
     from ..models.chore_summary import ChoreSummary
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
     from ..models.metric_summary import MetricSummary
     from ..models.milestone_summary import MilestoneSummary
     from ..models.person_summary import PersonSummary
-    from ..models.project_summary import ProjectSummary
     from ..models.schedule_stream_summary import ScheduleStreamSummary
     from ..models.smart_list_summary import SmartListSummary
     from ..models.user import User
@@ -43,8 +43,8 @@ class GetSummariesResult:
         active_vision (None | Unset | Vision):
         vacations (list[VacationSummary] | None | Unset):
         schedule_streams (list[ScheduleStreamSummary] | None | Unset):
-        root_project (None | ProjectSummary | Unset):
-        projects (list[ProjectSummary] | None | Unset):
+        root_aspect (AspectSummary | None | Unset):
+        aspects (list[AspectSummary] | None | Unset):
         chapters (list[ChapterSummary] | None | Unset):
         goals (list[GoalSummary] | None | Unset):
         milestones (list[MilestoneSummary] | None | Unset):
@@ -64,8 +64,8 @@ class GetSummariesResult:
     active_vision: None | Unset | Vision = UNSET
     vacations: list[VacationSummary] | None | Unset = UNSET
     schedule_streams: list[ScheduleStreamSummary] | None | Unset = UNSET
-    root_project: None | ProjectSummary | Unset = UNSET
-    projects: list[ProjectSummary] | None | Unset = UNSET
+    root_aspect: AspectSummary | None | Unset = UNSET
+    aspects: list[AspectSummary] | None | Unset = UNSET
     chapters: list[ChapterSummary] | None | Unset = UNSET
     goals: list[GoalSummary] | None | Unset = UNSET
     milestones: list[MilestoneSummary] | None | Unset = UNSET
@@ -80,8 +80,8 @@ class GetSummariesResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.aspect_summary import AspectSummary
         from ..models.life_plan import LifePlan
-        from ..models.project_summary import ProjectSummary
         from ..models.user import User
         from ..models.vision import Vision
         from ..models.workspace import Workspace
@@ -142,25 +142,25 @@ class GetSummariesResult:
         else:
             schedule_streams = self.schedule_streams
 
-        root_project: dict[str, Any] | None | Unset
-        if isinstance(self.root_project, Unset):
-            root_project = UNSET
-        elif isinstance(self.root_project, ProjectSummary):
-            root_project = self.root_project.to_dict()
+        root_aspect: dict[str, Any] | None | Unset
+        if isinstance(self.root_aspect, Unset):
+            root_aspect = UNSET
+        elif isinstance(self.root_aspect, AspectSummary):
+            root_aspect = self.root_aspect.to_dict()
         else:
-            root_project = self.root_project
+            root_aspect = self.root_aspect
 
-        projects: list[dict[str, Any]] | None | Unset
-        if isinstance(self.projects, Unset):
-            projects = UNSET
-        elif isinstance(self.projects, list):
-            projects = []
-            for projects_type_0_item_data in self.projects:
-                projects_type_0_item = projects_type_0_item_data.to_dict()
-                projects.append(projects_type_0_item)
+        aspects: list[dict[str, Any]] | None | Unset
+        if isinstance(self.aspects, Unset):
+            aspects = UNSET
+        elif isinstance(self.aspects, list):
+            aspects = []
+            for aspects_type_0_item_data in self.aspects:
+                aspects_type_0_item = aspects_type_0_item_data.to_dict()
+                aspects.append(aspects_type_0_item)
 
         else:
-            projects = self.projects
+            aspects = self.aspects
 
         chapters: list[dict[str, Any]] | None | Unset
         if isinstance(self.chapters, Unset):
@@ -309,10 +309,10 @@ class GetSummariesResult:
             field_dict["vacations"] = vacations
         if schedule_streams is not UNSET:
             field_dict["schedule_streams"] = schedule_streams
-        if root_project is not UNSET:
-            field_dict["root_project"] = root_project
-        if projects is not UNSET:
-            field_dict["projects"] = projects
+        if root_aspect is not UNSET:
+            field_dict["root_aspect"] = root_aspect
+        if aspects is not UNSET:
+            field_dict["aspects"] = aspects
         if chapters is not UNSET:
             field_dict["chapters"] = chapters
         if goals is not UNSET:
@@ -340,6 +340,7 @@ class GetSummariesResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect_summary import AspectSummary
         from ..models.big_plan_summary import BigPlanSummary
         from ..models.chapter_summary import ChapterSummary
         from ..models.chore_summary import ChoreSummary
@@ -351,7 +352,6 @@ class GetSummariesResult:
         from ..models.metric_summary import MetricSummary
         from ..models.milestone_summary import MilestoneSummary
         from ..models.person_summary import PersonSummary
-        from ..models.project_summary import ProjectSummary
         from ..models.schedule_stream_summary import ScheduleStreamSummary
         from ..models.smart_list_summary import SmartListSummary
         from ..models.user import User
@@ -473,7 +473,7 @@ class GetSummariesResult:
 
         schedule_streams = _parse_schedule_streams(d.pop("schedule_streams", UNSET))
 
-        def _parse_root_project(data: object) -> None | ProjectSummary | Unset:
+        def _parse_root_aspect(data: object) -> AspectSummary | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -481,16 +481,16 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                root_project_type_0 = ProjectSummary.from_dict(data)
+                root_aspect_type_0 = AspectSummary.from_dict(data)
 
-                return root_project_type_0
+                return root_aspect_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(None | ProjectSummary | Unset, data)
+            return cast(AspectSummary | None | Unset, data)
 
-        root_project = _parse_root_project(d.pop("root_project", UNSET))
+        root_aspect = _parse_root_aspect(d.pop("root_aspect", UNSET))
 
-        def _parse_projects(data: object) -> list[ProjectSummary] | None | Unset:
+        def _parse_aspects(data: object) -> list[AspectSummary] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -498,19 +498,19 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                projects_type_0 = []
-                _projects_type_0 = data
-                for projects_type_0_item_data in _projects_type_0:
-                    projects_type_0_item = ProjectSummary.from_dict(projects_type_0_item_data)
+                aspects_type_0 = []
+                _aspects_type_0 = data
+                for aspects_type_0_item_data in _aspects_type_0:
+                    aspects_type_0_item = AspectSummary.from_dict(aspects_type_0_item_data)
 
-                    projects_type_0.append(projects_type_0_item)
+                    aspects_type_0.append(aspects_type_0_item)
 
-                return projects_type_0
+                return aspects_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[ProjectSummary] | None | Unset, data)
+            return cast(list[AspectSummary] | None | Unset, data)
 
-        projects = _parse_projects(d.pop("projects", UNSET))
+        aspects = _parse_aspects(d.pop("aspects", UNSET))
 
         def _parse_chapters(data: object) -> list[ChapterSummary] | None | Unset:
             if data is None:
@@ -761,8 +761,8 @@ class GetSummariesResult:
             active_vision=active_vision,
             vacations=vacations,
             schedule_streams=schedule_streams,
-            root_project=root_project,
-            projects=projects,
+            root_aspect=root_aspect,
+            aspects=aspects,
             chapters=chapters,
             goals=goals,
             milestones=milestones,

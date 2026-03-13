@@ -73,7 +73,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
@@ -101,7 +101,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      allAspects: summaryResponse.aspects || undefined,
       allGoals: (summaryResponse.goals as Array<GoalSummary>) || undefined,
       journal: result.journal,
       journalStats: result.journal_stats,
@@ -298,7 +298,7 @@ export default function Journal() {
       <SectionCard id="journal-report" title="Report">
         <ShowReport
           topLevelInfo={topLevelInfo}
-          allProjects={loaderData.allProjects || []}
+          allAspects={loaderData.allAspects || []}
           allGoals={loaderData.allGoals || []}
           report={loaderData.journalStats.report}
         />

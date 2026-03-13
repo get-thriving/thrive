@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Project } from './Project';
+import type { Aspect } from './Aspect';
 /**
  * MetricLoadSettings results.
  */
 export type MetricLoadSettingsResult = {
-    collection_project: Project;
+    collection_aspect: Aspect;
 };
 

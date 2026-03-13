@@ -282,7 +282,7 @@ def test_api_time_plan_change_time_config(
             "right_now": {"should_change": True, "value": "2024-09-02"},
             "period": {"should_change": True, "value": "monthly"},
             "chapter_ref_ids": {"should_change": False},
-            "project_ref_ids": {"should_change": False},
+            "aspect_ref_ids": {"should_change": False},
             "goal_ref_ids": {"should_change": False},
         },
         timeout=10,

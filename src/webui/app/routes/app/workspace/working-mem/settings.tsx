@@ -1,4 +1,4 @@
-import type { InboxTask, ProjectSummary } from "@jupiter/webapi-client";
+import type { InboxTask, AspectSummary } from "@jupiter/webapi-client";
 import {
   ApiError,
   InboxTaskStatus,
@@ -21,7 +21,7 @@ import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-bound
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -39,7 +39,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     generationPeriod: z.nativeEnum(RecurringTaskPeriod),
-    cleanupProject: z.string().optional(),
+    cleanupAspect: z.string().optional(),
   }),
 ]);
 
@@ -52,16 +52,16 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   const response = await apiClient.workingMem.workingMemLoadSettings({});
 
   return json({
     generationPeriod: response.generation_period,
-    cleanupProject: response.cleanup_project,
+    cleanupAspect: response.cleanup_aspect,
     cleanUpInboxTasks: response.clean_up_inbox_tasks,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
   });
 }
 
@@ -77,9 +77,9 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: form.generationPeriod,
           },
-          cleanup_project_ref_id: {
-            should_change: form.cleanupProject !== undefined,
-            value: form.cleanupProject,
+          cleanup_aspect_ref_id: {
+            should_change: form.cleanupAspect !== undefined,
+            value: form.cleanupAspect,
           },
         });
 
@@ -200,17 +200,17 @@ export default function WorkingMemSettings() {
           WorkspaceFeature.LIFE_PLAN,
         ) && (
           <FormControl fullWidth>
-            <ProjectSelect
-              name="cleanupProject"
-              label="Clean Up Project"
+            <AspectSelect
+              name="cleanupAspect"
+              label="Clean Up Aspect"
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
+              allAspects={loaderData.allAspects}
               disabled={false}
-              defaultValue={loaderData.cleanupProject.ref_id}
+              defaultValue={loaderData.cleanupAspect.ref_id}
             />
             <FieldError
               actionResult={actionData}
-              fieldName="/cleanup_project_ref_id"
+              fieldName="/cleanup_aspect_ref_id"
             />
           </FormControl>
         )}

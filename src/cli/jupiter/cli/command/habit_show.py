@@ -5,6 +5,7 @@ from typing import cast
 from jupiter.cli.command.rendering import (
     actionable_from_day_to_rich_text,
     actionable_from_month_to_rich_text,
+    aspect_to_rich_text,
     difficulty_to_rich_text,
     due_at_day_to_rich_text,
     due_at_month_to_rich_text,
@@ -12,14 +13,13 @@ from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     inbox_task_summary_to_rich_text,
     period_to_rich_text,
-    project_to_rich_text,
     skip_rule_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.use_case.find import HabitFindResult, HabitFindUseCase
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -50,7 +50,7 @@ class HabitShow(JupiterLoggedInReadonlyCommand[HabitFindUseCase, HabitFindResult
 
         for habit_entry in sorted_habits:
             habit = habit_entry.habit
-            project = cast(Project, habit_entry.project)
+            aspect = cast(Aspect, habit_entry.aspect)
             inbox_tasks = habit_entry.inbox_tasks
 
             habit_text = Text("")
@@ -104,11 +104,11 @@ class HabitShow(JupiterLoggedInReadonlyCommand[HabitFindUseCase, HabitFindResult
                     due_at_month_to_rich_text(habit.gen_params.due_at_month),
                 )
 
-            if project is not None and context.workspace.is_feature_available(
+            if aspect is not None and context.workspace.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 habit_info_text.append(" ")
-                habit_info_text.append(project_to_rich_text(project.name))
+                habit_info_text.append(aspect_to_rich_text(aspect.name))
 
             if habit.suspended:
                 habit_text.stylize("yellow")

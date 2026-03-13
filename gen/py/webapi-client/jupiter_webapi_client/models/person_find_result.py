@@ -7,8 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.person_find_result_entry import PersonFindResultEntry
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="PersonFindResult")
@@ -19,16 +19,16 @@ class PersonFindResult:
     """PersonFindResult.
 
     Attributes:
-        catch_up_project (Project): The project.
+        catch_up_aspect (Aspect): The aspect.
         entries (list[PersonFindResultEntry]):
     """
 
-    catch_up_project: Project
+    catch_up_aspect: Aspect
     entries: list[PersonFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        catch_up_project = self.catch_up_project.to_dict()
+        catch_up_aspect = self.catch_up_aspect.to_dict()
 
         entries = []
         for entries_item_data in self.entries:
@@ -39,7 +39,7 @@ class PersonFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "catch_up_project": catch_up_project,
+                "catch_up_aspect": catch_up_aspect,
                 "entries": entries,
             }
         )
@@ -48,11 +48,11 @@ class PersonFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.person_find_result_entry import PersonFindResultEntry
-        from ..models.project import Project
 
         d = dict(src_dict)
-        catch_up_project = Project.from_dict(d.pop("catch_up_project"))
+        catch_up_aspect = Aspect.from_dict(d.pop("catch_up_aspect"))
 
         entries = []
         _entries = d.pop("entries")
@@ -62,7 +62,7 @@ class PersonFindResult:
             entries.append(entries_item)
 
         person_find_result = cls(
-            catch_up_project=catch_up_project,
+            catch_up_aspect=catch_up_aspect,
             entries=entries,
         )
 

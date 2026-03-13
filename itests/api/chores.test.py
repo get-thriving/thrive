@@ -172,7 +172,7 @@ def test_api_chore_update(api_url: str, api_key: str, create_chore) -> None:
             "skip_rule": {"should_change": False},
             "start_at_date": {"should_change": False},
             "end_at_date": {"should_change": False},
-            "project_ref_id": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
         },

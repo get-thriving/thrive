@@ -1,133 +1,131 @@
-import type { Project, ProjectSummary } from "@jupiter/webapi-client";
+import type { Aspect, AspectSummary } from "@jupiter/webapi-client";
 
-export function isRootProject(project: Project | ProjectSummary): boolean {
-  return !project.parent_project_ref_id;
+export function isRootAspect(aspect: Aspect | AspectSummary): boolean {
+  return !aspect.parent_aspect_ref_id;
 }
 
-export function sortProjectsByTreeOrder(
-  projects: (Project | ProjectSummary)[],
-): ProjectSummary[] {
+export function sortAspectsByTreeOrder(
+  aspects: (Aspect | AspectSummary)[],
+): AspectSummary[] {
   // Essentially we do a DFS-ish traversal of the tree.
-  const projectsByParentRefId: Map<
-    string | null,
-    (Project | ProjectSummary)[]
-  > = new Map();
-  for (const project of projects) {
-    const parentRefId = project.parent_project_ref_id;
-    if (!projectsByParentRefId.has(parentRefId || null)) {
-      projectsByParentRefId.set(parentRefId || null, []);
+  const aspectsByParentRefId: Map<string | null, (Aspect | AspectSummary)[]> =
+    new Map();
+  for (const aspect of aspects) {
+    const parentRefId = aspect.parent_aspect_ref_id;
+    if (!aspectsByParentRefId.has(parentRefId || null)) {
+      aspectsByParentRefId.set(parentRefId || null, []);
     }
-    const children = projectsByParentRefId.get(parentRefId || null);
+    const children = aspectsByParentRefId.get(parentRefId || null);
     if (!children) {
       throw new Error("Invariant violation");
     }
-    children.push(project);
+    children.push(aspect);
   }
 
-  const finalProjects: ProjectSummary[] = [];
+  const finalAspects: AspectSummary[] = [];
 
-  const stack: (Project | ProjectSummary)[] =
-    projectsByParentRefId.get(null) || [];
+  const stack: (Aspect | AspectSummary)[] =
+    aspectsByParentRefId.get(null) || [];
   while (stack.length > 0) {
-    const currentProject = stack.pop();
-    if (currentProject === undefined) {
+    const currentAspect = stack.pop();
+    if (currentAspect === undefined) {
       throw new Error("Invariant violation");
     }
-    finalProjects.push(currentProject);
-    const children = projectsByParentRefId.get(currentProject.ref_id) || [];
-    const sortedChildren = sortProjectsByOrderWithinParent(
-      currentProject,
+    finalAspects.push(currentAspect);
+    const children = aspectsByParentRefId.get(currentAspect.ref_id) || [];
+    const sortedChildren = sortAspectsByOrderWithinParent(
+      currentAspect,
       children,
     );
     stack.push(...sortedChildren);
   }
 
-  return finalProjects;
+  return finalAspects;
 }
 
-function sortProjectsByOrderWithinParent(
-  parent: Project | ProjectSummary,
-  children: (Project | ProjectSummary)[],
-): ProjectSummary[] {
+function sortAspectsByOrderWithinParent(
+  parent: Aspect | AspectSummary,
+  children: (Aspect | AspectSummary)[],
+): AspectSummary[] {
   return [...children].sort((a, b) => {
-    const first = parent.order_of_child_projects.findIndex(
+    const first = parent.order_of_child_aspects.findIndex(
       (x) => x === a.ref_id,
     );
-    const second = parent.order_of_child_projects.findIndex(
+    const second = parent.order_of_child_aspects.findIndex(
       (x) => x === b.ref_id,
     );
     return second - first;
   });
 }
 
-export function computeProjectHierarchicalNameFromRoot(
-  project: Project | ProjectSummary,
-  allProjectsByRefId: Map<string, Project | ProjectSummary>,
+export function computeAspectHierarchicalNameFromRoot(
+  aspect: Aspect | AspectSummary,
+  allAspectsByRefId: Map<string, Aspect | AspectSummary>,
 ): string {
-  let name = project.name;
-  let currentProject = project;
-  while (currentProject.parent_project_ref_id) {
-    const currentProjectTmp = allProjectsByRefId.get(
-      currentProject.parent_project_ref_id,
+  let name = aspect.name;
+  let currentAspect = aspect;
+  while (currentAspect.parent_aspect_ref_id) {
+    const currentAspectTmp = allAspectsByRefId.get(
+      currentAspect.parent_aspect_ref_id,
     );
-    if (!currentProjectTmp) {
+    if (!currentAspectTmp) {
       throw new Error("Invariant violation");
     }
-    currentProject = currentProjectTmp;
-    name = `${currentProject.name} / ${name}`;
+    currentAspect = currentAspectTmp;
+    name = `${currentAspect.name} / ${name}`;
   }
   return name;
 }
 
-export function computeProjectDistanceFromRoot(
-  project: Project | ProjectSummary,
-  allProjectsByRefId: Map<string, Project | ProjectSummary>,
+export function computeAspectDistanceFromRoot(
+  aspect: Aspect | AspectSummary,
+  allAspectsByRefId: Map<string, Aspect | AspectSummary>,
 ): number {
   let distance = 0;
-  let currentProject = project;
-  while (currentProject.parent_project_ref_id) {
+  let currentAspect = aspect;
+  while (currentAspect.parent_aspect_ref_id) {
     distance++;
-    const currentProjectTmp = allProjectsByRefId.get(
-      currentProject.parent_project_ref_id,
+    const currentAspectTmp = allAspectsByRefId.get(
+      currentAspect.parent_aspect_ref_id,
     );
-    if (!currentProjectTmp) {
+    if (!currentAspectTmp) {
       throw new Error("Invariant violation");
     }
-    currentProject = currentProjectTmp;
+    currentAspect = currentAspectTmp;
   }
   return distance;
 }
 
-export function shiftProjectUpInListOfChildren(
-  project: Project | ProjectSummary,
-  orderOfChildProjects: string[],
+export function shiftAspectUpInListOfChildren(
+  aspect: Aspect | AspectSummary,
+  orderOfChildAspects: string[],
 ): string[] {
-  const index = orderOfChildProjects.findIndex((x) => x === project.ref_id);
+  const index = orderOfChildAspects.findIndex((x) => x === aspect.ref_id);
   if (index === -1) {
     throw new Error("Invariant violation");
   }
   if (index === 0) {
-    return orderOfChildProjects;
+    return orderOfChildAspects;
   }
-  const newOrderOfChildProjects = [...orderOfChildProjects];
-  newOrderOfChildProjects[index] = orderOfChildProjects[index - 1];
-  newOrderOfChildProjects[index - 1] = orderOfChildProjects[index];
-  return newOrderOfChildProjects;
+  const newOrderOfChildAspects = [...orderOfChildAspects];
+  newOrderOfChildAspects[index] = orderOfChildAspects[index - 1];
+  newOrderOfChildAspects[index - 1] = orderOfChildAspects[index];
+  return newOrderOfChildAspects;
 }
 
-export function shiftProjectDownInListOfChildren(
-  project: Project | ProjectSummary,
-  orderOfChildProjects: string[],
+export function shiftAspectDownInListOfChildren(
+  aspect: Aspect | AspectSummary,
+  orderOfChildAspects: string[],
 ): string[] {
-  const index = orderOfChildProjects.findIndex((x) => x === project.ref_id);
+  const index = orderOfChildAspects.findIndex((x) => x === aspect.ref_id);
   if (index === -1) {
     throw new Error("Invariant violation");
   }
-  if (index === orderOfChildProjects.length - 1) {
-    return orderOfChildProjects;
+  if (index === orderOfChildAspects.length - 1) {
+    return orderOfChildAspects;
   }
-  const newOrderOfChildProjects = [...orderOfChildProjects];
-  newOrderOfChildProjects[index] = orderOfChildProjects[index + 1];
-  newOrderOfChildProjects[index + 1] = orderOfChildProjects[index];
-  return newOrderOfChildProjects;
+  const newOrderOfChildAspects = [...orderOfChildAspects];
+  newOrderOfChildAspects[index] = orderOfChildAspects[index + 1];
+  newOrderOfChildAspects[index + 1] = orderOfChildAspects[index];
+  return newOrderOfChildAspects;
 }

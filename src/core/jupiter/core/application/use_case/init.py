@@ -43,8 +43,8 @@ from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.name import AspectName
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
@@ -118,7 +118,7 @@ class InitArgs(UseCaseArgsBase):
     user_birth_year: BirthYear
     workspace_name: WorkspaceName
     workspace_first_schedule_stream_name: ScheduleStreamName
-    workspace_root_project_name: ProjectName
+    workspace_root_aspect_name: AspectName
     workspace_feature_flags: set[WorkspaceFeature]
 
 
@@ -242,20 +242,20 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 new_life_plan,
             )
 
-            new_root_project = Project.new_root_project(
+            new_root_aspect = Aspect.new_root_aspect(
                 ctx=context.domain_context,
                 life_plan_ref_id=new_life_plan.ref_id,
-                name=args.workspace_root_project_name,
+                name=args.workspace_root_aspect_name,
             )
-            new_root_project = await uow.get_for(Project).create(
-                new_root_project,
+            new_root_aspect = await uow.get_for(Aspect).create(
+                new_root_aspect,
             )
 
             new_birth_milestone = Milestone.new_milestone(
                 ctx=context.domain_context,
                 life_plan_ref_id=new_life_plan.ref_id,
                 name=MilestoneName("Birth"),
-                project_ref_id=new_root_project.ref_id,
+                aspect_ref_id=new_root_aspect.ref_id,
                 date=new_life_plan.birthday_date,
             )
             await uow.get_for(Milestone).create(new_birth_milestone)
@@ -281,7 +281,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
-                    cleanup_project_ref_id=new_root_project.ref_id,
+                    cleanup_aspect_ref_id=new_root_aspect.ref_id,
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -312,7 +312,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     RecurringTaskPeriod.QUARTERLY: 14,
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                planning_task_project_ref_id=new_root_project.ref_id,
+                planning_task_aspect_ref_id=new_root_aspect.ref_id,
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
             )
@@ -380,7 +380,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 generation_in_advance_days={
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                writing_task_project_ref_id=new_root_project.ref_id,
+                writing_task_aspect_ref_id=new_root_aspect.ref_id,
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
             )
@@ -407,7 +407,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_metric_collection = MetricCollection.new_metric_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                collection_project_ref_id=new_root_project.ref_id,
+                collection_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_metric_collection = await uow.get_for(MetricCollection).create(
                 new_metric_collection,
@@ -416,7 +416,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                catch_up_project_ref_id=new_root_project.ref_id,
+                catch_up_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_prm = await uow.get_for(PRM).create(
                 new_prm,
@@ -453,7 +453,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_slack_task_collection = SlackTaskCollection.new_slack_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
+                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_slack_task_collection = await uow.get_for(SlackTaskCollection).create(
                 new_slack_task_collection,
@@ -462,7 +462,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_email_task_collection = EmailTaskCollection.new_email_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_project_ref_id=new_root_project.ref_id,
+                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,
@@ -519,7 +519,7 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
 
         async with self._ports.search_storage_engine.get_unit_of_work() as search_uow:
             await search_uow.search_repository.upsert(
-                new_workspace.ref_id, new_root_project
+                new_workspace.ref_id, new_root_aspect
             )
 
         auth_token = self._auth_token_stamper.stamp_for_general_long(new_user.ref_id)

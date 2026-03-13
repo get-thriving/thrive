@@ -374,7 +374,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
             topLevelInfo={topLevelInfo}
             timePlan={loaderData.otherHigherTimePlan}
             relativeToTimePlan={loaderData.mainTimePlan}
-            projects={[]}
+            aspects={[]}
             goals={[]}
             chapters={[]}
             showOptions={{
@@ -394,7 +394,7 @@ export default function TimePlanAddFromCurrentTimePlans() {
             topLevelInfo={topLevelInfo}
             timePlan={loaderData.otherPreviousTimePlan}
             relativeToTimePlan={loaderData.mainTimePlan}
-            projects={[]}
+            aspects={[]}
             goals={[]}
             chapters={[]}
             showOptions={{

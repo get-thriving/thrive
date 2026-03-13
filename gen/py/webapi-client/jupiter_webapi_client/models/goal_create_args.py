@@ -17,19 +17,19 @@ class GoalCreateArgs:
 
     Attributes:
         name (str): The name of a goal in a life plan.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         parent_goal_ref_id (None | str | Unset):
     """
 
     name: str
-    project_ref_id: str
+    aspect_ref_id: str
     parent_goal_ref_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         parent_goal_ref_id: None | str | Unset
         if isinstance(self.parent_goal_ref_id, Unset):
@@ -42,7 +42,7 @@ class GoalCreateArgs:
         field_dict.update(
             {
                 "name": name,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
             }
         )
         if parent_goal_ref_id is not UNSET:
@@ -55,7 +55,7 @@ class GoalCreateArgs:
         d = dict(src_dict)
         name = d.pop("name")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         def _parse_parent_goal_ref_id(data: object) -> None | str | Unset:
             if data is None:
@@ -68,7 +68,7 @@ class GoalCreateArgs:
 
         goal_create_args = cls(
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             parent_goal_ref_id=parent_goal_ref_id,
         )
 

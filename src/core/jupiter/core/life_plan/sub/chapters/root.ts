@@ -2,7 +2,7 @@ import type {
   ADate,
   ChapterSummary,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
@@ -15,17 +15,17 @@ export function sortChaptersNaturally<T extends ChapterSummary>(
   today: DateTime,
   chapters: T[],
   milestones: MilestoneSummary[],
-  sortedProjects: ProjectSummary[],
+  sortedAspects: AspectSummary[],
 ): T[] {
   return [...chapters].sort((a, b) => {
-    const projectA = sortedProjects.find(
-      (project) => project.ref_id === a.project_ref_id,
+    const aspectA = sortedAspects.find(
+      (aspect) => aspect.ref_id === a.aspect_ref_id,
     );
-    const projectB = sortedProjects.find(
-      (project) => project.ref_id === b.project_ref_id,
+    const aspectB = sortedAspects.find(
+      (aspect) => aspect.ref_id === b.aspect_ref_id,
     );
-    if (projectA && projectB) {
-      return projectA.name.localeCompare(projectB.name);
+    if (aspectA && aspectB) {
+      return aspectA.name.localeCompare(aspectB.name);
     }
 
     return (

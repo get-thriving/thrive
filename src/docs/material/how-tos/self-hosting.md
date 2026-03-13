@@ -33,7 +33,7 @@ Before we properly begin, there are a couple of steps you need to take: getting
 a VPS, getting and configuring a domain, getting a certificate for the domain, and
 installing Docker.
 
-If you're actively self hosting other projects, you probably have some setup
+If you're actively self hosting other aspects, you probably have some setup
 already done, so you just need to adapt the following to your situation. If
 you've self-hosted before, but not anymore, or even if you've never done it, the
 setup should be straight-forward.

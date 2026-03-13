@@ -4,13 +4,13 @@ import { Link } from "@remix-run/react";
 import { WidgetProps } from "#/core/home/component/common";
 
 export function LifeChaptersWidget(props: WidgetProps) {
-  const { activeChapters, projectsByRefId } = props;
+  const { activeChapters, aspectsByRefId } = props;
 
   const sortedChapters = activeChapters
     ? [...activeChapters].sort((a, b) => {
-        const projectNameA = projectsByRefId?.[a.project_ref_id]?.name ?? "";
-        const projectNameB = projectsByRefId?.[b.project_ref_id]?.name ?? "";
-        return projectNameA.localeCompare(projectNameB);
+        const aspectNameA = aspectsByRefId?.[a.aspect_ref_id]?.name ?? "";
+        const aspectNameB = aspectsByRefId?.[b.aspect_ref_id]?.name ?? "";
+        return aspectNameA.localeCompare(aspectNameB);
       })
     : undefined;
 
@@ -39,10 +39,9 @@ export function LifeChaptersWidget(props: WidgetProps) {
         <Box sx={{ flex: 1, overflow: "auto" }}>
           <Stack direction="column" gap={0.5}>
             {sortedChapters.map((chapter) => {
-              const projectName =
-                projectsByRefId?.[chapter.project_ref_id]?.name;
-              const label = projectName
-                ? `📖 ${projectName} / ${chapter.name}`
+              const aspectName = aspectsByRefId?.[chapter.aspect_ref_id]?.name;
+              const label = aspectName
+                ? `📖 ${aspectName} / ${chapter.name}`
                 : `📖 ${chapter.name}`;
               return (
                 <Chip

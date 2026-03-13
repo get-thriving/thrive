@@ -4,7 +4,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
   Contact,
 } from "@jupiter/webapi-client";
@@ -77,7 +77,7 @@ const UpdateFormInboxTaskSchema = {
   inboxTaskRefId: z.string(),
   inboxTaskSource: z.nativeEnum(InboxTaskSource),
   inboxTaskName: z.string(),
-  inboxTaskProject: z.string().optional(),
+  inboxTaskAspect: z.string().optional(),
   inboxTaskChapter: z.string().optional(),
   inboxTaskGoal: z.string().optional(),
   inboxTaskBigPlan: z.string().optional(),
@@ -93,7 +93,7 @@ const UpdateFormBigPlanSchema = {
   bigPlanRefId: z.string(),
   bigPlanName: z.string(),
   bigPlanStatus: z.nativeEnum(BigPlanStatus),
-  bigPlanProject: z.string().optional(),
+  bigPlanAspect: z.string().optional(),
   bigPlanChapter: z.string().optional(),
   bigPlanGoal: z.string().optional(),
   bigPlanIsKey: CheckboxAsString,
@@ -209,7 +209,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     include_chapters: true,
     include_goals: true,
     include_workspace: true,
-    include_projects: true,
+    include_aspects: true,
     include_big_plans: true,
   });
 
@@ -245,9 +245,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -363,9 +363,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.inboxTaskProject,
+            value: form.inboxTaskAspect,
           },
           chapter_ref_id: {
             should_change: form.inboxTaskChapter !== undefined,
@@ -473,7 +473,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.inboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          project_ref_id: { should_change: false },
+          aspect_ref_id: { should_change: false },
           chapter_ref_id: { should_change: false },
           goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
@@ -530,9 +530,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.bigPlanProject,
+            value: form.bigPlanAspect,
           },
           chapter_ref_id: {
             should_change: form.bigPlanChapter !== undefined,
@@ -835,8 +835,8 @@ export default function TimeEventInDayBlockViewOne() {
           namePrefix="inboxTask"
           topLevelInfo={topLevelInfo}
           lifePlan={loaderData.lifePlan}
-          rootProject={loaderData.rootProject}
-          allProjects={loaderData.allProjects}
+          rootAspect={loaderData.rootAspect}
+          allAspects={loaderData.allAspects}
           allChapters={loaderData.allChapters}
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
@@ -860,7 +860,7 @@ export default function TimeEventInDayBlockViewOne() {
           namePrefix="bigPlan"
           topLevelInfo={topLevelInfo}
           lifePlan={loaderData.lifePlan}
-          allProjects={loaderData.allProjects}
+          allAspects={loaderData.allAspects}
           allChapters={loaderData.allChapters}
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}

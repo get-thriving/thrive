@@ -9,12 +9,12 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
     from ..models.tag import Tag
     from ..models.time_plan import TimePlan
     from ..models.time_plan_activity import TimePlanActivity
@@ -34,7 +34,7 @@ class TimePlanLoadResult:
         note (Note): A note in the notebook.
         activities (list[TimePlanActivity]):
         chapters (list[Chapter]):
-        projects (list[Project]):
+        aspects (list[Aspect]):
         goals (list[Goal]):
         target_inbox_tasks (list[InboxTask] | None | Unset):
         target_big_plans (list[BigPlan] | None | Unset):
@@ -51,7 +51,7 @@ class TimePlanLoadResult:
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
-    projects: list[Project]
+    aspects: list[Aspect]
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None | Unset = UNSET
     target_big_plans: list[BigPlan] | None | Unset = UNSET
@@ -86,10 +86,10 @@ class TimePlanLoadResult:
             chapters_item = chapters_item_data.to_dict()
             chapters.append(chapters_item)
 
-        projects = []
-        for projects_item_data in self.projects:
-            projects_item = projects_item_data.to_dict()
-            projects.append(projects_item)
+        aspects = []
+        for aspects_item_data in self.aspects:
+            aspects_item = aspects_item_data.to_dict()
+            aspects.append(aspects_item)
 
         goals = []
         for goals_item_data in self.goals:
@@ -189,7 +189,7 @@ class TimePlanLoadResult:
                 "note": note,
                 "activities": activities,
                 "chapters": chapters,
-                "projects": projects,
+                "aspects": aspects,
                 "goals": goals,
             }
         )
@@ -214,12 +214,12 @@ class TimePlanLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
         from ..models.tag import Tag
         from ..models.time_plan import TimePlan
         from ..models.time_plan_activity import TimePlanActivity
@@ -251,12 +251,12 @@ class TimePlanLoadResult:
 
             chapters.append(chapters_item)
 
-        projects = []
-        _projects = d.pop("projects")
-        for projects_item_data in _projects:
-            projects_item = Project.from_dict(projects_item_data)
+        aspects = []
+        _aspects = d.pop("aspects")
+        for aspects_item_data in _aspects:
+            aspects_item = Aspect.from_dict(aspects_item_data)
 
-            projects.append(projects_item)
+            aspects.append(aspects_item)
 
         goals = []
         _goals = d.pop("goals")
@@ -440,7 +440,7 @@ class TimePlanLoadResult:
             note=note,
             activities=activities,
             chapters=chapters,
-            projects=projects,
+            aspects=aspects,
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,

@@ -2,7 +2,7 @@ import type {
   ChapterSummary,
   EntityId,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import type { DateTime } from "luxon";
@@ -16,7 +16,7 @@ interface ChapterSelectProps {
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  onlyForProject?: EntityId;
+  onlyForAspect?: EntityId;
   allChapters: ChapterSummary[];
   defaultValue?: EntityId | null;
   value?: EntityId | null;
@@ -24,7 +24,7 @@ interface ChapterSelectProps {
   birthday: DateTime;
   today: DateTime;
   allMilestones: MilestoneSummary[];
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
 }
 
 interface ChapterOption {
@@ -45,14 +45,14 @@ export function ChapterSelect(props: ChapterSelectProps) {
       props.today,
       props.allChapters,
       props.allMilestones,
-      props.allProjects,
+      props.allAspects,
     );
   }, [
     props.allChapters,
     props.birthday,
     props.today,
     props.allMilestones,
-    props.allProjects,
+    props.allAspects,
   ]);
 
   const allChaptersAsOptions: ChapterOption[] = useMemo(
@@ -60,15 +60,15 @@ export function ChapterSelect(props: ChapterSelectProps) {
       sortedChapters
         .filter(
           (chapter) =>
-            !props.onlyForProject ||
-            chapter.project_ref_id === props.onlyForProject,
+            !props.onlyForAspect ||
+            chapter.aspect_ref_id === props.onlyForAspect,
         )
         .map((chapter) => ({
           chapter_ref_id: chapter.ref_id,
           label: chapter.name,
           bigName: chapter.name,
         })),
-    [sortedChapters, props.onlyForProject],
+    [sortedChapters, props.onlyForAspect],
   );
 
   function selectedChapterToOption(): ChapterOption | null {

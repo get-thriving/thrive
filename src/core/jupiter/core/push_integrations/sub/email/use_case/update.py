@@ -124,7 +124,7 @@ class EmailTaskUpdateUseCase(
 
         generated_inbox_task = generated_inbox_task.update_link_to_email_task(
             ctx=context.domain_context,
-            project_ref_id=generated_inbox_task.project_ref_id,
+            aspect_ref_id=generated_inbox_task.aspect_ref_id,
             from_address=email_task.from_address,
             from_name=email_task.from_name,
             to_address=email_task.to_address,

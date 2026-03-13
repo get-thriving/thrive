@@ -27,7 +27,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
@@ -61,7 +61,7 @@ class HabitLoadResult(UseCaseResultBase):
     """HabitLoadResult."""
 
     habit: Habit
-    project: Project
+    aspect: Aspect
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask]
@@ -109,7 +109,7 @@ class HabitLoadUseCase(
         habit = await uow.get_for(Habit).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        project = await uow.get_for(Project).load_by_id(habit.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(habit.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(habit.chapter_ref_id)
             if habit.chapter_ref_id
@@ -196,7 +196,7 @@ class HabitLoadUseCase(
 
         return HabitLoadResult(
             habit=habit,
-            project=project,
+            aspect=aspect,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,

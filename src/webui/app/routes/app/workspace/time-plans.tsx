@@ -4,7 +4,7 @@ import {
   EntityId,
   GoalSummary,
   LifePlan,
-  ProjectSummary,
+  AspectSummary,
   RecurringTaskPeriod,
   Tag,
   TagNamespace,
@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
   });
@@ -82,7 +82,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     entries: response.entries,
     timePlanSettings: timePlanSettingsResponse,
     lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allChapters: summaryResponse.chapters as Array<ChapterSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags as Array<Tag>,
@@ -149,8 +149,8 @@ export default function TimePlans() {
     );
   });
 
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]) ?? [],
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]) ?? [],
   );
   const allChaptersByRefId = new Map(
     loaderData.allChapters?.map((c) => [c.ref_id, c]) ?? [],
@@ -159,14 +159,14 @@ export default function TimePlans() {
     loaderData.allGoals?.map((g) => [g.ref_id, g]) ?? [],
   );
 
-  const timePlanProjectRefIds = new Map<string, Array<EntityId>>();
+  const timePlanAspectRefIds = new Map<string, Array<EntityId>>();
   const timePlanGoalRefIds = new Map<string, Array<EntityId>>();
   const timePlanChapterRefIds = new Map<string, Array<EntityId>>();
 
   for (const entry of loaderData.entries) {
-    timePlanProjectRefIds.set(
+    timePlanAspectRefIds.set(
       entry.time_plan.ref_id,
-      entry.project_ref_ids ?? [],
+      entry.aspect_ref_ids ?? [],
     );
     timePlanGoalRefIds.set(entry.time_plan.ref_id, entry.goal_ref_ids ?? []);
     timePlanChapterRefIds.set(
@@ -311,10 +311,10 @@ export default function TimePlans() {
           topLevelInfo={topLevelInfo}
           timePlans={filteredSortedTimePlans}
           timePlanTagsByTimePlanRefId={timePlanTagsByTimePlanRefId}
-          timePlanProjectRefIds={timePlanProjectRefIds}
+          timePlanAspectRefIds={timePlanAspectRefIds}
           timePlanGoalRefIds={timePlanGoalRefIds}
           timePlanChapterRefIds={timePlanChapterRefIds}
-          allProjectsByRefId={allProjectsByRefId}
+          allAspectsByRefId={allAspectsByRefId}
           allGoalsByRefId={allGoalsByRefId}
           allChaptersByRefId={allChaptersByRefId}
         />
@@ -355,7 +355,7 @@ function CurrentTimePlan(props: CurrentTimePlanProps) {
       topLevelInfo={props.topLevelInfo}
       timePlan={props.timePlan}
       tags={props.tags}
-      projects={[]}
+      aspects={[]}
       goals={[]}
       chapters={[]}
       label={props.label}

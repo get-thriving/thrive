@@ -20,8 +20,8 @@ import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import {
   filterInboxTasksForDisplay,
@@ -60,7 +60,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   MERGED = "merged",
-  BY_PROJECT = "by-project",
+  BY_ASPECT = "by-aspect",
 }
 
 const ParamsSchema = z.object({
@@ -114,7 +114,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   try {
@@ -142,7 +142,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      allAspects: summaryResponse.aspects || undefined,
       timePlan: timePlanResult.time_plan,
       activities: timePlanResult.activities,
       inboxTasks: inboxTasksResult.entries,
@@ -273,9 +273,9 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     },
   );
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
 
   useEffect(() => {
@@ -328,8 +328,8 @@ export default function TimePlanAddFromCurrentInboxTasks() {
                     icon: <ViewListIcon />,
                   },
                   {
-                    value: View.BY_PROJECT,
-                    text: "By Project",
+                    value: View.BY_ASPECT,
+                    text: "By Aspect",
                     icon: <FlareIcon />,
                     gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
@@ -400,25 +400,25 @@ export default function TimePlanAddFromCurrentInboxTasks() {
           />
         )}
 
-        {selectedView === View.BY_PROJECT && (
+        {selectedView === View.BY_ASPECT && (
           <>
-            {sortedProjects.map((p) => {
+            {sortedAspects.map((p) => {
               const theInboxTasks = filteredInboxTasks.filter(
-                (se) => entriesByRefId[se.ref_id]?.project?.ref_id === p.ref_id,
+                (se) => entriesByRefId[se.ref_id]?.aspect?.ref_id === p.ref_id,
               );
 
               if (theInboxTasks.length === 0) {
                 return null;
               }
 
-              const fullProjectName = computeProjectHierarchicalNameFromRoot(
+              const fullAspectName = computeAspectHierarchicalNameFromRoot(
                 p,
-                allProjectsByRefId,
+                allAspectsByRefId,
               );
 
               return (
-                <Fragment key={`project-${p.ref_id}`}>
-                  <StandardDivider title={fullProjectName} size="large" />
+                <Fragment key={`aspect-${p.ref_id}`}>
+                  <StandardDivider title={fullAspectName} size="large" />
 
                   <InboxTaskList
                     topLevelInfo={topLevelInfo}
@@ -531,5 +531,5 @@ function inferDefaultSelectedView(workspace: Workspace) {
     return View.MERGED;
   }
 
-  return View.BY_PROJECT;
+  return View.BY_ASPECT;
 }

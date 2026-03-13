@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AspectName } from './AspectName';
 import type { Birthday } from './Birthday';
 import type { BirthYear } from './BirthYear';
 import type { EmailAddress } from './EmailAddress';
 import type { PasswordNewPlain } from './PasswordNewPlain';
-import type { ProjectName } from './ProjectName';
 import type { ScheduleStreamName } from './ScheduleStreamName';
 import type { Timezone } from './Timezone';
 import type { UserFeature } from './UserFeature';
@@ -27,7 +27,7 @@ export type InitArgs = {
     user_birth_year: BirthYear;
     workspace_name: WorkspaceName;
     workspace_first_schedule_stream_name: ScheduleStreamName;
-    workspace_root_project_name: ProjectName;
+    workspace_root_aspect_name: AspectName;
     workspace_feature_flags: Array<WorkspaceFeature>;
 };
 

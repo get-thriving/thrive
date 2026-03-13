@@ -56,7 +56,7 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.VACATIONS
         ):
             inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.PROJECTS and workspace.is_feature_available(
+        elif sync_target is SyncTarget.ASPECTS and workspace.is_feature_available(
             WorkspaceFeature.LIFE_PLAN
         ):
             inferred_sync_targets.append(sync_target)

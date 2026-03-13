@@ -61,7 +61,7 @@ class TimePlanGenForTimePlanUseCase(
             today=right_now,
             gen_targets=gen_targets,
             period=args.period,
-            filter_project_ref_ids=None,
+            filter_aspect_ref_ids=None,
             filter_habit_ref_ids=None,
             filter_chore_ref_ids=None,
             filter_metric_ref_ids=None,

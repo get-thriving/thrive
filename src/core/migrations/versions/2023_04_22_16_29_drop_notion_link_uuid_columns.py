@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     try:
-        with op.batch_alter_table("project") as batch_op:
+        with op.batch_alter_table("aspect") as batch_op:
             batch_op.drop_column("notion_link_uuid")
     except KeyError:
         pass

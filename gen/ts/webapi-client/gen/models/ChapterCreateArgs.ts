@@ -10,7 +10,7 @@ import type { PartialDate } from './PartialDate';
  */
 export type ChapterCreateArgs = {
     name: ChapterName;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     start_date: PartialDate;
     end_date: PartialDate;
 };

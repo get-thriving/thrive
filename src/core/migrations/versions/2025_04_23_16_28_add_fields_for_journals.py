@@ -33,7 +33,7 @@ def upgrade() -> None:
 
     op.execute(
         """
-        UPDATE journal_collection SET writing_task_project_ref_id=NULL where writing_task_project_ref_id is NULL
+        UPDATE journal_collection SET writing_task_aspect_ref_id=NULL where writing_task_aspect_ref_id is NULL
     """
     )
     op.execute(

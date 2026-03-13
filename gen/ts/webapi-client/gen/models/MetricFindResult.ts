@@ -2,13 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Aspect } from './Aspect';
 import type { MetricFindResponseEntry } from './MetricFindResponseEntry';
-import type { Project } from './Project';
 /**
  * PersonFindResult object.
  */
 export type MetricFindResult = {
-    collection_project: Project;
+    collection_aspect: Aspect;
     entries: Array<MetricFindResponseEntry>;
 };
 

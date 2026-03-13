@@ -6,8 +6,8 @@ This version introduces:
 
 * Added support for a "personal relationship manager" feature. Read more in the
   [PRM section](../concepts/prm/prm.md).
-* Entities which can be associated with a project, can now use a default
-  project.
+* Entities which can be associated with a aspect, can now use a default
+  aspect.
 * Faster local -> Notion updates
 * Moved some entities to SQLite storage from the text based one. It's faster and
   safer.

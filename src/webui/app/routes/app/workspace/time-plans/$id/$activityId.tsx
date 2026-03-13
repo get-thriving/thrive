@@ -1,7 +1,7 @@
 import type {
   InboxTask,
   LifePlan,
-  ProjectSummary,
+  AspectSummary,
   TimePlan,
   Tag,
   Contact,
@@ -83,7 +83,7 @@ const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
   targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
   targetInboxTaskName: z.string(),
-  targetInboxTaskProject: z.string().optional(),
+  targetInboxTaskAspect: z.string().optional(),
   targetInboxTaskChapter: z.string().optional(),
   targetInboxTaskGoal: z.string().optional(),
   targetInboxTaskBigPlan: z.string().optional(),
@@ -99,7 +99,7 @@ const UpdateFormTargetBigPlanSchema = {
   targetBigPlanRefId: z.string(),
   targetBigPlanName: z.string(),
   targetBigPlanStatus: z.nativeEnum(BigPlanStatus),
-  targetBigPlanProject: z.string().optional(),
+  targetBigPlanAspect: z.string().optional(),
   targetBigPlanChapter: z.string().optional(),
   targetBigPlanGoal: z.string().optional(),
   targetBigPlanIsKey: CheckboxAsString,
@@ -217,7 +217,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -256,9 +256,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects,
+      allAspects: summaryResponse.aspects,
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
@@ -388,9 +388,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.targetInboxTaskProject,
+            value: form.targetInboxTaskAspect,
           },
           chapter_ref_id: {
             should_change: form.targetInboxTaskChapter !== undefined,
@@ -499,7 +499,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.targetInboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          project_ref_id: { should_change: false },
+          aspect_ref_id: { should_change: false },
           chapter_ref_id: { should_change: false },
           goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
@@ -556,9 +556,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.targetBigPlanProject,
+            value: form.targetBigPlanAspect,
           },
           chapter_ref_id: {
             should_change: true,
@@ -791,8 +791,8 @@ export default function TimePlanActivity() {
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
             lifePlan={loaderData.lifePlan}
-            rootProject={loaderData.rootProject}
-            allProjects={loaderData.allProjects ?? []}
+            rootAspect={loaderData.rootAspect}
+            allAspects={loaderData.allAspects ?? []}
             allChapters={loaderData.allChapters ?? []}
             allGoals={loaderData.allGoals ?? []}
             allMilestones={loaderData.allMilestones ?? []}
@@ -868,7 +868,7 @@ export default function TimePlanActivity() {
               namePrefix="targetBigPlan"
               topLevelInfo={topLevelInfo}
               lifePlan={loaderData.lifePlan}
-              allProjects={loaderData.allProjects ?? []}
+              allAspects={loaderData.allAspects ?? []}
               allChapters={loaderData.allChapters ?? []}
               allGoals={loaderData.allGoals ?? []}
               allMilestones={loaderData.allMilestones ?? []}

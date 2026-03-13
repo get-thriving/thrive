@@ -13,6 +13,6 @@ export type HabitSummary = {
     name: HabitName;
     is_key: boolean;
     period: RecurringTaskPeriod;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
 };
 

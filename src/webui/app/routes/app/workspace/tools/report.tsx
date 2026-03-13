@@ -1,6 +1,6 @@
 import type {
   GoalSummary,
-  ProjectSummary,
+  AspectSummary,
   ReportResult,
 } from "@jupiter/webapi-client";
 import { ApiError, RecurringTaskPeriod } from "@jupiter/webapi-client";
@@ -73,7 +73,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
@@ -87,7 +87,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     return json(
       noErrorSomeData({
-        allProjects: summaryResponse.projects,
+        allAspects: summaryResponse.aspects,
         allGoals: summaryResponse.goals,
         report: reportResponse,
       }),
@@ -111,7 +111,7 @@ export default function Report() {
   const loaderData = useLoaderDataSafeForAnimation<
     typeof loader
   >() as ActionResult<{
-    allProjects: Array<ProjectSummary> | undefined;
+    allAspects: Array<AspectSummary> | undefined;
     allGoals: Array<GoalSummary> | undefined;
     report: ReportResult | undefined;
   }>;
@@ -238,11 +238,11 @@ export default function Report() {
       </SectionCard>
 
       {isNoErrorSomeData(loaderData) &&
-        loaderData.data.allProjects !== undefined &&
+        loaderData.data.allAspects !== undefined &&
         loaderData.data.report !== undefined && (
           <ShowReport
             topLevelInfo={topLevelInfo}
-            allProjects={loaderData.data.allProjects ?? []}
+            allAspects={loaderData.data.allAspects ?? []}
             allGoals={loaderData.data.allGoals ?? []}
             report={loaderData.data.report.period_result}
           />

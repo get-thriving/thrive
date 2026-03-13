@@ -31,11 +31,11 @@ As a quick reference, here is the list of the more important concepts:
 * _Life Plan_: the long-horizon planning layer. It contains:
   * _Vision_: a free-form document describing who you want to be and what you
     want your life to look like.
-  * _Project_: a larger and longer-term container for work. This is normally a
+  * _Aspect_: a larger and longer-term container for work. This is normally a
     neatly defined part such as "Personal" goals or "Career" goals, etc.
   * _Chapter_: a meaningful phase of your life, bounded by dates or milestones.
   * _Goal_: a long-term aspiration or outcome you are working towards, organised
-    in a hierarchy and linked to a project.
+    in a hierarchy and linked to a aspect.
   * _Milestone_: a named, dated event marking an important moment in your life.
   * _Life Weeks_: a visual grid showing every week of your life.
 * _Smart list_: a list of things! It can record books to read, visited

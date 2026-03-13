@@ -12,6 +12,6 @@ export type MilestoneSummary = {
     ref_id: EntityId;
     name: MilestoneName;
     date: ADate;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
 };
 

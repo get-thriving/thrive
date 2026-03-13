@@ -18,7 +18,7 @@ export enum NoteNamespace {
     DOC = 'doc',
     JOURNAL = 'journal',
     VACATION = 'vacation',
-    PROJECT = 'project',
+    ASPECT = 'aspect',
     CHAPTER = 'chapter',
     GOAL = 'goal',
     MILESTONE = 'milestone',

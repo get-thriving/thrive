@@ -138,7 +138,7 @@ def test_webui_schedule_view_with_events(
     event3_date = today.add(days=1) if today.day_of_week != 6 else today.add(days=-1)
     event3 = create_schedule_event_in_day(
         schedule_stream.ref_id,
-        "Project Review",
+        "Aspect Review",
         event3_date.to_iso8601_string(),
         "14:00",
         90,
@@ -155,4 +155,4 @@ def test_webui_schedule_view_with_events(
     ).to_contain_text(re.compile(r".*Lunch.*"))
     expect(
         page.locator(f"#schedule-event-in-day-block-{event3.ref_id}")
-    ).to_contain_text(re.compile(r".*Project.*"))
+    ).to_contain_text(re.compile(r".*Aspect.*"))

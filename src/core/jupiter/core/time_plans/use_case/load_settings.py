@@ -13,7 +13,7 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -42,7 +42,7 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    planning_task_project: Project | None
+    planning_task_aspect: Aspect | None
     planning_task_gen_params: RecurringTaskGenParams | None
     planning_tasks: list[InboxTask]
 
@@ -74,11 +74,11 @@ class TimePlanLoadSettingsUseCase(
         )
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            planning_task_project = await uow.get_for(Project).load_by_id(
-                time_plan_domain.planning_task_project_ref_id,
+            planning_task_aspect = await uow.get_for(Aspect).load_by_id(
+                time_plan_domain.planning_task_aspect_ref_id,
             )
         else:
-            planning_task_project = None
+            planning_task_aspect = None
 
         planning_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
@@ -90,7 +90,7 @@ class TimePlanLoadSettingsUseCase(
             periods=list(time_plan_domain.periods),
             generation_approach=time_plan_domain.generation_approach,
             generation_in_advance_days=time_plan_domain.generation_in_advance_days,
-            planning_task_project=planning_task_project,
+            planning_task_aspect=planning_task_aspect,
             planning_task_gen_params=time_plan_domain.planning_task_gen_params,
             planning_tasks=planning_tasks,
         )

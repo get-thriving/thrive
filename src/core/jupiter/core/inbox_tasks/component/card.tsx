@@ -56,7 +56,7 @@ import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
-import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
@@ -219,8 +219,8 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
               WorkspaceFeature.LIFE_PLAN,
             ) &&
               props.showOptions.showLifePlan &&
-              props.parent?.project && (
-                <ProjectTag project={props.parent?.project} />
+              props.parent?.aspect && (
+                <AspectTag aspect={props.parent?.aspect} />
               )}
             {isWorkspaceFeatureAvailable(
               props.topLevelInfo.workspace,

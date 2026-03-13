@@ -2,7 +2,7 @@ import {
   ApiError,
   GoalSummary,
   NoteNamespace,
-  ProjectSummary,
+  AspectSummary,
   type Tag,
   TagNamespace,
 } from "@jupiter/webapi-client";
@@ -27,7 +27,7 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { ProjectSelect } from "#/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "#/core/life_plan/sub/aspects/component/select";
 import { GoalSelect } from "#/core/life_plan/sub/goals/components/select";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 
@@ -43,7 +43,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string(),
+    aspect: z.string(),
     parent_goal: z.string().optional().default(""),
   }),
   z.object({
@@ -66,7 +66,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
@@ -82,8 +82,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       goal: response.goal,
       tags: response.tags,
@@ -116,9 +116,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.name,
           },
-          project_ref_id: {
+          aspect_ref_id: {
             should_change: true,
-            value: form.project,
+            value: form.aspect,
           },
           parent_goal_ref_id: {
             should_change: true,
@@ -182,8 +182,8 @@ export default function GoalView() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.goal.archived;
 
-  const [selectedProjectRefId, setSelectedProjectRefId] = useState<string>(
-    loaderData.goal.project_ref_id,
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState<string>(
+    loaderData.goal.aspect_ref_id,
   );
   const [selectedParentGoalRefId, setSelectedParentGoalRefId] = useState<
     string | null
@@ -248,19 +248,19 @@ export default function GoalView() {
         </Stack>
 
         <FormControl fullWidth>
-          <ProjectSelect
-            name="project"
-            label="Project"
+          <AspectSelect
+            name="aspect"
+            label="Aspect"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            allProjects={loaderData.allProjects}
-            value={selectedProjectRefId}
-            onChange={(newProjectRefId) => {
-              setSelectedProjectRefId(newProjectRefId);
+            allAspects={loaderData.allAspects}
+            value={selectedAspectRefId}
+            onChange={(newAspectRefId) => {
+              setSelectedAspectRefId(newAspectRefId);
               setSelectedParentGoalRefId(null);
             }}
           />
-          <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+          <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
         </FormControl>
 
         <FormControl fullWidth>
@@ -269,7 +269,7 @@ export default function GoalView() {
             label="Parent Goal"
             inputsEnabled={inputsEnabled}
             disabled={false}
-            onlyForProject={selectedProjectRefId}
+            onlyForAspect={selectedAspectRefId}
             allGoals={parentGoalCandidates}
             value={selectedParentGoalRefId}
             onChange={(newValue) => setSelectedParentGoalRefId(newValue)}

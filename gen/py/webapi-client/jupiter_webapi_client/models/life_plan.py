@@ -20,7 +20,7 @@ T = TypeVar("T", bound="LifePlan")
 
 @_attrs_define
 class LifePlan:
-    """A project collection.
+    """A aspect collection.
 
     Attributes:
         ref_id (str): A generic entity id.

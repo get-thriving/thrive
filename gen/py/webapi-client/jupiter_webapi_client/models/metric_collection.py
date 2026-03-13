@@ -22,7 +22,7 @@ class MetricCollection:
         created_time (str): A timestamp in the application.
         last_modified_time (str): A timestamp in the application.
         workspace_ref_id (str):
-        collection_project_ref_id (str): A generic entity id.
+        collection_aspect_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -33,7 +33,7 @@ class MetricCollection:
     created_time: str
     last_modified_time: str
     workspace_ref_id: str
-    collection_project_ref_id: str
+    collection_aspect_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -51,7 +51,7 @@ class MetricCollection:
 
         workspace_ref_id = self.workspace_ref_id
 
-        collection_project_ref_id = self.collection_project_ref_id
+        collection_aspect_ref_id = self.collection_aspect_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -75,7 +75,7 @@ class MetricCollection:
                 "created_time": created_time,
                 "last_modified_time": last_modified_time,
                 "workspace_ref_id": workspace_ref_id,
-                "collection_project_ref_id": collection_project_ref_id,
+                "collection_aspect_ref_id": collection_aspect_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -100,7 +100,7 @@ class MetricCollection:
 
         workspace_ref_id = d.pop("workspace_ref_id")
 
-        collection_project_ref_id = d.pop("collection_project_ref_id")
+        collection_aspect_ref_id = d.pop("collection_aspect_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -127,7 +127,7 @@ class MetricCollection:
             created_time=created_time,
             last_modified_time=last_modified_time,
             workspace_ref_id=workspace_ref_id,
-            collection_project_ref_id=collection_project_ref_id,
+            collection_aspect_ref_id=collection_aspect_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

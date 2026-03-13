@@ -7,8 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.metric_find_response_entry import MetricFindResponseEntry
-    from ..models.project import Project
 
 
 T = TypeVar("T", bound="MetricFindResult")
@@ -19,16 +19,16 @@ class MetricFindResult:
     """PersonFindResult object.
 
     Attributes:
-        collection_project (Project): The project.
+        collection_aspect (Aspect): The aspect.
         entries (list[MetricFindResponseEntry]):
     """
 
-    collection_project: Project
+    collection_aspect: Aspect
     entries: list[MetricFindResponseEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        collection_project = self.collection_project.to_dict()
+        collection_aspect = self.collection_aspect.to_dict()
 
         entries = []
         for entries_item_data in self.entries:
@@ -39,7 +39,7 @@ class MetricFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "collection_project": collection_project,
+                "collection_aspect": collection_aspect,
                 "entries": entries,
             }
         )
@@ -48,11 +48,11 @@ class MetricFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.metric_find_response_entry import MetricFindResponseEntry
-        from ..models.project import Project
 
         d = dict(src_dict)
-        collection_project = Project.from_dict(d.pop("collection_project"))
+        collection_aspect = Aspect.from_dict(d.pop("collection_aspect"))
 
         entries = []
         _entries = d.pop("entries")
@@ -62,7 +62,7 @@ class MetricFindResult:
             entries.append(entries_item)
 
         metric_find_result = cls(
-            collection_project=collection_project,
+            collection_aspect=collection_aspect,
             entries=entries,
         )
 

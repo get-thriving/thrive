@@ -1,7 +1,7 @@
 import type {
   EntityId,
   HabitSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
@@ -9,11 +9,11 @@ import { useEffect, useMemo, useState } from "react";
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import {
   sortHabitSummariesByPeriod,
-  sortHabitSummariesByProjectAndPeriod,
+  sortHabitSummariesByAspectAndPeriod,
 } from "#/core/habits/root";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import { PeriodTag } from "#/core/common/component/period-tag";
 
@@ -22,8 +22,8 @@ interface HabitSelectSingleProps {
   label: string;
   allowNone?: boolean;
   allHabits: HabitSummary[];
-  groupByProjects?: boolean;
-  allProjects?: ProjectSummary[];
+  groupByAspects?: boolean;
+  allAspects?: AspectSummary[];
   defaultValue?: EntityId;
   value?: EntityId;
   onChange?: (value: EntityId | undefined) => void;
@@ -35,16 +35,16 @@ export function HabitSelectSingle(props: HabitSelectSingleProps) {
     [props.allHabits],
   );
 
-  const sortedProjects =
-    props.groupByProjects && props.allProjects
-      ? sortProjectsByTreeOrder(props.allProjects)
+  const sortedAspects =
+    props.groupByAspects && props.allAspects
+      ? sortAspectsByTreeOrder(props.allAspects)
       : undefined;
-  const allProjectsByRefId =
-    props.groupByProjects && props.allProjects
-      ? new Map(props.allProjects.map((p) => [p.ref_id, p]))
+  const allAspectsByRefId =
+    props.groupByAspects && props.allAspects
+      ? new Map(props.allAspects.map((p) => [p.ref_id, p]))
       : undefined;
-  const sortedHabits = props.groupByProjects
-    ? sortHabitSummariesByProjectAndPeriod(props.allHabits, sortedProjects!)
+  const sortedHabits = props.groupByAspects
+    ? sortHabitSummariesByAspectAndPeriod(props.allHabits, sortedAspects!)
     : sortHabitSummariesByPeriod(props.allHabits);
 
   const allHabitsAsOptions = sortedHabits.map(habitToOption);
@@ -70,11 +70,11 @@ export function HabitSelectSingle(props: HabitSelectSingleProps) {
         autoHighlight
         disableClearable={!props.allowNone}
         groupBy={
-          props.groupByProjects && allProjectsByRefId
+          props.groupByAspects && allAspectsByRefId
             ? (option) =>
-                computeProjectHierarchicalNameFromRoot(
-                  allProjectsByRefId.get(option.project_ref_id)!,
-                  allProjectsByRefId,
+                computeAspectHierarchicalNameFromRoot(
+                  allAspectsByRefId.get(option.aspect_ref_id)!,
+                  allAspectsByRefId,
                 )
             : undefined
         }
@@ -136,6 +136,6 @@ function habitToOption(habit: HabitSummary) {
     habit_ref_id: habit.ref_id,
     label: habit.name,
     period: habit.period,
-    project_ref_id: habit.project_ref_id,
+    aspect_ref_id: habit.aspect_ref_id,
   };
 }

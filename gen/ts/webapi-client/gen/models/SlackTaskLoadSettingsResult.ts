@@ -2,11 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Project } from './Project';
+import type { Aspect } from './Aspect';
 /**
  * SlackTaskLoadSettings results.
  */
 export type SlackTaskLoadSettingsResult = {
-    generation_project: Project;
+    generation_aspect: Aspect;
 };
 

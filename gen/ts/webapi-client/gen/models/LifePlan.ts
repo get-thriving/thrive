@@ -10,7 +10,7 @@ import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 import type { Timestamp } from './Timestamp';
 /**
- * A project collection.
+ * A aspect collection.
  */
 export type LifePlan = {
     ref_id: EntityId;

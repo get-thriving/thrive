@@ -31,13 +31,13 @@ serves tovisually distinguish the metric.
 Metrics can also have a _unit_. It adds extra info about what exactly you're
 recording - weight,currency, the count of an event, etc.
 
-Metrics can have a _collection project_ and _collection period_. It makes sense
+Metrics can have a _collection aspect_ and _collection period_. It makes sense
 to record (or collect)the value of a metric regularly. Think of your weight or
 the number of kilometers run in a week. Toallow for this, special collection
 inbox tasks can be generated for the metric, just like a[habit](habits.md). The
 collection period will determine how often the taskis generated (weekly,
 monthly, etc.). The inbox tasks will go to the configured
-[project](./projects.md)if it is present, or to the [default workspace
+[aspect](./aspects.md)if it is present, or to the [default workspace
 one](./workspaces.md) if it is missing. If noneare present, generation will
 fail. There's also all the other collection parameters (actionabledates, due
 dates, Eisenhower statuses, etc).
@@ -52,7 +52,7 @@ might want to add.
 
 ## Metrics Settings
 
-In the web app you can change the global collection project via the `Settings`
+In the web app you can change the global collection aspect via the `Settings`
 button:
 
 ![Metrics Settings](../assets/metrics-settings.png)

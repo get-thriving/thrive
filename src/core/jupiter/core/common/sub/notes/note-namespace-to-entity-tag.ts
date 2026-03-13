@@ -28,8 +28,8 @@ export function noteNamespaceToEntityTag(
       return NamedEntityTag.JOURNAL;
     case NoteNamespace.VACATION:
       return NamedEntityTag.VACATION;
-    case NoteNamespace.PROJECT:
-      return NamedEntityTag.PROJECT;
+    case NoteNamespace.ASPECT:
+      return NamedEntityTag.ASPECT;
     case NoteNamespace.CHAPTER:
       return NamedEntityTag.CHAPTER;
     case NoteNamespace.GOAL:

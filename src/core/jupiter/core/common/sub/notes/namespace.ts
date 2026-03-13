@@ -26,8 +26,8 @@ export function noteNamespaceName(namespace: NoteNamespace): string {
       return "Journal";
     case NoteNamespace.VACATION:
       return "Vacation";
-    case NoteNamespace.PROJECT:
-      return "Project";
+    case NoteNamespace.ASPECT:
+      return "Aspect";
     case NoteNamespace.CHAPTER:
       return "Chapter";
     case NoteNamespace.GOAL:

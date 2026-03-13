@@ -56,7 +56,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { ProjectMultiSelect } from "@jupiter/core/life_plan/sub/aspects/component/multi-select";
+import { AspectMultiSelect } from "@jupiter/core/life_plan/sub/aspects/component/multi-select";
 import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -93,7 +93,7 @@ const GenFormSchema = z.object({
   today: z.optional(z.string()),
   gen_targets: selectZod(z.nativeEnum(SyncTarget)),
   period: selectZod(z.nativeEnum(RecurringTaskPeriod)),
-  filter_project_ref_ids: selectZod(z.string()),
+  filter_aspect_ref_ids: selectZod(z.string()),
   filter_habit_ref_ids: selectZod(z.string()),
   filter_chore_ref_ids: selectZod(z.string()),
   filter_metric_ref_ids: selectZod(z.string()),
@@ -107,7 +107,7 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summariesResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_habits: true,
     include_chores: true,
     include_metrics: true,
@@ -136,8 +136,8 @@ export async function action({ request }: ActionFunctionArgs) {
           : undefined,
       gen_targets: fixSelectOutputToEnum<SyncTarget>(form.gen_targets),
       period: fixSelectOutputToEnum<RecurringTaskPeriod>(form.period),
-      filter_project_ref_ids: fixSelectOutputEntityId(
-        form.filter_project_ref_ids,
+      filter_aspect_ref_ids: fixSelectOutputEntityId(
+        form.filter_aspect_ref_ids,
       ),
       filter_habit_ref_ids: fixSelectOutputEntityId(form.filter_habit_ref_ids),
       filter_chore_ref_ids: fixSelectOutputEntityId(form.filter_chore_ref_ids),
@@ -298,16 +298,16 @@ export default function Gen() {
                 WorkspaceFeature.LIFE_PLAN,
               ) && (
                 <FormControl fullWidth>
-                  <ProjectMultiSelect
-                    name="filter_project_ref_ids"
-                    label="Generate Only For Projects"
+                  <AspectMultiSelect
+                    name="filter_aspect_ref_ids"
+                    label="Generate Only For Aspects"
                     inputsEnabled={inputsEnabled}
                     disabled={!inputsEnabled}
-                    allProjects={loaderData.summaries.projects ?? []}
+                    allAspects={loaderData.summaries.aspects ?? []}
                   />
                   <FieldError
                     actionResult={actionData}
-                    fieldName="/filter_project_ref_ids"
+                    fieldName="/filter_aspect_ref_ids"
                   />
                 </FormControl>
               )}
@@ -496,12 +496,12 @@ export default function Gen() {
                 {!entry.period && <SlimChip label={"All"} />}
               </GenTargetsSection>
               <GenTargetsSection>
-                Filter projects ref ids:{" "}
-                {entry.filter_project_ref_ids &&
-                  entry.filter_project_ref_ids.map((refId) => (
+                Filter aspects ref ids:{" "}
+                {entry.filter_aspect_ref_ids &&
+                  entry.filter_aspect_ref_ids.map((refId) => (
                     <Fragment key={refId}>{refId}</Fragment>
                   ))}
-                {!entry.filter_project_ref_ids && <SlimChip label={"All"} />}
+                {!entry.filter_aspect_ref_ids && <SlimChip label={"All"} />}
               </GenTargetsSection>
               <GenTargetsSection>
                 Filter habits ref ids:{" "}

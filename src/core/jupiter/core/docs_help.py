@@ -21,7 +21,7 @@ class DocsHelpSubject(EnumValue):
     DOCS = "docs"
     VACATIONS = "vacations"
     LIFE_PLAN = "life-plan"
-    PROJECTS = "life-plan/projects"
+    ASPECTS = "life-plan/aspects"
     CHAPTERS = "life-plan/chapters"
     GOALS = "life-plan/goals"
     MILESTONES = "life-plan/milestones"

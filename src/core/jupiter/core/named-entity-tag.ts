@@ -46,8 +46,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Doc";
     case NamedEntityTag.VACATION:
       return "Vacation";
-    case NamedEntityTag.PROJECT:
-      return "Project";
+    case NamedEntityTag.ASPECT:
+      return "Aspect";
     case NamedEntityTag.SMART_LIST:
       return "Smart List";
     case NamedEntityTag.SMART_LIST_ITEM:

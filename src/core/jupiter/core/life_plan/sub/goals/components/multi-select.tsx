@@ -17,7 +17,7 @@ interface GoalMultiSelectProps {
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  onlyForProject?: EntityId;
+  onlyForAspect?: EntityId;
   allGoals: GoalSummary[];
   defaultValue?: EntityId[];
   value?: EntityId[];
@@ -42,15 +42,14 @@ export function GoalMultiSelect(props: GoalMultiSelectProps) {
       sortedGoals
         .filter(
           (goal) =>
-            !props.onlyForProject ||
-            goal.project_ref_id === props.onlyForProject,
+            !props.onlyForAspect || goal.aspect_ref_id === props.onlyForAspect,
         )
         .map((goal) => ({
           goal_ref_id: goal.ref_id,
           label: String(goal.name),
           bigName: String(goal.name),
         })),
-    [sortedGoals, props.onlyForProject],
+    [sortedGoals, props.onlyForAspect],
   );
 
   function selectedGoalsToOptions(): GoalOption[] {

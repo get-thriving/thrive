@@ -55,7 +55,7 @@ from jupiter.core.journals.stats import (
     JournalStatsRepository,
 )
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
@@ -119,7 +119,7 @@ class GenService:
         today: ADate,
         gen_targets: list[SyncTarget],
         period: list[RecurringTaskPeriod] | None,
-        filter_project_ref_ids: list[EntityId] | None = None,
+        filter_aspect_ref_ids: list[EntityId] | None = None,
         filter_habit_ref_ids: list[EntityId] | None = None,
         filter_chore_ref_ids: list[EntityId] | None = None,
         filter_metric_ref_ids: list[EntityId] | None = None,
@@ -140,7 +140,7 @@ class GenService:
 
         if (
             not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and filter_project_ref_ids is not None
+            and filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
         if (
@@ -183,7 +183,7 @@ class GenService:
                 today=today,
                 gen_targets=gen_targets,
                 period=period,
-                filter_project_ref_ids=filter_project_ref_ids,
+                filter_aspect_ref_ids=filter_aspect_ref_ids,
                 filter_habit_ref_ids=filter_habit_ref_ids,
                 filter_chore_ref_ids=filter_chore_ref_ids,
                 filter_metric_ref_ids=filter_metric_ref_ids,
@@ -202,16 +202,16 @@ class GenService:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            all_projects = await uow.get_for(Project).find_all(
+            all_aspects = await uow.get_for(Aspect).find_all(
                 parent_ref_id=life_plan.ref_id,
             )
-            all_syncable_projects = await uow.get_for(Project).find_all_generic(
+            all_syncable_aspects = await uow.get_for(Aspect).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
-                ref_id=filter_project_ref_ids or NoFilter(),
+                ref_id=filter_aspect_ref_ids or NoFilter(),
             )
-            all_projects_by_ref_id = {p.ref_id: p for p in all_projects}
-            filter_project_ref_ids = [p.ref_id for p in all_syncable_projects]
+            all_aspects_by_ref_id = {p.ref_id: p for p in all_aspects}
+            filter_aspect_ref_ids = [p.ref_id for p in all_syncable_aspects]
 
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -293,7 +293,7 @@ class GenService:
                     else:
                         found_inbox_task = found_inbox_task.update_link_to_working_mem_cleanup(
                             ctx,
-                            project_ref_id=working_mem_collection.cleanup_project_ref_id,
+                            aspect_ref_id=working_mem_collection.cleanup_aspect_ref_id,
                             name=schedule.full_name,
                             recurring_timeline=schedule.timeline,
                             due_date=schedule.due_date,
@@ -314,7 +314,7 @@ class GenService:
                         inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                         name=schedule.full_name,
                         due_date=schedule.due_date,
-                        project_ref_id=working_mem_collection.cleanup_project_ref_id,
+                        aspect_ref_id=working_mem_collection.cleanup_aspect_ref_id,
                         working_mem_collection_ref_id=working_mem_collection.ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -374,7 +374,7 @@ class GenService:
                     user=user,
                     inbox_task_collection=inbox_task_collection,
                     note_collection=note_collection,
-                    all_projects_by_ref_id=all_projects_by_ref_id,
+                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     time_plan_domain=time_plan_domain,
@@ -394,7 +394,7 @@ class GenService:
                         parent_ref_id=habit_collection.ref_id,
                         allow_archived=False,
                         ref_id=filter_habit_ref_ids or NoFilter(),
-                        project_ref_id=filter_project_ref_ids or NoFilter(),
+                        aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -428,13 +428,13 @@ class GenService:
                     ].append(inbox_task)
 
                 for habit in all_habits:
-                    project = all_projects_by_ref_id[habit.project_ref_id]
+                    aspect = all_aspects_by_ref_id[habit.aspect_ref_id]
                     gen_log_entry = await self._generate_inbox_tasks_for_habit(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        project=project,
+                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         habit=habit,
@@ -453,7 +453,7 @@ class GenService:
                         parent_ref_id=chore_collection.ref_id,
                         allow_archived=False,
                         ref_id=filter_chore_ref_ids or NoFilter(),
-                        project_ref_id=filter_project_ref_ids or NoFilter(),
+                        aspect_ref_id=filter_aspect_ref_ids or NoFilter(),
                     )
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
@@ -484,14 +484,14 @@ class GenService:
                     ] = inbox_task
 
                 for chore in all_chores:
-                    project = all_projects_by_ref_id[chore.project_ref_id]
+                    aspect = all_aspects_by_ref_id[chore.aspect_ref_id]
                     gen_log_entry = await self._generate_inbox_tasks_for_chore(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         workspace=workspace,
                         inbox_task_collection=inbox_task_collection,
-                        project=project,
+                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         all_vacations=all_vacations,
@@ -548,7 +548,7 @@ class GenService:
                     user=user,
                     inbox_task_collection=inbox_task_collection,
                     note_collection=note_collection,
-                    all_projects_by_ref_id=all_projects_by_ref_id,
+                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     journal_collection=journal_collection,
@@ -606,15 +606,15 @@ class GenService:
                         continue
 
                     # MyPy not smart enough to infer that if (not A and not B) then (A or B)
-                    project = all_projects_by_ref_id[
-                        metric_collection.collection_project_ref_id
+                    aspect = all_aspects_by_ref_id[
+                        metric_collection.collection_aspect_ref_id
                     ]
                     gen_log_entry = await self._generate_collection_inbox_tasks_for_metric(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        project=project,
+                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         metric=metric,
@@ -729,7 +729,7 @@ class GenService:
                         (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
-                project = all_projects_by_ref_id[prm.catch_up_project_ref_id]
+                aspect = all_aspects_by_ref_id[prm.catch_up_aspect_ref_id]
 
                 for person in all_persons:
                     if person.catch_up_params is None:
@@ -747,7 +747,7 @@ class GenService:
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        project=project,
+                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         person=person,
@@ -804,7 +804,7 @@ class GenService:
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        project=project,
+                        aspect=aspect,
                         today=today.add_days(idx * 365),
                         person=person,
                         person_contact_name=person_contact_name,
@@ -852,8 +852,8 @@ class GenService:
                     it.source_entity_ref_id_for_sure: it for it in all_slack_inbox_tasks
                 }
                 for slack_task in all_slack_tasks:
-                    project = all_projects_by_ref_id[
-                        slack_collection.generation_project_ref_id
+                    aspect = all_aspects_by_ref_id[
+                        slack_collection.generation_aspect_ref_id
                     ]
                     gen_log_entry = (
                         await self._generate_slack_inbox_task_for_slack_task(
@@ -861,7 +861,7 @@ class GenService:
                             progress_reporter=progress_reporter,
                             slack_task=slack_task,
                             inbox_task_collection=inbox_task_collection,
-                            project=project,
+                            aspect=aspect,
                             all_inbox_tasks_by_slack_task_ref_id=typing.cast(
                                 dict[EntityId, InboxTask],
                                 all_inbox_tasks_by_slack_task_ref_id,
@@ -909,8 +909,8 @@ class GenService:
                     it.source_entity_ref_id_for_sure: it for it in all_email_inbox_tasks
                 }
                 for email_task in all_email_tasks:
-                    project = all_projects_by_ref_id[
-                        email_collection.generation_project_ref_id
+                    aspect = all_aspects_by_ref_id[
+                        email_collection.generation_aspect_ref_id
                     ]
                     gen_log_entry = (
                         await self._generate_email_inbox_task_for_email_task(
@@ -918,7 +918,7 @@ class GenService:
                             progress_reporter=progress_reporter,
                             email_task=email_task,
                             inbox_task_collection=inbox_task_collection,
-                            project=project,
+                            aspect=aspect,
                             all_inbox_tasks_by_email_task_ref_id=typing.cast(
                                 dict[EntityId, InboxTask],
                                 all_inbox_tasks_by_email_task_ref_id,
@@ -954,7 +954,7 @@ class GenService:
                     ctx,
                     progress_reporter=progress_reporter,
                     inbox_task_collection=inbox_task_collection,
-                    all_projects_by_ref_id=all_projects_by_ref_id,
+                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     life_plan=life_plan,
@@ -974,7 +974,7 @@ class GenService:
         user: User,
         inbox_task_collection: InboxTaskCollection,
         note_collection: NoteCollection,
-        all_projects_by_ref_id: dict[EntityId, Project],
+        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         time_plan_domain: TimePlanDomain,
@@ -1070,8 +1070,8 @@ class GenService:
             if time_plan_domain.generation_approach.should_generate_a_planning_task:
                 if time_plan_domain.planning_task_gen_params is None:
                     raise Exception("Planning task gen params is not set")
-                project = all_projects_by_ref_id[
-                    time_plan_domain.planning_task_project_ref_id
+                aspect = all_aspects_by_ref_id[
+                    time_plan_domain.planning_task_aspect_ref_id
                 ]
                 gen_params = time_plan_domain.planning_task_gen_params
 
@@ -1085,7 +1085,7 @@ class GenService:
 
                     found_planning_task = found_planning_task.update_link_to_time_plan(
                         ctx,
-                        project_ref_id=project.ref_id,
+                        aspect_ref_id=aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=cast(TimePlan, found_time_plan).start_date,
@@ -1107,7 +1107,7 @@ class GenService:
                         difficulty=gen_params.difficulty,
                         actionable_date=schedule.actionable_date,
                         due_date=cast(TimePlan, found_time_plan).start_date,
-                        project_ref_id=project.ref_id,
+                        aspect_ref_id=aspect.ref_id,
                         time_plan_ref_id=cast(TimePlan, found_time_plan).ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
@@ -1129,7 +1129,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         habit: Habit,
@@ -1197,7 +1197,7 @@ class GenService:
 
                 found_task = found_task.update_link_to_habit(
                     ctx,
-                    project_ref_id=project.ref_id,
+                    aspect_ref_id=aspect.ref_id,
                     chapter_ref_id=habit.chapter_ref_id,
                     goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
@@ -1225,7 +1225,7 @@ class GenService:
                     ctx,
                     inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                     name=schedule.full_name,
-                    habit_project_ref_id=project.ref_id,
+                    habit_aspect_ref_id=aspect.ref_id,
                     habit_chapter_ref_id=habit.chapter_ref_id,
                     habit_goal_ref_id=habit.goal_ref_id,
                     habit_ref_id=habit.ref_id,
@@ -1284,7 +1284,7 @@ class GenService:
         user: User,
         workspace: Workspace,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         all_vacations: list[Vacation],
@@ -1339,7 +1339,7 @@ class GenService:
 
             found_task = found_task.update_link_to_chore(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 chapter_ref_id=chore.chapter_ref_id,
                 goal_ref_id=chore.goal_ref_id,
                 name=schedule.full_name,
@@ -1364,7 +1364,7 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                chore_project_ref_id=project.ref_id,
+                chore_aspect_ref_id=aspect.ref_id,
                 chore_chapter_ref_id=chore.chapter_ref_id,
                 chore_goal_ref_id=chore.goal_ref_id,
                 chore_ref_id=chore.ref_id,
@@ -1396,7 +1396,7 @@ class GenService:
         user: User,
         inbox_task_collection: InboxTaskCollection,
         note_collection: NoteCollection,
-        all_projects_by_ref_id: dict[EntityId, Project],
+        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         journal_collection: JournalCollection,
@@ -1498,8 +1498,8 @@ class GenService:
             if journal_collection.generation_approach.should_generate_a_writing_task:
                 if journal_collection.writing_task_gen_params is None:
                     raise Exception("Writing task gen params is not set")
-                project = all_projects_by_ref_id[
-                    journal_collection.writing_task_project_ref_id
+                aspect = all_aspects_by_ref_id[
+                    journal_collection.writing_task_aspect_ref_id
                 ]
                 gen_params = journal_collection.writing_task_gen_params
 
@@ -1513,7 +1513,7 @@ class GenService:
 
                     found_writing_task = found_writing_task.update_link_to_journal(
                         ctx,
-                        project_ref_id=project.ref_id,
+                        aspect_ref_id=aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=schedule.due_date,
@@ -1537,7 +1537,7 @@ class GenService:
                             -journal_collection.generation_in_advance_days[period]
                         ),
                         due_date=schedule.due_date,
-                        project_ref_id=project.ref_id,
+                        aspect_ref_id=aspect.ref_id,
                         journal_ref_id=cast(Journal, found_journal).ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
@@ -1559,7 +1559,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         metric: Metric,
@@ -1599,7 +1599,7 @@ class GenService:
 
             found_task = found_task.update_link_to_metric(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 eisen=collection_params.eisen,
@@ -1620,7 +1620,7 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_metric_collection(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 metric_ref_id=metric.ref_id,
                 recurring_task_timeline=schedule.timeline,
@@ -1648,7 +1648,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         person: Person,
@@ -1689,7 +1689,7 @@ class GenService:
 
             found_task = found_task.update_link_to_person_catch_up(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 eisen=catch_up_params.eisen,
@@ -1711,7 +1711,7 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 person_ref_id=person.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -1787,7 +1787,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         today: ADate,
         person: Person,
         person_contact_name: ContactName,
@@ -1830,7 +1830,7 @@ class GenService:
 
             found_task = found_task.update_link_to_person_occasion(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,
@@ -1852,7 +1852,7 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 occasion_kind=occasion.kind,
                 occasion_person_name=person_contact_name,
                 occasion_ref_id=occasion.ref_id,
@@ -1879,7 +1879,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         all_inbox_tasks_by_slack_task_ref_id: dict[EntityId, InboxTask],
         gen_even_if_not_modified: bool,
         gen_log_entry: GenLogEntry,
@@ -1898,7 +1898,7 @@ class GenService:
 
             found_task = found_task.update_link_to_slack_task(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 user=slack_task.user,
                 channel=slack_task.channel,
                 message=slack_task.message,
@@ -1917,7 +1917,7 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_slack_task(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 slack_task_ref_id=slack_task.ref_id,
                 user=slack_task.user,
                 channel=slack_task.channel,
@@ -1946,7 +1946,7 @@ class GenService:
         progress_reporter: ProgressReporter,
         email_task: EmailTask,
         inbox_task_collection: InboxTaskCollection,
-        project: Project,
+        aspect: Aspect,
         all_inbox_tasks_by_email_task_ref_id: dict[EntityId, InboxTask],
         gen_even_if_not_modified: bool,
         gen_log_entry: GenLogEntry,
@@ -1965,7 +1965,7 @@ class GenService:
 
             found_task = found_task.update_link_to_email_task(
                 ctx,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 from_address=email_task.from_address,
                 from_name=email_task.from_name,
                 to_address=email_task.to_address,
@@ -1986,7 +1986,7 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_email_task(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                project_ref_id=project.ref_id,
+                aspect_ref_id=aspect.ref_id,
                 email_task_ref_id=email_task.ref_id,
                 from_address=email_task.from_address,
                 from_name=email_task.from_name,
@@ -2016,7 +2016,7 @@ class GenService:
         ctx: MutationContext,
         progress_reporter: ProgressReporter,
         inbox_task_collection: InboxTaskCollection,
-        all_projects_by_ref_id: dict[EntityId, Project],
+        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         life_plan: LifePlan,
@@ -2030,11 +2030,11 @@ class GenService:
         if life_plan.eval_task_gen_params is None:
             return gen_log_entry
 
-        root_project = next(
-            (project for project in all_projects_by_ref_id.values() if project.is_root),
+        root_aspect = next(
+            (aspect for aspect in all_aspects_by_ref_id.values() if aspect.is_root),
             None,
         )
-        if root_project is None:
+        if root_aspect is None:
             return gen_log_entry
 
         for period in life_plan.eval_periods:
@@ -2071,7 +2071,7 @@ class GenService:
 
                     found_eval_task = found_eval_task.update_link_to_life_plan_eval(
                         ctx,
-                        project_ref_id=root_project.ref_id,
+                        aspect_ref_id=root_aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=schedule.due_date,
@@ -2097,7 +2097,7 @@ class GenService:
                             )
                         ),
                         due_date=schedule.due_date,
-                        project_ref_id=root_project.ref_id,
+                        aspect_ref_id=root_aspect.ref_id,
                         life_plan_ref_id=life_plan.ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),

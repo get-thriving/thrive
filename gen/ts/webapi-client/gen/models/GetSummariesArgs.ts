@@ -13,7 +13,7 @@ export type GetSummariesArgs = {
     include_active_visions?: (boolean | null);
     include_schedule_streams?: (boolean | null);
     include_vacations?: (boolean | null);
-    include_projects?: (boolean | null);
+    include_aspects?: (boolean | null);
     include_chapters?: (boolean | null);
     include_goals?: (boolean | null);
     include_milestones?: (boolean | null);

@@ -21,8 +21,8 @@ def upgrade() -> None:
         """
         UPDATE
             inbox_task
-        SET project_ref_id = (
-            SELECT big_plan.project_ref_id
+        SET aspect_ref_id = (
+            SELECT big_plan.aspect_ref_id
             FROM big_plan
             WHERE big_plan.ref_id = inbox_task.source_entity_ref_id
         )
@@ -37,8 +37,8 @@ def upgrade() -> None:
         """
         UPDATE
             inbox_task
-        SET project_ref_id = (
-            SELECT chore.project_ref_id
+        SET aspect_ref_id = (
+            SELECT chore.aspect_ref_id
             FROM chore
             WHERE chore.ref_id = inbox_task.source_entity_ref_id
         )
@@ -52,8 +52,8 @@ def upgrade() -> None:
         """
         UPDATE
             inbox_task
-        SET project_ref_id = (
-            SELECT habit.project_ref_id
+        SET aspect_ref_id = (
+            SELECT habit.aspect_ref_id
             FROM habit
             WHERE habit.ref_id = inbox_task.source_entity_ref_id
         )

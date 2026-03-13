@@ -35,7 +35,7 @@ class Habit(LeafEntity):
     """A habit."""
 
     habit_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: HabitName
@@ -64,7 +64,7 @@ class Habit(LeafEntity):
     def new_habit(
         ctx: MutationContext,
         habit_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: HabitName,
@@ -94,7 +94,7 @@ class Habit(LeafEntity):
         return Habit._create(
             ctx,
             habit_collection=ParentLink(habit_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -110,7 +110,7 @@ class Habit(LeafEntity):
         self,
         ctx: MutationContext,
         name: UpdateAction[HabitName],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -161,7 +161,7 @@ class Habit(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),

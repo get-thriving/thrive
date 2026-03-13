@@ -11,14 +11,14 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
     TimePlanChapterLink,
     TimePlanGoalLink,
-    TimePlanProjectLink,
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.adate import ADate
@@ -46,7 +46,7 @@ class TimePlanCreateArgs(UseCaseArgsBase):
     right_now: ADate
     period: RecurringTaskPeriod
     chapter_ref_ids: list[EntityId] | None = None
-    project_ref_ids: list[EntityId] | None = None
+    aspect_ref_ids: list[EntityId] | None = None
     goal_ref_ids: list[EntityId] | None = None
 
 
@@ -94,11 +94,11 @@ class TimePlanCreateUseCase(
         new_time_plan = await generic_creator(uow, progress_reporter, new_time_plan)
 
         chapter_ref_ids = list(args.chapter_ref_ids or [])
-        project_ref_ids = list(args.project_ref_ids or [])
+        aspect_ref_ids = list(args.aspect_ref_ids or [])
         goal_ref_ids = list(args.goal_ref_ids or [])
 
         if (
-            chapter_ref_ids or project_ref_ids or goal_ref_ids
+            chapter_ref_ids or aspect_ref_ids or goal_ref_ids
         ) and not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
@@ -110,9 +110,9 @@ class TimePlanCreateUseCase(
                 raise InputValidationError(
                     f"You can select at most {max_links} chapters."
                 )
-            if len(set(project_ref_ids)) > max_links:
+            if len(set(aspect_ref_ids)) > max_links:
                 raise InputValidationError(
-                    f"You can select at most {max_links} projects."
+                    f"You can select at most {max_links} aspects."
                 )
             if len(set(goal_ref_ids)) > max_links:
                 raise InputValidationError(f"You can select at most {max_links} goals.")
@@ -135,22 +135,22 @@ class TimePlanCreateUseCase(
                         time_plan_chapter_link
                     )
 
-            if project_ref_ids:
-                projects = await uow.get_for(Project).find_all(
+            if aspect_ref_ids:
+                aspects = await uow.get_for(Aspect).find_all(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=True,
-                    filter_ref_ids=project_ref_ids,
+                    filter_ref_ids=aspect_ref_ids,
                 )
-                if len(projects) != len(set(project_ref_ids)):
+                if len(aspects) != len(set(aspect_ref_ids)):
                     raise InputValidationError(
-                        "Some projects do not exist in this workspace"
+                        "Some aspects do not exist in this workspace"
                     )
-                for project_ref_id in set(project_ref_ids):
-                    time_plan_project_link = TimePlanProjectLink.new_link(
-                        context.domain_context, new_time_plan.ref_id, project_ref_id
+                for aspect_ref_id in set(aspect_ref_ids):
+                    time_plan_aspect_link = TimePlanAspectLink.new_link(
+                        context.domain_context, new_time_plan.ref_id, aspect_ref_id
                     )
-                    await uow.get_for_record(TimePlanProjectLink).create(
-                        time_plan_project_link
+                    await uow.get_for_record(TimePlanAspectLink).create(
+                        time_plan_aspect_link
                     )
 
             if goal_ref_ids:

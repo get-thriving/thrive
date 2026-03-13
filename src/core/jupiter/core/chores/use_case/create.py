@@ -21,7 +21,7 @@ from jupiter.core.features import (
 )
 from jupiter.core.gen.service.gen import GenService
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.sync_target import SyncTarget
@@ -48,7 +48,7 @@ class ChoreCreateArgs(UseCaseArgsBase):
 
     name: ChoreName
     period: RecurringTaskPeriod
-    project_ref_id: EntityId | None
+    aspect_ref_id: EntityId | None
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     is_key: bool
@@ -88,7 +88,7 @@ class ChoreCreateUseCase(
         workspace = context.workspace
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            if args.project_ref_id is not None:
+            if args.aspect_ref_id is not None:
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if args.chapter_ref_id is not None:
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
@@ -99,34 +99,34 @@ class ChoreCreateUseCase(
             workspace.ref_id,
         )
 
-        if args.project_ref_id is None:
+        if args.aspect_ref_id is None:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            the_project = await uow.get(ProjectRepository).load_root_project(
+            the_aspect = await uow.get(AspectRepository).load_root_aspect(
                 life_plan.ref_id
             )
         else:
-            the_project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+            the_aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
 
         if args.chapter_ref_id is not None:
             chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
-            if chapter.project_ref_id != the_project.ref_id:
+            if chapter.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
-                    f"Chapter does not belong to project '{the_project.name}'"
+                    f"Chapter does not belong to aspect '{the_aspect.name}'"
                 )
 
         if args.goal_ref_id is not None:
             goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
-            if goal.project_ref_id != the_project.ref_id:
+            if goal.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
-                    f"Goal does not belong to project '{the_project.name}'"
+                    f"Goal does not belong to aspect '{the_aspect.name}'"
                 )
 
         new_chore = Chore.new_chore(
             ctx=context.domain_context,
             chore_collection_ref_id=chore_collection.ref_id,
-            project_ref_id=the_project.ref_id,
+            aspect_ref_id=the_aspect.ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             name=args.name,

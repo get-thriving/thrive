@@ -30,7 +30,7 @@ class Chore(LeafEntity):
     """A chore."""
 
     chore_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: ChoreName
@@ -56,7 +56,7 @@ class Chore(LeafEntity):
     def new_chore(
         ctx: MutationContext,
         chore_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: ChoreName,
@@ -84,7 +84,7 @@ class Chore(LeafEntity):
         return Chore._create(
             ctx,
             chore_collection=ParentLink(chore_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -101,7 +101,7 @@ class Chore(LeafEntity):
         self,
         ctx: MutationContext,
         name: UpdateAction[ChoreName],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -130,7 +130,7 @@ class Chore(LeafEntity):
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),

@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.chore import Chore
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
-    from ..models.project import Project
     from ..models.slack_task import SlackTask
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -41,7 +41,7 @@ class InboxTaskFindResultEntry:
         inbox_task (InboxTask): An inbox task.
         tags (list[Tag]):
         contacts (list[Contact]):
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         note (None | Note | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -63,7 +63,7 @@ class InboxTaskFindResultEntry:
     inbox_task: InboxTask
     tags: list[Tag]
     contacts: list[Contact]
-    project: Project
+    aspect: Aspect
     note: None | Note | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -111,7 +111,7 @@ class InboxTaskFindResultEntry:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
@@ -252,7 +252,7 @@ class InboxTaskFindResultEntry:
                 "inbox_task": inbox_task,
                 "tags": tags,
                 "contacts": contacts,
-                "project": project,
+                "aspect": aspect,
             }
         )
         if note is not UNSET:
@@ -292,6 +292,7 @@ class InboxTaskFindResultEntry:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
@@ -305,7 +306,6 @@ class InboxTaskFindResultEntry:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
-        from ..models.project import Project
         from ..models.slack_task import SlackTask
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -329,7 +329,7 @@ class InboxTaskFindResultEntry:
 
             contacts.append(contacts_item)
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
@@ -612,7 +612,7 @@ class InboxTaskFindResultEntry:
             inbox_task=inbox_task,
             tags=tags,
             contacts=contacts,
-            project=project,
+            aspect=aspect,
             note=note,
             chapter=chapter,
             goal=goal,

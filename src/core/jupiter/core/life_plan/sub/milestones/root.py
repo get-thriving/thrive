@@ -26,7 +26,7 @@ class Milestone(LeafEntity):
 
     life_plan: ParentLink
     name: MilestoneName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     date: ADate
 
     tag_link = OwnsAtMostOne(
@@ -42,7 +42,7 @@ class Milestone(LeafEntity):
         ctx: MutationContext,
         life_plan_ref_id: EntityId,
         name: MilestoneName,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         date: ADate,
     ) -> "Milestone":
         """Create a milestone."""
@@ -50,7 +50,7 @@ class Milestone(LeafEntity):
             ctx,
             life_plan=ParentLink(life_plan_ref_id),
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             date=date,
         )
 
@@ -60,12 +60,12 @@ class Milestone(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[MilestoneName],
         date: UpdateAction[ADate],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
     ) -> "Milestone":
         """Update a milestone."""
         return self._new_version(
             ctx,
             name=name.or_else(self.name),
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             date=date.or_else(self.date),
         )

@@ -1,4 +1,4 @@
-"""Use case for loading a particular project."""
+"""Use case for loading a particular aspect."""
 
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
@@ -10,7 +10,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -25,49 +25,49 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ProjectLoadArgs(UseCaseArgsBase):
-    """ProjectLoadArgs."""
+class AspectLoadArgs(UseCaseArgsBase):
+    """AspectLoadArgs."""
 
     ref_id: EntityId
     allow_archived: bool | None
 
 
 @use_case_result
-class ProjectLoadResult(UseCaseResultBase):
-    """ProjectLoadResult."""
+class AspectLoadResult(UseCaseResultBase):
+    """AspectLoadResult."""
 
-    project: Project
+    aspect: Aspect
     tags: list[Tag]
     note: Note | None
 
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectLoadUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[ProjectLoadArgs, ProjectLoadResult]
+class AspectLoadUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[AspectLoadArgs, AspectLoadResult]
 ):
-    """Use case for loading a particular project."""
+    """Use case for loading a particular aspect."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
         context: JupiterLoggedInReadonlyContext,
-        args: ProjectLoadArgs,
-    ) -> ProjectLoadResult:
+        args: AspectLoadArgs,
+    ) -> AspectLoadResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        project = await uow.get_for(Project).load_by_id(
+        aspect = await uow.get_for(Aspect).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
 
         note = await uow.get(NoteRepository).load_optional_for_source(
-            NoteNamespace.PROJECT, project.ref_id, allow_archived=allow_archived
+            NoteNamespace.ASPECT, aspect.ref_id, allow_archived=allow_archived
         )
 
         tag_link = await uow.get(
             TagLinkRepository
         ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.PROJECT,
-            source_entity_ref_id=project.ref_id,
+            namespace=TagNamespace.ASPECT,
+            source_entity_ref_id=aspect.ref_id,
         )
         if tag_link is not None:
             tags = await uow.get(TagRepository).find_all_generic(
@@ -78,4 +78,4 @@ class ProjectLoadUseCase(
         else:
             tags = []
 
-        return ProjectLoadResult(project=project, tags=tags, note=note)
+        return AspectLoadResult(aspect=aspect, tags=tags, note=note)

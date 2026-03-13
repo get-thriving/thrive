@@ -4,7 +4,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
   Contact,
   Workspace,
@@ -71,7 +71,7 @@ const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(InboxTaskStatus),
   isKey: CheckboxAsString,
-  project: z.string().optional(),
+  aspect: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   bigPlan: z.string().optional(),
@@ -149,7 +149,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     allow_archived: false,
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -186,9 +186,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       info: result,
       timePlanEntries: timePlanEntries,
-      rootProject: summaryResponse.root_project as ProjectSummary,
+      rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -260,12 +260,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id:
-            form.project !== undefined
-              ? { should_change: true, value: form.project }
+          aspect_ref_id:
+            form.aspect !== undefined
+              ? { should_change: true, value: form.aspect }
               : { should_change: false },
           chapter_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -275,7 +275,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
           goal_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -364,7 +364,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
           name: { should_change: false },
           status: { should_change: false },
-          project_ref_id: { should_change: false },
+          aspect_ref_id: { should_change: false },
           chapter_ref_id: { should_change: false },
           goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
@@ -493,8 +493,8 @@ export default function InboxTask() {
         title="Properties"
         topLevelInfo={topLevelInfo}
         lifePlan={loaderData.lifePlan}
-        rootProject={loaderData.rootProject}
-        allProjects={loaderData.allProjects}
+        rootAspect={loaderData.rootAspect}
+        allAspects={loaderData.allAspects}
         allChapters={loaderData.allChapters}
         allGoals={loaderData.allGoals}
         allMilestones={loaderData.allMilestones}

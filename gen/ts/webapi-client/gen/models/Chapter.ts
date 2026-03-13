@@ -19,7 +19,7 @@ export type Chapter = {
     archived_time?: (Timestamp | null);
     name: ChapterName;
     life_plan_ref_id: string;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     start_date: PartialDate;
     end_date: PartialDate;
 };

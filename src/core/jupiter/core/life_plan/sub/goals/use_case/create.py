@@ -6,7 +6,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.goals.root import MAX_GOAL_DEPTH_FROM_ROOT, Goal
 from jupiter.core.life_plan.sub.goals.service.check_cycles import (
@@ -34,7 +34,7 @@ class GoalCreateArgs(UseCaseArgsBase):
     """Goal create args."""
 
     name: GoalName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     parent_goal_ref_id: EntityId | None = None
 
 
@@ -65,7 +65,7 @@ class GoalCreateUseCase(
             workspace.ref_id,
         )
 
-        project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
 
         if args.parent_goal_ref_id is not None:
             parent_goal = await uow.get_for(Goal).load_by_id(args.parent_goal_ref_id)
@@ -81,7 +81,7 @@ class GoalCreateUseCase(
             ctx=context.domain_context,
             life_plan_ref_id=life_plan.ref_id,
             name=args.name,
-            project_ref_id=project.ref_id,
+            aspect_ref_id=aspect.ref_id,
             parent_goal_ref_id=args.parent_goal_ref_id,
         )
 

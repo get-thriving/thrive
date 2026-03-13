@@ -8,7 +8,7 @@ Goals are part of the [Life Plan](overview.md).
 
 Goals live between the abstract [vision](vision.md) and the concrete work of
 tasks and big plans. They give structure to your aspirations and connect
-them to the projects that organise your day-to-day activity.
+them to the aspects that organise your day-to-day activity.
 
 Examples of goals:
 
@@ -23,7 +23,7 @@ Examples of goals:
 | Property | Description |
 | -------- | ----------- |
 | **Name** | A short label describing what you want to achieve. |
-| **Project** | The [project](projects.md) this goal is associated with. |
+| **Aspect** | The [aspect](aspects.md) this goal is associated with. |
 | **Parent Goal** | An optional parent goal, for hierarchical decomposition. |
 
 Goals also support a **note** for additional free-form context and **tags**
@@ -38,9 +38,9 @@ have their own children.
 The maximum nesting depth is **5 levels** from the root. This is enough to
 decompose most aspirations without creating an unwieldy tree.
 
-## Relationship to Projects
+## Relationship to Aspects
 
-Every goal is linked to a [project](projects.md). The project acts as the
+Every goal is linked to a [aspect](aspects.md). The aspect acts as the
 container for all the work — tasks, habits, chores, and big plans — that
 contribute to achieving the goal. This is the bridge between the Life Plan's
 long-horizon thinking and the daily work managed by the rest of Thrive.

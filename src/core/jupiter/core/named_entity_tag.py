@@ -35,7 +35,7 @@ class NamedEntityTag(EnumValue):
     MILESTONE = "Milestone"  # Milestone.__name__
     VISION = "Vision"  # Vision.__name__
     VACATION = "Vacation"  # Vacation.__name__
-    PROJECT = "Project"  # Project.__name__
+    ASPECT = "Aspect"  # Aspect.__name__
     SMART_LIST = "SmartList"  # SmartList.__name__
     SMART_LIST_ITEM = "SmartListItem"  # SmartListItem.__name__
     METRIC = "Metric"  # Metric.__name__

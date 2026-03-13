@@ -21,10 +21,10 @@ def upgrade() -> None:
         """
         UPDATE workspace
         SET feature_flags = json_set(
-            json_remove(feature_flags, '$.projects'),
-            '$.life-plan', json_extract(feature_flags, '$.projects')
+            json_remove(feature_flags, '$.aspects'),
+            '$.life-plan', json_extract(feature_flags, '$.aspects')
         )
-        WHERE json_type(feature_flags, '$.projects') IS NOT NULL
+        WHERE json_type(feature_flags, '$.aspects') IS NOT NULL
     """
     )
 

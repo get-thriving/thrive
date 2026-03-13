@@ -16,6 +16,6 @@ export type SlackTaskCollection = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     push_integration_group_ref_id: string;
-    generation_project_ref_id: EntityId;
+    generation_aspect_ref_id: EntityId;
 };
 

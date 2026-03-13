@@ -9,7 +9,7 @@ class ReportBreakdown(EnumValue):
 
     GLOBAL = "global"
     PERIODS = "periods"
-    PROJECTS = "projects"
+    ASPECTS = "aspects"
     GOALS = "goals"
     HABITS = "habits"
     CHORES = "chores"

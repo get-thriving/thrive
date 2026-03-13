@@ -20,7 +20,7 @@ export type Habit = {
     archived_time?: (Timestamp | null);
     name: HabitName;
     habit_collection_ref_id: string;
-    project_ref_id: EntityId;
+    aspect_ref_id: EntityId;
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
     is_key: boolean;

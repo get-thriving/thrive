@@ -1,24 +1,24 @@
-"""Implementation for projects repo via SQLite."""
+"""Implementation for aspects repo via SQLite."""
 
-from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
 
 
-class SqliteProjectRepository(SqliteLeafEntityRepository[Project], ProjectRepository):
-    """Sqlite implementation of the project repository."""
+class SqliteAspectRepository(SqliteLeafEntityRepository[Aspect], AspectRepository):
+    """Sqlite implementation of the aspect repository."""
 
-    async def load_root_project(self, parent_ref_id: EntityId) -> Project:
-        """Load the root project."""
-        projects = await self.find_all_generic(
+    async def load_root_aspect(self, parent_ref_id: EntityId) -> Aspect:
+        """Load the root aspect."""
+        aspects = await self.find_all_generic(
             parent_ref_id=parent_ref_id,
             allow_archived=False,
-            parent_project_ref_id=None,
+            parent_aspect_ref_id=None,
         )
 
-        if len(projects) == 0:
-            raise Exception("Root project not found.")
+        if len(aspects) == 0:
+            raise Exception("Root aspect not found.")
 
-        return projects[0]
+        return aspects[0]

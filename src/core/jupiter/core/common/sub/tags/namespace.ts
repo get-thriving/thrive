@@ -24,8 +24,8 @@ export function tagNamespaceName(namespace: TagNamespace): string {
       return "Journal";
     case TagNamespace.VACATION:
       return "Vacation";
-    case TagNamespace.PROJECT:
-      return "Project";
+    case TagNamespace.ASPECT:
+      return "Aspect";
     case TagNamespace.CHAPTER:
       return "Chapter";
     case TagNamespace.GOAL:

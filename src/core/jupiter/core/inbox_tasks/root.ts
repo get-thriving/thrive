@@ -15,7 +15,7 @@ import {
   InboxTaskStatus,
   Metric,
   Person,
-  Project,
+  Aspect,
   RecurringTaskPeriod,
   SlackTask,
 } from "@jupiter/webapi-client";
@@ -32,7 +32,7 @@ export interface InboxTaskOptimisticState {
 }
 
 export interface InboxTaskParent {
-  project?: Project;
+  aspect?: Aspect;
   chapter?: Chapter;
   goal?: Goal;
   bigPlan?: BigPlan;
@@ -49,7 +49,7 @@ export function inboxTaskFindEntryToParent(
   entry: InboxTaskFindResultEntry,
 ): InboxTaskParent {
   return {
-    project: entry.project,
+    aspect: entry.aspect,
     chapter: entry.chapter ?? undefined,
     goal: entry.goal ?? undefined,
     bigPlan: entry.big_plan ?? undefined,
@@ -66,7 +66,7 @@ export function inboxTaskFindEntryToParent(
 interface InboxTaskFilterOptions {
   allowArchived?: boolean;
   allowSources?: InboxTaskSource[];
-  allowProjects?: EntityId[];
+  allowAspects?: EntityId[];
   allowStatuses?: InboxTaskStatus[];
   allowEisens?: Eisen[];
   allowDifficulties?: Difficulty[];
@@ -98,8 +98,8 @@ export function filterInboxTasksForDisplay(
       }
     }
 
-    if (options.allowProjects !== undefined) {
-      if (!options.allowProjects.includes(inboxTask.project_ref_id)) {
+    if (options.allowAspects !== undefined) {
+      if (!options.allowAspects.includes(inboxTask.aspect_ref_id)) {
         return false;
       }
     }
@@ -305,7 +305,7 @@ export function canInboxTaskBeInStatus(
   }
 }
 
-export function doesInboxTaskAllowChangingProject(
+export function doesInboxTaskAllowChangingAspect(
   source: InboxTaskSource,
 ): boolean {
   return source === InboxTaskSource.USER || source === InboxTaskSource.BIG_PLAN;

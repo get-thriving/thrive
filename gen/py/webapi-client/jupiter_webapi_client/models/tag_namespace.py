@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class TagNamespace(str, Enum):
+    ASPECT = "aspect"
     BIG_PLAN = "big-plan"
     CHAPTER = "chapter"
     CHORE = "chore"
@@ -15,7 +16,6 @@ class TagNamespace(str, Enum):
     MILESTONE = "milestone"
     OCCASION = "occasion"
     PERSON = "person"
-    PROJECT = "project"
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = "schedule-event-full-days-block"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"
     SCHEDULE_STREAM = "schedule-stream"

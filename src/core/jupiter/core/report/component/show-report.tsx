@@ -1,7 +1,7 @@
 import type {
   GoalSummary,
   InboxTasksSummary,
-  ProjectSummary,
+  AspectSummary,
   ReportPeriodResult,
   WorkableSummary,
 } from "@jupiter/webapi-client";
@@ -34,8 +34,8 @@ import { aDateToDate } from "#/core/common/adate";
 import { periodName } from "#/core/common/recurring-task-period";
 import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { isUserFeatureAvailable } from "#/core/users/root";
@@ -62,18 +62,19 @@ const _SOURCES_TO_REPORT = [
   InboxTaskSource.PERSON_OCCASION,
   InboxTaskSource.SLACK_TASK,
   InboxTaskSource.EMAIL_TASK,
+  InboxTaskSource.LIFE_PLAN_EVAL,
 ];
 
 interface ShowReportProps {
   topLevelInfo: TopLevelInfo;
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
   allGoals: GoalSummary[];
   report: ReportPeriodResult;
 }
 
 export function ShowReport({
   topLevelInfo,
-  allProjects,
+  allAspects,
   allGoals,
   report,
 }: ShowReportProps) {
@@ -83,7 +84,7 @@ export function ShowReport({
   const tabIndicesMap = {
     global: 0,
     "by-periods": 1,
-    "by-projects": 2,
+    "by-aspects": 2,
     "by-goals": 3,
     "by-habits": 4,
     "by-chores": 5,
@@ -119,9 +120,9 @@ export function ShowReport({
     tabIndicesMap["by-big-plans"] -= 1;
   }
 
-  const allProjectsSorted = sortProjectsByTreeOrder(allProjects);
-  const allProjectsByRefId = new Map<string, ProjectSummary>(
-    allProjects.map((p) => [p.ref_id, p]),
+  const allAspectsSorted = sortAspectsByTreeOrder(allAspects);
+  const allAspectsByRefId = new Map<string, AspectSummary>(
+    allAspects.map((p) => [p.ref_id, p]),
   );
   const allGoalsSorted = sortGoalsNaturally(allGoals);
   const allGoalsByRefId = new Map<string, GoalSummary>(
@@ -164,7 +165,7 @@ export function ShowReport({
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
-        ) && <Tab label="💡 By Projects" />}
+        ) && <Tab label="💡 By Aspects" />}
         {isWorkspaceFeatureAvailable(
           topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -210,25 +211,25 @@ export function ShowReport({
         topLevelInfo.workspace,
         WorkspaceFeature.LIFE_PLAN,
       ) && (
-        <TabPanel value={showTab} index={tabIndicesMap["by-projects"]}>
+        <TabPanel value={showTab} index={tabIndicesMap["by-aspects"]}>
           <Stack spacing={2} useFlexGap>
-            {allProjectsSorted.map((project) => {
-              const pb = report.per_project_breakdown.find(
-                (pb) => pb.ref_id === project.ref_id,
+            {allAspectsSorted.map((aspect) => {
+              const pb = report.per_aspect_breakdown.find(
+                (pb) => pb.ref_id === aspect.ref_id,
               );
 
               if (pb === undefined) {
                 return null;
               }
 
-              const fullProjectName = computeProjectHierarchicalNameFromRoot(
-                project,
-                allProjectsByRefId,
+              const fullAspectName = computeAspectHierarchicalNameFromRoot(
+                aspect,
+                allAspectsByRefId,
               );
 
               return (
                 <Fragment key={pb.ref_id}>
-                  <StandardDivider title={fullProjectName} size="large" />
+                  <StandardDivider title={fullAspectName} size="large" />
                   <OverviewReport
                     topLevelInfo={topLevelInfo}
                     inboxTasksSummary={pb.inbox_tasks_summary}

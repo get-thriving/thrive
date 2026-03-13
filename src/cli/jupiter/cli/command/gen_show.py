@@ -67,14 +67,14 @@ class GenShow(JupiterLoggedInReadonlyCommand[GenLoadRunsUseCase, GenLoadRunsResu
                 period_text.append(" All")
             entry_tree.add(period_text)
 
-            filter_project_ref_ids_text = Text("Filter project ref ids:")
-            if entry.filter_project_ref_ids is not None:
-                for ref_id in entry.filter_project_ref_ids:
-                    filter_project_ref_ids_text.append(" ")
-                    filter_project_ref_ids_text.append(entity_id_to_rich_text(ref_id))
+            filter_aspect_ref_ids_text = Text("Filter aspect ref ids:")
+            if entry.filter_aspect_ref_ids is not None:
+                for ref_id in entry.filter_aspect_ref_ids:
+                    filter_aspect_ref_ids_text.append(" ")
+                    filter_aspect_ref_ids_text.append(entity_id_to_rich_text(ref_id))
             else:
-                filter_project_ref_ids_text.append(" All")
-            entry_tree.add(filter_project_ref_ids_text)
+                filter_aspect_ref_ids_text.append(" All")
+            entry_tree.add(filter_aspect_ref_ids_text)
 
             filter_habit_ref_ids_text = Text("Filter habit ref ids:")
             if entry.filter_habit_ref_ids is not None:

@@ -45,10 +45,10 @@ class MetricShow(JupiterLoggedInReadonlyCommand[MetricFindUseCase, MetricFindRes
         rich_tree = Tree("📈 Metrics", guide_style="bold bright_blue")
 
         if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            collection_project_text = Text(
-                f"The collection project is {result.collection_project.name}",
+            collection_aspect_text = Text(
+                f"The collection aspect is {result.collection_aspect.name}",
             )
-            rich_tree.add(collection_project_text)
+            rich_tree.add(collection_aspect_text)
 
         for metric_result_entry in sorted_metrics:
             metric = metric_result_entry.metric

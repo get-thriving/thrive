@@ -27,7 +27,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
@@ -50,7 +50,7 @@ class ChoreUpdateArgs(UseCaseArgsBase):
 
     ref_id: EntityId
     name: UpdateAction[ChoreName]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     chapter_ref_id: UpdateAction[EntityId | None]
     goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
@@ -87,8 +87,8 @@ class ChoreUpdateUseCase(
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (
-                args.project_ref_id.should_change
-                and args.project_ref_id.just_the_value is not None
+                args.aspect_ref_id.should_change
+                and args.aspect_ref_id.just_the_value is not None
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if (
@@ -104,7 +104,7 @@ class ChoreUpdateUseCase(
 
         need_to_change_inbox_tasks = (
             args.name.should_change
-            or args.project_ref_id.should_change
+            or args.aspect_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
             or args.period.should_change
@@ -150,31 +150,31 @@ class ChoreUpdateUseCase(
             chore_gen_params = UpdateAction.do_nothing()
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
-            args.project_ref_id.should_change
+            args.aspect_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            project = await uow.get_for(Project).load_by_id(
-                args.project_ref_id.or_else(chore.project_ref_id)
+            aspect = await uow.get_for(Aspect).load_by_id(
+                args.aspect_ref_id.or_else(chore.aspect_ref_id)
             )
             chapter_ref_id = args.chapter_ref_id.or_else(chore.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(chore.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != chore.chapter_ref_id:
                 chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
-                if chapter.project_ref_id != project.ref_id:
+                if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Chapter does not belong to project '{project.name}'"
+                        f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != chore.goal_ref_id:
                 goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
-                if goal.project_ref_id != project.ref_id:
+                if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Goal does not belong to project '{project.name}'"
+                        f"Goal does not belong to aspect '{aspect.name}'"
                     )
 
         chore = chore.update(
             ctx=context.domain_context,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             name=args.name,
@@ -217,7 +217,7 @@ class ChoreUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_chore(
                     ctx=context.domain_context,
-                    project_ref_id=chore.project_ref_id,
+                    aspect_ref_id=chore.aspect_ref_id,
                     chapter_ref_id=chore.chapter_ref_id,
                     goal_ref_id=chore.goal_ref_id,
                     name=schedule.full_name,

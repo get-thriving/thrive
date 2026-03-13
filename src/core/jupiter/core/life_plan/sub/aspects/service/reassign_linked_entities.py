@@ -14,7 +14,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.metrics.collection import MetricCollection
@@ -24,7 +24,7 @@ from jupiter.core.push_integrations.sub.email.task_collection import EmailTaskCo
 from jupiter.core.push_integrations.sub.slack.task_collection import SlackTaskCollection
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
-    TimePlanProjectLinkRepository,
+    TimePlanAspectLinkRepository,
 )
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.core.workspaces.root import Workspace
@@ -36,7 +36,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 
 
-class ProjectReassignLinkedEntitiesService:
+class AspectReassignLinkedEntitiesService:
     """Service for reassigning linked entities."""
 
     async def reassign_linked_entities(
@@ -45,34 +45,32 @@ class ProjectReassignLinkedEntitiesService:
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
-        old_project: Project,
-        new_project: Project,
+        old_aspect: Aspect,
+        new_aspect: Aspect,
     ) -> None:
         """Reassign linked entities."""
         time_plan_domain = await uow.get_for(TimePlanDomain).load_by_parent(
             workspace.ref_id
         )
-        if time_plan_domain.planning_task_project_ref_id == old_project.ref_id:
-            time_plan_domain = (
-                time_plan_domain.change_planning_task_project_if_required(
-                    ctx,
-                    new_project.ref_id,
-                )
+        if time_plan_domain.planning_task_aspect_ref_id == old_aspect.ref_id:
+            time_plan_domain = time_plan_domain.change_planning_task_aspect_if_required(
+                ctx,
+                new_aspect.ref_id,
             )
             await uow.get_for(TimePlanDomain).save(time_plan_domain)
 
-        await uow.get(TimePlanProjectLinkRepository).remove_all_for_project(
-            old_project.ref_id
+        await uow.get(TimePlanAspectLinkRepository).remove_all_for_aspect(
+            old_aspect.ref_id
         )
 
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id
         )
-        if journal_collection.writing_task_project_ref_id == old_project.ref_id:
+        if journal_collection.writing_task_aspect_ref_id == old_aspect.ref_id:
             journal_collection = (
-                journal_collection.change_writing_task_project_if_required(
+                journal_collection.change_writing_task_aspect_if_required(
                     ctx,
-                    new_project.ref_id,
+                    new_aspect.ref_id,
                 )
             )
             await uow.get_for(JournalCollection).save(journal_collection)
@@ -80,18 +78,18 @@ class ProjectReassignLinkedEntitiesService:
         metric_collection = await uow.get_for(MetricCollection).load_by_parent(
             workspace.ref_id
         )
-        if metric_collection.collection_project_ref_id == old_project.ref_id:
-            metric_collection = metric_collection.change_collection_project(
+        if metric_collection.collection_aspect_ref_id == old_aspect.ref_id:
+            metric_collection = metric_collection.change_collection_aspect(
                 ctx,
-                new_project.ref_id,
+                new_aspect.ref_id,
             )
             await uow.get_for(MetricCollection).save(metric_collection)
 
         prm = await uow.get_for(PRM).load_by_parent(workspace.ref_id)
-        if prm.catch_up_project_ref_id == old_project.ref_id:
-            prm = prm.change_catch_up_project(
+        if prm.catch_up_aspect_ref_id == old_aspect.ref_id:
+            prm = prm.change_catch_up_aspect(
                 ctx,
-                new_project.ref_id,
+                new_aspect.ref_id,
             )
             await uow.get_for(PRM).save(prm)
 
@@ -101,10 +99,10 @@ class ProjectReassignLinkedEntitiesService:
         slack_task_collection = await uow.get_for(SlackTaskCollection).load_by_parent(
             push_integration_group.ref_id,
         )
-        if slack_task_collection.generation_project_ref_id == old_project.ref_id:
-            slack_task_collection = slack_task_collection.change_generation_project(
+        if slack_task_collection.generation_aspect_ref_id == old_aspect.ref_id:
+            slack_task_collection = slack_task_collection.change_generation_aspect(
                 ctx,
-                new_project.ref_id,
+                new_aspect.ref_id,
             )
             await uow.get_for(SlackTaskCollection).save(slack_task_collection)
 
@@ -114,21 +112,21 @@ class ProjectReassignLinkedEntitiesService:
         email_task_collection = await uow.get_for(EmailTaskCollection).load_by_parent(
             push_integration_group.ref_id,
         )
-        if email_task_collection.generation_project_ref_id == old_project.ref_id:
-            email_task_collection = email_task_collection.change_generation_project(
+        if email_task_collection.generation_aspect_ref_id == old_aspect.ref_id:
+            email_task_collection = email_task_collection.change_generation_aspect(
                 ctx,
-                new_project.ref_id,
+                new_aspect.ref_id,
             )
             await uow.get_for(EmailTaskCollection).save(email_task_collection)
 
         working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_parent(
             workspace.ref_id
         )
-        if working_mem_collection.cleanup_project_ref_id == old_project.ref_id:
+        if working_mem_collection.cleanup_aspect_ref_id == old_aspect.ref_id:
             working_mem_collection = working_mem_collection.update(
                 ctx,
                 generation_period=UpdateAction.do_nothing(),
-                cleanup_project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                cleanup_aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
             )
             await uow.get_for(WorkingMemCollection).save(working_mem_collection)
 
@@ -139,7 +137,7 @@ class ProjectReassignLinkedEntitiesService:
         big_plans = await uow.get_for(BigPlan).find_all_generic(
             parent_ref_id=big_plan_collection.ref_id,
             allow_archived=True,
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
 
         big_plans_by_ref_id = {big_plan.ref_id: big_plan for big_plan in big_plans}
@@ -148,7 +146,7 @@ class ProjectReassignLinkedEntitiesService:
                 ctx,
                 name=UpdateAction.do_nothing(),
                 status=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                 chapter_ref_id=UpdateAction.do_nothing(),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -168,14 +166,14 @@ class ProjectReassignLinkedEntitiesService:
         chores = await uow.get_for(Chore).find_all_generic(
             parent_ref_id=chore_collection.ref_id,
             allow_archived=True,
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
         chores_by_ref_id = {chore.ref_id: chore for chore in chores}
         for chore in chores:
             updated_chore = chore.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                 chapter_ref_id=UpdateAction.do_nothing(),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -195,14 +193,14 @@ class ProjectReassignLinkedEntitiesService:
         habits = await uow.get_for(Habit).find_all_generic(
             parent_ref_id=habit_collection.ref_id,
             allow_archived=True,
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
         habits_by_ref_id = {habit.ref_id: habit for habit in habits}
         for habit in habits:
             updated_habit = habit.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                 chapter_ref_id=UpdateAction.do_nothing(),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -221,7 +219,7 @@ class ProjectReassignLinkedEntitiesService:
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
 
         for inbox_task in inbox_tasks:
@@ -233,7 +231,7 @@ class ProjectReassignLinkedEntitiesService:
                         status=UpdateAction.do_nothing(),
                         big_plan_ref_id=UpdateAction.do_nothing(),
                         is_key=UpdateAction.do_nothing(),
-                        project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                        aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                         chapter_ref_id=UpdateAction.do_nothing(),
                         goal_ref_id=UpdateAction.do_nothing(),
                         eisen=UpdateAction.do_nothing(),
@@ -247,7 +245,7 @@ class ProjectReassignLinkedEntitiesService:
                     ]
                     updated_inbox_task = inbox_task.update_link_to_big_plan(
                         ctx,
-                        project_ref_id=new_project.ref_id,
+                        aspect_ref_id=new_aspect.ref_id,
                         chapter_ref_id=big_plan.chapter_ref_id,
                         goal_ref_id=big_plan.goal_ref_id,
                         big_plan_ref_id=big_plan.ref_id,
@@ -266,7 +264,7 @@ class ProjectReassignLinkedEntitiesService:
                     )
                     updated_inbox_task = inbox_task.update_link_to_chore(
                         ctx,
-                        project_ref_id=new_project.ref_id,
+                        aspect_ref_id=new_aspect.ref_id,
                         chapter_ref_id=chore.chapter_ref_id,
                         goal_ref_id=chore.goal_ref_id,
                         name=schedule.full_name,
@@ -291,7 +289,7 @@ class ProjectReassignLinkedEntitiesService:
                     )
                     updated_inbox_task = inbox_task.update_link_to_habit(
                         ctx,
-                        project_ref_id=new_project.ref_id,
+                        aspect_ref_id=new_aspect.ref_id,
                         chapter_ref_id=habit.chapter_ref_id,
                         goal_ref_id=habit.goal_ref_id,
                         name=schedule.full_name,
@@ -305,14 +303,14 @@ class ProjectReassignLinkedEntitiesService:
                         difficulty=habit.gen_params.difficulty,
                     )
                 case InboxTaskSource.EMAIL_TASK | InboxTaskSource.SLACK_TASK:
-                    updated_inbox_task = inbox_task.just_update_project(
+                    updated_inbox_task = inbox_task.just_update_aspect(
                         ctx,
-                        project_ref_id=new_project.ref_id,
+                        aspect_ref_id=new_aspect.ref_id,
                     )
                 case InboxTaskSource.LIFE_PLAN_EVAL:
                     updated_inbox_task = inbox_task.update_link_to_life_plan_eval(
                         ctx,
-                        project_ref_id=new_project.ref_id,
+                        aspect_ref_id=new_aspect.ref_id,
                         eisen=inbox_task.eisen,
                         difficulty=inbox_task.difficulty,
                         due_date=cast(ADate, inbox_task.due_date),
@@ -327,12 +325,12 @@ class ProjectReassignLinkedEntitiesService:
         milestones = await uow.get_for(
             Milestone
         ).find_all_generic(  # pyright: ignore[reportUndefinedVariable]
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
         for milestone in milestones:
             milestone = milestone.update(
                 ctx,
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                 name=UpdateAction.do_nothing(),
                 date=UpdateAction.do_nothing(),
             )
@@ -342,7 +340,7 @@ class ProjectReassignLinkedEntitiesService:
         chapters = await uow.get_for(
             Chapter
         ).find_all_generic(  # pyright: ignore[reportUndefinedVariable]
-            project_ref_id=old_project.ref_id,
+            aspect_ref_id=old_aspect.ref_id,
         )
         milestone_dates_by_ref_id = {
             milestone.ref_id: milestone.date for milestone in milestones
@@ -352,7 +350,7 @@ class ProjectReassignLinkedEntitiesService:
                 ctx,
                 birthday=life_plan.birthday_date,
                 milestone_dates_by_ref_id=milestone_dates_by_ref_id,
-                project_ref_id=UpdateAction.change_to(new_project.ref_id),
+                aspect_ref_id=UpdateAction.change_to(new_aspect.ref_id),
                 name=UpdateAction.do_nothing(),
                 start_date=UpdateAction.do_nothing(),
                 end_date=UpdateAction.do_nothing(),

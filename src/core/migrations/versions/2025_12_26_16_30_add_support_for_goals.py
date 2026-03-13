@@ -29,10 +29,10 @@ def upgrade() -> None:
             archived_time DATETIME,
             life_plan_ref_id INTEGER NOT NULL,
             name VARCHAR NOT NULL,
-            project_ref_id INTEGER NOT NULL,
+            aspect_ref_id INTEGER NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id),
-            FOREIGN KEY (project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
     """
     )
@@ -43,7 +43,7 @@ def upgrade() -> None:
     )
     op.execute(
         """
-        CREATE INDEX ix_goal_project_ref_id ON goal (project_ref_id)
+        CREATE INDEX ix_goal_aspect_ref_id ON goal (aspect_ref_id)
     """
     )
 

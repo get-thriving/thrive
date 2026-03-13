@@ -32,7 +32,7 @@ import {
   User,
   Workspace,
   DocsHelpSubject,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import { Fragment, useContext, useEffect, useState } from "react";
 import { DateTime } from "luxon";
@@ -126,7 +126,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_life_plan: true,
     include_chapters: true,
     include_milestones: true,
-    include_projects: true,
+    include_aspects: true,
   });
 
   const workspace = summaryResponse.workspace!;
@@ -320,7 +320,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     lifePlan: summaryResponse.life_plan as LifePlan | undefined,
     allChapters: summaryResponse.chapters as ChapterSummary[] | undefined,
     allMilestones: summaryResponse.milestones as MilestoneSummary[] | undefined,
-    allProjects: summaryResponse.projects as ProjectSummary[] | undefined,
+    allAspects: summaryResponse.aspects as AspectSummary[] | undefined,
     activeVision:
       activeVisionResponse?.vision && activeVisionResponse?.note
         ? {
@@ -589,8 +589,8 @@ export default function WorkspaceHome() {
     lifePlan: loaderData.lifePlan ?? undefined,
     activeVision: loaderData.activeVision ?? undefined,
     activeChapters: activeChapters,
-    projectsByRefId: loaderData.allProjects
-      ? Object.fromEntries(loaderData.allProjects.map((p) => [p.ref_id, p]))
+    aspectsByRefId: loaderData.allAspects
+      ? Object.fromEntries(loaderData.allAspects.map((p) => [p.ref_id, p]))
       : undefined,
   };
 

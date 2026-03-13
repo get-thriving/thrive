@@ -128,7 +128,7 @@ class SqliteInboxTaskRepository(
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_sources: Iterable[InboxTaskSource] | None = None,
-        filter_project_ref_ids: Iterable[EntityId] | None = None,
+        filter_aspect_ref_ids: Iterable[EntityId] | None = None,
         filter_last_modified_time_start: ADate | None = None,
         filter_last_modified_time_end: ADate | None = None,
     ) -> list[InboxTask]:
@@ -161,10 +161,10 @@ class SqliteInboxTaskRepository(
             query_stmt = query_stmt.where(
                 self._table.c.source.in_(s.value for s in filter_sources),
             )
-        if filter_project_ref_ids is not None:
+        if filter_aspect_ref_ids is not None:
             query_stmt = query_stmt.where(
-                self._table.c.project_ref_id.in_(
-                    fi.as_int() for fi in filter_project_ref_ids
+                self._table.c.aspect_ref_id.in_(
+                    fi.as_int() for fi in filter_aspect_ref_ids
                 ),
             )
         if filter_last_modified_time_start is not None:

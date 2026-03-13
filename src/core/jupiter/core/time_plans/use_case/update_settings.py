@@ -20,7 +20,7 @@ from jupiter.core.inbox_tasks.collection import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
@@ -49,7 +49,7 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
     periods: UpdateAction[list[RecurringTaskPeriod]]
     generation_approach: UpdateAction[TimePlanGenerationApproach]
     generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
-    planning_task_project_ref_id: UpdateAction[EntityId | None]
+    planning_task_aspect_ref_id: UpdateAction[EntityId | None]
     planning_task_eisen: UpdateAction[Eisen | None]
     planning_task_difficulty: UpdateAction[Difficulty | None]
 
@@ -81,27 +81,25 @@ class TimePlanUpdateSettingsUseCase(
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
             if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-                if args.planning_task_project_ref_id.test(lambda x: x is None):
-                    raise Exception("Planning task project ref id is required")
-                if args.planning_task_project_ref_id.should_change:
-                    project = await uow.get_for(Project).load_by_id(
-                        cast(EntityId, args.planning_task_project_ref_id.just_the_value)
+                if args.planning_task_aspect_ref_id.test(lambda x: x is None):
+                    raise Exception("Planning task aspect ref id is required")
+                if args.planning_task_aspect_ref_id.should_change:
+                    aspect = await uow.get_for(Aspect).load_by_id(
+                        cast(EntityId, args.planning_task_aspect_ref_id.just_the_value)
                     )
-                    planning_task_project_ref_id = UpdateAction.change_to(
-                        project.ref_id
-                    )
+                    planning_task_aspect_ref_id = UpdateAction.change_to(aspect.ref_id)
                 else:
-                    planning_task_project_ref_id = UpdateAction.do_nothing()
+                    planning_task_aspect_ref_id = UpdateAction.do_nothing()
             else:
-                root_project = await uow.get_for(Project).find_all_generic(
+                root_aspect = await uow.get_for(Aspect).find_all_generic(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=False,
-                    parent_project_ref_id=None,
+                    parent_aspect_ref_id=None,
                 )
-                if len(root_project) != 1:
-                    raise Exception("Root project not found")
-                planning_task_project_ref_id = UpdateAction.change_to(
-                    root_project[0].ref_id
+                if len(root_aspect) != 1:
+                    raise Exception("Root aspect not found")
+                planning_task_aspect_ref_id = UpdateAction.change_to(
+                    root_aspect[0].ref_id
                 )
 
             time_plan_domain = time_plan_domain.update(
@@ -109,7 +107,7 @@ class TimePlanUpdateSettingsUseCase(
                 periods=args.periods.transform(lambda s: set(s)),
                 generation_approach=args.generation_approach,
                 generation_in_advance_days=args.generation_in_advance_days,
-                planning_task_project_ref_id=planning_task_project_ref_id,
+                planning_task_aspect_ref_id=planning_task_aspect_ref_id,
                 planning_task_eisen=args.planning_task_eisen,
                 planning_task_difficulty=args.planning_task_difficulty,
             )

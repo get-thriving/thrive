@@ -28,8 +28,8 @@ import { parseForm, parseParams } from "zodix";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import {
   bigPlanFindEntryToParent,
@@ -67,9 +67,9 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 
 enum View {
   LIST_MERGED = "list-merged",
-  LIST_BY_PROJECT = "list-by-project",
+  LIST_BY_ASPECT = "list-by-aspect",
   TIMELINE_MERGED = "timeline-merged",
-  TIMELINE_BY_PROJECT = "timeline-by-project",
+  TIMELINE_BY_ASPECT = "timeline-by-aspect",
 }
 
 const ParamsSchema = z.object({
@@ -104,7 +104,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = parseParams(params, ParamsSchema);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   try {
@@ -128,7 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     });
 
     return json({
-      allProjects: summaryResponse.projects || undefined,
+      allAspects: summaryResponse.aspects || undefined,
       timePlan: timePlanResult.time_plan,
       activities: timePlanResult.activities,
       bigPlans: bigPlansResult.entries,
@@ -223,9 +223,9 @@ export default function TimePlanAddFromCurrentBigPlans() {
     entriesByRefId[entry.big_plan.ref_id] = bigPlanFindEntryToParent(entry);
   }
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
   const bigPlanMilestonesByRefId = new Map<string, BigPlanMilestone[]>(
     loaderData.bigPlans.map((bp) => [bp.big_plan.ref_id, bp.milestones || []]),
@@ -292,8 +292,8 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     icon: <ViewListIcon />,
                   },
                   {
-                    value: View.LIST_BY_PROJECT,
-                    text: "List By Project",
+                    value: View.LIST_BY_ASPECT,
+                    text: "List By Aspect",
                     icon: <FlareIcon />,
                     gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
@@ -303,8 +303,8 @@ export default function TimePlanAddFromCurrentBigPlans() {
                     icon: <ViewTimelineIcon />,
                   },
                   {
-                    value: View.TIMELINE_BY_PROJECT,
-                    text: "Timeline By Project",
+                    value: View.TIMELINE_BY_ASPECT,
+                    text: "Timeline By Aspect",
                     icon: <ViewTimelineIcon />,
                     gatedOn: WorkspaceFeature.LIFE_PLAN,
                   },
@@ -362,25 +362,25 @@ export default function TimePlanAddFromCurrentBigPlans() {
           </Fragment>
         )}
 
-        {selectedView === View.LIST_BY_PROJECT && (
+        {selectedView === View.LIST_BY_ASPECT && (
           <>
-            {sortedProjects.map((p) => {
+            {sortedAspects.map((p) => {
               const theBigPlans = sortedBigPlans.filter(
-                (se) => entriesByRefId[se.ref_id]?.project?.ref_id === p.ref_id,
+                (se) => entriesByRefId[se.ref_id]?.aspect?.ref_id === p.ref_id,
               );
 
               if (theBigPlans.length === 0) {
                 return null;
               }
 
-              const fullProjectName = computeProjectHierarchicalNameFromRoot(
+              const fullAspectName = computeAspectHierarchicalNameFromRoot(
                 p,
-                allProjectsByRefId,
+                allAspectsByRefId,
               );
 
               return (
-                <Fragment key={`project-${p.ref_id}`}>
-                  <StandardDivider title={fullProjectName} size="large" />
+                <Fragment key={`aspect-${p.ref_id}`}>
+                  <StandardDivider title={fullAspectName} size="large" />
 
                   <BigPlanList
                     topLevelInfo={topLevelInfo}
@@ -424,25 +424,25 @@ export default function TimePlanAddFromCurrentBigPlans() {
           />
         )}
 
-        {selectedView === View.TIMELINE_BY_PROJECT && (
+        {selectedView === View.TIMELINE_BY_ASPECT && (
           <>
-            {sortedProjects.map((p) => {
+            {sortedAspects.map((p) => {
               const theBigPlans = sortedBigPlans.filter(
-                (se) => entriesByRefId[se.ref_id]?.project?.ref_id === p.ref_id,
+                (se) => entriesByRefId[se.ref_id]?.aspect?.ref_id === p.ref_id,
               );
 
               if (theBigPlans.length === 0) {
                 return null;
               }
 
-              const fullProjectName = computeProjectHierarchicalNameFromRoot(
+              const fullAspectName = computeAspectHierarchicalNameFromRoot(
                 p,
-                allProjectsByRefId,
+                allAspectsByRefId,
               );
 
               return (
-                <Fragment key={`project-${p.ref_id}`}>
-                  <StandardDivider title={fullProjectName} size="large" />
+                <Fragment key={`aspect-${p.ref_id}`}>
+                  <StandardDivider title={fullAspectName} size="large" />
 
                   <BigPlanTimeline
                     thisYear={thisYear}
@@ -626,5 +626,5 @@ function inferDefaultSelectedView(workspace: Workspace) {
     return View.TIMELINE_MERGED;
   }
 
-  return View.TIMELINE_BY_PROJECT;
+  return View.TIMELINE_BY_ASPECT;
 }

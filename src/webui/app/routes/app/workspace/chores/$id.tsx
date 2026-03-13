@@ -5,7 +5,7 @@ import type {
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  Project,
+  Aspect,
   Tag,
 } from "@jupiter/webapi-client";
 import {
@@ -78,7 +78,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     name: z.string(),
-    project: z.string().optional(),
+    aspect: z.string().optional(),
     chapter: z.string().optional(),
     goal: z.string().optional(),
     isKey: CheckboxAsString,
@@ -119,7 +119,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -144,14 +144,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       chore: result.chore,
       tags: result.tags,
       note: result.note,
-      project: result.project,
+      aspect: result.aspect,
       chapter: result.chapter,
       goal: result.goal,
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<Project>,
+      allAspects: summaryResponse.aspects as Array<Aspect>,
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -193,12 +193,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: form.isKey,
           },
-          project_ref_id:
-            form.project !== undefined
-              ? { should_change: true, value: form.project }
+          aspect_ref_id:
+            form.aspect !== undefined
+              ? { should_change: true, value: form.aspect }
               : { should_change: false },
           chapter_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -208,7 +208,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
           goal_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -352,8 +352,8 @@ export default function Chore() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.chore.archived;
 
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.project.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState(
+    loaderData.aspect.ref_id,
   );
 
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
@@ -392,7 +392,7 @@ export default function Chore() {
     // Update states based on loader data. This is necessary because these
     // two are not otherwise updated when the loader data changes. Which happens
     // on a navigation event.
-    setSelectedProject(loaderData.project.ref_id);
+    setSelectedAspect(loaderData.aspect.ref_id);
   }, [loaderData]);
 
   return (
@@ -484,9 +484,9 @@ export default function Chore() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
+              allAspects={loaderData.allAspects}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
               allChapters={loaderData.allChapters}
               chapterDefaultValue={loaderData.chapter?.ref_id}
               allGoals={loaderData.allGoals}
@@ -495,7 +495,7 @@ export default function Chore() {
               today={aDateToDate(topLevelInfo.today)}
               allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>

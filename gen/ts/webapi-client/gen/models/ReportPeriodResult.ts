@@ -5,12 +5,12 @@
 import type { ADate } from './ADate';
 import type { InboxTaskSource } from './InboxTaskSource';
 import type { InboxTasksSummary } from './InboxTasksSummary';
+import type { PerAspectBreakdownItem } from './PerAspectBreakdownItem';
 import type { PerBigPlanBreakdownItem } from './PerBigPlanBreakdownItem';
 import type { PerChoreBreakdownItem } from './PerChoreBreakdownItem';
 import type { PerGoalBreakdownItem } from './PerGoalBreakdownItem';
 import type { PerHabitBreakdownItem } from './PerHabitBreakdownItem';
 import type { PerPeriodBreakdownItem } from './PerPeriodBreakdownItem';
-import type { PerProjectBreakdownItem } from './PerProjectBreakdownItem';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
 import type { ReportBreakdown } from './ReportBreakdown';
 import type { UserScoreOverview } from './UserScoreOverview';
@@ -26,7 +26,7 @@ export type ReportPeriodResult = {
     breakdown_period?: (RecurringTaskPeriod | null);
     global_inbox_tasks_summary: InboxTasksSummary;
     global_big_plans_summary: WorkableSummary;
-    per_project_breakdown: Array<PerProjectBreakdownItem>;
+    per_aspect_breakdown: Array<PerAspectBreakdownItem>;
     per_goal_breakdown: Array<PerGoalBreakdownItem>;
     per_period_breakdown: Array<PerPeriodBreakdownItem>;
     per_habit_breakdown: Array<PerHabitBreakdownItem>;

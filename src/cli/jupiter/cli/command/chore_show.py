@@ -5,6 +5,7 @@ from typing import cast
 from jupiter.cli.command.rendering import (
     actionable_from_day_to_rich_text,
     actionable_from_month_to_rich_text,
+    aspect_to_rich_text,
     difficulty_to_rich_text,
     due_at_day_to_rich_text,
     due_at_month_to_rich_text,
@@ -13,7 +14,6 @@ from jupiter.cli.command.rendering import (
     entity_id_to_rich_text,
     inbox_task_summary_to_rich_text,
     period_to_rich_text,
-    project_to_rich_text,
     skip_rule_to_rich_text,
     start_date_to_rich_text,
 )
@@ -21,7 +21,7 @@ from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.chores.use_case.find import ChoreFindResult, ChoreFindUseCase
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.adate import ADate
 from rich.console import Console
 from rich.text import Text
@@ -52,7 +52,7 @@ class ChoreShow(JupiterLoggedInReadonlyCommand[ChoreFindUseCase, ChoreFindResult
 
         for chore_entry in sorted_chores:
             chore = chore_entry.chore
-            project = cast(Project, chore_entry.project)
+            aspect = cast(Aspect, chore_entry.aspect)
             inbox_tasks = chore_entry.inbox_tasks
 
             chore_text = Text("")
@@ -114,11 +114,11 @@ class ChoreShow(JupiterLoggedInReadonlyCommand[ChoreFindUseCase, ChoreFindResult
                 chore_info_text.append(" ")
                 chore_info_text.append(end_date_to_rich_text(chore.end_at_date))
 
-            if project is not None and context.workspace.is_feature_available(
+            if aspect is not None and context.workspace.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 chore_info_text.append(" ")
-                chore_info_text.append(project_to_rich_text(project.name))
+                chore_info_text.append(aspect_to_rich_text(aspect.name))
 
             if chore.suspended:
                 chore_text.stylize("yellow")

@@ -18,7 +18,7 @@ class BigPlanSummary:
     Attributes:
         ref_id (str): A generic entity id.
         name (str): The big plan name.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         is_key (bool):
         chapter_ref_id (None | str | Unset):
         goal_ref_id (None | str | Unset):
@@ -26,7 +26,7 @@ class BigPlanSummary:
 
     ref_id: str
     name: str
-    project_ref_id: str
+    aspect_ref_id: str
     is_key: bool
     chapter_ref_id: None | str | Unset = UNSET
     goal_ref_id: None | str | Unset = UNSET
@@ -37,7 +37,7 @@ class BigPlanSummary:
 
         name = self.name
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         is_key = self.is_key
 
@@ -59,7 +59,7 @@ class BigPlanSummary:
             {
                 "ref_id": ref_id,
                 "name": name,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "is_key": is_key,
             }
         )
@@ -77,7 +77,7 @@ class BigPlanSummary:
 
         name = d.pop("name")
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         is_key = d.pop("is_key")
 
@@ -102,7 +102,7 @@ class BigPlanSummary:
         big_plan_summary = cls(
             ref_id=ref_id,
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             is_key=is_key,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,

@@ -13,7 +13,7 @@ export type GoalUpdateArgs = {
         should_change: boolean;
         value?: GoalName;
     };
-    project_ref_id: {
+    aspect_ref_id: {
         should_change: boolean;
         value?: EntityId;
     };

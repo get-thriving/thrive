@@ -23,7 +23,7 @@ export type TimePlanUpdateSettingsArgs = {
         should_change: boolean;
         value?: Record<string, number>;
     };
-    planning_task_project_ref_id: {
+    planning_task_aspect_ref_id: {
         should_change: boolean;
         value?: (EntityId | null);
     };

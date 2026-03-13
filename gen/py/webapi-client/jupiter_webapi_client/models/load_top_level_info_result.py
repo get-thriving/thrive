@@ -45,7 +45,7 @@ class LoadTopLevelInfoResult:
         default_user_feature_flags (LoadTopLevelInfoResultDefaultUserFeatureFlags):
         deafult_workspace_name (str): The workspace name.
         default_first_schedule_stream_name (str): The name of a schedule stream.
-        default_root_project_name (str): The project name.
+        default_root_aspect_name (str): The aspect name.
         workspace_feature_flag_controls (WorkspaceFeatureFlagsControls): Feature settings controls for the workspace.
         default_workspace_feature_flags (LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags):
         workspace_feature_hack (WorkspaceFeature): A particular feature of a jupiter workspace.
@@ -66,7 +66,7 @@ class LoadTopLevelInfoResult:
     default_user_feature_flags: LoadTopLevelInfoResultDefaultUserFeatureFlags
     deafult_workspace_name: str
     default_first_schedule_stream_name: str
-    default_root_project_name: str
+    default_root_aspect_name: str
     workspace_feature_flag_controls: WorkspaceFeatureFlagsControls
     default_workspace_feature_flags: LoadTopLevelInfoResultDefaultWorkspaceFeatureFlags
     workspace_feature_hack: WorkspaceFeature
@@ -98,7 +98,7 @@ class LoadTopLevelInfoResult:
 
         default_first_schedule_stream_name = self.default_first_schedule_stream_name
 
-        default_root_project_name = self.default_root_project_name
+        default_root_aspect_name = self.default_root_aspect_name
 
         workspace_feature_flag_controls = self.workspace_feature_flag_controls.to_dict()
 
@@ -188,7 +188,7 @@ class LoadTopLevelInfoResult:
                 "default_user_feature_flags": default_user_feature_flags,
                 "deafult_workspace_name": deafult_workspace_name,
                 "default_first_schedule_stream_name": default_first_schedule_stream_name,
-                "default_root_project_name": default_root_project_name,
+                "default_root_aspect_name": default_root_aspect_name,
                 "workspace_feature_flag_controls": workspace_feature_flag_controls,
                 "default_workspace_feature_flags": default_workspace_feature_flags,
                 "workspace_feature_hack": workspace_feature_hack,
@@ -244,7 +244,7 @@ class LoadTopLevelInfoResult:
 
         default_first_schedule_stream_name = d.pop("default_first_schedule_stream_name")
 
-        default_root_project_name = d.pop("default_root_project_name")
+        default_root_aspect_name = d.pop("default_root_aspect_name")
 
         workspace_feature_flag_controls = WorkspaceFeatureFlagsControls.from_dict(
             d.pop("workspace_feature_flag_controls")
@@ -416,7 +416,7 @@ class LoadTopLevelInfoResult:
             default_user_feature_flags=default_user_feature_flags,
             deafult_workspace_name=deafult_workspace_name,
             default_first_schedule_stream_name=default_first_schedule_stream_name,
-            default_root_project_name=default_root_project_name,
+            default_root_aspect_name=default_root_aspect_name,
             workspace_feature_flag_controls=workspace_feature_flag_controls,
             default_workspace_feature_flags=default_workspace_feature_flags,
             workspace_feature_hack=workspace_feature_hack,

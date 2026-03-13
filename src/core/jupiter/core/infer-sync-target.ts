@@ -69,7 +69,7 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
-      syncTarget === SyncTarget.PROJECTS &&
+      syncTarget === SyncTarget.ASPECTS &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredSyncTargets.push(syncTarget);

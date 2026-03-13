@@ -22,8 +22,8 @@ import { DateTime } from "luxon";
 import { Fragment, useContext, useState } from "react";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import {
   bigPlanFindEntryToParent,
@@ -62,7 +62,7 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
   const response = await apiClient.bigPlans.bigPlanFind({
     allow_archived: false,
@@ -83,18 +83,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
   return json({
     bigPlans: response.entries,
-    allProjects: summaryResponse.projects || undefined,
+    allAspects: summaryResponse.aspects || undefined,
     allTags: allTags.tags as Array<Tag>,
     allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
 enum View {
-  TIMELINE_BY_PROJECT_AND_GOAL = "timeline-by-project-and-goal",
-  TIMELINE_BY_PROJECT = "timeline-by-project",
+  TIMELINE_BY_ASPECT_AND_GOAL = "timeline-by-aspect-and-goal",
+  TIMELINE_BY_ASPECT = "timeline-by-aspect",
   TIMELINE = "timeline",
-  LIST_BY_PROJECT_AND_GOAL = "list-by-project-and-goal",
-  LIST_BY_PROJECT = "list-by-project",
+  LIST_BY_ASPECT_AND_GOAL = "list-by-aspect-and-goal",
+  LIST_BY_ASPECT = "list-by-aspect",
   LIST = "list",
 }
 
@@ -140,16 +140,16 @@ export default function BigPlans() {
     topLevelInfo.workspace,
     WorkspaceFeature.LIFE_PLAN,
   )
-    ? View.TIMELINE_BY_PROJECT
+    ? View.TIMELINE_BY_ASPECT
     : View.TIMELINE;
   const [selectedView, setSelectedView] = useState(initialView);
 
   const thisYear = DateTime.local({ zone: topLevelInfo.user.timezone }).startOf(
     "year",
   );
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
   const bigPlanMilestonesByRefId = new Map<string, BigPlanMilestone[]>(
     (loaderData.bigPlans as Array<BigPlanFindResultEntry>).map((b) => [
@@ -180,14 +180,14 @@ export default function BigPlans() {
               selectedView,
               [
                 {
-                  value: View.TIMELINE_BY_PROJECT_AND_GOAL,
-                  text: "Timeline by Project & Goal",
+                  value: View.TIMELINE_BY_ASPECT_AND_GOAL,
+                  text: "Timeline by Aspect & Goal",
                   icon: <ViewTimelineIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: View.TIMELINE_BY_PROJECT,
-                  text: "Timeline by Project",
+                  value: View.TIMELINE_BY_ASPECT,
+                  text: "Timeline by Aspect",
                   icon: <ViewTimelineIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -197,14 +197,14 @@ export default function BigPlans() {
                   icon: <ViewTimelineIcon />,
                 },
                 {
-                  value: View.LIST_BY_PROJECT_AND_GOAL,
-                  text: "List by Project & Goal",
+                  value: View.LIST_BY_ASPECT_AND_GOAL,
+                  text: "List by Aspect & Goal",
                   icon: <ViewListIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: View.LIST_BY_PROJECT,
-                  text: "List by Project",
+                  value: View.LIST_BY_ASPECT,
+                  text: "List by Aspect",
                   icon: <ViewListIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -247,25 +247,25 @@ export default function BigPlans() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          selectedView === View.TIMELINE_BY_PROJECT_AND_GOAL && (
+          selectedView === View.TIMELINE_BY_ASPECT_AND_GOAL && (
             <>
-              {sortedProjects.map((p) => {
-                const projectBigPlans = sortedBigPlans.filter(
+              {sortedAspects.map((p) => {
+                const aspectBigPlans = sortedBigPlans.filter(
                   (se) =>
-                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                    entriesByRefId.get(se.ref_id)?.aspect?.ref_id === p.ref_id,
                 );
 
-                if (projectBigPlans.length === 0) {
+                if (aspectBigPlans.length === 0) {
                   return null;
                 }
 
-                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                const fullAspectName = computeAspectHierarchicalNameFromRoot(
                   p,
-                  allProjectsByRefId,
+                  allAspectsByRefId,
                 );
 
                 const goalsByRefId = new Map<string, Goal>();
-                for (const bp of projectBigPlans) {
+                for (const bp of aspectBigPlans) {
                   const goal = entriesByRefId.get(bp.ref_id)?.goal;
                   if (goal) {
                     goalsByRefId.set(goal.ref_id, goal);
@@ -274,15 +274,15 @@ export default function BigPlans() {
                 const sortedGoals = Array.from(goalsByRefId.values()).sort(
                   (a, b) => a.name.localeCompare(b.name),
                 );
-                const noGoalPlans = projectBigPlans.filter(
+                const noGoalPlans = aspectBigPlans.filter(
                   (bp) => !entriesByRefId.get(bp.ref_id)?.goal,
                 );
 
                 return (
                   <Fragment key={p.ref_id}>
-                    <StandardDivider title={fullProjectName} size="large" />
+                    <StandardDivider title={fullAspectName} size="large" />
                     {sortedGoals.map((goal) => {
-                      const goalBigPlans = projectBigPlans.filter(
+                      const goalBigPlans = aspectBigPlans.filter(
                         (bp) =>
                           entriesByRefId.get(bp.ref_id)?.goal?.ref_id ===
                           goal.ref_id,
@@ -377,26 +377,26 @@ export default function BigPlans() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          selectedView === View.TIMELINE_BY_PROJECT && (
+          selectedView === View.TIMELINE_BY_ASPECT && (
             <>
-              {sortedProjects.map((p) => {
+              {sortedAspects.map((p) => {
                 const theBigPlans = sortedBigPlans.filter(
                   (se) =>
-                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                    entriesByRefId.get(se.ref_id)?.aspect?.ref_id === p.ref_id,
                 );
 
                 if (theBigPlans.length === 0) {
                   return null;
                 }
 
-                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                const fullAspectName = computeAspectHierarchicalNameFromRoot(
                   p,
-                  allProjectsByRefId,
+                  allAspectsByRefId,
                 );
 
                 return (
                   <Fragment key={p.ref_id}>
-                    <StandardDivider title={fullProjectName} size="large" />
+                    <StandardDivider title={fullAspectName} size="large" />
                     <>
                       {isBigScreen && (
                         <BigPlanTimelineBigScreen
@@ -479,25 +479,25 @@ export default function BigPlans() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          selectedView === View.LIST_BY_PROJECT_AND_GOAL && (
+          selectedView === View.LIST_BY_ASPECT_AND_GOAL && (
             <>
-              {sortedProjects.map((p) => {
-                const projectBigPlans = sortedBigPlans.filter(
+              {sortedAspects.map((p) => {
+                const aspectBigPlans = sortedBigPlans.filter(
                   (se) =>
-                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                    entriesByRefId.get(se.ref_id)?.aspect?.ref_id === p.ref_id,
                 );
 
-                if (projectBigPlans.length === 0) {
+                if (aspectBigPlans.length === 0) {
                   return null;
                 }
 
-                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                const fullAspectName = computeAspectHierarchicalNameFromRoot(
                   p,
-                  allProjectsByRefId,
+                  allAspectsByRefId,
                 );
 
                 const goalsByRefId = new Map<string, Goal>();
-                for (const bp of projectBigPlans) {
+                for (const bp of aspectBigPlans) {
                   const goal = entriesByRefId.get(bp.ref_id)?.goal;
                   if (goal) {
                     goalsByRefId.set(goal.ref_id, goal);
@@ -506,15 +506,15 @@ export default function BigPlans() {
                 const sortedGoals = Array.from(goalsByRefId.values()).sort(
                   (a, b) => a.name.localeCompare(b.name),
                 );
-                const noGoalPlans = projectBigPlans.filter(
+                const noGoalPlans = aspectBigPlans.filter(
                   (bp) => !entriesByRefId.get(bp.ref_id)?.goal,
                 );
 
                 return (
                   <Fragment key={p.ref_id}>
-                    <StandardDivider title={fullProjectName} size="large" />
+                    <StandardDivider title={fullAspectName} size="large" />
                     {sortedGoals.map((goal) => {
-                      const goalBigPlans = projectBigPlans.filter(
+                      const goalBigPlans = aspectBigPlans.filter(
                         (bp) =>
                           entriesByRefId.get(bp.ref_id)?.goal?.ref_id ===
                           goal.ref_id,
@@ -574,28 +574,28 @@ export default function BigPlans() {
             topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          selectedView === View.LIST_BY_PROJECT && (
+          selectedView === View.LIST_BY_ASPECT && (
             <>
-              {sortedProjects.map((p) => {
+              {sortedAspects.map((p) => {
                 const theBigPlans = sortedBigPlans.filter(
                   (se) =>
-                    entriesByRefId.get(se.ref_id)?.project?.ref_id === p.ref_id,
+                    entriesByRefId.get(se.ref_id)?.aspect?.ref_id === p.ref_id,
                 );
 
                 if (theBigPlans.length === 0) {
                   return null;
                 }
 
-                const fullProjectName = computeProjectHierarchicalNameFromRoot(
+                const fullAspectName = computeAspectHierarchicalNameFromRoot(
                   p,
-                  allProjectsByRefId,
+                  allAspectsByRefId,
                 );
 
                 return (
                   <BigPlanStack
                     key={p.ref_id}
                     topLevelInfo={topLevelInfo}
-                    label={fullProjectName}
+                    label={fullAspectName}
                     bigPlans={theBigPlans}
                     bigPlanMilestonesByRefId={bigPlanMilestonesByRefId}
                     bigPlanStatsByRefId={bigPlanStatsByRefId}

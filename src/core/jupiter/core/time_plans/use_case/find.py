@@ -20,9 +20,9 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
     TimePlanChapterLink,
     TimePlanGoalLink,
-    TimePlanProjectLink,
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
@@ -60,7 +60,7 @@ class TimePlanFindResultEntry(UseCaseResultBase):
     note: Note | None
     planning_task: InboxTask | None
     chapter_ref_ids: list[EntityId] | None
-    project_ref_ids: list[EntityId] | None
+    aspect_ref_ids: list[EntityId] | None
     goal_ref_ids: list[EntityId] | None
 
 
@@ -110,7 +110,7 @@ class TimePlanFindUseCase(
         )
 
         chapter_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
-        project_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
+        aspect_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
         goal_ref_ids_by_time_plan_ref_id: dict[EntityId, list[EntityId]] = {}
         if (
             include_life_plan_ref_ids
@@ -121,7 +121,7 @@ class TimePlanFindUseCase(
             chapter_links = await uow.get_for_record(TimePlanChapterLink).find_all(
                 time_plan_ref_ids
             )
-            project_links = await uow.get_for_record(TimePlanProjectLink).find_all(
+            aspect_links = await uow.get_for_record(TimePlanAspectLink).find_all(
                 time_plan_ref_ids
             )
             goal_links = await uow.get_for_record(TimePlanGoalLink).find_all(
@@ -132,10 +132,10 @@ class TimePlanFindUseCase(
                 chapter_ref_ids_by_time_plan_ref_id.setdefault(
                     chapter_link.time_plan.ref_id, []
                 ).append(chapter_link.chapter_ref_id)
-            for project_link in project_links:
-                project_ref_ids_by_time_plan_ref_id.setdefault(
-                    project_link.time_plan.ref_id, []
-                ).append(project_link.project_ref_id)
+            for aspect_link in aspect_links:
+                aspect_ref_ids_by_time_plan_ref_id.setdefault(
+                    aspect_link.time_plan.ref_id, []
+                ).append(aspect_link.aspect_ref_id)
             for goal_link in goal_links:
                 goal_ref_ids_by_time_plan_ref_id.setdefault(
                     goal_link.time_plan.ref_id, []
@@ -208,8 +208,8 @@ class TimePlanFindUseCase(
                         if include_life_plan_ref_ids
                         else None
                     ),
-                    project_ref_ids=(
-                        project_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
+                    aspect_ref_ids=(
+                        aspect_ref_ids_by_time_plan_ref_id.get(time_plan.ref_id, [])
                         if include_life_plan_ref_ids
                         else None
                     ),

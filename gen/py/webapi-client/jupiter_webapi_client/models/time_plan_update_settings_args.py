@@ -12,13 +12,13 @@ if TYPE_CHECKING:
         TimePlanUpdateSettingsArgsGenerationInAdvanceDays,
     )
     from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
+    from ..models.time_plan_update_settings_args_planning_task_aspect_ref_id import (
+        TimePlanUpdateSettingsArgsPlanningTaskAspectRefId,
+    )
     from ..models.time_plan_update_settings_args_planning_task_difficulty import (
         TimePlanUpdateSettingsArgsPlanningTaskDifficulty,
     )
     from ..models.time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
-    from ..models.time_plan_update_settings_args_planning_task_project_ref_id import (
-        TimePlanUpdateSettingsArgsPlanningTaskProjectRefId,
-    )
 
 
 T = TypeVar("T", bound="TimePlanUpdateSettingsArgs")
@@ -32,7 +32,7 @@ class TimePlanUpdateSettingsArgs:
         periods (TimePlanUpdateSettingsArgsPeriods):
         generation_approach (TimePlanUpdateSettingsArgsGenerationApproach):
         generation_in_advance_days (TimePlanUpdateSettingsArgsGenerationInAdvanceDays):
-        planning_task_project_ref_id (TimePlanUpdateSettingsArgsPlanningTaskProjectRefId):
+        planning_task_aspect_ref_id (TimePlanUpdateSettingsArgsPlanningTaskAspectRefId):
         planning_task_eisen (TimePlanUpdateSettingsArgsPlanningTaskEisen):
         planning_task_difficulty (TimePlanUpdateSettingsArgsPlanningTaskDifficulty):
     """
@@ -40,7 +40,7 @@ class TimePlanUpdateSettingsArgs:
     periods: TimePlanUpdateSettingsArgsPeriods
     generation_approach: TimePlanUpdateSettingsArgsGenerationApproach
     generation_in_advance_days: TimePlanUpdateSettingsArgsGenerationInAdvanceDays
-    planning_task_project_ref_id: TimePlanUpdateSettingsArgsPlanningTaskProjectRefId
+    planning_task_aspect_ref_id: TimePlanUpdateSettingsArgsPlanningTaskAspectRefId
     planning_task_eisen: TimePlanUpdateSettingsArgsPlanningTaskEisen
     planning_task_difficulty: TimePlanUpdateSettingsArgsPlanningTaskDifficulty
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -52,7 +52,7 @@ class TimePlanUpdateSettingsArgs:
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
 
-        planning_task_project_ref_id = self.planning_task_project_ref_id.to_dict()
+        planning_task_aspect_ref_id = self.planning_task_aspect_ref_id.to_dict()
 
         planning_task_eisen = self.planning_task_eisen.to_dict()
 
@@ -65,7 +65,7 @@ class TimePlanUpdateSettingsArgs:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
-                "planning_task_project_ref_id": planning_task_project_ref_id,
+                "planning_task_aspect_ref_id": planning_task_aspect_ref_id,
                 "planning_task_eisen": planning_task_eisen,
                 "planning_task_difficulty": planning_task_difficulty,
             }
@@ -82,14 +82,14 @@ class TimePlanUpdateSettingsArgs:
             TimePlanUpdateSettingsArgsGenerationInAdvanceDays,
         )
         from ..models.time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
+        from ..models.time_plan_update_settings_args_planning_task_aspect_ref_id import (
+            TimePlanUpdateSettingsArgsPlanningTaskAspectRefId,
+        )
         from ..models.time_plan_update_settings_args_planning_task_difficulty import (
             TimePlanUpdateSettingsArgsPlanningTaskDifficulty,
         )
         from ..models.time_plan_update_settings_args_planning_task_eisen import (
             TimePlanUpdateSettingsArgsPlanningTaskEisen,
-        )
-        from ..models.time_plan_update_settings_args_planning_task_project_ref_id import (
-            TimePlanUpdateSettingsArgsPlanningTaskProjectRefId,
         )
 
         d = dict(src_dict)
@@ -101,8 +101,8 @@ class TimePlanUpdateSettingsArgs:
             d.pop("generation_in_advance_days")
         )
 
-        planning_task_project_ref_id = TimePlanUpdateSettingsArgsPlanningTaskProjectRefId.from_dict(
-            d.pop("planning_task_project_ref_id")
+        planning_task_aspect_ref_id = TimePlanUpdateSettingsArgsPlanningTaskAspectRefId.from_dict(
+            d.pop("planning_task_aspect_ref_id")
         )
 
         planning_task_eisen = TimePlanUpdateSettingsArgsPlanningTaskEisen.from_dict(d.pop("planning_task_eisen"))
@@ -115,7 +115,7 @@ class TimePlanUpdateSettingsArgs:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
-            planning_task_project_ref_id=planning_task_project_ref_id,
+            planning_task_aspect_ref_id=planning_task_aspect_ref_id,
             planning_task_eisen=planning_task_eisen,
             planning_task_difficulty=planning_task_difficulty,
         )

@@ -5,7 +5,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   TimePlan,
 } from "@jupiter/webapi-client";
 import {
@@ -83,7 +83,7 @@ const QuerySchema = z.object({
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string().optional(),
+  aspect: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   bigPlan: z.string().optional(),
@@ -134,7 +134,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -142,7 +142,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   let ownerBigPlan = null;
-  let ownerProject = null;
+  let ownerAspect = null;
   let ownerChapter = null;
   let ownerGoal = null;
   if (bigPlanReason === "for-big-plan") {
@@ -156,15 +156,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     ownerBigPlan = bigPlanResult.big_plan;
-    ownerProject = bigPlanResult.project;
+    ownerAspect = bigPlanResult.aspect;
     ownerChapter = bigPlanResult.chapter;
     ownerGoal = bigPlanResult.goal;
   }
 
-  const defaultProject =
+  const defaultAspect =
     bigPlanReason === "for-big-plan"
-      ? (ownerProject as ProjectSummary)
-      : (summaryResponse.root_project as ProjectSummary);
+      ? (ownerAspect as AspectSummary)
+      : (summaryResponse.root_aspect as AspectSummary);
   const defaultChapter =
     bigPlanReason === "for-big-plan" ? (ownerChapter as ChapterSummary) : null;
   const defaultGoal =
@@ -185,13 +185,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     timePlanReason: timePlanReason,
     bigPlanReason: bigPlanReason,
     associatedTimePlan: associatedTimePlan,
-    defaultProject: defaultProject,
+    defaultAspect: defaultAspect,
     defaultChapter: defaultChapter,
     defaultGoal: defaultGoal,
     defaultBigPlan: defaultBigPlan,
     ownerBigPlan: ownerBigPlan,
     lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allChapters: summaryResponse.chapters as Array<ChapterSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -219,7 +219,7 @@ export async function action({ request }: ActionFunctionArgs) {
           : (query.timePlanRefId as string),
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
-      project_ref_id: form.project,
+      aspect_ref_id: form.aspect,
       chapter_ref_id:
         form.chapter !== undefined && form.chapter !== ""
           ? form.chapter
@@ -297,8 +297,8 @@ export default function NewInboxTask() {
   const [selectedBigPlan, setSelectedBigPlan] = useState(
     loaderData.defaultBigPlan,
   );
-  const [selectedProject, setSelectedProject] = useState(
-    loaderData.defaultProject.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState(
+    loaderData.defaultAspect.ref_id,
   );
   const [selectedChapter, setSelectedChapter] = useState<EntityId | null>(
     loaderData.defaultChapter?.ref_id ?? null,
@@ -306,13 +306,13 @@ export default function NewInboxTask() {
   const [selectedGoal, setSelectedGoal] = useState<EntityId | null>(
     loaderData.defaultGoal?.ref_id ?? null,
   );
-  const [blockedToSelectProject, setBlockedToSelectProject] = useState(
+  const [blockedToSelectAspect, setBlockedToSelectAspect] = useState(
     loaderData.bigPlanReason === "for-big-plan",
   );
 
   const inputsEnabled = navigation.state === "idle";
 
-  const allProjectsById: { [k: string]: ProjectSummary } = {};
+  const allAspectsById: { [k: string]: AspectSummary } = {};
   const allChaptersById: { [k: string]: ChapterSummary } = {};
   const allGoalsById: { [k: string]: GoalSummary } = {};
   if (
@@ -321,8 +321,8 @@ export default function NewInboxTask() {
       WorkspaceFeature.LIFE_PLAN,
     )
   ) {
-    for (const project of loaderData.allProjects) {
-      allProjectsById[project.ref_id] = project;
+    for (const aspect of loaderData.allAspects) {
+      allAspectsById[aspect.ref_id] = aspect;
     }
     for (const chapter of loaderData.allChapters) {
       allChaptersById[chapter.ref_id] = chapter;
@@ -371,15 +371,15 @@ export default function NewInboxTask() {
       )
     ) {
       if (big_plan_id === "none") {
-        setSelectedProject(loaderData.defaultProject.ref_id);
+        setSelectedAspect(loaderData.defaultAspect.ref_id);
         setSelectedChapter(null);
         setSelectedGoal(null);
-        setBlockedToSelectProject(false);
+        setBlockedToSelectAspect(false);
       } else {
-        setSelectedProject(allBigPlansById[big_plan_id].project_ref_id);
+        setSelectedAspect(allBigPlansById[big_plan_id].aspect_ref_id);
         setSelectedChapter(allBigPlansById[big_plan_id].chapter_ref_id ?? null);
         setSelectedGoal(allBigPlansById[big_plan_id].goal_ref_id ?? null);
-        setBlockedToSelectProject(true);
+        setBlockedToSelectAspect(true);
       }
     }
   }
@@ -477,10 +477,10 @@ export default function NewInboxTask() {
         ) && (
           <FormControl fullWidth>
             <LifePlanAssociations
-              inputsEnabled={inputsEnabled && !blockedToSelectProject}
-              allProjects={loaderData.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
+              inputsEnabled={inputsEnabled && !blockedToSelectAspect}
+              allAspects={loaderData.allAspects}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
               allChapters={loaderData.allChapters}
               chapterValue={selectedChapter}
               onChapterChange={setSelectedChapter}
@@ -491,7 +491,7 @@ export default function NewInboxTask() {
               today={aDateToDate(topLevelInfo.today)}
               allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>

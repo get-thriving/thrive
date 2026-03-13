@@ -9,9 +9,9 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLinkRepository,
     TimePlanChapterLinkRepository,
     TimePlanGoalLinkRepository,
-    TimePlanProjectLinkRepository,
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
@@ -59,7 +59,7 @@ class TimePlanRemoveUseCase(
         await uow.get(TimePlanChapterLinkRepository).remove_all_for_time_plan(
             args.ref_id
         )
-        await uow.get(TimePlanProjectLinkRepository).remove_all_for_time_plan(
+        await uow.get(TimePlanAspectLinkRepository).remove_all_for_time_plan(
             args.ref_id
         )
         await uow.get(TimePlanGoalLinkRepository).remove_all_for_time_plan(args.ref_id)

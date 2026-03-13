@@ -126,7 +126,7 @@ class OccasionUpdateUseCase(
 
             inbox_task = inbox_task.update_link_to_person_occasion(
                 ctx=context.domain_context,
-                project_ref_id=prm.catch_up_project_ref_id,
+                aspect_ref_id=prm.catch_up_aspect_ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,

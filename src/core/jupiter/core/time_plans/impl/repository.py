@@ -7,12 +7,12 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
+    TimePlanAspectLinkRepository,
     TimePlanChapterLink,
     TimePlanChapterLinkRepository,
     TimePlanGoalLink,
     TimePlanGoalLinkRepository,
-    TimePlanProjectLink,
-    TimePlanProjectLinkRepository,
 )
 from jupiter.core.time_plans.root import (
     TimePlan,
@@ -437,13 +437,13 @@ class SqliteTimePlanChapterLinkRepository(
         )
 
 
-class SqliteTimePlanProjectLinkRepository(
-    SqliteRecordRepository[TimePlanProjectLink, tuple[EntityId, EntityId]],
-    TimePlanProjectLinkRepository,
+class SqliteTimePlanAspectLinkRepository(
+    SqliteRecordRepository[TimePlanAspectLink, tuple[EntityId, EntityId]],
+    TimePlanAspectLinkRepository,
 ):
-    """A SQLite repository for time plan project links."""
+    """A SQLite repository for time plan aspect links."""
 
-    _time_plan_project_link_table: Final[Table]
+    _time_plan_aspect_link_table: Final[Table]
 
     def __init__(
         self,
@@ -453,8 +453,8 @@ class SqliteTimePlanProjectLinkRepository(
     ) -> None:
         """Constructor."""
         super().__init__(realm_codec_registry, connection, metadata)
-        self._time_plan_project_link_table = Table(
-            "time_plan_project_link",
+        self._time_plan_aspect_link_table = Table(
+            "time_plan_aspect_link",
             metadata,
             Column(
                 "time_plan_ref_id",
@@ -463,9 +463,9 @@ class SqliteTimePlanProjectLinkRepository(
                 nullable=False,
             ),
             Column(
-                "project_ref_id",
+                "aspect_ref_id",
                 Integer,
-                ForeignKey("project.ref_id"),
+                ForeignKey("aspect.ref_id"),
                 nullable=False,
             ),
             Column("created_time", DateTime, nullable=False),
@@ -473,11 +473,11 @@ class SqliteTimePlanProjectLinkRepository(
             keep_existing=True,
         )
 
-    async def create(self, record: TimePlanProjectLink) -> TimePlanProjectLink:
-        """Create a new time plan project link."""
+    async def create(self, record: TimePlanAspectLink) -> TimePlanAspectLink:
+        """Create a new time plan aspect link."""
         try:
             await self._connection.execute(
-                insert(self._time_plan_project_link_table).values(
+                insert(self._time_plan_aspect_link_table).values(
                     **(
                         cast(
                             Mapping[str, RealmThing],
@@ -488,21 +488,21 @@ class SqliteTimePlanProjectLinkRepository(
             )
         except IntegrityError as err:
             raise RecordAlreadyExistsError(
-                f"Time plan project link for time plan {record.time_plan.ref_id} and project {record.project_ref_id} already exists",
+                f"Time plan aspect link for time plan {record.time_plan.ref_id} and aspect {record.aspect_ref_id} already exists",
             ) from err
         return record
 
-    async def save(self, record: TimePlanProjectLink) -> TimePlanProjectLink:
-        """Save a time plan project link."""
+    async def save(self, record: TimePlanAspectLink) -> TimePlanAspectLink:
+        """Save a time plan aspect link."""
         result = await self._connection.execute(
-            update(self._time_plan_project_link_table)
+            update(self._time_plan_aspect_link_table)
             .where(
-                self._time_plan_project_link_table.c.time_plan_ref_id
+                self._time_plan_aspect_link_table.c.time_plan_ref_id
                 == record.time_plan.as_int()
             )
             .where(
-                self._time_plan_project_link_table.c.project_ref_id
-                == record.project_ref_id.as_int()
+                self._time_plan_aspect_link_table.c.aspect_ref_id
+                == record.aspect_ref_id.as_int()
             )
             .values(
                 **(
@@ -515,38 +515,34 @@ class SqliteTimePlanProjectLinkRepository(
         )
         if result.rowcount == 0:
             raise RecordNotFoundError(
-                f"Time plan project link for time plan {record.time_plan.ref_id} and project {record.project_ref_id} does not exist",
+                f"Time plan aspect link for time plan {record.time_plan.ref_id} and aspect {record.aspect_ref_id} does not exist",
             )
         return record
 
     async def remove(self, key: tuple[EntityId, EntityId]) -> None:
-        """Remove a time plan project link."""
+        """Remove a time plan aspect link."""
         result = await self._connection.execute(
-            delete(self._time_plan_project_link_table)
+            delete(self._time_plan_aspect_link_table)
             .where(
-                self._time_plan_project_link_table.c.time_plan_ref_id == key[0].as_int()
+                self._time_plan_aspect_link_table.c.time_plan_ref_id == key[0].as_int()
             )
-            .where(
-                self._time_plan_project_link_table.c.project_ref_id == key[1].as_int()
-            )
+            .where(self._time_plan_aspect_link_table.c.aspect_ref_id == key[1].as_int())
         )
         if result.rowcount == 0:
             raise RecordNotFoundError(
-                f"Time plan project link for time plan {key[0]} and project {key[1]} does not exist",
+                f"Time plan aspect link for time plan {key[0]} and aspect {key[1]} does not exist",
             )
 
     async def load_by_key_optional(
         self, key: tuple[EntityId, EntityId]
-    ) -> TimePlanProjectLink | None:
-        """Load a time plan project link by its unique key."""
+    ) -> TimePlanAspectLink | None:
+        """Load a time plan aspect link by its unique key."""
         result = await self._connection.execute(
-            select(self._time_plan_project_link_table)
+            select(self._time_plan_aspect_link_table)
             .where(
-                self._time_plan_project_link_table.c.time_plan_ref_id == key[0].as_int()
+                self._time_plan_aspect_link_table.c.time_plan_ref_id == key[0].as_int()
             )
-            .where(
-                self._time_plan_project_link_table.c.project_ref_id == key[1].as_int()
-            )
+            .where(self._time_plan_aspect_link_table.c.aspect_ref_id == key[1].as_int())
         )
         row = result.first()
         if row is None:
@@ -555,18 +551,16 @@ class SqliteTimePlanProjectLinkRepository(
 
     async def find_all(
         self, parent_ref_id: EntityId | list[EntityId]
-    ) -> list[TimePlanProjectLink]:
-        """Find all time plan project links for one or more time plans."""
+    ) -> list[TimePlanAspectLink]:
+        """Find all time plan aspect links for one or more time plans."""
         parent_ref_ids = (
             [parent_ref_id.as_int()]
             if isinstance(parent_ref_id, EntityId)
             else [p.as_int() for p in parent_ref_id]
         )
         result = await self._connection.execute(
-            select(self._time_plan_project_link_table).where(
-                self._time_plan_project_link_table.c.time_plan_ref_id.in_(
-                    parent_ref_ids
-                )
+            select(self._time_plan_aspect_link_table).where(
+                self._time_plan_aspect_link_table.c.time_plan_ref_id.in_(parent_ref_ids)
             )
         )
         results = result.fetchall()
@@ -575,24 +569,24 @@ class SqliteTimePlanProjectLinkRepository(
     async def remove_all_for_time_plan(self, time_plan_ref_id: EntityId) -> None:
         """Remove all links for a particular time plan."""
         await self._connection.execute(
-            delete(self._time_plan_project_link_table).where(
-                self._time_plan_project_link_table.c.time_plan_ref_id
+            delete(self._time_plan_aspect_link_table).where(
+                self._time_plan_aspect_link_table.c.time_plan_ref_id
                 == time_plan_ref_id.as_int()
             )
         )
 
-    async def remove_all_for_project(self, project_ref_id: EntityId) -> None:
-        """Remove all links for a particular project."""
+    async def remove_all_for_aspect(self, aspect_ref_id: EntityId) -> None:
+        """Remove all links for a particular aspect."""
         await self._connection.execute(
-            delete(self._time_plan_project_link_table).where(
-                self._time_plan_project_link_table.c.project_ref_id
-                == project_ref_id.as_int()
+            delete(self._time_plan_aspect_link_table).where(
+                self._time_plan_aspect_link_table.c.aspect_ref_id
+                == aspect_ref_id.as_int()
             )
         )
 
-    def _row_to_entity(self, row: RowType) -> TimePlanProjectLink:
+    def _row_to_entity(self, row: RowType) -> TimePlanAspectLink:
         return self._realm_codec_registry.db_decode(
-            TimePlanProjectLink, cast(Mapping[str, RealmThing], row._mapping)
+            TimePlanAspectLink, cast(Mapping[str, RealmThing], row._mapping)
         )
 
 

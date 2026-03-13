@@ -23,7 +23,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.entity_id import EntityId
@@ -54,7 +54,7 @@ class ChoreLoadResult(UseCaseResultBase):
     """ChoreLoadResult."""
 
     chore: Chore
-    project: Project
+    aspect: Aspect
     chapter: Chapter | None
     goal: Goal | None
     inbox_tasks: list[InboxTask]
@@ -89,7 +89,7 @@ class ChoreLoadUseCase(
         chore = await uow.get_for(Chore).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        project = await uow.get_for(Project).load_by_id(chore.project_ref_id)
+        aspect = await uow.get_for(Aspect).load_by_id(chore.aspect_ref_id)
         chapter = (
             await uow.get_for(Chapter).load_by_id(chore.chapter_ref_id)
             if chore.chapter_ref_id
@@ -161,7 +161,7 @@ class ChoreLoadUseCase(
 
         return ChoreLoadResult(
             chore=chore,
-            project=project,
+            aspect=aspect,
             chapter=chapter,
             goal=goal,
             inbox_tasks=inbox_tasks,

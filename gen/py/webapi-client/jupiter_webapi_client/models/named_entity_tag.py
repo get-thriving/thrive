@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class NamedEntityTag(str, Enum):
+    ASPECT = "Aspect"
     BIGPLAN = "BigPlan"
     BIGPLANMILESTONE = "BigPlanMilestone"
     CHAPTER = "Chapter"
@@ -20,7 +21,6 @@ class NamedEntityTag(str, Enum):
     MILESTONE = "Milestone"
     OCCASION = "Occasion"
     PERSON = "Person"
-    PROJECT = "Project"
     SCHEDULEEVENTFULLDAYS = "ScheduleEventFullDays"
     SCHEDULEEVENTINDAY = "ScheduleEventInDay"
     SCHEDULEEXTERNALSYNCLOG = "ScheduleExternalSyncLog"

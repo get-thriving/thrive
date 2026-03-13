@@ -25,13 +25,13 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.life_plan_links import (
+    TimePlanAspectLink,
     TimePlanChapterLink,
     TimePlanGoalLink,
-    TimePlanProjectLink,
 )
 from jupiter.core.time_plans.root import (
     TimePlan,
@@ -81,7 +81,7 @@ class TimePlanLoadResult(UseCaseResultBase):
     note: Note
     activities: list[TimePlanActivity]
     chapters: list[Chapter]
-    projects: list[Project]
+    aspects: list[Aspect]
     goals: list[Goal]
     target_inbox_tasks: list[InboxTask] | None
     target_big_plans: list[BigPlan] | None
@@ -147,14 +147,14 @@ class TimePlanLoadUseCase(
         )
 
         chapters: list[Chapter] = []
-        projects: list[Project] = []
+        aspects: list[Aspect] = []
         goals: list[Goal] = []
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
             chapter_links = await uow.get_for_record(TimePlanChapterLink).find_all(
                 time_plan.ref_id
             )
-            project_links = await uow.get_for_record(TimePlanProjectLink).find_all(
+            aspect_links = await uow.get_for_record(TimePlanAspectLink).find_all(
                 time_plan.ref_id
             )
             goal_links = await uow.get_for_record(TimePlanGoalLink).find_all(
@@ -162,7 +162,7 @@ class TimePlanLoadUseCase(
             )
 
             chapter_ref_ids = list({link.chapter_ref_id for link in chapter_links})
-            project_ref_ids = list({link.project_ref_id for link in project_links})
+            aspect_ref_ids = list({link.aspect_ref_id for link in aspect_links})
             goal_ref_ids = list({link.goal_ref_id for link in goal_links})
 
             if chapter_ref_ids:
@@ -171,11 +171,11 @@ class TimePlanLoadUseCase(
                     allow_archived=True,
                     filter_ref_ids=chapter_ref_ids,
                 )
-            if project_ref_ids:
-                projects = await uow.get_for(Project).find_all(
+            if aspect_ref_ids:
+                aspects = await uow.get_for(Aspect).find_all(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=True,
-                    filter_ref_ids=project_ref_ids,
+                    filter_ref_ids=aspect_ref_ids,
                 )
             if goal_ref_ids:
                 goals = await uow.get_for(Goal).find_all(
@@ -419,7 +419,7 @@ class TimePlanLoadUseCase(
             note=note,
             activities=list(activities),
             chapters=chapters,
-            projects=projects,
+            aspects=aspects,
             goals=goals,
             target_inbox_tasks=target_inbox_tasks,
             target_big_plans=target_big_plans,

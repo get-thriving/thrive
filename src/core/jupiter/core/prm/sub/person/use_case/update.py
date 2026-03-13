@@ -33,7 +33,7 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
@@ -224,8 +224,8 @@ class PersonUpdateUseCase(
         else:
             catch_up_params = UpdateAction.do_nothing()
 
-        project = await uow.get_for(Project).load_by_id(
-            prm.catch_up_project_ref_id,
+        aspect = await uow.get_for(Aspect).load_by_id(
+            prm.catch_up_aspect_ref_id,
         )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -281,7 +281,7 @@ class PersonUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_person_catch_up(
                     ctx=context.domain_context,
-                    project_ref_id=project.ref_id,
+                    aspect_ref_id=aspect.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=person.catch_up_params.eisen,
@@ -289,7 +289,7 @@ class PersonUpdateUseCase(
                     actionable_date=schedule.actionable_date,
                     due_time=schedule.due_date,
                 )
-                # Situation 2a: we're handling the same project.
+                # Situation 2a: we're handling the same aspect.
                 await uow.get_for(InboxTask).save(inbox_task)
                 await progress_reporter.mark_updated(inbox_task)
 

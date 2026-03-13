@@ -30,7 +30,7 @@ It looks somethinglike this:
 
 But there are other views:
 
-* A breakdown by project which can highlight particularly good or bad projects.
+* A breakdown by aspect which can highlight particularly good or bad aspects.
 * A breakdown by sub period
 * A breakdown by big plans
 * An analysis for chores, but without any streaks.

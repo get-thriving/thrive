@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
+    from ..models.inbox_task_update_args_aspect_ref_id import InboxTaskUpdateArgsAspectRefId
     from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
     from ..models.inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
     from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
@@ -16,7 +17,6 @@ if TYPE_CHECKING:
     from ..models.inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
     from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
     from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName
-    from ..models.inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
     from ..models.inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 
 
@@ -31,7 +31,7 @@ class InboxTaskUpdateArgs:
         ref_id (str): A generic entity id.
         name (InboxTaskUpdateArgsName):
         status (InboxTaskUpdateArgsStatus):
-        project_ref_id (InboxTaskUpdateArgsProjectRefId):
+        aspect_ref_id (InboxTaskUpdateArgsAspectRefId):
         chapter_ref_id (InboxTaskUpdateArgsChapterRefId):
         goal_ref_id (InboxTaskUpdateArgsGoalRefId):
         big_plan_ref_id (InboxTaskUpdateArgsBigPlanRefId):
@@ -45,7 +45,7 @@ class InboxTaskUpdateArgs:
     ref_id: str
     name: InboxTaskUpdateArgsName
     status: InboxTaskUpdateArgsStatus
-    project_ref_id: InboxTaskUpdateArgsProjectRefId
+    aspect_ref_id: InboxTaskUpdateArgsAspectRefId
     chapter_ref_id: InboxTaskUpdateArgsChapterRefId
     goal_ref_id: InboxTaskUpdateArgsGoalRefId
     big_plan_ref_id: InboxTaskUpdateArgsBigPlanRefId
@@ -63,7 +63,7 @@ class InboxTaskUpdateArgs:
 
         status = self.status.to_dict()
 
-        project_ref_id = self.project_ref_id.to_dict()
+        aspect_ref_id = self.aspect_ref_id.to_dict()
 
         chapter_ref_id = self.chapter_ref_id.to_dict()
 
@@ -88,7 +88,7 @@ class InboxTaskUpdateArgs:
                 "ref_id": ref_id,
                 "name": name,
                 "status": status,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "chapter_ref_id": chapter_ref_id,
                 "goal_ref_id": goal_ref_id,
                 "big_plan_ref_id": big_plan_ref_id,
@@ -105,6 +105,7 @@ class InboxTaskUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
+        from ..models.inbox_task_update_args_aspect_ref_id import InboxTaskUpdateArgsAspectRefId
         from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
         from ..models.inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
         from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
@@ -113,7 +114,6 @@ class InboxTaskUpdateArgs:
         from ..models.inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
         from ..models.inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
         from ..models.inbox_task_update_args_name import InboxTaskUpdateArgsName
-        from ..models.inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
         from ..models.inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 
         d = dict(src_dict)
@@ -123,7 +123,7 @@ class InboxTaskUpdateArgs:
 
         status = InboxTaskUpdateArgsStatus.from_dict(d.pop("status"))
 
-        project_ref_id = InboxTaskUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+        aspect_ref_id = InboxTaskUpdateArgsAspectRefId.from_dict(d.pop("aspect_ref_id"))
 
         chapter_ref_id = InboxTaskUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
 
@@ -145,7 +145,7 @@ class InboxTaskUpdateArgs:
             ref_id=ref_id,
             name=name,
             status=status,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             big_plan_ref_id=big_plan_ref_id,

@@ -43,10 +43,10 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
         rich_tree = Tree("👨 Persons", guide_style="bold bright_blue")
 
         if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            catch_up_project_text = Text(
-                f"The catch up project is {result.catch_up_project.name}",
+            catch_up_aspect_text = Text(
+                f"The catch up aspect is {result.catch_up_aspect.name}",
             )
-            rich_tree.add(catch_up_project_text)
+            rich_tree.add(catch_up_aspect_text)
 
         for entry in sorted_entries:
             person = entry.person

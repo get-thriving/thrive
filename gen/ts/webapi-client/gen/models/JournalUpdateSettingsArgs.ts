@@ -23,7 +23,7 @@ export type JournalUpdateSettingsArgs = {
         should_change: boolean;
         value?: Record<string, number>;
     };
-    writing_task_project_ref_id: {
+    writing_task_aspect_ref_id: {
         should_change: boolean;
         value?: (EntityId | null);
     };

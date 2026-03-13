@@ -27,7 +27,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ref_id: form.id,
       name: { should_change: false },
       status: { should_change: true, value: form.status },
-      project_ref_id: { should_change: false },
+      aspect_ref_id: { should_change: false },
       chapter_ref_id: { should_change: false },
       goal_ref_id: { should_change: false },
       big_plan_ref_id: { should_change: false },

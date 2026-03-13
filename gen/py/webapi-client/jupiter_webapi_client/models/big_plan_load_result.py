@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.big_plan_milestone import BigPlanMilestone
     from ..models.big_plan_stats import BigPlanStats
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
     from ..models.goal import Goal
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
 
@@ -31,7 +31,7 @@ class BigPlanLoadResult:
 
     Attributes:
         big_plan (BigPlan): A big plan.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         milestones (list[BigPlanMilestone]):
         inbox_tasks (list[InboxTask]):
         tags (list[Tag]):
@@ -44,7 +44,7 @@ class BigPlanLoadResult:
     """
 
     big_plan: BigPlan
-    project: Project
+    aspect: Aspect
     milestones: list[BigPlanMilestone]
     inbox_tasks: list[InboxTask]
     tags: list[Tag]
@@ -63,7 +63,7 @@ class BigPlanLoadResult:
 
         big_plan = self.big_plan.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         milestones = []
         for milestones_item_data in self.milestones:
@@ -121,7 +121,7 @@ class BigPlanLoadResult:
         field_dict.update(
             {
                 "big_plan": big_plan,
-                "project": project,
+                "aspect": aspect,
                 "milestones": milestones,
                 "inbox_tasks": inbox_tasks,
                 "tags": tags,
@@ -141,6 +141,7 @@ class BigPlanLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.big_plan_milestone import BigPlanMilestone
         from ..models.big_plan_stats import BigPlanStats
@@ -149,14 +150,13 @@ class BigPlanLoadResult:
         from ..models.goal import Goal
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         big_plan = BigPlan.from_dict(d.pop("big_plan"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         milestones = []
         _milestones = d.pop("milestones")
@@ -248,7 +248,7 @@ class BigPlanLoadResult:
 
         big_plan_load_result = cls(
             big_plan=big_plan,
-            project=project,
+            aspect=aspect,
             milestones=milestones,
             inbox_tasks=inbox_tasks,
             tags=tags,

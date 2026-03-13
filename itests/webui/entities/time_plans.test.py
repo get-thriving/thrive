@@ -39,6 +39,9 @@ from jupiter_webapi_client.models.big_plan_update_args import BigPlanUpdateArgs
 from jupiter_webapi_client.models.big_plan_update_args_actionable_date import (
     BigPlanUpdateArgsActionableDate,
 )
+from jupiter_webapi_client.models.big_plan_update_args_aspect_ref_id import (
+    BigPlanUpdateArgsAspectRefId,
+)
 from jupiter_webapi_client.models.big_plan_update_args_chapter_ref_id import (
     BigPlanUpdateArgsChapterRefId,
 )
@@ -58,9 +61,6 @@ from jupiter_webapi_client.models.big_plan_update_args_is_key import (
     BigPlanUpdateArgsIsKey,
 )
 from jupiter_webapi_client.models.big_plan_update_args_name import BigPlanUpdateArgsName
-from jupiter_webapi_client.models.big_plan_update_args_project_ref_id import (
-    BigPlanUpdateArgsProjectRefId,
-)
 from jupiter_webapi_client.models.big_plan_update_args_status import (
     BigPlanUpdateArgsStatus,
 )
@@ -73,6 +73,9 @@ from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
 from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
 from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
     InboxTaskUpdateArgsActionableDate,
+)
+from jupiter_webapi_client.models.inbox_task_update_args_aspect_ref_id import (
+    InboxTaskUpdateArgsAspectRefId,
 )
 from jupiter_webapi_client.models.inbox_task_update_args_big_plan_ref_id import (
     InboxTaskUpdateArgsBigPlanRefId,
@@ -97,9 +100,6 @@ from jupiter_webapi_client.models.inbox_task_update_args_is_key import (
 )
 from jupiter_webapi_client.models.inbox_task_update_args_name import (
     InboxTaskUpdateArgsName,
-)
-from jupiter_webapi_client.models.inbox_task_update_args_project_ref_id import (
-    InboxTaskUpdateArgsProjectRefId,
 )
 from jupiter_webapi_client.models.inbox_task_update_args_status import (
     InboxTaskUpdateArgsStatus,
@@ -2543,7 +2543,7 @@ def _mark_inbox_task_done(
             difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
             actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
-            project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
+            aspect_ref_id=InboxTaskUpdateArgsAspectRefId(should_change=False),
             chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
             goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
@@ -2567,7 +2567,7 @@ def _clear_inbox_task_dates(
                 should_change=True, value=None
             ),
             due_date=InboxTaskUpdateArgsDueDate(should_change=True, value=None),
-            project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
+            aspect_ref_id=InboxTaskUpdateArgsAspectRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
             chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
             goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
@@ -2589,7 +2589,7 @@ def _associate_inbox_task_with_big_plan(
             difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
             actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
-            project_ref_id=InboxTaskUpdateArgsProjectRefId(should_change=False),
+            aspect_ref_id=InboxTaskUpdateArgsAspectRefId(should_change=False),
             chapter_ref_id=InboxTaskUpdateArgsChapterRefId(should_change=False),
             goal_ref_id=InboxTaskUpdateArgsGoalRefId(should_change=False),
             big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(
@@ -2613,7 +2613,7 @@ def _mark_big_plan_done(
             ),
             actionable_date=BigPlanUpdateArgsActionableDate(should_change=False),
             due_date=BigPlanUpdateArgsDueDate(should_change=False),
-            project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            aspect_ref_id=BigPlanUpdateArgsAspectRefId(should_change=False),
             chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
             goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
             is_key=BigPlanUpdateArgsIsKey(should_change=False),
@@ -2636,7 +2636,7 @@ def _clear_big_plan_dates(
                 should_change=True, value=None
             ),
             due_date=BigPlanUpdateArgsDueDate(should_change=True, value=None),
-            project_ref_id=BigPlanUpdateArgsProjectRefId(should_change=False),
+            aspect_ref_id=BigPlanUpdateArgsAspectRefId(should_change=False),
             chapter_ref_id=BigPlanUpdateArgsChapterRefId(should_change=False),
             goal_ref_id=BigPlanUpdateArgsGoalRefId(should_change=False),
             is_key=BigPlanUpdateArgsIsKey(should_change=False),

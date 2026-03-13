@@ -6,7 +6,7 @@ import type {
   InboxTaskLoadResult,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
   Contact,
 } from "@jupiter/webapi-client";
@@ -73,8 +73,8 @@ interface InboxTaskPropertiesEditorProps {
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
   lifePlan: LifePlan;
-  rootProject: ProjectSummary;
-  allProjects: ProjectSummary[];
+  rootAspect: AspectSummary;
+  allAspects: AspectSummary[];
   allChapters: ChapterSummary[];
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
@@ -109,8 +109,8 @@ export function InboxTaskPropertiesEditor(
         },
   );
 
-  const [selectedProject, setSelectedProject] = useState(
-    props.inboxTaskInfo.project.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState(
+    props.inboxTaskInfo.aspect.ref_id,
   );
   const [selectedChapter, setSelectedChapter] = useState(
     props.inboxTaskInfo.chapter?.ref_id ?? null,
@@ -118,7 +118,7 @@ export function InboxTaskPropertiesEditor(
   const [selectedGoal, setSelectedGoal] = useState(
     props.inboxTaskInfo.goal?.ref_id ?? null,
   );
-  const [blockedToSelectProject, setBlockedToSelectProject] = useState(
+  const [blockedToSelectAspect, setBlockedToSelectAspect] = useState(
     props.inboxTask.source === InboxTaskSource.BIG_PLAN,
   );
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
@@ -157,15 +157,15 @@ export function InboxTaskPropertiesEditor(
   ) {
     setSelectedBigPlan({ label, big_plan_id });
     if (big_plan_id === "none") {
-      setSelectedProject(props.rootProject.ref_id);
+      setSelectedAspect(props.rootAspect.ref_id);
       setSelectedChapter(null);
       setSelectedGoal(null);
-      setBlockedToSelectProject(false);
+      setBlockedToSelectAspect(false);
     } else {
-      setSelectedProject(allBigPlansById[big_plan_id].project_ref_id);
+      setSelectedAspect(allBigPlansById[big_plan_id].aspect_ref_id);
       setSelectedChapter(allBigPlansById[big_plan_id].chapter_ref_id ?? null);
       setSelectedGoal(allBigPlansById[big_plan_id].goal_ref_id ?? null);
-      setBlockedToSelectProject(true);
+      setBlockedToSelectAspect(true);
     }
   }
 
@@ -185,7 +185,7 @@ export function InboxTaskPropertiesEditor(
           },
     );
 
-    setSelectedProject(props.inboxTaskInfo.project.ref_id);
+    setSelectedAspect(props.inboxTaskInfo.aspect.ref_id);
     setSelectedChapter(props.inboxTaskInfo.chapter?.ref_id ?? null);
     setSelectedGoal(props.inboxTaskInfo.goal?.ref_id ?? null);
   }, [props.inboxTaskInfo]);
@@ -359,14 +359,14 @@ export function InboxTaskPropertiesEditor(
               inputsEnabled={
                 props.inputsEnabled &&
                 corePropertyEditable &&
-                !blockedToSelectProject
+                !blockedToSelectAspect
               }
-              projectName={constructFieldName(props.namePrefix, "project")}
+              aspectName={constructFieldName(props.namePrefix, "aspect")}
               chapterName={constructFieldName(props.namePrefix, "chapter")}
               goalName={constructFieldName(props.namePrefix, "goal")}
-              allProjects={props.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
+              allAspects={props.allAspects}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
               allChapters={props.allChapters}
               chapterValue={selectedChapter}
               onChapterChange={setSelectedChapter}
@@ -381,7 +381,7 @@ export function InboxTaskPropertiesEditor(
               actionResult={props.actionData}
               fieldName={constructFieldErrorName(
                 props.fieldsPrefix,
-                "project_ref_id",
+                "aspect_ref_id",
               )}
             />
             <FieldError

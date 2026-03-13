@@ -22,7 +22,7 @@ export type JournalCollection = {
     periods: Array<RecurringTaskPeriod>;
     generation_approach: JournalGenerationApproach;
     generation_in_advance_days: Record<string, number>;
-    writing_task_project_ref_id: EntityId;
+    writing_task_aspect_ref_id: EntityId;
     writing_task_gen_params?: (RecurringTaskGenParams | null);
 };
 

@@ -75,26 +75,26 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
 
         if (
             context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and ReportBreakdown.PROJECTS in result.period_result.breakdowns
+            and ReportBreakdown.ASPECTS in result.period_result.breakdowns
         ):
-            global_text = Text("💡 By Projects:")
+            global_text = Text("💡 By Aspects:")
 
             global_tree = rich_tree.add(global_text)
 
-            for project_item in result.period_result.per_project_breakdown:
-                project_text = entity_name_to_rich_text(project_item.name)
+            for aspect_item in result.period_result.per_aspect_breakdown:
+                aspect_text = entity_name_to_rich_text(aspect_item.name)
 
-                project_tree = global_tree.add(project_text)
+                aspect_tree = global_tree.add(aspect_text)
 
                 inbox_task_table = self._build_inbox_tasks_summary_table(
-                    project_item.inbox_tasks_summary,
+                    aspect_item.inbox_tasks_summary,
                     sources_to_present,
                 )
-                project_tree.add(inbox_task_table)
+                aspect_tree.add(inbox_task_table)
 
                 if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                     big_plan_tree = self._build_big_plans_summary_tree(
-                        project_item.big_plans_summary,
+                        aspect_item.big_plans_summary,
                     )
                     global_tree.add(big_plan_tree)
 

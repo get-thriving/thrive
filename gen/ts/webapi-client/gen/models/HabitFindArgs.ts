@@ -13,6 +13,6 @@ export type HabitFindArgs = {
     include_life_plan?: (boolean | null);
     include_inbox_tasks?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
 };
 

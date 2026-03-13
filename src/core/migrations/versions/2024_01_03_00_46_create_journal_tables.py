@@ -28,12 +28,12 @@ def upgrade() -> None:
             archived_time DATETIME,
             workspace_ref_id INTEGER NOT NULL,
             periods JSON NOT NULL,
-            writing_task_project_ref_id INTEGER NOT NULL,
+            writing_task_aspect_ref_id INTEGER NOT NULL,
             writing_task_eisen VARCHAR(16) NOT NULL,
             writing_task_difficulty VARCHAR(8) NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id)
-            FOREIGN KEY (writing_task_project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (writing_task_aspect_ref_id) REFERENCES aspect (ref_id)
             );
     """
     )

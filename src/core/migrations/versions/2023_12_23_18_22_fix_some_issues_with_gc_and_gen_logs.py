@@ -20,13 +20,13 @@ def upgrade() -> None:
     op.execute(
         """
         update gc_log_entry
-        set gc_targets = '["inbox-tasks", "habits", "chores", "big-plans", "docs", "vacations", "projects", "smart-lists", "metrics", "persons"]';
+        set gc_targets = '["inbox-tasks", "habits", "chores", "big-plans", "docs", "vacations", "aspects", "smart-lists", "metrics", "persons"]';
     """
     )
     op.execute(
         """
         update gen_log_entry
-        set gen_targets = '["inbox-tasks", "habits", "chores", "big-plans", "docs", "vacations", "projects", "smart-lists", "metrics", "persons"]';
+        set gen_targets = '["inbox-tasks", "habits", "chores", "big-plans", "docs", "vacations", "aspects", "smart-lists", "metrics", "persons"]';
     """
     )
 

@@ -10,8 +10,8 @@ This version introduces:
 
 * A unified inbox, recurring tasks, and big plans. These were previously
   separated by
-  project, which meant there were actually multiple inboxes you needed to pay
-  attention to.  Not anymore. Projects have been transformed into an organising
+  aspect, which meant there were actually multiple inboxes you needed to pay
+  attention to.  Not anymore. Aspects have been transformed into an organising
   label.
 * Separation of recurring tasks into [habits](../concepts/habits.md) and
   [chores](../concepts/chores.md),

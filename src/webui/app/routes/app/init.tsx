@@ -75,7 +75,7 @@ const WorkspaceInitFormSchema = z.object({
   userBirthday: z.string(),
   userBirthYear: z.string().transform((v) => parseInt(v, 10)),
   workspaceName: z.string(),
-  workspaceRootProjectName: z.string(),
+  workspaceRootAspectName: z.string(),
   workspaceFirstScheduleStreamName: z.string(),
   workspaceFeatureFlags: z.array(z.nativeEnum(WorkspaceFeature)),
   // forAppReview: CheckboxAsString,
@@ -93,7 +93,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     userFeatureFlagControls: result.user_feature_flag_controls,
     defaultUserFeatureFlags: result.default_user_feature_flags,
     defaultWorkspaceName: result.deafult_workspace_name,
-    defaultRootProjectName: result.default_root_project_name,
+    defaultRootAspectName: result.default_root_aspect_name,
     defaultFirstScheduleStreamName: result.default_first_schedule_stream_name,
     workspaceFeatureFlagControls: result.workspace_feature_flag_controls,
     defaultWorkspaceFeatureFlags: result.default_workspace_feature_flags,
@@ -116,7 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
       user_birthday: form.userBirthday,
       user_birth_year: form.userBirthYear,
       workspace_name: form.workspaceName,
-      workspace_root_project_name: form.workspaceRootProjectName,
+      workspace_root_aspect_name: form.workspaceRootAspectName,
       workspace_first_schedule_stream_name:
         form.workspaceFirstScheduleStreamName,
       workspace_feature_flags: form.workspaceFeatureFlags,
@@ -314,16 +314,16 @@ export default function WorkspaceInit() {
                 </FormControl>
 
                 <FormControl fullWidth>
-                  <InputLabel id="name">Root Project Name</InputLabel>
+                  <InputLabel id="name">Root Aspect Name</InputLabel>
                   <OutlinedInput
-                    label="Root Project Name"
-                    name="workspaceRootProjectName"
+                    label="Root Aspect Name"
+                    name="workspaceRootAspectName"
                     readOnly={!inputsEnabled}
-                    defaultValue={loaderData.defaultRootProjectName}
+                    defaultValue={loaderData.defaultRootAspectName}
                   />
                   <FieldError
                     actionResult={actionData}
-                    fieldName="/app/workspace_root_project_name"
+                    fieldName="/app/workspace_root_aspect_name"
                   />
                 </FormControl>
 

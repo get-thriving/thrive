@@ -19,7 +19,7 @@ class EmailTaskCollection(TrunkEntity):
     """A collection of email tasks."""
 
     push_integration_group: ParentLink
-    generation_project_ref_id: EntityId
+    generation_aspect_ref_id: EntityId
 
     email_tasks = ContainsMany(EmailTask, email_task_collection_ref_id=IsRefId())
 
@@ -28,25 +28,25 @@ class EmailTaskCollection(TrunkEntity):
     def new_email_task_collection(
         ctx: MutationContext,
         push_integration_group_ref_id: EntityId,
-        generation_project_ref_id: EntityId,
+        generation_aspect_ref_id: EntityId,
     ) -> "EmailTaskCollection":
         """Create a email task collection."""
         return EmailTaskCollection._create(
             ctx,
             push_integration_group=ParentLink(push_integration_group_ref_id),
-            generation_project_ref_id=generation_project_ref_id,
+            generation_aspect_ref_id=generation_aspect_ref_id,
         )
 
     @update_entity_action
-    def change_generation_project(
+    def change_generation_aspect(
         self,
         ctx: MutationContext,
-        generation_project_ref_id: EntityId,
+        generation_aspect_ref_id: EntityId,
     ) -> "EmailTaskCollection":
-        """Change the generation project."""
-        if self.generation_project_ref_id == generation_project_ref_id:
+        """Change the generation aspect."""
+        if self.generation_aspect_ref_id == generation_aspect_ref_id:
             return self
         return self._new_version(
             ctx,
-            generation_project_ref_id=generation_project_ref_id,
+            generation_aspect_ref_id=generation_aspect_ref_id,
         )

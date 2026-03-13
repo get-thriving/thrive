@@ -40,7 +40,7 @@ CREATE TABLE workspace (
     archived_time DATETIME, 
     name VARCHAR(100) NOT NULL, 
     timezone VARCHAR(100) NOT NULL, 
-    default_project_ref_id INTEGER, 
+    default_aspect_ref_id INTEGER, 
     PRIMARY KEY (ref_id)
 );"""
     )
@@ -130,7 +130,7 @@ CREATE TABLE vacation_event (
     )
     op.execute(
         """
-CREATE TABLE project_collection (
+CREATE TABLE aspect_collection (
     ref_id INTEGER NOT NULL, 
     version INTEGER NOT NULL, 
     archived BOOLEAN NOT NULL, 
@@ -144,11 +144,11 @@ CREATE TABLE project_collection (
     )
     op.execute(
         """  
-CREATE UNIQUE INDEX ix_project_collection_workspace_ref_id ON project_collection (workspace_ref_id);"""
+CREATE UNIQUE INDEX ix_aspect_collection_workspace_ref_id ON aspect_collection (workspace_ref_id);"""
     )
     op.execute(
         """  
-CREATE TABLE project_collection_event (
+CREATE TABLE aspect_collection_event (
     owner_ref_id INTEGER NOT NULL, 
     timestamp DATETIME NOT NULL, 
     session_index INTEGER NOT NULL, 
@@ -158,28 +158,28 @@ CREATE TABLE project_collection_event (
     kind VARCHAR(16) NOT NULL, 
     data JSON, 
     PRIMARY KEY (owner_ref_id, timestamp, session_index, name), 
-    FOREIGN KEY(owner_ref_id) REFERENCES project_collection (ref_id)
+    FOREIGN KEY(owner_ref_id) REFERENCES aspect_collection (ref_id)
 );"""
     )
     op.execute(
         """
-CREATE TABLE project (
+CREATE TABLE aspect (
     ref_id INTEGER NOT NULL,
     version INTEGER NOT NULL,
     archived BOOLEAN NOT NULL,
     created_time DATETIME NOT NULL,
     last_modified_time DATETIME NOT NULL,
     archived_time DATETIME,
-    project_collection_ref_id INTEGER NOT NULL,
+    aspect_collection_ref_id INTEGER NOT NULL,
     the_key VARCHAR(32) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
     PRIMARY KEY (ref_id),
-    FOREIGN KEY(project_collection_ref_id) REFERENCES project_collection (ref_id)
+    FOREIGN KEY(aspect_collection_ref_id) REFERENCES aspect_collection (ref_id)
 );"""
     )
     op.execute(
         """
-CREATE TABLE project_event (
+CREATE TABLE aspect_event (
     owner_ref_id INTEGER NOT NULL, 
     timestamp DATETIME NOT NULL, 
     session_index INTEGER NOT NULL, 
@@ -189,7 +189,7 @@ CREATE TABLE project_event (
     kind VARCHAR(16) NOT NULL, 
     data JSON, 
     PRIMARY KEY (owner_ref_id, timestamp, session_index, name), 
-    FOREIGN KEY(owner_ref_id) REFERENCES project (ref_id)
+    FOREIGN KEY(owner_ref_id) REFERENCES aspect (ref_id)
 );"""
     )
     op.execute(
@@ -236,7 +236,7 @@ CREATE TABLE inbox_task (
     archived_time DATETIME, 
     inbox_task_collection_ref_id INTEGER NOT NULL, 
     source VARCHAR(16) NOT NULL, 
-    project_ref_id INTEGER,
+    aspect_ref_id INTEGER,
     habit_ref_id INTEGER, 
     chore_ref_id INTEGER, 
     big_plan_ref_id INTEGER, 
@@ -256,7 +256,7 @@ CREATE TABLE inbox_task (
     completed_time DATETIME,  
     CONSTRAINT pk_inbox_task PRIMARY KEY (ref_id), 
     CONSTRAINT fk_inbox_task_inbox_task_collection_ref_id_inbox_task_collection FOREIGN KEY(inbox_task_collection_ref_id) REFERENCES inbox_task_collection (ref_id),
-    CONSTRAINT fk_inbox_task_project_ref_id_project FOREIGN KEY(project_ref_id) REFERENCES project (ref_id),  
+    CONSTRAINT fk_inbox_task_aspect_ref_id_aspect FOREIGN KEY(aspect_ref_id) REFERENCES aspect (ref_id),  
     CONSTRAINT fk_inbox_task_habit_ref_id_habit FOREIGN KEY(habit_ref_id) REFERENCES habit (ref_id), 
     CONSTRAINT fk_inbox_task_chore_ref_id_chore FOREIGN KEY(chore_ref_id) REFERENCES chore (ref_id), 
     CONSTRAINT fk_inbox_task_big_plan_ref_id_big_plan FOREIGN KEY(big_plan_ref_id) REFERENCES big_plan (ref_id),
@@ -270,7 +270,7 @@ CREATE INDEX ix_inbox_task_inbox_task_collection_ref_id ON inbox_task (inbox_tas
     )
     op.execute(
         """
-CREATE INDEX ix_inbox_task_project_ref_id ON inbox_task (project_ref_id);"""
+CREATE INDEX ix_inbox_task_aspect_ref_id ON inbox_task (aspect_ref_id);"""
     )
     op.execute(
         """
@@ -350,7 +350,7 @@ CREATE TABLE habit (
     last_modified_time DATETIME NOT NULL, 
     archived_time DATETIME, 
     habit_collection_ref_id INTEGER NOT NULL, 
-    project_ref_id INTEGER NOT NULL, 
+    aspect_ref_id INTEGER NOT NULL, 
     name VARCHAR NOT NULL, 
     gen_params_period VARCHAR NOT NULL, 
     gen_params_eisen VARCHAR, 
@@ -365,7 +365,7 @@ CREATE TABLE habit (
     repeats_in_period_count INTEGER, 
     PRIMARY KEY (ref_id), 
     FOREIGN KEY(habit_collection_ref_id) REFERENCES habit_collection (ref_id),
-    FOREIGN KEY(project_ref_id) REFERENCES project (ref_id)
+    FOREIGN KEY(aspect_ref_id) REFERENCES aspect (ref_id)
 );"""
     )
     op.execute(
@@ -374,7 +374,7 @@ CREATE INDEX ix_habit_habit_collection_ref_id ON habit (habit_collection_ref_id)
     )
     op.execute(
         """
-CREATE INDEX ix_habit_project_ref_id ON habit (project_ref_id);"""
+CREATE INDEX ix_habit_aspect_ref_id ON habit (aspect_ref_id);"""
     )
     op.execute(
         """
@@ -434,7 +434,7 @@ CREATE TABLE chore (
     last_modified_time DATETIME NOT NULL, 
     archived_time DATETIME, 
     chore_collection_ref_id INTEGER NOT NULL, 
-    project_ref_id INTEGER NOT NULL, 
+    aspect_ref_id INTEGER NOT NULL, 
     name VARCHAR NOT NULL, 
     gen_params_period VARCHAR NOT NULL, 
     gen_params_eisen VARCHAR, 
@@ -451,7 +451,7 @@ CREATE TABLE chore (
     end_at_date DATETIME, 
     PRIMARY KEY (ref_id), 
     FOREIGN KEY(chore_collection_ref_id) REFERENCES chore_collection (ref_id), 
-    FOREIGN KEY(project_ref_id) REFERENCES project (ref_id)
+    FOREIGN KEY(aspect_ref_id) REFERENCES aspect (ref_id)
 );"""
     )
     op.execute(
@@ -460,7 +460,7 @@ CREATE INDEX ix_chore_chore_collection_ref_id ON chore (chore_collection_ref_id)
     )
     op.execute(
         """
-CREATE INDEX ix_chore_project_ref_id ON chore (project_ref_id);"""
+CREATE INDEX ix_chore_aspect_ref_id ON chore (aspect_ref_id);"""
     )
     op.execute(
         """
@@ -520,7 +520,7 @@ CREATE TABLE big_plan (
     last_modified_time DATETIME NOT NULL, 
     archived_time DATETIME, 
     big_plan_collection_ref_id INTEGER NOT NULL, 
-    project_ref_id INTEGER, 
+    aspect_ref_id INTEGER, 
     name VARCHAR NOT NULL, 
     status VARCHAR(16) NOT NULL, 
     actionable_date DATETIME, 
@@ -530,7 +530,7 @@ CREATE TABLE big_plan (
     completed_time DATETIME, 
     CONSTRAINT pk_big_plan PRIMARY KEY (ref_id), 
     CONSTRAINT fk_big_plan_big_plan_collection_ref_id_big_plan_collection FOREIGN KEY(big_plan_collection_ref_id) REFERENCES big_plan_collection (ref_id), 
-    CONSTRAINT fk_big_plan_project_ref_id_project FOREIGN KEY(project_ref_id) REFERENCES project (ref_id)
+    CONSTRAINT fk_big_plan_aspect_ref_id_aspect FOREIGN KEY(aspect_ref_id) REFERENCES aspect (ref_id)
 );"""
     )
     op.execute(
@@ -539,7 +539,7 @@ CREATE INDEX ix_big_plan_big_plan_collection_ref_id ON big_plan (big_plan_collec
     )
     op.execute(
         """
-CREATE INDEX ix_big_plan_project_ref_id ON big_plan (project_ref_id);"""
+CREATE INDEX ix_big_plan_aspect_ref_id ON big_plan (aspect_ref_id);"""
     )
     op.execute(
         """
@@ -705,7 +705,7 @@ CREATE TABLE metric_collection (
     created_time DATETIME NOT NULL, 
     last_modified_time DATETIME NOT NULL, 
     archived_time DATETIME, 
-    workspace_ref_id INTEGER NOT NULL, collection_project_ref_id integer, 
+    workspace_ref_id INTEGER NOT NULL, collection_aspect_ref_id integer, 
     PRIMARY KEY (ref_id), 
     FOREIGN KEY(workspace_ref_id) REFERENCES workspace (ref_id)
 );"""
@@ -743,7 +743,7 @@ CREATE TABLE metric (
     name VARCHAR NOT NULL, 
     metric_unit VARCHAR, 
     collection_period VARCHAR, 
-    collection_project_ref_id INTEGER, 
+    collection_aspect_ref_id INTEGER, 
     collection_eisen VARCHAR, 
     collection_difficulty VARCHAR, 
     collection_actionable_from_day INTEGER, 
@@ -821,10 +821,10 @@ CREATE TABLE person_collection (
     last_modified_time DATETIME NOT NULL, 
     archived_time DATETIME, 
     workspace_ref_id INTEGER NOT NULL, 
-    catch_up_project_ref_id INTEGER NOT NULL, 
+    catch_up_aspect_ref_id INTEGER NOT NULL, 
     PRIMARY KEY (ref_id), 
     FOREIGN KEY (workspace_ref_id) REFERENCES workspace (ref_id),
-    FOREIGN KEY (catch_up_project_ref_id) REFERENCES project (ref_id)
+    FOREIGN KEY (catch_up_aspect_ref_id) REFERENCES aspect (ref_id)
 );"""
     )
     op.execute(
@@ -858,7 +858,7 @@ CREATE TABLE person (
     person_collection_ref_id INTEGER, 
     name VARCHAR NOT NULL, 
     relationship VARCHAR NOT NULL, 
-    catch_up_project_ref_id INTEGER, 
+    catch_up_aspect_ref_id INTEGER, 
     catch_up_period VARCHAR, 
     catch_up_eisen VARCHAR, 
     catch_up_difficulty VARCHAR, 

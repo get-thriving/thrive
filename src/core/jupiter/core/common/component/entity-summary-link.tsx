@@ -165,10 +165,10 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
-    case NamedEntityTag.PROJECT:
+    case NamedEntityTag.ASPECT:
       return (
-        <EntityLink to={`/app/workspace/life-plan/projects/${summary.ref_id}`}>
-          <SlimChip label={"Project"} color={"primary"} />
+        <EntityLink to={`/app/workspace/life-plan/aspects/${summary.ref_id}`}>
+          <SlimChip label={"Aspect"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );

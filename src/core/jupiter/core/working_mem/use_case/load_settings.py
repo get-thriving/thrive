@@ -10,7 +10,7 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
@@ -36,7 +36,7 @@ class WorkingMemLoadSettingsResult(UseCaseResultBase):
     """WorkingMemLoadSettings results."""
 
     generation_period: RecurringTaskPeriod
-    cleanup_project: Project
+    cleanup_aspect: Aspect
     clean_up_inbox_tasks: list[InboxTask]
 
 
@@ -60,8 +60,8 @@ class WorkingMemLoadSettingsUseCase(
         working_mem_collection = await uow.get_for(WorkingMemCollection).load_by_parent(
             workspace.ref_id,
         )
-        catch_up_project = await uow.get_for(Project).load_by_id(
-            working_mem_collection.cleanup_project_ref_id,
+        catch_up_aspect = await uow.get_for(Aspect).load_by_id(
+            working_mem_collection.cleanup_aspect_ref_id,
         )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -77,6 +77,6 @@ class WorkingMemLoadSettingsUseCase(
 
         return WorkingMemLoadSettingsResult(
             generation_period=working_mem_collection.generation_period,
-            cleanup_project=catch_up_project,
+            cleanup_aspect=catch_up_aspect,
             clean_up_inbox_tasks=clean_up_inbox_tasks,
         )

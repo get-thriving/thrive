@@ -16,6 +16,6 @@ export type MetricCollection = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
-    collection_project_ref_id: EntityId;
+    collection_aspect_ref_id: EntityId;
 };
 

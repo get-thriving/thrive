@@ -29,7 +29,7 @@ class GenDoArgs(UseCaseArgsBase):
     today: ADate | None
     gen_targets: list[SyncTarget] | None
     period: list[RecurringTaskPeriod] | None
-    filter_project_ref_ids: list[EntityId] | None
+    filter_aspect_ref_ids: list[EntityId] | None
     filter_habit_ref_ids: list[EntityId] | None
     filter_chore_ref_ids: list[EntityId] | None
     filter_metric_ref_ids: list[EntityId] | None
@@ -72,7 +72,7 @@ class GenDoUseCase(JupiterLoggedInMutationUseCase[GenDoArgs, None]):
             today=today,
             gen_targets=gen_targets,
             period=args.period,
-            filter_project_ref_ids=args.filter_project_ref_ids,
+            filter_aspect_ref_ids=args.filter_aspect_ref_ids,
             filter_habit_ref_ids=args.filter_habit_ref_ids,
             filter_chore_ref_ids=args.filter_chore_ref_ids,
             filter_metric_ref_ids=args.filter_metric_ref_ids,

@@ -146,8 +146,8 @@ class PerGoalBreakdownItem(CompositeValue):
 
 
 @value
-class PerProjectBreakdownItem(CompositeValue):
-    """The report for a particular project."""
+class PerAspectBreakdownItem(CompositeValue):
+    """The report for a particular aspect."""
 
     ref_id: EntityId
     name: EntityName
@@ -166,7 +166,7 @@ class ReportPeriodResult(CompositeValue):
     breakdown_period: RecurringTaskPeriod | None
     global_inbox_tasks_summary: InboxTasksSummary
     global_big_plans_summary: WorkableSummary
-    per_project_breakdown: list[PerProjectBreakdownItem]
+    per_aspect_breakdown: list[PerAspectBreakdownItem]
     per_goal_breakdown: list[PerGoalBreakdownItem]
     per_period_breakdown: list[PerPeriodBreakdownItem]
     per_habit_breakdown: list[PerHabitBreakdownItem]
@@ -231,7 +231,7 @@ class ReportPeriodResult(CompositeValue):
                 not_done_big_plans=[],
                 done_big_plans=[],
             ),
-            per_project_breakdown=[],
+            per_aspect_breakdown=[],
             per_goal_breakdown=[],
             per_period_breakdown=[],
             per_habit_breakdown=[],

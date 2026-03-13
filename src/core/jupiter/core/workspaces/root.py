@@ -206,7 +206,7 @@ class Workspace(RootEntity):
                 WorkspaceFeature.VACATIONS
             ):
                 inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.PROJECT and self.is_feature_available(
+            elif entity_tag is NamedEntityTag.ASPECT and self.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 inferred_entity_tags.append(entity_tag)

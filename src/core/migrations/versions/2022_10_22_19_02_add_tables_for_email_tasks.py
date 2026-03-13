@@ -26,10 +26,10 @@ def upgrade() -> None:
             last_modified_time DATETIME NOT NULL, 
             archived_time DATETIME, 
             push_integration_group_ref_id INTEGER NOT NULL, 
-            generation_project_ref_id INTEGER NOT NULL,
+            generation_aspect_ref_id INTEGER NOT NULL,
             PRIMARY KEY (ref_id), 
             FOREIGN KEY (push_integration_group_ref_id) REFERENCES push_integration_group (ref_id),
-            FOREIGN KEY (generation_project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (generation_aspect_ref_id) REFERENCES aspect (ref_id)
         );"""
     )
     op.execute(

@@ -74,7 +74,7 @@ def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:
     )
     assert response.status_code == 200
     assert "generation_period" in response.json()
-    assert "cleanup_project" in response.json()
+    assert "cleanup_aspect" in response.json()
     assert "clean_up_inbox_tasks" in response.json()
 
 
@@ -87,7 +87,7 @@ def test_api_working_mem_update_settings(
         headers=_headers(api_key),
         json={
             "generation_period": {"should_change": True, "value": "daily"},
-            "cleanup_project_ref_id": {"should_change": False},
+            "cleanup_aspect_ref_id": {"should_change": False},
         },
         timeout=10,
     )

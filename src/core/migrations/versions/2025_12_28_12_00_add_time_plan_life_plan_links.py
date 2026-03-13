@@ -38,21 +38,21 @@ def upgrade() -> None:
 
     op.execute(
         """
-        CREATE TABLE time_plan_project_link (
+        CREATE TABLE time_plan_aspect_link (
             time_plan_ref_id INTEGER NOT NULL,
-            project_ref_id INTEGER NOT NULL,
+            aspect_ref_id INTEGER NOT NULL,
             created_time DATETIME NOT NULL,
             last_modified_time DATETIME NOT NULL,
-            PRIMARY KEY (time_plan_ref_id, project_ref_id),
+            PRIMARY KEY (time_plan_ref_id, aspect_ref_id),
             FOREIGN KEY (time_plan_ref_id) REFERENCES time_plan (ref_id),
-            FOREIGN KEY (project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
     """
     )
     op.execute(
         """
-        CREATE INDEX ix_time_plan_project_link_project_ref_id
-        ON time_plan_project_link (project_ref_id)
+        CREATE INDEX ix_time_plan_aspect_link_aspect_ref_id
+        ON time_plan_aspect_link (aspect_ref_id)
     """
     )
 

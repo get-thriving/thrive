@@ -8,10 +8,10 @@ import type {
   Goal,
   InboxTask,
   InboxTaskFindResultEntry,
-  Project,
+  Aspect,
   Tag,
   Contact,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   Eisen,
@@ -36,7 +36,7 @@ import { z } from "zod";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortProjectsByTreeOrder } from "@jupiter/core/life_plan/sub/aspects/root";
+import { sortAspectsByTreeOrder } from "@jupiter/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "@jupiter/core/life_plan/sub/goals/root";
 import {
   inboxTaskStatusIcon,
@@ -100,11 +100,11 @@ enum DragTargetStatus {
 enum View {
   SWIFTVIEW = "siwiftview",
   KANBAN_BY_EISEN = "kanban-by-eisen",
-  KANBAN_BY_PROJECT_AND_GOAL = "kanban-by-project-and-goal",
-  KANBAN_BY_PROJECT = "kanban-by-project",
+  KANBAN_BY_ASPECT_AND_GOAL = "kanban-by-aspect-and-goal",
+  KANBAN_BY_ASPECT = "kanban-by-aspect",
   KANBAN = "kanban",
-  LIST_BY_PROJECT_AND_GOAL = "list-by-project-and-goal",
-  LIST_BY_PROJECT = "list-by-project",
+  LIST_BY_ASPECT_AND_GOAL = "list-by-aspect-and-goal",
+  LIST_BY_ASPECT = "list-by-aspect",
   LIST = "list",
 }
 
@@ -370,14 +370,14 @@ export default function InboxTasks() {
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: View.KANBAN_BY_PROJECT_AND_GOAL,
-                  text: "Kanban by Project & Goal",
+                  value: View.KANBAN_BY_ASPECT_AND_GOAL,
+                  text: "Kanban by Aspect & Goal",
                   icon: <ViewKanbanIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: View.KANBAN_BY_PROJECT,
-                  text: "Kanban by Project",
+                  value: View.KANBAN_BY_ASPECT,
+                  text: "Kanban by Aspect",
                   icon: <ViewKanbanIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -387,14 +387,14 @@ export default function InboxTasks() {
                   icon: <ViewKanbanIcon />,
                 },
                 {
-                  value: View.LIST_BY_PROJECT_AND_GOAL,
-                  text: "List by Project & Goal",
+                  value: View.LIST_BY_ASPECT_AND_GOAL,
+                  text: "List by Aspect & Goal",
                   icon: <ViewListIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: View.LIST_BY_PROJECT,
-                  text: "List by Project",
+                  value: View.LIST_BY_ASPECT,
+                  text: "List by Aspect",
                   icon: <ViewListIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -520,11 +520,11 @@ export default function InboxTasks() {
           </>
         )}
 
-        {selectedView === View.KANBAN_BY_PROJECT_AND_GOAL && (
+        {selectedView === View.KANBAN_BY_ASPECT_AND_GOAL && (
           <>
             {isBigScreen && (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <BigScreenKanbanByProjectAndGoal
+                <BigScreenKanbanByAspectAndGoal
                   topLevelInfo={topLevelInfo}
                   inboxTasks={filteredSortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
@@ -541,7 +541,7 @@ export default function InboxTasks() {
             )}
 
             {!isBigScreen && (
-              <SmallScreenKanbanByProjectAndGoal
+              <SmallScreenKanbanByAspectAndGoal
                 topLevelInfo={topLevelInfo}
                 inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
@@ -558,11 +558,11 @@ export default function InboxTasks() {
           </>
         )}
 
-        {selectedView === View.KANBAN_BY_PROJECT && (
+        {selectedView === View.KANBAN_BY_ASPECT && (
           <>
             {isBigScreen && (
               <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <BigScreenKanbanByProject
+                <BigScreenKanbanByAspect
                   topLevelInfo={topLevelInfo}
                   inboxTasks={filteredSortedInboxTasks}
                   optimisticUpdates={optimisticUpdates}
@@ -579,7 +579,7 @@ export default function InboxTasks() {
             )}
 
             {!isBigScreen && (
-              <SmallScreenKanbanByProject
+              <SmallScreenKanbanByAspect
                 topLevelInfo={topLevelInfo}
                 inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
@@ -634,8 +634,8 @@ export default function InboxTasks() {
           </>
         )}
 
-        {selectedView === View.LIST_BY_PROJECT_AND_GOAL && (
-          <ListByProjectAndGoal
+        {selectedView === View.LIST_BY_ASPECT_AND_GOAL && (
+          <ListByAspectAndGoal
             topLevelInfo={topLevelInfo}
             inboxTasks={filteredSortedInboxTasks}
             optimisticUpdates={optimisticUpdates}
@@ -649,8 +649,8 @@ export default function InboxTasks() {
           />
         )}
 
-        {selectedView === View.LIST_BY_PROJECT && (
-          <ListByProject
+        {selectedView === View.LIST_BY_ASPECT && (
+          <ListByAspect
             topLevelInfo={topLevelInfo}
             inboxTasks={filteredSortedInboxTasks}
             optimisticUpdates={optimisticUpdates}
@@ -2420,32 +2420,32 @@ function List({
   );
 }
 
-function getUniqueProjectsSorted(moreInfoByRefId: {
+function getUniqueAspectsSorted(moreInfoByRefId: {
   [key: string]: InboxTaskParent;
-}): ProjectSummary[] {
-  const projectMap = new Map<string, Project>();
+}): AspectSummary[] {
+  const aspectMap = new Map<string, Aspect>();
   for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.project) {
-      projectMap.set(parent.project.ref_id, parent.project);
+    if (parent.aspect) {
+      aspectMap.set(parent.aspect.ref_id, parent.aspect);
     }
   }
-  return sortProjectsByTreeOrder([...projectMap.values()]);
+  return sortAspectsByTreeOrder([...aspectMap.values()]);
 }
 
-function getUniqueGoalsForProject(
+function getUniqueGoalsForAspect(
   moreInfoByRefId: { [key: string]: InboxTaskParent },
-  projectRefId: string,
+  aspectRefId: string,
 ): Goal[] {
   const goalMap = new Map<string, Goal>();
   for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.project?.ref_id === projectRefId && parent.goal) {
+    if (parent.aspect?.ref_id === aspectRefId && parent.goal) {
       goalMap.set(parent.goal.ref_id, parent.goal);
     }
   }
   return sortGoalsNaturally([...goalMap.values()]);
 }
 
-interface BigScreenKanbanByProjectProps {
+interface BigScreenKanbanByAspectProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2457,7 +2457,7 @@ interface BigScreenKanbanByProjectProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function BigScreenKanbanByProject({
+function BigScreenKanbanByAspect({
   topLevelInfo,
   inboxTasks,
   optimisticUpdates,
@@ -2467,9 +2467,9 @@ function BigScreenKanbanByProject({
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
   inboxTaskContactsByInboxTaskRefId,
-}: BigScreenKanbanByProjectProps) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(moreInfoByRefId),
+}: BigScreenKanbanByAspectProps) {
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(moreInfoByRefId),
     [moreInfoByRefId],
   );
 
@@ -2484,22 +2484,22 @@ function BigScreenKanbanByProject({
       )}
       {inboxTasks.length > 0 && (
         <>
-          {projects.map((project) => {
-            const projectTasks = inboxTasks.filter(
-              (it) => it.project_ref_id === project.ref_id,
+          {aspects.map((aspect) => {
+            const aspectTasks = inboxTasks.filter(
+              (it) => it.aspect_ref_id === aspect.ref_id,
             );
-            if (projectTasks.length === 0) return null;
+            if (aspectTasks.length === 0) return null;
             return (
-              <Fragment key={project.ref_id}>
-                <StandardDivider title={project.name} size="large" />
+              <Fragment key={aspect.ref_id}>
+                <StandardDivider title={aspect.name} size="large" />
                 <KanbanBoard
                   topLevelInfo={topLevelInfo}
-                  inboxTasks={projectTasks}
+                  inboxTasks={aspectTasks}
                   optimisticUpdates={optimisticUpdates}
                   inboxTasksByRefId={inboxTasksByRefId}
                   moreInfoByRefId={moreInfoByRefId}
                   actionableTime={actionableTime}
-                  groupId={project.ref_id}
+                  groupId={aspect.ref_id}
                   draggedInboxTaskId={draggedInboxTaskId}
                   inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                   inboxTaskContactsByInboxTaskRefId={
@@ -2515,7 +2515,7 @@ function BigScreenKanbanByProject({
   );
 }
 
-interface SmallScreenKanbanByProjectProps {
+interface SmallScreenKanbanByAspectProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2527,9 +2527,9 @@ interface SmallScreenKanbanByProjectProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function SmallScreenKanbanByProject(props: SmallScreenKanbanByProjectProps) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(props.moreInfoByRefId),
+function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(props.moreInfoByRefId),
     [props.moreInfoByRefId],
   );
 
@@ -2553,20 +2553,20 @@ function SmallScreenKanbanByProject(props: SmallScreenKanbanByProjectProps) {
         scrollButtons="auto"
         onChange={(_, newValue) => setSelectedTab(newValue)}
       >
-        {projects.map((project) => (
-          <Tab key={project.ref_id} label={project.name} />
+        {aspects.map((aspect) => (
+          <Tab key={aspect.ref_id} label={aspect.name} />
         ))}
       </Tabs>
 
-      {projects.map((project, index) => {
-        const projectTasks = props.inboxTasks.filter(
-          (it) => it.project_ref_id === project.ref_id,
+      {aspects.map((aspect, index) => {
+        const aspectTasks = props.inboxTasks.filter(
+          (it) => it.aspect_ref_id === aspect.ref_id,
         );
         return (
-          <TabPanel key={project.ref_id} value={selectedTab} index={index}>
+          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
             <SmallScreenKanban
               topLevelInfo={props.topLevelInfo}
-              inboxTasks={projectTasks}
+              inboxTasks={aspectTasks}
               optimisticUpdates={props.optimisticUpdates}
               moreInfoByRefId={props.moreInfoByRefId}
               actionableTime={props.actionableTime}
@@ -2586,7 +2586,7 @@ function SmallScreenKanbanByProject(props: SmallScreenKanbanByProjectProps) {
   );
 }
 
-interface BigScreenKanbanByProjectAndGoalProps {
+interface BigScreenKanbanByAspectAndGoalProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2598,7 +2598,7 @@ interface BigScreenKanbanByProjectAndGoalProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function BigScreenKanbanByProjectAndGoal({
+function BigScreenKanbanByAspectAndGoal({
   topLevelInfo,
   inboxTasks,
   optimisticUpdates,
@@ -2608,9 +2608,9 @@ function BigScreenKanbanByProjectAndGoal({
   draggedInboxTaskId,
   inboxTaskTagsByInboxTaskRefId,
   inboxTaskContactsByInboxTaskRefId,
-}: BigScreenKanbanByProjectAndGoalProps) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(moreInfoByRefId),
+}: BigScreenKanbanByAspectAndGoalProps) {
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(moreInfoByRefId),
     [moreInfoByRefId],
   );
 
@@ -2625,26 +2625,26 @@ function BigScreenKanbanByProjectAndGoal({
       )}
       {inboxTasks.length > 0 && (
         <>
-          {projects.map((project) => {
-            const projectTasks = inboxTasks.filter(
-              (it) => it.project_ref_id === project.ref_id,
+          {aspects.map((aspect) => {
+            const aspectTasks = inboxTasks.filter(
+              (it) => it.aspect_ref_id === aspect.ref_id,
             );
-            if (projectTasks.length === 0) return null;
+            if (aspectTasks.length === 0) return null;
 
-            const goals = getUniqueGoalsForProject(
+            const goals = getUniqueGoalsForAspect(
               moreInfoByRefId,
-              project.ref_id,
+              aspect.ref_id,
             );
-            const tasksWithoutGoal = projectTasks.filter(
+            const tasksWithoutGoal = aspectTasks.filter(
               (it) => !moreInfoByRefId[it.ref_id]?.goal,
             );
 
             return (
-              <Fragment key={project.ref_id}>
-                <StandardDivider title={project.name} size="large" />
+              <Fragment key={aspect.ref_id}>
+                <StandardDivider title={aspect.name} size="large" />
 
                 {goals.map((goal) => {
-                  const goalTasks = projectTasks.filter(
+                  const goalTasks = aspectTasks.filter(
                     (it) =>
                       moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
                   );
@@ -2659,7 +2659,7 @@ function BigScreenKanbanByProjectAndGoal({
                         inboxTasksByRefId={inboxTasksByRefId}
                         moreInfoByRefId={moreInfoByRefId}
                         actionableTime={actionableTime}
-                        groupId={`${project.ref_id}-${goal.ref_id}`}
+                        groupId={`${aspect.ref_id}-${goal.ref_id}`}
                         draggedInboxTaskId={draggedInboxTaskId}
                         inboxTaskTagsByInboxTaskRefId={
                           inboxTaskTagsByInboxTaskRefId
@@ -2684,7 +2684,7 @@ function BigScreenKanbanByProjectAndGoal({
                       inboxTasksByRefId={inboxTasksByRefId}
                       moreInfoByRefId={moreInfoByRefId}
                       actionableTime={actionableTime}
-                      groupId={`${project.ref_id}-no-goal`}
+                      groupId={`${aspect.ref_id}-no-goal`}
                       draggedInboxTaskId={draggedInboxTaskId}
                       inboxTaskTagsByInboxTaskRefId={
                         inboxTaskTagsByInboxTaskRefId
@@ -2704,7 +2704,7 @@ function BigScreenKanbanByProjectAndGoal({
   );
 }
 
-interface SmallScreenKanbanByProjectAndGoalProps {
+interface SmallScreenKanbanByAspectAndGoalProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2716,11 +2716,11 @@ interface SmallScreenKanbanByProjectAndGoalProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function SmallScreenKanbanByProjectAndGoal(
-  props: SmallScreenKanbanByProjectAndGoalProps,
+function SmallScreenKanbanByAspectAndGoal(
+  props: SmallScreenKanbanByAspectAndGoalProps,
 ) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(props.moreInfoByRefId),
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(props.moreInfoByRefId),
     [props.moreInfoByRefId],
   );
 
@@ -2744,27 +2744,27 @@ function SmallScreenKanbanByProjectAndGoal(
         scrollButtons="auto"
         onChange={(_, newValue) => setSelectedTab(newValue)}
       >
-        {projects.map((project) => (
-          <Tab key={project.ref_id} label={project.name} />
+        {aspects.map((aspect) => (
+          <Tab key={aspect.ref_id} label={aspect.name} />
         ))}
       </Tabs>
 
-      {projects.map((project, index) => {
-        const projectTasks = props.inboxTasks.filter(
-          (it) => it.project_ref_id === project.ref_id,
+      {aspects.map((aspect, index) => {
+        const aspectTasks = props.inboxTasks.filter(
+          (it) => it.aspect_ref_id === aspect.ref_id,
         );
-        const goals = getUniqueGoalsForProject(
+        const goals = getUniqueGoalsForAspect(
           props.moreInfoByRefId,
-          project.ref_id,
+          aspect.ref_id,
         );
-        const tasksWithoutGoal = projectTasks.filter(
+        const tasksWithoutGoal = aspectTasks.filter(
           (it) => !props.moreInfoByRefId[it.ref_id]?.goal,
         );
 
         return (
-          <TabPanel key={project.ref_id} value={selectedTab} index={index}>
+          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
             {goals.map((goal) => {
-              const goalTasks = projectTasks.filter(
+              const goalTasks = aspectTasks.filter(
                 (it) =>
                   props.moreInfoByRefId[it.ref_id]?.goal?.ref_id ===
                   goal.ref_id,
@@ -2821,7 +2821,7 @@ function SmallScreenKanbanByProjectAndGoal(
   );
 }
 
-interface ListByProjectProps {
+interface ListByAspectProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2832,7 +2832,7 @@ interface ListByProjectProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function ListByProject({
+function ListByAspect({
   topLevelInfo,
   inboxTasks,
   moreInfoByRefId,
@@ -2841,9 +2841,9 @@ function ListByProject({
   onCardMarkNotDone,
   inboxTaskTagsByInboxTaskRefId,
   inboxTaskContactsByInboxTaskRefId,
-}: ListByProjectProps) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(moreInfoByRefId),
+}: ListByAspectProps) {
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(moreInfoByRefId),
     [moreInfoByRefId],
   );
 
@@ -2856,14 +2856,14 @@ function ListByProject({
           parentNewLocations="/app/workspace/inbox-tasks/new"
         />
       )}
-      {projects.map((project) => {
-        const projectTasks = inboxTasks.filter(
-          (it) => it.project_ref_id === project.ref_id,
+      {aspects.map((aspect) => {
+        const aspectTasks = inboxTasks.filter(
+          (it) => it.aspect_ref_id === aspect.ref_id,
         );
-        if (projectTasks.length === 0) return null;
+        if (aspectTasks.length === 0) return null;
         return (
-          <Fragment key={project.ref_id}>
-            <StandardDivider title={project.name} size="large" />
+          <Fragment key={aspect.ref_id}>
+            <StandardDivider title={aspect.name} size="large" />
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
               showOptions={{
@@ -2878,7 +2878,7 @@ function ListByProject({
                 showHandleMarkDone: true,
                 showHandleMarkNotDone: true,
               }}
-              inboxTasks={projectTasks}
+              inboxTasks={aspectTasks}
               moreInfoByRefId={moreInfoByRefId}
               inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
               inboxTaskContactsByInboxTaskRefId={
@@ -2895,7 +2895,7 @@ function ListByProject({
   );
 }
 
-interface ListByProjectAndGoalProps {
+interface ListByAspectAndGoalProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
   optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
@@ -2906,7 +2906,7 @@ interface ListByProjectAndGoalProps {
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
-function ListByProjectAndGoal({
+function ListByAspectAndGoal({
   topLevelInfo,
   inboxTasks,
   moreInfoByRefId,
@@ -2915,9 +2915,9 @@ function ListByProjectAndGoal({
   onCardMarkNotDone,
   inboxTaskTagsByInboxTaskRefId,
   inboxTaskContactsByInboxTaskRefId,
-}: ListByProjectAndGoalProps) {
-  const projects = useMemo(
-    () => getUniqueProjectsSorted(moreInfoByRefId),
+}: ListByAspectAndGoalProps) {
+  const aspects = useMemo(
+    () => getUniqueAspectsSorted(moreInfoByRefId),
     [moreInfoByRefId],
   );
 
@@ -2930,23 +2930,23 @@ function ListByProjectAndGoal({
           parentNewLocations="/app/workspace/inbox-tasks/new"
         />
       )}
-      {projects.map((project) => {
-        const projectTasks = inboxTasks.filter(
-          (it) => it.project_ref_id === project.ref_id,
+      {aspects.map((aspect) => {
+        const aspectTasks = inboxTasks.filter(
+          (it) => it.aspect_ref_id === aspect.ref_id,
         );
-        if (projectTasks.length === 0) return null;
+        if (aspectTasks.length === 0) return null;
 
-        const goals = getUniqueGoalsForProject(moreInfoByRefId, project.ref_id);
-        const tasksWithoutGoal = projectTasks.filter(
+        const goals = getUniqueGoalsForAspect(moreInfoByRefId, aspect.ref_id);
+        const tasksWithoutGoal = aspectTasks.filter(
           (it) => !moreInfoByRefId[it.ref_id]?.goal,
         );
 
         return (
-          <Fragment key={project.ref_id}>
-            <StandardDivider title={project.name} size="large" />
+          <Fragment key={aspect.ref_id}>
+            <StandardDivider title={aspect.name} size="large" />
 
             {goals.map((goal) => {
-              const goalTasks = projectTasks.filter(
+              const goalTasks = aspectTasks.filter(
                 (it) =>
                   moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
               );

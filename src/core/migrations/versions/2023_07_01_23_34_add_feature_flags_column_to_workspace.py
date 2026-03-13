@@ -21,7 +21,7 @@ def upgrade():
     with op.batch_alter_table("workspace") as batch_op:
         batch_op.add_column(sa.Column("feature_flags", sa.JSON))
     op.execute(
-        """update workspace set feature_flags='{"inbox-tasks": true, "habits": true, "chores": true, "big-plans": true, "vacations": true, "projects": true, "smart-lists": true, "metrics": true, "persons": true, "slack-tasks": false, "email-tasks": false}'"""
+        """update workspace set feature_flags='{"inbox-tasks": true, "habits": true, "chores": true, "big-plans": true, "vacations": true, "aspects": true, "smart-lists": true, "metrics": true, "persons": true, "slack-tasks": false, "email-tasks": false}'"""
     )
     with op.batch_alter_table("workspace") as batch_op:
         batch_op.alter_column("feature_flags", existing_type=sa.JSON, nullable=False)

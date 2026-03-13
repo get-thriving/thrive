@@ -22,7 +22,7 @@ class HabitFindArgs:
         include_life_plan (bool | None | Unset):
         include_inbox_tasks (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
-        filter_project_ref_ids (list[str] | None | Unset):
+        filter_aspect_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool | None | Unset = UNSET
@@ -31,7 +31,7 @@ class HabitFindArgs:
     include_life_plan: bool | None | Unset = UNSET
     include_inbox_tasks: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
-    filter_project_ref_ids: list[str] | None | Unset = UNSET
+    filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,14 +74,14 @@ class HabitFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_project_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_project_ref_ids, Unset):
-            filter_project_ref_ids = UNSET
-        elif isinstance(self.filter_project_ref_ids, list):
-            filter_project_ref_ids = self.filter_project_ref_ids
+        filter_aspect_ref_ids: list[str] | None | Unset
+        if isinstance(self.filter_aspect_ref_ids, Unset):
+            filter_aspect_ref_ids = UNSET
+        elif isinstance(self.filter_aspect_ref_ids, list):
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         else:
-            filter_project_ref_ids = self.filter_project_ref_ids
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -98,8 +98,8 @@ class HabitFindArgs:
             field_dict["include_inbox_tasks"] = include_inbox_tasks
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
-        if filter_project_ref_ids is not UNSET:
-            field_dict["filter_project_ref_ids"] = filter_project_ref_ids
+        if filter_aspect_ref_ids is not UNSET:
+            field_dict["filter_aspect_ref_ids"] = filter_aspect_ref_ids
 
         return field_dict
 
@@ -169,7 +169,7 @@ class HabitFindArgs:
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
+        def _parse_filter_aspect_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -177,14 +177,14 @@ class HabitFindArgs:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                filter_project_ref_ids_type_0 = cast(list[str], data)
+                filter_aspect_ref_ids_type_0 = cast(list[str], data)
 
-                return filter_project_ref_ids_type_0
+                return filter_aspect_ref_ids_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[str] | None | Unset, data)
 
-        filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
+        filter_aspect_ref_ids = _parse_filter_aspect_ref_ids(d.pop("filter_aspect_ref_ids", UNSET))
 
         habit_find_args = cls(
             allow_archived=allow_archived,
@@ -193,7 +193,7 @@ class HabitFindArgs:
             include_life_plan=include_life_plan,
             include_inbox_tasks=include_inbox_tasks,
             filter_ref_ids=filter_ref_ids,
-            filter_project_ref_ids=filter_project_ref_ids,
+            filter_aspect_ref_ids=filter_aspect_ref_ids,
         )
 
         habit_find_args.additional_properties = d

@@ -5,8 +5,8 @@ import type {
   Goal,
   GoalSummary,
   InboxTask,
-  Project,
-  ProjectSummary,
+  Aspect,
+  AspectSummary,
   Tag,
 } from "@jupiter/webapi-client";
 import {
@@ -60,10 +60,10 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
-import { ProjectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "@jupiter/core/life_plan/sub/aspects/component/tag";
 import {
-  computeProjectHierarchicalNameFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectHierarchicalNameFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import {
   DisplayType,
@@ -89,8 +89,8 @@ export const handle = {
 
 enum Grouping {
   FLAT = "flat",
-  BY_PROJECT = "by-project",
-  BY_PROJECT_AND_GOAL = "by-project-and-goal",
+  BY_ASPECT = "by-aspect",
+  BY_ASPECT_AND_GOAL = "by-aspect-and-goal",
 }
 
 enum PeriodBreakdown {
@@ -107,7 +107,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
     include_goals: true,
   });
 
@@ -137,7 +137,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     chores: response.entries,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allTags: allTags.tags as Array<Tag>,
     allContacts: allContacts.contacts as Array<Contact>,
@@ -261,7 +261,7 @@ export default function Chores() {
   );
 
   const [selectedGrouping, setSelectedGrouping] = useState<Grouping>(
-    lifePlanAvailable ? Grouping.BY_PROJECT_AND_GOAL : Grouping.FLAT,
+    lifePlanAvailable ? Grouping.BY_ASPECT_AND_GOAL : Grouping.FLAT,
   );
   const [selectedPeriodBreakdown, setSelectedPeriodBreakdown] =
     useState<PeriodBreakdown>(
@@ -270,9 +270,9 @@ export default function Chores() {
   const [selectedGroupVisibility, setSelectedGroupVisibility] =
     useState<GroupVisibility>(GroupVisibility.NON_EMPTY_ONLY);
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects || []);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects?.map((p) => [p.ref_id, p]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects?.map((p) => [p.ref_id, p]),
   );
 
   const sortedGoals = sortGoalsNaturally(loaderData.allGoals || []);
@@ -296,14 +296,14 @@ export default function Chores() {
               selectedGrouping,
               [
                 {
-                  value: Grouping.BY_PROJECT_AND_GOAL,
-                  text: "By Project & Goal",
+                  value: Grouping.BY_ASPECT_AND_GOAL,
+                  text: "By Aspect & Goal",
                   icon: <FlagIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
-                  value: Grouping.BY_PROJECT,
-                  text: "By Project",
+                  value: Grouping.BY_ASPECT,
+                  text: "By Aspect",
                   icon: <FlareIcon />,
                   gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
@@ -412,31 +412,31 @@ export default function Chores() {
                   />
                 )}
 
-              {selectedGrouping === Grouping.BY_PROJECT && (
-                <ChoresByProjectStack
+              {selectedGrouping === Grouping.BY_ASPECT && (
+                <ChoresByAspectStack
                   chores={sortedChores}
                   isBigScreen={isBigScreen}
                   selectedPeriodBreakdown={selectedPeriodBreakdown}
                   showEmptyGroups={
                     selectedGroupVisibility === GroupVisibility.SHOW_ALL
                   }
-                  sortedProjects={sortedProjects}
-                  allProjectsByRefId={allProjectsByRefId}
+                  sortedAspects={sortedAspects}
+                  allAspectsByRefId={allAspectsByRefId}
                   entriesByRefId={entriesByRefId}
                   topLevelInfo={topLevelInfo}
                 />
               )}
 
-              {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-                <ChoresByProjectAndGoalStack
+              {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                <ChoresByAspectAndGoalStack
                   chores={sortedChores}
                   isBigScreen={isBigScreen}
                   selectedPeriodBreakdown={selectedPeriodBreakdown}
                   showEmptyGroups={
                     selectedGroupVisibility === GroupVisibility.SHOW_ALL
                   }
-                  sortedProjects={sortedProjects}
-                  allProjectsByRefId={allProjectsByRefId}
+                  sortedAspects={sortedAspects}
+                  allAspectsByRefId={allAspectsByRefId}
                   sortedGoals={sortedGoals}
                   allGoalsByRefId={allGoalsByRefId}
                   entriesByRefId={entriesByRefId}
@@ -493,31 +493,31 @@ export default function Chores() {
                   />
                 )}
 
-                {selectedGrouping === Grouping.BY_PROJECT && (
-                  <ChoresByProjectStack
+                {selectedGrouping === Grouping.BY_ASPECT && (
+                  <ChoresByAspectStack
                     chores={sortedChores}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     entriesByRefId={entriesByRefId}
                     topLevelInfo={topLevelInfo}
                   />
                 )}
 
-                {selectedGrouping === Grouping.BY_PROJECT_AND_GOAL && (
-                  <ChoresByProjectAndGoalStack
+                {selectedGrouping === Grouping.BY_ASPECT_AND_GOAL && (
+                  <ChoresByAspectAndGoalStack
                     chores={sortedChores}
                     isBigScreen={isBigScreen}
                     selectedPeriodBreakdown={selectedPeriodBreakdown}
                     showEmptyGroups={
                       selectedGroupVisibility === GroupVisibility.SHOW_ALL
                     }
-                    sortedProjects={sortedProjects}
-                    allProjectsByRefId={allProjectsByRefId}
+                    sortedAspects={sortedAspects}
+                    allAspectsByRefId={allAspectsByRefId}
                     sortedGoals={sortedGoals}
                     allGoalsByRefId={allGoalsByRefId}
                     entriesByRefId={entriesByRefId}
@@ -549,7 +549,7 @@ interface ChoreRowProps {
   choreRefId: string;
   entriesByRefId: Map<string, ChoreFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag: boolean;
+  showAspectTag: boolean;
   showGoalTag: boolean;
   showPeriodTag: boolean;
 }
@@ -569,11 +569,11 @@ function ChoreRow(props: ChoreRowProps) {
       <EntityLink to={`/app/workspace/chores/${chore.ref_id}`}>
         <IsKeyTag isKey={chore.is_key} />
         <EntityNameComponent name={chore.name} />
-        {props.showProjectTag &&
+        {props.showAspectTag &&
           isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
-          ) && <ProjectTag project={entry.project as Project} />}
+          ) && <AspectTag aspect={entry.aspect as Aspect} />}
         {isWorkspaceFeatureAvailable(
           props.topLevelInfo.workspace,
           WorkspaceFeature.LIFE_PLAN,
@@ -631,13 +631,13 @@ interface ChoresFlatStackProps {
   chores: Array<ChoreFindResultEntry["chore"]>;
   entriesByRefId: Map<string, ChoreFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
-  showProjectTag?: boolean;
+  showAspectTag?: boolean;
   showGoalTag?: boolean;
   showPeriodTag?: boolean;
 }
 
 function ChoresFlatStack(props: ChoresFlatStackProps) {
-  const showProjectTag = props.showProjectTag ?? true;
+  const showAspectTag = props.showAspectTag ?? true;
   const showGoalTag = props.showGoalTag ?? true;
   const showPeriodTag = props.showPeriodTag ?? true;
 
@@ -649,7 +649,7 @@ function ChoresFlatStack(props: ChoresFlatStackProps) {
           choreRefId={chore.ref_id}
           entriesByRefId={props.entriesByRefId}
           topLevelInfo={props.topLevelInfo}
-          showProjectTag={showProjectTag}
+          showAspectTag={showAspectTag}
           showGoalTag={showGoalTag}
           showPeriodTag={showPeriodTag}
         />
@@ -658,18 +658,18 @@ function ChoresFlatStack(props: ChoresFlatStackProps) {
   );
 }
 
-interface ChoresByProjectStackProps {
+interface ChoresByAspectStackProps {
   chores: Array<ChoreFindResultEntry["chore"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   entriesByRefId: Map<string, ChoreFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function ChoresByProjectStack(props: ChoresByProjectStackProps) {
+function ChoresByAspectStack(props: ChoresByAspectStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
   const shouldShowByPeriods =
@@ -678,34 +678,34 @@ function ChoresByProjectStack(props: ChoresByProjectStackProps) {
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectChores = props.chores.filter(
-          (c) => c.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectChores = props.chores.filter(
+          (c) => c.aspect_ref_id === aspect.ref_id,
         );
-        if (projectChores.length === 0 && !props.showEmptyGroups) {
+        if (aspectChores.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
 
-            {projectChores.length === 0 && <EmptyChoresHint />}
+            {aspectChores.length === 0 && <EmptyChoresHint />}
 
-            {projectChores.length > 0 && shouldShowByPeriods && (
+            {aspectChores.length > 0 && shouldShowByPeriods && (
               <ChoresByPeriodsStack
-                chores={projectChores}
+                chores={aspectChores}
                 renderStack={(subset) => (
                   <ChoresFlatStack
                     chores={subset}
                     entriesByRefId={props.entriesByRefId}
                     topLevelInfo={props.topLevelInfo}
-                    showProjectTag={false}
+                    showAspectTag={false}
                     showGoalTag={true}
                     showPeriodTag={false}
                   />
@@ -713,12 +713,12 @@ function ChoresByProjectStack(props: ChoresByProjectStackProps) {
               />
             )}
 
-            {projectChores.length > 0 && !shouldShowByPeriods && (
+            {aspectChores.length > 0 && !shouldShowByPeriods && (
               <ChoresFlatStack
-                chores={projectChores}
+                chores={aspectChores}
                 entriesByRefId={props.entriesByRefId}
                 topLevelInfo={props.topLevelInfo}
-                showProjectTag={false}
+                showAspectTag={false}
                 showGoalTag={true}
                 showPeriodTag={showPeriodTag}
               />
@@ -730,20 +730,20 @@ function ChoresByProjectStack(props: ChoresByProjectStackProps) {
   );
 }
 
-interface ChoresByProjectAndGoalStackProps {
+interface ChoresByAspectAndGoalStackProps {
   chores: Array<ChoreFindResultEntry["chore"]>;
   isBigScreen: boolean;
   selectedPeriodBreakdown: PeriodBreakdown;
   showEmptyGroups: boolean;
-  sortedProjects: Array<ProjectSummary>;
-  allProjectsByRefId: Map<string, ProjectSummary>;
+  sortedAspects: Array<AspectSummary>;
+  allAspectsByRefId: Map<string, AspectSummary>;
   sortedGoals: Array<GoalSummary>;
   allGoalsByRefId: Map<string, GoalSummary>;
   entriesByRefId: Map<string, ChoreFindResultEntry>;
   topLevelInfo: React.ContextType<typeof TopLevelInfoContext>;
 }
 
-function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
+function ChoresByAspectAndGoalStack(props: ChoresByAspectAndGoalStackProps) {
   const showPeriodTag =
     props.selectedPeriodBreakdown !== PeriodBreakdown.BY_PERIOD;
   const shouldShowByPeriods =
@@ -752,31 +752,31 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
 
   return (
     <>
-      {props.sortedProjects.map((project) => {
-        const projectChores = props.chores.filter(
-          (c) => c.project_ref_id === project.ref_id,
+      {props.sortedAspects.map((aspect) => {
+        const aspectChores = props.chores.filter(
+          (c) => c.aspect_ref_id === aspect.ref_id,
         );
-        if (projectChores.length === 0 && !props.showEmptyGroups) {
+        if (aspectChores.length === 0 && !props.showEmptyGroups) {
           return null;
         }
 
-        const fullProjectName = computeProjectHierarchicalNameFromRoot(
-          project,
-          props.allProjectsByRefId,
+        const fullAspectName = computeAspectHierarchicalNameFromRoot(
+          aspect,
+          props.allAspectsByRefId,
         );
 
-        if (projectChores.length === 0) {
+        if (aspectChores.length === 0) {
           return (
-            <Fragment key={`project-${project.ref_id}`}>
-              <StandardDivider title={fullProjectName} size="large" />
+            <Fragment key={`aspect-${aspect.ref_id}`}>
+              <StandardDivider title={fullAspectName} size="large" />
               <EmptyChoresHint />
             </Fragment>
           );
         }
 
-        const choresByGoalRefId = new Map<string, typeof projectChores>();
-        const noGoalChores: typeof projectChores = [];
-        for (const chore of projectChores) {
+        const choresByGoalRefId = new Map<string, typeof aspectChores>();
+        const noGoalChores: typeof aspectChores = [];
+        for (const chore of aspectChores) {
           const goalRefId = chore.goal_ref_id ?? null;
           if (!goalRefId) {
             noGoalChores.push(chore);
@@ -787,24 +787,24 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
           choresByGoalRefId.set(goalRefId, existing);
         }
 
-        const projectGoals = props.sortedGoals
-          .filter((g) => g.project_ref_id === project.ref_id)
+        const aspectGoals = props.sortedGoals
+          .filter((g) => g.aspect_ref_id === aspect.ref_id)
           .filter(
             (g) => props.showEmptyGroups || choresByGoalRefId.has(g.ref_id),
           );
 
         return (
-          <Fragment key={`project-${project.ref_id}`}>
-            <StandardDivider title={fullProjectName} size="large" />
+          <Fragment key={`aspect-${aspect.ref_id}`}>
+            <StandardDivider title={fullAspectName} size="large" />
 
-            {projectGoals.map((goal) => {
+            {aspectGoals.map((goal) => {
               const goalChores = choresByGoalRefId.get(goal.ref_id) ?? [];
               if (goalChores.length === 0 && !props.showEmptyGroups) {
                 return null;
               }
 
               return (
-                <Fragment key={`project-${project.ref_id}-goal-${goal.ref_id}`}>
+                <Fragment key={`aspect-${aspect.ref_id}-goal-${goal.ref_id}`}>
                   <StandardDivider
                     title={`🎯 ${fullGoalName(goal, props.allGoalsByRefId)}`}
                     size="medium"
@@ -818,7 +818,7 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
                           chores={subset}
                           entriesByRefId={props.entriesByRefId}
                           topLevelInfo={props.topLevelInfo}
-                          showProjectTag={false}
+                          showAspectTag={false}
                           showGoalTag={false}
                           showPeriodTag={false}
                         />
@@ -830,7 +830,7 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
                       chores={goalChores}
                       entriesByRefId={props.entriesByRefId}
                       topLevelInfo={props.topLevelInfo}
-                      showProjectTag={false}
+                      showAspectTag={false}
                       showGoalTag={false}
                       showPeriodTag={showPeriodTag}
                     />
@@ -850,7 +850,7 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
                         chores={subset}
                         entriesByRefId={props.entriesByRefId}
                         topLevelInfo={props.topLevelInfo}
-                        showProjectTag={false}
+                        showAspectTag={false}
                         showGoalTag={false}
                         showPeriodTag={false}
                       />
@@ -863,7 +863,7 @@ function ChoresByProjectAndGoalStack(props: ChoresByProjectAndGoalStackProps) {
                     chores={noGoalChores}
                     entriesByRefId={props.entriesByRefId}
                     topLevelInfo={props.topLevelInfo}
-                    showProjectTag={false}
+                    showAspectTag={false}
                     showGoalTag={false}
                     showPeriodTag={showPeriodTag}
                   />

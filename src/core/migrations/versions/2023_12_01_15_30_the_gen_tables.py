@@ -67,7 +67,7 @@ def upgrade() -> None:
             today DATE NOT NULL,
             gen_targets JSON NOT NULL,
             period JSON,
-            filter_project_ref_ids JSON,
+            filter_aspect_ref_ids JSON,
             filter_habit_ref_ids JSON,
             filter_chore_ref_ids JSON,
             filter_metric_ref_ids JSON,

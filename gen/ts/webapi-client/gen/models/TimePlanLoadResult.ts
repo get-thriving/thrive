@@ -2,12 +2,12 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Aspect } from './Aspect';
 import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
 import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
-import type { Project } from './Project';
 import type { Tag } from './Tag';
 import type { TimePlan } from './TimePlan';
 import type { TimePlanActivity } from './TimePlanActivity';
@@ -21,7 +21,7 @@ export type TimePlanLoadResult = {
     note: Note;
     activities: Array<TimePlanActivity>;
     chapters: Array<Chapter>;
-    projects: Array<Project>;
+    aspects: Array<Aspect>;
     goals: Array<Goal>;
     target_inbox_tasks?: (Array<InboxTask> | null);
     target_big_plans?: (Array<BigPlan> | null);

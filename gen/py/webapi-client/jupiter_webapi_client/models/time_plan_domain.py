@@ -32,7 +32,7 @@ class TimePlanDomain:
         periods (list[RecurringTaskPeriod]):
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanDomainGenerationInAdvanceDays):
-        planning_task_project_ref_id (str): A generic entity id.
+        planning_task_aspect_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         planning_task_gen_params (None | RecurringTaskGenParams | Unset):
@@ -47,7 +47,7 @@ class TimePlanDomain:
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: TimePlanDomainGenerationInAdvanceDays
-    planning_task_project_ref_id: str
+    planning_task_aspect_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     planning_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
@@ -77,7 +77,7 @@ class TimePlanDomain:
 
         generation_in_advance_days = self.generation_in_advance_days.to_dict()
 
-        planning_task_project_ref_id = self.planning_task_project_ref_id
+        planning_task_aspect_ref_id = self.planning_task_aspect_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -112,7 +112,7 @@ class TimePlanDomain:
                 "periods": periods,
                 "generation_approach": generation_approach,
                 "generation_in_advance_days": generation_in_advance_days,
-                "planning_task_project_ref_id": planning_task_project_ref_id,
+                "planning_task_aspect_ref_id": planning_task_aspect_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -155,7 +155,7 @@ class TimePlanDomain:
             d.pop("generation_in_advance_days")
         )
 
-        planning_task_project_ref_id = d.pop("planning_task_project_ref_id")
+        planning_task_aspect_ref_id = d.pop("planning_task_aspect_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -202,7 +202,7 @@ class TimePlanDomain:
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
-            planning_task_project_ref_id=planning_task_project_ref_id,
+            planning_task_aspect_ref_id=planning_task_aspect_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             planning_task_gen_params=planning_task_gen_params,

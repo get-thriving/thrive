@@ -12,7 +12,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.partial_date import MAX_AGE
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -37,7 +37,7 @@ TIME_PLAN_MAX_LIFE_PLAN_LINKS = 3
 
 @entity
 class LifePlan(TrunkEntity):
-    """A project collection."""
+    """A aspect collection."""
 
     ALLOWED_EVAL_PERIODS: ClassVar[set[RecurringTaskPeriod]] = {
         RecurringTaskPeriod.MONTHLY,
@@ -57,7 +57,7 @@ class LifePlan(TrunkEntity):
     eval_task_gen_params: RecurringTaskGenParams | None
     eval_task_generation_in_advance_days: dict[RecurringTaskPeriod, int]
 
-    projects = ContainsMany(Project, life_plan_ref_id=IsRefId())
+    aspects = ContainsMany(Aspect, life_plan_ref_id=IsRefId())
     chapters = ContainsMany(Chapter, life_plan_ref_id=IsRefId())
     goals = ContainsMany(Goal, life_plan_ref_id=IsRefId())
     milestones = ContainsMany(Milestone, life_plan_ref_id=IsRefId())

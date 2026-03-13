@@ -28,7 +28,7 @@ class InboxTask:
         name (str): The name of an inbox task.
         inbox_task_collection_ref_id (str):
         source (InboxTaskSource): The origin of an inbox task.
-        project_ref_id (str): A generic entity id.
+        aspect_ref_id (str): A generic entity id.
         status (InboxTaskStatus): The status of an inbox task.
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
@@ -56,7 +56,7 @@ class InboxTask:
     name: str
     inbox_task_collection_ref_id: str
     source: InboxTaskSource
-    project_ref_id: str
+    aspect_ref_id: str
     status: InboxTaskStatus
     is_key: bool
     eisen: Eisen
@@ -93,7 +93,7 @@ class InboxTask:
 
         source = self.source.value
 
-        project_ref_id = self.project_ref_id
+        aspect_ref_id = self.aspect_ref_id
 
         status = self.status.value
 
@@ -193,7 +193,7 @@ class InboxTask:
                 "name": name,
                 "inbox_task_collection_ref_id": inbox_task_collection_ref_id,
                 "source": source,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "status": status,
                 "is_key": is_key,
                 "eisen": eisen,
@@ -248,7 +248,7 @@ class InboxTask:
 
         source = InboxTaskSource(d.pop("source"))
 
-        project_ref_id = d.pop("project_ref_id")
+        aspect_ref_id = d.pop("aspect_ref_id")
 
         status = InboxTaskStatus(d.pop("status"))
 
@@ -384,7 +384,7 @@ class InboxTask:
             name=name,
             inbox_task_collection_ref_id=inbox_task_collection_ref_id,
             source=source,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             status=status,
             is_key=is_key,
             eisen=eisen,

@@ -24,7 +24,7 @@ class WorkingMemCollection:
         last_modified_time (str): A timestamp in the application.
         workspace_ref_id (str):
         generation_period (RecurringTaskPeriod): A period for a particular task.
-        cleanup_project_ref_id (str): A generic entity id.
+        cleanup_aspect_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
     """
@@ -36,7 +36,7 @@ class WorkingMemCollection:
     last_modified_time: str
     workspace_ref_id: str
     generation_period: RecurringTaskPeriod
-    cleanup_project_ref_id: str
+    cleanup_aspect_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -56,7 +56,7 @@ class WorkingMemCollection:
 
         generation_period = self.generation_period.value
 
-        cleanup_project_ref_id = self.cleanup_project_ref_id
+        cleanup_aspect_ref_id = self.cleanup_aspect_ref_id
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -81,7 +81,7 @@ class WorkingMemCollection:
                 "last_modified_time": last_modified_time,
                 "workspace_ref_id": workspace_ref_id,
                 "generation_period": generation_period,
-                "cleanup_project_ref_id": cleanup_project_ref_id,
+                "cleanup_aspect_ref_id": cleanup_aspect_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -108,7 +108,7 @@ class WorkingMemCollection:
 
         generation_period = RecurringTaskPeriod(d.pop("generation_period"))
 
-        cleanup_project_ref_id = d.pop("cleanup_project_ref_id")
+        cleanup_aspect_ref_id = d.pop("cleanup_aspect_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -136,7 +136,7 @@ class WorkingMemCollection:
             last_modified_time=last_modified_time,
             workspace_ref_id=workspace_ref_id,
             generation_period=generation_period,
-            cleanup_project_ref_id=cleanup_project_ref_id,
+            cleanup_aspect_ref_id=cleanup_aspect_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
         )

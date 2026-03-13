@@ -10,7 +10,7 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -53,7 +53,7 @@ class EmailTaskFindResultEntry(UseCaseResultBase):
 class EmailTaskFindResult(UseCaseResultBase):
     """PersonFindResult."""
 
-    generation_project: Project
+    generation_aspect: Aspect
     entries: list[EmailTaskFindResultEntry]
 
 
@@ -90,8 +90,8 @@ class EmailTaskFindUseCase(
             filter_ref_ids=args.filter_ref_ids,
         )
 
-        generation_project = await uow.get_for(Project).load_by_id(
-            email_task_collection.generation_project_ref_id,
+        generation_aspect = await uow.get_for(Aspect).load_by_id(
+            email_task_collection.generation_aspect_ref_id,
         )
 
         if include_inbox_task:
@@ -108,7 +108,7 @@ class EmailTaskFindUseCase(
             inbox_tasks_by_email_task_ref_id = None
 
         return EmailTaskFindResult(
-            generation_project=generation_project,
+            generation_aspect=generation_aspect,
             entries=[
                 EmailTaskFindResultEntry(
                     email_task=st,

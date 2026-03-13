@@ -2,13 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Aspect } from './Aspect';
 import type { PersonFindResultEntry } from './PersonFindResultEntry';
-import type { Project } from './Project';
 /**
  * PersonFindResult.
  */
 export type PersonFindResult = {
-    catch_up_project: Project;
+    catch_up_aspect: Aspect;
     entries: Array<PersonFindResultEntry>;
 };
 

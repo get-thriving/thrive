@@ -105,7 +105,7 @@ def upgrade() -> None:
         """
     INSERT INTO search_index SELECT 
         c.workspace_ref_id AS workspace_ref_id,
-        'Project' AS entity_tag,
+        'Aspect' AS entity_tag,
         c.ref_id AS parent_ref_id,
         e.ref_id AS ref_id,
         e.name AS name,
@@ -113,9 +113,9 @@ def upgrade() -> None:
         e.created_time AS created_time,
         e.last_modified_time AS last_modified_time,
         e.archived_time AS archived_time
-    FROM project_collection AS c
-    JOIN project AS e
-    ON c.ref_id=e.project_collection_ref_id;
+    FROM aspect_collection AS c
+    JOIN aspect AS e
+    ON c.ref_id=e.aspect_collection_ref_id;
     """
     )
     op.execute(

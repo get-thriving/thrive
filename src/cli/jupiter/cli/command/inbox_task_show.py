@@ -2,13 +2,13 @@
 
 from jupiter.cli.command.rendering import (
     actionable_date_to_rich_text,
+    aspect_to_rich_text,
     difficulty_to_rich_text,
     due_date_to_rich_text,
     eisen_to_rich_text,
     entity_id_to_rich_text,
     inbox_task_status_to_rich_text,
     parent_entity_name_to_rich_text,
-    project_to_rich_text,
     source_to_rich_text,
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
@@ -50,7 +50,7 @@ class InboxTaskShow(
 
         for inbox_task_entry in sorted_inbox_tasks:
             inbox_task = inbox_task_entry.inbox_task
-            project = inbox_task_entry.project
+            aspect = inbox_task_entry.aspect
             habit = inbox_task_entry.habit
             chore = inbox_task_entry.chore
             big_plan = inbox_task_entry.big_plan
@@ -137,11 +137,11 @@ class InboxTaskShow(
                 inbox_task_info_text.append(" ")
                 inbox_task_info_text.append(due_date_to_rich_text(inbox_task.due_date))
 
-            if project is not None and context.workspace.is_feature_available(
+            if aspect is not None and context.workspace.is_feature_available(
                 WorkspaceFeature.LIFE_PLAN
             ):
                 inbox_task_info_text.append(" ")
-                inbox_task_info_text.append(project_to_rich_text(project.name))
+                inbox_task_info_text.append(aspect_to_rich_text(aspect.name))
 
             if inbox_task.archived:
                 inbox_task_text.stylize("gray62")

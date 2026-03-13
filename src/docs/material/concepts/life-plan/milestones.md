@@ -24,7 +24,7 @@ Examples of milestones:
 | -------- | ----------- |
 | **Name** | A short label describing the milestone. |
 | **Date** | The specific date on which the milestone occurs (past or future). |
-| **Project** | The [project](projects.md) this milestone is associated with. |
+| **Aspect** | The [aspect](aspects.md) this milestone is associated with. |
 
 Milestones also support a **note** for additional free-form context and
 **tags** for organisation.

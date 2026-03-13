@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
     from ..models.habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
+    from ..models.habit_update_args_aspect_ref_id import HabitUpdateArgsAspectRefId
     from ..models.habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
     from ..models.habit_update_args_difficulty import HabitUpdateArgsDifficulty
     from ..models.habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
     from ..models.habit_update_args_is_key import HabitUpdateArgsIsKey
     from ..models.habit_update_args_name import HabitUpdateArgsName
     from ..models.habit_update_args_period import HabitUpdateArgsPeriod
-    from ..models.habit_update_args_project_ref_id import HabitUpdateArgsProjectRefId
     from ..models.habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
     from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
     from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule
@@ -34,7 +34,7 @@ class HabitUpdateArgs:
     Attributes:
         ref_id (str): A generic entity id.
         name (HabitUpdateArgsName):
-        project_ref_id (HabitUpdateArgsProjectRefId):
+        aspect_ref_id (HabitUpdateArgsAspectRefId):
         chapter_ref_id (HabitUpdateArgsChapterRefId):
         goal_ref_id (HabitUpdateArgsGoalRefId):
         is_key (HabitUpdateArgsIsKey):
@@ -52,7 +52,7 @@ class HabitUpdateArgs:
 
     ref_id: str
     name: HabitUpdateArgsName
-    project_ref_id: HabitUpdateArgsProjectRefId
+    aspect_ref_id: HabitUpdateArgsAspectRefId
     chapter_ref_id: HabitUpdateArgsChapterRefId
     goal_ref_id: HabitUpdateArgsGoalRefId
     is_key: HabitUpdateArgsIsKey
@@ -73,7 +73,7 @@ class HabitUpdateArgs:
 
         name = self.name.to_dict()
 
-        project_ref_id = self.project_ref_id.to_dict()
+        aspect_ref_id = self.aspect_ref_id.to_dict()
 
         chapter_ref_id = self.chapter_ref_id.to_dict()
 
@@ -107,7 +107,7 @@ class HabitUpdateArgs:
             {
                 "ref_id": ref_id,
                 "name": name,
-                "project_ref_id": project_ref_id,
+                "aspect_ref_id": aspect_ref_id,
                 "chapter_ref_id": chapter_ref_id,
                 "goal_ref_id": goal_ref_id,
                 "is_key": is_key,
@@ -130,6 +130,7 @@ class HabitUpdateArgs:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
         from ..models.habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
+        from ..models.habit_update_args_aspect_ref_id import HabitUpdateArgsAspectRefId
         from ..models.habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
         from ..models.habit_update_args_difficulty import HabitUpdateArgsDifficulty
         from ..models.habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
@@ -139,7 +140,6 @@ class HabitUpdateArgs:
         from ..models.habit_update_args_is_key import HabitUpdateArgsIsKey
         from ..models.habit_update_args_name import HabitUpdateArgsName
         from ..models.habit_update_args_period import HabitUpdateArgsPeriod
-        from ..models.habit_update_args_project_ref_id import HabitUpdateArgsProjectRefId
         from ..models.habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
         from ..models.habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
         from ..models.habit_update_args_skip_rule import HabitUpdateArgsSkipRule
@@ -149,7 +149,7 @@ class HabitUpdateArgs:
 
         name = HabitUpdateArgsName.from_dict(d.pop("name"))
 
-        project_ref_id = HabitUpdateArgsProjectRefId.from_dict(d.pop("project_ref_id"))
+        aspect_ref_id = HabitUpdateArgsAspectRefId.from_dict(d.pop("aspect_ref_id"))
 
         chapter_ref_id = HabitUpdateArgsChapterRefId.from_dict(d.pop("chapter_ref_id"))
 
@@ -180,7 +180,7 @@ class HabitUpdateArgs:
         habit_update_args = cls(
             ref_id=ref_id,
             name=name,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             is_key=is_key,

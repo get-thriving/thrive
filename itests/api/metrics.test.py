@@ -134,7 +134,7 @@ def test_api_metric_load_settings(api_url: str, api_key: str) -> None:
         timeout=10,
     )
     assert response.status_code == 200
-    assert "collection_project" in response.json()
+    assert "collection_aspect" in response.json()
 
 
 def test_api_metric_update(api_url: str, api_key: str, create_metric) -> None:

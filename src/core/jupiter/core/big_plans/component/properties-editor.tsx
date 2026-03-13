@@ -6,7 +6,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
 } from "@jupiter/webapi-client";
 import {
@@ -69,7 +69,7 @@ interface BigPlanPropertiesEditorProps {
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
   lifePlan: LifePlan;
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
   allChapters: ChapterSummary[];
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
@@ -90,15 +90,15 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
 
   const birthday = lifePlanBirthdayDate(props.lifePlan);
   const today = aDateToDate(props.topLevelInfo.today);
-  const [selectedProjectRefId, setSelectedProjectRefId] = useState(
-    props.bigPlanInfo.project.ref_id,
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState(
+    props.bigPlanInfo.aspect.ref_id,
   );
 
   const chaptersForSuggestions = useMemo(
     () =>
       findActiveChaptersForSuggestions(
         props.allChapters.filter(
-          (chapter) => chapter.project_ref_id === selectedProjectRefId,
+          (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
         ),
         birthday,
         today,
@@ -107,7 +107,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
     [
       props.allChapters,
       props.allMilestones,
-      selectedProjectRefId,
+      selectedAspectRefId,
       birthday,
       today,
     ],
@@ -243,13 +243,13 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={props.inputsEnabled}
-              projectName={constructFieldName(props.namePrefix, "project")}
+              aspectName={constructFieldName(props.namePrefix, "aspect")}
               chapterName={constructFieldName(props.namePrefix, "chapter")}
               goalName={constructFieldName(props.namePrefix, "goal")}
-              allProjects={props.allProjects}
-              projectValue={selectedProjectRefId}
-              onProjectChange={setSelectedProjectRefId}
-              projectDefaultValue={props.bigPlanInfo.project.ref_id}
+              allAspects={props.allAspects}
+              aspectValue={selectedAspectRefId}
+              onAspectChange={setSelectedAspectRefId}
+              aspectDefaultValue={props.bigPlanInfo.aspect.ref_id}
               allChapters={props.allChapters}
               chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
               allGoals={props.allGoals}
@@ -262,7 +262,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
               actionResult={props.actionData}
               fieldName={constructFieldErrorName(
                 props.fieldsPrefix,
-                "project_ref_id",
+                "aspect_ref_id",
               )}
             />
             <FieldError

@@ -25,7 +25,7 @@ class BigPlanFindArgs:
         include_stats (bool | None | Unset):
         filter_just_workable (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
-        filter_project_ref_ids (list[str] | None | Unset):
+        filter_aspect_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool | None | Unset = UNSET
@@ -37,7 +37,7 @@ class BigPlanFindArgs:
     include_stats: bool | None | Unset = UNSET
     filter_just_workable: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
-    filter_project_ref_ids: list[str] | None | Unset = UNSET
+    filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -98,14 +98,14 @@ class BigPlanFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_project_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_project_ref_ids, Unset):
-            filter_project_ref_ids = UNSET
-        elif isinstance(self.filter_project_ref_ids, list):
-            filter_project_ref_ids = self.filter_project_ref_ids
+        filter_aspect_ref_ids: list[str] | None | Unset
+        if isinstance(self.filter_aspect_ref_ids, Unset):
+            filter_aspect_ref_ids = UNSET
+        elif isinstance(self.filter_aspect_ref_ids, list):
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         else:
-            filter_project_ref_ids = self.filter_project_ref_ids
+            filter_aspect_ref_ids = self.filter_aspect_ref_ids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -128,8 +128,8 @@ class BigPlanFindArgs:
             field_dict["filter_just_workable"] = filter_just_workable
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
-        if filter_project_ref_ids is not UNSET:
-            field_dict["filter_project_ref_ids"] = filter_project_ref_ids
+        if filter_aspect_ref_ids is not UNSET:
+            field_dict["filter_aspect_ref_ids"] = filter_aspect_ref_ids
 
         return field_dict
 
@@ -226,7 +226,7 @@ class BigPlanFindArgs:
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_project_ref_ids(data: object) -> list[str] | None | Unset:
+        def _parse_filter_aspect_ref_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -234,14 +234,14 @@ class BigPlanFindArgs:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                filter_project_ref_ids_type_0 = cast(list[str], data)
+                filter_aspect_ref_ids_type_0 = cast(list[str], data)
 
-                return filter_project_ref_ids_type_0
+                return filter_aspect_ref_ids_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
             return cast(list[str] | None | Unset, data)
 
-        filter_project_ref_ids = _parse_filter_project_ref_ids(d.pop("filter_project_ref_ids", UNSET))
+        filter_aspect_ref_ids = _parse_filter_aspect_ref_ids(d.pop("filter_aspect_ref_ids", UNSET))
 
         big_plan_find_args = cls(
             allow_archived=allow_archived,
@@ -253,7 +253,7 @@ class BigPlanFindArgs:
             include_stats=include_stats,
             filter_just_workable=filter_just_workable,
             filter_ref_ids=filter_ref_ids,
-            filter_project_ref_ids=filter_project_ref_ids,
+            filter_aspect_ref_ids=filter_aspect_ref_ids,
         )
 
         big_plan_find_args.additional_properties = d

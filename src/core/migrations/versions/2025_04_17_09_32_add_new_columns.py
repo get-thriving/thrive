@@ -32,15 +32,15 @@ def upgrade() -> None:
             sa.Column("generation_in_advance_days", sa.JSON(), nullable=True)
         )
         batch_op.add_column(
-            sa.Column("planning_task_project_ref_id", sa.Integer(), nullable=True)
+            sa.Column("planning_task_aspect_ref_id", sa.Integer(), nullable=True)
         )
         batch_op.add_column(
             sa.Column("planning_task_gen_params", sa.JSON(), nullable=True)
         )
         batch_op.create_foreign_key(
-            "fk_time_plan_domain_planning_task_project_ref_id_project",
-            "project",
-            ["planning_task_project_ref_id"],
+            "fk_time_plan_domain_planning_task_aspect_ref_id_aspect",
+            "aspect",
+            ["planning_task_aspect_ref_id"],
             ["ref_id"],
         )
         batch_op.drop_column("days_until_gc")
@@ -90,26 +90,26 @@ def upgrade() -> None:
             td.periods as persiods,
             td.generation_approach as generation_approach,
             td.generation_in_advance_days as generation_in_advance_days,
-            p.ref_id as planning_task_project_ref_id,
+            p.ref_id as planning_task_aspect_ref_id,
             td.planning_task_gen_params as planning_task_gen_params
         FROM time_plan_domain td 
         JOIN workspace w 
         ON td.workspace_ref_id=w.ref_id
-        JOIN project_collection pc 
+        JOIN aspect_collection pc 
         ON pc.workspace_ref_id=w.ref_id 
         JOIN (
             SELECT 
                 ref_id,
-                project_collection_ref_id
-            FROM project
-            WHERE parent_project_ref_id 
+                aspect_collection_ref_id
+            FROM aspect
+            WHERE parent_aspect_ref_id 
             IS NULL) as p
-        ON p.project_collection_ref_id=pc.ref_id;
+        ON p.aspect_collection_ref_id=pc.ref_id;
     """
     )
     op.execute(
         """
-        DELETE FROM time_plan_domain WHERE planning_task_project_ref_id IS NULL
+        DELETE FROM time_plan_domain WHERE planning_task_aspect_ref_id IS NULL
     """
     )
     op.execute(

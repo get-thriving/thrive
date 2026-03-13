@@ -8,9 +8,9 @@ decades ahead might look.
 
 ## Purpose
 
-Most planning tools operate at the level of tasks and projects. The Life Plan
+Most planning tools operate at the level of tasks and aspects. The Life Plan
 operates at the level of **chapters**, **goals**, and **milestones** — the
-kind of things that take years to materialise, span many projects, and define
+kind of things that take years to materialise, span many aspects, and define
 a life rather than a week.
 
 The Life Plan gives you:
@@ -19,13 +19,13 @@ The Life Plan gives you:
 - A timeline of **chapters** that carve your life into meaningful phases.
 - A tree of **goals** that represent what you are working towards.
 - Named **milestones** that mark important moments in time.
-- **Projects** that act as long-lived containers, linking goals and tasks.
+- **Aspects** that act as long-lived containers, linking goals and tasks.
 - A [Life Weeks](life-weeks.md) grid to keep perspective on the finite
   nature of time.
 
-Everything in the Life Plan feeds downward into the rest of Thrive. Projects
+Everything in the Life Plan feeds downward into the rest of Thrive. Aspects
 group tasks, habits, chores, and big plans. Goals are associated with
-projects. Chapters reference milestones. This makes the Life Plan the
+aspects. Chapters reference milestones. This makes the Life Plan the
 connective tissue of the whole system.
 
 ## Settings
@@ -56,10 +56,10 @@ The Life Plan is composed of five sub-concepts, each documented separately:
 | Concept | Description |
 | ------- | ----------- |
 | [Vision](vision.md) | A free-form document describing who you want to be and what you want your life to look like. |
-| [Chapters](chapters.md) | Time-bounded phases of your life, each associated with a project. |
-| [Goals](goals.md) | A hierarchical tree of things you are working toward, linked to projects. |
+| [Chapters](chapters.md) | Time-bounded phases of your life, each associated with a aspect. |
+| [Goals](goals.md) | A hierarchical tree of things you are working toward, linked to aspects. |
 | [Milestones](milestones.md) | Named, dated events that mark important moments in your life. |
-| [Projects](projects.md) | Long-lived containers that link the Life Plan to everyday tasks, habits, chores, and big plans. |
+| [Aspects](aspects.md) | Long-lived containers that link the Life Plan to everyday tasks, habits, chores, and big plans. |
 | [Life Weeks](life-weeks.md) | A visual grid showing every week of your life. |
 
 ## Accessing the Life Plan

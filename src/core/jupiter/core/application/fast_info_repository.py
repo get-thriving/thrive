@@ -10,7 +10,7 @@ from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.habits.name import HabitName
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDate
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
@@ -48,13 +48,13 @@ class ScheduleStreamSummary(CompositeValue):
 
 
 @value
-class ProjectSummary(CompositeValue):
-    """Summary information about a project."""
+class AspectSummary(CompositeValue):
+    """Summary information about a aspect."""
 
     ref_id: EntityId
-    parent_project_ref_id: EntityId | None
-    name: ProjectName
-    order_of_child_projects: list[EntityId]
+    parent_aspect_ref_id: EntityId | None
+    name: AspectName
+    order_of_child_aspects: list[EntityId]
 
 
 @value
@@ -65,7 +65,7 @@ class ChapterSummary(CompositeValue):
     name: ChapterName
     start_date: PartialDate
     end_date: PartialDate
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
 
 
 @value
@@ -75,7 +75,7 @@ class MilestoneSummary(CompositeValue):
     ref_id: EntityId
     name: MilestoneName
     date: ADate
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
 
 
 @value
@@ -84,7 +84,7 @@ class GoalSummary(CompositeValue):
 
     ref_id: EntityId
     name: GoalName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     parent_goal_ref_id: EntityId | None
 
 
@@ -112,7 +112,7 @@ class HabitSummary(CompositeValue):
     name: HabitName
     is_key: bool
     period: RecurringTaskPeriod
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
 
 
 @value
@@ -129,7 +129,7 @@ class BigPlanSummary(CompositeValue):
 
     ref_id: EntityId
     name: BigPlanName
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     is_key: bool
@@ -182,12 +182,12 @@ class FastInfoRepository(Repository, abc.ABC):
         """Find all summaries about schedule streams."""
 
     @abc.abstractmethod
-    async def find_all_project_summaries(
+    async def find_all_aspect_summaries(
         self,
         parent_ref_id: EntityId,
         allow_archived: bool,
-    ) -> list[ProjectSummary]:
-        """Find all summaries about projects."""
+    ) -> list[AspectSummary]:
+        """Find all summaries about aspects."""
 
     @abc.abstractmethod
     async def find_all_chapter_summaries(

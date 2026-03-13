@@ -18,7 +18,7 @@ export type MilestoneUpdateArgs = {
         should_change: boolean;
         value?: ADate;
     };
-    project_ref_id: {
+    aspect_ref_id: {
         should_change: boolean;
         value?: EntityId;
     };

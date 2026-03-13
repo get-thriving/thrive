@@ -7,7 +7,7 @@ from jupiter.core.config import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.core.life_plan.sub.milestones.root import Milestone
@@ -28,7 +28,7 @@ class MilestoneUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[MilestoneName]
     date: UpdateAction[ADate]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
 
 
 @mutation_use_case(WorkspaceFeature.LIFE_PLAN)
@@ -80,7 +80,7 @@ class MilestoneUpdateUseCase(
                             ctx=context.domain_context,
                             birthday=life_plan.birthday_date,
                             milestone_dates_by_ref_id=milestone_dates_by_ref_id,
-                            project_ref_id=UpdateAction.do_nothing(),
+                            aspect_ref_id=UpdateAction.do_nothing(),
                             name=UpdateAction.do_nothing(),
                             start_date=args.date.transform(
                                 lambda date: PartialDate.from_absolute_ymd(
@@ -94,7 +94,7 @@ class MilestoneUpdateUseCase(
                             ctx=context.domain_context,
                             birthday=life_plan.birthday_date,
                             milestone_dates_by_ref_id=milestone_dates_by_ref_id,
-                            project_ref_id=UpdateAction.do_nothing(),
+                            aspect_ref_id=UpdateAction.do_nothing(),
                             name=UpdateAction.do_nothing(),
                             start_date=UpdateAction.do_nothing(),
                             end_date=args.date.transform(
@@ -108,15 +108,15 @@ class MilestoneUpdateUseCase(
                         f"Cannot update milestone because chapter {chapter.name} would be invalid"
                     ) from err
 
-        _ = await uow.get_for(Project).load_by_id(
-            args.project_ref_id.or_else(milestone.project_ref_id)
+        _ = await uow.get_for(Aspect).load_by_id(
+            args.aspect_ref_id.or_else(milestone.aspect_ref_id)
         )
 
         milestone = milestone.update(
             ctx=context.domain_context,
             name=args.name,
             date=args.date,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
         )
 
         await uow.get_for(Milestone).save(milestone)

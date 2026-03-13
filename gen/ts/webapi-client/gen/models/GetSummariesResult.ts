@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AspectSummary } from './AspectSummary';
 import type { BigPlanSummary } from './BigPlanSummary';
 import type { ChapterSummary } from './ChapterSummary';
 import type { ChoreSummary } from './ChoreSummary';
@@ -13,7 +14,6 @@ import type { LifePlan } from './LifePlan';
 import type { MetricSummary } from './MetricSummary';
 import type { MilestoneSummary } from './MilestoneSummary';
 import type { PersonSummary } from './PersonSummary';
-import type { ProjectSummary } from './ProjectSummary';
 import type { ScheduleStreamSummary } from './ScheduleStreamSummary';
 import type { SmartListSummary } from './SmartListSummary';
 import type { User } from './User';
@@ -30,8 +30,8 @@ export type GetSummariesResult = {
     active_vision?: (Vision | null);
     vacations?: (Array<VacationSummary> | null);
     schedule_streams?: (Array<ScheduleStreamSummary> | null);
-    root_project?: (ProjectSummary | null);
-    projects?: (Array<ProjectSummary> | null);
+    root_aspect?: (AspectSummary | null);
+    aspects?: (Array<AspectSummary> | null);
     chapters?: (Array<ChapterSummary> | null);
     goals?: (Array<GoalSummary> | null);
     milestones?: (Array<MilestoneSummary> | null);

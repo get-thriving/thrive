@@ -4,7 +4,7 @@ import {
   type BigPlan,
   type BigPlanFindResultEntry,
   type Contact,
-  type Project,
+  type Aspect,
   type Tag,
   type BigPlanMilestone,
   Chapter,
@@ -18,7 +18,7 @@ import { compareEisen } from "#/core/common/eisen";
 import { compareIsKey } from "#/core/common/is-key";
 
 export interface BigPlanParent {
-  project?: Project;
+  aspect?: Aspect;
   chapter?: Chapter;
   goal?: Goal;
   tags?: Tag[];
@@ -29,7 +29,7 @@ export function bigPlanFindEntryToParent(
   entry: BigPlanFindResultEntry,
 ): BigPlanParent {
   return {
-    project: entry.project || undefined,
+    aspect: entry.aspect || undefined,
     chapter: entry.chapter || undefined,
     goal: entry.goal || undefined,
     tags: entry.tags || undefined,

@@ -194,6 +194,27 @@ from jupiter_webapi_client.api.journals.journal_remove import (
 from jupiter_webapi_client.api.journals.journal_update_settings import (
     asyncio_detailed as journal_update_settings,
 )
+from jupiter_webapi_client.api.life_plan.aspect_archive import (
+    asyncio_detailed as aspect_archive,
+)
+from jupiter_webapi_client.api.life_plan.aspect_create import (
+    asyncio_detailed as aspect_create,
+)
+from jupiter_webapi_client.api.life_plan.aspect_find import (
+    asyncio_detailed as aspect_find,
+)
+from jupiter_webapi_client.api.life_plan.aspect_load import (
+    asyncio_detailed as aspect_load,
+)
+from jupiter_webapi_client.api.life_plan.aspect_remove import (
+    asyncio_detailed as aspect_remove,
+)
+from jupiter_webapi_client.api.life_plan.aspect_reorder_children import (
+    asyncio_detailed as aspect_reorder_children,
+)
+from jupiter_webapi_client.api.life_plan.aspect_update import (
+    asyncio_detailed as aspect_update,
+)
 from jupiter_webapi_client.api.life_plan.chapter_archive import (
     asyncio_detailed as chapter_archive,
 )
@@ -262,27 +283,6 @@ from jupiter_webapi_client.api.life_plan.milestone_remove import (
 from jupiter_webapi_client.api.life_plan.milestone_update import (
     asyncio_detailed as milestone_update,
 )
-from jupiter_webapi_client.api.life_plan.project_archive import (
-    asyncio_detailed as project_archive,
-)
-from jupiter_webapi_client.api.life_plan.project_create import (
-    asyncio_detailed as project_create,
-)
-from jupiter_webapi_client.api.life_plan.project_find import (
-    asyncio_detailed as project_find,
-)
-from jupiter_webapi_client.api.life_plan.project_load import (
-    asyncio_detailed as project_load,
-)
-from jupiter_webapi_client.api.life_plan.project_remove import (
-    asyncio_detailed as project_remove,
-)
-from jupiter_webapi_client.api.life_plan.project_reorder_children import (
-    asyncio_detailed as project_reorder_children,
-)
-from jupiter_webapi_client.api.life_plan.project_update import (
-    asyncio_detailed as project_update,
-)
 from jupiter_webapi_client.api.life_plan.vision_archive import (
     asyncio_detailed as vision_archive,
 )
@@ -309,8 +309,8 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
 )
-from jupiter_webapi_client.api.metrics.metric_change_collection_project import (
-    asyncio_detailed as metric_change_collection_project,
+from jupiter_webapi_client.api.metrics.metric_change_collection_aspect import (
+    asyncio_detailed as metric_change_collection_aspect,
 )
 from jupiter_webapi_client.api.metrics.metric_create import (
     asyncio_detailed as metric_create,
@@ -403,8 +403,8 @@ from jupiter_webapi_client.api.prm.occasion_update import (
 from jupiter_webapi_client.api.prm.person_archive import (
     asyncio_detailed as person_archive,
 )
-from jupiter_webapi_client.api.prm.person_change_catch_up_project import (
-    asyncio_detailed as person_change_catch_up_project,
+from jupiter_webapi_client.api.prm.person_change_catch_up_aspect import (
+    asyncio_detailed as person_change_catch_up_aspect,
 )
 from jupiter_webapi_client.api.prm.person_create import (
     asyncio_detailed as person_create,
@@ -1072,21 +1072,21 @@ async def main() -> None:
                 ),
             ),
             JupiterApiResource.build(
-                "projects",
-                JupiterApiGatewayMethod.get(project_find),
-                JupiterApiGatewayMethod.post(project_create),
+                "aspects",
+                JupiterApiGatewayMethod.get(aspect_find),
+                JupiterApiGatewayMethod.post(aspect_create),
                 JupiterApiResource.build(
                     ":ref_id",
-                    JupiterApiGatewayMethod.get(project_load),
-                    JupiterApiGatewayMethod.put(project_update),
-                    JupiterApiGatewayMethod.delete(project_archive),
+                    JupiterApiGatewayMethod.get(aspect_load),
+                    JupiterApiGatewayMethod.put(aspect_update),
+                    JupiterApiGatewayMethod.delete(aspect_archive),
                     JupiterApiResource.build(
                         "remove",
-                        JupiterApiGatewayMethod.delete(project_remove),
+                        JupiterApiGatewayMethod.delete(aspect_remove),
                     ),
                     JupiterApiResource.build(
                         "reorder-children",
-                        JupiterApiGatewayMethod.post(project_reorder_children),
+                        JupiterApiGatewayMethod.post(aspect_reorder_children),
                     ),
                 ),
             ),
@@ -1110,8 +1110,8 @@ async def main() -> None:
                     JupiterApiGatewayMethod.delete(metric_remove),
                 ),
                 JupiterApiResource.build(
-                    "change-collection-project",
-                    JupiterApiGatewayMethod.post(metric_change_collection_project),
+                    "change-collection-aspect",
+                    JupiterApiGatewayMethod.post(metric_change_collection_aspect),
                 ),
                 JupiterApiResource.build(
                     "entries",
@@ -1137,8 +1137,8 @@ async def main() -> None:
                 JupiterApiGatewayMethod.get(person_load_settings),
             ),
             JupiterApiResource.build(
-                "change-catch-up-project",
-                JupiterApiGatewayMethod.post(person_change_catch_up_project),
+                "change-catch-up-aspect",
+                JupiterApiGatewayMethod.post(person_change_catch_up_aspect),
             ),
             JupiterApiResource.build(
                 "persons",

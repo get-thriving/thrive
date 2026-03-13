@@ -36,6 +36,21 @@ from .app_distribution import AppDistribution
 from .app_distribution_state import AppDistributionState
 from .app_platform import AppPlatform
 from .app_shell import AppShell
+from .aspect import Aspect
+from .aspect_archive_args import AspectArchiveArgs
+from .aspect_create_args import AspectCreateArgs
+from .aspect_create_result import AspectCreateResult
+from .aspect_find_args import AspectFindArgs
+from .aspect_find_result import AspectFindResult
+from .aspect_find_result_entry import AspectFindResultEntry
+from .aspect_load_args import AspectLoadArgs
+from .aspect_load_result import AspectLoadResult
+from .aspect_remove_args import AspectRemoveArgs
+from .aspect_reorder_children_args import AspectReorderChildrenArgs
+from .aspect_summary import AspectSummary
+from .aspect_update_args import AspectUpdateArgs
+from .aspect_update_args_name import AspectUpdateArgsName
+from .aspect_update_args_parent_aspect_ref_id import AspectUpdateArgsParentAspectRefId
 from .big_plan import BigPlan
 from .big_plan_archive_args import BigPlanArchiveArgs
 from .big_plan_archive_service_result import BigPlanArchiveServiceResult
@@ -65,6 +80,7 @@ from .big_plan_status import BigPlanStatus
 from .big_plan_summary import BigPlanSummary
 from .big_plan_update_args import BigPlanUpdateArgs
 from .big_plan_update_args_actionable_date import BigPlanUpdateArgsActionableDate
+from .big_plan_update_args_aspect_ref_id import BigPlanUpdateArgsAspectRefId
 from .big_plan_update_args_chapter_ref_id import BigPlanUpdateArgsChapterRefId
 from .big_plan_update_args_difficulty import BigPlanUpdateArgsDifficulty
 from .big_plan_update_args_due_date import BigPlanUpdateArgsDueDate
@@ -72,7 +88,6 @@ from .big_plan_update_args_eisen import BigPlanUpdateArgsEisen
 from .big_plan_update_args_goal_ref_id import BigPlanUpdateArgsGoalRefId
 from .big_plan_update_args_is_key import BigPlanUpdateArgsIsKey
 from .big_plan_update_args_name import BigPlanUpdateArgsName
-from .big_plan_update_args_project_ref_id import BigPlanUpdateArgsProjectRefId
 from .big_plan_update_args_status import BigPlanUpdateArgsStatus
 from .big_plan_update_result import BigPlanUpdateResult
 from .big_plan_work_summary import BigPlanWorkSummary
@@ -98,9 +113,9 @@ from .chapter_load_result import ChapterLoadResult
 from .chapter_remove_args import ChapterRemoveArgs
 from .chapter_summary import ChapterSummary
 from .chapter_update_args import ChapterUpdateArgs
+from .chapter_update_args_aspect_ref_id import ChapterUpdateArgsAspectRefId
 from .chapter_update_args_end_date import ChapterUpdateArgsEndDate
 from .chapter_update_args_name import ChapterUpdateArgsName
-from .chapter_update_args_project_ref_id import ChapterUpdateArgsProjectRefId
 from .chapter_update_args_start_date import ChapterUpdateArgsStartDate
 from .checklist_block import ChecklistBlock
 from .checklist_block_kind import ChecklistBlockKind
@@ -123,6 +138,7 @@ from .chore_unsuspend_args import ChoreUnsuspendArgs
 from .chore_update_args import ChoreUpdateArgs
 from .chore_update_args_actionable_from_day import ChoreUpdateArgsActionableFromDay
 from .chore_update_args_actionable_from_month import ChoreUpdateArgsActionableFromMonth
+from .chore_update_args_aspect_ref_id import ChoreUpdateArgsAspectRefId
 from .chore_update_args_chapter_ref_id import ChoreUpdateArgsChapterRefId
 from .chore_update_args_difficulty import ChoreUpdateArgsDifficulty
 from .chore_update_args_due_at_day import ChoreUpdateArgsDueAtDay
@@ -134,7 +150,6 @@ from .chore_update_args_is_key import ChoreUpdateArgsIsKey
 from .chore_update_args_must_do import ChoreUpdateArgsMustDo
 from .chore_update_args_name import ChoreUpdateArgsName
 from .chore_update_args_period import ChoreUpdateArgsPeriod
-from .chore_update_args_project_ref_id import ChoreUpdateArgsProjectRefId
 from .chore_update_args_skip_rule import ChoreUpdateArgsSkipRule
 from .chore_update_args_start_at_date import ChoreUpdateArgsStartAtDate
 from .circle import Circle
@@ -190,7 +205,7 @@ from .eisen import Eisen
 from .email_task import EmailTask
 from .email_task_archive_args import EmailTaskArchiveArgs
 from .email_task_archive_service_result import EmailTaskArchiveServiceResult
-from .email_task_change_generation_project_args import EmailTaskChangeGenerationProjectArgs
+from .email_task_change_generation_aspect_args import EmailTaskChangeGenerationAspectArgs
 from .email_task_collection import EmailTaskCollection
 from .email_task_find_args import EmailTaskFindArgs
 from .email_task_find_result import EmailTaskFindResult
@@ -245,9 +260,9 @@ from .goal_load_result import GoalLoadResult
 from .goal_remove_args import GoalRemoveArgs
 from .goal_summary import GoalSummary
 from .goal_update_args import GoalUpdateArgs
+from .goal_update_args_aspect_ref_id import GoalUpdateArgsAspectRefId
 from .goal_update_args_name import GoalUpdateArgsName
 from .goal_update_args_parent_goal_ref_id import GoalUpdateArgsParentGoalRefId
-from .goal_update_args_project_ref_id import GoalUpdateArgsProjectRefId
 from .habit import Habit
 from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
@@ -269,6 +284,7 @@ from .habit_unsuspend_args import HabitUnsuspendArgs
 from .habit_update_args import HabitUpdateArgs
 from .habit_update_args_actionable_from_day import HabitUpdateArgsActionableFromDay
 from .habit_update_args_actionable_from_month import HabitUpdateArgsActionableFromMonth
+from .habit_update_args_aspect_ref_id import HabitUpdateArgsAspectRefId
 from .habit_update_args_chapter_ref_id import HabitUpdateArgsChapterRefId
 from .habit_update_args_difficulty import HabitUpdateArgsDifficulty
 from .habit_update_args_due_at_day import HabitUpdateArgsDueAtDay
@@ -278,7 +294,6 @@ from .habit_update_args_goal_ref_id import HabitUpdateArgsGoalRefId
 from .habit_update_args_is_key import HabitUpdateArgsIsKey
 from .habit_update_args_name import HabitUpdateArgsName
 from .habit_update_args_period import HabitUpdateArgsPeriod
-from .habit_update_args_project_ref_id import HabitUpdateArgsProjectRefId
 from .habit_update_args_repeats_in_period_count import HabitUpdateArgsRepeatsInPeriodCount
 from .habit_update_args_repeats_strategy import HabitUpdateArgsRepeatsStrategy
 from .habit_update_args_skip_rule import HabitUpdateArgsSkipRule
@@ -328,6 +343,7 @@ from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
 from .inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
+from .inbox_task_update_args_aspect_ref_id import InboxTaskUpdateArgsAspectRefId
 from .inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
 from .inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
 from .inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
@@ -336,7 +352,6 @@ from .inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
 from .inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
 from .inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
 from .inbox_task_update_args_name import InboxTaskUpdateArgsName
-from .inbox_task_update_args_project_ref_id import InboxTaskUpdateArgsProjectRefId
 from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
 from .inbox_task_update_result import InboxTaskUpdateResult
 from .inbox_tasks_summary import InboxTasksSummary
@@ -375,9 +390,9 @@ from .journal_update_settings_args_generation_in_advance_days_value import (
     JournalUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
+from .journal_update_settings_args_writing_task_aspect_ref_id import JournalUpdateSettingsArgsWritingTaskAspectRefId
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
-from .journal_update_settings_args_writing_task_project_ref_id import JournalUpdateSettingsArgsWritingTaskProjectRefId
 from .jupiter_archival_reason import JupiterArchivalReason
 from .life_plan import LifePlan
 from .life_plan_eval_approach import LifePlanEvalApproach
@@ -417,7 +432,7 @@ from .login_args import LoginArgs
 from .login_result import LoginResult
 from .metric import Metric
 from .metric_archive_args import MetricArchiveArgs
-from .metric_change_collection_project_args import MetricChangeCollectionProjectArgs
+from .metric_change_collection_aspect_args import MetricChangeCollectionAspectArgs
 from .metric_collection import MetricCollection
 from .metric_create_args import MetricCreateArgs
 from .metric_create_result import MetricCreateResult
@@ -466,9 +481,9 @@ from .milestone_load_result import MilestoneLoadResult
 from .milestone_remove_args import MilestoneRemoveArgs
 from .milestone_summary import MilestoneSummary
 from .milestone_update_args import MilestoneUpdateArgs
+from .milestone_update_args_aspect_ref_id import MilestoneUpdateArgsAspectRefId
 from .milestone_update_args_date import MilestoneUpdateArgsDate
 from .milestone_update_args_name import MilestoneUpdateArgsName
-from .milestone_update_args_project_ref_id import MilestoneUpdateArgsProjectRefId
 from .motd import MOTD
 from .motd_get_for_today_args import MOTDGetForTodayArgs
 from .motd_get_for_today_result import MOTDGetForTodayResult
@@ -507,15 +522,15 @@ from .occasion_update_args_name import OccasionUpdateArgsName
 from .paragraph_block import ParagraphBlock
 from .paragraph_block_kind import ParagraphBlockKind
 from .partial_date_type import PartialDateType
+from .per_aspect_breakdown_item import PerAspectBreakdownItem
 from .per_big_plan_breakdown_item import PerBigPlanBreakdownItem
 from .per_chore_breakdown_item import PerChoreBreakdownItem
 from .per_goal_breakdown_item import PerGoalBreakdownItem
 from .per_habit_breakdown_item import PerHabitBreakdownItem
 from .per_period_breakdown_item import PerPeriodBreakdownItem
-from .per_project_breakdown_item import PerProjectBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
-from .person_change_catch_up_project_args import PersonChangeCatchUpProjectArgs
+from .person_change_catch_up_aspect_args import PersonChangeCatchUpAspectArgs
 from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
@@ -548,21 +563,6 @@ from .planned_time_and_effort_summary_activities_by_feasability import (
 from .planned_time_and_effort_summary_hours_by_feasability import PlannedTimeAndEffortSummaryHoursByFeasability
 from .planned_time_and_effort_summary_score_by_feasability import PlannedTimeAndEffortSummaryScoreByFeasability
 from .prm import PRM
-from .project import Project
-from .project_archive_args import ProjectArchiveArgs
-from .project_create_args import ProjectCreateArgs
-from .project_create_result import ProjectCreateResult
-from .project_find_args import ProjectFindArgs
-from .project_find_result import ProjectFindResult
-from .project_find_result_entry import ProjectFindResultEntry
-from .project_load_args import ProjectLoadArgs
-from .project_load_result import ProjectLoadResult
-from .project_remove_args import ProjectRemoveArgs
-from .project_reorder_children_args import ProjectReorderChildrenArgs
-from .project_summary import ProjectSummary
-from .project_update_args import ProjectUpdateArgs
-from .project_update_args_name import ProjectUpdateArgsName
-from .project_update_args_parent_project_ref_id import ProjectUpdateArgsParentProjectRefId
 from .push_generation_extra_info import PushGenerationExtraInfo
 from .push_integration_group import PushIntegrationGroup
 from .quote_block import QuoteBlock
@@ -643,7 +643,7 @@ from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
 from .slack_task_archive_service_result import SlackTaskArchiveServiceResult
-from .slack_task_change_generation_project_args import SlackTaskChangeGenerationProjectArgs
+from .slack_task_change_generation_aspect_args import SlackTaskChangeGenerationAspectArgs
 from .slack_task_collection import SlackTaskCollection
 from .slack_task_find_args import SlackTaskFindArgs
 from .slack_task_find_result import SlackTaskFindResult
@@ -761,6 +761,7 @@ from .time_plan_activity_update_args import TimePlanActivityUpdateArgs
 from .time_plan_activity_update_args_feasability import TimePlanActivityUpdateArgsFeasability
 from .time_plan_activity_update_args_kind import TimePlanActivityUpdateArgsKind
 from .time_plan_archive_args import TimePlanArchiveArgs
+from .time_plan_aspect_link import TimePlanAspectLink
 from .time_plan_associate_big_plan_with_plan_args import TimePlanAssociateBigPlanWithPlanArgs
 from .time_plan_associate_big_plan_with_plan_result import TimePlanAssociateBigPlanWithPlanResult
 from .time_plan_associate_inbox_task_with_plan_args import TimePlanAssociateInboxTaskWithPlanArgs
@@ -772,10 +773,10 @@ from .time_plan_associate_with_big_plans_result import TimePlanAssociateWithBigP
 from .time_plan_associate_with_inbox_tasks_args import TimePlanAssociateWithInboxTasksArgs
 from .time_plan_associate_with_inbox_tasks_result import TimePlanAssociateWithInboxTasksResult
 from .time_plan_change_time_config_args import TimePlanChangeTimeConfigArgs
+from .time_plan_change_time_config_args_aspect_ref_ids import TimePlanChangeTimeConfigArgsAspectRefIds
 from .time_plan_change_time_config_args_chapter_ref_ids import TimePlanChangeTimeConfigArgsChapterRefIds
 from .time_plan_change_time_config_args_goal_ref_ids import TimePlanChangeTimeConfigArgsGoalRefIds
 from .time_plan_change_time_config_args_period import TimePlanChangeTimeConfigArgsPeriod
-from .time_plan_change_time_config_args_project_ref_ids import TimePlanChangeTimeConfigArgsProjectRefIds
 from .time_plan_change_time_config_args_right_now import TimePlanChangeTimeConfigArgsRightNow
 from .time_plan_chapter_link import TimePlanChapterLink
 from .time_plan_create_args import TimePlanCreateArgs
@@ -796,7 +797,6 @@ from .time_plan_load_result_activity_doneness_type_0 import TimePlanLoadResultAc
 from .time_plan_load_settings_args import TimePlanLoadSettingsArgs
 from .time_plan_load_settings_result import TimePlanLoadSettingsResult
 from .time_plan_load_settings_result_generation_in_advance_days import TimePlanLoadSettingsResultGenerationInAdvanceDays
-from .time_plan_project_link import TimePlanProjectLink
 from .time_plan_regen_args import TimePlanRegenArgs
 from .time_plan_remove_args import TimePlanRemoveArgs
 from .time_plan_source import TimePlanSource
@@ -807,11 +807,11 @@ from .time_plan_update_settings_args_generation_in_advance_days_value import (
     TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
+from .time_plan_update_settings_args_planning_task_aspect_ref_id import (
+    TimePlanUpdateSettingsArgsPlanningTaskAspectRefId,
+)
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
-from .time_plan_update_settings_args_planning_task_project_ref_id import (
-    TimePlanUpdateSettingsArgsPlanningTaskProjectRefId,
-)
 from .user import User
 from .user_category import UserCategory
 from .user_change_feature_flags_args import UserChangeFeatureFlagsArgs
@@ -880,7 +880,7 @@ from .working_mem_load_current_result import WorkingMemLoadCurrentResult
 from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
-from .working_mem_update_settings_args_cleanup_project_ref_id import WorkingMemUpdateSettingsArgsCleanupProjectRefId
+from .working_mem_update_settings_args_cleanup_aspect_ref_id import WorkingMemUpdateSettingsArgsCleanupAspectRefId
 from .working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
 from .workspace import Workspace
 from .workspace_change_feature_flags_args import WorkspaceChangeFeatureFlagsArgs
@@ -921,6 +921,21 @@ __all__ = (
     "AppDistributionState",
     "AppPlatform",
     "AppShell",
+    "Aspect",
+    "AspectArchiveArgs",
+    "AspectCreateArgs",
+    "AspectCreateResult",
+    "AspectFindArgs",
+    "AspectFindResult",
+    "AspectFindResultEntry",
+    "AspectLoadArgs",
+    "AspectLoadResult",
+    "AspectRemoveArgs",
+    "AspectReorderChildrenArgs",
+    "AspectSummary",
+    "AspectUpdateArgs",
+    "AspectUpdateArgsName",
+    "AspectUpdateArgsParentAspectRefId",
     "BigPlan",
     "BigPlanArchiveArgs",
     "BigPlanArchiveServiceResult",
@@ -950,6 +965,7 @@ __all__ = (
     "BigPlanSummary",
     "BigPlanUpdateArgs",
     "BigPlanUpdateArgsActionableDate",
+    "BigPlanUpdateArgsAspectRefId",
     "BigPlanUpdateArgsChapterRefId",
     "BigPlanUpdateArgsDifficulty",
     "BigPlanUpdateArgsDueDate",
@@ -957,7 +973,6 @@ __all__ = (
     "BigPlanUpdateArgsGoalRefId",
     "BigPlanUpdateArgsIsKey",
     "BigPlanUpdateArgsName",
-    "BigPlanUpdateArgsProjectRefId",
     "BigPlanUpdateArgsStatus",
     "BigPlanUpdateResult",
     "BigPlanWorkSummary",
@@ -983,9 +998,9 @@ __all__ = (
     "ChapterRemoveArgs",
     "ChapterSummary",
     "ChapterUpdateArgs",
+    "ChapterUpdateArgsAspectRefId",
     "ChapterUpdateArgsEndDate",
     "ChapterUpdateArgsName",
-    "ChapterUpdateArgsProjectRefId",
     "ChapterUpdateArgsStartDate",
     "ChecklistBlock",
     "ChecklistBlockKind",
@@ -1008,6 +1023,7 @@ __all__ = (
     "ChoreUpdateArgs",
     "ChoreUpdateArgsActionableFromDay",
     "ChoreUpdateArgsActionableFromMonth",
+    "ChoreUpdateArgsAspectRefId",
     "ChoreUpdateArgsChapterRefId",
     "ChoreUpdateArgsDifficulty",
     "ChoreUpdateArgsDueAtDay",
@@ -1019,7 +1035,6 @@ __all__ = (
     "ChoreUpdateArgsMustDo",
     "ChoreUpdateArgsName",
     "ChoreUpdateArgsPeriod",
-    "ChoreUpdateArgsProjectRefId",
     "ChoreUpdateArgsSkipRule",
     "ChoreUpdateArgsStartAtDate",
     "Circle",
@@ -1075,7 +1090,7 @@ __all__ = (
     "EmailTask",
     "EmailTaskArchiveArgs",
     "EmailTaskArchiveServiceResult",
-    "EmailTaskChangeGenerationProjectArgs",
+    "EmailTaskChangeGenerationAspectArgs",
     "EmailTaskCollection",
     "EmailTaskFindArgs",
     "EmailTaskFindResult",
@@ -1130,9 +1145,9 @@ __all__ = (
     "GoalRemoveArgs",
     "GoalSummary",
     "GoalUpdateArgs",
+    "GoalUpdateArgsAspectRefId",
     "GoalUpdateArgsName",
     "GoalUpdateArgsParentGoalRefId",
-    "GoalUpdateArgsProjectRefId",
     "Habit",
     "HabitArchiveArgs",
     "HabitCollection",
@@ -1154,6 +1169,7 @@ __all__ = (
     "HabitUpdateArgs",
     "HabitUpdateArgsActionableFromDay",
     "HabitUpdateArgsActionableFromMonth",
+    "HabitUpdateArgsAspectRefId",
     "HabitUpdateArgsChapterRefId",
     "HabitUpdateArgsDifficulty",
     "HabitUpdateArgsDueAtDay",
@@ -1163,7 +1179,6 @@ __all__ = (
     "HabitUpdateArgsIsKey",
     "HabitUpdateArgsName",
     "HabitUpdateArgsPeriod",
-    "HabitUpdateArgsProjectRefId",
     "HabitUpdateArgsRepeatsInPeriodCount",
     "HabitUpdateArgsRepeatsStrategy",
     "HabitUpdateArgsSkipRule",
@@ -1214,6 +1229,7 @@ __all__ = (
     "InboxTaskSummary",
     "InboxTaskUpdateArgs",
     "InboxTaskUpdateArgsActionableDate",
+    "InboxTaskUpdateArgsAspectRefId",
     "InboxTaskUpdateArgsBigPlanRefId",
     "InboxTaskUpdateArgsChapterRefId",
     "InboxTaskUpdateArgsDifficulty",
@@ -1222,7 +1238,6 @@ __all__ = (
     "InboxTaskUpdateArgsGoalRefId",
     "InboxTaskUpdateArgsIsKey",
     "InboxTaskUpdateArgsName",
-    "InboxTaskUpdateArgsProjectRefId",
     "InboxTaskUpdateArgsStatus",
     "InboxTaskUpdateResult",
     "InitArgs",
@@ -1258,9 +1273,9 @@ __all__ = (
     "JournalUpdateSettingsArgsGenerationInAdvanceDays",
     "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "JournalUpdateSettingsArgsPeriods",
+    "JournalUpdateSettingsArgsWritingTaskAspectRefId",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
-    "JournalUpdateSettingsArgsWritingTaskProjectRefId",
     "JupiterArchivalReason",
     "LifePlan",
     "LifePlanEvalApproach",
@@ -1292,7 +1307,7 @@ __all__ = (
     "LoginResult",
     "Metric",
     "MetricArchiveArgs",
-    "MetricChangeCollectionProjectArgs",
+    "MetricChangeCollectionAspectArgs",
     "MetricCollection",
     "MetricCreateArgs",
     "MetricCreateResult",
@@ -1341,9 +1356,9 @@ __all__ = (
     "MilestoneRemoveArgs",
     "MilestoneSummary",
     "MilestoneUpdateArgs",
+    "MilestoneUpdateArgsAspectRefId",
     "MilestoneUpdateArgsDate",
     "MilestoneUpdateArgsName",
-    "MilestoneUpdateArgsProjectRefId",
     "MOTD",
     "MOTDGetForTodayArgs",
     "MOTDGetForTodayResult",
@@ -1382,15 +1397,15 @@ __all__ = (
     "ParagraphBlock",
     "ParagraphBlockKind",
     "PartialDateType",
+    "PerAspectBreakdownItem",
     "PerBigPlanBreakdownItem",
     "PerChoreBreakdownItem",
     "PerGoalBreakdownItem",
     "PerHabitBreakdownItem",
     "PerPeriodBreakdownItem",
-    "PerProjectBreakdownItem",
     "Person",
     "PersonArchiveArgs",
-    "PersonChangeCatchUpProjectArgs",
+    "PersonChangeCatchUpAspectArgs",
     "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
@@ -1421,21 +1436,6 @@ __all__ = (
     "PlannedTimeAndEffortSummaryHoursByFeasability",
     "PlannedTimeAndEffortSummaryScoreByFeasability",
     "PRM",
-    "Project",
-    "ProjectArchiveArgs",
-    "ProjectCreateArgs",
-    "ProjectCreateResult",
-    "ProjectFindArgs",
-    "ProjectFindResult",
-    "ProjectFindResultEntry",
-    "ProjectLoadArgs",
-    "ProjectLoadResult",
-    "ProjectRemoveArgs",
-    "ProjectReorderChildrenArgs",
-    "ProjectSummary",
-    "ProjectUpdateArgs",
-    "ProjectUpdateArgsName",
-    "ProjectUpdateArgsParentProjectRefId",
     "PushGenerationExtraInfo",
     "PushIntegrationGroup",
     "QuoteBlock",
@@ -1516,7 +1516,7 @@ __all__ = (
     "SlackTask",
     "SlackTaskArchiveArgs",
     "SlackTaskArchiveServiceResult",
-    "SlackTaskChangeGenerationProjectArgs",
+    "SlackTaskChangeGenerationAspectArgs",
     "SlackTaskCollection",
     "SlackTaskFindArgs",
     "SlackTaskFindResult",
@@ -1632,6 +1632,7 @@ __all__ = (
     "TimePlanActivityUpdateArgsFeasability",
     "TimePlanActivityUpdateArgsKind",
     "TimePlanArchiveArgs",
+    "TimePlanAspectLink",
     "TimePlanAssociateBigPlanWithPlanArgs",
     "TimePlanAssociateBigPlanWithPlanResult",
     "TimePlanAssociateInboxTaskWithPlanArgs",
@@ -1643,10 +1644,10 @@ __all__ = (
     "TimePlanAssociateWithInboxTasksArgs",
     "TimePlanAssociateWithInboxTasksResult",
     "TimePlanChangeTimeConfigArgs",
+    "TimePlanChangeTimeConfigArgsAspectRefIds",
     "TimePlanChangeTimeConfigArgsChapterRefIds",
     "TimePlanChangeTimeConfigArgsGoalRefIds",
     "TimePlanChangeTimeConfigArgsPeriod",
-    "TimePlanChangeTimeConfigArgsProjectRefIds",
     "TimePlanChangeTimeConfigArgsRightNow",
     "TimePlanChapterLink",
     "TimePlanCreateArgs",
@@ -1667,7 +1668,6 @@ __all__ = (
     "TimePlanLoadSettingsArgs",
     "TimePlanLoadSettingsResult",
     "TimePlanLoadSettingsResultGenerationInAdvanceDays",
-    "TimePlanProjectLink",
     "TimePlanRegenArgs",
     "TimePlanRemoveArgs",
     "TimePlanSource",
@@ -1676,9 +1676,9 @@ __all__ = (
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDays",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "TimePlanUpdateSettingsArgsPeriods",
+    "TimePlanUpdateSettingsArgsPlanningTaskAspectRefId",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
-    "TimePlanUpdateSettingsArgsPlanningTaskProjectRefId",
     "User",
     "UserCategory",
     "UserChangeFeatureFlagsArgs",
@@ -1747,7 +1747,7 @@ __all__ = (
     "WorkingMemLoadSettingsArgs",
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",
-    "WorkingMemUpdateSettingsArgsCleanupProjectRefId",
+    "WorkingMemUpdateSettingsArgsCleanupAspectRefId",
     "WorkingMemUpdateSettingsArgsGenerationPeriod",
     "Workspace",
     "WorkspaceChangeFeatureFlagsArgs",

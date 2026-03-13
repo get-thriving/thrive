@@ -18,7 +18,7 @@ from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project, ProjectRepository
+from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.root import TimePlan
@@ -58,7 +58,7 @@ class InboxTaskCreateArgs(UseCaseArgsBase):
     time_plan_ref_id: EntityId | None
     time_plan_activity_kind: TimePlanActivityKind | None
     time_plan_activity_feasability: TimePlanActivityFeasability | None
-    project_ref_id: EntityId | None
+    aspect_ref_id: EntityId | None
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     big_plan_ref_id: EntityId | None
@@ -96,7 +96,7 @@ class InboxTaskCreateUseCase(
         workspace = context.workspace
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            if args.project_ref_id is not None:
+            if args.aspect_ref_id is not None:
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if args.chapter_ref_id is not None:
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
@@ -113,28 +113,28 @@ class InboxTaskCreateUseCase(
                 args.big_plan_ref_id,
             )
 
-        if args.project_ref_id is None:
+        if args.aspect_ref_id is None:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            the_project = await uow.get(ProjectRepository).load_root_project(
+            the_aspect = await uow.get(AspectRepository).load_root_aspect(
                 life_plan.ref_id
             )
         else:
-            the_project = await uow.get_for(Project).load_by_id(args.project_ref_id)
+            the_aspect = await uow.get_for(Aspect).load_by_id(args.aspect_ref_id)
 
         if args.chapter_ref_id is not None:
             chapter = await uow.get_for(Chapter).load_by_id(args.chapter_ref_id)
-            if chapter.project_ref_id != the_project.ref_id:
+            if chapter.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
-                    f"Chapter does not belong to project '{the_project.name}'"
+                    f"Chapter does not belong to aspect '{the_aspect.name}'"
                 )
 
         if args.goal_ref_id is not None:
             goal = await uow.get_for(Goal).load_by_id(args.goal_ref_id)
-            if goal.project_ref_id != the_project.ref_id:
+            if goal.aspect_ref_id != the_aspect.ref_id:
                 raise InputValidationError(
-                    f"Goal does not belong to project '{the_project.name}'"
+                    f"Goal does not belong to aspect '{the_aspect.name}'"
                 )
 
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
@@ -147,7 +147,7 @@ class InboxTaskCreateUseCase(
             name=args.name,
             status=InboxTaskStatus.NOT_STARTED,
             is_key=args.is_key,
-            project_ref_id=the_project.ref_id,
+            aspect_ref_id=the_aspect.ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             eisen=args.eisen,
@@ -155,7 +155,7 @@ class InboxTaskCreateUseCase(
             actionable_date=args.actionable_date,
             due_date=args.due_date,
             big_plan_ref_id=big_plan.ref_id if big_plan else None,
-            big_plan_project_ref_id=big_plan.project_ref_id if big_plan else None,
+            big_plan_aspect_ref_id=big_plan.aspect_ref_id if big_plan else None,
             big_plan_chapter_ref_id=big_plan.chapter_ref_id if big_plan else None,
             big_plan_goal_ref_id=big_plan.goal_ref_id if big_plan else None,
             big_plan_actionable_date=big_plan.actionable_date if big_plan else None,

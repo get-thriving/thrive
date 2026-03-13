@@ -13,7 +13,7 @@ from jupiter.core.common.sub.tags.sub.tag.root import TagAlreadyExistsError
 from jupiter.core.journals.root import (
     JournalExistsForDatePeriodCombinationError,
 )
-from jupiter.core.life_plan.sub.aspects.errors import ProjectInSignificantUseError
+from jupiter.core.life_plan.sub.aspects.errors import AspectInSignificantUseError
 from jupiter.core.time_plans.root import (
     TimePlanExistsForDatePeriodCombinationError,
 )
@@ -83,23 +83,23 @@ class InvalidAPIKeyErrorHandler(JupiterExceptionHandler[InvalidAPIKeyError]):
         )
 
 
-class ProjectInSignificantUseHandler(
-    JupiterExceptionHandler[ProjectInSignificantUseError]
+class AspectInSignificantUseHandler(
+    JupiterExceptionHandler[AspectInSignificantUseError]
 ):
-    """Handle project in significant use errors."""
+    """Handle aspect in significant use errors."""
 
     @staticmethod
     def get_status_code() -> int:
         """Get the status code for the exception."""
         return status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    def get_detail(self, exception: ProjectInSignificantUseError) -> WebApiError:
-        """Handle project in significant use errors."""
+    def get_detail(self, exception: AspectInSignificantUseError) -> WebApiError:
+        """Handle aspect in significant use errors."""
         return WebApiError.validation(
-            "Cannot remove because project",
+            "Cannot remove because aspect",
             loc=["body"],
             msg=f"Cannot remove because: {exception}",
-            error_type="value_error.projectinsignificantuserror",
+            error_type="value_error.aspectinsignificantuserror",
         )
 
 

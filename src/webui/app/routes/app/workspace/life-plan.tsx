@@ -34,11 +34,11 @@ import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import { parseForm } from "zodix";
 import {
-  computeProjectDistanceFromRoot,
-  isRootProject,
-  shiftProjectDownInListOfChildren,
-  shiftProjectUpInListOfChildren,
-  sortProjectsByTreeOrder,
+  computeAspectDistanceFromRoot,
+  isRootAspect,
+  shiftAspectDownInListOfChildren,
+  shiftAspectUpInListOfChildren,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import HistoryIcon from "@mui/icons-material/History";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -100,7 +100,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     include_life_plan: true,
   });
   const activeVision = await apiClient.lifePlan.visionLoadActive({});
-  const projectsResponse = await apiClient.lifePlan.projectFind({
+  const aspectsResponse = await apiClient.lifePlan.aspectFind({
     allow_archived: false,
     include_notes: false,
     include_tags: true,
@@ -124,7 +124,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     lifePlan: summaryResponse.life_plan as LifePlan,
     activeVision: activeVision.vision,
     activeVisionNote: activeVision.note,
-    projects: projectsResponse.entries,
+    aspects: aspectsResponse.entries,
     chapters: chaptersResponse.entries,
     goals: goalsResponse.entries,
     milestones: milestonesResponse.entries,
@@ -137,19 +137,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { intent, args } = getIntent<{
     refId: string;
-    newOrderOfChildProjects: string[];
+    newOrderOfChildAspects: string[];
   }>(form.intent);
 
   try {
     switch (intent) {
       case "reorder": {
-        if (!args?.refId || !args?.newOrderOfChildProjects) {
+        if (!args?.refId || !args?.newOrderOfChildAspects) {
           throw new Error("Missing required arguments!");
         }
 
-        await apiClient.lifePlan.projectReorderChildren({
+        await apiClient.lifePlan.aspectReorderChildren({
           ref_id: args?.refId,
-          new_order_of_child_projects: args?.newOrderOfChildProjects,
+          new_order_of_child_aspects: args?.newOrderOfChildAspects,
         });
 
         return redirect("/app/workspace/life-plan");
@@ -190,27 +190,27 @@ export default function LifePlanView() {
     string | null
   >(null);
 
-  const sortedProjects = sortProjectsByTreeOrder(
-    loaderData.projects.map((entry) => entry.project),
+  const sortedAspects = sortAspectsByTreeOrder(
+    loaderData.aspects.map((entry) => entry.aspect),
   );
-  const allProjectsByRefId = new Map(
-    loaderData.projects.map((entry) => [entry.project.ref_id, entry.project]),
+  const allAspectsByRefId = new Map(
+    loaderData.aspects.map((entry) => [entry.aspect.ref_id, entry.aspect]),
   );
-  const allChaptersByProjectRefId = new Map<string, Chapter[]>();
+  const allChaptersByAspectRefId = new Map<string, Chapter[]>();
   for (const entry of loaderData.chapters) {
-    if (!allChaptersByProjectRefId.has(entry.chapter.project_ref_id)) {
-      allChaptersByProjectRefId.set(entry.chapter.project_ref_id, []);
+    if (!allChaptersByAspectRefId.has(entry.chapter.aspect_ref_id)) {
+      allChaptersByAspectRefId.set(entry.chapter.aspect_ref_id, []);
     }
-    allChaptersByProjectRefId
-      .get(entry.chapter.project_ref_id)!
+    allChaptersByAspectRefId
+      .get(entry.chapter.aspect_ref_id)!
       .push(entry.chapter);
   }
-  const allGoalsByProjectRefId = new Map<string, Goal[]>();
+  const allGoalsByAspectRefId = new Map<string, Goal[]>();
   for (const entry of loaderData.goals) {
-    if (!allGoalsByProjectRefId.has(entry.goal.project_ref_id)) {
-      allGoalsByProjectRefId.set(entry.goal.project_ref_id, []);
+    if (!allGoalsByAspectRefId.has(entry.goal.aspect_ref_id)) {
+      allGoalsByAspectRefId.set(entry.goal.aspect_ref_id, []);
     }
-    allGoalsByProjectRefId.get(entry.goal.project_ref_id)!.push(entry.goal);
+    allGoalsByAspectRefId.get(entry.goal.aspect_ref_id)!.push(entry.goal);
   }
   const sortedMilestones = sortMilestonesNaturally(
     loaderData.milestones.map((entry) => entry.milestone),
@@ -230,14 +230,14 @@ export default function LifePlanView() {
   });
 
   const maxIndent = Math.max(
-    ...sortedProjects.map((project) =>
-      computeProjectDistanceFromRoot(project, allProjectsByRefId),
+    ...sortedAspects.map((aspect) =>
+      computeAspectDistanceFromRoot(aspect, allAspectsByRefId),
     ),
   );
 
   return (
     <TrunkPanel
-      key={"projects"}
+      key={"aspects"}
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -253,8 +253,8 @@ export default function LifePlanView() {
                   icon: <AddIcon />,
                 }),
                 NavSingle({
-                  text: "New Project",
-                  link: `/app/workspace/life-plan/projects/new`,
+                  text: "New Aspect",
+                  link: `/app/workspace/life-plan/aspects/new`,
                   icon: <AddIcon />,
                 }),
                 NavSingle({
@@ -287,8 +287,8 @@ export default function LifePlanView() {
                   icon: <TuneIcon />,
                 }),
                 NavSingle({
-                  text: "Projects",
-                  link: `/app/workspace/life-plan/projects`,
+                  text: "Aspects",
+                  link: `/app/workspace/life-plan/aspects`,
                   icon: <TuneIcon />,
                 }),
                 NavSingle({
@@ -469,27 +469,26 @@ export default function LifePlanView() {
               </SectionLabeled>
             )}
 
-            <SectionLabeled label="Projects, Chapters, and Goals">
+            <SectionLabeled label="Aspects, Chapters, and Goals">
               <>
-                {sortedProjects.map((project) => {
-                  const parentProject = project.parent_project_ref_id
-                    ? allProjectsByRefId.get(project.parent_project_ref_id)
+                {sortedAspects.map((aspect) => {
+                  const parentAspect = aspect.parent_aspect_ref_id
+                    ? allAspectsByRefId.get(aspect.parent_aspect_ref_id)
                     : undefined;
-                  const indent = computeProjectDistanceFromRoot(
-                    project,
-                    allProjectsByRefId,
+                  const indent = computeAspectDistanceFromRoot(
+                    aspect,
+                    allAspectsByRefId,
                   );
 
                   const chapters =
-                    allChaptersByProjectRefId.get(project.ref_id) ?? [];
-                  const goals =
-                    allGoalsByProjectRefId.get(project.ref_id) ?? [];
+                    allChaptersByAspectRefId.get(aspect.ref_id) ?? [];
+                  const goals = allGoalsByAspectRefId.get(aspect.ref_id) ?? [];
                   const sortedChapters = sortChaptersNaturally(
                     lifePlanBirthdayDate(loaderData.lifePlan),
                     today,
                     chapters,
                     sortedMilestones,
-                    sortedProjects,
+                    sortedAspects,
                   );
                   const { totalRows, chapterPositions } =
                     computeChapterPositions(
@@ -501,31 +500,31 @@ export default function LifePlanView() {
 
                   return (
                     <EntityCard
-                      entityId={`project-${project.ref_id}`}
-                      key={`project-${project.ref_id}`}
+                      entityId={`aspect-${aspect.ref_id}`}
+                      key={`aspect-${aspect.ref_id}`}
                       indent={indent}
                     >
                       <Stack direction="column">
                         <Stack direction="row">
                           <EntityLink
-                            to={`/app/workspace/life-plan/projects/${project.ref_id}`}
+                            to={`/app/workspace/life-plan/aspects/${aspect.ref_id}`}
                           >
-                            <EntityNameComponent name={`⭐ ${project.name}`} />
+                            <EntityNameComponent name={`⭐ ${aspect.name}`} />
                           </EntityLink>
 
-                          {isRootProject(project) ||
-                          parentProject === undefined ? undefined : (
+                          {isRootAspect(aspect) ||
+                          parentAspect === undefined ? undefined : (
                             <>
                               <IconButton
                                 size="medium"
                                 type="submit"
                                 name="intent"
                                 value={makeIntent("reorder", {
-                                  refId: parentProject.ref_id,
-                                  newOrderOfChildProjects:
-                                    shiftProjectUpInListOfChildren(
-                                      project,
-                                      parentProject.order_of_child_projects,
+                                  refId: parentAspect.ref_id,
+                                  newOrderOfChildAspects:
+                                    shiftAspectUpInListOfChildren(
+                                      aspect,
+                                      parentAspect.order_of_child_aspects,
                                     ),
                                 })}
                               >
@@ -537,11 +536,11 @@ export default function LifePlanView() {
                                 type="submit"
                                 name="intent"
                                 value={makeIntent("reorder", {
-                                  refId: parentProject.ref_id,
-                                  newOrderOfChildProjects:
-                                    shiftProjectDownInListOfChildren(
-                                      project,
-                                      parentProject.order_of_child_projects,
+                                  refId: parentAspect.ref_id,
+                                  newOrderOfChildAspects:
+                                    shiftAspectDownInListOfChildren(
+                                      aspect,
+                                      parentAspect.order_of_child_aspects,
                                     ),
                                 })}
                               >

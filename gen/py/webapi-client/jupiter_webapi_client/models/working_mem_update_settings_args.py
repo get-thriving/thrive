@@ -7,8 +7,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.working_mem_update_settings_args_cleanup_project_ref_id import (
-        WorkingMemUpdateSettingsArgsCleanupProjectRefId,
+    from ..models.working_mem_update_settings_args_cleanup_aspect_ref_id import (
+        WorkingMemUpdateSettingsArgsCleanupAspectRefId,
     )
     from ..models.working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
 
@@ -22,24 +22,24 @@ class WorkingMemUpdateSettingsArgs:
 
     Attributes:
         generation_period (WorkingMemUpdateSettingsArgsGenerationPeriod):
-        cleanup_project_ref_id (WorkingMemUpdateSettingsArgsCleanupProjectRefId):
+        cleanup_aspect_ref_id (WorkingMemUpdateSettingsArgsCleanupAspectRefId):
     """
 
     generation_period: WorkingMemUpdateSettingsArgsGenerationPeriod
-    cleanup_project_ref_id: WorkingMemUpdateSettingsArgsCleanupProjectRefId
+    cleanup_aspect_ref_id: WorkingMemUpdateSettingsArgsCleanupAspectRefId
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         generation_period = self.generation_period.to_dict()
 
-        cleanup_project_ref_id = self.cleanup_project_ref_id.to_dict()
+        cleanup_aspect_ref_id = self.cleanup_aspect_ref_id.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "generation_period": generation_period,
-                "cleanup_project_ref_id": cleanup_project_ref_id,
+                "cleanup_aspect_ref_id": cleanup_aspect_ref_id,
             }
         )
 
@@ -47,8 +47,8 @@ class WorkingMemUpdateSettingsArgs:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.working_mem_update_settings_args_cleanup_project_ref_id import (
-            WorkingMemUpdateSettingsArgsCleanupProjectRefId,
+        from ..models.working_mem_update_settings_args_cleanup_aspect_ref_id import (
+            WorkingMemUpdateSettingsArgsCleanupAspectRefId,
         )
         from ..models.working_mem_update_settings_args_generation_period import (
             WorkingMemUpdateSettingsArgsGenerationPeriod,
@@ -57,13 +57,11 @@ class WorkingMemUpdateSettingsArgs:
         d = dict(src_dict)
         generation_period = WorkingMemUpdateSettingsArgsGenerationPeriod.from_dict(d.pop("generation_period"))
 
-        cleanup_project_ref_id = WorkingMemUpdateSettingsArgsCleanupProjectRefId.from_dict(
-            d.pop("cleanup_project_ref_id")
-        )
+        cleanup_aspect_ref_id = WorkingMemUpdateSettingsArgsCleanupAspectRefId.from_dict(d.pop("cleanup_aspect_ref_id"))
 
         working_mem_update_settings_args = cls(
             generation_period=generation_period,
-            cleanup_project_ref_id=cleanup_project_ref_id,
+            cleanup_aspect_ref_id=cleanup_aspect_ref_id,
         )
 
         working_mem_update_settings_args.additional_properties = d

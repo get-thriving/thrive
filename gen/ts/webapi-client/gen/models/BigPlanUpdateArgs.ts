@@ -21,7 +21,7 @@ export type BigPlanUpdateArgs = {
         should_change: boolean;
         value?: BigPlanStatus;
     };
-    project_ref_id: {
+    aspect_ref_id: {
         should_change: boolean;
         value?: EntityId;
     };

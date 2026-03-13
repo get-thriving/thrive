@@ -74,7 +74,7 @@ class GenDoAllUseCase(JupiterBackgroundMutationUseCase[GenDoAllArgs, None]):
                 today=today,
                 gen_targets=gen_targets,
                 period=None,
-                filter_project_ref_ids=None,
+                filter_aspect_ref_ids=None,
                 filter_habit_ref_ids=None,
                 filter_chore_ref_ids=None,
                 filter_metric_ref_ids=None,

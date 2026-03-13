@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.chapter import Chapter
     from ..models.contact import Contact
     from ..models.goal import Goal
@@ -16,7 +17,6 @@ if TYPE_CHECKING:
     from ..models.habit_streak_mark import HabitStreakMark
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
-    from ..models.project import Project
     from ..models.tag import Tag
 
 
@@ -29,7 +29,7 @@ class HabitLoadResult:
 
     Attributes:
         habit (Habit): A habit.
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         inbox_tasks (list[InboxTask]):
         inbox_tasks_total_cnt (int):
         inbox_tasks_page_size (int):
@@ -44,7 +44,7 @@ class HabitLoadResult:
     """
 
     habit: Habit
-    project: Project
+    aspect: Aspect
     inbox_tasks: list[InboxTask]
     inbox_tasks_total_cnt: int
     inbox_tasks_page_size: int
@@ -65,7 +65,7 @@ class HabitLoadResult:
 
         habit = self.habit.to_dict()
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         inbox_tasks = []
         for inbox_tasks_item_data in self.inbox_tasks:
@@ -124,7 +124,7 @@ class HabitLoadResult:
         field_dict.update(
             {
                 "habit": habit,
-                "project": project,
+                "aspect": aspect,
                 "inbox_tasks": inbox_tasks,
                 "inbox_tasks_total_cnt": inbox_tasks_total_cnt,
                 "inbox_tasks_page_size": inbox_tasks_page_size,
@@ -146,6 +146,7 @@ class HabitLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.chapter import Chapter
         from ..models.contact import Contact
         from ..models.goal import Goal
@@ -153,13 +154,12 @@ class HabitLoadResult:
         from ..models.habit_streak_mark import HabitStreakMark
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
-        from ..models.project import Project
         from ..models.tag import Tag
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         inbox_tasks = []
         _inbox_tasks = d.pop("inbox_tasks")
@@ -250,7 +250,7 @@ class HabitLoadResult:
 
         habit_load_result = cls(
             habit=habit,
-            project=project,
+            aspect=aspect,
             inbox_tasks=inbox_tasks,
             inbox_tasks_total_cnt=inbox_tasks_total_cnt,
             inbox_tasks_page_size=inbox_tasks_page_size,

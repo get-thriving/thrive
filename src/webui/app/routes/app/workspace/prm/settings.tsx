@@ -1,4 +1,4 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { AspectSummary } from "@jupiter/webapi-client";
 import { ApiError, WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -13,7 +13,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -30,7 +30,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const UpdateFormSchema = z.object({
-  project: z.string().optional(),
+  aspect: z.string().optional(),
 });
 
 export const handle = {
@@ -40,14 +40,14 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   const personSettingsResponse = await apiClient.prm.personLoadSettings({});
 
   return json({
-    catchUpProject: personSettingsResponse.catch_up_project,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    catchUpAspect: personSettingsResponse.catch_up_aspect,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
   });
 }
 
@@ -56,12 +56,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, UpdateFormSchema);
 
   try {
-    if (form.project === undefined) {
+    if (form.aspect === undefined) {
       throw new Error("Invalid application state");
     }
 
-    await apiClient.prm.personChangeCatchUpProject({
-      catch_up_project_ref_id: form.project,
+    await apiClient.prm.personChangeCatchUpAspect({
+      catch_up_aspect_ref_id: form.aspect,
     });
 
     return redirect(`/app/workspace/prm/settings`);
@@ -102,7 +102,7 @@ export default function PersonsSettings() {
       ) && (
         <SectionCard
           id="persons-settings"
-          title="Catch Up Project"
+          title="Catch Up Aspect"
           actions={
             <SectionActions
               id="persons-settings-actions"
@@ -119,17 +119,17 @@ export default function PersonsSettings() {
           }
         >
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Catch Up Project"
+            <AspectSelect
+              name="aspect"
+              label="Catch Up Aspect"
               inputsEnabled={inputsEnabled}
               disabled={false}
-              allProjects={loaderData.allProjects}
-              defaultValue={loaderData.catchUpProject.ref_id}
+              allAspects={loaderData.allAspects}
+              defaultValue={loaderData.catchUpAspect.ref_id}
             />
             <FieldError
               actionResult={actionData}
-              fieldName="/catch_up_project_key"
+              fieldName="/catch_up_aspect_key"
             />
           </FormControl>
         </SectionCard>

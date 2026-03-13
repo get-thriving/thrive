@@ -23,7 +23,7 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.framework.base.adate import ADate
@@ -51,7 +51,7 @@ class BigPlanUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[BigPlanName]
     status: UpdateAction[BigPlanStatus]
-    project_ref_id: UpdateAction[EntityId]
+    aspect_ref_id: UpdateAction[EntityId]
     chapter_ref_id: UpdateAction[EntityId | None]
     goal_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
@@ -87,8 +87,8 @@ class BigPlanUpdateUseCase(
 
         if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
             if (
-                args.project_ref_id.should_change
-                and args.project_ref_id.just_the_value is not None
+                args.aspect_ref_id.should_change
+                and args.aspect_ref_id.just_the_value is not None
             ):
                 raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
             if (
@@ -124,33 +124,33 @@ class BigPlanUpdateUseCase(
                     )
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN) and (
-            args.project_ref_id.should_change
+            args.aspect_ref_id.should_change
             or args.chapter_ref_id.should_change
             or args.goal_ref_id.should_change
         ):
-            project = await uow.get_for(Project).load_by_id(
-                args.project_ref_id.or_else(big_plan.project_ref_id)
+            aspect = await uow.get_for(Aspect).load_by_id(
+                args.aspect_ref_id.or_else(big_plan.aspect_ref_id)
             )
             chapter_ref_id = args.chapter_ref_id.or_else(big_plan.chapter_ref_id)
             goal_ref_id = args.goal_ref_id.or_else(big_plan.goal_ref_id)
             if chapter_ref_id and chapter_ref_id != big_plan.chapter_ref_id:
                 chapter = await uow.get_for(Chapter).load_by_id(chapter_ref_id)
-                if chapter.project_ref_id != project.ref_id:
+                if chapter.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Chapter does not belong to project '{project.name}'"
+                        f"Chapter does not belong to aspect '{aspect.name}'"
                     )
             if goal_ref_id and goal_ref_id != big_plan.goal_ref_id:
                 goal = await uow.get_for(Goal).load_by_id(goal_ref_id)
-                if goal.project_ref_id != project.ref_id:
+                if goal.aspect_ref_id != aspect.ref_id:
                     raise InputValidationError(
-                        f"Goal does not belong to project '{project.name}'"
+                        f"Goal does not belong to aspect '{aspect.name}'"
                     )
 
         big_plan = big_plan.update(
             context.domain_context,
             name=args.name,
             status=args.status,
-            project_ref_id=args.project_ref_id,
+            aspect_ref_id=args.aspect_ref_id,
             chapter_ref_id=args.chapter_ref_id,
             goal_ref_id=args.goal_ref_id,
             is_key=args.is_key,
@@ -165,7 +165,7 @@ class BigPlanUpdateUseCase(
 
         if (
             workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.project_ref_id.should_change
+            and args.aspect_ref_id.should_change
         ):
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -184,7 +184,7 @@ class BigPlanUpdateUseCase(
             for inbox_task in all_inbox_tasks:
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
-                    big_plan.project_ref_id,
+                    big_plan.aspect_ref_id,
                     big_plan.chapter_ref_id,
                     big_plan.goal_ref_id,
                     big_plan.ref_id,

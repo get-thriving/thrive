@@ -42,7 +42,7 @@ class BigPlan(LeafEntity):
     """A big plan."""
 
     big_plan_collection: ParentLink
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: BigPlanName
@@ -72,7 +72,7 @@ class BigPlan(LeafEntity):
     def new_big_plan(
         ctx: MutationContext,
         big_plan_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: BigPlanName,
@@ -91,7 +91,7 @@ class BigPlan(LeafEntity):
         return BigPlan._create(
             ctx,
             big_plan_collection=ParentLink(big_plan_collection_ref_id),
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -111,7 +111,7 @@ class BigPlan(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[BigPlanName],
         status: UpdateAction[BigPlanStatus],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
@@ -158,7 +158,7 @@ class BigPlan(LeafEntity):
             ctx,
             name=new_name,
             status=new_status,
-            project_ref_id=project_ref_id.or_else(self.project_ref_id),
+            aspect_ref_id=aspect_ref_id.or_else(self.aspect_ref_id),
             chapter_ref_id=chapter_ref_id.or_else(self.chapter_ref_id),
             goal_ref_id=goal_ref_id.or_else(self.goal_ref_id),
             is_key=is_key.or_else(self.is_key),

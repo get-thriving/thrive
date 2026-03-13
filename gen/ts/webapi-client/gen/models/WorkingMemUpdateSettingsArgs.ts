@@ -12,7 +12,7 @@ export type WorkingMemUpdateSettingsArgs = {
         should_change: boolean;
         value?: RecurringTaskPeriod;
     };
-    cleanup_project_ref_id: {
+    cleanup_aspect_ref_id: {
         should_change: boolean;
         value?: EntityId;
     };

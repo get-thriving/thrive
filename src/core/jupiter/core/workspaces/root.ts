@@ -83,7 +83,7 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
-      entityTag === NamedEntityTag.PROJECT &&
+      entityTag === NamedEntityTag.ASPECT &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)
     ) {
       inferredEntityTags.push(entityTag);

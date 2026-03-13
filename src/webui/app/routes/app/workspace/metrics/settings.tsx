@@ -1,4 +1,4 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { AspectSummary } from "@jupiter/webapi-client";
 import { ApiError, WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -13,7 +13,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -30,7 +30,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const UpdateFormSchema = z.object({
-  project: z.string(),
+  aspect: z.string(),
 });
 
 export const handle = {
@@ -40,14 +40,14 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   const metricSettingsResponse = await apiClient.metrics.metricLoadSettings({});
 
   return json({
-    collectionProject: metricSettingsResponse.collection_project,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    collectionAspect: metricSettingsResponse.collection_aspect,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
   });
 }
 
@@ -56,8 +56,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, UpdateFormSchema);
 
   try {
-    await apiClient.metrics.metricChangeCollectionProject({
-      collection_project_ref_id: form.project,
+    await apiClient.metrics.metricChangeCollectionAspect({
+      collection_aspect_ref_id: form.aspect,
     });
 
     return redirect(`/app/workspace/metrics`);
@@ -98,7 +98,7 @@ export default function MetricsSettings() {
       ) && (
         <SectionCard
           id="metrics-settings"
-          title="Collection Project"
+          title="Collection Aspect"
           actions={
             <SectionActions
               id="metrics-settings-actions"
@@ -115,17 +115,17 @@ export default function MetricsSettings() {
           }
         >
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Collection Project"
+            <AspectSelect
+              name="aspect"
+              label="Collection Aspect"
               inputsEnabled={inputsEnabled}
               disabled={false}
-              allProjects={loaderData.allProjects}
-              defaultValue={loaderData.collectionProject.ref_id}
+              allAspects={loaderData.allAspects}
+              defaultValue={loaderData.collectionAspect.ref_id}
             />
             <FieldError
               actionResult={actionData}
-              fieldName="/collection_project_ref_id"
+              fieldName="/collection_aspect_ref_id"
             />
           </FormControl>
         </SectionCard>

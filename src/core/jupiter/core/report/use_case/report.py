@@ -32,7 +32,7 @@ class ReportArgs(UseCaseArgsBase):
     period: RecurringTaskPeriod
     sources: list[InboxTaskSource] | None
     breakdowns: list[ReportBreakdown] | None
-    filter_project_ref_ids: list[EntityId] | None
+    filter_aspect_ref_ids: list[EntityId] | None
     filter_big_plan_ref_ids: list[EntityId] | None
     filter_habit_ref_ids: list[EntityId] | None
     filter_chore_ref_ids: list[EntityId] | None
@@ -72,7 +72,7 @@ class ReportUseCase(JupiterLoggedInReadonlyUseCase[ReportArgs, ReportResult]):
             period=args.period,
             sources=args.sources,
             breakdowns=args.breakdowns,
-            filter_project_ref_ids=args.filter_project_ref_ids,
+            filter_aspect_ref_ids=args.filter_aspect_ref_ids,
             filter_big_plan_ref_ids=args.filter_big_plan_ref_ids,
             filter_habit_ref_ids=args.filter_habit_ref_ids,
             filter_chore_ref_ids=args.filter_chore_ref_ids,

@@ -27,7 +27,7 @@ class InitArgs:
         user_birth_year (int): The birth year of a person.
         workspace_name (str): The workspace name.
         workspace_first_schedule_stream_name (str): The name of a schedule stream.
-        workspace_root_project_name (str): The project name.
+        workspace_root_aspect_name (str): The aspect name.
         workspace_feature_flags (list[WorkspaceFeature]):
     """
 
@@ -41,7 +41,7 @@ class InitArgs:
     user_birth_year: int
     workspace_name: str
     workspace_first_schedule_stream_name: str
-    workspace_root_project_name: str
+    workspace_root_aspect_name: str
     workspace_feature_flags: list[WorkspaceFeature]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -69,7 +69,7 @@ class InitArgs:
 
         workspace_first_schedule_stream_name = self.workspace_first_schedule_stream_name
 
-        workspace_root_project_name = self.workspace_root_project_name
+        workspace_root_aspect_name = self.workspace_root_aspect_name
 
         workspace_feature_flags = []
         for workspace_feature_flags_item_data in self.workspace_feature_flags:
@@ -90,7 +90,7 @@ class InitArgs:
                 "user_birth_year": user_birth_year,
                 "workspace_name": workspace_name,
                 "workspace_first_schedule_stream_name": workspace_first_schedule_stream_name,
-                "workspace_root_project_name": workspace_root_project_name,
+                "workspace_root_aspect_name": workspace_root_aspect_name,
                 "workspace_feature_flags": workspace_feature_flags,
             }
         )
@@ -125,7 +125,7 @@ class InitArgs:
 
         workspace_first_schedule_stream_name = d.pop("workspace_first_schedule_stream_name")
 
-        workspace_root_project_name = d.pop("workspace_root_project_name")
+        workspace_root_aspect_name = d.pop("workspace_root_aspect_name")
 
         workspace_feature_flags = []
         _workspace_feature_flags = d.pop("workspace_feature_flags")
@@ -145,7 +145,7 @@ class InitArgs:
             user_birth_year=user_birth_year,
             workspace_name=workspace_name,
             workspace_first_schedule_stream_name=workspace_first_schedule_stream_name,
-            workspace_root_project_name=workspace_root_project_name,
+            workspace_root_aspect_name=workspace_root_aspect_name,
             workspace_feature_flags=workspace_feature_flags,
         )
 

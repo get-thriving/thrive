@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Aspect } from './Aspect';
 import type { BigPlan } from './BigPlan';
 import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
@@ -15,7 +16,6 @@ import type { Metric } from './Metric';
 import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
-import type { Project } from './Project';
 import type { SlackTask } from './SlackTask';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
@@ -28,7 +28,7 @@ export type InboxTaskLoadResult = {
     inbox_task: InboxTask;
     tags: Array<Tag>;
     contacts: Array<Contact>;
-    project: Project;
+    aspect: Aspect;
     chapter?: (Chapter | null);
     goal?: (Goal | null);
     working_mem_collection?: (WorkingMemCollection | null);

@@ -19,7 +19,7 @@ class MetricCollection(TrunkEntity):
     """A metric collection."""
 
     workspace: ParentLink
-    collection_project_ref_id: EntityId
+    collection_aspect_ref_id: EntityId
 
     metrics = ContainsMany(Metric, metric_collection_ref_id=IsRefId())
 
@@ -28,23 +28,23 @@ class MetricCollection(TrunkEntity):
     def new_metric_collection(
         ctx: MutationContext,
         workspace_ref_id: EntityId,
-        collection_project_ref_id: EntityId,
+        collection_aspect_ref_id: EntityId,
     ) -> "MetricCollection":
         """Create a metric collection."""
         return MetricCollection._create(
             ctx,
             workspace=ParentLink(workspace_ref_id),
-            collection_project_ref_id=collection_project_ref_id,
+            collection_aspect_ref_id=collection_aspect_ref_id,
         )
 
     @update_entity_action
-    def change_collection_project(
+    def change_collection_aspect(
         self,
         ctx: MutationContext,
-        collection_project_ref_id: EntityId,
+        collection_aspect_ref_id: EntityId,
     ) -> "MetricCollection":
-        """Change the catch up project."""
+        """Change the catch up aspect."""
         return self._new_version(
             ctx,
-            collection_project_ref_id=collection_project_ref_id,
+            collection_aspect_ref_id=collection_aspect_ref_id,
         )

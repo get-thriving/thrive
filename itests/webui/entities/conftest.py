@@ -48,7 +48,7 @@ def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[Init
             user_birthday="12 Sep",
             user_birth_year=1990,
             workspace_name="Test Workspace",
-            workspace_root_project_name="Root Project",
+            workspace_root_aspect_name="Root Aspect",
             workspace_first_schedule_stream_name="Life",
             workspace_feature_flags=[
                 WorkspaceFeature.INBOX_TASKS,
@@ -112,6 +112,6 @@ def page_logged_in(
                 auth_new_password=new_user.password,
                 auth_new_password_repeat=new_user.password,
                 workspace_name="Test Workspace",
-                workspace_root_project_name="Root Project",
+                workspace_root_aspect_name="Root Aspect",
             ),
         )

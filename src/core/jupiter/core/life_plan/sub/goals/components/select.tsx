@@ -10,7 +10,7 @@ interface GoalSelectProps {
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  onlyForProject?: EntityId;
+  onlyForAspect?: EntityId;
   allGoals: GoalSummary[];
   defaultValue?: EntityId | null;
   value?: EntityId | null;
@@ -39,15 +39,14 @@ export function GoalSelect(props: GoalSelectProps) {
       sortedGoals
         .filter(
           (goal) =>
-            !props.onlyForProject ||
-            goal.project_ref_id === props.onlyForProject,
+            !props.onlyForAspect || goal.aspect_ref_id === props.onlyForAspect,
         )
         .map((goal) => ({
           goal_ref_id: goal.ref_id,
           label: String(goal.name),
           bigName: fullGoalName(goal, allGoalsByRefId),
         })),
-    [sortedGoals, props.onlyForProject, allGoalsByRefId],
+    [sortedGoals, props.onlyForAspect, allGoalsByRefId],
   );
 
   function selectedGoalToOption(): GoalOption | null {
@@ -95,7 +94,7 @@ export function GoalSelect(props: GoalSelectProps) {
     props.value,
     props.defaultValue,
     props.allGoals,
-    props.onlyForProject,
+    props.onlyForAspect,
     allGoalsByRefId,
   ]);
 

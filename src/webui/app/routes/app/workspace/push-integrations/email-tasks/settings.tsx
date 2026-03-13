@@ -1,4 +1,4 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { AspectSummary } from "@jupiter/webapi-client";
 import { ApiError, WorkspaceFeature } from "@jupiter/webapi-client";
 import { FormControl } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -13,7 +13,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
-import { ProjectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
+import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -30,7 +30,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 const ParamsSchema = z.object({});
 
 const UpdateFormSchema = z.object({
-  project: z.string().optional(),
+  aspect: z.string().optional(),
 });
 
 export const handle = {
@@ -40,15 +40,15 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
-    include_projects: true,
+    include_aspects: true,
   });
 
   const emailTaskSettingsResponse =
     await apiClient.pushIntegrations.emailTaskLoadSettings({});
 
   return json({
-    generationProject: emailTaskSettingsResponse.generation_project,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    generationAspect: emailTaskSettingsResponse.generation_aspect,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
   });
 }
 
@@ -57,12 +57,12 @@ export async function action({ request }: ActionFunctionArgs) {
   const form = await parseForm(request, UpdateFormSchema);
 
   try {
-    if (form.project === undefined) {
+    if (form.aspect === undefined) {
       throw new Error("Invalid application state");
     }
 
-    await apiClient.pushIntegrations.emailTaskChangeGenerationProject({
-      generation_project_ref_id: form.project,
+    await apiClient.pushIntegrations.emailTaskChangeGenerationAspect({
+      generation_aspect_ref_id: form.aspect,
     });
 
     return redirect(`/app/workspace/push-integrations/email-tasks/settings`);
@@ -104,7 +104,7 @@ export default function EmailTasksSettings() {
         WorkspaceFeature.LIFE_PLAN,
       ) && (
         <SectionCard
-          title="Generation Project"
+          title="Generation Aspect"
           actions={
             <SectionActions
               id="email-task-actions"
@@ -112,7 +112,7 @@ export default function EmailTasksSettings() {
               inputsEnabled={inputsEnabled}
               actions={[
                 ActionSingle({
-                  text: "Change Generation Project",
+                  text: "Change Generation Aspect",
                   value: "update",
                   highlight: true,
                 }),
@@ -121,17 +121,17 @@ export default function EmailTasksSettings() {
           }
         >
           <FormControl fullWidth>
-            <ProjectSelect
-              name="project"
-              label="Project"
+            <AspectSelect
+              name="aspect"
+              label="Aspect"
               inputsEnabled={inputsEnabled}
               disabled={false}
-              allProjects={loaderData.allProjects}
-              defaultValue={loaderData.generationProject.ref_id}
+              allAspects={loaderData.allAspects}
+              defaultValue={loaderData.generationAspect.ref_id}
             />
             <FieldError
               actionResult={actionData}
-              fieldName="/generation_project_ref_id"
+              fieldName="/generation_aspect_ref_id"
             />
           </FormControl>
         </SectionCard>

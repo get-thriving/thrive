@@ -23,7 +23,7 @@ class GetSummariesArgs:
         include_active_visions (bool | None | Unset):
         include_schedule_streams (bool | None | Unset):
         include_vacations (bool | None | Unset):
-        include_projects (bool | None | Unset):
+        include_aspects (bool | None | Unset):
         include_chapters (bool | None | Unset):
         include_goals (bool | None | Unset):
         include_milestones (bool | None | Unset):
@@ -44,7 +44,7 @@ class GetSummariesArgs:
     include_active_visions: bool | None | Unset = UNSET
     include_schedule_streams: bool | None | Unset = UNSET
     include_vacations: bool | None | Unset = UNSET
-    include_projects: bool | None | Unset = UNSET
+    include_aspects: bool | None | Unset = UNSET
     include_chapters: bool | None | Unset = UNSET
     include_goals: bool | None | Unset = UNSET
     include_milestones: bool | None | Unset = UNSET
@@ -101,11 +101,11 @@ class GetSummariesArgs:
         else:
             include_vacations = self.include_vacations
 
-        include_projects: bool | None | Unset
-        if isinstance(self.include_projects, Unset):
-            include_projects = UNSET
+        include_aspects: bool | None | Unset
+        if isinstance(self.include_aspects, Unset):
+            include_aspects = UNSET
         else:
-            include_projects = self.include_projects
+            include_aspects = self.include_aspects
 
         include_chapters: bool | None | Unset
         if isinstance(self.include_chapters, Unset):
@@ -190,8 +190,8 @@ class GetSummariesArgs:
             field_dict["include_schedule_streams"] = include_schedule_streams
         if include_vacations is not UNSET:
             field_dict["include_vacations"] = include_vacations
-        if include_projects is not UNSET:
-            field_dict["include_projects"] = include_projects
+        if include_aspects is not UNSET:
+            field_dict["include_aspects"] = include_aspects
         if include_chapters is not UNSET:
             field_dict["include_chapters"] = include_chapters
         if include_goals is not UNSET:
@@ -284,14 +284,14 @@ class GetSummariesArgs:
 
         include_vacations = _parse_include_vacations(d.pop("include_vacations", UNSET))
 
-        def _parse_include_projects(data: object) -> bool | None | Unset:
+        def _parse_include_aspects(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(bool | None | Unset, data)
 
-        include_projects = _parse_include_projects(d.pop("include_projects", UNSET))
+        include_aspects = _parse_include_aspects(d.pop("include_aspects", UNSET))
 
         def _parse_include_chapters(data: object) -> bool | None | Unset:
             if data is None:
@@ -400,7 +400,7 @@ class GetSummariesArgs:
             include_active_visions=include_active_visions,
             include_schedule_streams=include_schedule_streams,
             include_vacations=include_vacations,
-            include_projects=include_projects,
+            include_aspects=include_aspects,
             include_chapters=include_chapters,
             include_goals=include_goals,
             include_milestones=include_milestones,

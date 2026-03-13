@@ -29,7 +29,7 @@ def upgrade() -> None:
                    null as archived_time,
                    ref_id as workspace_ref_id,
                    '["monthly"]' as periods,
-                   default_project_ref_id as writing_task_project_ref_id,
+                   default_aspect_ref_id as writing_task_aspect_ref_id,
                    'important' as writing_task_eisen,
                    'medium' as writing_task_difficulty
                FROM workspace;

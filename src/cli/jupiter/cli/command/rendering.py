@@ -21,7 +21,7 @@ from jupiter.core.gamification.user_score_overview import (
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.life_plan.sub.aspects.name import ProjectName
+from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
@@ -135,9 +135,9 @@ def date_with_label_to_rich_text(due_date: ADate, label: str) -> Text:
     return Text(f"{label} ").append(str(due_date), style="blue underline")
 
 
-def project_to_rich_text(project_name: ProjectName) -> Text:
-    """Transform a project into text."""
-    return Text("In Project ").append(str(project_name), style="underline")
+def aspect_to_rich_text(aspect_name: AspectName) -> Text:
+    """Transform a aspect into text."""
+    return Text("In Aspect ").append(str(aspect_name), style="underline")
 
 
 def entity_tag_to_rich_text(entity_tag: NamedEntityTag) -> Text:

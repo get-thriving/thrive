@@ -26,7 +26,7 @@ from jupiter.core.journals.generation_approach import (
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.source import JournalSource
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
@@ -46,7 +46,7 @@ class JournalUpdateSettingsArgs(UseCaseArgsBase):
     periods: UpdateAction[list[RecurringTaskPeriod]]
     generation_approach: UpdateAction[JournalGenerationApproach]
     generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
-    writing_task_project_ref_id: UpdateAction[EntityId | None]
+    writing_task_aspect_ref_id: UpdateAction[EntityId | None]
     writing_task_eisen: UpdateAction[Eisen | None]
     writing_task_difficulty: UpdateAction[Difficulty | None]
 
@@ -78,25 +78,25 @@ class JournalUpdateSettingsUseCase(
             life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
 
             if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-                if args.writing_task_project_ref_id.test(lambda x: x is None):
-                    raise Exception("Writing task project ref id is required")
-                if args.writing_task_project_ref_id.should_change:
-                    project = await uow.get_for(Project).load_by_id(
-                        cast(EntityId, args.writing_task_project_ref_id.just_the_value)
+                if args.writing_task_aspect_ref_id.test(lambda x: x is None):
+                    raise Exception("Writing task aspect ref id is required")
+                if args.writing_task_aspect_ref_id.should_change:
+                    aspect = await uow.get_for(Aspect).load_by_id(
+                        cast(EntityId, args.writing_task_aspect_ref_id.just_the_value)
                     )
-                    writing_task_project_ref_id = UpdateAction.change_to(project.ref_id)
+                    writing_task_aspect_ref_id = UpdateAction.change_to(aspect.ref_id)
                 else:
-                    writing_task_project_ref_id = UpdateAction.do_nothing()
+                    writing_task_aspect_ref_id = UpdateAction.do_nothing()
             else:
-                root_project = await uow.get_for(Project).find_all_generic(
+                root_aspect = await uow.get_for(Aspect).find_all_generic(
                     parent_ref_id=life_plan.ref_id,
                     allow_archived=False,
-                    parent_project_ref_id=None,
+                    parent_aspect_ref_id=None,
                 )
-                if len(root_project) != 1:
-                    raise Exception("Root project not found")
-                writing_task_project_ref_id = UpdateAction.change_to(
-                    root_project[0].ref_id
+                if len(root_aspect) != 1:
+                    raise Exception("Root aspect not found")
+                writing_task_aspect_ref_id = UpdateAction.change_to(
+                    root_aspect[0].ref_id
                 )
 
             journal_collection = journal_collection.update(
@@ -104,7 +104,7 @@ class JournalUpdateSettingsUseCase(
                 periods=args.periods.transform(lambda s: set(s)),
                 generation_approach=args.generation_approach,
                 generation_in_advance_days=args.generation_in_advance_days,
-                writing_task_project_ref_id=writing_task_project_ref_id,
+                writing_task_aspect_ref_id=writing_task_aspect_ref_id,
                 writing_task_eisen=args.writing_task_eisen,
                 writing_task_difficulty=args.writing_task_difficulty,
             )

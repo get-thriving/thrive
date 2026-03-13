@@ -1,6 +1,6 @@
 import {
   DocsHelpSubject,
-  ProjectSummary,
+  AspectSummary,
   type LifePlan,
   type MilestoneSummary,
   type Tag,
@@ -39,8 +39,8 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
-import { sortProjectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
+import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
+import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
@@ -58,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_milestones: true,
   });
 
@@ -76,7 +76,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     lifePlan: summaryResponse.life_plan as LifePlan,
     allMilestones: summaryResponse.milestones as MilestoneSummary[],
-    allProjects: summaryResponse.projects as ProjectSummary[],
+    allAspects: summaryResponse.aspects as AspectSummary[],
     entries: response.entries,
     allTags: allTags.tags,
   });
@@ -97,9 +97,9 @@ export default function Chapters() {
   const birthday = lifePlanBirthdayDate(loaderData.lifePlan);
   const today = aDateToDate(topLevelInfo.today);
 
-  const sortedProjects = sortProjectsByTreeOrder(loaderData.allProjects);
-  const allProjectsByRefId = new Map(
-    loaderData.allProjects.map((project) => [project.ref_id, project]),
+  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects);
+  const allAspectsByRefId = new Map(
+    loaderData.allAspects.map((aspect) => [aspect.ref_id, aspect]),
   );
 
   const entriesByRefId = new Map(
@@ -111,7 +111,7 @@ export default function Chapters() {
     today,
     loaderData.entries.map((entry) => entry.chapter),
     loaderData.allMilestones,
-    sortedProjects,
+    sortedAspects,
   ).filter((chapter) => {
     if (selectedTagsRefId.length === 0) {
       return true;
@@ -174,8 +174,8 @@ export default function Chapters() {
                 <EntityLink
                   to={`/app/workspace/life-plan/chapters/${chapter.ref_id}`}
                 >
-                  <ProjectTag
-                    project={allProjectsByRefId.get(chapter.project_ref_id)!}
+                  <AspectTag
+                    aspect={allAspectsByRefId.get(chapter.aspect_ref_id)!}
                   />
                   <EntityNameComponent name={chapter.name} />
                   {entriesByRefId.get(chapter.ref_id)?.tags?.map((tag: Tag) => (

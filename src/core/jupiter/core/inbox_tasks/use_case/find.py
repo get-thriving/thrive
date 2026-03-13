@@ -42,7 +42,7 @@ from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
@@ -95,7 +95,7 @@ class InboxTaskFindArgs(UseCaseArgsBase):
     filter_just_user: bool | None
     filter_just_generated: bool | None
     filter_ref_ids: list[EntityId] | None
-    filter_project_ref_ids: list[EntityId] | None
+    filter_aspect_ref_ids: list[EntityId] | None
     filter_sources: list[InboxTaskSource] | None
     filter_source_entity_ref_ids: list[EntityId] | None
 
@@ -108,7 +108,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
-    project: Project
+    aspect: Aspect
     chapter: Chapter | None
     goal: Goal | None
     time_event_blocks: list[TimeEventInDayBlock] | None
@@ -159,7 +159,7 @@ class InboxTaskFindUseCase(
 
         if (
             not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.filter_project_ref_ids is not None
+            and args.filter_aspect_ref_ids is not None
         ):
             raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
 
@@ -230,12 +230,12 @@ class InboxTaskFindUseCase(
             push_integrations_group.ref_id,
         )
 
-        projects = await uow.get_for(Project).find_all_generic(
+        aspects = await uow.get_for(Aspect).find_all_generic(
             parent_ref_id=life_plan.ref_id,
             allow_archived=allow_archived,
-            ref_id=args.filter_project_ref_ids or NoFilter(),
+            ref_id=args.filter_aspect_ref_ids or NoFilter(),
         )
-        project_by_ref_id = {p.ref_id: p for p in projects}
+        aspect_by_ref_id = {p.ref_id: p for p in aspects}
 
         chapters = await uow.get_for(Chapter).find_all_generic(
             parent_ref_id=life_plan.ref_id,
@@ -257,7 +257,7 @@ class InboxTaskFindUseCase(
             ref_id=args.filter_ref_ids or NoFilter(),
             status=filter_status,
             source=filter_sources,
-            project_ref_id=args.filter_project_ref_ids or NoFilter(),
+            aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
             source_entity_ref_id=args.filter_source_entity_ref_ids or NoFilter(),
         )
 
@@ -490,7 +490,7 @@ class InboxTaskFindUseCase(
                         )
                         if contact_ref_id in contacts_by_ref_id
                     ],
-                    project=project_by_ref_id[it.project_ref_id],
+                    aspect=aspect_by_ref_id[it.aspect_ref_id],
                     chapter=(
                         chapter_by_ref_id[it.chapter_ref_id]
                         if it.chapter_ref_id

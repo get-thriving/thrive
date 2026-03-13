@@ -27,7 +27,7 @@ export type GenLogEntry = {
     today: ADate;
     gen_targets: Array<SyncTarget>;
     period?: (Array<RecurringTaskPeriod> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
     filter_habit_ref_ids?: (Array<EntityId> | null);
     filter_chore_ref_ids?: (Array<EntityId> | null);
     filter_metric_ref_ids?: (Array<EntityId> | null);

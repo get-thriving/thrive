@@ -3,7 +3,7 @@ import type {
   GoalSummary,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
@@ -57,7 +57,7 @@ const ParamsSchema = z.object({});
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  project: z.string().optional(),
+  aspect: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   period: z.nativeEnum(RecurringTaskPeriod),
@@ -82,16 +82,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
   });
 
   return json({
-    rootProject: summaryResponse.root_project as ProjectSummary,
+    rootAspect: summaryResponse.root_aspect as AspectSummary,
     lifePlan: summaryResponse.life_plan as LifePlan,
-    allProjects: summaryResponse.projects as Array<ProjectSummary>,
+    allAspects: summaryResponse.aspects as Array<AspectSummary>,
     allChapters: summaryResponse.chapters as Array<ChapterSummary>,
     allGoals: summaryResponse.goals as Array<GoalSummary>,
     allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -105,7 +105,7 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const result = await apiClient.chores.choreCreate({
       name: form.name,
-      project_ref_id: form.project !== undefined ? form.project : undefined,
+      aspect_ref_id: form.aspect !== undefined ? form.aspect : undefined,
       chapter_ref_id:
         form.chapter !== undefined && form.chapter !== ""
           ? form.chapter
@@ -157,8 +157,8 @@ export default function NewChore() {
   const topLevelInfo = useContext(TopLevelInfoContext);
 
   const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
-  const [selectedProject, setSelectedProject] = useState<string>(
-    loaderData.rootProject.ref_id,
+  const [selectedAspect, setSelectedAspect] = useState<string>(
+    loaderData.rootAspect.ref_id,
   );
 
   const inputsEnabled = navigation.state === "idle";
@@ -219,16 +219,16 @@ export default function NewChore() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allProjects={loaderData.allProjects}
-              projectValue={selectedProject}
-              onProjectChange={setSelectedProject}
+              allAspects={loaderData.allAspects}
+              aspectValue={selectedAspect}
+              onAspectChange={setSelectedAspect}
               allChapters={loaderData.allChapters}
               allGoals={loaderData.allGoals}
               birthday={birthdayDate}
               today={aDateToDate(topLevelInfo.today)}
               allMilestones={loaderData.allMilestones}
             />
-            <FieldError actionResult={actionData} fieldName="/project_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
             <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
           </FormControl>

@@ -18,7 +18,7 @@ class TagNamespace(EnumValue):
     DOC = "doc"
     JOURNAL = "journal"
     VACATION = "vacation"
-    PROJECT = "project"
+    ASPECT = "aspect"
     CHAPTER = "chapter"
     GOAL = "goal"
     MILESTONE = "milestone"

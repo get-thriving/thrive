@@ -6,7 +6,7 @@ import type {
   BigPlanStatus,
   Chapter,
   Goal,
-  Project,
+  Aspect,
   Tag,
 } from "@jupiter/webapi-client";
 import { WorkspaceFeature } from "@jupiter/webapi-client";
@@ -25,7 +25,7 @@ import { ADateTag } from "#/core/common/component/adate-tag";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
-import { ProjectTag } from "#/core/life_plan/sub/aspects/component/tag";
+import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
 import { BigPlanDonePctTag } from "#/core/big_plans/component/done-pct-tag";
@@ -129,9 +129,7 @@ export function BigPlanCard(props: BigPlanCardProps) {
             props.topLevelInfo.workspace,
             WorkspaceFeature.LIFE_PLAN,
           ) &&
-          props.parent && (
-            <ProjectTag project={props.parent.project as Project} />
-          )}
+          props.parent && <AspectTag aspect={props.parent.aspect as Aspect} />}
         {props.showOptions.showLifePlan &&
           isWorkspaceFeatureAvailable(
             props.topLevelInfo.workspace,

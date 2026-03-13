@@ -1,66 +1,64 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { AspectSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import {
-  computeProjectDistanceFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectDistanceFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 
-interface ProjectSelectProps {
+interface AspectSelectProps {
   name: string;
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
   defaultValue?: string;
   value?: string;
   onChange?: (value: string) => void;
 }
 
-export function ProjectSelect(props: ProjectSelectProps) {
-  const rootProject = props.allProjects.find((p) => !p.parent_project_ref_id)!;
-  const allProjectsByRefId = useMemo(
-    () => new Map(props.allProjects.map((p) => [p.ref_id, p])),
-    [props.allProjects],
+export function AspectSelect(props: AspectSelectProps) {
+  const rootAspect = props.allAspects.find((p) => !p.parent_aspect_ref_id)!;
+  const allAspectsByRefId = useMemo(
+    () => new Map(props.allAspects.map((p) => [p.ref_id, p])),
+    [props.allAspects],
   );
-  const sortedProjects = sortProjectsByTreeOrder(props.allProjects);
-  const allProjectsAsOptions = sortedProjects.map((project) => ({
-    project_ref_id: project.ref_id,
-    label: project.name,
-    bigName: fullProjectName(project, allProjectsByRefId),
+  const sortedAspects = sortAspectsByTreeOrder(props.allAspects);
+  const allAspectsAsOptions = sortedAspects.map((aspect) => ({
+    aspect_ref_id: aspect.ref_id,
+    label: aspect.name,
+    bigName: fullAspectName(aspect, allAspectsByRefId),
   }));
 
-  function selectedProjectToOption() {
-    const projectRefId =
-      props.value || props.defaultValue || rootProject?.ref_id;
-    const project = allProjectsByRefId.get(projectRefId)!;
+  function selectedAspectToOption() {
+    const aspectRefId = props.value || props.defaultValue || rootAspect?.ref_id;
+    const aspect = allAspectsByRefId.get(aspectRefId)!;
     return {
-      project_ref_id: projectRefId,
-      label: project.name,
-      bigName: fullProjectName(project, allProjectsByRefId),
+      aspect_ref_id: aspectRefId,
+      label: aspect.name,
+      bigName: fullAspectName(aspect, allAspectsByRefId),
     };
   }
 
-  const [selectedProject, setSelectedProject] = useState(
-    selectedProjectToOption(),
+  const [selectedAspect, setSelectedAspect] = useState(
+    selectedAspectToOption(),
   );
   useEffect(() => {
-    const projectRefId =
-      props.value || props.defaultValue || rootProject?.ref_id;
-    const project = allProjectsByRefId.get(projectRefId)!;
-    setSelectedProject({
-      project_ref_id: projectRefId,
-      label: project.name,
-      bigName: fullProjectName(project, allProjectsByRefId),
+    const aspectRefId = props.value || props.defaultValue || rootAspect?.ref_id;
+    const aspect = allAspectsByRefId.get(aspectRefId)!;
+    setSelectedAspect({
+      aspect_ref_id: aspectRefId,
+      label: aspect.name,
+      bigName: fullAspectName(aspect, allAspectsByRefId),
     });
   }, [
     props.value,
     props.defaultValue,
-    props.allProjects,
-    allProjectsByRefId,
-    rootProject,
+    props.allAspects,
+    allAspectsByRefId,
+    rootAspect,
   ]);
 
   return (
@@ -69,18 +67,18 @@ export function ProjectSelect(props: ProjectSelectProps) {
         disableClearable
         autoHighlight
         id={props.name}
-        options={allProjectsAsOptions}
+        options={allAspectsAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled}
         sx={autocompleteSingleLineSx}
-        value={selectedProject}
+        value={selectedAspect}
         onChange={(e, v) => {
-          setSelectedProject(v);
+          setSelectedAspect(v);
           if (props.onChange) {
-            props.onChange(v.project_ref_id);
+            props.onChange(v.aspect_ref_id);
           }
         }}
-        isOptionEqualToValue={(o, v) => o.project_ref_id === v.project_ref_id}
+        isOptionEqualToValue={(o, v) => o.aspect_ref_id === v.aspect_ref_id}
         renderOption={(props, option) => {
           // eslint-disable-next-line react/prop-types
           const { key, ...restProps } = props;
@@ -96,16 +94,16 @@ export function ProjectSelect(props: ProjectSelectProps) {
       <input
         type="hidden"
         name={props.name}
-        value={selectedProject.project_ref_id}
+        value={selectedAspect.aspect_ref_id}
       />
     </>
   );
 }
 
-function fullProjectName(
-  project: ProjectSummary,
-  allProjectsByRefId: Map<string, ProjectSummary>,
+function fullAspectName(
+  aspect: AspectSummary,
+  allAspectsByRefId: Map<string, AspectSummary>,
 ): string {
-  const indent = computeProjectDistanceFromRoot(project, allProjectsByRefId);
-  return `${"-".repeat(indent)} ${project.name}`;
+  const indent = computeAspectDistanceFromRoot(aspect, allAspectsByRefId);
+  return `${"-".repeat(indent)} ${aspect.name}`;
 }

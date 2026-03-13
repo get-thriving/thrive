@@ -1,11 +1,11 @@
-import type { Project, ProjectSummary } from "@jupiter/webapi-client";
+import type { Aspect, AspectSummary } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
 
 interface Props {
-  project: Project | ProjectSummary;
+  aspect: Aspect | AspectSummary;
 }
 
-export function ProjectTag(props: Props) {
-  return <SlimChip label={`⭐ ${props.project.name}`} color="info" />;
+export function AspectTag(props: Props) {
+  return <SlimChip label={`⭐ ${props.aspect.name}`} color="info" />;
 }

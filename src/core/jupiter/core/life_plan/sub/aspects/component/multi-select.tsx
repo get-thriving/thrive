@@ -1,72 +1,72 @@
-import type { ProjectSummary } from "@jupiter/webapi-client";
+import type { AspectSummary } from "@jupiter/webapi-client";
 import { Autocomplete, TextField } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import {
-  computeProjectDistanceFromRoot,
-  sortProjectsByTreeOrder,
+  computeAspectDistanceFromRoot,
+  sortAspectsByTreeOrder,
 } from "#/core/life_plan/sub/aspects/root";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
-interface ProjectOption {
-  project_ref_id: string;
+interface AspectOption {
+  aspect_ref_id: string;
   label: string;
   bigName: string;
 }
 
-interface ProjectMultiSelectProps {
+interface AspectMultiSelectProps {
   name: string;
   label: string;
   inputsEnabled: boolean;
   disabled: boolean;
-  allProjects: ProjectSummary[];
+  allAspects: AspectSummary[];
   defaultValue?: string[];
   value?: string[];
   onChange?: (value: string[]) => void;
   maxSelections?: number;
 }
 
-export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
+export function AspectMultiSelect(props: AspectMultiSelectProps) {
   const isBigScreen = useBigScreen();
-  const allProjectsByRefId = useMemo(
-    () => new Map(props.allProjects.map((p) => [p.ref_id, p])),
-    [props.allProjects],
+  const allAspectsByRefId = useMemo(
+    () => new Map(props.allAspects.map((p) => [p.ref_id, p])),
+    [props.allAspects],
   );
 
-  const allProjectsAsOptions: ProjectOption[] = useMemo(() => {
-    const sortedProjects = sortProjectsByTreeOrder(props.allProjects);
-    return sortedProjects.map((project) => ({
-      project_ref_id: project.ref_id,
-      label: project.name,
-      bigName: fullProjectName(project, allProjectsByRefId),
+  const allAspectsAsOptions: AspectOption[] = useMemo(() => {
+    const sortedAspects = sortAspectsByTreeOrder(props.allAspects);
+    return sortedAspects.map((aspect) => ({
+      aspect_ref_id: aspect.ref_id,
+      label: aspect.name,
+      bigName: fullAspectName(aspect, allAspectsByRefId),
     }));
-  }, [props.allProjects, allProjectsByRefId]);
+  }, [props.allAspects, allAspectsByRefId]);
 
-  function selectedProjectRefIds(): string[] {
+  function selectedAspectRefIds(): string[] {
     return props.value ?? props.defaultValue ?? [];
   }
 
-  function selectedProjectsToOptions(): ProjectOption[] {
-    const refIds = selectedProjectRefIds();
+  function selectedAspectsToOptions(): AspectOption[] {
+    const refIds = selectedAspectRefIds();
     return refIds
-      .map((refId) => allProjectsByRefId.get(refId))
-      .filter((p): p is ProjectSummary => Boolean(p))
+      .map((refId) => allAspectsByRefId.get(refId))
+      .filter((p): p is AspectSummary => Boolean(p))
       .map((p) => ({
-        project_ref_id: p.ref_id,
+        aspect_ref_id: p.ref_id,
         label: p.name,
-        bigName: fullProjectName(p, allProjectsByRefId),
+        bigName: fullAspectName(p, allAspectsByRefId),
       }));
   }
 
-  const [selectedProjects, setSelectedProjects] = useState<ProjectOption[]>(
-    selectedProjectsToOptions(),
+  const [selectedAspects, setSelectedAspects] = useState<AspectOption[]>(
+    selectedAspectsToOptions(),
   );
 
   useEffect(() => {
-    setSelectedProjects(selectedProjectsToOptions());
+    setSelectedAspects(selectedAspectsToOptions());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.value, props.defaultValue, props.allProjects, allProjectsByRefId]);
+  }, [props.value, props.defaultValue, props.allAspects, allAspectsByRefId]);
 
   return (
     <>
@@ -75,21 +75,21 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
         id={props.name}
         limitTags={isBigScreen ? 0 : 1}
         size="small"
-        options={allProjectsAsOptions}
+        options={allAspectsAsOptions}
         readOnly={!props.inputsEnabled}
         disabled={props.disabled}
         multiple
         disableCloseOnSelect
         sx={autocompleteSingleLineSx}
-        value={selectedProjects}
+        value={selectedAspects}
         getOptionDisabled={(o) => {
           const maxSelections = props.maxSelections ?? null;
           if (!maxSelections) {
             return false;
           }
-          const selectedCount = selectedProjects.length;
-          const alreadySelected = selectedProjects.some(
-            (x) => x.project_ref_id === o.project_ref_id,
+          const selectedCount = selectedAspects.length;
+          const alreadySelected = selectedAspects.some(
+            (x) => x.aspect_ref_id === o.aspect_ref_id,
           );
           return selectedCount >= maxSelections && !alreadySelected;
         }}
@@ -98,17 +98,17 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
           if (
             maxSelections &&
             v.length > maxSelections &&
-            v.length > selectedProjects.length
+            v.length > selectedAspects.length
           ) {
             // User is trying to add more than allowed; ignore.
             return;
           }
-          setSelectedProjects(v);
+          setSelectedAspects(v);
           if (props.onChange) {
-            props.onChange(v.map((x) => x.project_ref_id));
+            props.onChange(v.map((x) => x.aspect_ref_id));
           }
         }}
-        isOptionEqualToValue={(o, v) => o.project_ref_id === v.project_ref_id}
+        isOptionEqualToValue={(o, v) => o.aspect_ref_id === v.aspect_ref_id}
         getOptionLabel={(o) => o.bigName}
         renderOption={(props, option) => {
           // eslint-disable-next-line react/prop-types
@@ -135,16 +135,16 @@ export function ProjectMultiSelect(props: ProjectMultiSelectProps) {
       <input
         type="hidden"
         name={props.name}
-        value={selectedProjects.map((p) => p.project_ref_id).join(",")}
+        value={selectedAspects.map((p) => p.aspect_ref_id).join(",")}
       />
     </>
   );
 }
 
-function fullProjectName(
-  project: ProjectSummary,
-  allProjectsByRefId: Map<string, ProjectSummary>,
+function fullAspectName(
+  aspect: AspectSummary,
+  allAspectsByRefId: Map<string, AspectSummary>,
 ): string {
-  const indent = computeProjectDistanceFromRoot(project, allProjectsByRefId);
-  return `${"-".repeat(indent)} ${project.name}`;
+  const indent = computeAspectDistanceFromRoot(aspect, allAspectsByRefId);
+  return `${"-".repeat(indent)} ${aspect.name}`;
 }

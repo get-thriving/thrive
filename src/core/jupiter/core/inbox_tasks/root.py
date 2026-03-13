@@ -68,7 +68,7 @@ class InboxTask(LeafEntity):
 
     inbox_task_collection: ParentLink
     source: InboxTaskSource
-    project_ref_id: EntityId
+    aspect_ref_id: EntityId
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
     name: InboxTaskName
@@ -119,11 +119,11 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         big_plan_ref_id: EntityId | None,
-        big_plan_project_ref_id: EntityId | None,
+        big_plan_aspect_ref_id: EntityId | None,
         big_plan_chapter_ref_id: EntityId | None,
         big_plan_goal_ref_id: EntityId | None,
         big_plan_actionable_date: ADate | None,
@@ -148,8 +148,8 @@ class InboxTask(LeafEntity):
             actionable_date=actionable_date
             or (big_plan_actionable_date if big_plan_ref_id else None),
             due_date=due_date or (big_plan_due_date if big_plan_ref_id else None),
-            project_ref_id=(
-                big_plan_project_ref_id if big_plan_ref_id else project_ref_id
+            aspect_ref_id=(
+                big_plan_aspect_ref_id if big_plan_ref_id else aspect_ref_id
             ),
             chapter_ref_id=(
                 big_plan_chapter_ref_id if big_plan_ref_id else chapter_ref_id
@@ -171,7 +171,7 @@ class InboxTask(LeafEntity):
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         working_mem_collection_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -188,7 +188,7 @@ class InboxTask(LeafEntity):
             difficulty=Difficulty.EASY,
             actionable_date=None,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=working_mem_collection_ref_id,
@@ -210,7 +210,7 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         time_plan_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -227,7 +227,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=time_plan_ref_id,
@@ -251,7 +251,7 @@ class InboxTask(LeafEntity):
         actionable_date: ADate | None,
         due_date: ADate | None,
         habit_ref_id: EntityId,
-        habit_project_ref_id: EntityId,
+        habit_aspect_ref_id: EntityId,
         habit_chapter_ref_id: EntityId | None,
         habit_goal_ref_id: EntityId | None,
         recurring_task_timeline: str,
@@ -273,7 +273,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=habit_project_ref_id,
+            aspect_ref_id=habit_aspect_ref_id,
             chapter_ref_id=habit_chapter_ref_id,
             goal_ref_id=habit_goal_ref_id,
             source_entity_ref_id=habit_ref_id,
@@ -297,7 +297,7 @@ class InboxTask(LeafEntity):
         actionable_date: ADate | None,
         due_date: ADate | None,
         chore_ref_id: EntityId,
-        chore_project_ref_id: EntityId,
+        chore_aspect_ref_id: EntityId,
         chore_chapter_ref_id: EntityId | None,
         chore_goal_ref_id: EntityId | None,
         recurring_task_timeline: str,
@@ -315,7 +315,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=chore_project_ref_id,
+            aspect_ref_id=chore_aspect_ref_id,
             chapter_ref_id=chore_chapter_ref_id,
             goal_ref_id=chore_goal_ref_id,
             source_entity_ref_id=chore_ref_id,
@@ -337,7 +337,7 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         journal_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -354,7 +354,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=journal_ref_id,
@@ -376,7 +376,7 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         metric_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -393,7 +393,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=metric_ref_id,
@@ -416,7 +416,7 @@ class InboxTask(LeafEntity):
         recurring_task_gen_right_now: Timestamp,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         person_ref_id: EntityId,
         recurring_task_timeline: str,
     ) -> "InboxTask":
@@ -432,7 +432,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=person_ref_id,
@@ -451,7 +451,7 @@ class InboxTask(LeafEntity):
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         occasion_kind: OccasionKind,
         occasion_person_name: ContactName,
         occasion_ref_id: EntityId,
@@ -473,7 +473,7 @@ class InboxTask(LeafEntity):
             difficulty=Difficulty.EASY,
             actionable_date=due_date.subtract_days(preparation_days_cnt),
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=occasion_ref_id,
@@ -490,7 +490,7 @@ class InboxTask(LeafEntity):
     def new_inbox_task_for_slack_task(
         ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         slack_task_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
@@ -513,7 +513,7 @@ class InboxTask(LeafEntity):
             difficulty=generation_extra_info.difficulty,
             actionable_date=generation_extra_info.actionable_date,
             due_date=generation_extra_info.due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=slack_task_ref_id,
@@ -530,7 +530,7 @@ class InboxTask(LeafEntity):
     def new_inbox_task_for_email_task(
         ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         email_task_ref_id: EntityId,
         from_address: EmailAddress,
         from_name: EmailUserName,
@@ -556,7 +556,7 @@ class InboxTask(LeafEntity):
             difficulty=generation_extra_info.difficulty,
             actionable_date=generation_extra_info.actionable_date,
             due_date=generation_extra_info.due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=email_task_ref_id,
@@ -578,7 +578,7 @@ class InboxTask(LeafEntity):
     def update_link_to_working_mem_cleanup(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         name: InboxTaskName,
         due_date: ADate | None,
         recurring_timeline: str,
@@ -590,7 +590,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=name,
             due_date=due_date,
             recurring_timeline=recurring_timeline,
@@ -600,7 +600,7 @@ class InboxTask(LeafEntity):
     def update_link_to_big_plan(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         big_plan_ref_id: EntityId,
@@ -617,7 +617,7 @@ class InboxTask(LeafEntity):
 
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
         )
@@ -626,7 +626,7 @@ class InboxTask(LeafEntity):
     def update_link_to_time_plan(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         eisen: Eisen,
         difficulty: Difficulty,
         due_date: ADate,
@@ -638,7 +638,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             eisen=eisen,
             difficulty=difficulty,
             due_date=due_date,
@@ -648,7 +648,7 @@ class InboxTask(LeafEntity):
     def update_link_to_habit(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: InboxTaskName,
@@ -668,7 +668,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=InboxTask._build_name_for_habit(
@@ -687,7 +687,7 @@ class InboxTask(LeafEntity):
     def update_link_to_chore(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
         goal_ref_id: EntityId | None,
         name: InboxTaskName,
@@ -705,7 +705,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=chapter_ref_id,
             goal_ref_id=goal_ref_id,
             name=name,
@@ -721,7 +721,7 @@ class InboxTask(LeafEntity):
     def update_link_to_journal(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         eisen: Eisen,
         difficulty: Difficulty,
         due_date: ADate,
@@ -733,7 +733,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             eisen=eisen,
             difficulty=difficulty,
             due_date=due_date,
@@ -749,7 +749,7 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         life_plan_ref_id: EntityId,
         recurring_task_timeline: str,
         recurring_task_gen_right_now: Timestamp,
@@ -766,7 +766,7 @@ class InboxTask(LeafEntity):
             difficulty=difficulty,
             actionable_date=actionable_date,
             due_date=due_date,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             chapter_ref_id=None,
             goal_ref_id=None,
             source_entity_ref_id=life_plan_ref_id,
@@ -782,7 +782,7 @@ class InboxTask(LeafEntity):
     def update_link_to_life_plan_eval(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         eisen: Eisen,
         difficulty: Difficulty,
         due_date: ADate,
@@ -794,7 +794,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             eisen=eisen,
             difficulty=difficulty,
             due_date=due_date,
@@ -804,7 +804,7 @@ class InboxTask(LeafEntity):
     def update_link_to_metric(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         name: InboxTaskName,
         recurring_timeline: str,
         eisen: Eisen,
@@ -819,7 +819,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=self._build_name_for_collection_task(name),
             actionable_date=actionable_date,
             due_date=due_time,
@@ -832,7 +832,7 @@ class InboxTask(LeafEntity):
     def update_link_to_person_catch_up(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         name: InboxTaskName,
         recurring_timeline: str,
         eisen: Eisen,
@@ -847,7 +847,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=self._build_name_for_catch_up_task(name),
             actionable_date=actionable_date,
             due_date=due_time,
@@ -860,7 +860,7 @@ class InboxTask(LeafEntity):
     def update_link_to_person_occasion(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         name: InboxTaskName,
         occasion_kind: OccasionKind,
         occasion_person_name: ContactName,
@@ -875,7 +875,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=self._build_name_for_occasion_task(
                 name, occasion_kind, occasion_person_name
             ),
@@ -888,7 +888,7 @@ class InboxTask(LeafEntity):
     def update_link_to_slack_task(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
         message: str,
@@ -901,7 +901,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=self._build_name_for_slack_task(user, channel, generation_extra_info),
             eisen=generation_extra_info.eisen,
             difficulty=generation_extra_info.difficulty,
@@ -914,7 +914,7 @@ class InboxTask(LeafEntity):
     def update_link_to_email_task(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
         from_address: EmailAddress,
         from_name: EmailUserName,
         to_address: EmailAddress,
@@ -929,7 +929,7 @@ class InboxTask(LeafEntity):
             )
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
             name=self._build_name_for_email_task(
                 from_address,
                 from_name,
@@ -955,7 +955,7 @@ class InboxTask(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[InboxTaskName],
         status: UpdateAction[InboxTaskStatus],
-        project_ref_id: UpdateAction[EntityId],
+        aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
         goal_ref_id: UpdateAction[EntityId | None],
         big_plan_ref_id: UpdateAction[EntityId | None],
@@ -1010,15 +1010,15 @@ class InboxTask(LeafEntity):
 
             the_status = status.just_the_value
 
-        if project_ref_id.should_change:
+        if aspect_ref_id.should_change:
             if (
                 not self.source.allow_user_changes
-                and project_ref_id.just_the_value != self.project_ref_id
+                and aspect_ref_id.just_the_value != self.aspect_ref_id
             ):
-                raise CannotModifyGeneratedTaskError("project")
-            the_project = project_ref_id.just_the_value
+                raise CannotModifyGeneratedTaskError("aspect")
+            the_aspect = aspect_ref_id.just_the_value
         else:
-            the_project = self.project_ref_id
+            the_aspect = self.aspect_ref_id
 
         if chapter_ref_id.should_change:
             if (
@@ -1091,7 +1091,7 @@ class InboxTask(LeafEntity):
                 )
             ),
             status=the_status,
-            project_ref_id=the_project,
+            aspect_ref_id=the_aspect,
             chapter_ref_id=the_chapter,
             goal_ref_id=the_goal,
             source_entity_ref_id=the_source_entity_ref_id,
@@ -1105,15 +1105,15 @@ class InboxTask(LeafEntity):
         )
 
     @update_entity_action
-    def just_update_project(
+    def just_update_aspect(
         self,
         ctx: MutationContext,
-        project_ref_id: EntityId,
+        aspect_ref_id: EntityId,
     ) -> "InboxTask":
-        """Just update the project."""
+        """Just update the aspect."""
         return self._new_version(
             ctx,
-            project_ref_id=project_ref_id,
+            aspect_ref_id=aspect_ref_id,
         )
 
     @update_entity_action
@@ -1321,7 +1321,7 @@ class InboxTaskRepository(LeafEntityRepository[InboxTask], abc.ABC):
         ) = False,
         filter_ref_ids: Iterable[EntityId] | None = None,
         filter_sources: Iterable[InboxTaskSource] | None = None,
-        filter_project_ref_ids: Iterable[EntityId] | None = None,
+        filter_aspect_ref_ids: Iterable[EntityId] | None = None,
         filter_last_modified_time_start: ADate | None = None,
         filter_last_modified_time_end: ADate | None = None,
     ) -> list[InboxTask]:

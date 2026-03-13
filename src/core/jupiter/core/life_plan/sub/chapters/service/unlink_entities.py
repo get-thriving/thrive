@@ -51,7 +51,7 @@ class ChapterUnlinkEntitiesService:
                 ctx,
                 name=UpdateAction.do_nothing(),
                 status=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.do_nothing(),
+                aspect_ref_id=UpdateAction.do_nothing(),
                 chapter_ref_id=UpdateAction.change_to(None),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -78,7 +78,7 @@ class ChapterUnlinkEntitiesService:
             updated_chore = chore.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.do_nothing(),
+                aspect_ref_id=UpdateAction.do_nothing(),
                 chapter_ref_id=UpdateAction.change_to(None),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -105,7 +105,7 @@ class ChapterUnlinkEntitiesService:
             updated_habit = habit.update(
                 ctx,
                 name=UpdateAction.do_nothing(),
-                project_ref_id=UpdateAction.do_nothing(),
+                aspect_ref_id=UpdateAction.do_nothing(),
                 chapter_ref_id=UpdateAction.change_to(None),
                 goal_ref_id=UpdateAction.do_nothing(),
                 is_key=UpdateAction.do_nothing(),
@@ -136,7 +136,7 @@ class ChapterUnlinkEntitiesService:
                         status=UpdateAction.do_nothing(),
                         big_plan_ref_id=UpdateAction.do_nothing(),
                         is_key=UpdateAction.do_nothing(),
-                        project_ref_id=UpdateAction.do_nothing(),
+                        aspect_ref_id=UpdateAction.do_nothing(),
                         chapter_ref_id=UpdateAction.change_to(None),
                         goal_ref_id=UpdateAction.do_nothing(),
                         eisen=UpdateAction.do_nothing(),
@@ -150,7 +150,7 @@ class ChapterUnlinkEntitiesService:
                     ]
                     updated_inbox_task = inbox_task.update_link_to_big_plan(
                         ctx,
-                        project_ref_id=big_plan.project_ref_id,
+                        aspect_ref_id=big_plan.aspect_ref_id,
                         chapter_ref_id=None,
                         goal_ref_id=big_plan.goal_ref_id,
                         big_plan_ref_id=big_plan.ref_id,
@@ -169,7 +169,7 @@ class ChapterUnlinkEntitiesService:
                     )
                     updated_inbox_task = inbox_task.update_link_to_chore(
                         ctx,
-                        project_ref_id=chore.project_ref_id,
+                        aspect_ref_id=chore.aspect_ref_id,
                         chapter_ref_id=None,
                         goal_ref_id=chore.goal_ref_id,
                         name=schedule.full_name,
@@ -194,7 +194,7 @@ class ChapterUnlinkEntitiesService:
                     )
                     updated_inbox_task = inbox_task.update_link_to_habit(
                         ctx,
-                        project_ref_id=habit.project_ref_id,
+                        aspect_ref_id=habit.aspect_ref_id,
                         chapter_ref_id=None,
                         goal_ref_id=habit.goal_ref_id,
                         name=schedule.full_name,

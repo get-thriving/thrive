@@ -29,7 +29,7 @@ def upgrade() -> None:
                    null as archived_time,
                    ref_id as workspace_ref_id,
                    'daily' as generation_period,
-                   default_project_ref_id as cleanup_project_ref_id
+                   default_aspect_ref_id as cleanup_aspect_ref_id
                FROM workspace;
         """
     )

@@ -1,4 +1,4 @@
-"""Update the metrics collection project."""
+"""Update the metrics collection aspect."""
 
 from typing import cast
 
@@ -39,7 +39,7 @@ class WorkingMemUpdateSettingsArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     generation_period: UpdateAction[RecurringTaskPeriod]
-    cleanup_project_ref_id: UpdateAction[EntityId]
+    cleanup_aspect_ref_id: UpdateAction[EntityId]
 
 
 @mutation_use_case([WorkspaceFeature.WORKING_MEM, WorkspaceFeature.LIFE_PLAN])
@@ -67,7 +67,7 @@ class WorkingMemUpdateSettingsUseCase(
         working_mem_collection = working_mem_collection.update(
             context.domain_context,
             generation_period=args.generation_period,
-            cleanup_project_ref_id=args.cleanup_project_ref_id,
+            cleanup_aspect_ref_id=args.cleanup_aspect_ref_id,
         )
         await uow.get_for(WorkingMemCollection).save(working_mem_collection)
 
@@ -75,7 +75,7 @@ class WorkingMemUpdateSettingsUseCase(
 
         if (
             args.generation_period.should_change
-            or args.cleanup_project_ref_id.should_change
+            or args.cleanup_aspect_ref_id.should_change
         ):
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
@@ -106,7 +106,7 @@ class WorkingMemUpdateSettingsUseCase(
 
                 inbox_task = inbox_task.update_link_to_working_mem_cleanup(
                     context.domain_context,
-                    project_ref_id=working_mem_collection.cleanup_project_ref_id,
+                    aspect_ref_id=working_mem_collection.cleanup_aspect_ref_id,
                     name=schedule.full_name,
                     due_date=schedule.due_date,
                     recurring_timeline=schedule.timeline,

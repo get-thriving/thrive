@@ -1,7 +1,7 @@
 # Chapters
 
 A _Chapter_ represents a meaningful phase of your life — a period with a
-clear beginning and end that is associated with a particular [project](projects.md).
+clear beginning and end that is associated with a particular [aspect](aspects.md).
 Chapters are part of the [Life Plan](overview.md).
 
 ## Purpose
@@ -24,7 +24,7 @@ A chapter might be something like:
 | Property | Description |
 | -------- | ----------- |
 | **Name** | A short, descriptive label for this chapter. |
-| **Project** | The [project](projects.md) this chapter is associated with. |
+| **Aspect** | The [aspect](aspects.md) this chapter is associated with. |
 | **Start Date** | A [partial date](#partial-dates) indicating when the chapter begins. |
 | **End Date** | A [partial date](#partial-dates) indicating when the chapter ends. |
 

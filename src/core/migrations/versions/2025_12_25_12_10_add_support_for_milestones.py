@@ -30,10 +30,10 @@ def upgrade() -> None:
             life_plan_ref_id INTEGER NOT NULL,
             name VARCHAR NOT NULL,
             date DATE NOT NULL,
-            project_ref_id INTEGER NOT NULL,
+            aspect_ref_id INTEGER NOT NULL,
             PRIMARY KEY (ref_id),
             FOREIGN KEY (life_plan_ref_id) REFERENCES life_plan (ref_id),
-            FOREIGN KEY (project_ref_id) REFERENCES project (ref_id)
+            FOREIGN KEY (aspect_ref_id) REFERENCES aspect (ref_id)
         )
     """
     )
@@ -44,7 +44,7 @@ def upgrade() -> None:
     )
     op.execute(
         """
-        CREATE INDEX ix_milestone_project_ref_id ON milestone (project_ref_id)
+        CREATE INDEX ix_milestone_aspect_ref_id ON milestone (aspect_ref_id)
     """
     )
 

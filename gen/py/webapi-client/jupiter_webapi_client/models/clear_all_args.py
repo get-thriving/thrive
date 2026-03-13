@@ -24,7 +24,7 @@ class ClearAllArgs:
         auth_new_password (str): A new password in plain text, as received from a user.
         auth_new_password_repeat (str): A new password in plain text, as received from a user.
         workspace_name (str): The workspace name.
-        workspace_root_project_name (str): The project name.
+        workspace_root_aspect_name (str): The aspect name.
         user_feature_flags (list[UserFeature] | None | Unset):
         workspace_feature_flags (list[WorkspaceFeature] | None | Unset):
     """
@@ -35,7 +35,7 @@ class ClearAllArgs:
     auth_new_password: str
     auth_new_password_repeat: str
     workspace_name: str
-    workspace_root_project_name: str
+    workspace_root_aspect_name: str
     user_feature_flags: list[UserFeature] | None | Unset = UNSET
     workspace_feature_flags: list[WorkspaceFeature] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -53,7 +53,7 @@ class ClearAllArgs:
 
         workspace_name = self.workspace_name
 
-        workspace_root_project_name = self.workspace_root_project_name
+        workspace_root_aspect_name = self.workspace_root_aspect_name
 
         user_feature_flags: list[str] | None | Unset
         if isinstance(self.user_feature_flags, Unset):
@@ -89,7 +89,7 @@ class ClearAllArgs:
                 "auth_new_password": auth_new_password,
                 "auth_new_password_repeat": auth_new_password_repeat,
                 "workspace_name": workspace_name,
-                "workspace_root_project_name": workspace_root_project_name,
+                "workspace_root_aspect_name": workspace_root_aspect_name,
             }
         )
         if user_feature_flags is not UNSET:
@@ -114,7 +114,7 @@ class ClearAllArgs:
 
         workspace_name = d.pop("workspace_name")
 
-        workspace_root_project_name = d.pop("workspace_root_project_name")
+        workspace_root_aspect_name = d.pop("workspace_root_aspect_name")
 
         def _parse_user_feature_flags(data: object) -> list[UserFeature] | None | Unset:
             if data is None:
@@ -167,7 +167,7 @@ class ClearAllArgs:
             auth_new_password=auth_new_password,
             auth_new_password_repeat=auth_new_password_repeat,
             workspace_name=workspace_name,
-            workspace_root_project_name=workspace_root_project_name,
+            workspace_root_aspect_name=workspace_root_aspect_name,
             user_feature_flags=user_feature_flags,
             workspace_feature_flags=workspace_feature_flags,
         )

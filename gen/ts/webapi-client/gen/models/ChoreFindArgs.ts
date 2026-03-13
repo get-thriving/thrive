@@ -13,6 +13,6 @@ export type ChoreFindArgs = {
     include_inbox_tasks?: (boolean | null);
     include_notes?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
 };
 

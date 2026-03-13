@@ -163,7 +163,7 @@ def test_api_big_plan_update(api_url: str, api_key: str, create_big_plan) -> Non
             "difficulty": {"should_change": False},
             "actionable_date": {"should_change": False},
             "due_date": {"should_change": False},
-            "project_ref_id": {"should_change": False},
+            "aspect_ref_id": {"should_change": False},
             "chapter_ref_id": {"should_change": False},
             "goal_ref_id": {"should_change": False},
         },

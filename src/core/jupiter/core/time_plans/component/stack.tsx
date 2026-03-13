@@ -2,7 +2,7 @@ import type {
   ChapterSummary,
   EntityId,
   GoalSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
   TimePlan,
 } from "@jupiter/webapi-client";
@@ -18,10 +18,10 @@ interface TimePlanStackProps {
   topLevelInfo: TopLevelInfo;
   timePlans: Array<TimePlan>;
   timePlanTagsByTimePlanRefId?: Map<string, Array<Tag>>;
-  timePlanProjectRefIds?: Map<string, Array<EntityId>>;
+  timePlanAspectRefIds?: Map<string, Array<EntityId>>;
   timePlanGoalRefIds?: Map<string, Array<EntityId>>;
   timePlanChapterRefIds?: Map<string, Array<EntityId>>;
-  allProjectsByRefId?: Map<string, ProjectSummary>;
+  allAspectsByRefId?: Map<string, AspectSummary>;
   allGoalsByRefId?: Map<string, GoalSummary>;
   allChaptersByRefId?: Map<string, ChapterSummary>;
   selectedPredicate?: (timePlan: TimePlan) => boolean;
@@ -44,11 +44,11 @@ export function TimePlanStack(props: TimePlanStackProps) {
           topLevelInfo={props.topLevelInfo}
           timePlan={timePlan}
           tags={props.timePlanTagsByTimePlanRefId?.get(timePlan.ref_id) ?? []}
-          projects={
-            props.timePlanProjectRefIds
+          aspects={
+            props.timePlanAspectRefIds
               ?.get(timePlan.ref_id)
-              ?.map((refId) => props.allProjectsByRefId?.get(refId))
-              .filter((project) => project !== undefined) ?? []
+              ?.map((refId) => props.allAspectsByRefId?.get(refId))
+              .filter((aspect) => aspect !== undefined) ?? []
           }
           goals={
             props.timePlanGoalRefIds

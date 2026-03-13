@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.aspect import Aspect
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.chore import Chore
@@ -22,7 +23,6 @@ if TYPE_CHECKING:
     from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
-    from ..models.project import Project
     from ..models.slack_task import SlackTask
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -41,7 +41,7 @@ class InboxTaskLoadResult:
         inbox_task (InboxTask): An inbox task.
         tags (list[Tag]):
         contacts (list[Contact]):
-        project (Project): The project.
+        aspect (Aspect): The aspect.
         time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
@@ -62,7 +62,7 @@ class InboxTaskLoadResult:
     inbox_task: InboxTask
     tags: list[Tag]
     contacts: list[Contact]
-    project: Project
+    aspect: Aspect
     time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
@@ -108,7 +108,7 @@ class InboxTaskLoadResult:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
-        project = self.project.to_dict()
+        aspect = self.aspect.to_dict()
 
         time_event_blocks = []
         for time_event_blocks_item_data in self.time_event_blocks:
@@ -234,7 +234,7 @@ class InboxTaskLoadResult:
                 "inbox_task": inbox_task,
                 "tags": tags,
                 "contacts": contacts,
-                "project": project,
+                "aspect": aspect,
                 "time_event_blocks": time_event_blocks,
             }
         )
@@ -271,6 +271,7 @@ class InboxTaskLoadResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aspect import Aspect
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
@@ -284,7 +285,6 @@ class InboxTaskLoadResult:
         from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
-        from ..models.project import Project
         from ..models.slack_task import SlackTask
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -308,7 +308,7 @@ class InboxTaskLoadResult:
 
             contacts.append(contacts_item)
 
-        project = Project.from_dict(d.pop("project"))
+        aspect = Aspect.from_dict(d.pop("aspect"))
 
         time_event_blocks = []
         _time_event_blocks = d.pop("time_event_blocks")
@@ -559,7 +559,7 @@ class InboxTaskLoadResult:
             inbox_task=inbox_task,
             tags=tags,
             contacts=contacts,
-            project=project,
+            aspect=aspect,
             time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,

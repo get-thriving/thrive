@@ -5,7 +5,7 @@ import type {
   InboxTask,
   LifePlan,
   MilestoneSummary,
-  ProjectSummary,
+  AspectSummary,
   Tag,
   Workspace,
 } from "@jupiter/webapi-client";
@@ -76,7 +76,7 @@ const ParamsSchema = z.object({
 const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(BigPlanStatus),
-  project: z.string().optional(),
+  aspect: z.string().optional(),
   chapter: z.string().optional(),
   goal: z.string().optional(),
   isKey: CheckboxAsString,
@@ -144,7 +144,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     include_workspace: true,
     include_life_plan: true,
-    include_projects: true,
+    include_aspects: true,
     include_chapters: true,
     include_goals: true,
     include_milestones: true,
@@ -179,7 +179,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       bigPlan: result.big_plan,
       stats: result.stats,
-      project: result.project,
+      aspect: result.aspect,
       chapter: result.chapter,
       goal: result.goal,
       milestones: result.milestones,
@@ -195,7 +195,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timeEventBlocks: result.time_event_blocks,
       timePlanEntries: timePlanEntries,
       lifePlan: summaryResponse.life_plan as LifePlan,
-      allProjects: summaryResponse.projects as Array<ProjectSummary>,
+      allAspects: summaryResponse.aspects as Array<AspectSummary>,
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
@@ -255,12 +255,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          project_ref_id:
-            form.project !== undefined
-              ? { should_change: true, value: form.project }
+          aspect_ref_id:
+            form.aspect !== undefined
+              ? { should_change: true, value: form.aspect }
               : { should_change: false },
           chapter_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -270,7 +270,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
                 }
               : { should_change: false },
           goal_ref_id:
-            form.project !== undefined
+            form.aspect !== undefined
               ? {
                   should_change: true,
                   value:
@@ -384,7 +384,7 @@ export default function BigPlan() {
 
   const bigPlanInfo = {
     big_plan: loaderData.bigPlan,
-    project: loaderData.project,
+    aspect: loaderData.aspect,
     chapter: loaderData.chapter,
     goal: loaderData.goal,
     milestones: loaderData.milestones,
@@ -473,7 +473,7 @@ export default function BigPlan() {
           showRefreshStats
           topLevelInfo={topLevelInfo}
           lifePlan={loaderData.lifePlan}
-          allProjects={loaderData.allProjects}
+          allAspects={loaderData.allAspects}
           allChapters={loaderData.allChapters}
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}

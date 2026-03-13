@@ -16,6 +16,6 @@ export type BigPlanFindArgs = {
     include_stats?: (boolean | null);
     filter_just_workable?: (boolean | null);
     filter_ref_ids?: (Array<EntityId> | null);
-    filter_project_ref_ids?: (Array<EntityId> | null);
+    filter_aspect_ref_ids?: (Array<EntityId> | null);
 };
 

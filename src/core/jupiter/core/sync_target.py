@@ -17,7 +17,7 @@ class SyncTarget(EnumValue):
     JOURNALS = "journals"
     DOCS = "docs"
     VACATIONS = "vacations"
-    PROJECTS = "projects"
+    ASPECTS = "aspects"
     CHAPTERS = "chapters"
     GOALS = "goals"
     MILESTONES = "milestones"

@@ -1,4 +1,4 @@
-"""The command for finding projects."""
+"""The command for finding aspects."""
 
 from collections import defaultdict
 
@@ -15,7 +15,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Project
+from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -31,7 +31,7 @@ from jupiter.framework.use_case_io import (
 
 
 @use_case_args
-class ProjectFindArgs(UseCaseArgsBase):
+class AspectFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool | None
@@ -41,33 +41,33 @@ class ProjectFindArgs(UseCaseArgsBase):
 
 
 @use_case_result
-class ProjectFindResultEntry(UseCaseResultBase):
-    """A single project result."""
+class AspectFindResultEntry(UseCaseResultBase):
+    """A single aspect result."""
 
-    project: Project
+    aspect: Aspect
     tags: list[Tag]
     note: Note | None
 
 
 @use_case_result
-class ProjectFindResult(UseCaseResultBase):
+class AspectFindResult(UseCaseResultBase):
     """PersonFindResult object."""
 
-    entries: list[ProjectFindResultEntry]
+    entries: list[AspectFindResultEntry]
 
 
 @readonly_use_case(WorkspaceFeature.LIFE_PLAN)
-class ProjectFindUseCase(
-    JupiterTransactionalLoggedInReadOnlyUseCase[ProjectFindArgs, ProjectFindResult]
+class AspectFindUseCase(
+    JupiterTransactionalLoggedInReadOnlyUseCase[AspectFindArgs, AspectFindResult]
 ):
-    """The command for finding projects."""
+    """The command for finding aspects."""
 
     async def _perform_transactional_read(
         self,
         uow: DomainUnitOfWork,
         context: JupiterLoggedInReadonlyContext,
-        args: ProjectFindArgs,
-    ) -> ProjectFindResult:
+        args: AspectFindArgs,
+    ) -> AspectFindResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
         include_notes = args.include_notes or False
@@ -77,60 +77,58 @@ class ProjectFindUseCase(
         life_plan = await uow.get_for(LifePlan).load_by_parent(
             workspace.ref_id,
         )
-        projects = await uow.get_for(Project).find_all_generic(
+        aspects = await uow.get_for(Aspect).find_all_generic(
             parent_ref_id=life_plan.ref_id,
             allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
         )
 
-        notes_by_project_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
+        notes_by_aspect_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
                 workspace.ref_id,
             )
             notes = await uow.get_for(Note).find_all_generic(
                 parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.PROJECT,
+                namespace=NoteNamespace.ASPECT,
                 allow_archived=True,
-                source_entity_ref_id=[p.ref_id for p in projects],
+                source_entity_ref_id=[p.ref_id for p in aspects],
             )
             for note in notes:
-                notes_by_project_ref_id[note.source_entity_ref_id] = note
+                notes_by_aspect_ref_id[note.source_entity_ref_id] = note
 
         if include_tags:
             tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
-                namespace=TagNamespace.PROJECT,
+                namespace=TagNamespace.ASPECT,
             )
             all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
             tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.PROJECT,
-                source_entity_ref_id=[p.ref_id for p in projects],
+                namespace=TagNamespace.ASPECT,
+                source_entity_ref_id=[p.ref_id for p in aspects],
             )
-            tag_links_by_project_ref_id = {t.source_entity_ref_id: t for t in tag_links}
+            tag_links_by_aspect_ref_id = {t.source_entity_ref_id: t for t in tag_links}
         else:
             all_tags_by_ref_id = {}
-            tag_links_by_project_ref_id = {}
+            tag_links_by_aspect_ref_id = {}
 
-        return ProjectFindResult(
+        return AspectFindResult(
             entries=[
-                ProjectFindResultEntry(
-                    project=project,
+                AspectFindResultEntry(
+                    aspect=aspect,
                     tags=(
                         [
                             all_tags_by_ref_id[rid]
-                            for rid in tag_links_by_project_ref_id[
-                                project.ref_id
-                            ].ref_ids
+                            for rid in tag_links_by_aspect_ref_id[aspect.ref_id].ref_ids
                             if rid in all_tags_by_ref_id
                         ]
-                        if project.ref_id in tag_links_by_project_ref_id
+                        if aspect.ref_id in tag_links_by_aspect_ref_id
                         else []
                     ),
-                    note=notes_by_project_ref_id.get(project.ref_id, None),
+                    note=notes_by_aspect_ref_id.get(aspect.ref_id, None),
                 )
-                for project in projects
+                for aspect in aspects
             ]
         )
