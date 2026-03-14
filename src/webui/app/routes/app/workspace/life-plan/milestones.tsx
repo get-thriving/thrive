@@ -122,6 +122,7 @@ export default function Milestones() {
                   text: "New Milestone",
                   link: `/app/workspace/life-plan/milestones/new`,
                   icon: <AddIcon />,
+                  id: "new-milestone",
                 }),
                 FilterManyOptions(
                   "Tags",

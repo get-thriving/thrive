@@ -53,7 +53,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
+export const shouldRevalidate: ShouldRevalidateFunction = () => {
+  return true;
+};
 
 export default function Visions() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
@@ -85,6 +87,7 @@ export default function Visions() {
               inputsEnabled={inputsEnabled}
               actions={[
                 NavSingle({
+                  id: "new-vision",
                   text: "New Vision",
                   link: `/app/workspace/life-plan/visions/new-draft`,
                   icon: <AddIcon />,

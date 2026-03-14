@@ -143,6 +143,7 @@ export default function Chapters() {
                   text: "New Chapter",
                   link: `/app/workspace/life-plan/chapters/new`,
                   icon: <AddIcon />,
+                  id: "new-chapter",
                 }),
                 FilterManyOptions(
                   "Tags",

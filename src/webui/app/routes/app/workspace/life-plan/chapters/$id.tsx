@@ -231,6 +231,7 @@ export default function Chapter() {
               label="name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.chapter.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />

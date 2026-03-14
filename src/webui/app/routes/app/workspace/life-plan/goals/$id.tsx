@@ -229,6 +229,7 @@ export default function GoalView() {
               label="name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.goal.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />

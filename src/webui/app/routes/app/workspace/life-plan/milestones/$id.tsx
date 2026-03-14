@@ -215,6 +215,7 @@ export default function MilestoneView() {
               label="name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.milestone.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />

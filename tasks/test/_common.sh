@@ -11,6 +11,11 @@ run_tests() {
     local docs_url=$4
     local headed=$5
     shift 5
+
+    local retries=3
+    if [[ -n "${TEST_RETRIES}" ]]; then
+        retries="${TEST_RETRIES}"
+    fi
     
     log info "Running tests with Web API $webapi_url and API $api_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
 
@@ -21,7 +26,7 @@ run_tests() {
     # shellcheck disable=SC2068
     pytest itests \
         -o log_cli=true \
-        --retries=3 \
+        --retries=${retries} \
         ${headed:+--headed} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \

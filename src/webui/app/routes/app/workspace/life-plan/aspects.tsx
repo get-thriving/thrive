@@ -118,6 +118,7 @@ export default function Aspects() {
                   text: "New Aspect",
                   link: `/app/workspace/life-plan/aspects/new`,
                   icon: <AddIcon />,
+                  id: "new-aspect",
                 }),
                 FilterManyOptions(
                   "Tags",

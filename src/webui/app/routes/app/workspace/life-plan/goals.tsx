@@ -122,6 +122,7 @@ export default function Goals() {
                   text: "New Goal",
                   link: `/app/workspace/life-plan/goals/new`,
                   icon: <AddIcon />,
+                  id: "new-goal",
                 }),
                 FilterManyOptions(
                   "Tags",

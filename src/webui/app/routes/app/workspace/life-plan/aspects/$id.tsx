@@ -224,6 +224,7 @@ export default function Aspect() {
               label="name"
               name="name"
               readOnly={!inputsEnabled}
+              disabled={!inputsEnabled}
               defaultValue={loaderData.aspect.name}
             />
             <FieldError actionResult={actionData} fieldName="/name" />

@@ -38,6 +38,7 @@ import type { TopLevelInfo } from "#/core/infra/top-level-context";
 
 interface NavSingleDesc {
   kind: "nav-single";
+  id?: string;
   text?: string;
   icon?: JSX.Element;
   link: string;
@@ -370,6 +371,7 @@ function ActionView(props: ActionViewProps) {
     case "nav-single":
       return (
         <NavSingleView
+          id={props.action.id}
           topLevelInfo={props.topLevelInfo}
           inputsEnabled={props.inputsEnabled}
           isInDialog={props.isInDialog}
@@ -466,6 +468,7 @@ function NavSingleView(props: NavSingleViewProps) {
 
   return (
     <Button
+      id={props.action.id}
       variant="outlined"
       component={Link}
       disabled={!props.inputsEnabled || props.action.disabled}

@@ -8,6 +8,7 @@ import type {
   HabitFindResultEntry,
   AspectSummary,
 } from "@jupiter/webapi-client";
+import { WorkspaceFeature } from "@jupiter/webapi-client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -18,6 +19,7 @@ import { z } from "zod";
 import { parseQuery } from "zodix";
 import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { BigPlanStatusTag } from "@jupiter/core/big_plans/component/status-tag";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
 import { PeriodTag } from "@jupiter/core/common/component/period-tag";
@@ -57,35 +59,47 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
   const summaryResponse = await apiClient.application.getSummaries({
+    include_workspace: true,
     include_aspects: true,
     include_goals: true,
   });
 
-  const bigPlansResponse = await apiClient.bigPlans.bigPlanFind({
-    allow_archived: true,
-    include_tags: false,
-    include_life_plan: true,
-    include_milestones: false,
-    include_stats: false,
-    include_inbox_tasks: false,
-    include_notes: false,
-  });
+  const workspace = summaryResponse.workspace;
 
-  const habitsResponse = await apiClient.habits.habitFind({
-    allow_archived: true,
-    include_tags: false,
-    include_notes: false,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-  });
+  const bigPlansResponse =
+    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+      ? await apiClient.bigPlans.bigPlanFind({
+          allow_archived: true,
+          include_tags: false,
+          include_life_plan: true,
+          include_milestones: false,
+          include_stats: false,
+          include_inbox_tasks: false,
+          include_notes: false,
+        })
+      : null;
 
-  const choresResponse = await apiClient.chores.choreFind({
-    allow_archived: true,
-    include_tags: false,
-    include_life_plan: true,
-    include_inbox_tasks: false,
-    include_notes: false,
-  });
+  const habitsResponse =
+    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.HABITS)
+      ? await apiClient.habits.habitFind({
+          allow_archived: true,
+          include_tags: false,
+          include_notes: false,
+          include_life_plan: true,
+          include_inbox_tasks: false,
+        })
+      : null;
+
+  const choresResponse =
+    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)
+      ? await apiClient.chores.choreFind({
+          allow_archived: true,
+          include_tags: false,
+          include_life_plan: true,
+          include_inbox_tasks: false,
+          include_notes: false,
+        })
+      : null;
 
   return json({
     query: {
@@ -93,9 +107,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
     aspects: (summaryResponse.aspects ?? []) as AspectSummary[],
     goals: (summaryResponse.goals ?? []) as GoalSummary[],
-    bigPlanEntries: bigPlansResponse.entries as BigPlanFindResultEntry[],
-    habitEntries: habitsResponse.entries as HabitFindResultEntry[],
-    choreEntries: choresResponse.entries as ChoreFindResultEntry[],
+    bigPlanEntries: (bigPlansResponse?.entries ?? []) as BigPlanFindResultEntry[],
+    habitEntries: (habitsResponse?.entries ?? []) as HabitFindResultEntry[],
+    choreEntries: (choresResponse?.entries ?? []) as ChoreFindResultEntry[],
   });
 }
 
