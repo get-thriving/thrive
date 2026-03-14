@@ -7,20 +7,17 @@ source tasks/_common.sh
 run_tests() {
     local webapi_url=$1
     local api_url=$2
-    local webui_url=$3
-    local docs_url=$4
-    local headed=$5
-    shift 5
+    local mcp_url=$3
+    local webui_url=$4
+    local docs_url=$5
+    local headed=$6
+    shift 6
 
-    local retries=3
-    if [[ -n "${TEST_RETRIES}" ]]; then
-        retries="${TEST_RETRIES}"
-    fi
-    
-    log info "Running tests with Web API $webapi_url and API $api_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
+    log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
 
-    export WEBAPI_URL=$webapi_url 
+    export WEBAPI_URL=$webapi_url
     export API_URL=$api_url
+    export MCP_URL=$mcp_url
     export WEBUI_URL=$webui_url
     export DOCS_URL=$docs_url
     # shellcheck disable=SC2068

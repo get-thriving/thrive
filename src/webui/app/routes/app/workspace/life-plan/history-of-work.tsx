@@ -67,7 +67,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const workspace = summaryResponse.workspace;
 
   const bigPlansResponse =
-    workspace && isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
+    workspace &&
+    isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.BIG_PLANS)
       ? await apiClient.bigPlans.bigPlanFind({
           allow_archived: true,
           include_tags: false,
@@ -107,7 +108,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     },
     aspects: (summaryResponse.aspects ?? []) as AspectSummary[],
     goals: (summaryResponse.goals ?? []) as GoalSummary[],
-    bigPlanEntries: (bigPlansResponse?.entries ?? []) as BigPlanFindResultEntry[],
+    bigPlanEntries: (bigPlansResponse?.entries ??
+      []) as BigPlanFindResultEntry[],
     habitEntries: (habitsResponse?.entries ?? []) as HabitFindResultEntry[],
     choreEntries: (choresResponse?.entries ?? []) as ChoreFindResultEntry[],
   });

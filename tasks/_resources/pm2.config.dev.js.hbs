@@ -12,7 +12,7 @@ module.exports = {
         SQLITE_DB_URL: "{{webapiSqliteDbUrl}}",
         PORT: "{{webapiPort}}"
       }
-    }, 
+    },
     {
         name: "{{instance}}:api",
         cwd: "src/api",
@@ -26,7 +26,21 @@ module.exports = {
             WEBAPI_SERVER_HOST: "0.0.0.0",
             WEBAPI_SERVER_PORT: "{{webapiPort}}",
         }
-    }, 
+    },
+    {
+        name: "{{instance}}:mcp",
+        cwd: "src/mcp",
+        interpreter: "none",
+        script: "python",
+        args: "-m watchfiles jupiter.mcp.jupiter.sync_main . ../alib/py/framework",
+        log_file: "{{mcpLogFile}}",
+        env: {
+            INSTANCE: "{{instance}}",
+            PORT: "{{mcpPort}}",
+            WEBAPI_SERVER_HOST: "0.0.0.0",
+            WEBAPI_SERVER_PORT: "{{webapiPort}}",
+        }
+    },
     {
         name: "{{instance}}:webui",
         cwd: "src/webui",
@@ -41,11 +55,12 @@ module.exports = {
             WEBAPI_PROGRESS_REPORTER_URL: "ws://0.0.0.0:{{webapiPort}}/progress-reporter",
             WEBAPI_URL: "{{webapiServerUrl}}",
             API_URL: "{{apiServerUrl}}",
+            MCP_URL: "{{mcpServerUrl}}",
             DOCS_URL: "{{docsServerUrl}}",
             PORT: "{{webuiPort}}",
             NODE_OPTIONS: "--trace-warnings"
         }
-    }, 
+    },
     {
         name: "{{instance}}:docs",
         cwd: "src/docs",

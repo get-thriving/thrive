@@ -13,6 +13,8 @@ export RUN_ROOT=.build-cache/run
 export STANDARD_INSTANCE=dev
 export STANDARD_UNIVERSE=dev
 export STANDARD_WEBAPI_PORT=8004
+export STANDARD_API_PORT=8020
+export STANDARD_MCP_PORT=8030
 export STANDARD_WEBUI_PORT=10020
 export STANDARD_DOCS_PORT=8000
 
@@ -57,27 +59,28 @@ run_jupiter_webapp() {
     local API_PORT=$4
     local WEBUI_PORT=$5
     local DOCS_PORT=$6
-    local should_wait=$7
-    local should_monit=$8
-    local in_ci=$9
+    local MCP_PORT=$7
+    local should_wait=$8
+    local should_monit=$9
     shift 9
-    local source=$1
-    local version=$2
-    local mode=$3
-    local clear_first=$4
+    local in_ci=$1
+    local source=$2
+    local version=$3
+    local mode=$4
+    local clear_first=$5
 
     mkdir -p "$RUN_ROOT/$INSTANCE"
 
-    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, source: $source, version: $version, mode: $mode"
+    log info "Running Jupiter WebApi in universe: $UNIVERSE, instance: $INSTANCE, webapi port: $WEBAPI_PORT, api port: $API_PORT, webui port: $WEBUI_PORT, docs port: $DOCS_PORT, mcp port: $MCP_PORT, source: $source, version: $version, mode: $mode"
 
     if [[ "$UNIVERSE" == "dev" ]]; then
         if [[ "$mode" == "pm2" ]]; then
-            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_pm2 "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         else
-            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+            _run_dev_jupiter_webapp_with_docker "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
         fi
     elif [[ "$UNIVERSE" == "thrive-sh-test" ]]; then
-        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
+        _run_thrive_sh_test_webapp "$INSTANCE" "$WEBAPI_PORT" "$API_PORT" "$WEBUI_PORT" "$DOCS_PORT" "$MCP_PORT" "$should_wait" "$should_monit" "$in_ci" "$source" "$version" "$clear_first"
     else
         log error "Unknown universe: $UNIVERSE"
         exit 1
@@ -102,10 +105,13 @@ _run_dev_jupiter_webapp_with_pm2() {
     local docsPublicName=$PUBLIC_NAME
     local docsAuthor=$AUTHOR
     local docsCopyright=$COPYRIGHT
-    local should_wait=$6
-    local should_monit=$7
-    local in_ci=$8
-    shift 8
+    local mcpPort=$6
+    local mcpServerUrl=http://localhost:${mcpPort}
+    local mcpLogFile=../../$RUN_ROOT/$instance/mcp.log
+    local should_wait=$7
+    local should_monit=$8
+    local in_ci=$9
+    shift 9
     local source=$1
     local version=$2
     local clear_first=$3
@@ -124,10 +130,10 @@ _run_dev_jupiter_webapp_with_pm2() {
     
     # here!
     if [[ "$in_ci" == "dev" ]]; then
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.dev.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     else
-        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright")
+        data=$(jo instance="$instance" webapiLogFile="$webapiLogFile" webapiSqliteDbUrl="$webapiSqliteDbUrl" webapiPort="$webapiPort" webapiServerUrl="$webapiServerUrl" apiLogFile="$apiLogFile" apiPort="$apiPort" apiServerUrl="$apiServerUrl" webuiLogFile="$webuiLogFile" webuiPort="$webuiPort" webuiServerUrl="$webuiServerUrl" docsLogFile="$docsLogFile" docsPort="$docsPort" docsServerUrl="$docsServerUrl" docsPublicName="$docsPublicName" docsAuthor="$docsAuthor" docsCopyright="$docsCopyright" mcpLogFile="$mcpLogFile" mcpPort="$mcpPort" mcpServerUrl="$mcpServerUrl")
         node tasks/_resources/render-hbs.mjs tasks/_resources/pm2.config.ci.js.hbs "$data" > "$RUN_ROOT/$INSTANCE/pm2.config.js"
     fi
 
@@ -140,17 +146,19 @@ _run_dev_jupiter_webapp_with_pm2() {
     save_jupiter_url "$instance" "api" "$apiServerUrl"
     save_jupiter_url "$instance" "webui" "$webuiServerUrl"
     save_jupiter_url "$instance" "docs" "$docsServerUrl"
+    save_jupiter_url "$instance" "mcp" "$mcpServerUrl"
 
     if [[ "$should_wait" == "wait:all" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
         wait_for_service_to_start api "$apiServerUrl"
         wait_for_service_to_start webui "$webuiServerUrl"
         wait_for_service_to_start docs "$docsServerUrl"
+        wait_for_service_to_start mcp "$mcpServerUrl"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
         wait_for_service_to_start webapi "$webapiServerUrl"
-    fi 
+    fi
 
     if [[ ${should_wait} == "wait:api" ]]; then
         wait_for_service_to_start api "$apiServerUrl"
@@ -162,6 +170,10 @@ _run_dev_jupiter_webapp_with_pm2() {
 
     if [[ ${should_wait} == "wait:docs" ]]; then
         wait_for_service_to_start docs "$docsServerUrl"
+    fi
+
+    if [[ ${should_wait} == "wait:mcp" ]]; then
+        wait_for_service_to_start mcp "$mcpServerUrl"
     fi
 
     if [[ ${should_monit} == "monit" ]]; then
@@ -186,10 +198,12 @@ _run_dev_jupiter_webapp_with_docker() {
     export PUBLIC_NAME
     export DOCS_AUTHOR=$AUTHOR
     export DOCS_COPYRIGHT=$COPYRIGHT
-    local should_wait=$6
-    local should_monit=$7
-    local in_ci=$8
-    shift 8
+    export MCP_PORT=$6
+    export MCP_SERVER_URL=http://localhost:${MCP_PORT}
+    local should_wait=$7
+    local should_monit=$8
+    local in_ci=$9
+    shift 9
     local source=$1
     local version=$2
     local clear_first=$3
@@ -207,6 +221,8 @@ _run_dev_jupiter_webapp_with_docker() {
     DOCKER_IMAGE_WEBUI=$(get_jupiter_image "webui" "$source" "$version" arm64)
     export DOCKER_IMAGE_DOCS
     DOCKER_IMAGE_DOCS=$(get_jupiter_image "docs" "$source" "$version" arm64)
+    export DOCKER_IMAGE_MCP
+    DOCKER_IMAGE_MCP=$(get_jupiter_image "mcp" "$source" "$version" arm64)
 
     FULLCHAIN_PEM=$(pwd)/$RUN_ROOT/$instance/fullchain.pem
     export FULLCHAIN_PEM
@@ -235,6 +251,7 @@ _run_dev_jupiter_webapp_with_docker() {
     save_jupiter_url "$instance" "api" "$API_SERVER_URL"
     save_jupiter_url "$instance" "webui" "$WEBUI_SERVER_URL"
     save_jupiter_url "$instance" "docs" "$DOCS_SERVER_URL"
+    save_jupiter_url "$instance" "mcp" "$MCP_SERVER_URL"
 
     log info "Starting Jupiter with docker compose: infra/self-hosted/compose.yaml"
 
@@ -245,11 +262,12 @@ _run_dev_jupiter_webapp_with_docker() {
         wait_for_service_to_start api "$API_SERVER_URL"
         wait_for_service_to_start webui "$WEBUI_SERVER_URL"
         wait_for_service_to_start docs "$DOCS_SERVER_URL"
+        wait_for_service_to_start mcp "$MCP_SERVER_URL"
     fi
 
     if [[ ${should_wait} == "wait:webapi" ]]; then
         wait_for_service_to_start webapi "$WEBAPI_SERVER_URL"
-    fi 
+    fi
 
     if [[ ${should_wait} == "wait:api" ]]; then
         wait_for_service_to_start api "$API_SERVER_URL"
@@ -263,6 +281,10 @@ _run_dev_jupiter_webapp_with_docker() {
         wait_for_service_to_start docs "$DOCS_SERVER_URL"
     fi
 
+    if [[ ${should_wait} == "wait:mcp" ]]; then
+        wait_for_service_to_start mcp "$MCP_SERVER_URL"
+    fi
+
     if [[ ${should_monit} == "monit" ]]; then
         docker compose -f infra/self-hosted/compose.yaml logs -f
     fi
@@ -270,10 +292,10 @@ _run_dev_jupiter_webapp_with_docker() {
 
 _run_thrive_sh_test_webapp() {
     local instance=$1
-    local should_wait=$6
-    local should_monit=$7
-    local in_ci=$8
-    shift 8
+    local should_wait=$7
+    local should_monit=$8
+    local in_ci=$9
+    shift 9
     local source=$1
     local version=$2
     local clear_first=$3
@@ -565,6 +587,177 @@ get_webui_url_for_universe() {
             return 0
         elif [[ "$environment" == "staging" ]]; then
             get_thrive_staging_webui_url "$instance"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
+}
+
+get_thrive_sh_test_webapi_url() {
+    local instance=$1
+    echo "http://${instance}${THRIVE_SH_TEST_DOMAIN}:${WEBAPI_TESTING_PORT}"
+}
+
+get_thrive_production_webapi_url() {
+    echo "$HOSTED_GLOBAL_WEBAPI_URL"
+}
+
+get_thrive_staging_webapi_url() {
+    local instance=$1
+    echo "https://jupiter-webapi-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_webapi_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "webapi"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_webapi_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_webapi_url
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_webapi_url "$instance"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
+}
+
+get_thrive_sh_test_api_url() {
+    local instance=$1
+    echo "https://${instance}${THRIVE_SH_TEST_DOMAIN}/api"
+}
+
+get_thrive_production_api_url() {
+    echo "$HOSTED_GLOBAL_API_URL"
+}
+
+get_thrive_staging_api_url() {
+    local instance=$1
+    echo "https://jupiter-api-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_api_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "api"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_api_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_api_url
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_api_url "$instance"
+            return 0
+        else
+            log error "Environment $environment is not supported for thrive universe"
+            exit 1
+        fi
+    elif [[ "$universe" =~ ^https?:// ]]; then
+        if [[ "$environment" != "production" ]]; then
+            log error "Environment $environment is not supported for custom universe"
+            exit 1
+        fi
+        echo "$universe"
+        return 0
+    else
+        log info "Unknown universe: $universe"
+        exit 1
+    fi
+}
+
+get_thrive_sh_test_mcp_url() {
+    local instance=$1
+    echo "https://${instance}${THRIVE_SH_TEST_DOMAIN}/mcp"
+}
+
+get_thrive_production_mcp_url() {
+    echo "$HOSTED_GLOBAL_MCP_URL"
+}
+
+get_thrive_staging_mcp_url() {
+    local instance=$1
+    echo "https://jupiter-mcp-${instance}.${GLOBAL_HOSTED_INFRA_ROOT}"
+}
+
+get_mcp_url_for_universe() {
+    local universe=$1
+    local environment=$2
+    local instance=$3
+
+    if [[ "$universe" == "dev" ]]; then
+        if [[ "$environment" != "local" ]]; then
+            log error "Environment $environment is not supported for dev universe"
+            exit 1
+        fi
+        get_dev_service_url "$instance" "mcp"
+        return 0
+    elif [[ "$universe" == "thrive-sh-test" ]]; then
+        if [[ "$environment" != "staging" ]]; then
+            log error "Environment $environment is not supported for thrive-sh-test universe"
+            exit 1
+        fi
+        get_thrive_sh_test_mcp_url "$instance"
+        return 0
+    elif [[ "$universe" == "thrive" ]]; then
+        if [[ "$environment" == "production" ]]; then
+            get_thrive_production_mcp_url
+            return 0
+        elif [[ "$environment" == "staging" ]]; then
+            get_thrive_staging_mcp_url "$instance"
             return 0
         else
             log error "Environment $environment is not supported for thrive universe"

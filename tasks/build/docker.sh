@@ -48,6 +48,16 @@ docker buildx build \
     --load \
     .
 
+log info "Building Docker images for mcp (platform: ${usage_platform})"
+
+docker buildx build \
+    --platform "linux/${usage_platform}" \
+    --tag "jupiter/mcp:latest-${usage_platform}" \
+    --tag "jupiter/mcp:${VERSION}-${usage_platform}" \
+    --file src/mcp/Dockerfile \
+    --load \
+    .
+
 log info "Building Docker images for webui (platform: ${usage_platform})"
 
 docker buildx build \

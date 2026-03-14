@@ -2,8 +2,10 @@
 
 from typing import Callable, cast
 
-from jupiter_webapi_client.models.vision_status import VisionStatus
 import pytest
+from jupiter_webapi_client.api.application.get_summaries import (
+    sync_detailed as get_summaries_sync,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
@@ -12,9 +14,6 @@ from jupiter_webapi_client.api.chores.chore_create import (
 )
 from jupiter_webapi_client.api.habits.habit_create import (
     sync_detailed as habit_create_sync,
-)
-from jupiter_webapi_client.api.application.get_summaries import (
-    sync_detailed as get_summaries_sync,
 )
 from jupiter_webapi_client.api.life_plan.aspect_create import (
     sync_detailed as aspect_create_sync,
@@ -28,11 +27,11 @@ from jupiter_webapi_client.api.life_plan.goal_create import (
 from jupiter_webapi_client.api.life_plan.milestone_create import (
     sync_detailed as milestone_create_sync,
 )
-from jupiter_webapi_client.api.life_plan.vision_load import (
-    sync_detailed as vision_load_sync,
-)
 from jupiter_webapi_client.api.life_plan.vision_create_draft import (
     sync_detailed as vision_create_draft_sync,
+)
+from jupiter_webapi_client.api.life_plan.vision_load import (
+    sync_detailed as vision_load_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -68,6 +67,7 @@ from jupiter_webapi_client.models.vision_create_draft_result import (
 )
 from jupiter_webapi_client.models.vision_load_args import VisionLoadArgs
 from jupiter_webapi_client.models.vision_load_result import VisionLoadResult
+from jupiter_webapi_client.models.vision_status import VisionStatus
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -288,7 +288,9 @@ def test_webui_life_plan_visions_mark_active(page: Page, create_vision_draft) ->
     expect(page.locator(f"#vision-{vision.ref_id}")).to_contain_text("Active")
 
 
-def test_webui_life_plan_visions_create_new_draft(page: Page, create_vision_draft) -> None:
+def test_webui_life_plan_visions_create_new_draft(
+    page: Page, create_vision_draft
+) -> None:
     old_vision = create_vision_draft()
     page.goto(f"/app/workspace/life-plan/visions/{old_vision.ref_id}")
     page.wait_for_selector("#leaf-panel")
@@ -336,13 +338,11 @@ def test_webui_life_plan_visions_activate_new_archives_old(
 
 
 def test_webui_life_plan_aspects_view_all(page: Page, create_aspect) -> None:
-    aspect = create_aspect("Aspect in Aspects View")
+    create_aspect("Aspect in Aspects View")
     page.goto("/app/workspace/life-plan/aspects")
 
     expect(page.locator("#leaf-panel")).to_contain_text("Root Aspect")
-    expect(page.locator(f"#leaf-panel")).to_contain_text(
-        "Aspect in Aspects View"
-    )
+    expect(page.locator("#leaf-panel")).to_contain_text("Aspect in Aspects View")
 
 
 def test_webui_life_plan_aspects_create(
@@ -357,9 +357,7 @@ def test_webui_life_plan_aspects_create(
     expect(page.locator('input[name="name"]')).to_have_value("Aspect Lifecycle Created")
 
 
-def test_webui_life_plan_aspects_update(
-    page: Page, create_aspect
-) -> None:
+def test_webui_life_plan_aspects_update(page: Page, create_aspect) -> None:
     aspect = create_aspect("Aspect Lifecycle Initial")
     page.goto(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
     page.wait_for_selector("#leaf-panel")
@@ -370,9 +368,7 @@ def test_webui_life_plan_aspects_update(
     expect(page.locator('input[name="name"]')).to_have_value("Aspect Lifecycle Updated")
 
 
-def test_webui_life_plan_aspects_archive(
-    page: Page, create_aspect
-) -> None:
+def test_webui_life_plan_aspects_archive(page: Page, create_aspect) -> None:
     aspect = create_aspect("Aspect Lifecycle Archive")
     page.goto(f"/app/workspace/life-plan/aspects/{aspect.ref_id}")
     page.wait_for_selector("#leaf-panel")
@@ -412,7 +408,9 @@ def test_webui_life_plan_chapters_create(
     page.locator("button[id='chapter-create']").click()
     page.wait_for_url("**/app/workspace/life-plan/chapters/*")
 
-    expect(page.locator('input[name="name"]')).to_have_value("Chapter Lifecycle Created")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Chapter Lifecycle Created"
+    )
 
 
 def test_webui_life_plan_chapters_update(
@@ -429,7 +427,9 @@ def test_webui_life_plan_chapters_update(
     page.locator("#chapter-properties button", has_text="Save").click()
     page.wait_for_url(f"/app/workspace/life-plan/chapters/{chapter.ref_id}")
 
-    expect(page.locator('input[name="name"]')).to_have_value("Chapter Lifecycle Updated")
+    expect(page.locator('input[name="name"]')).to_have_value(
+        "Chapter Lifecycle Updated"
+    )
     expect(page.locator(f"#chapter-{chapter.ref_id}")).to_contain_text(
         "Chapter Lifecycle Updated"
     )
@@ -479,9 +479,7 @@ def test_webui_life_plan_goals_create(
     expect(page.locator('input[name="name"]')).to_have_value("Goal Lifecycle Created")
 
 
-def test_webui_life_plan_goals_update(
-    page: Page, create_aspect, create_goal
-) -> None:
+def test_webui_life_plan_goals_update(page: Page, create_aspect, create_goal) -> None:
     aspect = create_aspect("Aspect for Goal Lifecycle")
     goal = create_goal("Goal Lifecycle Initial", aspect_ref_id=aspect.ref_id)
     page.goto(f"/app/workspace/life-plan/goals/{goal.ref_id}")
@@ -496,9 +494,7 @@ def test_webui_life_plan_goals_update(
     )
 
 
-def test_webui_life_plan_goals_archive(
-    page: Page, create_aspect, create_goal
-) -> None:
+def test_webui_life_plan_goals_archive(page: Page, create_aspect, create_goal) -> None:
     aspect = create_aspect("Aspect for Goal Archive")
     goal = create_goal("Goal Lifecycle Archive", aspect_ref_id=aspect.ref_id)
     page.goto(f"/app/workspace/life-plan/goals/{goal.ref_id}")
@@ -604,7 +600,9 @@ def test_webui_life_plan_history_of_work_view_all_features_enabled(
         )
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=True),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
         )
 
         aspect = create_aspect("Aspect in History of Work")
@@ -666,7 +664,9 @@ def test_webui_life_plan_history_of_work_view_all_features_enabled(
     finally:
         workspace_set_feature_sync(
             client=logged_in_client,
-            body=WorkspaceSetFeatureArgs(feature=WorkspaceFeature.BIG_PLANS, value=False),
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
         )
         workspace_set_feature_sync(
             client=logged_in_client,

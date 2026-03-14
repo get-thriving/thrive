@@ -400,6 +400,14 @@ resource "sentry_project" "api" {
   platform     = "python-fastapi"
 }
 
+resource "sentry_project" "mcp" {
+  organization = data.sentry_organization.main.slug
+  teams        = [sentry_team.thrive.slug]
+  name         = "mcp"
+  slug         = "mcp"
+  platform     = "python-fastapi"
+}
+
 resource "sentry_project" "webui" {
   organization = data.sentry_organization.main.slug
   teams        = [sentry_team.thrive.slug]
@@ -510,6 +518,12 @@ resource "docker_hub_repository" "api" {
   namespace   = var.DOCKER_REGISTRY_NAME
   name        = "jupiter-api"
   description = "This is the repository for the external API"
+}
+
+resource "docker_hub_repository" "mcp" {
+  namespace   = var.DOCKER_REGISTRY_NAME
+  name        = "jupiter-mcp"
+  description = "This is the repository for the MCP server"
 }
 
 resource "docker_hub_repository" "webui" {

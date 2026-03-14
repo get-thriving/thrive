@@ -5,6 +5,8 @@ import Logout from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import PolicyIcon from "@mui/icons-material/Policy";
 import SecurityIcon from "@mui/icons-material/Security";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import {
   Avatar,
@@ -227,6 +229,28 @@ export default function Workspace() {
                 <AccountCircleIcon />
               </ListItemIcon>
               <ListItemText>Account</ListItemText>
+            </MenuItem>
+            <MenuItem
+              id="manage-api"
+              to="/app/workspace/manage-api"
+              component={Link}
+              onClick={handleAccountMenuClose}
+            >
+              <ListItemIcon>
+                <VpnKeyIcon />
+              </ListItemIcon>
+              <ListItemText>Manage API</ListItemText>
+            </MenuItem>
+            <MenuItem
+              id="manage-mcp"
+              to="/app/workspace/manage-mcp"
+              component={Link}
+              onClick={handleAccountMenuClose}
+            >
+              <ListItemIcon>
+                <SmartToyIcon />
+              </ListItemIcon>
+              <ListItemText>Manage MCP</ListItemText>
             </MenuItem>
             <MenuItem
               id="security"

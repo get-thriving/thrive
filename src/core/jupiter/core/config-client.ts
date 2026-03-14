@@ -34,6 +34,7 @@ export interface ServicePropertiesClient {
   webApiProgressReporterUrl: string;
   webApiUrl: string;
   apiUrl: string;
+  mcpUrl: string;
   docsUrl: string;
   inboxTasksToAskForGC: number;
   overdueInfoDays: number;
@@ -66,6 +67,7 @@ export const ServicePropertiesContext = createContext<ServicePropertiesClient>({
   webApiProgressReporterUrl: "FAKE-FAKE",
   webApiUrl: "FAKE-FAKE",
   apiUrl: "FAKE-FAKE",
+  mcpUrl: "FAKE-FAKE",
   docsUrl: "FAKE-FAKE",
   inboxTasksToAskForGC: 20,
   overdueInfoDays: 1,
@@ -101,6 +103,7 @@ export function serverToClientServiceProperties(
       servicePropertiesServer.webApiProgressReporterUrl,
     webApiUrl: servicePropertiesServer.webApiUrl,
     apiUrl: servicePropertiesServer.apiUrl,
+    mcpUrl: servicePropertiesServer.mcpUrl,
     docsUrl: servicePropertiesServer.docsUrl,
     inboxTasksToAskForGC: servicePropertiesServer.inboxTasksToAskForGC,
     overdueInfoDays: servicePropertiesServer.overdueInfoDays,

@@ -10,6 +10,7 @@
   "repository": "https://github.com/horia141/thrive",
   "documentation": "https://docs.get-thriving.com",
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "0.21.1",
     "@remix-run/eslint-config": "^1.19.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@typescript-eslint/eslint-plugin": "^8.29.0",

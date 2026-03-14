@@ -26,6 +26,7 @@ webapi_port=$(get_free_port)
 api_port=$(get_free_port)
 webui_port=$(get_free_port)
 docs_port=$(get_free_port)
+mcp_port=$(get_free_port)
 
 log info "Starting Jupiter for migrations with webapi port: $webapi_port and webui port: $webui_port"
 
@@ -38,7 +39,7 @@ fi
 
 
 # Run Jupiter with migrations - it will automatically run migrations on startup
-run_jupiter_webapp dev "$instance" "$webapi_port" "$api_port" "$webui_port" "$docs_port" wait:webapi no-monit ci local latest pm2
+run_jupiter_webapp dev "$instance" "$webapi_port" "$api_port" "$webui_port" "$docs_port" "$mcp_port" wait:webapi no-monit ci local latest pm2
 
 get_logs pm2 "$instance" webapi
 

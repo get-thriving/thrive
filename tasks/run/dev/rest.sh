@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 #MISE description="Make raw API calls to the webapi"
 #USAGE flag "--instance <instance>" help="Jupiter instance"
 #USAGE complete "instance" run="./tasks/run/instance/_list-fast.sh"

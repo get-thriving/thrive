@@ -446,6 +446,7 @@ function ActionView(props: ActionViewProps) {
 }
 
 interface NavSingleViewProps {
+  id?: string;
   topLevelInfo: TopLevelInfo;
   inputsEnabled: boolean;
   isInDialog: boolean;

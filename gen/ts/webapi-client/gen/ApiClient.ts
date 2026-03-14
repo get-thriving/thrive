@@ -20,6 +20,7 @@ import { HomeService } from './services/HomeService';
 import { InboxTasksService } from './services/InboxTasksService';
 import { JournalsService } from './services/JournalsService';
 import { LifePlanService } from './services/LifePlanService';
+import { McpKeyService } from './services/McpKeyService';
 import { MetricsService } from './services/MetricsService';
 import { MotdService } from './services/MotdService';
 import { NotesService } from './services/NotesService';
@@ -55,6 +56,7 @@ export class ApiClient {
     public readonly inboxTasks: InboxTasksService;
     public readonly journals: JournalsService;
     public readonly lifePlan: LifePlanService;
+    public readonly mcpKey: McpKeyService;
     public readonly metrics: MetricsService;
     public readonly motd: MotdService;
     public readonly notes: NotesService;
@@ -101,6 +103,7 @@ export class ApiClient {
         this.inboxTasks = new InboxTasksService(this.request);
         this.journals = new JournalsService(this.request);
         this.lifePlan = new LifePlanService(this.request);
+        this.mcpKey = new McpKeyService(this.request);
         this.metrics = new MetricsService(this.request);
         this.motd = new MotdService(this.request);
         this.notes = new NotesService(this.request);
