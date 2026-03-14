@@ -44,20 +44,11 @@ services:
         type: web
         envVarKey: RENDER_EXTERNAL_URL
     - key: API_URL
-      fromService:
-        name: jupiter-api
-        type: web
-        envVarKey: https://api.get-thriving.com
+      value: https://api.get-thriving.com
     - key: MCP_URL
-      fromService:
-        name: jupiter-mcp
-        type: web
-        envVarKey: https://mcp.get-thriving.com
+      value: https://mcp.get-thriving.com
     - key: DOCS_URL
-      fromService:
-        name: jupiter-docs
-        type: web
-        envVarKey: https://docs.get-thriving.com
+      value: https://docs.get-thriving.com
     - key: SESSION_COOKIE_SECURE
       value: true
 - type: web
