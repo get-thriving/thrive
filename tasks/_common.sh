@@ -450,12 +450,13 @@ _run_thrive_sh_test_webapp() {
     else
         log info "Preparing Thrive on $gcp_vm_name from local"
 
-        trap "rm -f webapi.tar api.tar webui.tar docs.tar" EXIT
+        trap "rm -f webapi.tar api.tar webui.tar docs.tar mcp.tar" EXIT
 
         docker save -o webapi.tar "jupiter/webapi:${version}-arm64"
         docker save -o api.tar "jupiter/api:${version}-arm64"
         docker save -o webui.tar "jupiter/webui:${version}-arm64"
         docker save -o docs.tar "jupiter/docs:${version}-arm64"
+        docker save -o mcp.tar "jupiter/mcp:${version}-arm64"
 
         gcloud compute scp webapi.tar "$gcp_vm_name":~/webapi.tar \
             --project "$THRIVE_GCP_PROJECT" \
@@ -467,6 +468,9 @@ _run_thrive_sh_test_webapp() {
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
         gcloud compute scp docs.tar "$gcp_vm_name":~/docs.tar \
+            --project "$THRIVE_GCP_PROJECT" \
+            --zone "$THRIVE_GCP_ZONE"
+        gcloud compute scp mcp.tar "$gcp_vm_name":~/mcp.tar \
             --project "$THRIVE_GCP_PROJECT" \
             --zone "$THRIVE_GCP_ZONE"
 
@@ -494,6 +498,7 @@ _run_thrive_sh_test_webapp() {
                 sudo docker load -i api.tar &&
                 sudo docker load -i webui.tar &&
                 sudo docker load -i docs.tar &&
+                sudo docker load -i mcp.tar &&
                 touch .env &&
                 echo \"PUBLIC_NAME=Horia Thrive\" >> .env &&
                 echo \"VERSION=$version\" >> .env &&
@@ -509,6 +514,7 @@ _run_thrive_sh_test_webapp() {
                 echo \"DOCKER_IMAGE_API=jupiter/api:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_WEBUI=jupiter/webui:${version}-arm64\" >> .env &&
                 echo \"DOCKER_IMAGE_DOCS=jupiter/docs:${version}-arm64\" >> .env &&
+                echo \"DOCKER_IMAGE_MCP=jupiter/mcp:${version}-arm64\" >> .env &&
                 (sudo certbot certonly --standalone -d $gcp_dns_name --agree-tos --email test@thrive-test.xyz --non-interactive)
             '"
     fi
