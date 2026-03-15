@@ -50,6 +50,19 @@ time.
 Metric entries can also have some notes attached to them, for any extra info you
 might want to add.
 
+## Metric Direction
+
+Each metric can define a _direction_ that tells Thrive how to interpret change:
+
+- **Up is good**: higher values are better (for example savings).
+- **Down is good**: lower values are better (for example resting heart rate).
+- **None**: no good/bad interpretation is applied.
+
+In the metric entries list, Thrive compares each entry to the previous one and
+shows a small delta indicator (arrow + value change), rounded to two decimals.
+The indicator is colored to reflect whether the change is good or bad according
+to the chosen direction.
+
 ## Metrics Settings
 
 In the web app you can change the global collection aspect via the `Settings`

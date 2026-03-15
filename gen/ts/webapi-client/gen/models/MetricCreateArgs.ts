@@ -5,6 +5,7 @@
 import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityIcon } from './EntityIcon';
+import type { MetricDirection } from './MetricDirection';
 import type { MetricName } from './MetricName';
 import type { MetricUnit } from './MetricUnit';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
@@ -25,5 +26,6 @@ export type MetricCreateArgs = {
     collection_due_at_day?: (RecurringTaskDueAtDay | null);
     collection_due_at_month?: (RecurringTaskDueAtMonth | null);
     metric_unit?: (MetricUnit | null);
+    metric_direction: MetricDirection;
 };
 

@@ -8,6 +8,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.metrics.unit import MetricUnit
@@ -37,6 +38,7 @@ class Metric(BranchEntity):
     icon: EntityIcon | None
     collection_params: RecurringTaskGenParams | None
     metric_unit: MetricUnit | None
+    metric_direction: MetricDirection
 
     entries = ContainsMany(MetricEntry, metric_ref_id=IsRefId())
     collection_tasks = OwnsMany(
@@ -59,6 +61,7 @@ class Metric(BranchEntity):
         icon: EntityIcon | None,
         collection_params: RecurringTaskGenParams | None,
         metric_unit: MetricUnit | None,
+        metric_direction: MetricDirection,
     ) -> "Metric":
         """Create a metric."""
         return Metric._create(
@@ -69,6 +72,7 @@ class Metric(BranchEntity):
             icon=icon,
             collection_params=collection_params,
             metric_unit=metric_unit,
+            metric_direction=metric_direction,
         )
 
     @update_entity_action
@@ -79,6 +83,7 @@ class Metric(BranchEntity):
         is_key: UpdateAction[bool],
         icon: UpdateAction[EntityIcon | None],
         collection_params: UpdateAction[RecurringTaskGenParams | None],
+        metric_direction: UpdateAction[MetricDirection],
     ) -> "Metric":
         """Change the metric."""
         return self._new_version(
@@ -87,4 +92,5 @@ class Metric(BranchEntity):
             is_key=is_key.or_else(self.is_key),
             icon=icon.or_else(self.icon),
             collection_params=collection_params.or_else(self.collection_params),
+            metric_direction=metric_direction.or_else(self.metric_direction),
         )

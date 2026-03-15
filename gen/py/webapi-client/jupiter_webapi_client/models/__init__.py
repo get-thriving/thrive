@@ -448,6 +448,7 @@ from .metric_change_collection_aspect_args import MetricChangeCollectionAspectAr
 from .metric_collection import MetricCollection
 from .metric_create_args import MetricCreateArgs
 from .metric_create_result import MetricCreateResult
+from .metric_direction import MetricDirection
 from .metric_entry import MetricEntry
 from .metric_entry_archive_args import MetricEntryArchiveArgs
 from .metric_entry_create_args import MetricEntryCreateArgs
@@ -480,6 +481,7 @@ from .metric_update_args_collection_eisen import MetricUpdateArgsCollectionEisen
 from .metric_update_args_collection_period import MetricUpdateArgsCollectionPeriod
 from .metric_update_args_icon import MetricUpdateArgsIcon
 from .metric_update_args_is_key import MetricUpdateArgsIsKey
+from .metric_update_args_metric_direction import MetricUpdateArgsMetricDirection
 from .metric_update_args_name import MetricUpdateArgsName
 from .milestone import Milestone
 from .milestone_archive_args import MilestoneArchiveArgs
@@ -1335,6 +1337,7 @@ __all__ = (
     "MetricCollection",
     "MetricCreateArgs",
     "MetricCreateResult",
+    "MetricDirection",
     "MetricEntry",
     "MetricEntryArchiveArgs",
     "MetricEntryCreateArgs",
@@ -1367,6 +1370,7 @@ __all__ = (
     "MetricUpdateArgsCollectionPeriod",
     "MetricUpdateArgsIcon",
     "MetricUpdateArgsIsKey",
+    "MetricUpdateArgsMetricDirection",
     "MetricUpdateArgsName",
     "Milestone",
     "MilestoneArchiveArgs",

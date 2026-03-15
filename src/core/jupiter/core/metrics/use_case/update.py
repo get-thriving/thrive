@@ -32,6 +32,7 @@ from jupiter.core.inbox_tasks.service.archive import (
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
+from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
 from jupiter.core.sync_target import SyncTarget
@@ -61,6 +62,7 @@ class MetricUpdateArgs(UseCaseArgsBase):
     collection_actionable_from_month: UpdateAction[RecurringTaskDueAtMonth | None]
     collection_due_at_day: UpdateAction[RecurringTaskDueAtDay | None]
     collection_due_at_month: UpdateAction[RecurringTaskDueAtMonth | None]
+    metric_direction: UpdateAction[MetricDirection]
 
 
 @mutation_use_case(WorkspaceFeature.METRICS)
@@ -192,6 +194,7 @@ class MetricUpdateUseCase(
             is_key=args.is_key,
             icon=args.icon,
             collection_params=collection_params,
+            metric_direction=args.metric_direction,
         )
 
         await uow.get_for(Metric).save(metric)

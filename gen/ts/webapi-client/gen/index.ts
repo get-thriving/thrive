@@ -345,6 +345,7 @@ export type { MetricChangeCollectionAspectArgs } from './models/MetricChangeColl
 export type { MetricCollection } from './models/MetricCollection';
 export type { MetricCreateArgs } from './models/MetricCreateArgs';
 export type { MetricCreateResult } from './models/MetricCreateResult';
+export { MetricDirection } from './models/MetricDirection';
 export type { MetricEntry } from './models/MetricEntry';
 export type { MetricEntryArchiveArgs } from './models/MetricEntryArchiveArgs';
 export type { MetricEntryCreateArgs } from './models/MetricEntryCreateArgs';

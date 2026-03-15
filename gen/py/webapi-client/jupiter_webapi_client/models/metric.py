@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.metric_direction import MetricDirection
 from ..models.metric_unit import MetricUnit
 from ..types import UNSET, Unset
 
@@ -29,6 +30,7 @@ class Metric:
         name (str): THe metric name.
         metric_collection_ref_id (str):
         is_key (bool):
+        metric_direction (MetricDirection): The direction for a metric - whether up or down is good.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         icon (None | str | Unset):
@@ -44,6 +46,7 @@ class Metric:
     name: str
     metric_collection_ref_id: str
     is_key: bool
+    metric_direction: MetricDirection
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     icon: None | str | Unset = UNSET
@@ -69,6 +72,8 @@ class Metric:
         metric_collection_ref_id = self.metric_collection_ref_id
 
         is_key = self.is_key
+
+        metric_direction = self.metric_direction.value
 
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
@@ -116,6 +121,7 @@ class Metric:
                 "name": name,
                 "metric_collection_ref_id": metric_collection_ref_id,
                 "is_key": is_key,
+                "metric_direction": metric_direction,
             }
         )
         if archival_reason is not UNSET:
@@ -151,6 +157,8 @@ class Metric:
         metric_collection_ref_id = d.pop("metric_collection_ref_id")
 
         is_key = d.pop("is_key")
+
+        metric_direction = MetricDirection(d.pop("metric_direction"))
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -222,6 +230,7 @@ class Metric:
             name=name,
             metric_collection_ref_id=metric_collection_ref_id,
             is_key=is_key,
+            metric_direction=metric_direction,
             archival_reason=archival_reason,
             archived_time=archived_time,
             icon=icon,
