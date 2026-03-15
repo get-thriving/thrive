@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { EntityIcon } from './EntityIcon';
 import type { EntityId } from './EntityId';
+import type { MetricDirection } from './MetricDirection';
 import type { MetricName } from './MetricName';
 import type { MetricUnit } from './MetricUnit';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
@@ -25,5 +26,6 @@ export type Metric = {
     icon?: (EntityIcon | null);
     collection_params?: (RecurringTaskGenParams | null);
     metric_unit?: (MetricUnit | null);
+    metric_direction: MetricDirection;
 };
 

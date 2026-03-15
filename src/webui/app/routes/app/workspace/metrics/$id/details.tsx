@@ -4,11 +4,12 @@ import {
   Difficulty,
   Eisen,
   InboxTaskStatus,
+  MetricDirection,
   NoteNamespace,
   RecurringTaskPeriod,
   TagNamespace,
 } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import { FormControl, FormLabel, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -25,6 +26,7 @@ import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
+import { MetricDirectionSelect } from "@jupiter/core/metrics/component/direction-select";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -63,6 +65,7 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     name: z.string(),
     isKey: CheckboxAsString,
     icon: z.string().optional(),
+    metricDirection: z.nativeEnum(MetricDirection),
     collectionPeriod: z
       .union([z.nativeEnum(RecurringTaskPeriod), z.literal("none")])
       .optional(),
@@ -151,6 +154,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
           icon: {
             should_change: true,
             value: form.icon,
+          },
+          metric_direction: {
+            should_change: true,
+            value: form.metricDirection,
           },
           collection_period: {
             should_change: true,
@@ -387,6 +394,16 @@ export default function MetricDetails() {
             defaultIcon={loaderData.metric.icon}
           />
           <FieldError actionResult={actionData} fieldName="/icon" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="metricDirection">Direction</FormLabel>
+          <MetricDirectionSelect
+            name="metricDirection"
+            defaultValue={loaderData.metric.metric_direction}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/metric_direction" />
         </FormControl>
 
         <StandardDivider title="Collection" size="large" />

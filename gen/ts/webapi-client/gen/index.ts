@@ -365,6 +365,7 @@ export type { MetricName } from './models/MetricName';
 export type { MetricRegenArgs } from './models/MetricRegenArgs';
 export type { MetricRemoveArgs } from './models/MetricRemoveArgs';
 export type { MetricSummary } from './models/MetricSummary';
+export { MetricDirection } from './models/MetricDirection';
 export { MetricUnit } from './models/MetricUnit';
 export type { MetricUpdateArgs } from './models/MetricUpdateArgs';
 export type { Milestone } from './models/Milestone';

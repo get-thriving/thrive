@@ -6,6 +6,7 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityIcon } from './EntityIcon';
 import type { EntityId } from './EntityId';
+import type { MetricDirection } from './MetricDirection';
 import type { MetricName } from './MetricName';
 import type { RecurringTaskDueAtDay } from './RecurringTaskDueAtDay';
 import type { RecurringTaskDueAtMonth } from './RecurringTaskDueAtMonth';
@@ -54,6 +55,10 @@ export type MetricUpdateArgs = {
     collection_due_at_month: {
         should_change: boolean;
         value?: (RecurringTaskDueAtMonth | null);
+    };
+    metric_direction: {
+        should_change: boolean;
+        value?: MetricDirection;
     };
 };
 
