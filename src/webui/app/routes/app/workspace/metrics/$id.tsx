@@ -184,23 +184,25 @@ export default function Metric() {
   // Build a lookup from ref_id to the previous entry (older, one position later in sorted array)
   const previousEntryByRefId = new Map<string, MetricEntry>();
   for (let i = 0; i < allEntriesSorted.length - 1; i++) {
-    previousEntryByRefId.set(allEntriesSorted[i].ref_id, allEntriesSorted[i + 1]);
+    previousEntryByRefId.set(
+      allEntriesSorted[i].ref_id,
+      allEntriesSorted[i + 1],
+    );
   }
 
   const sortedEntries = allEntriesSorted.filter((entry) => {
-      const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
-      const tagsOk =
-        selectedTagsRefId.length === 0 ||
-        tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
-      const contacts =
-        loaderData.metricEntryContactsByRefId[entry.ref_id] || [];
-      const contactsOk =
-        selectedContactsRefId.length === 0 ||
-        contacts.some((contact: Contact) =>
-          selectedContactsRefId.includes(contact.ref_id),
-        );
-      return tagsOk && contactsOk;
-    });
+    const tags = tagsByMetricEntryRefId.get(entry.ref_id) || [];
+    const tagsOk =
+      selectedTagsRefId.length === 0 ||
+      tags.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
+    const contacts = loaderData.metricEntryContactsByRefId[entry.ref_id] || [];
+    const contactsOk =
+      selectedContactsRefId.length === 0 ||
+      contacts.some((contact: Contact) =>
+        selectedContactsRefId.includes(contact.ref_id),
+      );
+    return tagsOk && contactsOk;
+  });
 
   function getDirectionIndicator(
     entry: MetricEntry,
@@ -212,17 +214,20 @@ export default function Metric() {
     if (!prev) return null;
 
     const delta = entry.value - prev.value;
-    if (delta === 0) return null;
+    const roundedDelta = Math.round(delta * 100) / 100;
+    if (roundedDelta === 0) return null;
 
-    const isUp = delta > 0;
-    const diffStr = isUp ? `+${delta}` : `${delta}`;
+    const isUp = roundedDelta > 0;
+    const diffStr = isUp
+      ? `+${roundedDelta.toFixed(2)}`
+      : `${roundedDelta.toFixed(2)}`;
 
     const isGood =
       (direction === MetricDirection.UP_IS_GOOD && isUp) ||
       (direction === MetricDirection.DOWN_IS_GOOD && !isUp);
 
     return {
-      arrow: isUp ? "↑" : "↓",
+      arrow: isUp ? "⬆" : "⬇",
       diff: diffStr,
       color: isGood ? "green" : "red",
     };
@@ -308,9 +313,11 @@ export default function Metric() {
                     labelPrefix="Collected"
                     collectionTime={entry.collection_time}
                   />
-                  {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map((tag) => (
-                    <TagTag key={tag.ref_id} tag={tag} />
-                  ))}
+                  {(tagsByMetricEntryRefId.get(entry.ref_id) || []).map(
+                    (tag) => (
+                      <TagTag key={tag.ref_id} tag={tag} />
+                    ),
+                  )}
                   {(
                     loaderData.metricEntryContactsByRefId[entry.ref_id] || []
                   ).map((contact: Contact) => (

@@ -345,6 +345,7 @@ export type { MetricChangeCollectionAspectArgs } from './models/MetricChangeColl
 export type { MetricCollection } from './models/MetricCollection';
 export type { MetricCreateArgs } from './models/MetricCreateArgs';
 export type { MetricCreateResult } from './models/MetricCreateResult';
+export { MetricDirection } from './models/MetricDirection';
 export type { MetricEntry } from './models/MetricEntry';
 export type { MetricEntryArchiveArgs } from './models/MetricEntryArchiveArgs';
 export type { MetricEntryCreateArgs } from './models/MetricEntryCreateArgs';
@@ -365,7 +366,6 @@ export type { MetricName } from './models/MetricName';
 export type { MetricRegenArgs } from './models/MetricRegenArgs';
 export type { MetricRemoveArgs } from './models/MetricRemoveArgs';
 export type { MetricSummary } from './models/MetricSummary';
-export { MetricDirection } from './models/MetricDirection';
 export { MetricUnit } from './models/MetricUnit';
 export type { MetricUpdateArgs } from './models/MetricUpdateArgs';
 export type { Milestone } from './models/Milestone';

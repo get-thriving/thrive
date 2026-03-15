@@ -8,6 +8,7 @@ from attrs import field as _attrs_field
 
 from ..models.difficulty import Difficulty
 from ..models.eisen import Eisen
+from ..models.metric_direction import MetricDirection
 from ..models.metric_unit import MetricUnit
 from ..models.recurring_task_period import RecurringTaskPeriod
 from ..types import UNSET, Unset
@@ -22,6 +23,7 @@ class MetricCreateArgs:
     Attributes:
         name (str): THe metric name.
         is_key (bool):
+        metric_direction (MetricDirection): The direction for a metric - whether up or down is good.
         icon (None | str | Unset):
         collection_period (None | RecurringTaskPeriod | Unset):
         collection_eisen (Eisen | None | Unset):
@@ -35,6 +37,7 @@ class MetricCreateArgs:
 
     name: str
     is_key: bool
+    metric_direction: MetricDirection
     icon: None | str | Unset = UNSET
     collection_period: None | RecurringTaskPeriod | Unset = UNSET
     collection_eisen: Eisen | None | Unset = UNSET
@@ -50,6 +53,8 @@ class MetricCreateArgs:
         name = self.name
 
         is_key = self.is_key
+
+        metric_direction = self.metric_direction.value
 
         icon: None | str | Unset
         if isinstance(self.icon, Unset):
@@ -119,6 +124,7 @@ class MetricCreateArgs:
             {
                 "name": name,
                 "is_key": is_key,
+                "metric_direction": metric_direction,
             }
         )
         if icon is not UNSET:
@@ -148,6 +154,8 @@ class MetricCreateArgs:
         name = d.pop("name")
 
         is_key = d.pop("is_key")
+
+        metric_direction = MetricDirection(d.pop("metric_direction"))
 
         def _parse_icon(data: object) -> None | str | Unset:
             if data is None:
@@ -269,6 +277,7 @@ class MetricCreateArgs:
         metric_create_args = cls(
             name=name,
             is_key=is_key,
+            metric_direction=metric_direction,
             icon=icon,
             collection_period=collection_period,
             collection_eisen=collection_eisen,

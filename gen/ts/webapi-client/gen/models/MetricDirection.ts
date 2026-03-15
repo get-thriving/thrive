@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * The direction for a metric.
+ * The direction for a metric - whether up or down is good.
  */
 export enum MetricDirection {
     NONE = 'none',
