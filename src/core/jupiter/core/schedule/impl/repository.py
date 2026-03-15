@@ -1,11 +1,16 @@
 """SQLite implementation of schedules infra classes."""
 
+from jupiter.core.schedule.sub.export.root import (
+    ScheduleExport,
+    ScheduleExportRepository,
+)
 from jupiter.core.schedule.sub.external_sync_log.entry import (
     ScheduleExternalSyncLogEntry,
     ScheduleExternalSyncLogEntryRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
+from jupiter.framework.storage.repository import EntityNotFoundError
 from jupiter.framework.storage.sqlite.repository import (
     SqliteLeafEntityRepository,
 )
@@ -39,3 +44,25 @@ class SqliteScheduleExternalSyncLogEntryRepository(
         )
         result = await self._connection.execute(query_stmt)
         return [self._row_to_entity(row) for row in result]
+
+
+class SqliteScheduleExportRepository(
+    SqliteLeafEntityRepository[ScheduleExport],
+    ScheduleExportRepository,
+):
+    """SQLite implementation of the schedule export repository."""
+
+    async def load_by_guid(
+        self, external_id: str, allow_archived: bool = False
+    ) -> ScheduleExport:
+        """Load a schedule export by its external GUID."""
+        query_stmt = select(self._table).where(self._table.c.external_id == external_id)
+        if not allow_archived:
+            query_stmt = query_stmt.where(self._table.c.archived.is_(False))
+
+        result = (await self._connection.execute(query_stmt)).first()
+        if result is None:
+            raise EntityNotFoundError(
+                f"Schedule export with external id {external_id} does not exist"
+            )
+        return self._row_to_entity(result)

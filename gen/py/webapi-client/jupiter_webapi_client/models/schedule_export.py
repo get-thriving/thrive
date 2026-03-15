@@ -23,6 +23,7 @@ class ScheduleExport:
         last_modified_time (str): A timestamp in the application.
         name (str): The name of a schedule export.
         schedule_domain_ref_id (str):
+        external_id (str):
         schedule_stream_ref_ids (list[str]):
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
@@ -35,6 +36,7 @@ class ScheduleExport:
     last_modified_time: str
     name: str
     schedule_domain_ref_id: str
+    external_id: str
     schedule_stream_ref_ids: list[str]
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
@@ -54,6 +56,8 @@ class ScheduleExport:
         name = self.name
 
         schedule_domain_ref_id = self.schedule_domain_ref_id
+
+        external_id = self.external_id
 
         schedule_stream_ref_ids = self.schedule_stream_ref_ids
 
@@ -80,6 +84,7 @@ class ScheduleExport:
                 "last_modified_time": last_modified_time,
                 "name": name,
                 "schedule_domain_ref_id": schedule_domain_ref_id,
+                "external_id": external_id,
                 "schedule_stream_ref_ids": schedule_stream_ref_ids,
             }
         )
@@ -106,6 +111,8 @@ class ScheduleExport:
         name = d.pop("name")
 
         schedule_domain_ref_id = d.pop("schedule_domain_ref_id")
+
+        external_id = d.pop("external_id")
 
         schedule_stream_ref_ids = cast(list[str], d.pop("schedule_stream_ref_ids"))
 
@@ -135,6 +142,7 @@ class ScheduleExport:
             last_modified_time=last_modified_time,
             name=name,
             schedule_domain_ref_id=schedule_domain_ref_id,
+            external_id=external_id,
             schedule_stream_ref_ids=schedule_stream_ref_ids,
             archival_reason=archival_reason,
             archived_time=archived_time,

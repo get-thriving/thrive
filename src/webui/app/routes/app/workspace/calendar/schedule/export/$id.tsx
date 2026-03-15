@@ -1,5 +1,12 @@
 import { ApiError, NoteNamespace, Tag, TagNamespace } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+} from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -9,7 +16,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -179,9 +186,18 @@ export default function ScheduleExportViewOne() {
   const navigation = useNavigation();
   const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
+  const [hasCopiedExternalUrl, setHasCopiedExternalUrl] = useState(false);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleExport.archived;
+  const externalId =
+    (loaderData.scheduleExport as { external_id?: string }).external_id ?? "";
+  const externalCalendarUrl = `https://domain/public/schedule/export/${externalId}`;
+
+  async function copyExternalCalendarUrl() {
+    await navigator.clipboard.writeText(externalCalendarUrl);
+    setHasCopiedExternalUrl(true);
+  }
 
   return (
     <LeafPanel
@@ -252,6 +268,27 @@ export default function ScheduleExportViewOne() {
           <FieldError
             actionResult={actionData}
             fieldName="/schedule_stream_ref_ids"
+          />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="externalCalendarUrl">External Calendar URL</InputLabel>
+          <OutlinedInput
+            label="External Calendar URL"
+            name="externalCalendarUrl"
+            readOnly
+            value={externalCalendarUrl}
+            endAdornment={
+              <InputAdornment position="end">
+                <Button
+                  variant="outlined"
+                  onClick={copyExternalCalendarUrl}
+                  disabled={hasCopiedExternalUrl}
+                >
+                  {hasCopiedExternalUrl ? "Copied" : "Copy"}
+                </Button>
+              </InputAdornment>
+            }
           />
         </FormControl>
       </SectionCard>

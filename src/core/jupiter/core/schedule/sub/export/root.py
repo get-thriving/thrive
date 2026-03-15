@@ -1,5 +1,8 @@
 """A calendar export configuration."""
 
+import abc
+import uuid
+
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -16,6 +19,7 @@ from jupiter.framework.entity import (
     entity,
     update_entity_action,
 )
+from jupiter.framework.storage.repository import LeafEntityRepository
 from jupiter.framework.update_action import UpdateAction
 
 
@@ -25,6 +29,7 @@ class ScheduleExport(LeafEntity):
 
     schedule_domain: ParentLink
 
+    external_id: str
     name: ScheduleExportName
     schedule_stream_ref_ids: list[EntityId]
     tag_link = OwnsAtMostOne(
@@ -46,6 +51,7 @@ class ScheduleExport(LeafEntity):
         return ScheduleExport._create(
             ctx,
             schedule_domain=ParentLink(schedule_domain_ref_id),
+            external_id=str(uuid.uuid4()),
             name=name,
             schedule_stream_ref_ids=schedule_stream_ref_ids,
         )
@@ -65,3 +71,15 @@ class ScheduleExport(LeafEntity):
                 self.schedule_stream_ref_ids
             ),
         )
+
+
+class ScheduleExportRepository(LeafEntityRepository[ScheduleExport], abc.ABC):
+    """A repository for schedule exports."""
+
+    @abc.abstractmethod
+    async def load_by_guid(
+        self,
+        external_id: str,
+        allow_archived: bool = False,
+    ) -> ScheduleExport:
+        """Load a schedule export by its external GUID."""

@@ -28,6 +28,7 @@ def upgrade() -> None:
             last_modified_time DATETIME NOT NULL,
             archived_time DATETIME,
             schedule_domain_ref_id INTEGER NOT NULL,
+            external_id VARCHAR(64) NOT NULL,
             name VARCHAR(255) NOT NULL,
             schedule_stream_ref_ids JSON NOT NULL,
             PRIMARY KEY (ref_id),
@@ -38,6 +39,11 @@ def upgrade() -> None:
     op.execute(
         """
         CREATE INDEX ix_schedule_export_schedule_domain_ref_id ON schedule_export (schedule_domain_ref_id)
+        """
+    )
+    op.execute(
+        """
+        CREATE INDEX ix_schedule_export_external_id ON schedule_export (external_id)
         """
     )
     op.execute(

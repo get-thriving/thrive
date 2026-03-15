@@ -18,6 +18,7 @@ export type ScheduleExport = {
     archived_time?: (Timestamp | null);
     name: ScheduleExportName;
     schedule_domain_ref_id: string;
+    external_id: string;
     schedule_stream_ref_ids: Array<EntityId>;
 };
 
