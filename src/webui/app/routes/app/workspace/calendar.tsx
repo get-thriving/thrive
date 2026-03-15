@@ -183,6 +183,14 @@ export default function CalendarView() {
                   text: "View Calendar Streams",
                   link: `/app/workspace/calendar/schedule/stream?${query}`,
                 }),
+                NavSingle({
+                  text: "New Calendar Export",
+                  link: `/app/workspace/calendar/schedule/export/new?${query}`,
+                }),
+                NavSingle({
+                  text: "View Calendar Exports",
+                  link: `/app/workspace/calendar/schedule/export?${query}`,
+                }),
               ],
             }),
             NavMultipleSpread({

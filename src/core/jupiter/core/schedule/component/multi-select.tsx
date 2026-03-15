@@ -9,6 +9,7 @@ interface ScheduleStreamMultiSelectProps {
   name: string;
   readOnly: boolean;
   allScheduleStreams: Array<ScheduleStreamSummary>;
+  defaultValue?: Array<string>;
 }
 
 export function ScheduleStreamMultiSelect(
@@ -25,7 +26,7 @@ export function ScheduleStreamMultiSelect(
       readOnly={props.readOnly}
       disabled={props.readOnly}
       multiple
-      defaultValue={[]}
+      defaultValue={props.defaultValue ?? []}
       renderValue={(selected) => (
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
           {selected.map((value) => (

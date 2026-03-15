@@ -27,6 +27,7 @@ export interface ServicePropertiesServer {
   webApiUrl: string;
   apiUrl: string;
   mcpUrl: string;
+  webUiUrl: string;
   docsUrl: string;
   pwaStartUrl: string;
   sessionCookieSecure: boolean;
@@ -85,6 +86,7 @@ function loadServicePropertiesOnServer(): ServicePropertiesServer {
     webApiUrl: process.env.WEBAPI_URL as string,
     apiUrl: process.env.API_URL as string,
     mcpUrl: process.env.MCP_URL as string,
+    webUiUrl: process.env.WEBUI_URL as string,
     docsUrl: process.env.DOCS_URL as string,
     pwaStartUrl: process.env.PWA_START_URL as string,
     sessionCookieSecure: process.env.SESSION_COOKIE_SECURE === "true",

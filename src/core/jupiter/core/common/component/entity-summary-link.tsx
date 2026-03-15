@@ -103,6 +103,15 @@ export function EntitySummaryLink({
           {commonSequence}
         </EntityLink>
       );
+    case NamedEntityTag.SCHEDULE_EXPORT:
+      return (
+        <EntityLink
+          to={`/app/workspace/calendar/schedule/export/${summary.ref_id}`}
+        >
+          <SlimChip label={"Schedule Export"} color={"primary"} />
+          {commonSequence}
+        </EntityLink>
+      );
     case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
       return (
         <EntityLink

@@ -43,6 +43,11 @@ export function inferEntityTagsForEnabledFeatures(
     ) {
       inferredEntityTags.push(entityTag);
     } else if (
+      entityTag === NamedEntityTag.SCHEDULE_EXPORT &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
       entityTag === NamedEntityTag.SCHEDULE_EVENT_IN_DAY &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.SCHEDULE)
     ) {

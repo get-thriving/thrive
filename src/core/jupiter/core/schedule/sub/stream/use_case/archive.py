@@ -9,6 +9,7 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
+from jupiter.core.schedule.sub.export.root import ScheduleExport
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
@@ -17,6 +18,7 @@ from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
+from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     mutation_use_case,
 )
@@ -47,10 +49,10 @@ class ScheduleStreamArchiveUseCase(
         """Execute the command's action."""
         workspace = context.workspace
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(args.ref_id)
+        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
+            workspace.ref_id
+        )
         if schedule_stream.source == ScheduleStreamSource.USER:
-            schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
-                workspace.ref_id
-            )
             all_user_schedules = await uow.get_for(ScheduleStream).find_all_generic(
                 parent_ref_id=schedule_domain.ref_id,
                 source=ScheduleStreamSource.USER,
@@ -59,6 +61,29 @@ class ScheduleStreamArchiveUseCase(
 
             if len(all_user_schedules) == 1:
                 raise InputValidationError("You cannot archive the last user schedule")
+
+        schedule_exports = await uow.get_for(ScheduleExport).find_all_generic(
+            parent_ref_id=schedule_domain.ref_id,
+            allow_archived=True,
+        )
+        for schedule_export in schedule_exports:
+            if schedule_stream.ref_id not in schedule_export.schedule_stream_ref_ids:
+                continue
+
+            updated_schedule_stream_ref_ids = [
+                stream_ref_id
+                for stream_ref_id in schedule_export.schedule_stream_ref_ids
+                if stream_ref_id != schedule_stream.ref_id
+            ]
+            schedule_export = schedule_export.update(
+                context.domain_context,
+                name=UpdateAction.do_nothing(),
+                schedule_stream_ref_ids=UpdateAction.change_to(
+                    updated_schedule_stream_ref_ids
+                ),
+            )
+            await uow.get_for(ScheduleExport).save(schedule_export)
+            await progress_reporter.mark_updated(schedule_export)
 
         tag_link_archive_service = TagLinkArchiveService()
         await tag_link_archive_service.archive_for_entity(

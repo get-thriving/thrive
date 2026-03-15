@@ -18,6 +18,7 @@ class NoteNamespace(str, Enum):
     PERSON = "person"
     SCHEDULE_EVENT_FULL_DAYS = "schedule-event-full-days"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"
+    SCHEDULE_EXPORT = "schedule-export"
     SCHEDULE_STREAM = "schedule-stream"
     SMART_LIST = "smart-list"
     SMART_LIST_ITEM = "smart-list-item"

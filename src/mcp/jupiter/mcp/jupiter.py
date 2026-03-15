@@ -450,6 +450,24 @@ from jupiter_webapi_client.api.schedule.schedule_event_in_day_remove import (
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_update import (
     asyncio_detailed as schedule_event_in_day_update,
 )
+from jupiter_webapi_client.api.schedule.schedule_export_archive import (
+    asyncio_detailed as schedule_export_archive,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_create import (
+    asyncio_detailed as schedule_export_create,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_find import (
+    asyncio_detailed as schedule_export_find,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_load import (
+    asyncio_detailed as schedule_export_load,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_remove import (
+    asyncio_detailed as schedule_export_remove,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_update import (
+    asyncio_detailed as schedule_export_update,
+)
 
 # --- Schedule API ---
 from jupiter_webapi_client.api.schedule.schedule_stream_archive import (
@@ -813,6 +831,28 @@ async def main() -> None:
         ),
         JupiterMcpTool.tool(
             "remove-schedule-stream", "Remove a schedule stream", schedule_stream_remove
+        ),
+        # --- Schedule Exports ---
+        JupiterMcpResource.resource("jupiter://schedule/exports", schedule_export_find),
+        JupiterMcpTool.tool(
+            "find-schedule-exports", "Find schedule exports", schedule_export_find
+        ),
+        JupiterMcpTool.tool(
+            "create-schedule-export", "Create a schedule export", schedule_export_create
+        ),
+        JupiterMcpTool.tool(
+            "load-schedule-export", "Load a schedule export", schedule_export_load
+        ),
+        JupiterMcpTool.tool(
+            "update-schedule-export", "Update a schedule export", schedule_export_update
+        ),
+        JupiterMcpTool.tool(
+            "archive-schedule-export",
+            "Archive a schedule export",
+            schedule_export_archive,
+        ),
+        JupiterMcpTool.tool(
+            "remove-schedule-export", "Remove a schedule export", schedule_export_remove
         ),
         # --- Schedule Events (Full Days) ---
         JupiterMcpTool.tool(

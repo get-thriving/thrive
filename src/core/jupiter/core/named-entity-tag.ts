@@ -18,6 +18,8 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Time Plan Activity";
     case NamedEntityTag.SCHEDULE_STREAM:
       return "Schedule Stream";
+    case NamedEntityTag.SCHEDULE_EXPORT:
+      return "Schedule Export";
     case NamedEntityTag.SCHEDULE_EVENT_IN_DAY:
       return "Schedule Event In Day";
     case NamedEntityTag.SCHEDULE_EVENT_FULL_DAYS:

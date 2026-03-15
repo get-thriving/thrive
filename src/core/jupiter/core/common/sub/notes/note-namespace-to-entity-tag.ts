@@ -12,6 +12,8 @@ export function noteNamespaceToEntityTag(
       return NamedEntityTag.TIME_PLAN;
     case NoteNamespace.SCHEDULE_STREAM:
       return NamedEntityTag.SCHEDULE_STREAM;
+    case NoteNamespace.SCHEDULE_EXPORT:
+      return NamedEntityTag.SCHEDULE_EXPORT;
     case NoteNamespace.SCHEDULE_EVENT_IN_DAY:
       return NamedEntityTag.SCHEDULE_EVENT_IN_DAY;
     case NoteNamespace.SCHEDULE_EVENT_FULL_DAYS:
