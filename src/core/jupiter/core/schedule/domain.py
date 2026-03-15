@@ -6,6 +6,7 @@ from jupiter.core.schedule.sub.event_full_days.root import (
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
+from jupiter.core.schedule.sub.export.root import ScheduleExport
 from jupiter.core.schedule.sub.external_sync_log.root import (
     ScheduleExternalSyncLog,
 )
@@ -34,6 +35,7 @@ class ScheduleDomain(TrunkEntity):
     )
 
     streams = ContainsMany(ScheduleStream, schedule_domain_ref_id=IsRefId())
+    exports = ContainsMany(ScheduleExport, schedule_domain_ref_id=IsRefId())
     in_day_events = ContainsMany(ScheduleEventInDay, schedule_domain_ref_id=IsRefId())
     full_days_events = ContainsMany(
         ScheduleEventFullDays, schedule_domain_ref_id=IsRefId()

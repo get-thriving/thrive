@@ -494,6 +494,18 @@ export type { ScheduleExternalSyncLogPerStreamResult } from './models/ScheduleEx
 export type { ScheduleExternalUid } from './models/ScheduleExternalUid';
 export type { ScheduleFullDaysEventEntry } from './models/ScheduleFullDaysEventEntry';
 export type { ScheduleInDayEventEntry } from './models/ScheduleInDayEventEntry';
+export type { ScheduleExport } from './models/ScheduleExport';
+export type { ScheduleExportArchiveArgs } from './models/ScheduleExportArchiveArgs';
+export type { ScheduleExportCreateArgs } from './models/ScheduleExportCreateArgs';
+export type { ScheduleExportCreateResult } from './models/ScheduleExportCreateResult';
+export type { ScheduleExportFindArgs } from './models/ScheduleExportFindArgs';
+export type { ScheduleExportFindResult } from './models/ScheduleExportFindResult';
+export type { ScheduleExportFindResultEntry } from './models/ScheduleExportFindResultEntry';
+export type { ScheduleExportLoadArgs } from './models/ScheduleExportLoadArgs';
+export type { ScheduleExportLoadResult } from './models/ScheduleExportLoadResult';
+export type { ScheduleExportName } from './models/ScheduleExportName';
+export type { ScheduleExportRemoveArgs } from './models/ScheduleExportRemoveArgs';
+export type { ScheduleExportUpdateArgs } from './models/ScheduleExportUpdateArgs';
 export type { ScheduleStream } from './models/ScheduleStream';
 export type { ScheduleStreamArchiveArgs } from './models/ScheduleStreamArchiveArgs';
 export { ScheduleStreamColor } from './models/ScheduleStreamColor';
