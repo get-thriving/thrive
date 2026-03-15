@@ -1,5 +1,5 @@
-import { ApiError } from "@jupiter/webapi-client";
-import { FormControl, InputLabel, OutlinedInput } from "@mui/material";
+import { ApiError, NoteNamespace, Tag, TagNamespace } from "@jupiter/webapi-client";
+import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -12,6 +12,7 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
+import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -24,6 +25,8 @@ import { ScheduleStreamMultiSelect } from "@jupiter/core/schedule/component/mult
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -44,6 +47,9 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("archive"),
   }),
   z.object({
+    intent: z.literal("create-note"),
+  }),
+  z.object({
     intent: z.literal("remove"),
   }),
 ]);
@@ -61,6 +67,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ref_id: id,
       allow_archived: true,
     });
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.SCHEDULE_EXPORT],
+    });
 
     const streamsResponse = await apiClient.schedule.scheduleStreamFind({
       allow_archived: false,
@@ -70,6 +80,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     return json({
       scheduleExport: response.schedule_export,
+      note: response.note,
+      tags: response.tags as Array<Tag>,
+      allTags: allTags.tags as Array<Tag>,
       allScheduleStreams: streamsResponse.entries.map((e) => e.schedule_stream),
     });
   } catch (error) {
@@ -120,6 +133,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
       }
 
+      case "create-note": {
+        await apiClient.notes.noteCreate({
+          namespace: NoteNamespace.SCHEDULE_EXPORT,
+          source_entity_ref_id: id,
+          content: [],
+        });
+
+        return redirect(
+          `/app/workspace/calendar/schedule/export/${id}?${url.searchParams}`,
+        );
+      }
+
       case "remove": {
         await apiClient.schedule.scheduleExportRemove({
           ref_id: id,
@@ -153,6 +178,7 @@ export default function ScheduleExportViewOne() {
   const topLevelInfo = useContext(TopLevelInfoContext);
   const navigation = useNavigation();
   const [query] = useSearchParams();
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleExport.archived;
@@ -185,16 +211,33 @@ export default function ScheduleExportViewOne() {
           />
         }
       >
-        <FormControl fullWidth>
-          <InputLabel id="name">Name</InputLabel>
-          <OutlinedInput
-            label="name"
-            name="name"
-            readOnly={!inputsEnabled}
-            defaultValue={loaderData.scheduleExport.name}
-          />
-          <FieldError actionResult={actionData} fieldName="/name" />
-        </FormControl>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          spacing={2}
+          useFlexGap
+        >
+          <FormControl fullWidth={!isBigScreen} sx={{ flexGrow: 1 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput
+              label="name"
+              name="name"
+              readOnly={!inputsEnabled}
+              defaultValue={loaderData.scheduleExport.name}
+            />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl fullWidth={!isBigScreen}>
+            <TagsEditor
+              name="tags_names"
+              allTags={loaderData.allTags}
+              defaultValue={loaderData.tags.map((t) => t.ref_id)}
+              inputsEnabled={inputsEnabled}
+              namespace={TagNamespace.SCHEDULE_EXPORT}
+              sourceEntityRefId={loaderData.scheduleExport.ref_id}
+            />
+          </FormControl>
+        </Stack>
 
         <FormControl fullWidth>
           <InputLabel id="scheduleStreamRefIds">Calendar Streams</InputLabel>
@@ -211,6 +254,32 @@ export default function ScheduleExportViewOne() {
             fieldName="/schedule_stream_ref_ids"
           />
         </FormControl>
+      </SectionCard>
+
+      <SectionCard
+        title="Note"
+        actions={
+          <SectionActions
+            id="schedule-export-note"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create Note",
+                value: "create-note",
+                highlight: false,
+                disabled: loaderData.note !== null,
+              }),
+            ]}
+          />
+        }
+      >
+        {loaderData.note && (
+          <EntityNoteEditor
+            initialNote={loaderData.note}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
       </SectionCard>
     </LeafPanel>
   );

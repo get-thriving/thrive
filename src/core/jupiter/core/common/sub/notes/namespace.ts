@@ -10,6 +10,8 @@ export function noteNamespaceName(namespace: NoteNamespace): string {
       return "Time Plan";
     case NoteNamespace.SCHEDULE_STREAM:
       return "Schedule Stream";
+    case NoteNamespace.SCHEDULE_EXPORT:
+      return "Schedule Export";
     case NoteNamespace.SCHEDULE_EVENT_IN_DAY:
       return "Schedule Event In Day";
     case NoteNamespace.SCHEDULE_EVENT_FULL_DAYS:

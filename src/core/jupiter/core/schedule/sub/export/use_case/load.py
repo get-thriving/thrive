@@ -1,5 +1,10 @@
 """Use case for loading a particular schedule export."""
 
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.common.sub.notes.root import Note, NoteRepository
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
+from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -32,6 +37,8 @@ class ScheduleExportLoadResult(UseCaseResultBase):
     """Result."""
 
     schedule_export: ScheduleExport
+    note: Note | None
+    tags: list[Tag]
 
 
 @readonly_use_case(WorkspaceFeature.SCHEDULE)
@@ -53,4 +60,26 @@ class ScheduleExportLoadUseCase(
         schedule_export = await uow.get_for(ScheduleExport).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
-        return ScheduleExportLoadResult(schedule_export=schedule_export)
+
+        note = await uow.get(NoteRepository).load_optional_for_source(
+            NoteNamespace.SCHEDULE_EXPORT,
+            schedule_export.ref_id,
+            allow_archived=allow_archived,
+        )
+
+        tag_link = await uow.get(
+            TagLinkRepository
+        ).load_optional_for_namespace_and_source(
+            namespace=TagNamespace.SCHEDULE_EXPORT,
+            source_entity_ref_id=schedule_export.ref_id,
+        )
+        if tag_link is not None:
+            tags = await uow.get(TagRepository).find_all_generic(
+                parent_ref_id=tag_link.tag_domain.ref_id,
+                allow_archived=False,
+                ref_id=tag_link.ref_ids,
+            )
+        else:
+            tags = []
+
+        return ScheduleExportLoadResult(schedule_export=schedule_export, note=note, tags=tags)

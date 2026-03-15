@@ -31,6 +31,8 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.schedule.scheduleExportFind({
+    include_notes: false,
+    include_tags: false,
     allow_archived: false,
   });
 

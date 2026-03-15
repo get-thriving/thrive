@@ -1,10 +1,16 @@
 """A calendar export configuration."""
 
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.common.sub.notes.root import Note
+from jupiter.core.common.sub.tags.namespace import TagNamespace
+from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.schedule.sub.export.name import ScheduleExportName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
+    IsRefId,
     LeafEntity,
+    OwnsAtMostOne,
     ParentLink,
     create_entity_action,
     entity,
@@ -21,6 +27,12 @@ class ScheduleExport(LeafEntity):
 
     name: ScheduleExportName
     schedule_stream_ref_ids: list[EntityId]
+    tag_link = OwnsAtMostOne(
+        TagLink, namespace=TagNamespace.SCHEDULE_EXPORT, source_entity_ref_id=IsRefId()
+    )
+    note = OwnsAtMostOne(
+        Note, namespace=NoteNamespace.SCHEDULE_EXPORT, source_entity_ref_id=IsRefId()
+    )
 
     @staticmethod
     @create_entity_action

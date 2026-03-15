@@ -8,6 +8,8 @@ export function tagNamespaceName(namespace: TagNamespace): string {
       return "Time Plan";
     case TagNamespace.SCHEDULE_STREAM:
       return "Schedule Stream";
+    case TagNamespace.SCHEDULE_EXPORT:
+      return "Schedule Export";
     case TagNamespace.SCHEDULE_EVENT_IN_DAY:
       return "Schedule Event In Day";
     case TagNamespace.SCHEDULE_EVENT_FULL_DAYS_BLOCK:
