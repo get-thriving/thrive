@@ -173,6 +173,11 @@ class Workspace(RootEntity):
             ):
                 inferred_entity_tags.append(entity_tag)
             elif (
+                entity_tag is NamedEntityTag.SCHEDULE_EXPORT
+                and self.is_feature_available(WorkspaceFeature.SCHEDULE)
+            ):
+                inferred_entity_tags.append(entity_tag)
+            elif (
                 entity_tag is NamedEntityTag.SCHEDULE_EVENT_IN_DAY
                 and self.is_feature_available(WorkspaceFeature.SCHEDULE)
             ):

@@ -14,6 +14,7 @@ export enum NamedEntityTag {
     TIME_PLAN = 'TimePlan',
     TIME_PLAN_ACTIVITY = 'TimePlanActivity',
     SCHEDULE_STREAM = 'ScheduleStream',
+    SCHEDULE_EXPORT = 'ScheduleExport',
     SCHEDULE_EVENT_IN_DAY = 'ScheduleEventInDay',
     SCHEDULE_EVENT_FULL_DAYS = 'ScheduleEventFullDays',
     SCHEDULE_EXTERNAL_SYNC_LOG = 'ScheduleExternalSyncLog',

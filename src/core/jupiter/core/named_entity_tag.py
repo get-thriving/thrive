@@ -17,6 +17,7 @@ class NamedEntityTag(EnumValue):
     TIME_PLAN = "TimePlan"  # TimePlan.__name__
     TIME_PLAN_ACTIVITY = "TimePlanActivity"  # TimePlanActivity.__name__
     SCHEDULE_STREAM = "ScheduleStream"  # ScheduleStream.__name__
+    SCHEDULE_EXPORT = "ScheduleExport"  # ScheduleExport.__name__
     SCHEDULE_EVENT_IN_DAY = "ScheduleEventInDay"  # ScheduleEventInDay.__name__
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = (
         "ScheduleEventFullDays"  # ScheduleEventFullDays.__name__

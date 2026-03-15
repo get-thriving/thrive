@@ -23,6 +23,7 @@ class NamedEntityTag(str, Enum):
     PERSON = "Person"
     SCHEDULEEVENTFULLDAYS = "ScheduleEventFullDays"
     SCHEDULEEVENTINDAY = "ScheduleEventInDay"
+    SCHEDULEEXPORT = "ScheduleExport"
     SCHEDULEEXTERNALSYNCLOG = "ScheduleExternalSyncLog"
     SCHEDULESTREAM = "ScheduleStream"
     SCORELOGENTRY = "ScoreLogEntry"

@@ -65,7 +65,8 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const response = await apiClient.schedule.scheduleExportCreate({
       name: form.name,
-      schedule_stream_ref_ids: fixSelectOutputEntityId(form.scheduleStreamRefIds) ?? [],
+      schedule_stream_ref_ids:
+        fixSelectOutputEntityId(form.scheduleStreamRefIds) ?? [],
     });
 
     return redirect(
@@ -137,7 +138,10 @@ export default function ScheduleExportNew() {
             readOnly={!inputsEnabled}
             allScheduleStreams={loaderData.allScheduleStreams}
           />
-          <FieldError actionResult={actionData} fieldName="/schedule_stream_ref_ids" />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/schedule_stream_ref_ids"
+          />
         </FormControl>
       </SectionCard>
     </LeafPanel>

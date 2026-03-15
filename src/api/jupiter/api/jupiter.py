@@ -460,6 +460,24 @@ from jupiter_webapi_client.api.schedule.schedule_event_in_day_remove import (
 from jupiter_webapi_client.api.schedule.schedule_event_in_day_update import (
     asyncio_detailed as schedule_event_in_day_update,
 )
+from jupiter_webapi_client.api.schedule.schedule_export_archive import (
+    asyncio_detailed as schedule_export_archive,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_create import (
+    asyncio_detailed as schedule_export_create,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_find import (
+    asyncio_detailed as schedule_export_find,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_load import (
+    asyncio_detailed as schedule_export_load,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_remove import (
+    asyncio_detailed as schedule_export_remove,
+)
+from jupiter_webapi_client.api.schedule.schedule_export_update import (
+    asyncio_detailed as schedule_export_update,
+)
 
 # --- Schedule API ---
 from jupiter_webapi_client.api.schedule.schedule_stream_archive import (
@@ -818,6 +836,21 @@ async def main() -> None:
                     JupiterApiResource.build(
                         "remove",
                         JupiterApiGatewayMethod.delete(schedule_stream_remove),
+                    ),
+                ),
+            ),
+            JupiterApiResource.build(
+                "exports",
+                JupiterApiGatewayMethod.get(schedule_export_find),
+                JupiterApiGatewayMethod.post(schedule_export_create),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(schedule_export_load),
+                    JupiterApiGatewayMethod.put(schedule_export_update),
+                    JupiterApiGatewayMethod.delete(schedule_export_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(schedule_export_remove),
                     ),
                 ),
             ),

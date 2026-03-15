@@ -206,7 +206,10 @@ export default function ScheduleExportViewOne() {
             allScheduleStreams={loaderData.allScheduleStreams}
             defaultValue={loaderData.scheduleExport.schedule_stream_ref_ids}
           />
-          <FieldError actionResult={actionData} fieldName="/schedule_stream_ref_ids" />
+          <FieldError
+            actionResult={actionData}
+            fieldName="/schedule_stream_ref_ids"
+          />
         </FormControl>
       </SectionCard>
     </LeafPanel>
