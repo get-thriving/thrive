@@ -8,6 +8,7 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.schedule.sub.export.name import ScheduleExportName
 from jupiter.core.schedule.sub.export.root import ScheduleExport
+from jupiter.core.schedule.sub.stream.root import ScheduleStream
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -21,6 +22,7 @@ from jupiter.framework.use_case_io import (
     use_case_result,
 )
 from jupiter.framework.utils.generic_creator import generic_creator
+from jupiter.framework.errors import InputValidationError
 
 
 @use_case_args
@@ -58,6 +60,20 @@ class ScheduleExportCreateUseCase(
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
             workspace.ref_id
         )
+        if not args.schedule_stream_ref_ids:
+            raise InputValidationError("At least one schedule stream must be provided to create a schedule export.")
+        # Try to load the list of schedule streams to make sure they are not archived
+        schedule_streams = await uow.get_for(ScheduleStream).find_all_generic(
+            parent_ref_id=schedule_domain.ref_id,
+            allow_archived=False,
+            ref_id=args.schedule_stream_ref_ids,
+        )
+        found_stream_ref_ids = {stream.ref_id for stream in schedule_streams}
+        missing_stream_ref_ids = set(args.schedule_stream_ref_ids) - found_stream_ref_ids
+        if missing_stream_ref_ids:
+            raise InputValidationError(
+                f"The following schedule streams are not found or are archived: {missing_stream_ref_ids}"
+            )
         schedule_export = ScheduleExport.new_schedule_export(
             context.domain_context,
             schedule_domain_ref_id=schedule_domain.ref_id,

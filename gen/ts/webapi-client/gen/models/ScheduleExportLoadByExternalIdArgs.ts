@@ -1,0 +1,11 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+/**
+ * Args.
+ */
+export type ScheduleExportLoadByExternalIdArgs = {
+    external_id: string;
+};
+

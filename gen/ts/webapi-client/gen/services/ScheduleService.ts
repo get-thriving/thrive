@@ -24,6 +24,8 @@ import type { ScheduleExportCreateResult } from '../models/ScheduleExportCreateR
 import type { ScheduleExportFindArgs } from '../models/ScheduleExportFindArgs';
 import type { ScheduleExportFindResult } from '../models/ScheduleExportFindResult';
 import type { ScheduleExportLoadArgs } from '../models/ScheduleExportLoadArgs';
+import type { ScheduleExportLoadByExternalIdArgs } from '../models/ScheduleExportLoadByExternalIdArgs';
+import type { ScheduleExportLoadByExternalIdResult } from '../models/ScheduleExportLoadByExternalIdResult';
 import type { ScheduleExportLoadResult } from '../models/ScheduleExportLoadResult';
 import type { ScheduleExportRemoveArgs } from '../models/ScheduleExportRemoveArgs';
 import type { ScheduleExportUpdateArgs } from '../models/ScheduleExportUpdateArgs';
@@ -447,6 +449,32 @@ export class ScheduleService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/schedule-export-load',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Load a schedule export and its stream events from an external id.
+     * @param requestBody The input data
+     * @returns ScheduleExportLoadByExternalIdResult Successful response
+     * @throws ApiError
+     */
+    public scheduleExportLoadByExternalId(
+        requestBody?: ScheduleExportLoadByExternalIdArgs,
+    ): CancelablePromise<ScheduleExportLoadByExternalIdResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/schedule-export-load-by-external-id',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

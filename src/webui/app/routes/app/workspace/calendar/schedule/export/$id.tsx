@@ -192,7 +192,7 @@ export default function ScheduleExportViewOne() {
     navigation.state === "idle" && !loaderData.scheduleExport.archived;
   const externalId =
     (loaderData.scheduleExport as { external_id?: string }).external_id ?? "";
-  const externalCalendarUrl = `https://domain/public/schedule/export/${externalId}`;
+  const externalCalendarUrl = `https://domain/app/public/schedule/export/${externalId}`;
 
   async function copyExternalCalendarUrl() {
     await navigator.clipboard.writeText(externalCalendarUrl);
