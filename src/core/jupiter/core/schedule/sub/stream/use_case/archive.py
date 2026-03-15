@@ -49,7 +49,9 @@ class ScheduleStreamArchiveUseCase(
         """Execute the command's action."""
         workspace = context.workspace
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(args.ref_id)
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(workspace.ref_id)
+        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
+            workspace.ref_id
+        )
         if schedule_stream.source == ScheduleStreamSource.USER:
             all_user_schedules = await uow.get_for(ScheduleStream).find_all_generic(
                 parent_ref_id=schedule_domain.ref_id,

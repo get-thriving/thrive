@@ -14,7 +14,7 @@ export async function loader() {
     webApiUrl: SERVICE_PROPERTIES.webApiUrl,
     apiUrl: SERVICE_PROPERTIES.apiUrl,
     mcpUrl: SERVICE_PROPERTIES.mcpUrl,
-    webUiUrl: GLOBAL_PROPERTIES.hostedGlobalWebUiUrl,
+    webUiUrl: SERVICE_PROPERTIES.webUiUrl,
     docsUrl: SERVICE_PROPERTIES.docsUrl,
   });
 }

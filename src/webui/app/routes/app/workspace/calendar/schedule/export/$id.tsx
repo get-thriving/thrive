@@ -1,4 +1,9 @@
-import { ApiError, NoteNamespace, Tag, TagNamespace } from "@jupiter/webapi-client";
+import {
+  ApiError,
+  NoteNamespace,
+  Tag,
+  TagNamespace,
+} from "@jupiter/webapi-client";
 import {
   Button,
   FormControl,
@@ -34,6 +39,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { ServicePropertiesContext } from "@jupiter/core/config-client";
 
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
@@ -187,12 +193,13 @@ export default function ScheduleExportViewOne() {
   const [query] = useSearchParams();
   const isBigScreen = useBigScreen();
   const [hasCopiedExternalUrl, setHasCopiedExternalUrl] = useState(false);
+  const serviceProperties = useContext(ServicePropertiesContext);
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.scheduleExport.archived;
   const externalId =
     (loaderData.scheduleExport as { external_id?: string }).external_id ?? "";
-  const externalCalendarUrl = `https://domain/app/public/schedule/export/${externalId}`;
+  const externalCalendarUrl = `${serviceProperties.webUiUrl}/app/public/schedule/export/${externalId}`;
 
   async function copyExternalCalendarUrl() {
     await navigator.clipboard.writeText(externalCalendarUrl);
@@ -272,7 +279,9 @@ export default function ScheduleExportViewOne() {
         </FormControl>
 
         <FormControl fullWidth>
-          <InputLabel id="externalCalendarUrl">External Calendar URL</InputLabel>
+          <InputLabel id="externalCalendarUrl">
+            External Calendar URL
+          </InputLabel>
           <OutlinedInput
             label="External Calendar URL"
             name="externalCalendarUrl"

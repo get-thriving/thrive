@@ -47,7 +47,9 @@ class ScheduleStreamRemoveUseCase(
     ) -> None:
         """Execute the command's action."""
         workspace = context.workspace
-        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(workspace.ref_id)
+        schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
+            workspace.ref_id
+        )
         schedule_stream = await uow.get_for(ScheduleStream).load_by_id(
             args.ref_id, allow_archived=True
         )

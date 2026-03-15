@@ -82,4 +82,6 @@ class ScheduleExportLoadUseCase(
         else:
             tags = []
 
-        return ScheduleExportLoadResult(schedule_export=schedule_export, note=note, tags=tags)
+        return ScheduleExportLoadResult(
+            schedule_export=schedule_export, note=note, tags=tags
+        )

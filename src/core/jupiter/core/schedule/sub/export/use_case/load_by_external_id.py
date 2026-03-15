@@ -97,7 +97,9 @@ class ScheduleExportLoadByExternalIdUseCase(
             }
             schedule_stream_ref_ids = list(schedule_streams_by_ref_id.keys())
 
-            schedule_events_in_day = await uow.get_for(ScheduleEventInDay).find_all_generic(
+            schedule_events_in_day = await uow.get_for(
+                ScheduleEventInDay
+            ).find_all_generic(
                 parent_ref_id=schedule_export.schedule_domain.ref_id,
                 allow_archived=False,
                 schedule_stream_ref_id=schedule_stream_ref_ids,
@@ -119,12 +121,16 @@ class ScheduleExportLoadByExternalIdUseCase(
             )
             tag_domain = await uow.get_for(TagDomain).load_by_parent(workspace_ref_id)
 
-            schedule_event_in_day_ref_ids = [event.ref_id for event in schedule_events_in_day]
+            schedule_event_in_day_ref_ids = [
+                event.ref_id for event in schedule_events_in_day
+            ]
             schedule_event_full_days_ref_ids = [
                 event.ref_id for event in schedule_events_full_days
             ]
 
-            time_events_in_day = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            time_events_in_day = await uow.get_for(
+                TimeEventInDayBlock
+            ).find_all_generic(
                 parent_ref_id=time_event_domain.ref_id,
                 allow_archived=False,
                 namespace=TimeEventNamespace.SCHEDULE_EVENT_IN_DAY,
@@ -141,9 +147,9 @@ class ScheduleExportLoadByExternalIdUseCase(
                 source_entity_ref_id=schedule_event_full_days_ref_ids,
                 allow_archived=False,
             )
-            time_events_full_days_by_source_ref_id: dict[EntityId, TimeEventFullDaysBlock] = {
-                event.source_entity_ref_id: event for event in time_events_full_days
-            }
+            time_events_full_days_by_source_ref_id: dict[
+                EntityId, TimeEventFullDaysBlock
+            ] = {event.source_entity_ref_id: event for event in time_events_full_days}
 
             all_in_day_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tag_domain.ref_id,
@@ -177,15 +183,17 @@ class ScheduleExportLoadByExternalIdUseCase(
             )
             full_days_tags_by_schedule_event_ref_id: dict[EntityId, list[Tag]] = {}
             for tag_link in full_days_tag_links:
-                full_days_tags_by_schedule_event_ref_id[tag_link.source_entity_ref_id] = [
+                full_days_tags_by_schedule_event_ref_id[
+                    tag_link.source_entity_ref_id
+                ] = [
                     all_full_days_tags_by_ref_id[rid]
                     for rid in tag_link.ref_ids
                     if rid in all_full_days_tags_by_ref_id
                 ]
 
-            in_day_entries_by_stream_ref_id: defaultdict[EntityId, list[ScheduleInDayEventEntry]] = (
-                defaultdict(list)
-            )
+            in_day_entries_by_stream_ref_id: defaultdict[
+                EntityId, list[ScheduleInDayEventEntry]
+            ] = defaultdict(list)
             for event in schedule_events_in_day:
                 if event.ref_id not in time_events_in_day_by_source_ref_id:
                     continue
@@ -213,7 +221,9 @@ class ScheduleExportLoadByExternalIdUseCase(
                 full_days_entries_by_stream_ref_id[event.schedule_stream_ref_id].append(
                     ScheduleFullDaysEventEntry(
                         event=event,
-                        tags=full_days_tags_by_schedule_event_ref_id.get(event.ref_id, []),
+                        tags=full_days_tags_by_schedule_event_ref_id.get(
+                            event.ref_id, []
+                        ),
                         time_event=time_events_full_days_by_source_ref_id[event.ref_id],
                         stream=stream,
                     )

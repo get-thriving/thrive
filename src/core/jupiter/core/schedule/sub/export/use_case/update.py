@@ -50,7 +50,9 @@ class ScheduleExportUpdateUseCase(
         )
 
         if args.schedule_stream_ref_ids.should_change:
-            updated_schedule_stream_ref_ids = args.schedule_stream_ref_ids.just_the_value
+            updated_schedule_stream_ref_ids = (
+                args.schedule_stream_ref_ids.just_the_value
+            )
             if not updated_schedule_stream_ref_ids:
                 raise InputValidationError(
                     "At least one schedule stream must be provided to update a schedule export."
