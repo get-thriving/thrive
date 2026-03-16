@@ -37,6 +37,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { timePlanAllowsInboxTasks } from "@jupiter/core/time_plans/root";
 import { TimePlanActivityCard } from "@jupiter/core/time_plans/sub/activity/component/card";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
@@ -255,6 +256,10 @@ export default function TimePlanAddFromCurrentTimePlans() {
     otherTargetInboxTasksByRefId,
     otherTargetBigPlansByRefId,
     loaderData.otherActivityDoneness,
+  ).filter(
+    (activity) =>
+      activity.target !== TimePlanActivityTarget.INBOX_TASK ||
+      timePlanAllowsInboxTasks(loaderData.mainTimePlan),
   );
   const sortedOtherActivities = sortTimePlanActivitiesNaturally(
     filteredOtherActivities,

@@ -83,6 +83,11 @@ class TimePlanAssociateWithInboxTasksUseCase(
 
         time_plan = await uow.get_for(TimePlan).load_by_id(args.ref_id)
 
+        if not time_plan.allows_inbox_tasks:
+            raise InputValidationError(
+                "This time plan does not allow inbox task activities"
+            )
+
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
         )

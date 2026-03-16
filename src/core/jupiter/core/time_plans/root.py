@@ -163,6 +163,19 @@ class TimePlan(LeafEntity):
             right_now=right_now,
         )
 
+    @property
+    def allows_big_plans(self) -> bool:
+        """Whether this time plan allows big plan activities."""
+        return True
+
+    @property
+    def allows_inbox_tasks(self) -> bool:
+        """Whether this time plan allows inbox task activities."""
+        return self.period in (
+            RecurringTaskPeriod.DAILY,
+            RecurringTaskPeriod.WEEKLY,
+        )
+
     @staticmethod
     def build_name(right_now: ADate, period: RecurringTaskPeriod) -> EntityName:
         """Build the name of the time plan."""

@@ -36,7 +36,10 @@ import { sortJournalsNaturally } from "@jupiter/core/journals/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { allowUserChanges } from "@jupiter/core/time_plans/source";
 import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans/sub/activity/root";
-import { sortTimePlansNaturally } from "@jupiter/core/time_plans/root";
+import {
+  sortTimePlansNaturally,
+  timePlanAllowsInboxTasks,
+} from "@jupiter/core/time_plans/root";
 import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
@@ -635,23 +638,31 @@ export default function TimePlanView() {
               actions={[
                 NavMultipleCompact({
                   navs: [
-                    NavSingle({
-                      text: "New Inbox Task",
-                      link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
-                    }),
+                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                      ? [
+                          NavSingle({
+                            text: "New Inbox Task",
+                            link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                          }),
+                        ]
+                      : []),
                     NavSingle({
                       text: "New Big Plan",
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                       gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
-                    NavSingle({
-                      text: "From Current Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
-                    }),
-                    NavSingle({
-                      text: "From Generated Inbox Tasks",
-                      link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
-                    }),
+                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
+                      ? [
+                          NavSingle({
+                            text: "From Current Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`,
+                          }),
+                          NavSingle({
+                            text: "From Generated Inbox Tasks",
+                            link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-generated-inbox-tasks?showFromPeriod=${loaderData.timePlan.period}`,
+                          }),
+                        ]
+                      : []),
                     NavSingle({
                       text: "From Current Big Plans",
                       link: `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`,
@@ -769,7 +780,11 @@ export default function TimePlanView() {
             <EntityNoNothingCard
               title="You Have To Start Somewhere"
               message="There are no activities to show. You can create a new activity."
-              newEntityLocations={`/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`}
+              newEntityLocations={
+                timePlanAllowsInboxTasks(loaderData.timePlan)
+                  ? `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-inbox-tasks`
+                  : `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/add-from-current-big-plans`
+              }
               helpSubject={DocsHelpSubject.TIME_PLANS}
             />
           )}

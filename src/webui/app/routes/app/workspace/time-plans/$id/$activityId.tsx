@@ -61,6 +61,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { timePlanAllowsInboxTasks } from "@jupiter/core/time_plans/root";
 import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
 import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
@@ -919,15 +920,19 @@ export default function TimePlanActivity() {
                   actions={[
                     NavMultipleSpread({
                       navs: [
-                        NavSingle({
-                          text: "New Inbox Task",
-                          link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
-                          highlight: true,
-                        }),
-                        NavSingle({
-                          text: "From Current Inbox Tasks",
-                          link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
-                        }),
+                        ...(timePlanAllowsInboxTasks(timePlan)
+                          ? [
+                              NavSingle({
+                                text: "New Inbox Task",
+                                link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
+                                highlight: true,
+                              }),
+                              NavSingle({
+                                text: "From Current Inbox Tasks",
+                                link: `/app/workspace/time-plans/${id}/add-from-current-inbox-tasks?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&timePlanActivityRefId=${activityId}`,
+                              }),
+                            ]
+                          : []),
                       ],
                     }),
                   ]}
