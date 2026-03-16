@@ -68,7 +68,7 @@ interface BigPlanPropertiesEditorProps {
   namePrefix?: string;
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
-  lifePlan: LifePlan;
+  lifePlan: LifePlan | null;
   allAspects: AspectSummary[];
   allChapters: ChapterSummary[];
   allGoals: GoalSummary[];
@@ -88,22 +88,26 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
     (m) => aDateToDate(m.date) > aDateToDate(props.topLevelInfo.today),
   ).length;
 
-  const birthday = lifePlanBirthdayDate(props.lifePlan);
+  const birthday = props.lifePlan
+    ? lifePlanBirthdayDate(props.lifePlan)
+    : null;
   const today = aDateToDate(props.topLevelInfo.today);
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
-    props.bigPlanInfo.aspect.ref_id,
+    props.bigPlanInfo.aspect?.ref_id ?? "",
   );
 
   const chaptersForSuggestions = useMemo(
     () =>
-      findActiveChaptersForSuggestions(
-        props.allChapters.filter(
-          (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
-        ),
-        birthday,
-        today,
-        props.allMilestones,
-      ),
+      birthday
+        ? findActiveChaptersForSuggestions(
+            props.allChapters.filter(
+              (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
+            ),
+            birthday,
+            today,
+            props.allMilestones,
+          )
+        : [],
     [
       props.allChapters,
       props.allMilestones,
@@ -249,12 +253,12 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
               allAspects={props.allAspects}
               aspectValue={selectedAspectRefId}
               onAspectChange={setSelectedAspectRefId}
-              aspectDefaultValue={props.bigPlanInfo.aspect.ref_id}
+              aspectDefaultValue={props.bigPlanInfo.aspect?.ref_id ?? ""}
               allChapters={props.allChapters}
               chapterDefaultValue={props.bigPlanInfo.chapter?.ref_id}
               allGoals={props.allGoals}
               goalDefaultValue={props.bigPlanInfo.goal?.ref_id}
-              birthday={lifePlanBirthdayDate(props.lifePlan)}
+              birthday={birthday!}
               today={aDateToDate(props.topLevelInfo.today)}
               allMilestones={props.allMilestones}
             />

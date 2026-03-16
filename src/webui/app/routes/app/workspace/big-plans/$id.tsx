@@ -194,11 +194,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       note: result.note,
       timeEventBlocks: result.time_event_blocks,
       timePlanEntries: timePlanEntries,
-      lifePlan: summaryResponse.life_plan as LifePlan,
-      allAspects: summaryResponse.aspects as Array<AspectSummary>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      lifePlan: summaryResponse.life_plan as LifePlan | null,
+      allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+      allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
     });
@@ -473,10 +473,10 @@ export default function BigPlan() {
           showRefreshStats
           topLevelInfo={topLevelInfo}
           lifePlan={loaderData.lifePlan}
-          allAspects={loaderData.allAspects}
-          allChapters={loaderData.allChapters}
-          allGoals={loaderData.allGoals}
-          allMilestones={loaderData.allMilestones}
+          allAspects={loaderData.allAspects ?? []}
+          allChapters={loaderData.allChapters ?? []}
+          allGoals={loaderData.allGoals ?? []}
+          allMilestones={loaderData.allMilestones ?? []}
           allTags={loaderData.allTags}
           tags={loaderData.tags}
           allContacts={loaderData.allContacts}

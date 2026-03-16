@@ -124,12 +124,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({
     timePlanReason: timePlanReason,
     associatedTimePlan: associatedTimePlan,
-    rootAspect: summaryResponse.root_aspect as AspectSummary,
-    lifePlan: summaryResponse.life_plan as LifePlan,
-    allAspects: summaryResponse.aspects as Array<AspectSummary>,
-    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-    allGoals: summaryResponse.goals as Array<GoalSummary>,
-    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary | null,
+    lifePlan: summaryResponse.life_plan as LifePlan | null,
+    allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+    allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
   });
 }
 
@@ -204,21 +204,25 @@ export default function NewBigPlan() {
 
   const inputsEnabled = navigation.state === "idle";
 
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
   const todayDate = aDateToDate(topLevelInfo.today);
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
-    loaderData.rootAspect.ref_id,
+    loaderData.rootAspect?.ref_id ?? "",
   );
   const chaptersForSuggestions = useMemo(
     () =>
-      findActiveChaptersForSuggestions(
-        loaderData.allChapters.filter(
-          (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
-        ),
-        birthdayDate,
-        todayDate,
-        loaderData.allMilestones,
-      ),
+      birthdayDate
+        ? findActiveChaptersForSuggestions(
+            (loaderData.allChapters ?? []).filter(
+              (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
+            ),
+            birthdayDate,
+            todayDate,
+            loaderData.allMilestones ?? [],
+          )
+        : [],
     [
       loaderData.allChapters,
       loaderData.allMilestones,
@@ -279,15 +283,15 @@ export default function NewBigPlan() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allAspects={loaderData.allAspects}
+              allAspects={loaderData.allAspects ?? []}
               aspectValue={selectedAspectRefId}
               onAspectChange={setSelectedAspectRefId}
-              aspectDefaultValue={loaderData.rootAspect.ref_id}
-              allChapters={loaderData.allChapters}
-              allGoals={loaderData.allGoals}
-              birthday={birthdayDate}
+              aspectDefaultValue={loaderData.rootAspect?.ref_id ?? ""}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
             <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
