@@ -89,12 +89,12 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return json({
-    rootAspect: summaryResponse.root_aspect as AspectSummary,
-    lifePlan: summaryResponse.life_plan as LifePlan,
-    allAspects: summaryResponse.aspects as Array<AspectSummary>,
-    allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-    allGoals: summaryResponse.goals as Array<GoalSummary>,
-    allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+    rootAspect: summaryResponse.root_aspect as AspectSummary | null,
+    lifePlan: summaryResponse.life_plan as LifePlan | null,
+    allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+    allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
   });
 }
 
@@ -156,9 +156,11 @@ export default function NewChore() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
 
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
   const [selectedAspect, setSelectedAspect] = useState<string>(
-    loaderData.rootAspect.ref_id,
+    loaderData.rootAspect?.ref_id ?? "",
   );
 
   const inputsEnabled = navigation.state === "idle";
@@ -219,14 +221,14 @@ export default function NewChore() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allAspects={loaderData.allAspects}
+              allAspects={loaderData.allAspects ?? []}
               aspectValue={selectedAspect}
               onAspectChange={setSelectedAspect}
-              allChapters={loaderData.allChapters}
-              allGoals={loaderData.allGoals}
-              birthday={birthdayDate}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
             <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />

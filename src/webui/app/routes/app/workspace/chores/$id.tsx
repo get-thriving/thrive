@@ -150,11 +150,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTasks: result.inbox_tasks,
       inboxTasksTotalCnt: result.inbox_tasks_total_cnt,
       inboxTasksPageSize: result.inbox_tasks_page_size,
-      lifePlan: summaryResponse.life_plan as LifePlan,
-      allAspects: summaryResponse.aspects as Array<Aspect>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
+      lifePlan: summaryResponse.life_plan as LifePlan | null,
+      allAspects: summaryResponse.aspects as Array<Aspect> | null,
+      allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+      allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+      allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       contacts:
         (
@@ -347,13 +347,15 @@ export default function Chore() {
 
   const topLevelInfo = useContext(TopLevelInfoContext);
   const isBigScreen = useBigScreen();
-  const birthdayDate = lifePlanBirthdayDate(loaderData.lifePlan);
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.chore.archived;
 
   const [selectedAspect, setSelectedAspect] = useState(
-    loaderData.aspect.ref_id,
+    loaderData.aspect?.ref_id ?? "",
   );
 
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
@@ -392,7 +394,7 @@ export default function Chore() {
     // Update states based on loader data. This is necessary because these
     // two are not otherwise updated when the loader data changes. Which happens
     // on a navigation event.
-    setSelectedAspect(loaderData.aspect.ref_id);
+    setSelectedAspect(loaderData.aspect?.ref_id ?? "");
   }, [loaderData]);
 
   return (
@@ -484,16 +486,16 @@ export default function Chore() {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={inputsEnabled}
-              allAspects={loaderData.allAspects}
+              allAspects={loaderData.allAspects ?? []}
               aspectValue={selectedAspect}
               onAspectChange={setSelectedAspect}
-              allChapters={loaderData.allChapters}
+              allChapters={loaderData.allChapters ?? []}
               chapterDefaultValue={loaderData.chapter?.ref_id}
-              allGoals={loaderData.allGoals}
+              allGoals={loaderData.allGoals ?? []}
               goalDefaultValue={loaderData.goal?.ref_id}
-              birthday={birthdayDate}
+              birthday={birthdayDate!}
               today={aDateToDate(topLevelInfo.today)}
-              allMilestones={loaderData.allMilestones}
+              allMilestones={loaderData.allMilestones ?? []}
             />
             <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
             <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
