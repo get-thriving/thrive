@@ -122,6 +122,12 @@ class TimePlanAssociateWithActivitiesUseCase(
                 await progress_reporter.mark_updated(big_plan)
 
         # Then we create all the inbox tasks, with their owning big plans if not already.
+        # Skip inbox task activities if the target time plan does not allow them.
+        if not time_plan.allows_inbox_tasks:
+            return TimePlanAssociateWithActivitiesResult(
+                new_time_plan_activities=new_time_plan_actitivies
+            )
+
         for activity in activities:
             if activity.target != TimePlanActivityTarget.INBOX_TASK:
                 continue

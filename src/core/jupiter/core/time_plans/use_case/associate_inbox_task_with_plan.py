@@ -93,6 +93,12 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
             filter_ref_ids=args.time_plan_ref_ids,
         )
 
+        for time_plan in time_plans:
+            if not time_plan.allows_inbox_tasks:
+                raise InputValidationError(
+                    f"Time plan {time_plan.name} does not allow inbox task activities"
+                )
+
         latest_time_plan = max(time_plans, key=lambda x: x.end_date)
 
         new_time_plan_activities = []

@@ -1,7 +1,19 @@
 import type { ADate, TimePlan } from "@jupiter/webapi-client";
+import { RecurringTaskPeriod } from "@jupiter/webapi-client";
 
 import { aDateToDate, compareADate } from "#/core/common/adate";
 import { comparePeriods } from "#/core/common/recurring-task-period";
+
+export function timePlanAllowsBigPlans(_timePlan: TimePlan): boolean {
+  return true;
+}
+
+export function timePlanAllowsInboxTasks(timePlan: TimePlan): boolean {
+  return (
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
+  );
+}
 
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,
