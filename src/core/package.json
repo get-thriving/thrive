@@ -22,6 +22,7 @@
     "http-status-codes": "^2.3.0"
   },
   "peerDependencies": {
+    "@hello-pangea/dnd": "^18.0.1",
     "react-use-websocket": "^4.13.0",
     "@emotion/react": "^11.14.0",
     "emoji-picker-react": "^4.12.2",

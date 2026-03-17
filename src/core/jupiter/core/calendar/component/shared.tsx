@@ -1,3 +1,4 @@
+import { Draggable, Droppable } from "@hello-pangea/dnd";
 import {
   ADate,
   BigPlan,
@@ -53,6 +54,7 @@ import {
   clipTimeEventFullDaysNameToWhatFits,
   buildTimeBlockOffsetsMap,
   clipTimeEventInDayNameToWhatFits,
+  isTimeEventInDayBlockEditable,
 } from "#/core/common/sub/time_events/time-event";
 import {
   scheduleStreamColorContrastingHex,
@@ -542,85 +544,144 @@ export function ViewAsCalendarTimeEventInDayColumn(
   }
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-        flexGrow: 1,
-        height: `${heightInRem}rem`,
-        minWidth: "7rem",
-      }}
-      ref={wholeColumnRef}
-      onDoubleClick={createNewFromDoubleClick}
-    >
-      {props.today === props.date && (
+    <Droppable droppableId={props.date} type="calendar-time-event">
+      {(provided, snapshot) => (
         <Box
           sx={{
-            position: "absolute",
-            top: calendarTimeEventInDayStartMinutesToRems(
-              theMinutes,
-              deltaHour,
-            ),
-            height: "0.15rem",
-            width: "100%",
-            backgroundColor: theme.palette.info.dark,
-            zIndex: theme.zIndex.appBar,
+            position: "relative",
+            flexGrow: 1,
+            height: `${heightInRem}rem`,
+            minWidth: "7rem",
+            overflow: "hidden",
+            backgroundColor: snapshot.isDraggingOver
+              ? "rgba(0, 0, 0, 0.04)"
+              : undefined,
           }}
-        ></Box>
-      )}
+          ref={(node) => {
+            wholeColumnRef.current = node as HTMLDivElement | null;
+            provided.innerRef(node as HTMLElement | null);
+          }}
+          {...provided.droppableProps}
+          onDoubleClick={createNewFromDoubleClick}
+        >
+          {props.today === props.date && (
+            <Box
+              sx={{
+                position: "absolute",
+                top: calendarTimeEventInDayStartMinutesToRems(
+                  theMinutes,
+                  deltaHour,
+                ),
+                height: "0.15rem",
+                width: "100%",
+                backgroundColor: theme.palette.info.dark,
+                zIndex: theme.zIndex.appBar,
+              }}
+            ></Box>
+          )}
 
-      {hours.map((hour, idx) => {
-        if (
-          props.showOnlyFromRightNowIfDaily &&
-          hour.hour < props.rightNow.hour
-        ) {
-          return null;
-        }
+          {hours.map((hour, idx) => {
+            if (
+              props.showOnlyFromRightNowIfDaily &&
+              hour.hour < props.rightNow.hour
+            ) {
+              return null;
+            }
 
-        const locationInRem = idx * 4 - deltaHour * 4;
+            const locationInRem = idx * 4 - deltaHour * 4;
 
-        return (
-          <Box
-            key={idx}
-            sx={{
-              position: "absolute",
-              height: "0.05rem",
-              left: "-0.05rem", // Offset for gap: 0.1 in container
-              backgroundColor: theme.palette.text.disabled,
-              top: `${locationInRem}rem`,
-              width: "calc(100% + 0.1rem)", // Offset for gap 0.1 in container
-            }}
-          ></Box>
-        );
-      })}
+            return (
+              <Box
+                key={idx}
+                sx={{
+                  position: "absolute",
+                  height: "0.05rem",
+                  left: "-0.05rem", // Offset for gap: 0.1 in container
+                  backgroundColor: theme.palette.text.disabled,
+                  top: `${locationInRem}rem`,
+                  width: "calc(100% + 0.1rem)", // Offset for gap 0.1 in container
+                }}
+              ></Box>
+            );
+          })}
 
-      <TimeEventParamsNewPlaceholder
-        daysToTheLeft={props.daysToTheLeft}
-        date={props.date}
-        deltaHour={deltaHour}
-      />
-
-      {props.timeEventsInDay.map((entry, index) => {
-        return (
-          <ViewAsCalendarTimeEventInDayCell
-            key={index}
-            offset={timeBlockOffsetsMap.get(entry.time_event_in_tz.ref_id) || 0}
-            startOfDay={startOfDay}
-            entry={entry}
-            isAdding={props.isAdding}
+          <TimeEventParamsNewPlaceholder
+            daysToTheLeft={props.daysToTheLeft}
+            date={props.date}
             deltaHour={deltaHour}
           />
-        );
-      })}
-    </Box>
+
+          {props.timeEventsInDay.map((entry, index) => {
+            const offset =
+              timeBlockOffsetsMap.get(entry.time_event_in_tz.ref_id) || 0;
+            const startTime = calculateStartTimeForTimeEvent(
+              entry.time_event_in_tz,
+            );
+            const minutesSinceStartOfDay = startTime
+              .diff(startOfDay)
+              .as("minutes");
+            const topRems = calendarTimeEventInDayStartMinutesToRems(
+              minutesSinceStartOfDay,
+              deltaHour,
+            );
+
+            if (topRems === undefined) return null;
+
+            const heightRems = calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              entry.time_event_in_tz.duration_mins,
+            );
+            const isEditable = isTimeEventInDayBlockEditable(
+              entry.time_event_in_tz.namespace,
+            );
+            const draggableId = `${entry.time_event_in_tz.ref_id}|${entry.time_event_in_tz.start_time_in_day}|${entry.time_event_in_tz.duration_mins}`;
+
+            return (
+              <Draggable
+                key={entry.time_event_in_tz.ref_id}
+                draggableId={draggableId}
+                index={index}
+                isDragDisabled={!isEditable}
+              >
+                {(dragProvided, dragSnapshot) => (
+                  <div
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    {...dragProvided.dragHandleProps}
+                    style={{
+                      position: "absolute",
+                      top: topRems,
+                      height: heightRems,
+                      minWidth: `calc(7rem - ${offset * 0.8}rem - 0.5rem)`,
+                      width: `calc(100% - ${offset * 0.8}rem - 0.5rem)`,
+                      marginLeft: `${offset * 0.8}rem`,
+                      zIndex: dragSnapshot.isDragging ? 5000 : offset,
+                      cursor: isEditable ? "grab" : "default",
+                      ...dragProvided.draggableProps.style,
+                    }}
+                  >
+                    <ViewAsCalendarTimeEventInDayCell
+                      startOfDay={startOfDay}
+                      entry={entry}
+                      isAdding={props.isAdding}
+                    />
+                  </div>
+                )}
+              </Draggable>
+            );
+          })}
+
+          <div style={{ display: "none" }}>{provided.placeholder}</div>
+        </Box>
+      )}
+    </Droppable>
   );
 }
 
 interface ViewAsCalendarTimeEventInDayCellProps {
-  offset: number;
   startOfDay: DateTime;
   entry: CombinedTimeEventInDayEntry;
   isAdding: boolean;
-  deltaHour: number;
 }
 
 export function ViewAsCalendarTimeEventInDayCell(
@@ -659,34 +720,18 @@ export function ViewAsCalendarTimeEventInDayCell(
         scheduleEntry.time_event.duration_mins,
       );
 
-      const topRems = calendarTimeEventInDayStartMinutesToRems(
-        minutesSinceStartOfDay,
-        props.deltaHour,
-      );
-
-      if (topRems === undefined) {
-        return null;
-      }
-
       return (
         <Box
           ref={containerRef}
           id={`schedule-event-in-day-block-${(props.entry.entry as ScheduleInDayEventEntry).event.ref_id}`}
           sx={{
             fontSize: "10px",
-            position: "absolute",
-            top: topRems,
-            height: calendarTimeEventInDayDurationToRems(
-              minutesSinceStartOfDay,
-              scheduleEntry.time_event.duration_mins,
-            ),
+            position: "relative",
+            height: "100%",
+            overflow: "hidden",
             backgroundColor: scheduleStreamColorHex(scheduleEntry.stream.color),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
           }}
         >
           <EntityLink
@@ -743,27 +788,15 @@ export function ViewAsCalendarTimeEventInDayCell(
         props.entry.time_event_in_tz.duration_mins,
       );
 
-      const topRems = calendarTimeEventInDayStartMinutesToRems(
-        minutesSinceStartOfDay,
-        props.deltaHour,
-      );
-
-      if (topRems === undefined) {
-        return null;
-      }
-
       return (
         <Box
           ref={containerRef}
           id={`inbox-task-event-in-day-block-${(props.entry.entry as InboxTaskEntry).inbox_task.ref_id}`}
           sx={{
             fontSize: "10px",
-            position: "absolute",
-            top: topRems,
-            height: calendarTimeEventInDayDurationToRems(
-              minutesSinceStartOfDay,
-              props.entry.time_event_in_tz.duration_mins,
-            ),
+            position: "relative",
+            height: "100%",
+            overflow: "hidden",
             backgroundColor: scheduleStreamColorHex(
               INBOX_TASK_TIME_EVENT_COLOR,
               inboxTaskEntry.inbox_task.status === InboxTaskStatus.DONE
@@ -774,10 +807,6 @@ export function ViewAsCalendarTimeEventInDayCell(
             ),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
           }}
         >
           <EntityLink
@@ -834,27 +863,15 @@ export function ViewAsCalendarTimeEventInDayCell(
         props.entry.time_event_in_tz.duration_mins,
       );
 
-      const topRems = calendarTimeEventInDayStartMinutesToRems(
-        minutesSinceStartOfDay,
-        props.deltaHour,
-      );
-
-      if (topRems === undefined) {
-        return null;
-      }
-
       return (
         <Box
           ref={containerRef}
           id={`big-plan-event-in-day-block-${bigPlanEntry.big_plan.ref_id}`}
           sx={{
             fontSize: "10px",
-            position: "absolute",
-            top: topRems,
-            height: calendarTimeEventInDayDurationToRems(
-              minutesSinceStartOfDay,
-              props.entry.time_event_in_tz.duration_mins,
-            ),
+            position: "relative",
+            height: "100%",
+            overflow: "hidden",
             backgroundColor: scheduleStreamColorHex(
               BIG_PLAN_TIME_EVENT_COLOR,
               bigPlanEntry.big_plan.status === BigPlanStatus.DONE
@@ -865,10 +882,6 @@ export function ViewAsCalendarTimeEventInDayCell(
             ),
             borderRadius: "0.25rem",
             border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
           }}
         >
           <EntityLink

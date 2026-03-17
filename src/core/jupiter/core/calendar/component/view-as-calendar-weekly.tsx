@@ -1,6 +1,9 @@
+import { DragDropContext } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { useFetcher } from "@remix-run/react";
 
 import { allDaysBetween } from "#/core/common/adate";
 import {
@@ -30,6 +33,8 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
 
   const [showAllTimeEventFullDays, setShowAllTimeEventFullDays] =
     useState(false);
+
+  const calendarMoveFetcher = useFetcher();
 
   if (props.entries === undefined) {
     throw new Error("Entries are required");
@@ -102,6 +107,32 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
 
   const allDays = allDaysBetween(props.periodStartDate, props.periodEndDate);
 
+  function onDragEnd(result: DropResult) {
+    if (!result.destination) return;
+    if (result.source.droppableId === result.destination.droppableId) return;
+
+    const parts = result.draggableId.split("|");
+    const eventRefId = parts[0];
+    const startTimeInDay = parts[1];
+    const durationMins = parts[2];
+    const newDate = result.destination.droppableId;
+
+    calendarMoveFetcher.submit(
+      {
+        id: eventRefId,
+        startDate: newDate,
+        startTimeInDay: startTimeInDay,
+        durationMins: durationMins,
+        userTimezone: props.timezone,
+      },
+      {
+        method: "post",
+        action:
+          "/app/workspace/calendar/time-event/in-day-block/update-time",
+      },
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -160,31 +191,33 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
         </Box>
       </ViewAsCalendarDaysAndFullDaysContiner>
 
-      <ViewAsCalendarInDayContainer>
-        <ViewAsCalendarLeftColumn
-          rightNow={props.rightNow}
-          showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
-        />
-
-        {allDays.map((date, idx) => (
-          <ViewAsCalendarTimeEventInDayColumn
-            daysToTheLeft={allDays.length - idx - 1}
-            key={idx}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <ViewAsCalendarInDayContainer>
+          <ViewAsCalendarLeftColumn
             rightNow={props.rightNow}
-            today={props.today}
-            timezone={props.timezone}
-            date={date}
-            timeEventsInDay={partitionedCombinedTimeEventInDay[date] || []}
-            isAdding={props.isAdding}
             showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
           />
-        ))}
 
-        <ViewAsCalendarRightColumn
-          rightNow={props.rightNow}
-          showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
-        />
-      </ViewAsCalendarInDayContainer>
+          {allDays.map((date, idx) => (
+            <ViewAsCalendarTimeEventInDayColumn
+              daysToTheLeft={allDays.length - idx - 1}
+              key={idx}
+              rightNow={props.rightNow}
+              today={props.today}
+              timezone={props.timezone}
+              date={date}
+              timeEventsInDay={partitionedCombinedTimeEventInDay[date] || []}
+              isAdding={props.isAdding}
+              showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
+            />
+          ))}
+
+          <ViewAsCalendarRightColumn
+            rightNow={props.rightNow}
+            showOnlyFromRightNowIfDaily={props.showOnlyFromRightNowIfDaily}
+          />
+        </ViewAsCalendarInDayContainer>
+      </DragDropContext>
     </Box>
   );
 }
