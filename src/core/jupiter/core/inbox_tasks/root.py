@@ -136,7 +136,7 @@ class InboxTask(LeafEntity):
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=(
-                InboxTaskSource.USER
+                InboxTaskSource.TODO
                 if big_plan_ref_id is None
                 else InboxTaskSource.BIG_PLAN
             ),
@@ -222,7 +222,7 @@ class InboxTask(LeafEntity):
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=InboxTaskSource.USER,
+            source=InboxTaskSource.TODO,
             name=name,
             status=status,
             is_key=is_key,
@@ -655,7 +655,7 @@ class InboxTask(LeafEntity):
         difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
         """Update all the info associated with a todo task."""
-        if self.source is not InboxTaskSource.USER:
+        if self.source is not InboxTaskSource.TODO:
             raise InputValidationError(
                 f"Cannot associate a task which is not a user task '{self.name}'"
             )
@@ -1166,7 +1166,7 @@ class InboxTask(LeafEntity):
                 if big_plan_ref_id.should_change
                 and big_plan_ref_id.just_the_value is not None
                 else (
-                    InboxTaskSource.USER
+                    InboxTaskSource.TODO
                     if big_plan_ref_id.should_change
                     and big_plan_ref_id.just_the_value is None
                     else self.source
@@ -1229,7 +1229,7 @@ class InboxTask(LeafEntity):
         # USER tasks that are linked to a parent entity (e.g. todo tasks)
         # should be managed via that parent entity lifecycle.
         if (
-            self.source is InboxTaskSource.USER
+            self.source is InboxTaskSource.TODO
             and self.source_entity_ref_id is not None
         ):
             return False

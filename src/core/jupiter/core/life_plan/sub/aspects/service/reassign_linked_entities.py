@@ -224,7 +224,7 @@ class AspectReassignLinkedEntitiesService:
 
         for inbox_task in inbox_tasks:
             match inbox_task.source:
-                case InboxTaskSource.USER:
+                case InboxTaskSource.TODO:
                     updated_inbox_task = inbox_task.update(
                         ctx,
                         name=UpdateAction.do_nothing(),

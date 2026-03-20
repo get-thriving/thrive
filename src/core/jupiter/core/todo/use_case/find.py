@@ -146,7 +146,7 @@ class TodoTaskFindUseCase(
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
-                source=InboxTaskSource.USER,
+                source=InboxTaskSource.TODO,
                 source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
             )
             inbox_tasks_by_todo_ref_id = {

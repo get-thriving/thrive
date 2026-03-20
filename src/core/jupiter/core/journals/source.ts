@@ -2,7 +2,7 @@ import { JournalSource } from "@jupiter/webapi-client";
 
 export function journalSourceName(source: JournalSource) {
   switch (source) {
-    case JournalSource.USER:
+    case JournalSource.TODO:
       return "User";
     case JournalSource.GENERATED:
       return "Generated";
@@ -11,5 +11,5 @@ export function journalSourceName(source: JournalSource) {
 
 export function allowUserChanges(source: JournalSource) {
   // Keep synced with python:journals/source.py
-  return source === JournalSource.USER;
+  return source === JournalSource.TODO;
 }

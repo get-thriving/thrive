@@ -717,7 +717,7 @@ interface SwiftViewProps {
 
 function SwiftView(props: SwiftViewProps) {
   const swiftViewRestSources = [
-    InboxTaskSource.USER,
+    InboxTaskSource.TODO,
     InboxTaskSource.WORKING_MEM_CLEANUP,
     InboxTaskSource.TIME_PLAN,
     InboxTaskSource.BIG_PLAN,

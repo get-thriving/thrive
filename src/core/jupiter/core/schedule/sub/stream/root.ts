@@ -7,5 +7,5 @@ import { ScheduleStreamSource } from "@jupiter/webapi-client";
 export function isCorePropertyEditable(
   scheduleStream: ScheduleStream | ScheduleStreamSummary,
 ): boolean {
-  return scheduleStream.source === ScheduleStreamSource.USER;
+  return scheduleStream.source === ScheduleStreamSource.TODO;
 }

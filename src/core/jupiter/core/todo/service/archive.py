@@ -41,7 +41,7 @@ class TodoTaskArchiveService:
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.USER,
+            source=InboxTaskSource.TODO,
             source_entity_ref_id=todo_task.ref_id,
             allow_archived=True,
         )

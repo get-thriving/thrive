@@ -36,7 +36,7 @@ class TodoTask(LeafEntity):
     goal_ref_id: EntityId | None
 
     inbox_task = OwnsOne(
-        InboxTask, source=InboxTaskSource.USER, source_entity_ref_id=IsRefId()
+        InboxTask, source=InboxTaskSource.TODO, source_entity_ref_id=IsRefId()
     )  # pyright: ignore[reportUndefinedVariable]
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.TODO_TASK, source_entity_ref_id=IsRefId()

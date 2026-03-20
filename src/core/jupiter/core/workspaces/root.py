@@ -277,7 +277,7 @@ class Workspace(RootEntity):
         all_sources = filter_sources or [s for s in InboxTaskSource]
         inferred_sources: list[InboxTaskSource] = []
         for source in all_sources:
-            if source is InboxTaskSource.USER:
+            if source is InboxTaskSource.TODO:
                 inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.WORKING_MEM_CLEANUP

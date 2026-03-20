@@ -52,7 +52,7 @@ import { StandardDivider } from "#/core/infra/component/standard-divider";
 import { TabPanel } from "#/core/infra/component/tab-panel";
 
 const _SOURCES_TO_REPORT = [
-  InboxTaskSource.USER,
+  InboxTaskSource.TODO,
   InboxTaskSource.HABIT,
   InboxTaskSource.CHORE,
   InboxTaskSource.BIG_PLAN,
