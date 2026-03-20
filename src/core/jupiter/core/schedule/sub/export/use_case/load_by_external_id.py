@@ -194,17 +194,25 @@ class ScheduleExportLoadByExternalIdUseCase(
             in_day_entries_by_stream_ref_id: defaultdict[
                 EntityId, list[ScheduleInDayEventEntry]
             ] = defaultdict(list)
-            for event in schedule_events_in_day:
-                if event.ref_id not in time_events_in_day_by_source_ref_id:
+            for event_in_day in schedule_events_in_day:
+                if event_in_day.ref_id not in time_events_in_day_by_source_ref_id:
                     continue
-                stream = schedule_streams_by_ref_id.get(event.schedule_stream_ref_id)
+                stream = schedule_streams_by_ref_id.get(
+                    event_in_day.schedule_stream_ref_id
+                )
                 if stream is None:
                     continue
-                in_day_entries_by_stream_ref_id[event.schedule_stream_ref_id].append(
+                in_day_entries_by_stream_ref_id[
+                    event_in_day.schedule_stream_ref_id
+                ].append(
                     ScheduleInDayEventEntry(
-                        event=event,
-                        tags=in_day_tags_by_schedule_event_ref_id.get(event.ref_id, []),
-                        time_event=time_events_in_day_by_source_ref_id[event.ref_id],
+                        event=event_in_day,
+                        tags=in_day_tags_by_schedule_event_ref_id.get(
+                            event_in_day.ref_id, []
+                        ),
+                        time_event=time_events_in_day_by_source_ref_id[
+                            event_in_day.ref_id
+                        ],
                         stream=stream,
                     )
                 )
@@ -212,19 +220,25 @@ class ScheduleExportLoadByExternalIdUseCase(
             full_days_entries_by_stream_ref_id: defaultdict[
                 EntityId, list[ScheduleFullDaysEventEntry]
             ] = defaultdict(list)
-            for event in schedule_events_full_days:
-                if event.ref_id not in time_events_full_days_by_source_ref_id:
+            for event_full_day in schedule_events_full_days:
+                if event_full_day.ref_id not in time_events_full_days_by_source_ref_id:
                     continue
-                stream = schedule_streams_by_ref_id.get(event.schedule_stream_ref_id)
+                stream = schedule_streams_by_ref_id.get(
+                    event_full_day.schedule_stream_ref_id
+                )
                 if stream is None:
                     continue
-                full_days_entries_by_stream_ref_id[event.schedule_stream_ref_id].append(
+                full_days_entries_by_stream_ref_id[
+                    event_full_day.schedule_stream_ref_id
+                ].append(
                     ScheduleFullDaysEventEntry(
-                        event=event,
+                        event=event_full_day,
                         tags=full_days_tags_by_schedule_event_ref_id.get(
-                            event.ref_id, []
+                            event_full_day.ref_id, []
                         ),
-                        time_event=time_events_full_days_by_source_ref_id[event.ref_id],
+                        time_event=time_events_full_days_by_source_ref_id[
+                            event_full_day.ref_id
+                        ],
                         stream=stream,
                     )
                 )

@@ -23,6 +23,11 @@ export function inferEntityTagsForEnabledFeatures(
     if (entityTag === NamedEntityTag.INBOX_TASK) {
       inferredEntityTags.push(entityTag);
     } else if (
+      entityTag === NamedEntityTag.TODO_TASK &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
+    ) {
+      inferredEntityTags.push(entityTag);
+    } else if (
       entityTag === NamedEntityTag.WORKING_MEM &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.WORKING_MEM)
     ) {

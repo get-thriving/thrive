@@ -632,6 +632,26 @@ from jupiter_webapi_client.api.time_plans.time_plan_update_settings import (
     asyncio_detailed as time_plan_update_settings,
 )
 
+# --- Todo API ---
+from jupiter_webapi_client.api.todo.todo_task_archive import (
+    asyncio_detailed as todo_task_archive,
+)
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    asyncio_detailed as todo_task_create,
+)
+from jupiter_webapi_client.api.todo.todo_task_find import (
+    asyncio_detailed as todo_task_find,
+)
+from jupiter_webapi_client.api.todo.todo_task_load import (
+    asyncio_detailed as todo_task_load,
+)
+from jupiter_webapi_client.api.todo.todo_task_remove import (
+    asyncio_detailed as todo_task_remove,
+)
+from jupiter_webapi_client.api.todo.todo_task_update import (
+    asyncio_detailed as todo_task_update,
+)
+
 # --- Vacations API ---
 from jupiter_webapi_client.api.vacations.vacation_archive import (
     asyncio_detailed as vacation_archive,
@@ -1172,6 +1192,14 @@ async def main() -> None:
         JupiterMcpTool.tool("update-vacation", "Update a vacation", vacation_update),
         JupiterMcpTool.tool("archive-vacation", "Archive a vacation", vacation_archive),
         JupiterMcpTool.tool("remove-vacation", "Remove a vacation", vacation_remove),
+        # --- Todo ---
+        JupiterMcpResource.resource("jupiter://todos", todo_task_find),
+        JupiterMcpTool.tool("find-todos", "Find todo tasks", todo_task_find),
+        JupiterMcpTool.tool("create-todo", "Create a todo task", todo_task_create),
+        JupiterMcpTool.tool("load-todo", "Load a todo task", todo_task_load),
+        JupiterMcpTool.tool("update-todo", "Update a todo task", todo_task_update),
+        JupiterMcpTool.tool("archive-todo", "Archive a todo task", todo_task_archive),
+        JupiterMcpTool.tool("remove-todo", "Remove a todo task", todo_task_remove),
         # --- Notes ---
         JupiterMcpResource.resource("jupiter://notes", note_find),
         JupiterMcpTool.tool("find-notes", "Find notes", note_find),

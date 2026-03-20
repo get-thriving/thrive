@@ -23,6 +23,7 @@ class SyncTarget(str, Enum):
     SLACK_TASKS = "slack-tasks"
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
+    TODO_TASKS = "todo-tasks"
     VACATIONS = "vacations"
     VISIONS = "visions"
     WORKING_MEM = "working-mem"

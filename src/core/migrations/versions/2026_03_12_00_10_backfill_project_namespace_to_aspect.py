@@ -37,7 +37,7 @@ def _backfill_namespace(table_name: str) -> None:
         UPDATE {table_name}
         SET namespace = 'aspect'
         WHERE namespace = 'project'
-        """
+        """  # nosec B608
     )
 
 

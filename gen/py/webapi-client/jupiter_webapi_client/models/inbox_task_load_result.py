@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
+    from ..models.todo_task import TodoTask
     from ..models.working_mem_collection import WorkingMemCollection
 
 
@@ -56,6 +57,7 @@ class InboxTaskLoadResult:
         occasion (None | Occasion | Unset):
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
+        todo_task (None | TodoTask | Unset):
         note (None | Note | Unset):
     """
 
@@ -77,6 +79,7 @@ class InboxTaskLoadResult:
     occasion: None | Occasion | Unset = UNSET
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
+    todo_task: None | TodoTask | Unset = UNSET
     note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -94,6 +97,7 @@ class InboxTaskLoadResult:
         from ..models.person import Person
         from ..models.slack_task import SlackTask
         from ..models.time_plan import TimePlan
+        from ..models.todo_task import TodoTask
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
@@ -219,6 +223,14 @@ class InboxTaskLoadResult:
         else:
             email_task = self.email_task
 
+        todo_task: dict[str, Any] | None | Unset
+        if isinstance(self.todo_task, Unset):
+            todo_task = UNSET
+        elif isinstance(self.todo_task, TodoTask):
+            todo_task = self.todo_task.to_dict()
+        else:
+            todo_task = self.todo_task
+
         note: dict[str, Any] | None | Unset
         if isinstance(self.note, Unset):
             note = UNSET
@@ -264,6 +276,8 @@ class InboxTaskLoadResult:
             field_dict["slack_task"] = slack_task
         if email_task is not UNSET:
             field_dict["email_task"] = email_task
+        if todo_task is not UNSET:
+            field_dict["todo_task"] = todo_task
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -289,6 +303,7 @@ class InboxTaskLoadResult:
         from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
+        from ..models.todo_task import TodoTask
         from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
@@ -538,6 +553,23 @@ class InboxTaskLoadResult:
 
         email_task = _parse_email_task(d.pop("email_task", UNSET))
 
+        def _parse_todo_task(data: object) -> None | TodoTask | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                todo_task_type_0 = TodoTask.from_dict(data)
+
+                return todo_task_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TodoTask | Unset, data)
+
+        todo_task = _parse_todo_task(d.pop("todo_task", UNSET))
+
         def _parse_note(data: object) -> None | Note | Unset:
             if data is None:
                 return data
@@ -574,6 +606,7 @@ class InboxTaskLoadResult:
             occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
+            todo_task=todo_task,
             note=note,
         )
 

@@ -10,6 +10,7 @@ from jupiter.core.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -43,6 +44,8 @@ class InboxTaskRemoveUseCase(
             args.ref_id,
             allow_archived=True,
         )
+        if not inbox_task.can_be_archived_or_removed_independently:
+            raise InputValidationError("Cannot remove a linked user inbox task")
 
         await InboxTaskRemoveService().do_it(
             context.domain_context, uow, progress_reporter, inbox_task

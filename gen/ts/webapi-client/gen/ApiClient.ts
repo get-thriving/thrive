@@ -35,6 +35,7 @@ import { TagsService } from './services/TagsService';
 import { TestHelperService } from './services/TestHelperService';
 import { TimeEventsService } from './services/TimeEventsService';
 import { TimePlansService } from './services/TimePlansService';
+import { TodoService } from './services/TodoService';
 import { UsersService } from './services/UsersService';
 import { VacationsService } from './services/VacationsService';
 import { WorkingMemService } from './services/WorkingMemService';
@@ -71,6 +72,7 @@ export class ApiClient {
     public readonly testHelper: TestHelperService;
     public readonly timeEvents: TimeEventsService;
     public readonly timePlans: TimePlansService;
+    public readonly todo: TodoService;
     public readonly users: UsersService;
     public readonly vacations: VacationsService;
     public readonly workingMem: WorkingMemService;
@@ -118,6 +120,7 @@ export class ApiClient {
         this.testHelper = new TestHelperService(this.request);
         this.timeEvents = new TimeEventsService(this.request);
         this.timePlans = new TimePlansService(this.request);
+        this.todo = new TodoService(this.request);
         this.users = new UsersService(this.request);
         this.vacations = new VacationsService(this.request);
         this.workingMem = new WorkingMemService(this.request);

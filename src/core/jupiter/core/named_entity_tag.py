@@ -13,6 +13,7 @@ class NamedEntityTag(EnumValue):
     HOME_TAB = "HomeTab"  # HomeTab.__name__
     HOME_WIDGET = "HomeWidget"  # HomeWidget.__name__
     INBOX_TASK = "InboxTask"  # InboxTask.__name__
+    TODO_TASK = "TodoTask"  # TodoTask.__name__
     WORKING_MEM = "WorkingMem"  # WorkingMem.__name__
     TIME_PLAN = "TimePlan"  # TimePlan.__name__
     TIME_PLAN_ACTIVITY = "TimePlanActivity"  # TimePlanActivity.__name__

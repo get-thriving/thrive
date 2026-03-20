@@ -17,6 +17,7 @@ from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.metric import Metric
 from jupiter_webapi_client.models.metric_create_args import MetricCreateArgs
 from jupiter_webapi_client.models.metric_create_result import MetricCreateResult
+from jupiter_webapi_client.models.metric_direction import MetricDirection
 from jupiter_webapi_client.models.metric_entry import MetricEntry
 from jupiter_webapi_client.models.metric_entry_create_args import MetricEntryCreateArgs
 from jupiter_webapi_client.models.metric_entry_create_result import (
@@ -50,7 +51,9 @@ def create_metric(logged_in_client: AuthenticatedClient):
     def _create(name: str) -> Metric:
         result = metric_create_sync(
             client=logged_in_client,
-            body=MetricCreateArgs(name=name, is_key=False),
+            body=MetricCreateArgs(
+                name=name, is_key=False, metric_direction=MetricDirection.UP_IS_GOOD
+            ),
         )
         return get_parsed_from_response(MetricCreateResult, result).new_metric
 

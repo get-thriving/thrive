@@ -56,6 +56,15 @@ export function EntitySummaryLink({
     );
   }
 
+  if (summary.entity_tag === NamedEntityTag.TODO_TASK) {
+    return (
+      <EntityLink to={`/app/workspace/todo-tasks/${summary.ref_id}`}>
+        <SlimChip label={"Todo Task"} color={"primary"} />
+        {commonSequence}
+      </EntityLink>
+    );
+  }
+
   switch (summary.entity_tag) {
     case NamedEntityTag.SCORE_LOG_ENTRY:
       return (

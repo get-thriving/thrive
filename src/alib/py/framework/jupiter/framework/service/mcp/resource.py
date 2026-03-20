@@ -76,16 +76,16 @@ def _to_primitive_type(tp: Any) -> Any:  # type: ignore[explicit-any]
             return type(None)
         elif len(non_none) == 1:
             prim = _to_primitive_type(non_none[0])
-            return Optional[prim] if has_none else prim  # type: ignore[return-value]
+            return Optional[prim] if has_none else prim  # type: ignore
         else:
             prims = [_to_primitive_type(a) for a in non_none]
-            result = Union[tuple(prims)]  # type: ignore[return-value]
-            return Optional[result] if has_none else result  # type: ignore[return-value]
+            result = Union[tuple(prims)]  # type: ignore
+            return Optional[result] if has_none else result  # type: ignore
 
     if origin is list:
         inner_args = get_args(tp)
         if inner_args:
-            return list[_to_primitive_type(inner_args[0])]  # type: ignore[return-value]
+            return list[_to_primitive_type(inner_args[0])]  # type: ignore
         return list  # type: ignore[return-value]
 
     if isinstance(tp, type) and issubclass(tp, enum.Enum):

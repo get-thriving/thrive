@@ -642,6 +642,26 @@ from jupiter_webapi_client.api.time_plans.time_plan_update_settings import (
     asyncio_detailed as time_plan_update_settings,
 )
 
+# --- Todo API ---
+from jupiter_webapi_client.api.todo.todo_task_archive import (
+    asyncio_detailed as todo_task_archive,
+)
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    asyncio_detailed as todo_task_create,
+)
+from jupiter_webapi_client.api.todo.todo_task_find import (
+    asyncio_detailed as todo_task_find,
+)
+from jupiter_webapi_client.api.todo.todo_task_load import (
+    asyncio_detailed as todo_task_load,
+)
+from jupiter_webapi_client.api.todo.todo_task_remove import (
+    asyncio_detailed as todo_task_remove,
+)
+from jupiter_webapi_client.api.todo.todo_task_update import (
+    asyncio_detailed as todo_task_update,
+)
+
 # --- Vacations API ---
 from jupiter_webapi_client.api.vacations.vacation_archive import (
     asyncio_detailed as vacation_archive,
@@ -1261,6 +1281,22 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "remove",
                     JupiterApiGatewayMethod.delete(vacation_remove),
+                ),
+            ),
+        ),
+        # Todo
+        JupiterApiResource.build(
+            "todos",
+            JupiterApiGatewayMethod.get(todo_task_find),
+            JupiterApiGatewayMethod.post(todo_task_create),
+            JupiterApiResource.build(
+                ":ref_id",
+                JupiterApiGatewayMethod.get(todo_task_load),
+                JupiterApiGatewayMethod.put(todo_task_update),
+                JupiterApiGatewayMethod.delete(todo_task_archive),
+                JupiterApiResource.build(
+                    "remove",
+                    JupiterApiGatewayMethod.delete(todo_task_remove),
                 ),
             ),
         ),

@@ -11,6 +11,7 @@ export enum WidgetType {
     HABIT_INBOX_TASKS = 'habit-inbox-tasks',
     RANDOM_HABIT = 'random-habit',
     CHORE_INBOX_TASKS = 'chore-inbox-tasks',
+    TODO_INBOX_TASKS = 'todo-inbox-tasks',
     RANDOM_CHORE = 'random-chore',
     KEY_BIG_PLANS_PROGRESS = 'key-big-plans-progress',
     UPCOMING_BIRTHDAYS = 'upcoming-birthdays',

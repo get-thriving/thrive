@@ -78,6 +78,22 @@ export default function Sidebar(props: SidebarProps) {
               </ListItemButton>
             </ListItem>
 
+            {isWorkspaceFeatureAvailable(
+              topLevelInfo.workspace,
+              WorkspaceFeature.TODO_TASK,
+            ) && (
+              <ListItem disablePadding>
+                <ListItemButton
+                  to="/app/workspace/todos"
+                  component={Link}
+                  onClick={onClickNavigation}
+                >
+                  <ListItemIcon>✅</ListItemIcon>
+                  <ListItemText primary="Todos" />
+                </ListItemButton>
+              </ListItem>
+            )}
+
             <ListItem disablePadding>
               <ListItemButton
                 to="/app/workspace/inbox-tasks"

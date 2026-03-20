@@ -15,6 +15,12 @@ run_tests() {
 
     log info "Running tests with Web API $webapi_url and API $api_url and MCP $mcp_url and Web UI $webui_url and Docs $docs_url and pytest args ${*} and headed=${headed}"
 
+    if [[ -n "$RETRIES" ]]; then
+        retries="$RETRIES"
+    else
+        retries=3
+    fi
+
     export WEBAPI_URL=$webapi_url
     export API_URL=$api_url
     export MCP_URL=$mcp_url
@@ -23,7 +29,7 @@ run_tests() {
     # shellcheck disable=SC2068
     pytest itests \
         -o log_cli=true \
-        --retries=${retries} \
+        --retries="${retries}" \
         ${headed:+--headed} \
         --html-report=.build-cache/itest/test-report.html \
         --title="Jupiter Integration Tests" \

@@ -18,6 +18,8 @@ export function widgetTypeName(type: WidgetType): string {
       return "Random Habit";
     case WidgetType.CHORE_INBOX_TASKS:
       return "Chore Tasks";
+    case WidgetType.TODO_INBOX_TASKS:
+      return "Todo Tasks";
     case WidgetType.RANDOM_CHORE:
       return "Random Chore";
     case WidgetType.KEY_BIG_PLANS_PROGRESS:

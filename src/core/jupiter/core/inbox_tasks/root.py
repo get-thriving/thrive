@@ -202,6 +202,48 @@ class InboxTask(LeafEntity):
 
     @staticmethod
     @create_entity_action
+    def new_inbox_task_for_todo(
+        ctx: MutationContext,
+        inbox_task_collection_ref_id: EntityId,
+        todo_ref_id: EntityId,
+        name: InboxTaskName,
+        status: InboxTaskStatus,
+        is_key: bool,
+        eisen: Eisen,
+        difficulty: Difficulty,
+        actionable_date: ADate | None,
+        due_date: ADate | None,
+        aspect_ref_id: EntityId,
+        chapter_ref_id: EntityId | None,
+        goal_ref_id: EntityId | None,
+    ) -> "InboxTask":
+        """Create an inbox task associated with a todo task."""
+        InboxTask._check_actionable_and_due_dates(actionable_date, due_date)
+        return InboxTask._create(
+            ctx,
+            inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
+            source=InboxTaskSource.USER,
+            name=name,
+            status=status,
+            is_key=is_key,
+            eisen=eisen,
+            difficulty=difficulty,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            aspect_ref_id=aspect_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
+            source_entity_ref_id=todo_ref_id,
+            notes=None,
+            recurring_timeline=None,
+            recurring_repeat_index=None,
+            recurring_gen_right_now=None,
+            working_time=ctx.action_timestamp if status.is_working_or_more else None,
+            completed_time=ctx.action_timestamp if status.is_completed else None,
+        )
+
+    @staticmethod
+    @create_entity_action
     def new_inbox_task_for_time_plan(
         ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
@@ -594,6 +636,46 @@ class InboxTask(LeafEntity):
             name=name,
             due_date=due_date,
             recurring_timeline=recurring_timeline,
+        )
+
+    @update_entity_action
+    def update_link_to_todo(
+        self,
+        ctx: MutationContext,
+        todo_ref_id: EntityId,
+        name: UpdateAction[InboxTaskName],
+        status: UpdateAction[InboxTaskStatus],
+        aspect_ref_id: UpdateAction[EntityId],
+        chapter_ref_id: UpdateAction[EntityId | None],
+        goal_ref_id: UpdateAction[EntityId | None],
+        is_key: UpdateAction[bool],
+        actionable_date: UpdateAction[ADate | None],
+        due_date: UpdateAction[ADate | None],
+        eisen: UpdateAction[Eisen],
+        difficulty: UpdateAction[Difficulty],
+    ) -> "InboxTask":
+        """Update all the info associated with a todo task."""
+        if self.source is not InboxTaskSource.USER:
+            raise InputValidationError(
+                f"Cannot associate a task which is not a user task '{self.name}'"
+            )
+        if self.source_entity_ref_id != todo_ref_id:
+            raise InputValidationError(
+                f"Cannot reassociate a task which is not with the todo task '{self.name}'"
+            )
+        return self.update(
+            ctx=ctx,
+            name=name,
+            status=status,
+            aspect_ref_id=aspect_ref_id,
+            chapter_ref_id=chapter_ref_id,
+            goal_ref_id=goal_ref_id,
+            big_plan_ref_id=UpdateAction.do_nothing(),
+            is_key=is_key,
+            actionable_date=actionable_date,
+            due_date=due_date,
+            eisen=eisen,
+            difficulty=difficulty,
         )
 
     @update_entity_action
@@ -1140,6 +1222,18 @@ class InboxTask(LeafEntity):
     def allow_user_changes(self) -> bool:
         """Allow user changes for an inbox task."""
         return self.source.allow_user_changes
+
+    @property
+    def can_be_archived_or_removed_independently(self) -> bool:
+        """Whether this task can be archived/removed directly."""
+        # USER tasks that are linked to a parent entity (e.g. todo tasks)
+        # should be managed via that parent entity lifecycle.
+        if (
+            self.source is InboxTaskSource.USER
+            and self.source_entity_ref_id is not None
+        ):
+            return False
+        return True
 
     @property
     def is_working(self) -> bool:

@@ -5,12 +5,13 @@ Revises: b22f61d44fb3
 Create Date: 2026-03-15 22:03:51.456179
 
 """
+
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = 'c3e875ac8f62'
-down_revision = 'b22f61d44fb3'
+revision = "c3e875ac8f62"
+down_revision = "b22f61d44fb3"
 branch_labels = None
 depends_on = None
 

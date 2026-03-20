@@ -6,6 +6,8 @@ export function noteNamespaceToEntityTag(
   switch (namespace) {
     case NoteNamespace.INBOX_TASK:
       return NamedEntityTag.INBOX_TASK;
+    case NoteNamespace.TODO_TASK:
+      return NamedEntityTag.TODO_TASK;
     case NoteNamespace.WORKING_MEM:
       return NamedEntityTag.WORKING_MEM;
     case NoteNamespace.TIME_PLAN:

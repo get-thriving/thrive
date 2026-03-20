@@ -1,0 +1,308 @@
+import type {
+  ChapterSummary,
+  GoalSummary,
+  LifePlan,
+  MilestoneSummary,
+  AspectSummary,
+} from "@jupiter/webapi-client";
+import {
+  ApiError,
+  Difficulty,
+  Eisen,
+  WorkspaceFeature,
+} from "@jupiter/webapi-client";
+import {
+  FormControl,
+  FormLabel,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+} from "@mui/material";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import type { ShouldRevalidateFunction } from "@remix-run/react";
+import { useActionData, useNavigation } from "@remix-run/react";
+import { StatusCodes } from "http-status-codes";
+import { useContext, useState } from "react";
+import { z } from "zod";
+import { CheckboxAsString, parseForm, parseQuery } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
+import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
+import { IsKeySelect } from "@jupiter/core/common/component/is-key-select";
+import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
+import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
+import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
+import {
+  ActionsPosition,
+  SectionCard,
+} from "@jupiter/core/infra/component/section-card";
+import {
+  ActionSingle,
+  SectionActions,
+} from "@jupiter/core/infra/component/section-actions";
+import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
+import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
+import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
+import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
+import { DateInputWithSuggestions } from "@jupiter/core/infra/component/date-input-with-suggestions";
+import {
+  getSuggestedDatesForTodoTaskActionableDate,
+  getSuggestedDatesForTodoTaskDueDate,
+} from "@jupiter/core/common/suggested-date";
+import { lifePlanBirthdayDate } from "#/core/life_plan/root";
+import { aDateToDate, dateToAdate } from "#/core/common/adate";
+
+import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
+import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
+import { getLoggedInApiClient } from "~/api-clients.server";
+
+const ParamsSchema = z.object({});
+const QuerySchema = z.object({
+  initialDueDate: z.enum(["day", "week", "month", "year"]).optional(),
+});
+
+const CreateFormSchema = z.object({
+  name: z.string(),
+  aspect: z.string().optional(),
+  chapter: z.string().optional(),
+  goal: z.string().optional(),
+  isKey: CheckboxAsString,
+  eisen: z.nativeEnum(Eisen),
+  difficulty: z.nativeEnum(Difficulty),
+  actionableDate: z.string().optional(),
+  dueDate: z.string().optional(),
+});
+
+export const handle = {
+  displayType: DisplayType.LEAF,
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const query = parseQuery(request, QuerySchema);
+  const apiClient = await getLoggedInApiClient(request);
+
+  const summaryResponse = await apiClient.application.getSummaries({
+    include_life_plan: true,
+    include_aspects: true,
+    include_chapters: true,
+    include_goals: true,
+    include_milestones: true,
+  });
+
+  return json({
+    initialDueDate: query.initialDueDate,
+    rootAspect: summaryResponse.root_aspect as AspectSummary | null,
+    lifePlan: summaryResponse.life_plan as LifePlan | null,
+    allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
+    allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
+    allGoals: summaryResponse.goals as Array<GoalSummary> | null,
+    allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
+  });
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  const apiClient = await getLoggedInApiClient(request);
+  const form = await parseForm(request, CreateFormSchema);
+
+  try {
+    const result = await apiClient.todo.todoTaskCreate({
+      name: form.name,
+      aspect_ref_id: form.aspect !== undefined ? form.aspect : undefined,
+      chapter_ref_id:
+        form.chapter !== undefined && form.chapter !== ""
+          ? form.chapter
+          : undefined,
+      goal_ref_id:
+        form.goal !== undefined && form.goal !== "" ? form.goal : undefined,
+      is_key: form.isKey,
+      eisen: form.eisen,
+      difficulty: form.difficulty,
+      actionable_date:
+        form.actionableDate !== undefined && form.actionableDate !== ""
+          ? form.actionableDate
+          : undefined,
+      due_date:
+        form.dueDate !== undefined && form.dueDate !== ""
+          ? form.dueDate
+          : undefined,
+    });
+
+    return redirect(`/app/workspace/todos/${result.new_todo_task.ref_id}`);
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === StatusCodes.UNPROCESSABLE_ENTITY
+    ) {
+      return json(validationErrorToUIErrorInfo(error.body));
+    }
+
+    throw error;
+  }
+}
+
+export const shouldRevalidate: ShouldRevalidateFunction =
+  standardShouldRevalidate;
+
+export default function NewTodo() {
+  const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
+  const topLevelInfo = useContext(TopLevelInfoContext);
+
+  const inputsEnabled = navigation.state === "idle";
+
+  const birthdayDate = loaderData.lifePlan
+    ? lifePlanBirthdayDate(loaderData.lifePlan)
+    : null;
+
+  const [selectedAspectRefId, setSelectedAspectRefId] = useState(
+    loaderData.rootAspect?.ref_id ?? "",
+  );
+
+  const inferredInitialDueDate =
+    loaderData.initialDueDate === "day"
+      ? dateToAdate(aDateToDate(topLevelInfo.today).endOf("day"))
+      : loaderData.initialDueDate === "week"
+        ? dateToAdate(
+            aDateToDate(topLevelInfo.today).endOf("week").endOf("day"),
+          )
+        : loaderData.initialDueDate === "month"
+          ? dateToAdate(
+              aDateToDate(topLevelInfo.today).endOf("month").endOf("day"),
+            )
+          : loaderData.initialDueDate === "year"
+            ? dateToAdate(
+                aDateToDate(topLevelInfo.today).endOf("year").endOf("day"),
+              )
+            : undefined;
+
+  return (
+    <LeafPanel
+      key="todos/new"
+      fakeKey="todos/new"
+      returnLocation="/app/workspace/todos"
+      inputsEnabled={inputsEnabled}
+    >
+      <GlobalError actionResult={actionData} />
+      <SectionCard
+        title="New Todo Task"
+        actionsPosition={ActionsPosition.BELOW}
+        actions={
+          <SectionActions
+            id="todo-create"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                id: "todo-create",
+                text: "Create",
+                value: "create",
+                highlight: true,
+              }),
+            ]}
+          />
+        }
+      >
+        <Stack direction="row" useFlexGap spacing={1}>
+          <FormControl fullWidth sx={{ flexGrow: 3 }}>
+            <InputLabel id="name">Name</InputLabel>
+            <OutlinedInput label="Name" name="name" readOnly={!inputsEnabled} />
+            <FieldError actionResult={actionData} fieldName="/name" />
+          </FormControl>
+
+          <FormControl sx={{ flexGrow: 1 }}>
+            <IsKeySelect
+              name="isKey"
+              defaultValue={false}
+              inputsEnabled={inputsEnabled}
+            />
+            <FieldError actionResult={actionData} fieldName="/is_key" />
+          </FormControl>
+        </Stack>
+
+        {isWorkspaceFeatureAvailable(
+          topLevelInfo.workspace,
+          WorkspaceFeature.LIFE_PLAN,
+        ) && (
+          <FormControl fullWidth>
+            <LifePlanAssociations
+              inputsEnabled={inputsEnabled}
+              allAspects={loaderData.allAspects ?? []}
+              aspectValue={selectedAspectRefId}
+              onAspectChange={setSelectedAspectRefId}
+              aspectDefaultValue={loaderData.rootAspect?.ref_id ?? ""}
+              allChapters={loaderData.allChapters ?? []}
+              allGoals={loaderData.allGoals ?? []}
+              birthday={birthdayDate!}
+              today={aDateToDate(topLevelInfo.today)}
+              allMilestones={loaderData.allMilestones ?? []}
+            />
+            <FieldError actionResult={actionData} fieldName="/aspect_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/chapter_ref_id" />
+            <FieldError actionResult={actionData} fieldName="/goal_ref_id" />
+          </FormControl>
+        )}
+
+        <FormControl fullWidth>
+          <FormLabel id="eisen">Eisenhower</FormLabel>
+          <EisenhowerSelect
+            name="eisen"
+            defaultValue={Eisen.REGULAR}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/eisen" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <FormLabel id="difficulty">Difficulty</FormLabel>
+          <DifficultySelect
+            name="difficulty"
+            defaultValue={Difficulty.EASY}
+            inputsEnabled={inputsEnabled}
+          />
+          <FieldError actionResult={actionData} fieldName="/difficulty" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="actionableDate" shrink margin="dense">
+            Actionable From [Optional]
+          </InputLabel>
+          <DateInputWithSuggestions
+            name="actionableDate"
+            label="actionableDate"
+            inputsEnabled={inputsEnabled}
+            suggestedDates={getSuggestedDatesForTodoTaskActionableDate(
+              topLevelInfo.today,
+            )}
+          />
+          <FieldError actionResult={actionData} fieldName="/actionable_date" />
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel id="dueDate" shrink margin="dense">
+            Due Date [Optional]
+          </InputLabel>
+          <DateInputWithSuggestions
+            name="dueDate"
+            label="dueDate"
+            inputsEnabled={inputsEnabled}
+            defaultValue={inferredInitialDueDate}
+            suggestedDates={getSuggestedDatesForTodoTaskDueDate(
+              topLevelInfo.today,
+            )}
+          />
+          <FieldError actionResult={actionData} fieldName="/due_date" />
+        </FormControl>
+      </SectionCard>
+    </LeafPanel>
+  );
+}
+
+export const ErrorBoundary = makeLeafErrorBoundary(
+  "/app/workspace/todos",
+  ParamsSchema,
+  {
+    error: () => `There was an error creating the todo task! Please try again!`,
+  },
+);

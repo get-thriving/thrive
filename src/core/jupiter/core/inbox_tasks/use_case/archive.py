@@ -11,6 +11,7 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.framework.base.entity_id import EntityId
+from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -41,6 +42,8 @@ class InboxTaskArchiveUseCase(
     ) -> None:
         """Execute the command's action."""
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
+        if not inbox_task.can_be_archived_or_removed_independently:
+            raise InputValidationError("Cannot archive a linked user inbox task")
         await InboxTaskArchiveService().do_it(
             context.domain_context,
             uow,

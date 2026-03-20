@@ -145,6 +145,16 @@ def entity_tag_to_rich_text(entity_tag: NamedEntityTag) -> Text:
     return Text(entity_tag.value, style="blue italic")
 
 
+def tag_to_rich_text(tag_name: str) -> Text:
+    """Transform a tag name into text."""
+    return Text("#").append(tag_name, style="italic blue")
+
+
+def contact_to_rich_text(contact_name: str) -> Text:
+    """Transform a contact name into text."""
+    return Text("@").append(contact_name, style="italic green")
+
+
 def sync_target_to_rich_text(sync_target: SyncTarget) -> Text:
     """Transform a sync target tag into text."""
     return Text(sync_target.value, style="yellow italic")

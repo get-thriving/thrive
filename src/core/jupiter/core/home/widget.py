@@ -101,6 +101,7 @@ class WidgetType(EnumValue):
     HABIT_INBOX_TASKS = "habit-inbox-tasks"
     RANDOM_HABIT = "random-habit"
     CHORE_INBOX_TASKS = "chore-inbox-tasks"
+    TODO_INBOX_TASKS = "todo-inbox-tasks"
     RANDOM_CHORE = "random-chore"
     KEY_BIG_PLANS_PROGRESS = "key-big-plans-progress"
     UPCOMING_BIRTHDAYS = "upcoming-birthdays"
@@ -215,6 +216,21 @@ WIDGET_CONSTRAINTS = {
             ],
         },
         only_for_workspace_features=[WorkspaceFeature.CHORES],
+        only_for_user_features=None,
+    ),
+    WidgetType.TODO_INBOX_TASKS: WidgetTypeConstraints(
+        allowed_dimensions={
+            HomeTabTarget.BIG_SCREEN: [
+                WidgetDimension.DIM_3x1,
+                WidgetDimension.DIM_kx1,
+            ],
+            HomeTabTarget.SMALL_SCREEN: [
+                WidgetDimension.DIM_3x1,
+                WidgetDimension.DIM_3x1_SMALL_SCREEN_FLEX,
+                WidgetDimension.DIM_kx1,
+            ],
+        },
+        only_for_workspace_features=[WorkspaceFeature.TODO_TASK],
         only_for_user_features=None,
     ),
     WidgetType.RANDOM_CHORE: WidgetTypeConstraints(

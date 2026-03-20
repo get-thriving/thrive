@@ -1,9 +1,5 @@
-import type {
-  DragStart,
-  DropResult,
-  DroppableStateSnapshot,
-} from "@hello-pangea/dnd";
-import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import type { DragStart, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 import type {
   Goal,
   InboxTask,
@@ -31,7 +27,7 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link, Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { Fragment, memo, useContext, useMemo, useState } from "react";
+import { Fragment, useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
@@ -39,11 +35,6 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortAspectsByTreeOrder } from "@jupiter/core/life_plan/sub/aspects/root";
 import { sortGoalsNaturally } from "@jupiter/core/life_plan/sub/goals/root";
 import {
-  inboxTaskStatusIcon,
-  inboxTaskStatusName,
-} from "@jupiter/core/inbox_tasks/status";
-import {
-  canInboxTaskBeInStatus,
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
   isInboxTaskCoreFieldEditable,
@@ -54,10 +45,12 @@ import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
 } from "@jupiter/core/inbox_tasks/root";
-import type { InboxTaskShowOptions } from "@jupiter/core/inbox_tasks/component/card";
-import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
+import { InboxTaskKanbanBoard as KanbanBoard } from "@jupiter/core/inbox_tasks/components/kanban-board";
+import {
+  SmallScreenKanban as SharedSmallScreenKanban,
+  SmallScreenKanbanByEisen as SharedSmallScreenKanbanByEisen,
+} from "@jupiter/core/inbox_tasks/components/small-screen-kanban";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
-import { InboxTaskStatusTag } from "@jupiter/core/inbox_tasks/component/status-tag";
 import { InboxTasksNoNothingCard } from "@jupiter/core/inbox_tasks/component/no-nothing-card";
 import { InboxTasksNoTasksCard } from "@jupiter/core/inbox_tasks/component/no-tasks-card";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -88,14 +81,6 @@ import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-
-enum DragTargetStatus {
-  SOURCE_DRAG,
-  SELECT_DRAG,
-  ALLOW_DRAG,
-  FORBID_DRAG,
-  FREE,
-}
 
 enum View {
   SWIFTVIEW = "siwiftview",
@@ -503,7 +488,7 @@ export default function InboxTasks() {
             )}
 
             {!isBigScreen && (
-              <SmallScreenKanbanByEisen
+              <SharedSmallScreenKanbanByEisen
                 topLevelInfo={topLevelInfo}
                 inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
@@ -515,6 +500,9 @@ export default function InboxTasks() {
                 inboxTaskContactsByInboxTaskRefId={
                   inboxTaskContactsByInboxTaskRefId
                 }
+                emptyParent="inbox task"
+                emptyParentLabel="New Task"
+                emptyParentNewLocations="/app/workspace/inbox-tasks/new"
               />
             )}
           </>
@@ -617,7 +605,7 @@ export default function InboxTasks() {
             )}
 
             {!isBigScreen && (
-              <SmallScreenKanban
+              <SharedSmallScreenKanban
                 topLevelInfo={topLevelInfo}
                 inboxTasks={filteredSortedInboxTasks}
                 optimisticUpdates={optimisticUpdates}
@@ -629,6 +617,9 @@ export default function InboxTasks() {
                 inboxTaskContactsByInboxTaskRefId={
                   inboxTaskContactsByInboxTaskRefId
                 }
+                emptyParent="inbox task"
+                emptyParentLabel="New Task"
+                emptyParentNewLocations="/app/workspace/inbox-tasks/new"
               />
             )}
           </>
@@ -1682,688 +1673,6 @@ function BigScreenKanban({
   );
 }
 
-interface KanbanBoardProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  inboxTasksByRefId: { [key: string]: InboxTask };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  allowEisen?: Eisen;
-  groupId?: string;
-  draggedInboxTaskId?: string;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
-}
-
-function KanbanBoard({
-  topLevelInfo,
-  inboxTasks,
-  inboxTasksByRefId,
-  moreInfoByRefId,
-  actionableTime,
-  allowEisen,
-  groupId,
-  optimisticUpdates,
-  draggedInboxTaskId,
-  inboxTaskTagsByInboxTaskRefId,
-  inboxTaskContactsByInboxTaskRefId,
-}: KanbanBoardProps) {
-  return (
-    <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.NOT_STARTED}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.NOT_STARTED_GEN}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.IN_PROGRESS}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.BLOCKED}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.NOT_DONE}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-
-      <Grid size={{ xs: 2 }} sx={{ position: "relative" }}>
-        <InboxTasksColumn
-          topLevelInfo={topLevelInfo}
-          inboxTasks={inboxTasks}
-          optimisticUpdates={optimisticUpdates}
-          inboxTasksByRefId={inboxTasksByRefId}
-          moreInfoByRefId={moreInfoByRefId}
-          actionableTime={actionableTime}
-          allowStatus={InboxTaskStatus.DONE}
-          allowEisen={allowEisen}
-          groupId={groupId}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: allowEisen === undefined,
-            showDifficulty: true,
-            showDueDate: true,
-          }}
-          draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
-        />
-      </Grid>
-    </Grid>
-  );
-}
-
-interface SmallScreenKanbanByEisenProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
-}
-
-function SmallScreenKanbanByEisen(props: SmallScreenKanbanByEisenProps) {
-  const actionableDate = actionableTimeToDateTime(
-    props.actionableTime,
-    props.topLevelInfo.user.timezone,
-  );
-  const importantAndUrgentTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowEisens: [Eisen.IMPORTANT_AND_URGENT],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const urgentTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowEisens: [Eisen.URGENT],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const importantTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowEisens: [Eisen.IMPORTANT],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const regularTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowEisens: [Eisen.REGULAR],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-
-  let initialSmallScreenSelectedTab = 0;
-  if (importantAndUrgentTasks.length > 0) {
-    initialSmallScreenSelectedTab = 0;
-  } else if (urgentTasks.length > 0) {
-    initialSmallScreenSelectedTab = 1;
-  } else if (importantTasks.length > 0) {
-    initialSmallScreenSelectedTab = 2;
-  } else if (regularTasks.length > 0) {
-    initialSmallScreenSelectedTab = 3;
-  }
-
-  const [smallScreenSelectedTab, setSmallScreenSelectedTab] = useState(
-    initialSmallScreenSelectedTab,
-  );
-
-  return (
-    <>
-      <Tabs
-        value={smallScreenSelectedTab}
-        variant="fullWidth"
-        onChange={(_, newValue) => setSmallScreenSelectedTab(newValue)}
-      >
-        <Tab
-          sx={{ minWidth: "25%" }}
-          icon={eisenIcon(Eisen.IMPORTANT_AND_URGENT)}
-        />
-        <Tab sx={{ minWidth: "25%" }} icon={eisenIcon(Eisen.URGENT)} />
-        <Tab sx={{ minWidth: "25%" }} icon={eisenIcon(Eisen.IMPORTANT)} />
-        <Tab sx={{ minWidth: "25%" }} icon={eisenIcon(Eisen.REGULAR)} />
-      </Tabs>
-
-      <TabPanel value={smallScreenSelectedTab} index={0}>
-        <SmallScreenKanban
-          topLevelInfo={props.topLevelInfo}
-          inboxTasks={importantAndUrgentTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          allowEisen={Eisen.IMPORTANT_AND_URGENT}
-          actionableTime={props.actionableTime}
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={1}>
-        <SmallScreenKanban
-          topLevelInfo={props.topLevelInfo}
-          inboxTasks={urgentTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          allowEisen={Eisen.URGENT}
-          actionableTime={props.actionableTime}
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={2}>
-        <SmallScreenKanban
-          topLevelInfo={props.topLevelInfo}
-          inboxTasks={importantTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          allowEisen={Eisen.IMPORTANT}
-          actionableTime={props.actionableTime}
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={3}>
-        <SmallScreenKanban
-          topLevelInfo={props.topLevelInfo}
-          inboxTasks={regularTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          allowEisen={Eisen.REGULAR}
-          actionableTime={props.actionableTime}
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-        />
-      </TabPanel>
-    </>
-  );
-}
-
-interface SmallScreenKanbanProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  allowEisen?: Eisen;
-  actionableTime: ActionableTime;
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
-}
-
-function SmallScreenKanban(props: SmallScreenKanbanProps) {
-  const actionableDate = actionableTimeToDateTime(
-    props.actionableTime,
-    props.topLevelInfo.user.timezone,
-  );
-  const notStartedTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.NOT_STARTED],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const recurringTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.NOT_STARTED_GEN],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const inProgressTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.IN_PROGRESS],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const blockedTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.BLOCKED],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const notDoneTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.NOT_DONE],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-  const doneTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [InboxTaskStatus.DONE],
-      includeIfNoActionableDate: true,
-      includeIfNoDueDate: true,
-      actionableDateEnd: actionableDate,
-    },
-  );
-
-  let initialSmallScreenSelectedTab = 0;
-  if (notStartedTasks.length > 0) {
-    initialSmallScreenSelectedTab = 0;
-  } else if (recurringTasks.length > 0) {
-    initialSmallScreenSelectedTab = 1;
-  } else if (inProgressTasks.length > 0) {
-    initialSmallScreenSelectedTab = 2;
-  } else if (blockedTasks.length > 0) {
-    initialSmallScreenSelectedTab = 3;
-  } else if (notDoneTasks.length > 0) {
-    initialSmallScreenSelectedTab = 4;
-  } else if (doneTasks.length > 0) {
-    initialSmallScreenSelectedTab = 5;
-  }
-
-  const [smallScreenSelectedTab, setSmallScreenSelectedTab] = useState(
-    initialSmallScreenSelectedTab,
-  );
-
-  return (
-    <>
-      <Tabs
-        value={smallScreenSelectedTab}
-        variant="scrollable"
-        onChange={(_, newValue) => setSmallScreenSelectedTab(newValue)}
-      >
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.NOT_STARTED)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.NOT_STARTED)}
-        />
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.NOT_STARTED_GEN)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.NOT_STARTED_GEN)}
-        />
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.IN_PROGRESS)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.IN_PROGRESS)}
-        />
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.BLOCKED)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.BLOCKED)}
-        />
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.NOT_DONE)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.NOT_DONE)}
-        />
-        <Tab
-          icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.DONE)}</p>}
-          iconPosition="top"
-          label={inboxTaskStatusName(InboxTaskStatus.DONE)}
-        />
-      </Tabs>
-
-      <TabPanel value={smallScreenSelectedTab} index={0}>
-        {notStartedTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={notStartedTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={1}>
-        {recurringTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={recurringTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={2}>
-        {inProgressTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={inProgressTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={3}>
-        {blockedTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={blockedTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={4}>
-        {notDoneTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={notDoneTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-
-      <TabPanel value={smallScreenSelectedTab} index={5}>
-        {doneTasks.length === 0 && (
-          <InboxTasksNoTasksCard
-            parent="inbox task"
-            parentLabel="New Task"
-            parentNewLocations="/app/workspace/inbox-tasks/new"
-          />
-        )}
-        <InboxTaskStack
-          topLevelInfo={props.topLevelInfo}
-          showOptions={{
-            showSource: true,
-            showLifePlan: true,
-            showEisen: props.allowEisen === undefined,
-            showDifficulty: true,
-            showActionableDate: true,
-            showDueDate: true,
-            showParent: true,
-          }}
-          inboxTasks={doneTasks}
-          optimisticUpdates={props.optimisticUpdates}
-          moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
-          onCardMarkDone={props.onCardMarkDone}
-          onCardMarkNotDone={props.onCardMarkNotDone}
-        />
-      </TabPanel>
-    </>
-  );
-}
-
 interface ListProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
@@ -2564,7 +1873,7 @@ function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
         );
         return (
           <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
-            <SmallScreenKanban
+            <SharedSmallScreenKanban
               topLevelInfo={props.topLevelInfo}
               inboxTasks={aspectTasks}
               optimisticUpdates={props.optimisticUpdates}
@@ -2578,6 +1887,9 @@ function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
               inboxTaskContactsByInboxTaskRefId={
                 props.inboxTaskContactsByInboxTaskRefId
               }
+              emptyParent="inbox task"
+              emptyParentLabel="New Task"
+              emptyParentNewLocations="/app/workspace/inbox-tasks/new"
             />
           </TabPanel>
         );
@@ -2773,7 +2085,7 @@ function SmallScreenKanbanByAspectAndGoal(
               return (
                 <Fragment key={goal.ref_id}>
                   <StandardDivider title={goal.name} size="medium" />
-                  <SmallScreenKanban
+                  <SharedSmallScreenKanban
                     topLevelInfo={props.topLevelInfo}
                     inboxTasks={goalTasks}
                     optimisticUpdates={props.optimisticUpdates}
@@ -2787,6 +2099,9 @@ function SmallScreenKanbanByAspectAndGoal(
                     inboxTaskContactsByInboxTaskRefId={
                       props.inboxTaskContactsByInboxTaskRefId
                     }
+                    emptyParent="inbox task"
+                    emptyParentLabel="New Task"
+                    emptyParentNewLocations="/app/workspace/inbox-tasks/new"
                   />
                 </Fragment>
               );
@@ -2797,7 +2112,7 @@ function SmallScreenKanbanByAspectAndGoal(
                 {goals.length > 0 && (
                   <StandardDivider title="No Goal" size="medium" />
                 )}
-                <SmallScreenKanban
+                <SharedSmallScreenKanban
                   topLevelInfo={props.topLevelInfo}
                   inboxTasks={tasksWithoutGoal}
                   optimisticUpdates={props.optimisticUpdates}
@@ -2811,6 +2126,9 @@ function SmallScreenKanbanByAspectAndGoal(
                   inboxTaskContactsByInboxTaskRefId={
                     props.inboxTaskContactsByInboxTaskRefId
                   }
+                  emptyParent="inbox task"
+                  emptyParentLabel="New Task"
+                  emptyParentNewLocations="/app/workspace/inbox-tasks/new"
                 />
               </>
             )}
@@ -3020,241 +2338,6 @@ function ListByAspectAndGoal({
       })}
     </>
   );
-}
-
-interface InboxTasksColumnProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  inboxTasksByRefId: { [key: string]: InboxTask };
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  collapsed?: boolean;
-  allowStatus: InboxTaskStatus;
-  allowEisen?: Eisen;
-  groupId?: string;
-  showOptions: InboxTaskShowOptions;
-  draggedInboxTaskId?: string;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
-}
-
-function InboxTasksColumn(props: InboxTasksColumnProps) {
-  function getColumnModifier(snapshot: DroppableStateSnapshot) {
-    if (snapshot.draggingFromThisWith) {
-      return DragTargetStatus.SOURCE_DRAG;
-    }
-
-    if (snapshot.isDraggingOver) {
-      return DragTargetStatus.SELECT_DRAG;
-    }
-
-    if (props.draggedInboxTaskId !== undefined) {
-      if (allowDraggingOverStatus() && allowDraggingOverEisen()) {
-        return DragTargetStatus.ALLOW_DRAG;
-      } else {
-        return DragTargetStatus.FORBID_DRAG;
-      }
-    }
-
-    return DragTargetStatus.FREE;
-  }
-
-  function allowDraggingOverEisen() {
-    if (props.draggedInboxTaskId === undefined) {
-      return true;
-    }
-
-    if (props.allowEisen === undefined) {
-      return true;
-    }
-
-    const inboxTask = props.inboxTasksByRefId[props.draggedInboxTaskId];
-
-    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
-      return true;
-    }
-
-    return inboxTask.eisen === props.allowEisen;
-  }
-
-  function allowDraggingOverStatus() {
-    if (props.draggedInboxTaskId === undefined) {
-      return true;
-    }
-
-    const inboxTask = props.inboxTasksByRefId[props.draggedInboxTaskId];
-
-    return canInboxTaskBeInStatus(inboxTask, props.allowStatus);
-  }
-
-  const actionableTime = actionableTimeToDateTime(
-    props.actionableTime,
-    props.topLevelInfo.user.timezone,
-  );
-
-  const filteredInboxTasks = filterInboxTasksForDisplay(
-    props.inboxTasks,
-    props.moreInfoByRefId,
-    props.optimisticUpdates,
-    {
-      allowArchived: false,
-      allowStatuses: [props.allowStatus],
-      allowEisens: props.allowEisen ? [props.allowEisen] : undefined,
-      includeIfNoActionableDate: true,
-      actionableDateEnd: actionableTime,
-      includeIfNoDueDate: true,
-    },
-  );
-
-  const formattedCountStr = formatTasksCount(filteredInboxTasks.length);
-
-  return (
-    <>
-      <Box
-        sx={{
-          height: "1rem",
-          marginBottom: "1rem",
-          position: "sticky",
-          top: 0,
-          zIndex: 1,
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <InboxTaskStatusTag status={props.allowStatus} />
-        <Typography
-          component="span"
-          sx={{
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {formattedCountStr}
-        </Typography>
-      </Box>
-
-      <Droppable
-        type="inbox-task"
-        droppableId={`inbox-tasks-column:${props.allowEisen}:${props.allowStatus}${props.groupId ? `:${props.groupId}` : ""}`}
-        direction="vertical"
-        isDropDisabled={
-          !(allowDraggingOverStatus() && allowDraggingOverEisen())
-        }
-      >
-        {(provided, snapshot) => (
-          <InboxTasksColumnHighDiv
-            divStatus={getColumnModifier(snapshot)}
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-          >
-            {!props.collapsed && (
-              <InboxTaskColumnTasks
-                topLevelInfo={props.topLevelInfo}
-                inboxTasks={filteredInboxTasks}
-                moreInfoByRefId={props.moreInfoByRefId}
-                showOptions={props.showOptions}
-                inboxTaskTagsByInboxTaskRefId={
-                  props.inboxTaskTagsByInboxTaskRefId
-                }
-                inboxTaskContactsByInboxTaskRefId={
-                  props.inboxTaskContactsByInboxTaskRefId
-                }
-              />
-            )}
-
-            {provided.placeholder}
-          </InboxTasksColumnHighDiv>
-        )}
-      </Droppable>
-    </>
-  );
-}
-
-interface InboxTasksColumnHighDivProps {
-  divStatus: DragTargetStatus;
-}
-
-const InboxTasksColumnHighDiv = styled("div")<InboxTasksColumnHighDivProps>(
-  ({ theme, divStatus }) => ({
-    minHeight: "100%",
-    backgroundColor:
-      divStatus === DragTargetStatus.SOURCE_DRAG
-        ? "rgb(191, 204, 229)"
-        : divStatus === DragTargetStatus.SELECT_DRAG
-          ? "#f5f5f5"
-          : divStatus === DragTargetStatus.ALLOW_DRAG
-            ? "rgb(234, 246, 215)"
-            : divStatus === DragTargetStatus.FORBID_DRAG
-              ? "rgb(243, 196, 196)"
-              : theme.palette.background.paper,
-  }),
-);
-
-interface InboxTaskColumnTasksProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  showOptions: InboxTaskShowOptions;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
-}
-
-const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
-  props: InboxTaskColumnTasksProps,
-) {
-  return (
-    <Stack spacing={1} useFlexGap>
-      {props.inboxTasks.map((inboxTask, index) => {
-        const entry = props.moreInfoByRefId[inboxTask.ref_id];
-
-        return (
-          <Draggable
-            key={inboxTask.ref_id}
-            draggableId={inboxTask.ref_id}
-            index={index}
-          >
-            {(provided, _snapshpt) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-              >
-                <InboxTaskCard
-                  topLevelInfo={props.topLevelInfo}
-                  compact
-                  showOptions={{
-                    ...props.showOptions,
-                    showLifePlan: true,
-                    showParent: true,
-                    showHandleMarkDone: false,
-                    showHandleMarkNotDone: false,
-                  }}
-                  inboxTask={inboxTask}
-                  tags={
-                    props.inboxTaskTagsByInboxTaskRefId.get(inboxTask.ref_id) ??
-                    []
-                  }
-                  contacts={
-                    props.inboxTaskContactsByInboxTaskRefId.get(
-                      inboxTask.ref_id,
-                    ) ?? []
-                  }
-                  parent={entry}
-                />
-              </div>
-            )}
-          </Draggable>
-        );
-      })}
-    </Stack>
-  );
-});
-
-function formatTasksCount(tasksCnt: number) {
-  return tasksCnt === 0 ? "" : tasksCnt === 1 ? "1 task" : `${tasksCnt} tasks`;
 }
 
 function figureOutIfGcIsRecommended(

@@ -23,6 +23,7 @@ class NoteNamespace(str, Enum):
     SMART_LIST = "smart-list"
     SMART_LIST_ITEM = "smart-list-item"
     TIME_PLAN = "time-plan"
+    TODO_TASK = "todo-task"
     VACATION = "vacation"
     VISION = "vision"
     WORKING_MEM = "working-mem"

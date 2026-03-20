@@ -16,6 +16,7 @@ class WorkspaceFeature(str, Enum):
     SLACK_TASKS = "slack-tasks"
     SMART_LISTS = "smart-lists"
     TIME_PLANS = "time-plans"
+    TODO_TASK = "todo-task"
     VACATIONS = "vacations"
     WORKING_MEM = "working-mem"
 

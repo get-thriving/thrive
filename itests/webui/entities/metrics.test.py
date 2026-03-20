@@ -16,6 +16,7 @@ from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.metric import Metric
 from jupiter_webapi_client.models.metric_create_args import MetricCreateArgs
 from jupiter_webapi_client.models.metric_create_result import MetricCreateResult
+from jupiter_webapi_client.models.metric_direction import MetricDirection
 from jupiter_webapi_client.models.metric_entry import MetricEntry
 from jupiter_webapi_client.models.metric_entry_create_args import MetricEntryCreateArgs
 from jupiter_webapi_client.models.metric_entry_create_result import (
@@ -65,6 +66,7 @@ def create_metric(logged_in_client: AuthenticatedClient):
                 is_key=is_key,
                 icon=icon,
                 metric_unit=metric_unit,
+                metric_direction=MetricDirection.UP_IS_GOOD,
                 collection_period=collection_period,
                 collection_eisen=collection_eisen,
                 collection_difficulty=collection_difficulty,

@@ -36,6 +36,7 @@ from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.todo.root import TodoTask
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -79,6 +80,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
+    todo_task: TodoTask | None
     note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
 
@@ -193,6 +195,16 @@ class InboxTaskLoadUseCase(
         else:
             email_task = None
 
+        if (
+            inbox_task.source is InboxTaskSource.USER
+            and inbox_task.source_entity_ref_id is not None
+        ):
+            todo_task = await uow.get_for(TodoTask).load_by_id(
+                inbox_task.source_entity_ref_id, allow_archived=True
+            )
+        else:
+            todo_task = None
+
         note = await uow.get(NoteRepository).load_optional_for_source(
             NoteNamespace.INBOX_TASK,
             inbox_task.ref_id,
@@ -254,6 +266,7 @@ class InboxTaskLoadUseCase(
             occasion=occasion,
             slack_task=slack_task,
             email_task=email_task,
+            todo_task=todo_task,
             note=note,
             time_event_blocks=time_event_blocks,
         )

@@ -154,7 +154,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allAspects: summaryResponse.aspects as Array<Aspect> | null,
       allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
       allGoals: summaryResponse.goals as Array<GoalSummary> | null,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary> | null,
+      allMilestones:
+        summaryResponse.milestones as Array<MilestoneSummary> | null,
       allTags: allTags.tags as Array<Tag>,
       contacts:
         (

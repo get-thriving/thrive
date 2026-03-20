@@ -18,6 +18,7 @@ import {
   Aspect,
   RecurringTaskPeriod,
   SlackTask,
+  TodoTask,
 } from "@jupiter/webapi-client";
 import type { DateTime } from "luxon";
 
@@ -36,6 +37,7 @@ export interface InboxTaskParent {
   chapter?: Chapter;
   goal?: Goal;
   bigPlan?: BigPlan;
+  todoTask?: TodoTask;
   habit?: Habit;
   chore?: Chore;
   metric?: Metric;
@@ -53,6 +55,7 @@ export function inboxTaskFindEntryToParent(
     chapter: entry.chapter ?? undefined,
     goal: entry.goal ?? undefined,
     bigPlan: entry.big_plan ?? undefined,
+    todoTask: entry.todo_task ?? undefined,
     habit: entry.habit ?? undefined,
     chore: entry.chore ?? undefined,
     metric: entry.metric ?? undefined,

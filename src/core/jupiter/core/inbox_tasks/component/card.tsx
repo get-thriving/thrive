@@ -62,6 +62,7 @@ import { IsKeyTag } from "#/core/common/component/is-key-tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
+import { TodoTaskTag } from "#/core/todo/components/tag";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
@@ -88,6 +89,7 @@ export interface InboxTaskCardProps {
   contacts?: Array<Contact>;
   optimisticState?: InboxTaskOptimisticState;
   parent?: InboxTaskParent;
+  linkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
   onClick?: (it: InboxTask) => void;
   onMarkDone?: (it: InboxTask) => void;
   onMarkNotDone?: (it: InboxTask) => void;
@@ -156,6 +158,9 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
 
   const inputsEnabled =
     props.inboxTask.archived === false && !handlerInProgress;
+  const targetLink = props.linkResolver
+    ? props.linkResolver(props.inboxTask, props.parent)
+    : `/app/workspace/inbox-tasks/${props.inboxTask.ref_id}`;
 
   return (
     <motion.div
@@ -189,7 +194,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
           }}
         >
           <EntityLink
-            to={`/app/workspace/inbox-tasks/${props.inboxTask.ref_id}`}
+            to={targetLink}
             block={props.onClick !== undefined}
             inline
           >
@@ -263,6 +268,14 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
                   props.parent &&
                   props.parent.bigPlan && (
                     <BigPlanTag bigPlan={props.parent.bigPlan as BigPlan} />
+                  )}
+                {isWorkspaceFeatureAvailable(
+                  props.topLevelInfo.workspace,
+                  WorkspaceFeature.TODO_TASK,
+                ) &&
+                  props.parent &&
+                  props.parent.todoTask && (
+                    <TodoTaskTag todoTask={props.parent.todoTask} />
                   )}
                 {isWorkspaceFeatureAvailable(
                   props.topLevelInfo.workspace,

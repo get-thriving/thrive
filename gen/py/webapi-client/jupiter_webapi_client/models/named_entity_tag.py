@@ -32,6 +32,7 @@ class NamedEntityTag(str, Enum):
     SMARTLISTITEM = "SmartListItem"
     TIMEPLAN = "TimePlan"
     TIMEPLANACTIVITY = "TimePlanActivity"
+    TODOTASK = "TodoTask"
     VACATION = "Vacation"
     VISION = "Vision"
     WORKINGMEM = "WorkingMem"

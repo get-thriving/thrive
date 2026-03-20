@@ -24,6 +24,11 @@ export function inferSyncTargetsForEnabledFeatures(
     ) {
       inferredSyncTargets.push(syncTarget);
     } else if (
+      syncTarget === SyncTarget.TODO_TASKS &&
+      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
+    ) {
+      inferredSyncTargets.push(syncTarget);
+    } else if (
       syncTarget === SyncTarget.WORKING_MEM &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.WORKING_MEM)
     ) {

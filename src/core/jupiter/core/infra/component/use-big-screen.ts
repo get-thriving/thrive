@@ -22,6 +22,8 @@ export function useBigScreen(): boolean {
           return true;
         case AppPlatform.API:
           return false;
+        case AppPlatform.MCP:
+          return false;
       }
       break;
     case AppShell.DESKTOP_ELECTRON: {
@@ -53,9 +55,13 @@ export function useBigScreen(): boolean {
           return true;
         case AppPlatform.API:
           return false;
+        case AppPlatform.MCP:
+          return false;
       }
       break;
     case AppShell.API:
+      return false;
+    case AppShell.MCP:
       return false;
     default:
       return true;

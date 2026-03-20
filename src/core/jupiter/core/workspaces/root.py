@@ -37,6 +37,7 @@ from jupiter.core.smart_lists.collection import (
 )
 from jupiter.core.stats.log import StatsLog
 from jupiter.core.time_plans.domain import TimePlanDomain
+from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
@@ -71,6 +72,7 @@ class Workspace(RootEntity):
         WorkingMemCollection, workspace_ref_id=IsRefId()
     )
     time_plan_domain = ContainsOne(TimePlanDomain, workspace_ref_id=IsRefId())
+    todo_domain = ContainsOne(TodoDomain, workspace_ref_id=IsRefId())
     schedule = ContainsOne(ScheduleDomain, workspace_ref_id=IsRefId())
     habit_collection = ContainsOne(HabitCollection, workspace_ref_id=IsRefId())
     chore_collection = ContainsOne(ChoreCollection, workspace_ref_id=IsRefId())
@@ -153,6 +155,10 @@ class Workspace(RootEntity):
         inferred_entity_tags: list[NamedEntityTag] = []
         for entity_tag in all_entity_tags:
             if entity_tag is NamedEntityTag.INBOX_TASK:
+                inferred_entity_tags.append(entity_tag)
+            elif entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
+                WorkspaceFeature.TODO_TASK
+            ):
                 inferred_entity_tags.append(entity_tag)
             elif entity_tag is NamedEntityTag.WORKING_MEM and self.is_feature_available(
                 WorkspaceFeature.WORKING_MEM

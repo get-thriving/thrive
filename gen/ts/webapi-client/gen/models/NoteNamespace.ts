@@ -7,6 +7,7 @@
  */
 export enum NoteNamespace {
     INBOX_TASK = 'inbox-task',
+    TODO_TASK = 'todo-task',
     WORKING_MEM = 'working-mem',
     TIME_PLAN = 'time-plan',
     SCHEDULE_STREAM = 'schedule-stream',

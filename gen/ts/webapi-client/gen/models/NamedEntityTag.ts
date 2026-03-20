@@ -10,6 +10,7 @@ export enum NamedEntityTag {
     HOME_TAB = 'HomeTab',
     HOME_WIDGET = 'HomeWidget',
     INBOX_TASK = 'InboxTask',
+    TODO_TASK = 'TodoTask',
     WORKING_MEM = 'WorkingMem',
     TIME_PLAN = 'TimePlan',
     TIME_PLAN_ACTIVITY = 'TimePlanActivity',

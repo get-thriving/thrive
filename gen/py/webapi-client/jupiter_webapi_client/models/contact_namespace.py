@@ -11,6 +11,7 @@ class ContactNamespace(str, Enum):
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = "schedule-event-full-days-block"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"
     SMART_LIST_ITEM = "smart-list-item"
+    TODO_TASK = "todo-task"
     VACATION = "vacation"
 
     def __str__(self) -> str:

@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useNavigation, useSearchParams } from "@remix-run/react";
+import { Outlet, useSearchParams } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { EntityNameComponent } from "@jupiter/core/common/component/entity-name";
@@ -46,8 +46,6 @@ export const shouldRevalidate: ShouldRevalidateFunction = basicShouldRevalidate;
 export default function ScheduleExportViewAll() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const [query] = useSearchParams();
-  const navigation = useNavigation();
-  const inputsEnabled = navigation.state === "idle";
 
   const shouldShowALeaf = useBranchNeedsToShowLeaf();
 

@@ -38,6 +38,8 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
     SlackTaskCollection,
 )
 from jupiter.core.sync_target import SyncTarget
+from jupiter.core.todo.root import TodoTask
+from jupiter.core.todo.service.archive import TodoTaskArchiveService
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -205,18 +207,56 @@ class GCService:
         gc_log_entry: GCLogEntry,
     ) -> GCLogEntry:
         inbox_task_archive_service = InboxTaskArchiveService()
+        todo_task_archive_service = TodoTaskArchiveService()
+        archived_todo_task_ref_ids: set[str] = set()
 
         for inbox_task in inbox_tasks:
             if not inbox_task.status.is_completed:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
-                await inbox_task_archive_service.do_it(
-                    ctx, uow, progress_reporter, inbox_task, JupiterArchivalReason.GC
-                )
-            gc_log_entry = gc_log_entry.add_entity(
-                ctx,
-                inbox_task,
-            )
+                if (
+                    inbox_task.source == InboxTaskSource.USER
+                    and inbox_task.source_entity_ref_id is not None
+                ):
+                    todo_ref_id = inbox_task.source_entity_ref_id_for_sure
+                    todo_ref_id_as_str = str(todo_ref_id)
+                    todo_task = await uow.get_for(TodoTask).load_by_id(
+                        todo_ref_id,
+                        allow_archived=True,
+                    )
+
+                    # Always make sure the parent todo is archived first.
+                    if (
+                        not todo_task.archived
+                        and todo_ref_id_as_str not in archived_todo_task_ref_ids
+                    ):
+                        todo_task = await todo_task_archive_service.do_it(
+                            ctx,
+                            uow,
+                            progress_reporter,
+                            todo_task,
+                            JupiterArchivalReason.GC,
+                        )
+                        gc_log_entry = gc_log_entry.add_entity(
+                            ctx,
+                            todo_task,
+                        )
+
+                    archived_todo_task_ref_ids.add(todo_ref_id_as_str)
+                else:
+                    await inbox_task_archive_service.do_it(
+                        ctx,
+                        uow,
+                        progress_reporter,
+                        inbox_task,
+                        JupiterArchivalReason.GC,
+                    )
+                    inbox_task = await uow.get_for(InboxTask).load_by_id(
+                        inbox_task.ref_id,
+                        allow_archived=True,
+                    )
+
+            gc_log_entry = gc_log_entry.add_entity(ctx, inbox_task)
 
         return gc_log_entry
 

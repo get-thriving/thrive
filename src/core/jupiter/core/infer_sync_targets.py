@@ -20,6 +20,10 @@ def infer_sync_targets_for_enabled_features(
             WorkspaceFeature.INBOX_TASKS
         ):
             inferred_sync_targets.append(sync_target)
+        elif sync_target is SyncTarget.TODO_TASKS and workspace.is_feature_available(
+            WorkspaceFeature.TODO_TASK
+        ):
+            inferred_sync_targets.append(sync_target)
         elif sync_target is SyncTarget.WORKING_MEM and workspace.is_feature_available(
             WorkspaceFeature.WORKING_MEM
         ):

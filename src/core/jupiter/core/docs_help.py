@@ -11,6 +11,7 @@ class DocsHelpSubject(EnumValue):
     HOME = "home"
     GAMIFICATION = "gamification"
     INBOX_TASKS = "inbox-tasks"
+    TODOS = "todos"
     WORKING_MEM = "working-mem"
     TIME_PLANS = "time-plans"
     SCHEDULE = "schedule"

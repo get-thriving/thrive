@@ -20,6 +20,7 @@ import type { SlackTask } from './SlackTask';
 import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
+import type { TodoTask } from './TodoTask';
 import type { WorkingMemCollection } from './WorkingMemCollection';
 /**
  * A single entry in the load all inbox tasks response.
@@ -45,5 +46,6 @@ export type InboxTaskFindResultEntry = {
     occasion?: (Occasion | null);
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);
+    todo_task?: (TodoTask | null);
 };
 

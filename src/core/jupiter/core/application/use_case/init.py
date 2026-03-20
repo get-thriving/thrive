@@ -77,6 +77,7 @@ from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
 )
+from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.user_workspace_link.user_workspace_link import (
     UserWorkspaceLink,
 )
@@ -319,6 +320,12 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_time_plan_domain = await uow.get_for(TimePlanDomain).create(
                 new_time_plan_domain
             )
+
+            new_todo_domain = TodoDomain.new_todo_domain(
+                ctx=context.domain_context,
+                workspace_ref_id=new_workspace.ref_id,
+            )
+            new_todo_domain = await uow.get_for(TodoDomain).create(new_todo_domain)
 
             new_schedule_domain = ScheduleDomain.new_schedule_domain(
                 ctx=context.domain_context,

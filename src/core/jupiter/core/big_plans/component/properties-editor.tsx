@@ -88,9 +88,7 @@ export function BigPlanPropertiesEditor(props: BigPlanPropertiesEditorProps) {
     (m) => aDateToDate(m.date) > aDateToDate(props.topLevelInfo.today),
   ).length;
 
-  const birthday = props.lifePlan
-    ? lifePlanBirthdayDate(props.lifePlan)
-    : null;
+  const birthday = props.lifePlan ? lifePlanBirthdayDate(props.lifePlan) : null;
   const today = aDateToDate(props.topLevelInfo.today);
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
     props.bigPlanInfo.aspect?.ref_id ?? "",

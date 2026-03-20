@@ -842,6 +842,29 @@ from .time_plan_update_settings_args_planning_task_aspect_ref_id import (
 )
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
+from .todo_domain import TodoDomain
+from .todo_task import TodoTask
+from .todo_task_archive_args import TodoTaskArchiveArgs
+from .todo_task_create_args import TodoTaskCreateArgs
+from .todo_task_create_result import TodoTaskCreateResult
+from .todo_task_find_args import TodoTaskFindArgs
+from .todo_task_find_result import TodoTaskFindResult
+from .todo_task_find_result_entry import TodoTaskFindResultEntry
+from .todo_task_load_args import TodoTaskLoadArgs
+from .todo_task_load_result import TodoTaskLoadResult
+from .todo_task_remove_args import TodoTaskRemoveArgs
+from .todo_task_update_args import TodoTaskUpdateArgs
+from .todo_task_update_args_actionable_date import TodoTaskUpdateArgsActionableDate
+from .todo_task_update_args_aspect_ref_id import TodoTaskUpdateArgsAspectRefId
+from .todo_task_update_args_chapter_ref_id import TodoTaskUpdateArgsChapterRefId
+from .todo_task_update_args_difficulty import TodoTaskUpdateArgsDifficulty
+from .todo_task_update_args_due_date import TodoTaskUpdateArgsDueDate
+from .todo_task_update_args_eisen import TodoTaskUpdateArgsEisen
+from .todo_task_update_args_goal_ref_id import TodoTaskUpdateArgsGoalRefId
+from .todo_task_update_args_is_key import TodoTaskUpdateArgsIsKey
+from .todo_task_update_args_name import TodoTaskUpdateArgsName
+from .todo_task_update_args_status import TodoTaskUpdateArgsStatus
+from .todo_task_update_result import TodoTaskUpdateResult
 from .user import User
 from .user_category import UserCategory
 from .user_change_feature_flags_args import UserChangeFeatureFlagsArgs
@@ -1739,6 +1762,29 @@ __all__ = (
     "TimePlanUpdateSettingsArgsPlanningTaskAspectRefId",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
+    "TodoDomain",
+    "TodoTask",
+    "TodoTaskArchiveArgs",
+    "TodoTaskCreateArgs",
+    "TodoTaskCreateResult",
+    "TodoTaskFindArgs",
+    "TodoTaskFindResult",
+    "TodoTaskFindResultEntry",
+    "TodoTaskLoadArgs",
+    "TodoTaskLoadResult",
+    "TodoTaskRemoveArgs",
+    "TodoTaskUpdateArgs",
+    "TodoTaskUpdateArgsActionableDate",
+    "TodoTaskUpdateArgsAspectRefId",
+    "TodoTaskUpdateArgsChapterRefId",
+    "TodoTaskUpdateArgsDifficulty",
+    "TodoTaskUpdateArgsDueDate",
+    "TodoTaskUpdateArgsEisen",
+    "TodoTaskUpdateArgsGoalRefId",
+    "TodoTaskUpdateArgsIsKey",
+    "TodoTaskUpdateArgsName",
+    "TodoTaskUpdateArgsStatus",
+    "TodoTaskUpdateResult",
     "User",
     "UserCategory",
     "UserChangeFeatureFlagsArgs",

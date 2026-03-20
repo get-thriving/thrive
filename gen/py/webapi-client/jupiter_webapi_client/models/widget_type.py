@@ -18,6 +18,7 @@ class WidgetType(str, Enum):
     RANDOM_HABIT = "random-habit"
     SCHEDULE_DAY = "schedule-day"
     TIME_PLAN_VIEW = "time-plan-view"
+    TODO_INBOX_TASKS = "todo-inbox-tasks"
     UPCOMING_BIRTHDAYS = "upcoming-birthdays"
 
     def __str__(self) -> str:

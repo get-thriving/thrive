@@ -23,6 +23,7 @@ class TagNamespace(str, Enum):
     SMART_LIST = "smart-list"
     SMART_LIST_ITEM = "smart-list-item"
     TIME_PLAN = "time-plan"
+    TODO_TASK = "todo-task"
     VACATION = "vacation"
 
     def __str__(self) -> str:

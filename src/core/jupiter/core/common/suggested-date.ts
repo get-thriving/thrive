@@ -89,6 +89,48 @@ export function getSuggestedDatesForInboxTaskDueDate(
   return suggestedDates;
 }
 
+export function getSuggestedDatesForTodoTaskActionableDate(
+  today: ADate,
+): SuggestedDate[] {
+  const todayDate = aDateToDate(today);
+
+  return [
+    {
+      date: today,
+      label: "Today",
+    },
+    {
+      date: dateToAdate(todayDate.plus({ days: 7 }).startOf("week")),
+      label: "Start of the next week",
+    },
+    {
+      date: dateToAdate(todayDate.plus({ months: 1 }).startOf("month")),
+      label: "Start of the next month",
+    },
+  ];
+}
+
+export function getSuggestedDatesForTodoTaskDueDate(
+  today: ADate,
+): SuggestedDate[] {
+  const todayDate = aDateToDate(today);
+
+  return [
+    {
+      date: today,
+      label: "Today",
+    },
+    {
+      date: dateToAdate(todayDate.plus({ days: 1 }).endOf("week")),
+      label: "End of the week",
+    },
+    {
+      date: dateToAdate(todayDate.plus({ days: 1 }).endOf("month")),
+      label: "End of the month",
+    },
+  ];
+}
+
 export function getSuggestedDatesForBigPlanActionableDate(
   today: ADate,
   timePlan?: TimePlan | null,

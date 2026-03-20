@@ -4,6 +4,8 @@ export function tagNamespaceName(namespace: TagNamespace): string {
   switch (namespace) {
     case TagNamespace.INBOX_TASK:
       return "Inbox Task";
+    case TagNamespace.TODO_TASK:
+      return "Todo Task";
     case TagNamespace.TIME_PLAN:
       return "Time Plan";
     case TagNamespace.SCHEDULE_STREAM:

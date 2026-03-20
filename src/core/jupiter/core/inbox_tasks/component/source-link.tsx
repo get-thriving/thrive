@@ -182,6 +182,24 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
+    case InboxTaskSource.USER: {
+      if (!props.inboxTaskResult.todo_task) {
+        return null;
+      }
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/todos/${props.inboxTaskResult.todo_task.ref_id}`}
+          sx={{ flexGrow: 1 }}
+        >
+          {isBigScreen ? "Todo Task" : "TT"}
+        </Button>
+      );
+    }
+
     case InboxTaskSource.LIFE_PLAN_EVAL: {
       return (
         <Button

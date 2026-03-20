@@ -63,6 +63,7 @@ from jupiter.core.push_integrations.sub.slack.task_collection import (
 )
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.todo.root import TodoTask
 from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
@@ -124,6 +125,7 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     occasion: Occasion | None
     slack_task: SlackTask | None
     email_task: EmailTask | None
+    todo_task: TodoTask | None
 
 
 @use_case_result
@@ -419,6 +421,18 @@ class InboxTaskFindUseCase(
         )
         email_tasks_by_ref_id = {p.ref_id: p for p in email_tasks}
 
+        todo_tasks = await uow.get_for(TodoTask).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=True,
+            ref_id=[
+                it.source_entity_ref_id_for_sure
+                for it in inbox_tasks
+                if it.source == InboxTaskSource.USER
+                and it.source_entity_ref_id is not None
+            ],
+        )
+        todo_tasks_by_ref_id = {t.ref_id: t for t in todo_tasks}
+
         notes_by_inbox_task_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
         if include_notes:
             note_collection = await uow.get_for(NoteCollection).load_by_parent(
@@ -577,6 +591,14 @@ class InboxTaskFindUseCase(
                     email_task=(
                         email_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
                         if it.source == InboxTaskSource.EMAIL_TASK
+                        else None
+                    ),
+                    todo_task=(
+                        todo_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
+                        if (
+                            it.source == InboxTaskSource.USER
+                            and it.source_entity_ref_id is not None
+                        )
                         else None
                     ),
                     note=notes_by_inbox_task_ref_id.get(it.ref_id, None),

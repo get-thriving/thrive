@@ -120,7 +120,7 @@ class JupiterMcpResource(
 
     _global_properties: JupiterGlobalProperties
 
-    def __init__(
+    def __init__(  # type: ignore[explicit-any]
         self,
         uri: str,
         args: Any,  # type: ignore[explicit-any]
@@ -147,7 +147,7 @@ class JupiterMcpResource(
             api_call, cls.unset_marker_type(), cls.error_response_type()
         )
 
-        def build_it(
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterMcpPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterMcpProperties,
@@ -183,7 +183,7 @@ class JupiterMcpTool(
 
     _global_properties: JupiterGlobalProperties
 
-    def __init__(
+    def __init__(  # type: ignore[explicit-any]
         self,
         name: str,
         description: str,
@@ -212,7 +212,7 @@ class JupiterMcpTool(
             api_call, cls.unset_marker_type(), cls.error_response_type()
         )
 
-        def build_it(
+        def build_it(  # type: ignore[explicit-any]
             ports: JupiterMcpPorts,
             global_properties: JupiterGlobalProperties,
             service_properties: JupiterMcpProperties,

@@ -85,6 +85,13 @@ export interface WidgetProps {
     onCardMarkDone: (it: InboxTask) => void;
     onCardMarkNotDone: (it: InboxTask) => void;
   };
+  todoTasks?: {
+    todoInboxTasks: InboxTask[];
+    todoEntriesByRefId: { [key: string]: InboxTaskParent };
+    optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
+    onCardMarkDone: (it: InboxTask) => void;
+    onCardMarkNotDone: (it: InboxTask) => void;
+  };
   personTasks?: {
     personInboxTasks: InboxTask[];
     personEntriesByRefId: { [key: string]: InboxTaskParent };
