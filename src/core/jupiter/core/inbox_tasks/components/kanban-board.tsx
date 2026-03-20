@@ -1,5 +1,5 @@
 import { Draggable, Droppable } from "@hello-pangea/dnd";
-import type { Contact, InboxTask, Tag, Eisen } from "@jupiter/webapi-client";
+import type { Contact, InboxTask, Eisen } from "@jupiter/webapi-client";
 import { InboxTaskStatus } from "@jupiter/webapi-client";
 import { Box, Stack, Typography, styled } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -49,7 +49,6 @@ export interface InboxTaskKanbanBoardProps {
   allowEisen?: Eisen;
   groupId?: string;
   draggedInboxTaskId?: string;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
   showOptions?: InboxTaskShowOptions;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
@@ -66,7 +65,6 @@ export function InboxTaskKanbanBoard({
   allowEisen,
   groupId,
   draggedInboxTaskId,
-  inboxTaskTagsByInboxTaskRefId,
   inboxTaskContactsByInboxTaskRefId,
   showOptions,
   cardLinkResolver,
@@ -95,7 +93,6 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
           cardLinkResolver={cardLinkResolver}
         />
@@ -115,7 +112,6 @@ export function InboxTaskKanbanBoard({
             groupId={groupId}
             showOptions={resolvedShowOptions}
             draggedInboxTaskId={draggedInboxTaskId}
-            inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
             inboxTaskContactsByInboxTaskRefId={
               inboxTaskContactsByInboxTaskRefId
             }
@@ -137,7 +133,6 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
           cardLinkResolver={cardLinkResolver}
         />
@@ -156,7 +151,6 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
           cardLinkResolver={cardLinkResolver}
         />
@@ -175,7 +169,6 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
           cardLinkResolver={cardLinkResolver}
         />
@@ -194,7 +187,6 @@ export function InboxTaskKanbanBoard({
           groupId={groupId}
           showOptions={resolvedShowOptions}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
           inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
           cardLinkResolver={cardLinkResolver}
         />
@@ -216,7 +208,6 @@ interface InboxTasksColumnProps {
   groupId?: string;
   showOptions: InboxTaskShowOptions;
   draggedInboxTaskId?: string;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
 }
@@ -340,9 +331,6 @@ function InboxTasksColumn(props: InboxTasksColumnProps) {
                 inboxTasks={filteredInboxTasks}
                 moreInfoByRefId={props.moreInfoByRefId}
                 showOptions={props.showOptions}
-                inboxTaskTagsByInboxTaskRefId={
-                  props.inboxTaskTagsByInboxTaskRefId
-                }
                 inboxTaskContactsByInboxTaskRefId={
                   props.inboxTaskContactsByInboxTaskRefId
                 }
@@ -383,7 +371,6 @@ interface InboxTaskColumnTasksProps {
   inboxTasks: Array<InboxTask>;
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   showOptions: InboxTaskShowOptions;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
 }
@@ -419,10 +406,6 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
                     showHandleMarkNotDone: false,
                   }}
                   inboxTask={inboxTask}
-                  tags={
-                    props.inboxTaskTagsByInboxTaskRefId.get(inboxTask.ref_id) ??
-                    []
-                  }
                   contacts={
                     props.inboxTaskContactsByInboxTaskRefId.get(
                       inboxTask.ref_id,

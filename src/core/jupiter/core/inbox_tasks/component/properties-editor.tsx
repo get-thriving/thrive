@@ -7,13 +7,11 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
-  Tag,
   Contact,
 } from "@jupiter/webapi-client";
 import {
   InboxTaskSource,
   InboxTaskStatus,
-  TagNamespace,
   ContactNamespace,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -62,7 +60,6 @@ import {
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
-import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
 
 interface InboxTaskPropertiesEditorProps {
@@ -79,8 +76,6 @@ interface InboxTaskPropertiesEditorProps {
   allGoals: GoalSummary[];
   allMilestones: MilestoneSummary[];
   allBigPlans: BigPlanSummary[];
-  allTags?: Array<Tag>;
-  tags?: Array<Tag>;
   allContacts?: Array<Contact>;
   contacts?: Array<Contact>;
   inputsEnabled: boolean;
@@ -261,20 +256,6 @@ export function InboxTaskPropertiesEditor(
         </Box>
 
         <Stack direction="row" useFlexGap spacing={1}>
-          {props.allTags && props.tags && (
-            <FormControl sx={{ flexGrow: 2 }}>
-              <TagsEditor
-                name="tags_names"
-                aloneOnLine
-                allTags={props.allTags}
-                defaultValue={props.tags.map((t) => t.ref_id)}
-                inputsEnabled={props.inputsEnabled}
-                namespace={TagNamespace.INBOX_TASK}
-                sourceEntityRefId={props.inboxTask.ref_id}
-              />
-            </FormControl>
-          )}
-
           {props.allContacts && props.contacts && (
             <FormControl sx={{ flexGrow: 2 }}>
               <ContactsEditor

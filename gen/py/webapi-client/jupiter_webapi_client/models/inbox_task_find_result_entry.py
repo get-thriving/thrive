@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
-    from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
@@ -40,7 +39,6 @@ class InboxTaskFindResultEntry:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        tags (list[Tag]):
         contacts (list[Contact]):
         aspect (Aspect): The aspect.
         note (None | Note | Unset):
@@ -63,7 +61,6 @@ class InboxTaskFindResultEntry:
     """
 
     inbox_task: InboxTask
-    tags: list[Tag]
     contacts: list[Contact]
     aspect: Aspect
     note: None | Note | Unset = UNSET
@@ -104,11 +101,6 @@ class InboxTaskFindResultEntry:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
-
-        tags = []
-        for tags_item_data in self.tags:
-            tags_item = tags_item_data.to_dict()
-            tags.append(tags_item)
 
         contacts = []
         for contacts_item_data in self.contacts:
@@ -262,7 +254,6 @@ class InboxTaskFindResultEntry:
         field_dict.update(
             {
                 "inbox_task": inbox_task,
-                "tags": tags,
                 "contacts": contacts,
                 "aspect": aspect,
             }
@@ -321,7 +312,6 @@ class InboxTaskFindResultEntry:
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
-        from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
@@ -329,13 +319,6 @@ class InboxTaskFindResultEntry:
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
-
-        tags = []
-        _tags = d.pop("tags")
-        for tags_item_data in _tags:
-            tags_item = Tag.from_dict(tags_item_data)
-
-            tags.append(tags_item)
 
         contacts = []
         _contacts = d.pop("contacts")
@@ -642,7 +625,6 @@ class InboxTaskFindResultEntry:
 
         inbox_task_find_result_entry = cls(
             inbox_task=inbox_task,
-            tags=tags,
             contacts=contacts,
             aspect=aspect,
             note=note,

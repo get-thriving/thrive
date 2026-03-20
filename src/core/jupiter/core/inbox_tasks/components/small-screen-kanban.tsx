@@ -3,7 +3,6 @@ import type {
   Contact,
   GoalSummary,
   InboxTask,
-  Tag,
 } from "@jupiter/webapi-client";
 import { Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
 import { Tab, Tabs } from "@mui/material";
@@ -40,7 +39,6 @@ interface SmallScreenKanbanBaseProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
   emptyParent: string;
   emptyParentLabel: string;
@@ -441,7 +439,6 @@ function renderTabContent(
         inboxTasks={inboxTasks}
         optimisticUpdates={props.optimisticUpdates}
         moreInfoByRefId={props.moreInfoByRefId}
-        inboxTaskTagsByInboxTaskRefId={props.inboxTaskTagsByInboxTaskRefId}
         inboxTaskContactsByInboxTaskRefId={
           props.inboxTaskContactsByInboxTaskRefId
         }

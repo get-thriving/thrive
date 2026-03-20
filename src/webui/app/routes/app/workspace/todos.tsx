@@ -6,11 +6,9 @@ import {
   InboxTask,
   InboxTaskStatus,
   Eisen,
-  Tag,
   TodoTask,
   TodoTaskFindResultEntry,
   DocsHelpSubject,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
@@ -74,7 +72,6 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
-import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 import { ContactTag } from "#/core/common/sub/contacts/component/contact-tag";
 import { aDateToDate } from "#/core/common/adate";
 import { TabPanel } from "#/core/infra/component/tab-panel";
@@ -95,22 +92,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     allow_archived: false,
     include_notes: false,
     include_life_plan: true,
-    include_tags: true,
     include_contacts: true,
     include_inbox_tasks: true,
   });
 
-  const allTags = await apiClient.tags.tagFind({
-    allow_archived: false,
-    filter_namespace: [TagNamespace.TODO_TASK],
-  });
   const allContacts = await apiClient.contacts.contactFind({
     allow_archived: false,
   });
 
   return json({
     entries: response.entries,
-    allTags: allTags.tags as Array<Tag>,
     allContacts: allContacts.contacts as Array<Contact>,
   });
 }
@@ -138,7 +129,6 @@ export default function Todos() {
   const isBigScreen = useBigScreen();
   const kanbanBoardMoveFetcher = useFetcher<SomeErrorNoData>();
 
-  const [selectedTagsRefId, setSelectedTagsRefId] = useState<string[]>([]);
   const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
     [],
   );
@@ -156,15 +146,12 @@ export default function Todos() {
   const entries = loaderData.entries as Array<TodoTaskFindResultEntry>;
 
   const filteredEntries = entries.filter((entry) => {
-    const tagsOk =
-      selectedTagsRefId.length === 0 ||
-      entry.tags?.some((tag: Tag) => selectedTagsRefId.includes(tag.ref_id));
     const contactsOk =
       selectedContactsRefId.length === 0 ||
       entry.contacts?.some((contact: Contact) =>
         selectedContactsRefId.includes(contact.ref_id),
       );
-    return tagsOk && contactsOk;
+    return contactsOk;
   });
 
   const sortedTodoTasks: Array<TodoTask> = [...filteredEntries]
@@ -180,7 +167,6 @@ export default function Todos() {
 
   const inboxTasksByRefId: { [key: string]: InboxTask } = {};
   const moreInfoByRefId: { [key: string]: InboxTaskParent } = {};
-  const inboxTaskTagsByInboxTaskRefId = new Map<string, Array<Tag>>();
   const inboxTaskContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
   for (const entry of todoInboxEntries) {
     const inboxTask = entry.inbox_task as InboxTask;
@@ -191,7 +177,6 @@ export default function Todos() {
       goal: entry.goal ?? undefined,
       todoTask: entry.todo_task,
     };
-    inboxTaskTagsByInboxTaskRefId.set(inboxTask.ref_id, entry.tags ?? []);
     inboxTaskContactsByInboxTaskRefId.set(
       inboxTask.ref_id,
       entry.contacts ?? [],
@@ -370,14 +355,6 @@ export default function Todos() {
               setSelectedActionableTime,
             ),
             FilterManyOptions(
-              "Tags",
-              loaderData.allTags.map((tag) => ({
-                value: tag.ref_id,
-                text: tag.name,
-              })),
-              setSelectedTagsRefId,
-            ),
-            FilterManyOptions(
               "Contacts",
               loaderData.allContacts.map((contact) => ({
                 value: contact.ref_id,
@@ -444,9 +421,6 @@ export default function Todos() {
                       <ChapterTag chapter={entry.chapter as Chapter} />
                     )}
                     {entry?.goal && <GoalTag goal={entry.goal as Goal} />}
-                    {entry?.tags?.map((tag) => (
-                      <TagTag key={tag.ref_id} tag={tag} />
-                    ))}
                     {entry?.contacts?.map((contact) => (
                       <ContactTag key={contact.ref_id} contact={contact} />
                     ))}
@@ -497,7 +471,6 @@ export default function Todos() {
               actionableTime={selectedActionableTime}
               onCardMarkDone={handleCardMarkDone}
               onCardMarkNotDone={handleCardMarkNotDone}
-              inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
               inboxTaskContactsByInboxTaskRefId={
                 inboxTaskContactsByInboxTaskRefId
               }
@@ -518,7 +491,6 @@ export default function Todos() {
                   moreInfoByRefId={moreInfoByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                   inboxTaskContactsByInboxTaskRefId={
                     inboxTaskContactsByInboxTaskRefId
                   }
@@ -560,9 +532,6 @@ export default function Todos() {
                       actionableTime={selectedActionableTime}
                       allowEisen={e}
                       draggedInboxTaskId={draggedInboxTaskId}
-                      inboxTaskTagsByInboxTaskRefId={
-                        inboxTaskTagsByInboxTaskRefId
-                      }
                       inboxTaskContactsByInboxTaskRefId={
                         inboxTaskContactsByInboxTaskRefId
                       }
@@ -598,7 +567,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                 inboxTaskContactsByInboxTaskRefId={
                   inboxTaskContactsByInboxTaskRefId
                 }
@@ -627,7 +595,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskTagsByInboxTaskRefId={inboxTaskTagsByInboxTaskRefId}
                 inboxTaskContactsByInboxTaskRefId={
                   inboxTaskContactsByInboxTaskRefId
                 }
@@ -661,7 +628,6 @@ interface TodoSwiftViewProps {
   actionableTime: ActionableTime;
   onCardMarkDone: (inboxTask: InboxTask) => void;
   onCardMarkNotDone: (inboxTask: InboxTask) => void;
-  inboxTaskTagsByInboxTaskRefId: Map<string, Array<Tag>>;
   inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
@@ -784,7 +750,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
     },
     optimisticUpdates: props.optimisticUpdates,
     moreInfoByRefId: props.moreInfoByRefId,
-    inboxTaskTagsByInboxTaskRefId: props.inboxTaskTagsByInboxTaskRefId,
     inboxTaskContactsByInboxTaskRefId: props.inboxTaskContactsByInboxTaskRefId,
     onCardMarkDone: props.onCardMarkDone,
     onCardMarkNotDone: props.onCardMarkNotDone,

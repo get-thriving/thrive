@@ -8,9 +8,6 @@ from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
-from jupiter.core.common.sub.tags.namespace import TagNamespace
-from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
-from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -64,7 +61,6 @@ class InboxTaskLoadResult(UseCaseResultBase):
     """InboxTaskLoadResult."""
 
     inbox_task: InboxTask
-    tags: list[Tag]
     contacts: list[Contact]
     aspect: Aspect
     chapter: Chapter | None
@@ -210,20 +206,6 @@ class InboxTaskLoadUseCase(
             inbox_task.ref_id,
             allow_archived=allow_archived,
         )
-        tag_link = await uow.get(
-            TagLinkRepository
-        ).load_optional_for_namespace_and_source(
-            namespace=TagNamespace.INBOX_TASK,
-            source_entity_ref_id=inbox_task.ref_id,
-        )
-        if tag_link is not None:
-            tags = await uow.get(TagRepository).find_all_generic(
-                parent_ref_id=tag_link.tag_domain.ref_id,
-                allow_archived=False,
-                ref_id=tag_link.ref_ids,
-            )
-        else:
-            tags = []
         contact_domain = await uow.get_for(ContactDomain).load_by_parent(
             workspace.ref_id,
         )
@@ -250,7 +232,6 @@ class InboxTaskLoadUseCase(
 
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
-            tags=tags,
             contacts=contacts,
             aspect=aspect,
             chapter=chapter,

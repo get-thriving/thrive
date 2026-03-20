@@ -5,7 +5,6 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
-  Tag,
   Contact,
   Workspace,
 } from "@jupiter/webapi-client";
@@ -17,7 +16,6 @@ import {
   InboxTaskSource,
   InboxTaskStatus,
   NoteNamespace,
-  TagNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -162,11 +160,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-      filter_namespace: [TagNamespace.INBOX_TASK],
-    });
-
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
@@ -193,8 +186,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
-      tags: result.tags as Array<Tag>,
-      allTags: allTags.tags as Array<Tag>,
       contacts: result.contacts as Array<Contact>,
       allContacts: allContacts.contacts as Array<Contact>,
     });
@@ -499,8 +490,6 @@ export default function InboxTask() {
         allGoals={loaderData.allGoals}
         allMilestones={loaderData.allMilestones}
         allBigPlans={loaderData.allBigPlans}
-        allTags={loaderData.allTags}
-        tags={loaderData.tags}
         allContacts={loaderData.allContacts}
         contacts={loaderData.contacts}
         inputsEnabled={inputsEnabled}

@@ -15,8 +15,6 @@ from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
-from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
@@ -88,9 +86,6 @@ class InboxTask(LeafEntity):
     working_time: Timestamp | None
     completed_time: Timestamp | None
 
-    tag_link = OwnsAtMostOne(
-        TagLink, namespace=TagNamespace.INBOX_TASK, source_entity_ref_id=IsRefId()
-    )
     contact_link = OwnsAtMostOne(
         ContactLink,
         namespace=ContactNamespace.INBOX_TASK,

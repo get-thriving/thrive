@@ -98,7 +98,7 @@ export default function NewTag() {
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagNamespaceSelect
               name="namespace"
-              defaultValue={TagNamespace.INBOX_TASK}
+              defaultValue={TagNamespace.TODO_TASK}
               inputsEnabled={inputsEnabled}
             />
             <FieldError actionResult={actionData} fieldName="/namespace" />

@@ -5,7 +5,6 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
-  Tag,
   Contact,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
@@ -17,7 +16,6 @@ import {
   InboxTaskSource,
   InboxTaskStatus,
   TimeEventNamespace,
-  TagNamespace,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -235,11 +233,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-      filter_namespace: [TagNamespace.INBOX_TASK],
-    });
-
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
@@ -258,7 +251,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTaskInfo: inboxTaskResult,
       bigPlan: response.big_plan,
       bigPlanInfo: bigPlanResult,
-      allTags: allTags.tags as Array<Tag>,
       allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
@@ -841,8 +833,6 @@ export default function TimeEventInDayBlockViewOne() {
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
           allBigPlans={loaderData.allBigPlans}
-          allTags={loaderData.allTags}
-          tags={loaderData.inboxTaskInfo?.tags}
           allContacts={loaderData.allContacts}
           contacts={loaderData.inboxTaskInfo?.contacts}
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}

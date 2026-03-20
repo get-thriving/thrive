@@ -7,7 +7,7 @@ from jupiter.framework.value import EnumValue, enum_value
 class InboxTaskSource(EnumValue):
     """The origin of an inbox task."""
 
-    TODO = "user"
+    TODO = "todo"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
     TIME_PLAN = "time-plan"
     HABIT = "habit"

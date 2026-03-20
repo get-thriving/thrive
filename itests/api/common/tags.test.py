@@ -45,7 +45,7 @@ def create_tag(logged_in_client: AuthenticatedClient):
         result = tag_create_sync(
             client=logged_in_client,
             body=TagCreateArgs(
-                namespace=TagNamespace.INBOX_TASK,
+                namespace=TagNamespace.TODO_TASK,
                 name=name,
             ),
         )
@@ -63,7 +63,7 @@ def test_api_common_tag_create(api_url: str, api_key: str) -> None:
         f"{api_url}/v1/common/tags",
         headers=_headers(api_key),
         json={
-            "namespace": "inbox-task",
+            "namespace": "todo-task",
             "name": "urgent",
         },
         timeout=10,
@@ -72,7 +72,7 @@ def test_api_common_tag_create(api_url: str, api_key: str) -> None:
 
     tag = response.json()["new_tag"]
     assert tag["name"] == "urgent"
-    assert tag["namespace"] == "inbox-task"
+    assert tag["namespace"] == "todo-task"
     assert tag["archived"] is False
     assert "ref_id" in tag
 
@@ -97,7 +97,7 @@ def test_api_common_tag_find(api_url: str, api_key: str, create_tag) -> None:
     create_tag("find-tag-2")
 
     response = requests.get(
-        f"{api_url}/v1/common/tags?allow_archived=false&filter_namespace=inbox-task",
+        f"{api_url}/v1/common/tags?allow_archived=false&filter_namespace=todo-task",
         headers=_headers(api_key),
         timeout=10,
     )
@@ -141,7 +141,7 @@ def test_api_common_tag_link_upsert(
         f"{api_url}/v1/common/tags/link",
         headers=_headers(api_key),
         json={
-            "namespace": "inbox-task",
+            "namespace": "todo-task",
             "source_entity_ref_id": task.ref_id,
             "tag_names": ["link-tag"],
         },

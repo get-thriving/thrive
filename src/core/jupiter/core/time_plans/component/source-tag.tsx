@@ -15,7 +15,7 @@ export function TimePlanSourceTag({ source }: Props) {
 
 function sourceToClass(source: TimePlanSource): "info" | "warning" {
   switch (source) {
-    case TimePlanSource.TODO:
+    case TimePlanSource.USER:
       return "info";
     case TimePlanSource.GENERATED:
       return "warning";

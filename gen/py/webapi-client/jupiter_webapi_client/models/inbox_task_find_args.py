@@ -20,7 +20,6 @@ class InboxTaskFindArgs:
         allow_archived (bool | None | Unset):
         include_notes (bool | None | Unset):
         include_time_event_blocks (bool | None | Unset):
-        include_tags (bool | None | Unset):
         filter_just_workable (bool | None | Unset):
         filter_just_user (bool | None | Unset):
         filter_just_generated (bool | None | Unset):
@@ -33,7 +32,6 @@ class InboxTaskFindArgs:
     allow_archived: bool | None | Unset = UNSET
     include_notes: bool | None | Unset = UNSET
     include_time_event_blocks: bool | None | Unset = UNSET
-    include_tags: bool | None | Unset = UNSET
     filter_just_workable: bool | None | Unset = UNSET
     filter_just_user: bool | None | Unset = UNSET
     filter_just_generated: bool | None | Unset = UNSET
@@ -61,12 +59,6 @@ class InboxTaskFindArgs:
             include_time_event_blocks = UNSET
         else:
             include_time_event_blocks = self.include_time_event_blocks
-
-        include_tags: bool | None | Unset
-        if isinstance(self.include_tags, Unset):
-            include_tags = UNSET
-        else:
-            include_tags = self.include_tags
 
         filter_just_workable: bool | None | Unset
         if isinstance(self.filter_just_workable, Unset):
@@ -134,8 +126,6 @@ class InboxTaskFindArgs:
             field_dict["include_notes"] = include_notes
         if include_time_event_blocks is not UNSET:
             field_dict["include_time_event_blocks"] = include_time_event_blocks
-        if include_tags is not UNSET:
-            field_dict["include_tags"] = include_tags
         if filter_just_workable is not UNSET:
             field_dict["filter_just_workable"] = filter_just_workable
         if filter_just_user is not UNSET:
@@ -183,15 +173,6 @@ class InboxTaskFindArgs:
             return cast(bool | None | Unset, data)
 
         include_time_event_blocks = _parse_include_time_event_blocks(d.pop("include_time_event_blocks", UNSET))
-
-        def _parse_include_tags(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        include_tags = _parse_include_tags(d.pop("include_tags", UNSET))
 
         def _parse_filter_just_workable(data: object) -> bool | None | Unset:
             if data is None:
@@ -297,7 +278,6 @@ class InboxTaskFindArgs:
             allow_archived=allow_archived,
             include_notes=include_notes,
             include_time_event_blocks=include_time_event_blocks,
-            include_tags=include_tags,
             filter_just_workable=filter_just_workable,
             filter_just_user=filter_just_user,
             filter_just_generated=filter_just_generated,

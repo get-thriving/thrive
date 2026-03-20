@@ -6,7 +6,7 @@
  * The origin of an inbox task.
  */
 export enum InboxTaskSource {
-    USER = 'user',
+    TODO = 'todo',
     WORKING_MEM_CLEANUP = 'working-mem-cleanup',
     TIME_PLAN = 'time-plan',
     HABIT = 'habit',

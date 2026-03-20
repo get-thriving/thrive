@@ -15,7 +15,7 @@ export function JournalSourceTag({ source }: Props) {
 
 function sourceToClass(source: JournalSource): "info" | "warning" {
   switch (source) {
-    case JournalSource.TODO:
+    case JournalSource.USER:
       return "info";
     case JournalSource.GENERATED:
       return "warning";

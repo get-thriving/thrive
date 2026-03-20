@@ -24,7 +24,6 @@ if TYPE_CHECKING:
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
-    from ..models.tag import Tag
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
@@ -40,7 +39,6 @@ class InboxTaskLoadResult:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        tags (list[Tag]):
         contacts (list[Contact]):
         aspect (Aspect): The aspect.
         time_event_blocks (list[TimeEventInDayBlock]):
@@ -62,7 +60,6 @@ class InboxTaskLoadResult:
     """
 
     inbox_task: InboxTask
-    tags: list[Tag]
     contacts: list[Contact]
     aspect: Aspect
     time_event_blocks: list[TimeEventInDayBlock]
@@ -101,11 +98,6 @@ class InboxTaskLoadResult:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
-
-        tags = []
-        for tags_item_data in self.tags:
-            tags_item = tags_item_data.to_dict()
-            tags.append(tags_item)
 
         contacts = []
         for contacts_item_data in self.contacts:
@@ -244,7 +236,6 @@ class InboxTaskLoadResult:
         field_dict.update(
             {
                 "inbox_task": inbox_task,
-                "tags": tags,
                 "contacts": contacts,
                 "aspect": aspect,
                 "time_event_blocks": time_event_blocks,
@@ -300,7 +291,6 @@ class InboxTaskLoadResult:
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
-        from ..models.tag import Tag
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
@@ -308,13 +298,6 @@ class InboxTaskLoadResult:
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
-
-        tags = []
-        _tags = d.pop("tags")
-        for tags_item_data in _tags:
-            tags_item = Tag.from_dict(tags_item_data)
-
-            tags.append(tags_item)
 
         contacts = []
         _contacts = d.pop("contacts")
@@ -589,7 +572,6 @@ class InboxTaskLoadResult:
 
         inbox_task_load_result = cls(
             inbox_task=inbox_task,
-            tags=tags,
             contacts=contacts,
             aspect=aspect,
             time_event_blocks=time_event_blocks,

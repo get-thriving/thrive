@@ -17,7 +17,6 @@ import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { SlackTask } from './SlackTask';
-import type { Tag } from './Tag';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
 import type { TodoTask } from './TodoTask';
@@ -27,7 +26,6 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
  */
 export type InboxTaskLoadResult = {
     inbox_task: InboxTask;
-    tags: Array<Tag>;
     contacts: Array<Contact>;
     aspect: Aspect;
     chapter?: (Chapter | null);

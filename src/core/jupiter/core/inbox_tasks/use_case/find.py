@@ -13,10 +13,6 @@ from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
-from jupiter.core.common.sub.tags.namespace import TagNamespace
-from jupiter.core.common.sub.tags.root import TagDomain
-from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
-from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -91,7 +87,6 @@ class InboxTaskFindArgs(UseCaseArgsBase):
     allow_archived: bool | None
     include_notes: bool | None
     include_time_event_blocks: bool | None
-    include_tags: bool | None
     filter_just_workable: bool | None
     filter_just_user: bool | None
     filter_just_generated: bool | None
@@ -106,7 +101,6 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     """A single entry in the load all inbox tasks response."""
 
     inbox_task: InboxTask
-    tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
     aspect: Aspect
@@ -151,7 +145,6 @@ class InboxTaskFindUseCase(
         allow_archived = args.allow_archived or False
         include_notes = args.include_notes or False
         include_time_event_blocks = args.include_time_event_blocks or False
-        include_tags = args.include_tags or False
         workspace = context.workspace
 
         if args.filter_just_user and args.filter_just_generated:
@@ -465,38 +458,10 @@ class InboxTaskFindUseCase(
                     block.source_entity_ref_id
                 ].append(block)
 
-        if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
-            all_tags = await uow.get_for(Tag).find_all_generic(
-                parent_ref_id=tags_domain.ref_id,
-                allow_archived=False,
-                namespace=TagNamespace.INBOX_TASK,
-            )
-            all_tags_by_ref_id = {t.ref_id: t for t in all_tags}
-            tag_links = await uow.get(TagLinkRepository).find_all_generic(
-                namespace=TagNamespace.INBOX_TASK,
-                source_entity_ref_id=[it.ref_id for it in inbox_tasks],
-            )
-            tag_links_by_inbox_task_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
-            }
-        else:
-            all_tags_by_ref_id = {}
-            tag_links_by_inbox_task_ref_id = {}
-
         return InboxTaskFindResult(
             entries=[
                 InboxTaskFindResultEntry(
                     inbox_task=it,
-                    tags=(
-                        [
-                            all_tags_by_ref_id[rid]
-                            for rid in tag_links_by_inbox_task_ref_id[it.ref_id].ref_ids
-                            if rid in all_tags_by_ref_id
-                        ]
-                        if it.ref_id in tag_links_by_inbox_task_ref_id
-                        else []
-                    ),
                     contacts=[
                         contacts_by_ref_id[contact_ref_id]
                         for contact_ref_id in inbox_task_contacts_by_ref_id.get(
