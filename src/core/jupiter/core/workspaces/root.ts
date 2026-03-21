@@ -166,7 +166,7 @@ export function inferSourcesForEnabledFeatures(
   const inferredSources: Array<InboxTaskSource> = [];
 
   for (const source of sources) {
-    if (source === InboxTaskSource.TODO) {
+    if (source === InboxTaskSource.TODO_TASK) {
       inferredSources.push(source);
     } else if (
       source === InboxTaskSource.WORKING_MEM_CLEANUP &&

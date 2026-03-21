@@ -3,7 +3,7 @@ import { InboxTaskSource } from "@jupiter/webapi-client";
 export function allowUserChanges(source: InboxTaskSource): boolean {
   // Keep synced with python:source.py
   return (
-    source === InboxTaskSource.TODO ||
+    source === InboxTaskSource.TODO_TASK ||
     source === InboxTaskSource.BIG_PLAN ||
     source === InboxTaskSource.SLACK_TASK ||
     source === InboxTaskSource.EMAIL_TASK
@@ -12,7 +12,7 @@ export function allowUserChanges(source: InboxTaskSource): boolean {
 
 export function inboxTaskSourceName(source: InboxTaskSource): string {
   switch (source) {
-    case InboxTaskSource.TODO:
+    case InboxTaskSource.TODO_TASK:
       return "User";
     case InboxTaskSource.WORKING_MEM_CLEANUP:
       return "Working Mem Cleanup";

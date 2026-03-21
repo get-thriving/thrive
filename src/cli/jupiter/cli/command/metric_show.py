@@ -17,7 +17,6 @@ from jupiter.cli.command.rendering import (
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.sub.notes.content_block import ParagraphBlock
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
 from jupiter.core.metrics.use_case.find import (
     MetricFindResult,
     MetricFindUseCase,
@@ -43,12 +42,6 @@ class MetricShow(JupiterLoggedInReadonlyCommand[MetricFindUseCase, MetricFindRes
         )
 
         rich_tree = Tree("📈 Metrics", guide_style="bold bright_blue")
-
-        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            collection_aspect_text = Text(
-                f"The collection aspect is {result.collection_aspect.name}",
-            )
-            rich_tree.add(collection_aspect_text)
 
         for metric_result_entry in sorted_metrics:
             metric = metric_result_entry.metric

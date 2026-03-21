@@ -15,7 +15,7 @@ export function InboxTaskSourceTag(props: Props) {
 
 function sourceToClass(source: InboxTaskSource): "info" | "warning" | "error" {
   switch (source) {
-    case InboxTaskSource.TODO:
+    case InboxTaskSource.TODO_TASK:
       return "info";
     case InboxTaskSource.WORKING_MEM_CLEANUP:
       return "warning";

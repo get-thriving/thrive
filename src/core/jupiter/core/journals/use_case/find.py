@@ -94,9 +94,7 @@ class JournalFindUseCase(
         journal_collection = await uow.get_for(JournalCollection).load_by_parent(
             workspace.ref_id,
         )
-        inbox_task_collection = await uow.get_for(
-            InboxTaskCollection
-        ).load_by_parent(
+        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
         note_collection = await uow.get_for(NoteCollection).load_by_parent(
@@ -138,14 +136,12 @@ class JournalFindUseCase(
                 source_entity_ref_id=[journal.ref_id for journal in journals],
             )
             for writing_task in writing_tasks:
-                writing_tasks_by_journal_ref_id[
-                    writing_task.source_entity_ref_id
-                ] = writing_task
+                writing_tasks_by_journal_ref_id[writing_task.source_entity_ref_id] = (
+                    writing_task
+                )
 
         if include_tags:
-            tags_domain = await uow.get_for(TagDomain).load_by_parent(
-                workspace.ref_id
-            )
+            tags_domain = await uow.get_for(TagDomain).load_by_parent(workspace.ref_id)
             all_tags = await uow.get_for(Tag).find_all_generic(
                 parent_ref_id=tags_domain.ref_id,
                 allow_archived=False,
@@ -156,9 +152,7 @@ class JournalFindUseCase(
                 namespace=TagNamespace.JOURNAL,
                 source_entity_ref_id=[j.ref_id for j in journals],
             )
-            tag_links_by_journal_ref_id = {
-                t.source_entity_ref_id: t for t in tag_links
-            }
+            tag_links_by_journal_ref_id = {t.source_entity_ref_id: t for t in tag_links}
         else:
             all_tags_by_ref_id = {}
             tag_links_by_journal_ref_id = {}

@@ -31,7 +31,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
   const sortedInboxTasks = sortInboxTasksNaturally(todoTasks.todoInboxTasks);
 
   const commonFilterOptions = {
-    allowSources: [InboxTaskSource.TODO],
+    allowSources: [InboxTaskSource.TODO_TASK],
     allowStatuses: [
       InboxTaskStatus.NOT_STARTED,
       InboxTaskStatus.IN_PROGRESS,

@@ -351,7 +351,7 @@ class InboxTaskFindUseCase(
             ref_id=[
                 it.source_entity_ref_id_for_sure
                 for it in inbox_tasks
-                if it.source == InboxTaskSource.TODO
+                if it.source == InboxTaskSource.TODO_TASK
                 and it.source_entity_ref_id is not None
             ],
         )
@@ -464,7 +464,7 @@ class InboxTaskFindUseCase(
                     todo_task=(
                         todo_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
                         if (
-                            it.source == InboxTaskSource.TODO
+                            it.source == InboxTaskSource.TODO_TASK
                             and it.source_entity_ref_id is not None
                         )
                         else None

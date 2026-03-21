@@ -7,7 +7,7 @@ from jupiter.framework.value import EnumValue, enum_value
 class InboxTaskSource(EnumValue):
     """The origin of an inbox task."""
 
-    TODO = "todo"
+    TODO_TASK = "todo-task"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
     TIME_PLAN = "time-plan"
     HABIT = "habit"
@@ -26,7 +26,7 @@ class InboxTaskSource(EnumValue):
         """Allow user changes for an inbox task."""
         # Keep synced with ts:inbox-task-source.ts
         return self in (
-            InboxTaskSource.TODO,
+            InboxTaskSource.TODO_TASK,
             InboxTaskSource.BIG_PLAN,
             InboxTaskSource.SLACK_TASK,
             InboxTaskSource.EMAIL_TASK,

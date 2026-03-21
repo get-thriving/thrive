@@ -257,7 +257,9 @@ export function sortInboxTasksByEisenAndDifficulty(
 }
 
 export function isInboxTaskCoreFieldEditable(source: InboxTaskSource): boolean {
-  return source === InboxTaskSource.TODO || source === InboxTaskSource.BIG_PLAN;
+  return (
+    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
+  );
 }
 
 export function canInboxTaskBeInStatus(
@@ -265,7 +267,7 @@ export function canInboxTaskBeInStatus(
   status: InboxTaskStatus,
 ): boolean {
   switch (inboxTasks.source) {
-    case InboxTaskSource.TODO:
+    case InboxTaskSource.TODO_TASK:
     case InboxTaskSource.BIG_PLAN:
       if (status === InboxTaskStatus.NOT_STARTED_GEN) {
         return false;
@@ -294,7 +296,9 @@ export function canInboxTaskBeInStatus(
 export function doesInboxTaskAllowChangingBigPlan(
   source: InboxTaskSource,
 ): boolean {
-  return source === InboxTaskSource.TODO || source === InboxTaskSource.BIG_PLAN;
+  return (
+    source === InboxTaskSource.TODO_TASK || source === InboxTaskSource.BIG_PLAN
+  );
 }
 
 function inferPeriodForRecurringTask(

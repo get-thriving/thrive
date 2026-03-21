@@ -237,7 +237,7 @@ class ReportService:
                 it
                 for it in raw_all_inbox_tasks
                 # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
-                if it.source is InboxTaskSource.TODO
+                if it.source is InboxTaskSource.TODO_TASK
                 or (
                     it.source is InboxTaskSource.BIG_PLAN
                     and (

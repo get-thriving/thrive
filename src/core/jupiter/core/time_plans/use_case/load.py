@@ -217,7 +217,10 @@ class TimePlanLoadUseCase(
                 allow_archived=True,
                 filter_start_completed_date=schedule.first_day,
                 filter_end_completed_date=schedule.end_day,
-                filter_include_sources=[InboxTaskSource.TODO, InboxTaskSource.BIG_PLAN],
+                filter_include_sources=[
+                    InboxTaskSource.TODO_TASK,
+                    InboxTaskSource.BIG_PLAN,
+                ],
                 filter_exclude_ref_ids=[it.ref_id for it in target_inbox_tasks],
             )
 

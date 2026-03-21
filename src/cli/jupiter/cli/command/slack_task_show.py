@@ -14,7 +14,6 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.slack.use_case.find import (
     SlackTaskFindResult,
     SlackTaskFindUseCase,

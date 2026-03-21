@@ -93,7 +93,7 @@ class TodoTaskLoadUseCase(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.TODO,
+            source=InboxTaskSource.TODO_TASK,
             source_entity_ref_id=todo_task.ref_id,
             allow_archived=allow_archived,
         )

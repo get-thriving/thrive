@@ -215,7 +215,7 @@ class GCService:
                 continue
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 if (
-                    inbox_task.source == InboxTaskSource.TODO
+                    inbox_task.source == InboxTaskSource.TODO_TASK
                     and inbox_task.source_entity_ref_id is not None
                 ):
                     todo_ref_id = inbox_task.source_entity_ref_id_for_sure

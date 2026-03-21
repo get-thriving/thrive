@@ -170,7 +170,7 @@ class InboxTaskLoadUseCase(
             email_task = None
 
         if (
-            inbox_task.source is InboxTaskSource.TODO
+            inbox_task.source is InboxTaskSource.TODO_TASK
             and inbox_task.source_entity_ref_id is not None
         ):
             todo_task = await uow.get_for(TodoTask).load_by_id(

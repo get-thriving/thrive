@@ -182,7 +182,7 @@ export function InboxTaskSourceLink(props: InboxTaskSourceLinkProps) {
       );
     }
 
-    case InboxTaskSource.TODO: {
+    case InboxTaskSource.TODO_TASK: {
       if (!props.inboxTaskResult.todo_task) {
         return null;
       }

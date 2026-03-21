@@ -221,7 +221,7 @@ export function InboxTaskPropertiesEditor(
             props.topLevelInfo.workspace,
             WorkspaceFeature.BIG_PLANS,
           ) &&
-            (props.inboxTask.source === InboxTaskSource.TODO ||
+            (props.inboxTask.source === InboxTaskSource.TODO_TASK ||
               props.inboxTask.source === InboxTaskSource.BIG_PLAN) && (
               <>
                 <FormControl fullWidth>
