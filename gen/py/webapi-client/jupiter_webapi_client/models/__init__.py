@@ -205,7 +205,6 @@ from .eisen import Eisen
 from .email_task import EmailTask
 from .email_task_archive_args import EmailTaskArchiveArgs
 from .email_task_archive_service_result import EmailTaskArchiveServiceResult
-from .email_task_change_generation_aspect_args import EmailTaskChangeGenerationAspectArgs
 from .email_task_collection import EmailTaskCollection
 from .email_task_find_args import EmailTaskFindArgs
 from .email_task_find_result import EmailTaskFindResult
@@ -343,13 +342,10 @@ from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
 from .inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
-from .inbox_task_update_args_aspect_ref_id import InboxTaskUpdateArgsAspectRefId
 from .inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
-from .inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
 from .inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
 from .inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
 from .inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
-from .inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
 from .inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
 from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
@@ -390,7 +386,6 @@ from .journal_update_settings_args_generation_in_advance_days_value import (
     JournalUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
-from .journal_update_settings_args_writing_task_aspect_ref_id import JournalUpdateSettingsArgsWritingTaskAspectRefId
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
@@ -444,7 +439,6 @@ from .mcp_key_update_args import MCPKeyUpdateArgs
 from .mcp_key_update_args_name import MCPKeyUpdateArgsName
 from .metric import Metric
 from .metric_archive_args import MetricArchiveArgs
-from .metric_change_collection_aspect_args import MetricChangeCollectionAspectArgs
 from .metric_collection import MetricCollection
 from .metric_create_args import MetricCreateArgs
 from .metric_create_result import MetricCreateResult
@@ -544,7 +538,6 @@ from .per_habit_breakdown_item import PerHabitBreakdownItem
 from .per_period_breakdown_item import PerPeriodBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
-from .person_change_catch_up_aspect_args import PersonChangeCatchUpAspectArgs
 from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
@@ -673,7 +666,6 @@ from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
 from .slack_task_archive_service_result import SlackTaskArchiveServiceResult
-from .slack_task_change_generation_aspect_args import SlackTaskChangeGenerationAspectArgs
 from .slack_task_collection import SlackTaskCollection
 from .slack_task_find_args import SlackTaskFindArgs
 from .slack_task_find_result import SlackTaskFindResult
@@ -837,9 +829,6 @@ from .time_plan_update_settings_args_generation_in_advance_days_value import (
     TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
-from .time_plan_update_settings_args_planning_task_aspect_ref_id import (
-    TimePlanUpdateSettingsArgsPlanningTaskAspectRefId,
-)
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
 from .todo_domain import TodoDomain
@@ -933,7 +922,6 @@ from .working_mem_load_current_result import WorkingMemLoadCurrentResult
 from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
-from .working_mem_update_settings_args_cleanup_aspect_ref_id import WorkingMemUpdateSettingsArgsCleanupAspectRefId
 from .working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
 from .workspace import Workspace
 from .workspace_change_feature_flags_args import WorkspaceChangeFeatureFlagsArgs
@@ -1143,7 +1131,6 @@ __all__ = (
     "EmailTask",
     "EmailTaskArchiveArgs",
     "EmailTaskArchiveServiceResult",
-    "EmailTaskChangeGenerationAspectArgs",
     "EmailTaskCollection",
     "EmailTaskFindArgs",
     "EmailTaskFindResult",
@@ -1282,13 +1269,10 @@ __all__ = (
     "InboxTaskSummary",
     "InboxTaskUpdateArgs",
     "InboxTaskUpdateArgsActionableDate",
-    "InboxTaskUpdateArgsAspectRefId",
     "InboxTaskUpdateArgsBigPlanRefId",
-    "InboxTaskUpdateArgsChapterRefId",
     "InboxTaskUpdateArgsDifficulty",
     "InboxTaskUpdateArgsDueDate",
     "InboxTaskUpdateArgsEisen",
-    "InboxTaskUpdateArgsGoalRefId",
     "InboxTaskUpdateArgsIsKey",
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsStatus",
@@ -1326,7 +1310,6 @@ __all__ = (
     "JournalUpdateSettingsArgsGenerationInAdvanceDays",
     "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "JournalUpdateSettingsArgsPeriods",
-    "JournalUpdateSettingsArgsWritingTaskAspectRefId",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
@@ -1372,7 +1355,6 @@ __all__ = (
     "MCPKeyUpdateArgsName",
     "Metric",
     "MetricArchiveArgs",
-    "MetricChangeCollectionAspectArgs",
     "MetricCollection",
     "MetricCreateArgs",
     "MetricCreateResult",
@@ -1472,7 +1454,6 @@ __all__ = (
     "PerPeriodBreakdownItem",
     "Person",
     "PersonArchiveArgs",
-    "PersonChangeCatchUpAspectArgs",
     "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
@@ -1599,7 +1580,6 @@ __all__ = (
     "SlackTask",
     "SlackTaskArchiveArgs",
     "SlackTaskArchiveServiceResult",
-    "SlackTaskChangeGenerationAspectArgs",
     "SlackTaskCollection",
     "SlackTaskFindArgs",
     "SlackTaskFindResult",
@@ -1759,7 +1739,6 @@ __all__ = (
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDays",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "TimePlanUpdateSettingsArgsPeriods",
-    "TimePlanUpdateSettingsArgsPlanningTaskAspectRefId",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
     "TodoDomain",
@@ -1853,7 +1832,6 @@ __all__ = (
     "WorkingMemLoadSettingsArgs",
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",
-    "WorkingMemUpdateSettingsArgsCleanupAspectRefId",
     "WorkingMemUpdateSettingsArgsGenerationPeriod",
     "Workspace",
     "WorkspaceChangeFeatureFlagsArgs",

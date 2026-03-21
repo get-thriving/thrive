@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Aspect } from './Aspect';
 import type { InboxTask } from './InboxTask';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
 import type { RecurringTaskPeriod } from './RecurringTaskPeriod';
@@ -14,7 +13,6 @@ export type TimePlanLoadSettingsResult = {
     periods: Array<RecurringTaskPeriod>;
     generation_approach: TimePlanGenerationApproach;
     generation_in_advance_days: Record<string, number>;
-    planning_task_aspect?: (Aspect | null);
     planning_task_gen_params?: (RecurringTaskGenParams | null);
     planning_tasks: Array<InboxTask>;
 };

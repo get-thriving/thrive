@@ -74,7 +74,6 @@ export function ChoreRandomWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,

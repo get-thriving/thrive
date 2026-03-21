@@ -25,7 +25,6 @@ from jupiter.core.inbox_tasks.root import (
     InboxTaskRepository,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
@@ -91,8 +90,6 @@ class OccasionUpdateUseCase(
             contact_link.contacts_ref_ids[0]
         )
 
-        prm = await uow.get_for(PRM).load_by_id(person.prm.ref_id)
-
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             context.workspace.ref_id,
         )
@@ -126,7 +123,6 @@ class OccasionUpdateUseCase(
 
             inbox_task = inbox_task.update_link_to_person_occasion(
                 ctx=context.domain_context,
-                aspect_ref_id=prm.catch_up_aspect_ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,

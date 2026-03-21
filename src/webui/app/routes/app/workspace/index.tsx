@@ -26,7 +26,6 @@ import {
   WidgetType,
   BigPlanLoadResult,
   InboxTaskFindResult,
-  TodoTaskFindResult,
   WorkspaceFeature,
   CalendarLoadForDateAndPeriodResult,
   WidgetTypeConstraints,
@@ -87,7 +86,6 @@ import { ScheduleDailyWidget } from "@jupiter/core/calendar/component/schedule-d
 import { HabitRandomWidget } from "@jupiter/core/habits/component/random-widget";
 import { ChoreInboxTasksWidget } from "@jupiter/core/chores/component/inbox-tasks-widget";
 import { ChoreRandomWidget } from "@jupiter/core/chores/component/random-widget";
-import { TodoInboxTasksWidget } from "@jupiter/core/todo/components/inbox-tasks-widget";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
 import { GamificationOverviewWidget } from "@jupiter/core/gamification/component/overview-widget";
 import { GamificationHistoryWeeklyWidget } from "@jupiter/core/gamification/component/history-weekly-widget";
@@ -162,6 +160,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
     habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
+      include_tags: true,
+      include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [InboxTaskSource.HABIT],
     });
@@ -172,6 +172,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.CHORES)) {
     choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
+      include_tags: true,
+      include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [InboxTaskSource.CHORE],
     });
@@ -200,23 +202,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.PRM)) {
     personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
+      include_tags: true,
+      include_notes: false,
       include_time_event_blocks: false,
       filter_sources: [
         InboxTaskSource.PERSON_OCCASION,
         InboxTaskSource.PERSON_CATCH_UP,
       ],
-    });
-  }
-
-  let todoInboxTasksResponse: TodoTaskFindResult | undefined = undefined;
-  if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)) {
-    todoInboxTasksResponse = await apiClient.todo.todoTaskFind({
-      allow_archived: false,
-      include_notes: false,
-      include_life_plan: true,
-      include_tags: false,
-      include_contacts: false,
-      include_inbox_tasks: true,
     });
   }
 
@@ -292,7 +284,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     motd: motdResponse.motd,
     habitInboxTasks: habitInboxTasksResponse?.entries,
     choreInboxTasks: choreInboxTasksResponse?.entries,
-    todoInboxTasks: todoInboxTasksResponse?.entries,
     personInboxTasks: personInboxTasksResponse?.entries,
     keyHabitResults: keyHabitResults?.map((h) => ({
       habit: h.habit,
@@ -428,28 +419,6 @@ export default function WorkspaceHome() {
     }
   }
 
-  const sortedTodoInboxTasks = loaderData.todoInboxTasks
-    ? sortInboxTasksNaturally(
-        loaderData.todoInboxTasks
-          .filter((e) => e.inbox_task !== undefined && e.inbox_task !== null)
-          .map((e) => e.inbox_task as InboxTask),
-      )
-    : undefined;
-  const todoEntriesByRefId: { [key: string]: InboxTaskParent } = {};
-  if (loaderData.todoInboxTasks) {
-    for (const entry of loaderData.todoInboxTasks) {
-      if (!entry.inbox_task) {
-        continue;
-      }
-      todoEntriesByRefId[entry.inbox_task.ref_id] = {
-        aspect: entry.aspect ?? undefined,
-        chapter: entry.chapter ?? undefined,
-        goal: entry.goal ?? undefined,
-        todoTask: entry.todo_task,
-      };
-    }
-  }
-
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -567,15 +536,6 @@ export default function WorkspaceHome() {
       ? {
           choreInboxTasks: sortedChoreInboxTasks!,
           choreEntriesByRefId: choreEntriesByRefId!,
-          optimisticUpdates,
-          onCardMarkDone: handleCardMarkDone,
-          onCardMarkNotDone: handleCardMarkNotDone,
-        }
-      : undefined,
-    todoTasks: loaderData.todoInboxTasks
-      ? {
-          todoInboxTasks: sortedTodoInboxTasks!,
-          todoEntriesByRefId: todoEntriesByRefId!,
           optimisticUpdates,
           onCardMarkDone: handleCardMarkDone,
           onCardMarkNotDone: handleCardMarkNotDone,
@@ -1029,8 +989,6 @@ function ActualWidgetItself({ widget, widgetProps }: ActualWidgetItselfProps) {
       return <HabitRandomWidget {...widgetPropsWithGeometry} />;
     case WidgetType.CHORE_INBOX_TASKS:
       return <ChoreInboxTasksWidget {...widgetPropsWithGeometry} />;
-    case "todo-inbox-tasks" as WidgetType:
-      return <TodoInboxTasksWidget {...widgetPropsWithGeometry} />;
     case WidgetType.RANDOM_CHORE:
       return <ChoreRandomWidget {...widgetPropsWithGeometry} />;
     case WidgetType.KEY_BIG_PLANS_PROGRESS:

@@ -33,7 +33,6 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
@@ -224,9 +223,6 @@ class PersonUpdateUseCase(
         else:
             catch_up_params = UpdateAction.do_nothing()
 
-        aspect = await uow.get_for(Aspect).load_by_id(
-            prm.catch_up_aspect_ref_id,
-        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -281,7 +277,6 @@ class PersonUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_person_catch_up(
                     ctx=context.domain_context,
-                    aspect_ref_id=aspect.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=person.catch_up_params.eisen,

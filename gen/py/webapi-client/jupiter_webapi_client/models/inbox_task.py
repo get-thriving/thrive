@@ -28,15 +28,12 @@ class InboxTask:
         name (str): The name of an inbox task.
         inbox_task_collection_ref_id (str):
         source (InboxTaskSource): The origin of an inbox task.
-        aspect_ref_id (str): A generic entity id.
         status (InboxTaskStatus): The status of an inbox task.
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
-        chapter_ref_id (None | str | Unset):
-        goal_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
         notes (None | str | Unset):
@@ -56,15 +53,12 @@ class InboxTask:
     name: str
     inbox_task_collection_ref_id: str
     source: InboxTaskSource
-    aspect_ref_id: str
     status: InboxTaskStatus
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
-    chapter_ref_id: None | str | Unset = UNSET
-    goal_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
     notes: None | str | Unset = UNSET
@@ -93,8 +87,6 @@ class InboxTask:
 
         source = self.source.value
 
-        aspect_ref_id = self.aspect_ref_id
-
         status = self.status.value
 
         is_key = self.is_key
@@ -114,18 +106,6 @@ class InboxTask:
             archived_time = UNSET
         else:
             archived_time = self.archived_time
-
-        chapter_ref_id: None | str | Unset
-        if isinstance(self.chapter_ref_id, Unset):
-            chapter_ref_id = UNSET
-        else:
-            chapter_ref_id = self.chapter_ref_id
-
-        goal_ref_id: None | str | Unset
-        if isinstance(self.goal_ref_id, Unset):
-            goal_ref_id = UNSET
-        else:
-            goal_ref_id = self.goal_ref_id
 
         actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
@@ -193,7 +173,6 @@ class InboxTask:
                 "name": name,
                 "inbox_task_collection_ref_id": inbox_task_collection_ref_id,
                 "source": source,
-                "aspect_ref_id": aspect_ref_id,
                 "status": status,
                 "is_key": is_key,
                 "eisen": eisen,
@@ -204,10 +183,6 @@ class InboxTask:
             field_dict["archival_reason"] = archival_reason
         if archived_time is not UNSET:
             field_dict["archived_time"] = archived_time
-        if chapter_ref_id is not UNSET:
-            field_dict["chapter_ref_id"] = chapter_ref_id
-        if goal_ref_id is not UNSET:
-            field_dict["goal_ref_id"] = goal_ref_id
         if actionable_date is not UNSET:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
@@ -248,8 +223,6 @@ class InboxTask:
 
         source = InboxTaskSource(d.pop("source"))
 
-        aspect_ref_id = d.pop("aspect_ref_id")
-
         status = InboxTaskStatus(d.pop("status"))
 
         is_key = d.pop("is_key")
@@ -275,24 +248,6 @@ class InboxTask:
             return cast(None | str | Unset, data)
 
         archived_time = _parse_archived_time(d.pop("archived_time", UNSET))
-
-        def _parse_chapter_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        chapter_ref_id = _parse_chapter_ref_id(d.pop("chapter_ref_id", UNSET))
-
-        def _parse_goal_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        goal_ref_id = _parse_goal_ref_id(d.pop("goal_ref_id", UNSET))
 
         def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
@@ -384,15 +339,12 @@ class InboxTask:
             name=name,
             inbox_task_collection_ref_id=inbox_task_collection_ref_id,
             source=source,
-            aspect_ref_id=aspect_ref_id,
             status=status,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
             archival_reason=archival_reason,
             archived_time=archived_time,
-            chapter_ref_id=chapter_ref_id,
-            goal_ref_id=goal_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
             notes=notes,

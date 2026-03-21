@@ -2,12 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Aspect } from './Aspect';
 import type { BigPlan } from './BigPlan';
-import type { Chapter } from './Chapter';
 import type { Chore } from './Chore';
 import type { EmailTask } from './EmailTask';
-import type { Goal } from './Goal';
 import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
@@ -24,9 +21,6 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
  */
 export type InboxTaskLoadResult = {
     inbox_task: InboxTask;
-    aspect: Aspect;
-    chapter?: (Chapter | null);
-    goal?: (Goal | null);
     working_mem_collection?: (WorkingMemCollection | null);
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);

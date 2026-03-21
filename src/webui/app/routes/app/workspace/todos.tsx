@@ -486,7 +486,6 @@ export default function Todos() {
                   includeGeneratedNotStarted={false}
                   showOptions={{
                     showSource: false,
-                    showLifePlan: true,
                     showEisen: true,
                     showDifficulty: true,
                     showDueDate: true,
@@ -524,7 +523,6 @@ export default function Todos() {
                       includeGeneratedNotStarted={false}
                       showOptions={{
                         showSource: false,
-                        showLifePlan: true,
                         showEisen: false,
                         showDifficulty: true,
                         showDueDate: true,
@@ -719,7 +717,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
     showOptions: {
       showStatus: true,
       showSource: false,
-      showLifePlan: true,
       showEisen: true,
       showDifficulty: true,
       showDueDate: true,

@@ -282,7 +282,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
-                    cleanup_aspect_ref_id=new_root_aspect.ref_id,
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -313,7 +312,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     RecurringTaskPeriod.QUARTERLY: 14,
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                planning_task_aspect_ref_id=new_root_aspect.ref_id,
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
             )
@@ -387,7 +385,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 generation_in_advance_days={
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                writing_task_aspect_ref_id=new_root_aspect.ref_id,
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
             )
@@ -414,7 +411,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_metric_collection = MetricCollection.new_metric_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                collection_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_metric_collection = await uow.get_for(MetricCollection).create(
                 new_metric_collection,
@@ -423,7 +419,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                catch_up_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_prm = await uow.get_for(PRM).create(
                 new_prm,
@@ -460,7 +455,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_slack_task_collection = SlackTaskCollection.new_slack_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_slack_task_collection = await uow.get_for(SlackTaskCollection).create(
                 new_slack_task_collection,
@@ -469,7 +463,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_email_task_collection = EmailTaskCollection.new_email_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,

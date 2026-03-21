@@ -213,9 +213,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                                 RecurringTaskPeriod.WEEKLY: 3,
                             }
                         ),
-                        planning_task_aspect_ref_id=UpdateAction.change_to(
-                            root_aspect.ref_id
-                        ),
                         planning_task_eisen=UpdateAction.change_to(Eisen.IMPORTANT),
                         planning_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
@@ -235,39 +232,12 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
                         generation_in_advance_days=UpdateAction.change_to(
                             {RecurringTaskPeriod.WEEKLY: 3}
                         ),
-                        writing_task_aspect_ref_id=UpdateAction.change_to(
-                            root_aspect.ref_id
-                        ),
                         writing_task_eisen=UpdateAction.change_to(Eisen.IMPORTANT),
                         writing_task_difficulty=UpdateAction.change_to(
                             Difficulty.MEDIUM
                         ),
                     )
                     await uow.get_for(JournalCollection).save(journal_collection)
-
-                    metric_collection = metric_collection.change_collection_aspect(
-                        context.domain_context,
-                        collection_aspect_ref_id=root_aspect.ref_id,
-                    )
-
-                    prm = prm.change_catch_up_aspect(
-                        context.domain_context,
-                        catch_up_aspect_ref_id=root_aspect.ref_id,
-                    )
-
-                    slack_task_collection = (
-                        slack_task_collection.change_generation_aspect(
-                            context.domain_context,
-                            generation_aspect_ref_id=root_aspect.ref_id,
-                        )
-                    )
-
-                    email_task_collection = (
-                        email_task_collection.change_generation_aspect(
-                            context.domain_context,
-                            generation_aspect_ref_id=root_aspect.ref_id,
-                        )
-                    )
 
                 await generic_root_remover(
                     context.domain_context, uow, progress_reporter, User, user.ref_id

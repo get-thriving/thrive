@@ -33,7 +33,6 @@ enum DragTargetStatus {
 
 const defaultShowOptions: InboxTaskShowOptions = {
   showSource: true,
-  showLifePlan: true,
   showEisen: true,
   showDifficulty: true,
   showDueDate: true,
@@ -385,7 +384,6 @@ const InboxTaskColumnTasks = memo(function InboxTaskColumnTasks(
                   compact
                   showOptions={{
                     ...props.showOptions,
-                    showLifePlan: true,
                     showParent: true,
                     showHandleMarkDone: false,
                     showHandleMarkNotDone: false,

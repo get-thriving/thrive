@@ -1,12 +1,7 @@
 import type {
   BigPlanSummary,
-  ChapterSummary,
-  GoalSummary,
   InboxTask,
   InboxTaskLoadResult,
-  LifePlan,
-  MilestoneSummary,
-  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   InboxTaskSource,
@@ -43,7 +38,6 @@ import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
 import { InboxTaskSourceLink } from "#/core/inbox_tasks/component/source-link";
 import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
-import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import {
   ActionSingle,
   NavSingle,
@@ -56,8 +50,6 @@ import {
   constructFieldName,
 } from "#/core/infra/field-names";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
-import { lifePlanBirthdayDate } from "#/core/life_plan/root";
-import { aDateToDate } from "#/core/common/adate";
 interface InboxTaskPropertiesEditorProps {
   title: string;
   showLinkToInboxTask?: boolean;
@@ -65,12 +57,6 @@ interface InboxTaskPropertiesEditorProps {
   namePrefix?: string;
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
-  lifePlan: LifePlan;
-  rootAspect: AspectSummary;
-  allAspects: AspectSummary[];
-  allChapters: ChapterSummary[];
-  allGoals: GoalSummary[];
-  allMilestones: MilestoneSummary[];
   allBigPlans: BigPlanSummary[];
   inputsEnabled: boolean;
   inboxTask: InboxTask;
@@ -98,23 +84,10 @@ export function InboxTaskPropertiesEditor(
         },
   );
 
-  const [selectedAspect, setSelectedAspect] = useState(
-    props.inboxTaskInfo.aspect.ref_id,
-  );
-  const [selectedChapter, setSelectedChapter] = useState(
-    props.inboxTaskInfo.chapter?.ref_id ?? null,
-  );
-  const [selectedGoal, setSelectedGoal] = useState(
-    props.inboxTaskInfo.goal?.ref_id ?? null,
-  );
-  const [blockedToSelectAspect, setBlockedToSelectAspect] = useState(
-    props.inboxTask.source === InboxTaskSource.BIG_PLAN,
-  );
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
     props.inboxTask.source,
   );
 
-  const allBigPlansById: { [k: string]: BigPlanSummary } = {};
   let allBigPlansAsOptions: Array<{ label: string; big_plan_id: string }> = [];
 
   if (
@@ -123,10 +96,6 @@ export function InboxTaskPropertiesEditor(
       WorkspaceFeature.BIG_PLANS,
     )
   ) {
-    for (const bigPlan of props.allBigPlans) {
-      allBigPlansById[bigPlan.ref_id] = bigPlan;
-    }
-
     allBigPlansAsOptions = [
       {
         label: "None",
@@ -145,17 +114,6 @@ export function InboxTaskPropertiesEditor(
     { label, big_plan_id }: BigPlanACOption,
   ) {
     setSelectedBigPlan({ label, big_plan_id });
-    if (big_plan_id === "none") {
-      setSelectedAspect(props.rootAspect.ref_id);
-      setSelectedChapter(null);
-      setSelectedGoal(null);
-      setBlockedToSelectAspect(false);
-    } else {
-      setSelectedAspect(allBigPlansById[big_plan_id].aspect_ref_id);
-      setSelectedChapter(allBigPlansById[big_plan_id].chapter_ref_id ?? null);
-      setSelectedGoal(allBigPlansById[big_plan_id].goal_ref_id ?? null);
-      setBlockedToSelectAspect(true);
-    }
   }
 
   useEffect(() => {
@@ -173,10 +131,6 @@ export function InboxTaskPropertiesEditor(
             big_plan_id: "none",
           },
     );
-
-    setSelectedAspect(props.inboxTaskInfo.aspect.ref_id);
-    setSelectedChapter(props.inboxTaskInfo.chapter?.ref_id ?? null);
-    setSelectedGoal(props.inboxTaskInfo.goal?.ref_id ?? null);
   }, [props.inboxTaskInfo]);
 
   return (
@@ -308,57 +262,6 @@ export function InboxTaskPropertiesEditor(
 
           <InboxTaskSourceLink inboxTaskResult={props.inboxTaskInfo} />
         </Stack>
-
-        {isWorkspaceFeatureAvailable(
-          props.topLevelInfo.workspace,
-          WorkspaceFeature.LIFE_PLAN,
-        ) && (
-          <FormControl fullWidth>
-            <LifePlanAssociations
-              inputsEnabled={
-                props.inputsEnabled &&
-                corePropertyEditable &&
-                !blockedToSelectAspect
-              }
-              aspectName={constructFieldName(props.namePrefix, "aspect")}
-              chapterName={constructFieldName(props.namePrefix, "chapter")}
-              goalName={constructFieldName(props.namePrefix, "goal")}
-              allAspects={props.allAspects}
-              aspectValue={selectedAspect}
-              onAspectChange={setSelectedAspect}
-              allChapters={props.allChapters}
-              chapterValue={selectedChapter}
-              onChapterChange={setSelectedChapter}
-              allGoals={props.allGoals}
-              goalValue={selectedGoal}
-              onGoalChange={setSelectedGoal}
-              birthday={lifePlanBirthdayDate(props.lifePlan)}
-              today={aDateToDate(props.topLevelInfo.today)}
-              allMilestones={props.allMilestones}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "aspect_ref_id",
-              )}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "chapter_ref_id",
-              )}
-            />
-            <FieldError
-              actionResult={props.actionData}
-              fieldName={constructFieldErrorName(
-                props.fieldsPrefix,
-                "goal_ref_id",
-              )}
-            />
-          </FormControl>
-        )}
 
         <FormControl fullWidth>
           <FormLabel id="eisen">Eisenhower</FormLabel>

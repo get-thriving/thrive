@@ -15,13 +15,8 @@ from jupiter.core.gamification.service.record_score import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
+from jupiter.core.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.inbox_tasks.root import InboxTask, InboxTaskRepository
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
@@ -184,9 +179,6 @@ class BigPlanUpdateUseCase(
             for inbox_task in all_inbox_tasks:
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
-                    big_plan.aspect_ref_id,
-                    big_plan.chapter_ref_id,
-                    big_plan.goal_ref_id,
                     big_plan.ref_id,
                 )
                 await uow.get_for(InboxTask).save(inbox_task)

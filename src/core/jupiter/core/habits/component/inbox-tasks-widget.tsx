@@ -75,7 +75,6 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -95,7 +94,6 @@ export function HabitInboxTasksWidget(props: WidgetProps) {
         key="habit-due-this-week"
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,

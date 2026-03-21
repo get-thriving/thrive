@@ -10,7 +10,6 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -53,7 +52,6 @@ class SlackTaskFindResultEntry(UseCaseResultBase):
 class SlackTaskFindResult(UseCaseResultBase):
     """PersonFindResult."""
 
-    generation_aspect: Aspect
     entries: list[SlackTaskFindResultEntry]
 
 
@@ -91,10 +89,6 @@ class SlackTaskFindUseCase(
             filter_ref_ids=args.filter_ref_ids,
         )
 
-        generation_aspect = await uow.get_for(Aspect).load_by_id(
-            slack_task_collection.generation_aspect_ref_id,
-        )
-
         if include_inbox_tasks:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
@@ -109,7 +103,6 @@ class SlackTaskFindUseCase(
             inbox_tasks_by_slack_task_ref_id = None
 
         return SlackTaskFindResult(
-            generation_aspect=generation_aspect,
             entries=[
                 SlackTaskFindResultEntry(
                     slack_task=st,

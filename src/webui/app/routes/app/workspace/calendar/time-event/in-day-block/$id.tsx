@@ -75,9 +75,6 @@ const UpdateFormInboxTaskSchema = {
   inboxTaskRefId: z.string(),
   inboxTaskSource: z.nativeEnum(InboxTaskSource),
   inboxTaskName: z.string(),
-  inboxTaskAspect: z.string().optional(),
-  inboxTaskChapter: z.string().optional(),
-  inboxTaskGoal: z.string().optional(),
   inboxTaskBigPlan: z.string().optional(),
   inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
   inboxTaskIsKey: CheckboxAsString,
@@ -355,25 +352,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          aspect_ref_id: {
-            should_change: true,
-            value: form.inboxTaskAspect,
-          },
-          chapter_ref_id: {
-            should_change: form.inboxTaskChapter !== undefined,
-            value:
-              form.inboxTaskChapter !== undefined &&
-              form.inboxTaskChapter !== ""
-                ? form.inboxTaskChapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.inboxTaskGoal !== undefined,
-            value:
-              form.inboxTaskGoal !== undefined && form.inboxTaskGoal !== ""
-                ? form.inboxTaskGoal
-                : null,
-          },
           big_plan_ref_id: {
             should_change: form.inboxTaskBigPlan !== undefined,
             value:
@@ -465,9 +443,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.inboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          aspect_ref_id: { should_change: false },
-          chapter_ref_id: { should_change: false },
-          goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
@@ -826,12 +801,6 @@ export default function TimeEventInDayBlockViewOne() {
           intentPrefix="inbox-task"
           namePrefix="inboxTask"
           topLevelInfo={topLevelInfo}
-          lifePlan={loaderData.lifePlan}
-          rootAspect={loaderData.rootAspect}
-          allAspects={loaderData.allAspects}
-          allChapters={loaderData.allChapters}
-          allGoals={loaderData.allGoals}
-          allMilestones={loaderData.allMilestones}
           allBigPlans={loaderData.allBigPlans}
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
           inboxTask={loaderData.inboxTask}

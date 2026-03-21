@@ -108,7 +108,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -134,7 +133,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -160,7 +158,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -186,7 +183,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,

@@ -1,13 +1,10 @@
 import {
   BigPlan,
-  Chapter,
   Chore,
   Contact,
   Difficulty,
   Eisen,
   EmailTask,
-  EntityId,
-  Goal,
   Habit,
   InboxTask,
   InboxTaskFindResultEntry,
@@ -15,7 +12,6 @@ import {
   InboxTaskStatus,
   Metric,
   Person,
-  Aspect,
   RecurringTaskPeriod,
   SlackTask,
   TodoTask,
@@ -33,9 +29,6 @@ export interface InboxTaskOptimisticState {
 }
 
 export interface InboxTaskParent {
-  aspect?: Aspect;
-  chapter?: Chapter;
-  goal?: Goal;
   bigPlan?: BigPlan;
   todoTask?: TodoTask;
   habit?: Habit;
@@ -51,9 +44,6 @@ export function inboxTaskFindEntryToParent(
   entry: InboxTaskFindResultEntry,
 ): InboxTaskParent {
   return {
-    aspect: entry.aspect,
-    chapter: entry.chapter ?? undefined,
-    goal: entry.goal ?? undefined,
     bigPlan: entry.big_plan ?? undefined,
     todoTask: entry.todo_task ?? undefined,
     habit: entry.habit ?? undefined,
@@ -69,7 +59,6 @@ export function inboxTaskFindEntryToParent(
 interface InboxTaskFilterOptions {
   allowArchived?: boolean;
   allowSources?: InboxTaskSource[];
-  allowAspects?: EntityId[];
   allowStatuses?: InboxTaskStatus[];
   allowEisens?: Eisen[];
   allowDifficulties?: Difficulty[];
@@ -97,12 +86,6 @@ export function filterInboxTasksForDisplay(
 
     if (options.allowSources !== undefined) {
       if (!options.allowSources.includes(inboxTask.source)) {
-        return false;
-      }
-    }
-
-    if (options.allowAspects !== undefined) {
-      if (!options.allowAspects.includes(inboxTask.aspect_ref_id)) {
         return false;
       }
     }
@@ -306,12 +289,6 @@ export function canInboxTaskBeInStatus(
 
       return true;
   }
-}
-
-export function doesInboxTaskAllowChangingAspect(
-  source: InboxTaskSource,
-): boolean {
-  return source === InboxTaskSource.TODO || source === InboxTaskSource.BIG_PLAN;
 }
 
 export function doesInboxTaskAllowChangingBigPlan(

@@ -124,7 +124,6 @@ class SlackTaskUpdateUseCase(
 
         generated_inbox_task = generated_inbox_task.update_link_to_slack_task(
             ctx=context.domain_context,
-            aspect_ref_id=generated_inbox_task.aspect_ref_id,
             user=slack_task.user,
             channel=slack_task.channel,
             message=slack_task.message,

@@ -16,7 +16,6 @@ export type PRM = {
     last_modified_time: Timestamp;
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
-    catch_up_aspect_ref_id: EntityId;
     max_circles_per_person: number;
 };
 

@@ -1,12 +1,4 @@
-import type {
-  BigPlanSummary,
-  ChapterSummary,
-  GoalSummary,
-  LifePlan,
-  MilestoneSummary,
-  AspectSummary,
-  Workspace,
-} from "@jupiter/webapi-client";
+import type { BigPlanSummary, Workspace } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
   ApiError,
@@ -65,9 +57,6 @@ const CommonParamsSchema = {
   name: z.string(),
   status: z.nativeEnum(InboxTaskStatus),
   isKey: CheckboxAsString,
-  aspect: z.string().optional(),
-  chapter: z.string().optional(),
-  goal: z.string().optional(),
   bigPlan: z.string().optional(),
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
@@ -139,11 +128,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
-    include_life_plan: true,
-    include_aspects: true,
-    include_chapters: true,
-    include_goals: true,
-    include_milestones: true,
     include_big_plans: true,
   });
 
@@ -168,12 +152,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       info: result,
       timePlanEntries: timePlanEntries,
-      rootAspect: summaryResponse.root_aspect as AspectSummary,
-      lifePlan: summaryResponse.life_plan as LifePlan,
-      allAspects: summaryResponse.aspects as Array<AspectSummary>,
-      allChapters: summaryResponse.chapters as Array<ChapterSummary>,
-      allGoals: summaryResponse.goals as Array<GoalSummary>,
-      allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
     });
   } catch (error) {
@@ -238,30 +216,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          aspect_ref_id:
-            form.aspect !== undefined
-              ? { should_change: true, value: form.aspect }
-              : { should_change: false },
-          chapter_ref_id:
-            form.aspect !== undefined
-              ? {
-                  should_change: true,
-                  value:
-                    form.chapter !== undefined && form.chapter !== ""
-                      ? form.chapter
-                      : undefined,
-                }
-              : { should_change: false },
-          goal_ref_id:
-            form.aspect !== undefined
-              ? {
-                  should_change: true,
-                  value:
-                    form.goal !== undefined && form.goal !== ""
-                      ? form.goal
-                      : undefined,
-                }
-              : { should_change: false },
           big_plan_ref_id: {
             should_change: form.bigPlan !== undefined,
             value:
@@ -342,9 +296,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
           name: { should_change: false },
           status: { should_change: false },
-          aspect_ref_id: { should_change: false },
-          chapter_ref_id: { should_change: false },
-          goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
@@ -460,12 +411,6 @@ export default function InboxTask() {
       <InboxTaskPropertiesEditor
         title="Properties"
         topLevelInfo={topLevelInfo}
-        lifePlan={loaderData.lifePlan}
-        rootAspect={loaderData.rootAspect}
-        allAspects={loaderData.allAspects}
-        allChapters={loaderData.allChapters}
-        allGoals={loaderData.allGoals}
-        allMilestones={loaderData.allMilestones}
         allBigPlans={loaderData.allBigPlans}
         inputsEnabled={inputsEnabled}
         inboxTask={inboxTask}

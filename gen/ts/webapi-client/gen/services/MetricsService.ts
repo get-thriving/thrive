@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { MetricArchiveArgs } from '../models/MetricArchiveArgs';
-import type { MetricChangeCollectionAspectArgs } from '../models/MetricChangeCollectionAspectArgs';
 import type { MetricCreateArgs } from '../models/MetricCreateArgs';
 import type { MetricCreateResult } from '../models/MetricCreateResult';
 import type { MetricEntryArchiveArgs } from '../models/MetricEntryArchiveArgs';
@@ -168,32 +167,6 @@ export class MetricsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/metric-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating the collection up aspect for metrics.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public metricChangeCollectionAspect(
-        requestBody?: MetricChangeCollectionAspectArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/metric-change-collection-aspect',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

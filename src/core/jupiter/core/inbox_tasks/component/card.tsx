@@ -54,17 +54,13 @@ import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";
-import { AspectTag } from "#/core/life_plan/sub/aspects/component/tag";
 import { SlackTaskTag } from "#/core/push_integrations/sub/slack/component/tag";
 import { IsKeyTag } from "#/core/common/component/is-key-tag";
-import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
-import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { TodoTaskTag } from "#/core/todo/components/tag";
 
 export interface InboxTaskShowOptions {
   showStatus?: boolean;
   showSource?: boolean;
-  showLifePlan?: boolean;
   showEisen?: boolean;
   showDifficulty?: boolean;
   showActionableDate?: boolean;
@@ -208,28 +204,6 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
             {props.showOptions.showSource && (
               <InboxTaskSourceTag source={props.inboxTask.source} />
             )}
-            {isWorkspaceFeatureAvailable(
-              props.topLevelInfo.workspace,
-              WorkspaceFeature.LIFE_PLAN,
-            ) &&
-              props.showOptions.showLifePlan &&
-              props.parent?.aspect && (
-                <AspectTag aspect={props.parent?.aspect} />
-              )}
-            {isWorkspaceFeatureAvailable(
-              props.topLevelInfo.workspace,
-              WorkspaceFeature.LIFE_PLAN,
-            ) &&
-              props.showOptions.showLifePlan &&
-              props.parent?.chapter && (
-                <ChapterTag chapter={props.parent?.chapter} />
-              )}
-            {isWorkspaceFeatureAvailable(
-              props.topLevelInfo.workspace,
-              WorkspaceFeature.LIFE_PLAN,
-            ) &&
-              props.showOptions.showLifePlan &&
-              props.parent?.goal && <GoalTag goal={props.parent?.goal} />}
             {props.showOptions.showEisen && (
               <EisenTag
                 eisen={props.optimisticState?.eisen ?? props.inboxTask.eisen}

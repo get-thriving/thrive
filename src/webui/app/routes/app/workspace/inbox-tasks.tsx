@@ -1,11 +1,8 @@
 import type { DragStart, DropResult } from "@hello-pangea/dnd";
 import { DragDropContext } from "@hello-pangea/dnd";
 import type {
-  Goal,
   InboxTask,
   InboxTaskFindResultEntry,
-  Aspect,
-  AspectSummary,
 } from "@jupiter/webapi-client";
 import {
   Eisen,
@@ -24,13 +21,11 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Link, Outlet, useFetcher } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { Fragment, useContext, useMemo, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortAspectsByTreeOrder } from "@jupiter/core/life_plan/sub/aspects/root";
-import { sortGoalsNaturally } from "@jupiter/core/life_plan/sub/goals/root";
 import {
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
@@ -81,11 +76,7 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 enum View {
   SWIFTVIEW = "siwiftview",
   KANBAN_BY_EISEN = "kanban-by-eisen",
-  KANBAN_BY_ASPECT_AND_GOAL = "kanban-by-aspect-and-goal",
-  KANBAN_BY_ASPECT = "kanban-by-aspect",
   KANBAN = "kanban",
-  LIST_BY_ASPECT_AND_GOAL = "list-by-aspect-and-goal",
-  LIST_BY_ASPECT = "list-by-aspect",
   LIST = "list",
 }
 
@@ -293,36 +284,11 @@ export default function InboxTasks() {
                   value: View.KANBAN_BY_EISEN,
                   text: "Kanban by Eisen",
                   icon: <ViewKanbanIcon />,
-                  gatedOn: WorkspaceFeature.LIFE_PLAN,
-                },
-                {
-                  value: View.KANBAN_BY_ASPECT_AND_GOAL,
-                  text: "Kanban by Aspect & Goal",
-                  icon: <ViewKanbanIcon />,
-                  gatedOn: WorkspaceFeature.LIFE_PLAN,
-                },
-                {
-                  value: View.KANBAN_BY_ASPECT,
-                  text: "Kanban by Aspect",
-                  icon: <ViewKanbanIcon />,
-                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 {
                   value: View.KANBAN,
                   text: "Kanban",
                   icon: <ViewKanbanIcon />,
-                },
-                {
-                  value: View.LIST_BY_ASPECT_AND_GOAL,
-                  text: "List by Aspect & Goal",
-                  icon: <ViewListIcon />,
-                  gatedOn: WorkspaceFeature.LIFE_PLAN,
-                },
-                {
-                  value: View.LIST_BY_ASPECT,
-                  text: "List by Aspect",
-                  icon: <ViewListIcon />,
-                  gatedOn: WorkspaceFeature.LIFE_PLAN,
                 },
                 { value: View.LIST, text: "List", icon: <ViewListIcon /> },
               ],
@@ -421,66 +387,6 @@ export default function InboxTasks() {
           </>
         )}
 
-        {selectedView === View.KANBAN_BY_ASPECT_AND_GOAL && (
-          <>
-            {isBigScreen && (
-              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <BigScreenKanbanByAspectAndGoal
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={filteredSortedInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  inboxTasksByRefId={inboxTasksByRefId}
-                  moreInfoByRefId={entriesByRefId}
-                  actionableTime={selectedActionableTime}
-                  draggedInboxTaskId={draggedInboxTaskId}
-                />
-              </DragDropContext>
-            )}
-
-            {!isBigScreen && (
-              <SmallScreenKanbanByAspectAndGoal
-                topLevelInfo={topLevelInfo}
-                inboxTasks={filteredSortedInboxTasks}
-                optimisticUpdates={optimisticUpdates}
-                moreInfoByRefId={entriesByRefId}
-                actionableTime={selectedActionableTime}
-                onCardMarkDone={handleCardMarkDone}
-                onCardMarkNotDone={handleCardMarkNotDone}
-              />
-            )}
-          </>
-        )}
-
-        {selectedView === View.KANBAN_BY_ASPECT && (
-          <>
-            {isBigScreen && (
-              <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-                <BigScreenKanbanByAspect
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={filteredSortedInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  inboxTasksByRefId={inboxTasksByRefId}
-                  moreInfoByRefId={entriesByRefId}
-                  actionableTime={selectedActionableTime}
-                  draggedInboxTaskId={draggedInboxTaskId}
-                />
-              </DragDropContext>
-            )}
-
-            {!isBigScreen && (
-              <SmallScreenKanbanByAspect
-                topLevelInfo={topLevelInfo}
-                inboxTasks={filteredSortedInboxTasks}
-                optimisticUpdates={optimisticUpdates}
-                moreInfoByRefId={entriesByRefId}
-                actionableTime={selectedActionableTime}
-                onCardMarkDone={handleCardMarkDone}
-                onCardMarkNotDone={handleCardMarkNotDone}
-              />
-            )}
-          </>
-        )}
-
         {selectedView === View.KANBAN && (
           <>
             {isBigScreen && (
@@ -512,28 +418,6 @@ export default function InboxTasks() {
               />
             )}
           </>
-        )}
-
-        {selectedView === View.LIST_BY_ASPECT_AND_GOAL && (
-          <ListByAspectAndGoal
-            topLevelInfo={topLevelInfo}
-            inboxTasks={filteredSortedInboxTasks}
-            optimisticUpdates={optimisticUpdates}
-            moreInfoByRefId={entriesByRefId}
-            onCardMarkDone={handleCardMarkDone}
-            onCardMarkNotDone={handleCardMarkNotDone}
-          />
-        )}
-
-        {selectedView === View.LIST_BY_ASPECT && (
-          <ListByAspect
-            topLevelInfo={topLevelInfo}
-            inboxTasks={filteredSortedInboxTasks}
-            optimisticUpdates={optimisticUpdates}
-            moreInfoByRefId={entriesByRefId}
-            onCardMarkDone={handleCardMarkDone}
-            onCardMarkNotDone={handleCardMarkNotDone}
-          />
         )}
 
         {selectedView === View.LIST && (
@@ -920,7 +804,6 @@ function SwiftView(props: SwiftViewProps) {
           topLevelInfo={props.topLevelInfo}
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -940,7 +823,6 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-week"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -960,7 +842,6 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-month"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -981,7 +862,6 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-quarter"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1002,7 +882,6 @@ function SwiftView(props: SwiftViewProps) {
           key="habit-due-this-year"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1029,7 +908,6 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-today"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1049,7 +927,6 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-week"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1069,7 +946,6 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-month"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1090,7 +966,6 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-quarter"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1111,7 +986,6 @@ function SwiftView(props: SwiftViewProps) {
           key="chore-due-this-year"
           showOptions={{
             showStatus: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1139,7 +1013,6 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1160,7 +1033,6 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showParent: true,
@@ -1181,7 +1053,6 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1203,7 +1074,6 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1225,7 +1095,6 @@ function SwiftView(props: SwiftViewProps) {
           showOptions={{
             showStatus: true,
             showSource: true,
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -1505,7 +1374,6 @@ function List({
         showOptions={{
           showStatus: true,
           showSource: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showActionableDate: true,
@@ -1520,549 +1388,6 @@ function List({
         onCardMarkDone={onCardMarkDone}
         onCardMarkNotDone={onCardMarkNotDone}
       />
-    </>
-  );
-}
-
-function getUniqueAspectsSorted(moreInfoByRefId: {
-  [key: string]: InboxTaskParent;
-}): AspectSummary[] {
-  const aspectMap = new Map<string, Aspect>();
-  for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.aspect) {
-      aspectMap.set(parent.aspect.ref_id, parent.aspect);
-    }
-  }
-  return sortAspectsByTreeOrder([...aspectMap.values()]);
-}
-
-function getUniqueGoalsForAspect(
-  moreInfoByRefId: { [key: string]: InboxTaskParent },
-  aspectRefId: string,
-): Goal[] {
-  const goalMap = new Map<string, Goal>();
-  for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.aspect?.ref_id === aspectRefId && parent.goal) {
-      goalMap.set(parent.goal.ref_id, parent.goal);
-    }
-  }
-  return sortGoalsNaturally([...goalMap.values()]);
-}
-
-interface BigScreenKanbanByAspectProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  inboxTasksByRefId: { [key: string]: InboxTask };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  draggedInboxTaskId?: string;
-}
-
-function BigScreenKanbanByAspect({
-  topLevelInfo,
-  inboxTasks,
-  optimisticUpdates,
-  inboxTasksByRefId,
-  moreInfoByRefId,
-  actionableTime,
-  draggedInboxTaskId,
-}: BigScreenKanbanByAspectProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(moreInfoByRefId),
-    [moreInfoByRefId],
-  );
-
-  return (
-    <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
-      {inboxTasks.length > 0 && (
-        <>
-          {aspects.map((aspect) => {
-            const aspectTasks = inboxTasks.filter(
-              (it) => it.aspect_ref_id === aspect.ref_id,
-            );
-            if (aspectTasks.length === 0) return null;
-            return (
-              <Fragment key={aspect.ref_id}>
-                <StandardDivider title={aspect.name} size="large" />
-                <KanbanBoard
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={aspectTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  inboxTasksByRefId={inboxTasksByRefId}
-                  moreInfoByRefId={moreInfoByRefId}
-                  actionableTime={actionableTime}
-                  groupId={aspect.ref_id}
-                  draggedInboxTaskId={draggedInboxTaskId}
-                />
-              </Fragment>
-            );
-          })}
-        </>
-      )}
-    </>
-  );
-}
-
-interface SmallScreenKanbanByAspectProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-}
-
-function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(props.moreInfoByRefId),
-    [props.moreInfoByRefId],
-  );
-
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  if (props.inboxTasks.length === 0) {
-    return (
-      <InboxTasksNoTasksCard
-        parent="inbox task"
-        parentLabel="New Task"
-        parentNewLocations="/app/workspace/inbox-tasks/new"
-      />
-    );
-  }
-
-  return (
-    <>
-      <Tabs
-        value={selectedTab}
-        variant="scrollable"
-        scrollButtons="auto"
-        onChange={(_, newValue) => setSelectedTab(newValue)}
-      >
-        {aspects.map((aspect) => (
-          <Tab key={aspect.ref_id} label={aspect.name} />
-        ))}
-      </Tabs>
-
-      {aspects.map((aspect, index) => {
-        const aspectTasks = props.inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        return (
-          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
-            <SharedSmallScreenKanban
-              topLevelInfo={props.topLevelInfo}
-              inboxTasks={aspectTasks}
-              optimisticUpdates={props.optimisticUpdates}
-              moreInfoByRefId={props.moreInfoByRefId}
-              actionableTime={props.actionableTime}
-              onCardMarkDone={props.onCardMarkDone}
-              onCardMarkNotDone={props.onCardMarkNotDone}
-              emptyParent="inbox task"
-              emptyParentLabel="New Task"
-              emptyParentNewLocations="/app/workspace/inbox-tasks/new"
-            />
-          </TabPanel>
-        );
-      })}
-    </>
-  );
-}
-
-interface BigScreenKanbanByAspectAndGoalProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  inboxTasksByRefId: { [key: string]: InboxTask };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  draggedInboxTaskId?: string;
-}
-
-function BigScreenKanbanByAspectAndGoal({
-  topLevelInfo,
-  inboxTasks,
-  optimisticUpdates,
-  inboxTasksByRefId,
-  moreInfoByRefId,
-  actionableTime,
-  draggedInboxTaskId,
-}: BigScreenKanbanByAspectAndGoalProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(moreInfoByRefId),
-    [moreInfoByRefId],
-  );
-
-  return (
-    <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
-      {inboxTasks.length > 0 && (
-        <>
-          {aspects.map((aspect) => {
-            const aspectTasks = inboxTasks.filter(
-              (it) => it.aspect_ref_id === aspect.ref_id,
-            );
-            if (aspectTasks.length === 0) return null;
-
-            const goals = getUniqueGoalsForAspect(
-              moreInfoByRefId,
-              aspect.ref_id,
-            );
-            const tasksWithoutGoal = aspectTasks.filter(
-              (it) => !moreInfoByRefId[it.ref_id]?.goal,
-            );
-
-            return (
-              <Fragment key={aspect.ref_id}>
-                <StandardDivider title={aspect.name} size="large" />
-
-                {goals.map((goal) => {
-                  const goalTasks = aspectTasks.filter(
-                    (it) =>
-                      moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
-                  );
-                  if (goalTasks.length === 0) return null;
-                  return (
-                    <Fragment key={goal.ref_id}>
-                      <StandardDivider title={goal.name} size="medium" />
-                      <KanbanBoard
-                        topLevelInfo={topLevelInfo}
-                        inboxTasks={goalTasks}
-                        optimisticUpdates={optimisticUpdates}
-                        inboxTasksByRefId={inboxTasksByRefId}
-                        moreInfoByRefId={moreInfoByRefId}
-                        actionableTime={actionableTime}
-                        groupId={`${aspect.ref_id}-${goal.ref_id}`}
-                        draggedInboxTaskId={draggedInboxTaskId}
-                      />
-                    </Fragment>
-                  );
-                })}
-
-                {tasksWithoutGoal.length > 0 && (
-                  <Fragment key="no-goal">
-                    {goals.length > 0 && (
-                      <StandardDivider title="No Goal" size="medium" />
-                    )}
-                    <KanbanBoard
-                      topLevelInfo={topLevelInfo}
-                      inboxTasks={tasksWithoutGoal}
-                      optimisticUpdates={optimisticUpdates}
-                      inboxTasksByRefId={inboxTasksByRefId}
-                      moreInfoByRefId={moreInfoByRefId}
-                      actionableTime={actionableTime}
-                      groupId={`${aspect.ref_id}-no-goal`}
-                      draggedInboxTaskId={draggedInboxTaskId}
-                    />
-                  </Fragment>
-                )}
-              </Fragment>
-            );
-          })}
-        </>
-      )}
-    </>
-  );
-}
-
-interface SmallScreenKanbanByAspectAndGoalProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  actionableTime: ActionableTime;
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-}
-
-function SmallScreenKanbanByAspectAndGoal(
-  props: SmallScreenKanbanByAspectAndGoalProps,
-) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(props.moreInfoByRefId),
-    [props.moreInfoByRefId],
-  );
-
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  if (props.inboxTasks.length === 0) {
-    return (
-      <InboxTasksNoTasksCard
-        parent="inbox task"
-        parentLabel="New Task"
-        parentNewLocations="/app/workspace/inbox-tasks/new"
-      />
-    );
-  }
-
-  return (
-    <>
-      <Tabs
-        value={selectedTab}
-        variant="scrollable"
-        scrollButtons="auto"
-        onChange={(_, newValue) => setSelectedTab(newValue)}
-      >
-        {aspects.map((aspect) => (
-          <Tab key={aspect.ref_id} label={aspect.name} />
-        ))}
-      </Tabs>
-
-      {aspects.map((aspect, index) => {
-        const aspectTasks = props.inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        const goals = getUniqueGoalsForAspect(
-          props.moreInfoByRefId,
-          aspect.ref_id,
-        );
-        const tasksWithoutGoal = aspectTasks.filter(
-          (it) => !props.moreInfoByRefId[it.ref_id]?.goal,
-        );
-
-        return (
-          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
-            {goals.map((goal) => {
-              const goalTasks = aspectTasks.filter(
-                (it) =>
-                  props.moreInfoByRefId[it.ref_id]?.goal?.ref_id ===
-                  goal.ref_id,
-              );
-              if (goalTasks.length === 0) return null;
-              return (
-                <Fragment key={goal.ref_id}>
-                  <StandardDivider title={goal.name} size="medium" />
-                  <SharedSmallScreenKanban
-                    topLevelInfo={props.topLevelInfo}
-                    inboxTasks={goalTasks}
-                    optimisticUpdates={props.optimisticUpdates}
-                    moreInfoByRefId={props.moreInfoByRefId}
-                    actionableTime={props.actionableTime}
-                    onCardMarkDone={props.onCardMarkDone}
-                    onCardMarkNotDone={props.onCardMarkNotDone}
-                    emptyParent="inbox task"
-                    emptyParentLabel="New Task"
-                    emptyParentNewLocations="/app/workspace/inbox-tasks/new"
-                  />
-                </Fragment>
-              );
-            })}
-
-            {tasksWithoutGoal.length > 0 && (
-              <>
-                {goals.length > 0 && (
-                  <StandardDivider title="No Goal" size="medium" />
-                )}
-                <SharedSmallScreenKanban
-                  topLevelInfo={props.topLevelInfo}
-                  inboxTasks={tasksWithoutGoal}
-                  optimisticUpdates={props.optimisticUpdates}
-                  moreInfoByRefId={props.moreInfoByRefId}
-                  actionableTime={props.actionableTime}
-                  onCardMarkDone={props.onCardMarkDone}
-                  onCardMarkNotDone={props.onCardMarkNotDone}
-                  emptyParent="inbox task"
-                  emptyParentLabel="New Task"
-                  emptyParentNewLocations="/app/workspace/inbox-tasks/new"
-                />
-              </>
-            )}
-          </TabPanel>
-        );
-      })}
-    </>
-  );
-}
-
-interface ListByAspectProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-}
-
-function ListByAspect({
-  topLevelInfo,
-  inboxTasks,
-  moreInfoByRefId,
-  optimisticUpdates,
-  onCardMarkDone,
-  onCardMarkNotDone,
-}: ListByAspectProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(moreInfoByRefId),
-    [moreInfoByRefId],
-  );
-
-  return (
-    <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
-      {aspects.map((aspect) => {
-        const aspectTasks = inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        if (aspectTasks.length === 0) return null;
-        return (
-          <Fragment key={aspect.ref_id}>
-            <StandardDivider title={aspect.name} size="large" />
-            <InboxTaskStack
-              topLevelInfo={topLevelInfo}
-              showOptions={{
-                showStatus: true,
-                showSource: true,
-                showLifePlan: true,
-                showEisen: true,
-                showDifficulty: true,
-                showActionableDate: true,
-                showDueDate: true,
-                showParent: true,
-                showHandleMarkDone: true,
-                showHandleMarkNotDone: true,
-              }}
-              inboxTasks={aspectTasks}
-              moreInfoByRefId={moreInfoByRefId}
-              optimisticUpdates={optimisticUpdates}
-              onCardMarkDone={onCardMarkDone}
-              onCardMarkNotDone={onCardMarkNotDone}
-            />
-          </Fragment>
-        );
-      })}
-    </>
-  );
-}
-
-interface ListByAspectAndGoalProps {
-  topLevelInfo: TopLevelInfo;
-  inboxTasks: Array<InboxTask>;
-  optimisticUpdates: { [key: string]: InboxTaskOptimisticState };
-  moreInfoByRefId: { [key: string]: InboxTaskParent };
-  onCardMarkDone?: (it: InboxTask) => void;
-  onCardMarkNotDone?: (it: InboxTask) => void;
-}
-
-function ListByAspectAndGoal({
-  topLevelInfo,
-  inboxTasks,
-  moreInfoByRefId,
-  optimisticUpdates,
-  onCardMarkDone,
-  onCardMarkNotDone,
-}: ListByAspectAndGoalProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(moreInfoByRefId),
-    [moreInfoByRefId],
-  );
-
-  return (
-    <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
-      {aspects.map((aspect) => {
-        const aspectTasks = inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        if (aspectTasks.length === 0) return null;
-
-        const goals = getUniqueGoalsForAspect(moreInfoByRefId, aspect.ref_id);
-        const tasksWithoutGoal = aspectTasks.filter(
-          (it) => !moreInfoByRefId[it.ref_id]?.goal,
-        );
-
-        return (
-          <Fragment key={aspect.ref_id}>
-            <StandardDivider title={aspect.name} size="large" />
-
-            {goals.map((goal) => {
-              const goalTasks = aspectTasks.filter(
-                (it) =>
-                  moreInfoByRefId[it.ref_id]?.goal?.ref_id === goal.ref_id,
-              );
-              if (goalTasks.length === 0) return null;
-              return (
-                <Fragment key={goal.ref_id}>
-                  <StandardDivider title={goal.name} size="medium" />
-                  <InboxTaskStack
-                    topLevelInfo={topLevelInfo}
-                    showOptions={{
-                      showStatus: true,
-                      showSource: true,
-                      showLifePlan: true,
-                      showEisen: true,
-                      showDifficulty: true,
-                      showActionableDate: true,
-                      showDueDate: true,
-                      showParent: true,
-                      showHandleMarkDone: true,
-                      showHandleMarkNotDone: true,
-                    }}
-                    inboxTasks={goalTasks}
-                    moreInfoByRefId={moreInfoByRefId}
-                    optimisticUpdates={optimisticUpdates}
-                    onCardMarkDone={onCardMarkDone}
-                    onCardMarkNotDone={onCardMarkNotDone}
-                  />
-                </Fragment>
-              );
-            })}
-
-            {tasksWithoutGoal.length > 0 && (
-              <Fragment key="no-goal">
-                {goals.length > 0 && (
-                  <StandardDivider title="No Goal" size="medium" />
-                )}
-                <InboxTaskStack
-                  topLevelInfo={topLevelInfo}
-                  showOptions={{
-                    showStatus: true,
-                    showSource: true,
-                    showLifePlan: true,
-                    showEisen: true,
-                    showDifficulty: true,
-                    showActionableDate: true,
-                    showDueDate: true,
-                    showParent: true,
-                    showHandleMarkDone: true,
-                    showHandleMarkNotDone: true,
-                  }}
-                  inboxTasks={tasksWithoutGoal}
-                  moreInfoByRefId={moreInfoByRefId}
-                  optimisticUpdates={optimisticUpdates}
-                  onCardMarkDone={onCardMarkDone}
-                  onCardMarkNotDone={onCardMarkNotDone}
-                />
-              </Fragment>
-            )}
-          </Fragment>
-        );
-      })}
     </>
   );
 }

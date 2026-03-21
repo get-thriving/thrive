@@ -17,7 +17,6 @@ from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
 )
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -42,7 +41,6 @@ class JournalLoadSettingsResult(UseCaseResultBase):
     periods: list[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    writing_task_aspect: Aspect | None
     writing_task_gen_params: RecurringTaskGenParams | None
     writing_tasks: list[InboxTask]
 
@@ -73,13 +71,6 @@ class JournalLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            writing_task_aspect = await uow.get_for(Aspect).load_by_id(
-                journal_collection.writing_task_aspect_ref_id,
-            )
-        else:
-            writing_task_aspect = None
-
         writing_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
@@ -90,7 +81,6 @@ class JournalLoadSettingsUseCase(
             periods=list(journal_collection.periods),
             generation_approach=journal_collection.generation_approach,
             generation_in_advance_days=journal_collection.generation_in_advance_days,
-            writing_task_aspect=writing_task_aspect,
             writing_task_gen_params=journal_collection.writing_task_gen_params,
             writing_tasks=writing_tasks,
         )

@@ -18,6 +18,5 @@ export type WorkingMemCollection = {
     archived_time?: (Timestamp | null);
     workspace_ref_id: string;
     generation_period: RecurringTaskPeriod;
-    cleanup_aspect_ref_id: EntityId;
 };
 

@@ -27,9 +27,6 @@ from jupiter.core.inbox_tasks.root import (
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.life_plan.sub.chapters.root import Chapter
-from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -48,7 +45,6 @@ from jupiter.core.time_plans.sub.activity.target import (
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -72,9 +68,6 @@ class InboxTaskUpdateArgs(UseCaseArgsBase):
     ref_id: EntityId
     name: UpdateAction[InboxTaskName]
     status: UpdateAction[InboxTaskStatus]
-    aspect_ref_id: UpdateAction[EntityId]
-    chapter_ref_id: UpdateAction[EntityId | None]
-    goal_ref_id: UpdateAction[EntityId | None]
     big_plan_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     eisen: UpdateAction[Eisen]
@@ -109,27 +102,7 @@ class InboxTaskUpdateUseCase(
         workspace = context.workspace
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
 
-        if not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            if (
-                args.aspect_ref_id.should_change
-                and args.aspect_ref_id.just_the_value is not None
-            ):
-                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
-            if (
-                args.chapter_ref_id.should_change
-                and args.chapter_ref_id.just_the_value is not None
-            ):
-                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
-            if (
-                args.goal_ref_id.should_change
-                and args.goal_ref_id.just_the_value is not None
-            ):
-                raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
-
         try:
-            the_aspect: UpdateAction[EntityId]
-            the_chapter: UpdateAction[EntityId | None]
-            the_goal: UpdateAction[EntityId | None]
             previous_big_plan: BigPlan | None
             new_big_plan: BigPlan | None
 
@@ -149,38 +122,6 @@ class InboxTaskUpdateUseCase(
                         args.big_plan_ref_id.just_the_value,
                     )
 
-                    if (
-                        args.aspect_ref_id.should_change
-                        and args.aspect_ref_id.just_the_value
-                        != new_big_plan.aspect_ref_id
-                    ):
-                        raise InputValidationError(
-                            "Changing the aspect of a task and associating it with a big plan at the same time is not allowed"
-                        )
-
-                    if (
-                        args.chapter_ref_id.should_change
-                        and args.chapter_ref_id.just_the_value is not None
-                        and args.chapter_ref_id.just_the_value
-                        != new_big_plan.chapter_ref_id
-                    ):
-                        raise InputValidationError(
-                            "Changing the chapter of a task and associating it with a big plan at the same time is not allowed"
-                        )
-
-                    if (
-                        args.goal_ref_id.should_change
-                        and args.goal_ref_id.just_the_value is not None
-                        and args.goal_ref_id.just_the_value != new_big_plan.goal_ref_id
-                    ):
-                        raise InputValidationError(
-                            "Changing the goal of a task and associating it with a big plan at the same time is not allowed"
-                        )
-
-                    the_aspect = UpdateAction.change_to(new_big_plan.aspect_ref_id)
-                    the_chapter = UpdateAction.change_to(new_big_plan.chapter_ref_id)
-                    the_goal = UpdateAction.change_to(new_big_plan.goal_ref_id)
-
                     new_big_plan = await self._process_time_plans_for_big_plan(
                         uow,
                         progress_reporter,
@@ -190,42 +131,13 @@ class InboxTaskUpdateUseCase(
                         new_big_plan,
                     )
                 else:
-                    the_aspect = args.aspect_ref_id
-                    the_chapter = args.chapter_ref_id
-                    the_goal = args.goal_ref_id
                     new_big_plan = None
             else:
-                the_aspect = args.aspect_ref_id
-                the_chapter = args.chapter_ref_id
-                the_goal = args.goal_ref_id
                 new_big_plan = previous_big_plan
-
-            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-                aspect = await uow.get_for(Aspect).load_by_id(
-                    the_aspect.or_else(inbox_task.aspect_ref_id)
-                )
-
-                if the_chapter.should_change and the_chapter.just_the_value is not None:
-                    chapter = await uow.get_for(Chapter).load_by_id(
-                        the_chapter.just_the_value
-                    )
-                    if chapter.aspect_ref_id != aspect.ref_id:
-                        raise InputValidationError(
-                            f"Chapter does not belong to task's aspect '{aspect.name}'"
-                        )
-                if the_goal.should_change and the_goal.just_the_value is not None:
-                    goal = await uow.get_for(Goal).load_by_id(the_goal.just_the_value)
-                    if goal.aspect_ref_id != aspect.ref_id:
-                        raise InputValidationError(
-                            f"Goal does not belong to task's aspect '{aspect.name}'"
-                        )
 
             new_inbox_task = inbox_task.update(
                 ctx=context.domain_context,
                 name=args.name,
-                aspect_ref_id=the_aspect,
-                chapter_ref_id=the_chapter,
-                goal_ref_id=the_goal,
                 big_plan_ref_id=args.big_plan_ref_id,
                 is_key=args.is_key,
                 status=args.status,

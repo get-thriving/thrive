@@ -141,7 +141,6 @@ class PerGoalBreakdownItem(CompositeValue):
 
     ref_id: EntityId
     name: EntityName
-    inbox_tasks_summary: InboxTasksSummary
     big_plans_summary: WorkableSummary
 
 
@@ -151,7 +150,6 @@ class PerAspectBreakdownItem(CompositeValue):
 
     ref_id: EntityId
     name: EntityName
-    inbox_tasks_summary: InboxTasksSummary
     big_plans_summary: WorkableSummary
 
 

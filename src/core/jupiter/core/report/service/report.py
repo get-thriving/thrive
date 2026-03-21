@@ -230,7 +230,6 @@ class ReportService:
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 filter_sources=sources,
-                filter_aspect_ref_ids=filter_aspect_ref_ids,
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )
@@ -348,20 +347,7 @@ class ReportService:
         # Build per aspect breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            # all_inbox_tasks.groupBy(it -> it.aspect.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-            per_aspect_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
-                for (k, v) in groupby(
-                    sorted(
-                        [
-                            (aspects_by_ref_id[it.aspect_ref_id].name, it)
-                            for it in all_inbox_tasks
-                        ],
-                        key=itemgetter(0),
-                    ),
-                    key=itemgetter(0),
-                )
-            }
+            per_aspect_inbox_tasks_summary: dict[EntityName, WorkableSummary] = {}
 
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                 # all_big_plans.groupBy(it -> it.aspect..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
@@ -381,17 +367,18 @@ class ReportService:
             else:
                 per_aspect_big_plans_summary = {}
 
+            all_aspect_names = per_aspect_big_plans_summary.keys()
             per_aspect_breakdown = [
                 PerAspectBreakdownItem(
                     ref_id=aspects_by_name[s].ref_id,
                     name=s,
-                    inbox_tasks_summary=v,
                     big_plans_summary=per_aspect_big_plans_summary.get(
                         s,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (s, v) in per_aspect_inbox_tasks_summary.items()
+                for s in all_aspect_names
+                if s in aspects_by_name
             ]
         else:
             per_aspect_breakdown = []
@@ -399,20 +386,7 @@ class ReportService:
         # Build per goal breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            per_goal_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
-                for (k, v) in groupby(
-                    sorted(
-                        [
-                            (it.goal_ref_id, it)
-                            for it in all_inbox_tasks
-                            if it.goal_ref_id is not None
-                        ],
-                        key=itemgetter(0),
-                    ),
-                    key=itemgetter(0),
-                )
-            }
+            per_goal_inbox_tasks_summary: dict[EntityId, WorkableSummary] = {}
 
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                 per_goal_big_plans_summary = {
@@ -432,17 +406,19 @@ class ReportService:
             else:
                 per_goal_big_plans_summary = {}
 
+            all_goal_ref_ids = set(per_goal_inbox_tasks_summary.keys()) | set(
+                per_goal_big_plans_summary.keys()
+            )
             per_goal_breakdown = [
                 PerGoalBreakdownItem(
                     ref_id=goal_ref_id,
                     name=all_goals_by_ref_id[goal_ref_id].name,
-                    inbox_tasks_summary=inbox_summary,
                     big_plans_summary=per_goal_big_plans_summary.get(
                         goal_ref_id,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (goal_ref_id, inbox_summary) in per_goal_inbox_tasks_summary.items()
+                for goal_ref_id in all_goal_ref_ids
                 if goal_ref_id in all_goals_by_ref_id
                 and not all_goals_by_ref_id[goal_ref_id].archived
             ]

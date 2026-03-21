@@ -34,7 +34,6 @@ class JournalCollection(TrunkEntity):
     periods: set[RecurringTaskPeriod]
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    writing_task_aspect_ref_id: EntityId
     writing_task_gen_params: RecurringTaskGenParams | None
 
     entries = ContainsMany(Journal, journal_collection_ref_id=IsRefId())
@@ -48,7 +47,6 @@ class JournalCollection(TrunkEntity):
         periods: set[RecurringTaskPeriod],
         generation_approach: JournalGenerationApproach,
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
-        writing_task_aspect_ref_id: EntityId,
         writing_task_eisen: Eisen | None,
         writing_task_difficulty: Difficulty | None,
     ) -> "JournalCollection":
@@ -117,7 +115,6 @@ class JournalCollection(TrunkEntity):
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            writing_task_aspect_ref_id=writing_task_aspect_ref_id,
             writing_task_gen_params=final_writing_task_gen_params,
         )
 
@@ -128,7 +125,6 @@ class JournalCollection(TrunkEntity):
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[JournalGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
-        writing_task_aspect_ref_id: UpdateAction[EntityId],
         writing_task_eisen: UpdateAction[Eisen | None],
         writing_task_difficulty: UpdateAction[Difficulty | None],
     ) -> "JournalCollection":
@@ -139,9 +135,6 @@ class JournalCollection(TrunkEntity):
         )
         final_generation_in_advance_days = generation_in_advance_days.or_else(
             self.generation_in_advance_days
-        )
-        final_writing_task_aspect_ref_id = writing_task_aspect_ref_id.or_else(
-            self.writing_task_aspect_ref_id
         )
         final_writing_task_eisen = writing_task_eisen.or_else(
             self.writing_task_gen_params.eisen
@@ -216,20 +209,7 @@ class JournalCollection(TrunkEntity):
             periods=final_periods,
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            writing_task_aspect_ref_id=final_writing_task_aspect_ref_id,
             writing_task_gen_params=final_writing_task_gen_params,
-        )
-
-    @update_entity_action
-    def change_writing_task_aspect_if_required(
-        self,
-        ctx: MutationContext,
-        writing_task_aspect_ref_id: EntityId,
-    ) -> "JournalCollection":
-        """Change the writing task aspect."""
-        return self._new_version(
-            ctx,
-            writing_task_aspect_ref_id=writing_task_aspect_ref_id,
         )
 
     @staticmethod

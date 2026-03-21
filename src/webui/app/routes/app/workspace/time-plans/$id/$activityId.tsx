@@ -81,9 +81,6 @@ const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
   targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
   targetInboxTaskName: z.string(),
-  targetInboxTaskAspect: z.string().optional(),
-  targetInboxTaskChapter: z.string().optional(),
-  targetInboxTaskGoal: z.string().optional(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
   targetInboxTaskStatus: z.nativeEnum(InboxTaskStatus),
@@ -355,26 +352,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          aspect_ref_id: {
-            should_change: true,
-            value: form.targetInboxTaskAspect,
-          },
-          chapter_ref_id: {
-            should_change: form.targetInboxTaskChapter !== undefined,
-            value:
-              form.targetInboxTaskChapter !== undefined &&
-              form.targetInboxTaskChapter !== ""
-                ? form.targetInboxTaskChapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.targetInboxTaskGoal !== undefined,
-            value:
-              form.targetInboxTaskGoal !== undefined &&
-              form.targetInboxTaskGoal !== ""
-                ? form.targetInboxTaskGoal
-                : null,
-          },
           big_plan_ref_id: {
             should_change: form.targetInboxTaskBigPlan !== undefined,
             value:
@@ -466,9 +443,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.targetInboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          aspect_ref_id: { should_change: false },
-          chapter_ref_id: { should_change: false },
-          goal_ref_id: { should_change: false },
           big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
@@ -757,12 +731,6 @@ export default function TimePlanActivity() {
             intentPrefix="target-inbox-task"
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
-            lifePlan={loaderData.lifePlan}
-            rootAspect={loaderData.rootAspect}
-            allAspects={loaderData.allAspects ?? []}
-            allChapters={loaderData.allChapters ?? []}
-            allGoals={loaderData.allGoals ?? []}
-            allMilestones={loaderData.allMilestones ?? []}
             allBigPlans={loaderData.allBigPlans ?? []}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived

@@ -1,11 +1,7 @@
-import type {
-  AspectSummary,
-  GoalSummary,
-  InboxTask,
-} from "@jupiter/webapi-client";
+import type { InboxTask } from "@jupiter/webapi-client";
 import { Eisen, InboxTaskStatus } from "@jupiter/webapi-client";
 import { Tab, Tabs } from "@mui/material";
-import { Fragment, useMemo, useState } from "react";
+import { useState } from "react";
 
 import { eisenIcon, eisenName } from "#/core/common/eisen";
 import {
@@ -13,7 +9,6 @@ import {
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
 import { TabPanel } from "#/core/infra/component/tab-panel";
-import { StandardDivider } from "#/core/infra/component/standard-divider";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
 import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
@@ -26,9 +21,6 @@ import {
   inboxTaskStatusIcon,
   inboxTaskStatusName,
 } from "#/core/inbox_tasks/status";
-import { sortAspectsByTreeOrder } from "#/core/life_plan/sub/aspects/root";
-import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
-
 interface SmallScreenKanbanBaseProps {
   topLevelInfo: TopLevelInfo;
   inboxTasks: Array<InboxTask>;
@@ -287,126 +279,6 @@ export function SmallScreenKanbanByEisen(props: SmallScreenKanbanBaseProps) {
   );
 }
 
-export function SmallScreenKanbanByAspect(props: SmallScreenKanbanBaseProps) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(props.moreInfoByRefId),
-    [props.moreInfoByRefId],
-  );
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  if (props.inboxTasks.length === 0) {
-    return (
-      <InboxTasksNoTasksCard
-        parent={props.emptyParent}
-        parentLabel={props.emptyParentLabel}
-        parentNewLocations={props.emptyParentNewLocations}
-      />
-    );
-  }
-
-  return (
-    <>
-      <Tabs
-        value={selectedTab}
-        variant="scrollable"
-        scrollButtons="auto"
-        onChange={(_, newValue) => setSelectedTab(newValue)}
-      >
-        {aspects.map((aspect) => (
-          <Tab key={aspect.ref_id} label={aspect.name} />
-        ))}
-      </Tabs>
-
-      {aspects.map((aspect, index) => {
-        const aspectTasks = props.inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        return (
-          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
-            <SmallScreenKanban {...props} inboxTasks={aspectTasks} />
-          </TabPanel>
-        );
-      })}
-    </>
-  );
-}
-
-export function SmallScreenKanbanByAspectAndGoal(
-  props: SmallScreenKanbanBaseProps,
-) {
-  const aspects = useMemo(
-    () => getUniqueAspectsSorted(props.moreInfoByRefId),
-    [props.moreInfoByRefId],
-  );
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  if (props.inboxTasks.length === 0) {
-    return (
-      <InboxTasksNoTasksCard
-        parent={props.emptyParent}
-        parentLabel={props.emptyParentLabel}
-        parentNewLocations={props.emptyParentNewLocations}
-      />
-    );
-  }
-
-  return (
-    <>
-      <Tabs
-        value={selectedTab}
-        variant="scrollable"
-        scrollButtons="auto"
-        onChange={(_, newValue) => setSelectedTab(newValue)}
-      >
-        {aspects.map((aspect) => (
-          <Tab key={aspect.ref_id} label={aspect.name} />
-        ))}
-      </Tabs>
-
-      {aspects.map((aspect, index) => {
-        const aspectTasks = props.inboxTasks.filter(
-          (it) => it.aspect_ref_id === aspect.ref_id,
-        );
-        const goals = getUniqueGoalsForAspect(
-          props.moreInfoByRefId,
-          aspect.ref_id,
-        );
-        const tasksWithoutGoal = aspectTasks.filter(
-          (it) => !props.moreInfoByRefId[it.ref_id]?.goal,
-        );
-
-        return (
-          <TabPanel key={aspect.ref_id} value={selectedTab} index={index}>
-            {goals.map((goal) => {
-              const goalTasks = aspectTasks.filter(
-                (it) =>
-                  props.moreInfoByRefId[it.ref_id]?.goal?.ref_id ===
-                  goal.ref_id,
-              );
-              if (goalTasks.length === 0) return null;
-              return (
-                <Fragment key={goal.ref_id}>
-                  <StandardDivider title={goal.name} size="medium" />
-                  <SmallScreenKanban {...props} inboxTasks={goalTasks} />
-                </Fragment>
-              );
-            })}
-
-            {tasksWithoutGoal.length > 0 && (
-              <>
-                {goals.length > 0 && (
-                  <StandardDivider title="No Goal" size="medium" />
-                )}
-                <SmallScreenKanban {...props} inboxTasks={tasksWithoutGoal} />
-              </>
-            )}
-          </TabPanel>
-        );
-      })}
-    </>
-  );
-}
-
 function renderTabContent(
   index: number,
   inboxTasks: Array<InboxTask>,
@@ -427,7 +299,6 @@ function renderTabContent(
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showSource: true,
-          showLifePlan: true,
           showEisen,
           showDifficulty: true,
           showActionableDate: true,
@@ -443,29 +314,4 @@ function renderTabContent(
       />
     </TabPanel>
   );
-}
-
-function getUniqueAspectsSorted(moreInfoByRefId: {
-  [key: string]: InboxTaskParent;
-}): AspectSummary[] {
-  const aspectMap = new Map<string, AspectSummary>();
-  for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.aspect) {
-      aspectMap.set(parent.aspect.ref_id, parent.aspect);
-    }
-  }
-  return sortAspectsByTreeOrder([...aspectMap.values()]);
-}
-
-function getUniqueGoalsForAspect(
-  moreInfoByRefId: { [key: string]: InboxTaskParent },
-  aspectRefId: string,
-): GoalSummary[] {
-  const goalMap = new Map<string, GoalSummary>();
-  for (const parent of Object.values(moreInfoByRefId)) {
-    if (parent.aspect?.ref_id === aspectRefId && parent.goal) {
-      goalMap.set(parent.goal.ref_id, parent.goal);
-    }
-  }
-  return sortGoalsNaturally([...goalMap.values()]);
 }

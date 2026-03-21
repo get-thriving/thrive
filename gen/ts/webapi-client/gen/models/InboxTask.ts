@@ -24,9 +24,6 @@ export type InboxTask = {
     name: InboxTaskName;
     inbox_task_collection_ref_id: string;
     source: InboxTaskSource;
-    aspect_ref_id: EntityId;
-    chapter_ref_id?: (EntityId | null);
-    goal_ref_id?: (EntityId | null);
     status: InboxTaskStatus;
     is_key: boolean;
     eisen: Eisen;

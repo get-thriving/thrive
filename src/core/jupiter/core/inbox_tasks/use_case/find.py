@@ -34,10 +34,6 @@ from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.life_plan.sub.chapters.root import Chapter
-from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.prm.root import PRM
@@ -87,7 +83,6 @@ class InboxTaskFindArgs(UseCaseArgsBase):
     filter_just_user: bool | None
     filter_just_generated: bool | None
     filter_ref_ids: list[EntityId] | None
-    filter_aspect_ref_ids: list[EntityId] | None
     filter_sources: list[InboxTaskSource] | None
     filter_source_entity_ref_ids: list[EntityId] | None
 
@@ -97,9 +92,6 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     """A single entry in the load all inbox tasks response."""
 
     inbox_task: InboxTask
-    aspect: Aspect
-    chapter: Chapter | None
-    goal: Goal | None
     time_event_blocks: list[TimeEventInDayBlock] | None
     working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
@@ -145,12 +137,6 @@ class InboxTaskFindUseCase(
                 "Cannot filter for both user tasks and generated tasks at the same time"
             )
 
-        if (
-            not workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN)
-            and args.filter_aspect_ref_ids is not None
-        ):
-            raise UnavailableForContextError(WorkspaceFeature.LIFE_PLAN)
-
         filter_sources = (
             args.filter_sources
             if args.filter_sources is not None
@@ -175,9 +161,6 @@ class InboxTaskFindUseCase(
             InboxTaskStatus.all_workable_statuses()
             if args.filter_just_workable
             else NoFilter()
-        )
-        life_plan = await uow.get_for(LifePlan).load_by_parent(
-            workspace.ref_id,
         )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
@@ -218,34 +201,12 @@ class InboxTaskFindUseCase(
             push_integrations_group.ref_id,
         )
 
-        aspects = await uow.get_for(Aspect).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=allow_archived,
-            ref_id=args.filter_aspect_ref_ids or NoFilter(),
-        )
-        aspect_by_ref_id = {p.ref_id: p for p in aspects}
-
-        chapters = await uow.get_for(Chapter).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=allow_archived,
-            ref_id=NoFilter(),
-        )
-        chapter_by_ref_id = {c.ref_id: c for c in chapters}
-
-        goals = await uow.get_for(Goal).find_all_generic(
-            parent_ref_id=life_plan.ref_id,
-            allow_archived=allow_archived,
-            ref_id=NoFilter(),
-        )
-        goal_by_ref_id = {g.ref_id: g for g in goals}
-
         inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=allow_archived,
             ref_id=args.filter_ref_ids or NoFilter(),
             status=filter_status,
             source=filter_sources,
-            aspect_ref_id=args.filter_aspect_ref_ids or NoFilter(),
             source_entity_ref_id=args.filter_source_entity_ref_ids or NoFilter(),
         )
 
@@ -418,13 +379,6 @@ class InboxTaskFindUseCase(
             entries=[
                 InboxTaskFindResultEntry(
                     inbox_task=it,
-                    aspect=aspect_by_ref_id[it.aspect_ref_id],
-                    chapter=(
-                        chapter_by_ref_id[it.chapter_ref_id]
-                        if it.chapter_ref_id
-                        else None
-                    ),
-                    goal=goal_by_ref_id[it.goal_ref_id] if it.goal_ref_id else None,
                     working_mem_collection=(
                         working_mem_collection
                         if it.source == InboxTaskSource.WORKING_MEM_CLEANUP

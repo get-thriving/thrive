@@ -31,7 +31,6 @@ from jupiter.core.inbox_tasks.collection import (
 )
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -85,7 +84,6 @@ class PersonFindResultEntry(UseCaseResultBase):
 class PersonFindResult(UseCaseResultBase):
     """PersonFindResult."""
 
-    catch_up_aspect: Aspect
     entries: list[PersonFindResultEntry]
 
 
@@ -123,9 +121,6 @@ class PersonFindUseCase(
         )
         time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
             workspace.ref_id
-        )
-        catch_up_aspect = await uow.get_for(Aspect).load_by_id(
-            prm.catch_up_aspect_ref_id,
         )
         persons = await uow.get_for(Person).find_all(
             parent_ref_id=prm.ref_id,
@@ -308,6 +303,5 @@ class PersonFindUseCase(
             )
 
         return PersonFindResult(
-            catch_up_aspect=catch_up_aspect,
             entries=entries,
         )

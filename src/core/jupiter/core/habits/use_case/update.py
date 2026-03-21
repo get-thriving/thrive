@@ -112,9 +112,6 @@ class HabitUpdateUseCase(
 
         need_to_change_inbox_tasks = (
             args.name.should_change
-            or args.aspect_ref_id.should_change
-            or args.chapter_ref_id.should_change
-            or args.goal_ref_id.should_change
             or args.period.should_change
             or args.eisen.should_change
             or args.difficulty.should_change
@@ -250,9 +247,6 @@ class HabitUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_habit(
                     ctx=context.domain_context,
-                    aspect_ref_id=habit.aspect_ref_id,
-                    chapter_ref_id=habit.chapter_ref_id,
-                    goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=habit.is_key,

@@ -47,7 +47,7 @@ def create_note(logged_in_client: AuthenticatedClient):
         result = note_create_sync(
             client=logged_in_client,
             body=NoteCreateArgs(
-                namespace=NoteNamespace.INBOX_TASK,
+                namespace=NoteNamespace.TODO_TASK,
                 source_entity_ref_id=inbox_task_ref_id,
                 content=[
                     ParagraphBlock(

@@ -35,7 +35,6 @@ class TimePlanDomain(TrunkEntity):
     periods: set[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    planning_task_aspect_ref_id: EntityId
     planning_task_gen_params: RecurringTaskGenParams | None
 
     time_plans = ContainsMany(TimePlan, time_plan_domain_ref_id=IsRefId())
@@ -49,7 +48,6 @@ class TimePlanDomain(TrunkEntity):
         periods: set[RecurringTaskPeriod],
         generation_approach: TimePlanGenerationApproach,
         generation_in_advance_days: dict[RecurringTaskPeriod, int],
-        planning_task_aspect_ref_id: EntityId,
         planning_task_eisen: Eisen | None,
         planning_task_difficulty: Difficulty | None,
     ) -> "TimePlanDomain":
@@ -118,7 +116,6 @@ class TimePlanDomain(TrunkEntity):
             periods=periods,
             generation_approach=generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            planning_task_aspect_ref_id=planning_task_aspect_ref_id,
             planning_task_gen_params=final_planning_task_gen_params,
         )
 
@@ -129,7 +126,6 @@ class TimePlanDomain(TrunkEntity):
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[TimePlanGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],
-        planning_task_aspect_ref_id: UpdateAction[EntityId],
         planning_task_eisen: UpdateAction[Eisen | None],
         planning_task_difficulty: UpdateAction[Difficulty | None],
     ) -> "TimePlanDomain":
@@ -140,9 +136,6 @@ class TimePlanDomain(TrunkEntity):
         )
         final_generation_in_advance_days = generation_in_advance_days.or_else(
             self.generation_in_advance_days
-        )
-        final_planning_task_aspect_ref_id = planning_task_aspect_ref_id.or_else(
-            self.planning_task_aspect_ref_id
         )
         final_planning_task_eisen = planning_task_eisen.or_else(
             self.planning_task_gen_params.eisen
@@ -215,20 +208,7 @@ class TimePlanDomain(TrunkEntity):
             periods=final_periods,
             generation_approach=final_generation_approach,
             generation_in_advance_days=final_generation_in_advance_days,
-            planning_task_aspect_ref_id=final_planning_task_aspect_ref_id,
             planning_task_gen_params=final_planning_task_gen_params,
-        )
-
-    @update_entity_action
-    def change_planning_task_aspect_if_required(
-        self,
-        ctx: MutationContext,
-        planning_task_aspect_ref_id: EntityId,
-    ) -> "TimePlanDomain":
-        """Change the planning task aspect."""
-        return self._new_version(
-            ctx,
-            planning_task_aspect_ref_id=planning_task_aspect_ref_id,
         )
 
     @staticmethod

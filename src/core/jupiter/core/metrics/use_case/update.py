@@ -30,8 +30,6 @@ from jupiter.core.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
@@ -81,9 +79,6 @@ class MetricUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
         metric = await uow.get_for(Metric).load_by_id(
             args.ref_id,
         )
@@ -214,10 +209,6 @@ class MetricUpdateUseCase(
                 )
         else:
             # Situation 2: we need to update the existing metrics.
-            aspect = await uow.get_for(Aspect).load_by_id(
-                metric_collection.collection_aspect_ref_id,
-            )
-
             for inbox_task in metric_collection_tasks:
                 schedule = schedules.get_schedule(
                     metric.collection_params.period,
@@ -232,7 +223,6 @@ class MetricUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_metric(
                     ctx=context.domain_context,
-                    aspect_ref_id=aspect.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=metric.collection_params.eisen,

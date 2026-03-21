@@ -11,7 +11,6 @@ from ..models.recurring_task_period import RecurringTaskPeriod
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.aspect import Aspect
     from ..models.inbox_task import InboxTask
     from ..models.journal_load_settings_result_generation_in_advance_days import (
         JournalLoadSettingsResultGenerationInAdvanceDays,
@@ -31,7 +30,6 @@ class JournalLoadSettingsResult:
         generation_approach (JournalGenerationApproach): The approach to generate journals.
         generation_in_advance_days (JournalLoadSettingsResultGenerationInAdvanceDays):
         writing_tasks (list[InboxTask]):
-        writing_task_aspect (Aspect | None | Unset):
         writing_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
@@ -39,12 +37,10 @@ class JournalLoadSettingsResult:
     generation_approach: JournalGenerationApproach
     generation_in_advance_days: JournalLoadSettingsResultGenerationInAdvanceDays
     writing_tasks: list[InboxTask]
-    writing_task_aspect: Aspect | None | Unset = UNSET
     writing_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.aspect import Aspect
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
         periods = []
@@ -60,14 +56,6 @@ class JournalLoadSettingsResult:
         for writing_tasks_item_data in self.writing_tasks:
             writing_tasks_item = writing_tasks_item_data.to_dict()
             writing_tasks.append(writing_tasks_item)
-
-        writing_task_aspect: dict[str, Any] | None | Unset
-        if isinstance(self.writing_task_aspect, Unset):
-            writing_task_aspect = UNSET
-        elif isinstance(self.writing_task_aspect, Aspect):
-            writing_task_aspect = self.writing_task_aspect.to_dict()
-        else:
-            writing_task_aspect = self.writing_task_aspect
 
         writing_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.writing_task_gen_params, Unset):
@@ -87,8 +75,6 @@ class JournalLoadSettingsResult:
                 "writing_tasks": writing_tasks,
             }
         )
-        if writing_task_aspect is not UNSET:
-            field_dict["writing_task_aspect"] = writing_task_aspect
         if writing_task_gen_params is not UNSET:
             field_dict["writing_task_gen_params"] = writing_task_gen_params
 
@@ -96,7 +82,6 @@ class JournalLoadSettingsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect import Aspect
         from ..models.inbox_task import InboxTask
         from ..models.journal_load_settings_result_generation_in_advance_days import (
             JournalLoadSettingsResultGenerationInAdvanceDays,
@@ -124,23 +109,6 @@ class JournalLoadSettingsResult:
 
             writing_tasks.append(writing_tasks_item)
 
-        def _parse_writing_task_aspect(data: object) -> Aspect | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                writing_task_aspect_type_0 = Aspect.from_dict(data)
-
-                return writing_task_aspect_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Aspect | None | Unset, data)
-
-        writing_task_aspect = _parse_writing_task_aspect(d.pop("writing_task_aspect", UNSET))
-
         def _parse_writing_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
@@ -163,7 +131,6 @@ class JournalLoadSettingsResult:
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
             writing_tasks=writing_tasks,
-            writing_task_aspect=writing_task_aspect,
             writing_task_gen_params=writing_task_gen_params,
         )
 

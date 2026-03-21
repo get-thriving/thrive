@@ -133,9 +133,6 @@ class TodoTaskCreateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
-            aspect_ref_id=the_aspect.ref_id,
-            chapter_ref_id=args.chapter_ref_id,
-            goal_ref_id=args.goal_ref_id,
         )
         new_inbox_task = await uow.get_for(InboxTask).create(new_inbox_task)
         await progress_reporter.mark_created(new_inbox_task)
