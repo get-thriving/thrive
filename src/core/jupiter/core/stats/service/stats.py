@@ -248,8 +248,6 @@ class StatsService:
         # Group inbox tasks by habit ref id
         inbox_tasks_by_habit_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
             if inbox_task.source_entity_ref_id not in inbox_tasks_by_habit_ref_id:
                 inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id] = []
             inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id].append(
@@ -289,8 +287,6 @@ class StatsService:
         # Group inbox tasks by big plan ref id
         inbox_tasks_by_big_plan_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
             if inbox_task.source_entity_ref_id not in inbox_tasks_by_big_plan_ref_id:
                 inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id] = []
             inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id].append(

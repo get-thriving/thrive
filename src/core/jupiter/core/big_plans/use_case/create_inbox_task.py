@@ -1,4 +1,4 @@
-"""The command for creating a inbox task."""
+"""The command for creating an inbox task for a big plan."""
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
@@ -46,14 +46,14 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
-class InboxTaskCreateArgs(UseCaseArgsBase):
-    """InboxTaskCreate args."""
+class BigPlanCreateInboxTaskArgs(UseCaseArgsBase):
+    """BigPlanCreateInboxTask args."""
 
+    big_plan_ref_id: EntityId
     name: InboxTaskName
     time_plan_ref_id: EntityId | None
     time_plan_activity_kind: TimePlanActivityKind | None
     time_plan_activity_feasability: TimePlanActivityFeasability | None
-    big_plan_ref_id: EntityId | None
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
@@ -62,46 +62,44 @@ class InboxTaskCreateArgs(UseCaseArgsBase):
 
 
 @use_case_result
-class InboxTaskCreateResult(UseCaseResultBase):
-    """InboxTaskCreate result."""
+class BigPlanCreateInboxTaskResult(UseCaseResultBase):
+    """BigPlanCreateInboxTask result."""
 
     new_inbox_task: InboxTask
     new_time_plan_activity: TimePlanActivity | None
 
 
-@mutation_use_case(WorkspaceFeature.INBOX_TASKS)
-class InboxTaskCreateUseCase(
+@mutation_use_case(WorkspaceFeature.BIG_PLANS)
+class BigPlanCreateInboxTaskUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
-        InboxTaskCreateArgs, InboxTaskCreateResult
+        BigPlanCreateInboxTaskArgs, BigPlanCreateInboxTaskResult
     ],
 ):
-    """The command for creating a inbox task."""
+    """The command for creating an inbox task for a big plan."""
 
     async def _perform_transactional_mutation(
         self,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         context: JupiterLoggedInMutationContext,
-        args: InboxTaskCreateArgs,
-    ) -> InboxTaskCreateResult:
+        args: BigPlanCreateInboxTaskArgs,
+    ) -> BigPlanCreateInboxTaskResult:
         """Execute the command's action."""
         workspace = context.workspace
+
+        big_plan = await uow.get_for(BigPlan).load_by_id(
+            args.big_plan_ref_id,
+        )
 
         time_plan: TimePlan | None = None
         if args.time_plan_ref_id:
             time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
 
-        big_plan: BigPlan | None = None
-        if args.big_plan_ref_id:
-            big_plan = await uow.get_for(BigPlan).load_by_id(
-                args.big_plan_ref_id,
-            )
-
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
 
-        new_inbox_task = InboxTask.new_inbox_task(
+        new_inbox_task = InboxTask.new_inbox_task_for_big_plan(
             ctx=context.domain_context,
             inbox_task_collection_ref_id=inbox_task_collection.ref_id,
             name=args.name,
@@ -111,9 +109,9 @@ class InboxTaskCreateUseCase(
             difficulty=args.difficulty,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
-            big_plan_ref_id=big_plan.ref_id if big_plan else None,
-            big_plan_actionable_date=big_plan.actionable_date if big_plan else None,
-            big_plan_due_date=big_plan.due_date if big_plan else None,
+            big_plan_ref_id=big_plan.ref_id,
+            big_plan_actionable_date=big_plan.actionable_date,
+            big_plan_due_date=big_plan.due_date,
         )
 
         new_inbox_task = await generic_creator(uow, progress_reporter, new_inbox_task)
@@ -137,29 +135,26 @@ class InboxTaskCreateUseCase(
                 uow, progress_reporter, new_time_plan_activity
             )
 
-            if big_plan:
-                try:
-                    new_big_plan_time_plan_activity = (
-                        TimePlanActivity.new_activity_for_big_plan(
-                            context.domain_context,
-                            time_plan_ref_id=time_plan.ref_id,
-                            big_plan_ref_id=big_plan.ref_id,
-                            kind=time_plan_activity_kind,
-                            feasability=time_plan_activity_feasability,
-                        )
+            try:
+                new_big_plan_time_plan_activity = (
+                    TimePlanActivity.new_activity_for_big_plan(
+                        context.domain_context,
+                        time_plan_ref_id=time_plan.ref_id,
+                        big_plan_ref_id=big_plan.ref_id,
+                        kind=time_plan_activity_kind,
+                        feasability=time_plan_activity_feasability,
                     )
-                    new_big_plan_time_plan_activity = await generic_creator(
-                        uow, progress_reporter, new_big_plan_time_plan_activity
-                    )
-                except TimePlanAlreadyAssociatedWithTargetError:
-                    # We were already working on this plan, no need to panic
-                    pass
+                )
+                new_big_plan_time_plan_activity = await generic_creator(
+                    uow, progress_reporter, new_big_plan_time_plan_activity
+                )
+            except TimePlanAlreadyAssociatedWithTargetError:
+                pass
 
-        if big_plan is not None:
-            await uow.get(BigPlanStatsRepository).mark_add_inbox_task(
-                big_plan.ref_id,
-            )
+        await uow.get(BigPlanStatsRepository).mark_add_inbox_task(
+            big_plan.ref_id,
+        )
 
-        return InboxTaskCreateResult(
+        return BigPlanCreateInboxTaskResult(
             new_inbox_task=new_inbox_task, new_time_plan_activity=new_time_plan_activity
         )

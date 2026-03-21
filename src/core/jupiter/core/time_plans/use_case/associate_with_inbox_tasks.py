@@ -98,7 +98,7 @@ class TimePlanAssociateWithInboxTasksUseCase(
         )
 
         big_plan_ref_ids = [
-            it.source_entity_ref_id_for_sure
+            it.source_entity_ref_id
             for it in inbox_tasks
             if it.source == InboxTaskSource.BIG_PLAN
         ]

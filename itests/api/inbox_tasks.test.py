@@ -1,41 +1,129 @@
 """Tests for the API for inbox tasks."""
 
+from collections.abc import Iterator
+
 import pytest
 import requests
+from jupiter_webapi_client.api.big_plans.big_plan_create import (
+    sync_detailed as big_plan_create_sync,
+)
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    sync_detailed as big_plan_create_inbox_task_sync,
+)
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     sync_detailed as inbox_task_archive_sync,
-)
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    sync_detailed as inbox_task_create_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_remove import (
     sync_detailed as inbox_task_remove_sync,
 )
+from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
+    sync_detailed as workspace_set_feature_sync,
+)
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    sync_detailed as todo_task_create_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
+from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
+from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
+    BigPlanCreateInboxTaskArgs,
+)
+from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
+    BigPlanCreateInboxTaskResult,
+)
+from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
 from jupiter_webapi_client.models.inbox_task_archive_args import InboxTaskArchiveArgs
-from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
 from jupiter_webapi_client.models.inbox_task_remove_args import InboxTaskRemoveArgs
+from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
+from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
+from jupiter_webapi_client.models.workspace_set_feature_args import (
+    WorkspaceSetFeatureArgs,
+)
 
 from itests.helpers import get_parsed_from_response
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.BIG_PLANS, value=False
+            ),
+        )
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=False
+            ),
+        )
 
 
 @pytest.fixture()
 def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create(name: str) -> InboxTask:
-        result = inbox_task_create_sync(
+        result = todo_task_create_sync(
             client=logged_in_client,
-            body=InboxTaskCreateArgs(
+            body=TodoTaskCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
+        return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
+
+    return _create
+
+
+@pytest.fixture()
+def create_archivable_inbox_task(logged_in_client: AuthenticatedClient):
+    """Create an inbox task via a big plan so it can be archived/removed independently."""
+
+    def _create(name: str) -> InboxTask:
+        bp_result = big_plan_create_sync(
+            client=logged_in_client,
+            body=BigPlanCreateArgs(
+                name=f"BP for {name}",
+                is_key=False,
+                eisen=Eisen.REGULAR,
+                difficulty=Difficulty.EASY,
+            ),
+        )
+        big_plan = get_parsed_from_response(
+            BigPlanCreateResult, bp_result
+        ).new_big_plan
+        result = big_plan_create_inbox_task_sync(
+            client=logged_in_client,
+            body=BigPlanCreateInboxTaskArgs(
+                big_plan_ref_id=big_plan.ref_id,
+                name=name,
+                is_key=False,
+                eisen=Eisen.REGULAR,
+                difficulty=Difficulty.EASY,
+            ),
+        )
+        return get_parsed_from_response(
+            BigPlanCreateInboxTaskResult, result
+        ).new_inbox_task
 
     return _create
 
@@ -66,9 +154,9 @@ def _headers(api_key: str) -> dict[str, str]:
     return {"Authorization": f"Bearer {api_key}"}
 
 
-def test_api_inbox_task_create(api_url: str, api_key: str) -> None:
+def test_api_inbox_task_created_via_todo(api_url: str, api_key: str) -> None:
     response = requests.post(
-        f"{api_url}/v1/inbox-tasks",
+        f"{api_url}/v1/todos",
         headers=_headers(api_key),
         json={
             "name": "Buy groceries",
@@ -139,10 +227,6 @@ def test_api_inbox_task_update(api_url: str, api_key: str, create_inbox_task) ->
             "difficulty": {"should_change": False},
             "actionable_date": {"should_change": False},
             "due_date": {"should_change": False},
-            "aspect_ref_id": {"should_change": False},
-            "chapter_ref_id": {"should_change": False},
-            "goal_ref_id": {"should_change": False},
-            "big_plan_ref_id": {"should_change": False},
         },
         timeout=10,
     )
@@ -174,10 +258,6 @@ def test_api_inbox_task_update_partial(
             "difficulty": {"should_change": False},
             "actionable_date": {"should_change": False},
             "due_date": {"should_change": False},
-            "aspect_ref_id": {"should_change": False},
-            "chapter_ref_id": {"should_change": False},
-            "goal_ref_id": {"should_change": False},
-            "big_plan_ref_id": {"should_change": False},
         },
         timeout=10,
     )
@@ -193,9 +273,9 @@ def test_api_inbox_task_update_partial(
 
 
 def test_api_inbox_task_find_excludes_archived(
-    api_url: str, api_key: str, create_inbox_task, archive_inbox_task
+    api_url: str, api_key: str, create_archivable_inbox_task, archive_inbox_task
 ) -> None:
-    created = create_inbox_task("Archive Filter Task")
+    created = create_archivable_inbox_task("Archive Filter Task")
     archive_inbox_task(created.ref_id)
 
     response = requests.get(
@@ -208,8 +288,8 @@ def test_api_inbox_task_find_excludes_archived(
     assert "Archive Filter Task" not in names
 
 
-def test_api_inbox_task_archive(api_url: str, api_key: str, create_inbox_task) -> None:
-    created = create_inbox_task("Archive Me Task")
+def test_api_inbox_task_archive(api_url: str, api_key: str, create_archivable_inbox_task) -> None:
+    created = create_archivable_inbox_task("Archive Me Task")
 
     response = requests.delete(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}",
@@ -235,8 +315,8 @@ def test_api_inbox_task_archive(api_url: str, api_key: str, create_inbox_task) -
     assert response2.json()["inbox_task"]["archived"] is True
 
 
-def test_api_inbox_task_remove(api_url: str, api_key: str, create_inbox_task) -> None:
-    created = create_inbox_task("Remove Me Task")
+def test_api_inbox_task_remove(api_url: str, api_key: str, create_archivable_inbox_task) -> None:
+    created = create_archivable_inbox_task("Remove Me Task")
 
     response = requests.delete(
         f"{api_url}/v1/inbox-tasks/{created.ref_id}/remove",

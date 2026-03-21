@@ -84,7 +84,7 @@ class TimePlanAssociateInboxTaskWithPlanUseCase(
         big_plan = None
         if inbox_task.source == InboxTaskSource.BIG_PLAN:
             big_plan = await uow.get_for(BigPlan).load_by_id(
-                inbox_task.source_entity_ref_id_for_sure
+                inbox_task.source_entity_ref_id
             )
 
         time_plans = await uow.get_for(TimePlan).find_all(

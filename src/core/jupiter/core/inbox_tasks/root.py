@@ -68,7 +68,7 @@ class InboxTask(LeafEntity):
     actionable_date: ADate | None
     due_date: ADate | None
     notes: str | None
-    source_entity_ref_id: EntityId | None
+    source_entity_ref_id: EntityId
     recurring_timeline: str | None
     recurring_repeat_index: int | None
     recurring_gen_right_now: (
@@ -76,13 +76,6 @@ class InboxTask(LeafEntity):
     )  # Time for which this inbox task was generated
     working_time: Timestamp | None
     completed_time: Timestamp | None
-
-    @property
-    def source_entity_ref_id_for_sure(self) -> EntityId:
-        """Get the source entity ref id."""
-        if self.source_entity_ref_id is None:
-            raise Exception("Source entity ref id is not set")
-        return self.source_entity_ref_id
 
     @staticmethod
     @create_entity_action
@@ -122,7 +115,7 @@ class InboxTask(LeafEntity):
 
     @staticmethod
     @create_entity_action
-    def new_inbox_task(
+    def new_inbox_task_for_big_plan(
         ctx: MutationContext,
         inbox_task_collection_ref_id: EntityId,
         name: InboxTaskName,
@@ -132,29 +125,24 @@ class InboxTask(LeafEntity):
         difficulty: Difficulty,
         actionable_date: ADate | None,
         due_date: ADate | None,
-        big_plan_ref_id: EntityId | None,
+        big_plan_ref_id: EntityId,
         big_plan_actionable_date: ADate | None,
         big_plan_due_date: ADate | None,
     ) -> "InboxTask":
-        """Created an inbox task."""
+        """Create an inbox task associated with a big plan."""
         InboxTask._check_actionable_and_due_dates(actionable_date, due_date)
 
         return InboxTask._create(
             ctx,
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
-            source=(
-                InboxTaskSource.TODO_TASK
-                if big_plan_ref_id is None
-                else InboxTaskSource.BIG_PLAN
-            ),
+            source=InboxTaskSource.BIG_PLAN,
             name=name,
             status=status,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
-            actionable_date=actionable_date
-            or (big_plan_actionable_date if big_plan_ref_id else None),
-            due_date=due_date or (big_plan_due_date if big_plan_ref_id else None),
+            actionable_date=actionable_date or big_plan_actionable_date,
+            due_date=due_date or big_plan_due_date,
             source_entity_ref_id=big_plan_ref_id,
             notes=None,
             recurring_timeline=None,
@@ -531,26 +519,6 @@ class InboxTask(LeafEntity):
         )
 
     @update_entity_action
-    def update_link_to_working_mem_cleanup(
-        self,
-        ctx: MutationContext,
-        name: InboxTaskName,
-        due_date: ADate | None,
-        recurring_timeline: str,
-    ) -> "InboxTask":
-        """Update all the info associated with a working memory cleanup."""
-        if self.source is not InboxTaskSource.WORKING_MEM_CLEANUP:
-            raise Exception(
-                f"Cannot associate a task which is not for a working memory cleanup '{self.name}'",
-            )
-        return self._new_version(
-            ctx,
-            name=name,
-            due_date=due_date,
-            recurring_timeline=recurring_timeline,
-        )
-
-    @update_entity_action
     def update_link_to_todo(
         self,
         ctx: MutationContext,
@@ -572,16 +540,60 @@ class InboxTask(LeafEntity):
             raise InputValidationError(
                 f"Cannot reassociate a task which is not with the todo task '{self.name}'"
             )
-        return self.update(
-            ctx=ctx,
-            name=name,
-            status=status,
-            big_plan_ref_id=UpdateAction.do_nothing(),
-            is_key=is_key,
-            actionable_date=actionable_date,
-            due_date=due_date,
-            eisen=eisen,
-            difficulty=difficulty,
+
+        the_name = name.or_else(self.name)
+
+        the_status = self.status
+        the_working_time = self.working_time
+        the_completed_time = self.completed_time
+        if status.should_change:
+            if status.just_the_value == InboxTaskStatus.NOT_STARTED_GEN:
+                raise InputValidationError(
+                    "Trying to change a user created task to a generated-only status",
+                )
+
+            if (
+                not self.status.is_working_or_more
+                and status.just_the_value.is_working_or_more
+            ):
+                the_working_time = ctx.action_timestamp
+            elif (
+                self.status.is_working_or_more
+                and not status.just_the_value.is_working_or_more
+            ):
+                the_working_time = None
+
+            if not self.status.is_completed and status.just_the_value.is_completed:
+                the_completed_time = ctx.action_timestamp
+            elif self.status.is_completed and not status.just_the_value.is_completed:
+                the_completed_time = None
+
+            the_status = status.just_the_value
+
+        the_is_key = is_key.or_else(self.is_key)
+
+        if actionable_date.should_change or due_date.should_change:
+            the_actionable_date = actionable_date.or_else(self.actionable_date)
+            the_due_date = due_date.or_else(self.due_date)
+            InboxTask._check_actionable_and_due_dates(the_actionable_date, the_due_date)
+        else:
+            the_actionable_date = self.actionable_date
+            the_due_date = self.due_date
+
+        the_eisen = eisen.or_else(self.eisen)
+        the_difficulty = difficulty.or_else(self.difficulty)
+
+        return self._new_version(
+            ctx,
+            name=the_name,
+            status=the_status,
+            is_key=the_is_key,
+            actionable_date=the_actionable_date,
+            due_date=the_due_date,
+            working_time=the_working_time,
+            completed_time=the_completed_time,
+            eisen=the_eisen,
+            difficulty=the_difficulty,
         )
 
     @update_entity_action
@@ -589,18 +601,96 @@ class InboxTask(LeafEntity):
         self,
         ctx: MutationContext,
         big_plan_ref_id: EntityId,
+        name: UpdateAction[InboxTaskName],
+        status: UpdateAction[InboxTaskStatus],
+        is_key: UpdateAction[bool],
+        actionable_date: UpdateAction[ADate | None],
+        due_date: UpdateAction[ADate | None],
+        eisen: UpdateAction[Eisen],
+        difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
         """Update all the info associated with a big plan."""
         if self.source is not InboxTaskSource.BIG_PLAN:
             raise InputValidationError(
                 f"Cannot reassociate a task which isn't a big plan one '{self.name}'",
             )
-        if self.source_entity_ref_id != big_plan_ref_id:
-            raise InputValidationError(
-                f"Cannot reassociate a task which is not with the big plan '{self.name}'",
-            )
 
-        return self._new_version(ctx)
+        the_name = name.or_else(self.name)
+
+        the_status = self.status
+        the_working_time = self.working_time
+        the_completed_time = self.completed_time
+        if status.should_change:
+            if status.just_the_value == InboxTaskStatus.NOT_STARTED_GEN:
+                raise InputValidationError(
+                    "Trying to change a user created task to a generated-only status",
+                )
+
+            if (
+                not self.status.is_working_or_more
+                and status.just_the_value.is_working_or_more
+            ):
+                the_working_time = ctx.action_timestamp
+            elif (
+                self.status.is_working_or_more
+                and not status.just_the_value.is_working_or_more
+            ):
+                the_working_time = None
+
+            if not self.status.is_completed and status.just_the_value.is_completed:
+                the_completed_time = ctx.action_timestamp
+            elif self.status.is_completed and not status.just_the_value.is_completed:
+                the_completed_time = None
+
+            the_status = status.just_the_value
+
+        the_is_key = is_key.or_else(self.is_key)
+
+        if actionable_date.should_change or due_date.should_change:
+            the_actionable_date = actionable_date.or_else(self.actionable_date)
+            the_due_date = due_date.or_else(self.due_date)
+            InboxTask._check_actionable_and_due_dates(the_actionable_date, the_due_date)
+        else:
+            the_actionable_date = self.actionable_date
+            the_due_date = self.due_date
+
+        the_eisen = eisen.or_else(self.eisen)
+        the_difficulty = difficulty.or_else(self.difficulty)
+
+        return self._new_version(
+            ctx,
+            name=the_name,
+            source=InboxTaskSource.BIG_PLAN,
+            status=the_status,
+            source_entity_ref_id=big_plan_ref_id,
+            is_key=the_is_key,
+            actionable_date=the_actionable_date,
+            due_date=the_due_date,
+            working_time=the_working_time,
+            completed_time=the_completed_time,
+            eisen=the_eisen,
+            difficulty=the_difficulty,
+        )
+
+    @update_entity_action
+    def update_link_to_working_mem_cleanup(
+        self,
+        ctx: MutationContext,
+        name: InboxTaskName,
+        due_date: ADate | None,
+        recurring_timeline: str,
+    ) -> "InboxTask":
+        """Update all the info associated with a working memory cleanup."""
+        if self.source is not InboxTaskSource.WORKING_MEM_CLEANUP:
+            raise Exception(
+                f"Cannot associate a task which is not for a working memory cleanup '{self.name}'",
+            )
+        return self._new_version(
+            ctx,
+            name=name,
+            due_date=due_date,
+            recurring_timeline=recurring_timeline,
+        )
 
     @update_entity_action
     def update_link_to_time_plan(
@@ -903,14 +993,13 @@ class InboxTask(LeafEntity):
         ctx: MutationContext,
         name: UpdateAction[InboxTaskName],
         status: UpdateAction[InboxTaskStatus],
-        big_plan_ref_id: UpdateAction[EntityId | None],
         is_key: UpdateAction[bool],
         actionable_date: UpdateAction[ADate | None],
         due_date: UpdateAction[ADate | None],
         eisen: UpdateAction[Eisen],
         difficulty: UpdateAction[Difficulty],
     ) -> "InboxTask":
-        """Update the inbox task."""
+        """Update the inbox task generic properties (not the source)."""
         if name.should_change:
             if not self.source.allow_user_changes:
                 raise CannotModifyGeneratedTaskError("name")
@@ -955,13 +1044,6 @@ class InboxTask(LeafEntity):
 
             the_status = status.just_the_value
 
-        if big_plan_ref_id.should_change:
-            if not self.source.allow_user_changes:
-                raise CannotModifyGeneratedTaskError("big plan")
-            the_source_entity_ref_id = big_plan_ref_id.just_the_value
-        else:
-            the_source_entity_ref_id = self.source_entity_ref_id
-
         if is_key.should_change:
             if not self.source.allow_user_changes:
                 raise CannotModifyGeneratedTaskError("is key")
@@ -994,19 +1076,7 @@ class InboxTask(LeafEntity):
         return self._new_version(
             ctx,
             name=the_name,
-            source=(
-                InboxTaskSource.BIG_PLAN
-                if big_plan_ref_id.should_change
-                and big_plan_ref_id.just_the_value is not None
-                else (
-                    InboxTaskSource.TODO_TASK
-                    if big_plan_ref_id.should_change
-                    and big_plan_ref_id.just_the_value is None
-                    else self.source
-                )
-            ),
             status=the_status,
-            source_entity_ref_id=the_source_entity_ref_id,
             is_key=the_is_key,
             actionable_date=the_actionable_date,
             due_date=the_due_date,
@@ -1044,12 +1114,7 @@ class InboxTask(LeafEntity):
     @property
     def can_be_archived_or_removed_independently(self) -> bool:
         """Whether this task can be archived/removed directly."""
-        # USER tasks that are linked to a parent entity (e.g. todo tasks)
-        # should be managed via that parent entity lifecycle.
-        if (
-            self.source is InboxTaskSource.TODO_TASK
-            and self.source_entity_ref_id is not None
-        ):
+        if self.source is InboxTaskSource.TODO_TASK:
             return False
         return True
 

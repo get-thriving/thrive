@@ -166,7 +166,7 @@ class MetricFindUseCase(
 
             for inbox_task in all_inbox_tasks:
                 metric_collection_inbox_tasks_by_ref_id[
-                    inbox_task.source_entity_ref_id_for_sure
+                    inbox_task.source_entity_ref_id
                 ].append(inbox_task)
         else:
             metric_collection_inbox_tasks_by_ref_id = defaultdict(list)

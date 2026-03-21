@@ -214,7 +214,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=time_plan_domain.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.TIME_PLAN
             ],
@@ -225,7 +225,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=habit_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.HABIT
             ],
@@ -236,7 +236,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=chore_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.CHORE
             ],
@@ -247,7 +247,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=big_plan_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.BIG_PLAN
             ],
@@ -258,7 +258,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=journal_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.JOURNAL
             ],
@@ -269,7 +269,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=metric_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.METRIC
             ],
@@ -280,7 +280,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=None,
             allow_archived=True,
             ref_id=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.PERSON_OCCASION
             ],
@@ -291,7 +291,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=prm.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.PERSON_CATCH_UP
             ]
@@ -327,7 +327,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=slack_task_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.SLACK_TASK
             ],
@@ -338,7 +338,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=email_task_collection.ref_id,
             allow_archived=True,
             filter_ref_ids=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.EMAIL_TASK
             ],
@@ -349,7 +349,7 @@ class InboxTaskFindUseCase(
             parent_ref_id=None,
             allow_archived=True,
             ref_id=[
-                it.source_entity_ref_id_for_sure
+                it.source_entity_ref_id
                 for it in inbox_tasks
                 if it.source == InboxTaskSource.TODO_TASK
                 and it.source_entity_ref_id is not None
@@ -385,42 +385,42 @@ class InboxTaskFindUseCase(
                         else None
                     ),
                     time_plan=(
-                        time_plans_by_ref_id[it.source_entity_ref_id_for_sure]
+                        time_plans_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.TIME_PLAN
                         else None
                     ),
                     habit=(
-                        habits_by_ref_id[it.source_entity_ref_id_for_sure]
+                        habits_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.HABIT
                         else None
                     ),
                     chore=(
-                        chores_by_ref_id[it.source_entity_ref_id_for_sure]
+                        chores_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.CHORE
                         else None
                     ),
                     big_plan=(
-                        big_plans_by_ref_id[it.source_entity_ref_id_for_sure]
+                        big_plans_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.BIG_PLAN
                         else None
                     ),
                     journal=(
-                        journals_by_ref_id[it.source_entity_ref_id_for_sure]
+                        journals_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.JOURNAL
                         else None
                     ),
                     metric=(
-                        metrics_by_ref_id[it.source_entity_ref_id_for_sure]
+                        metrics_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.METRIC
                         else None
                     ),
                     person=(
-                        persons_by_ref_id[it.source_entity_ref_id_for_sure]
+                        persons_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.PERSON_CATCH_UP
                         else (
                             persons_by_ref_id[
                                 occasions_by_ref_id[
-                                    it.source_entity_ref_id_for_sure
+                                    it.source_entity_ref_id
                                 ].person.ref_id
                             ]
                             if it.source == InboxTaskSource.PERSON_OCCASION
@@ -429,16 +429,14 @@ class InboxTaskFindUseCase(
                     ),
                     contact=(
                         contacts_by_ref_id.get(
-                            contact_ref_id_by_person_ref_id[
-                                it.source_entity_ref_id_for_sure
-                            ]
+                            contact_ref_id_by_person_ref_id[it.source_entity_ref_id]
                         )
                         if it.source == InboxTaskSource.PERSON_CATCH_UP
                         else (
                             contacts_by_ref_id.get(
                                 contact_ref_id_by_person_ref_id[
                                     occasions_by_ref_id[
-                                        it.source_entity_ref_id_for_sure
+                                        it.source_entity_ref_id
                                     ].person.ref_id
                                 ]
                             )
@@ -447,22 +445,22 @@ class InboxTaskFindUseCase(
                         )
                     ),
                     occasion=(
-                        occasions_by_ref_id[it.source_entity_ref_id_for_sure]
+                        occasions_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.PERSON_OCCASION
                         else None
                     ),
                     slack_task=(
-                        slack_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
+                        slack_tasks_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.SLACK_TASK
                         else None
                     ),
                     email_task=(
-                        email_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
+                        email_tasks_by_ref_id[it.source_entity_ref_id]
                         if it.source == InboxTaskSource.EMAIL_TASK
                         else None
                     ),
                     todo_task=(
-                        todo_tasks_by_ref_id[it.source_entity_ref_id_for_sure]
+                        todo_tasks_by_ref_id[it.source_entity_ref_id]
                         if (
                             it.source == InboxTaskSource.TODO_TASK
                             and it.source_entity_ref_id is not None

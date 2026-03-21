@@ -43,6 +43,6 @@ class InboxTaskRemoveService:
 
         if inbox_task.source == InboxTaskSource.BIG_PLAN:
             await uow.get(BigPlanStatsRepository).mark_remove_inbox_task(
-                inbox_task.source_entity_ref_id_for_sure,
+                inbox_task.source_entity_ref_id,
                 inbox_task.is_completed,
             )

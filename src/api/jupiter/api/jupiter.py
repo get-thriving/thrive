@@ -23,6 +23,9 @@ from jupiter_webapi_client.api.big_plans.big_plan_archive import (
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     asyncio_detailed as big_plan_create,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    asyncio_detailed as big_plan_create_inbox_task,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_find import (
     asyncio_detailed as big_plan_find,
 )
@@ -149,9 +152,6 @@ from jupiter_webapi_client.api.habits.habit_update import (
 # --- Inbox Tasks API ---
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     asyncio_detailed as inbox_task_archive,
-)
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    asyncio_detailed as inbox_task_create,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
     asyncio_detailed as inbox_task_find,
@@ -725,7 +725,6 @@ async def main() -> None:
         JupiterApiResource.build(
             "inbox-tasks",
             JupiterApiGatewayMethod.get(inbox_task_find),
-            JupiterApiGatewayMethod.post(inbox_task_create),
             JupiterApiResource.build(
                 ":ref_id",
                 JupiterApiGatewayMethod.get(inbox_task_load),
@@ -972,6 +971,10 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "remove",
                     JupiterApiGatewayMethod.delete(big_plan_remove),
+                ),
+                JupiterApiResource.build(
+                    "inbox-tasks",
+                    JupiterApiGatewayMethod.post(big_plan_create_inbox_task),
                 ),
                 JupiterApiResource.build(
                     "milestones",

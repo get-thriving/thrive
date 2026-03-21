@@ -547,7 +547,7 @@ export default function BigPlan() {
               actions={[
                 NavSingle({
                   text: "New",
-                  link: `/app/workspace/inbox-tasks/new?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.bigPlan.ref_id}`,
+                  link: `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
                 }),
               ]}
             />
@@ -566,6 +566,9 @@ export default function BigPlan() {
                 showHandleMarkNotDone: true,
               }}
               inboxTasks={sortedInboxTasks}
+              cardLinkResolver={(it) =>
+                `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+              }
               onCardMarkDone={handleCardMarkDone}
               onCardMarkNotDone={handleCardMarkNotDone}
             />

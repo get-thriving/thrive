@@ -8,7 +8,6 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
-    from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
     from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
     from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
     from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
@@ -22,13 +21,12 @@ T = TypeVar("T", bound="InboxTaskUpdateArgs")
 
 @_attrs_define
 class InboxTaskUpdateArgs:
-    """PersonFindArgs.
+    """InboxTaskUpdate args.
 
     Attributes:
         ref_id (str): A generic entity id.
         name (InboxTaskUpdateArgsName):
         status (InboxTaskUpdateArgsStatus):
-        big_plan_ref_id (InboxTaskUpdateArgsBigPlanRefId):
         is_key (InboxTaskUpdateArgsIsKey):
         eisen (InboxTaskUpdateArgsEisen):
         difficulty (InboxTaskUpdateArgsDifficulty):
@@ -39,7 +37,6 @@ class InboxTaskUpdateArgs:
     ref_id: str
     name: InboxTaskUpdateArgsName
     status: InboxTaskUpdateArgsStatus
-    big_plan_ref_id: InboxTaskUpdateArgsBigPlanRefId
     is_key: InboxTaskUpdateArgsIsKey
     eisen: InboxTaskUpdateArgsEisen
     difficulty: InboxTaskUpdateArgsDifficulty
@@ -53,8 +50,6 @@ class InboxTaskUpdateArgs:
         name = self.name.to_dict()
 
         status = self.status.to_dict()
-
-        big_plan_ref_id = self.big_plan_ref_id.to_dict()
 
         is_key = self.is_key.to_dict()
 
@@ -73,7 +68,6 @@ class InboxTaskUpdateArgs:
                 "ref_id": ref_id,
                 "name": name,
                 "status": status,
-                "big_plan_ref_id": big_plan_ref_id,
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
@@ -87,7 +81,6 @@ class InboxTaskUpdateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
-        from ..models.inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
         from ..models.inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
         from ..models.inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
         from ..models.inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
@@ -101,8 +94,6 @@ class InboxTaskUpdateArgs:
         name = InboxTaskUpdateArgsName.from_dict(d.pop("name"))
 
         status = InboxTaskUpdateArgsStatus.from_dict(d.pop("status"))
-
-        big_plan_ref_id = InboxTaskUpdateArgsBigPlanRefId.from_dict(d.pop("big_plan_ref_id"))
 
         is_key = InboxTaskUpdateArgsIsKey.from_dict(d.pop("is_key"))
 
@@ -118,7 +109,6 @@ class InboxTaskUpdateArgs:
             ref_id=ref_id,
             name=name,
             status=status,
-            big_plan_ref_id=big_plan_ref_id,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,

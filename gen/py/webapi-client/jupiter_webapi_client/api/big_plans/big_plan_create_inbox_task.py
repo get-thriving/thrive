@@ -5,21 +5,21 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.big_plan_create_inbox_task_args import BigPlanCreateInboxTaskArgs
+from ...models.big_plan_create_inbox_task_result import BigPlanCreateInboxTaskResult
 from ...models.error_response import ErrorResponse
-from ...models.inbox_task_create_args import InboxTaskCreateArgs
-from ...models.inbox_task_create_result import InboxTaskCreateResult
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: InboxTaskCreateArgs | Unset = UNSET,
+    body: BigPlanCreateInboxTaskArgs | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/inbox-task-create",
+        "url": "/big-plan-create-inbox-task",
     }
 
     if not isinstance(body, Unset):
@@ -33,9 +33,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ErrorResponse | InboxTaskCreateResult | None:
+) -> BigPlanCreateInboxTaskResult | ErrorResponse | None:
     if response.status_code == 200:
-        response_200 = InboxTaskCreateResult.from_dict(response.json())
+        response_200 = BigPlanCreateInboxTaskResult.from_dict(response.json())
 
         return response_200
 
@@ -87,7 +87,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ErrorResponse | InboxTaskCreateResult]:
+) -> Response[BigPlanCreateInboxTaskResult | ErrorResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -99,19 +99,19 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: InboxTaskCreateArgs | Unset = UNSET,
-) -> Response[ErrorResponse | InboxTaskCreateResult]:
-    """The command for creating a inbox task.
+    body: BigPlanCreateInboxTaskArgs | Unset = UNSET,
+) -> Response[BigPlanCreateInboxTaskResult | ErrorResponse]:
+    """The command for creating an inbox task for a big plan.
 
     Args:
-        body (InboxTaskCreateArgs | Unset): InboxTaskCreate args.
+        body (BigPlanCreateInboxTaskArgs | Unset): BigPlanCreateInboxTask args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | InboxTaskCreateResult]
+        Response[BigPlanCreateInboxTaskResult | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
@@ -128,19 +128,19 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: InboxTaskCreateArgs | Unset = UNSET,
-) -> ErrorResponse | InboxTaskCreateResult | None:
-    """The command for creating a inbox task.
+    body: BigPlanCreateInboxTaskArgs | Unset = UNSET,
+) -> BigPlanCreateInboxTaskResult | ErrorResponse | None:
+    """The command for creating an inbox task for a big plan.
 
     Args:
-        body (InboxTaskCreateArgs | Unset): InboxTaskCreate args.
+        body (BigPlanCreateInboxTaskArgs | Unset): BigPlanCreateInboxTask args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | InboxTaskCreateResult
+        BigPlanCreateInboxTaskResult | ErrorResponse
     """
 
     return sync_detailed(
@@ -152,19 +152,19 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: InboxTaskCreateArgs | Unset = UNSET,
-) -> Response[ErrorResponse | InboxTaskCreateResult]:
-    """The command for creating a inbox task.
+    body: BigPlanCreateInboxTaskArgs | Unset = UNSET,
+) -> Response[BigPlanCreateInboxTaskResult | ErrorResponse]:
+    """The command for creating an inbox task for a big plan.
 
     Args:
-        body (InboxTaskCreateArgs | Unset): InboxTaskCreate args.
+        body (BigPlanCreateInboxTaskArgs | Unset): BigPlanCreateInboxTask args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ErrorResponse | InboxTaskCreateResult]
+        Response[BigPlanCreateInboxTaskResult | ErrorResponse]
     """
 
     kwargs = _get_kwargs(
@@ -179,19 +179,19 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: InboxTaskCreateArgs | Unset = UNSET,
-) -> ErrorResponse | InboxTaskCreateResult | None:
-    """The command for creating a inbox task.
+    body: BigPlanCreateInboxTaskArgs | Unset = UNSET,
+) -> BigPlanCreateInboxTaskResult | ErrorResponse | None:
+    """The command for creating an inbox task for a big plan.
 
     Args:
-        body (InboxTaskCreateArgs | Unset): InboxTaskCreate args.
+        body (BigPlanCreateInboxTaskArgs | Unset): BigPlanCreateInboxTask args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ErrorResponse | InboxTaskCreateResult
+        BigPlanCreateInboxTaskResult | ErrorResponse
     """
 
     return (

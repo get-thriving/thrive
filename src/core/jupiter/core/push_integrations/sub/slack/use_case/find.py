@@ -97,7 +97,7 @@ class SlackTaskFindUseCase(
                 source_entity_ref_id=[st.ref_id for st in slack_tasks],
             )
             inbox_tasks_by_slack_task_ref_id = {
-                it.source_entity_ref_id_for_sure: it for it in inbox_tasks
+                it.source_entity_ref_id: it for it in inbox_tasks
             }
         else:
             inbox_tasks_by_slack_task_ref_id = None

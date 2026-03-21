@@ -12,14 +12,15 @@ from ..models.time_plan_activity_feasability import TimePlanActivityFeasability
 from ..models.time_plan_activity_kind import TimePlanActivityKind
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="InboxTaskCreateArgs")
+T = TypeVar("T", bound="BigPlanCreateInboxTaskArgs")
 
 
 @_attrs_define
-class InboxTaskCreateArgs:
-    """InboxTaskCreate args.
+class BigPlanCreateInboxTaskArgs:
+    """BigPlanCreateInboxTask args.
 
     Attributes:
+        big_plan_ref_id (str): A generic entity id.
         name (str): The name of an inbox task.
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
@@ -27,11 +28,11 @@ class InboxTaskCreateArgs:
         time_plan_ref_id (None | str | Unset):
         time_plan_activity_kind (None | TimePlanActivityKind | Unset):
         time_plan_activity_feasability (None | TimePlanActivityFeasability | Unset):
-        big_plan_ref_id (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
     """
 
+    big_plan_ref_id: str
     name: str
     is_key: bool
     eisen: Eisen
@@ -39,12 +40,13 @@ class InboxTaskCreateArgs:
     time_plan_ref_id: None | str | Unset = UNSET
     time_plan_activity_kind: None | TimePlanActivityKind | Unset = UNSET
     time_plan_activity_feasability: None | TimePlanActivityFeasability | Unset = UNSET
-    big_plan_ref_id: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        big_plan_ref_id = self.big_plan_ref_id
+
         name = self.name
 
         is_key = self.is_key
@@ -75,12 +77,6 @@ class InboxTaskCreateArgs:
         else:
             time_plan_activity_feasability = self.time_plan_activity_feasability
 
-        big_plan_ref_id: None | str | Unset
-        if isinstance(self.big_plan_ref_id, Unset):
-            big_plan_ref_id = UNSET
-        else:
-            big_plan_ref_id = self.big_plan_ref_id
-
         actionable_date: None | str | Unset
         if isinstance(self.actionable_date, Unset):
             actionable_date = UNSET
@@ -97,6 +93,7 @@ class InboxTaskCreateArgs:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "big_plan_ref_id": big_plan_ref_id,
                 "name": name,
                 "is_key": is_key,
                 "eisen": eisen,
@@ -109,8 +106,6 @@ class InboxTaskCreateArgs:
             field_dict["time_plan_activity_kind"] = time_plan_activity_kind
         if time_plan_activity_feasability is not UNSET:
             field_dict["time_plan_activity_feasability"] = time_plan_activity_feasability
-        if big_plan_ref_id is not UNSET:
-            field_dict["big_plan_ref_id"] = big_plan_ref_id
         if actionable_date is not UNSET:
             field_dict["actionable_date"] = actionable_date
         if due_date is not UNSET:
@@ -121,6 +116,8 @@ class InboxTaskCreateArgs:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        big_plan_ref_id = d.pop("big_plan_ref_id")
+
         name = d.pop("name")
 
         is_key = d.pop("is_key")
@@ -174,15 +171,6 @@ class InboxTaskCreateArgs:
             d.pop("time_plan_activity_feasability", UNSET)
         )
 
-        def _parse_big_plan_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        big_plan_ref_id = _parse_big_plan_ref_id(d.pop("big_plan_ref_id", UNSET))
-
         def _parse_actionable_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -201,7 +189,8 @@ class InboxTaskCreateArgs:
 
         due_date = _parse_due_date(d.pop("due_date", UNSET))
 
-        inbox_task_create_args = cls(
+        big_plan_create_inbox_task_args = cls(
+            big_plan_ref_id=big_plan_ref_id,
             name=name,
             is_key=is_key,
             eisen=eisen,
@@ -209,13 +198,12 @@ class InboxTaskCreateArgs:
             time_plan_ref_id=time_plan_ref_id,
             time_plan_activity_kind=time_plan_activity_kind,
             time_plan_activity_feasability=time_plan_activity_feasability,
-            big_plan_ref_id=big_plan_ref_id,
             actionable_date=actionable_date,
             due_date=due_date,
         )
 
-        inbox_task_create_args.additional_properties = d
-        return inbox_task_create_args
+        big_plan_create_inbox_task_args.additional_properties = d
+        return big_plan_create_inbox_task_args
 
     @property
     def additional_keys(self) -> list[str]:

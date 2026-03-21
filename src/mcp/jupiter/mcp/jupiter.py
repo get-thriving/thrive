@@ -22,6 +22,9 @@ from jupiter_webapi_client.api.big_plans.big_plan_archive import (
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     asyncio_detailed as big_plan_create,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    asyncio_detailed as big_plan_create_inbox_task,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_find import (
     asyncio_detailed as big_plan_find,
 )
@@ -148,9 +151,6 @@ from jupiter_webapi_client.api.habits.habit_update import (
 # --- Inbox Tasks API ---
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     asyncio_detailed as inbox_task_archive,
-)
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    asyncio_detailed as inbox_task_create,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
     asyncio_detailed as inbox_task_find,
@@ -707,9 +707,6 @@ async def main() -> None:
         # --- Inbox Tasks ---
         JupiterMcpResource.resource("jupiter://inbox-tasks", inbox_task_find),
         JupiterMcpTool.tool("find-inbox-tasks", "Find inbox tasks", inbox_task_find),
-        JupiterMcpTool.tool(
-            "create-inbox-task", "Create an inbox task", inbox_task_create
-        ),
         JupiterMcpTool.tool("load-inbox-task", "Load an inbox task", inbox_task_load),
         JupiterMcpTool.tool(
             "update-inbox-task", "Update an inbox task", inbox_task_update
@@ -958,6 +955,11 @@ async def main() -> None:
         JupiterMcpTool.tool("update-big-plan", "Update a big plan", big_plan_update),
         JupiterMcpTool.tool("archive-big-plan", "Archive a big plan", big_plan_archive),
         JupiterMcpTool.tool("remove-big-plan", "Remove a big plan", big_plan_remove),
+        JupiterMcpTool.tool(
+            "create-inbox-task-for-big-plan",
+            "Create an inbox task for a big plan",
+            big_plan_create_inbox_task,
+        ),
         # --- Big Plan Milestones ---
         JupiterMcpTool.tool(
             "create-big-plan-milestone",

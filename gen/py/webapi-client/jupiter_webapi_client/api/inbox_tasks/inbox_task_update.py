@@ -101,10 +101,10 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: InboxTaskUpdateArgs | Unset = UNSET,
 ) -> Response[ErrorResponse | InboxTaskUpdateResult]:
-    """The command for updating a inbox task.
+    """The command for updating a inbox task's generic properties.
 
     Args:
-        body (InboxTaskUpdateArgs | Unset): PersonFindArgs.
+        body (InboxTaskUpdateArgs | Unset): InboxTaskUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -130,10 +130,10 @@ def sync(
     client: AuthenticatedClient,
     body: InboxTaskUpdateArgs | Unset = UNSET,
 ) -> ErrorResponse | InboxTaskUpdateResult | None:
-    """The command for updating a inbox task.
+    """The command for updating a inbox task's generic properties.
 
     Args:
-        body (InboxTaskUpdateArgs | Unset): PersonFindArgs.
+        body (InboxTaskUpdateArgs | Unset): InboxTaskUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -154,10 +154,10 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: InboxTaskUpdateArgs | Unset = UNSET,
 ) -> Response[ErrorResponse | InboxTaskUpdateResult]:
-    """The command for updating a inbox task.
+    """The command for updating a inbox task's generic properties.
 
     Args:
-        body (InboxTaskUpdateArgs | Unset): PersonFindArgs.
+        body (InboxTaskUpdateArgs | Unset): InboxTaskUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -181,10 +181,10 @@ async def asyncio(
     client: AuthenticatedClient,
     body: InboxTaskUpdateArgs | Unset = UNSET,
 ) -> ErrorResponse | InboxTaskUpdateResult | None:
-    """The command for updating a inbox task.
+    """The command for updating a inbox task's generic properties.
 
     Args:
-        body (InboxTaskUpdateArgs | Unset): PersonFindArgs.
+        body (InboxTaskUpdateArgs | Unset): InboxTaskUpdate args.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

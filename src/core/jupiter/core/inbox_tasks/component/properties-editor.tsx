@@ -1,8 +1,4 @@
-import type {
-  BigPlanSummary,
-  InboxTask,
-  InboxTaskLoadResult,
-} from "@jupiter/webapi-client";
+import type { InboxTask, InboxTaskLoadResult } from "@jupiter/webapi-client";
 import {
   InboxTaskSource,
   InboxTaskStatus,
@@ -10,7 +6,6 @@ import {
 } from "@jupiter/webapi-client";
 import { Launch as LaunchIcon } from "@mui/icons-material";
 import {
-  Autocomplete,
   Box,
   Button,
   ButtonGroup,
@@ -20,11 +15,8 @@ import {
   InputLabel,
   OutlinedInput,
   Stack,
-  TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 
-import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { isInboxTaskCoreFieldEditable } from "#/core/inbox_tasks/root";
 import {
@@ -57,81 +49,18 @@ interface InboxTaskPropertiesEditorProps {
   namePrefix?: string;
   fieldsPrefix?: string;
   topLevelInfo: TopLevelInfo;
-  allBigPlans: BigPlanSummary[];
   inputsEnabled: boolean;
   inboxTask: InboxTask;
   inboxTaskInfo: InboxTaskLoadResult;
   actionData?: SomeErrorNoData;
 }
 
-type BigPlanACOption = {
-  label: string;
-  big_plan_id: string;
-};
-
 export function InboxTaskPropertiesEditor(
   props: InboxTaskPropertiesEditorProps,
 ) {
-  const [selectedBigPlan, setSelectedBigPlan] = useState(
-    props.inboxTaskInfo.big_plan
-      ? {
-          label: props.inboxTaskInfo.big_plan.name,
-          big_plan_id: props.inboxTaskInfo.big_plan.ref_id,
-        }
-      : {
-          label: "None",
-          big_plan_id: "none",
-        },
-  );
-
   const corePropertyEditable = isInboxTaskCoreFieldEditable(
     props.inboxTask.source,
   );
-
-  let allBigPlansAsOptions: Array<{ label: string; big_plan_id: string }> = [];
-
-  if (
-    isWorkspaceFeatureAvailable(
-      props.topLevelInfo.workspace,
-      WorkspaceFeature.BIG_PLANS,
-    )
-  ) {
-    allBigPlansAsOptions = [
-      {
-        label: "None",
-        big_plan_id: "none",
-      },
-    ].concat(
-      props.allBigPlans.map((bp: BigPlanSummary) => ({
-        label: bp.name,
-        big_plan_id: bp.ref_id,
-      })),
-    );
-  }
-
-  function handleChangeBigPlan(
-    e: React.SyntheticEvent,
-    { label, big_plan_id }: BigPlanACOption,
-  ) {
-    setSelectedBigPlan({ label, big_plan_id });
-  }
-
-  useEffect(() => {
-    // Update states based on loader data. This is necessary because these
-    // two are not otherwise updated when the loader data changes. Which happens
-    // on a navigation event.
-    setSelectedBigPlan(
-      props.inboxTaskInfo.big_plan
-        ? {
-            label: props.inboxTaskInfo.big_plan.name,
-            big_plan_id: props.inboxTaskInfo.big_plan.ref_id,
-          }
-        : {
-            label: "None",
-            big_plan_id: "none",
-          },
-    );
-  }, [props.inboxTaskInfo]);
 
   return (
     <SectionCard
@@ -221,43 +150,17 @@ export function InboxTaskPropertiesEditor(
             props.topLevelInfo.workspace,
             WorkspaceFeature.BIG_PLANS,
           ) &&
-            (props.inboxTask.source === InboxTaskSource.TODO_TASK ||
-              props.inboxTask.source === InboxTaskSource.BIG_PLAN) && (
-              <>
-                <FormControl fullWidth>
-                  <Autocomplete
-                    disablePortal
-                    autoHighlight
-                    id="bigPlan"
-                    options={allBigPlansAsOptions}
-                    readOnly={!props.inputsEnabled}
-                    value={selectedBigPlan}
-                    disableClearable={true}
-                    sx={autocompleteSingleLineSx}
-                    onChange={handleChangeBigPlan}
-                    isOptionEqualToValue={(o, v) =>
-                      o.big_plan_id === v.big_plan_id
-                    }
-                    renderInput={(params) => (
-                      <TextField {...params} label="Big Plan" />
-                    )}
-                  />
-
-                  <FieldError
-                    actionResult={props.actionData}
-                    fieldName={constructFieldErrorName(
-                      props.fieldsPrefix,
-                      "big_plan_ref_id",
-                    )}
-                  />
-
-                  <input
-                    type="hidden"
-                    name={constructFieldName(props.namePrefix, "bigPlan")}
-                    value={selectedBigPlan.big_plan_id}
-                  />
-                </FormControl>
-              </>
+            props.inboxTask.source === InboxTaskSource.BIG_PLAN && (
+              <FormControl fullWidth>
+                <InputLabel id="bigPlan" shrink>
+                  Big Plan
+                </InputLabel>
+                <OutlinedInput
+                  label="Big Plan"
+                  readOnly
+                  value={props.inboxTaskInfo.big_plan?.name ?? "Unknown"}
+                />
+              </FormControl>
             )}
 
           <InboxTaskSourceLink inboxTaskResult={props.inboxTaskInfo} />

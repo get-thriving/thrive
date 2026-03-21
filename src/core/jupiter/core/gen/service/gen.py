@@ -831,7 +831,7 @@ class GenService:
                     )
 
                 all_inbox_tasks_by_slack_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_slack_inbox_tasks
+                    it.source_entity_ref_id: it for it in all_slack_inbox_tasks
                 }
                 for slack_task in all_slack_tasks:
                     gen_log_entry = (
@@ -884,7 +884,7 @@ class GenService:
                     )
 
                 all_inbox_tasks_by_email_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_email_inbox_tasks
+                    it.source_entity_ref_id: it for it in all_email_inbox_tasks
                 }
                 for email_task in all_email_tasks:
                     gen_log_entry = (

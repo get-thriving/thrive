@@ -3,8 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { InboxTaskArchiveArgs } from '../models/InboxTaskArchiveArgs';
-import type { InboxTaskCreateArgs } from '../models/InboxTaskCreateArgs';
-import type { InboxTaskCreateResult } from '../models/InboxTaskCreateResult';
 import type { InboxTaskFindArgs } from '../models/InboxTaskFindArgs';
 import type { InboxTaskFindResult } from '../models/InboxTaskFindResult';
 import type { InboxTaskLoadArgs } from '../models/InboxTaskLoadArgs';
@@ -28,32 +26,6 @@ export class InboxTasksService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/inbox-task-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for creating a inbox task.
-     * @param requestBody The input data
-     * @returns InboxTaskCreateResult Successful response
-     * @throws ApiError
-     */
-    public inboxTaskCreate(
-        requestBody?: InboxTaskCreateArgs,
-    ): CancelablePromise<InboxTaskCreateResult> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/inbox-task-create',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -147,7 +119,7 @@ export class InboxTasksService {
         });
     }
     /**
-     * The command for updating a inbox task.
+     * The command for updating a inbox task's generic properties.
      * @param requestBody The input data
      * @returns InboxTaskUpdateResult Successful response
      * @throws ApiError

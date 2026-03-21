@@ -13,12 +13,12 @@ if TYPE_CHECKING:
     from ..models.time_plan_activity import TimePlanActivity
 
 
-T = TypeVar("T", bound="InboxTaskCreateResult")
+T = TypeVar("T", bound="BigPlanCreateInboxTaskResult")
 
 
 @_attrs_define
-class InboxTaskCreateResult:
-    """InboxTaskCreate result.
+class BigPlanCreateInboxTaskResult:
+    """BigPlanCreateInboxTask result.
 
     Attributes:
         new_inbox_task (InboxTask): An inbox task.
@@ -79,13 +79,13 @@ class InboxTaskCreateResult:
 
         new_time_plan_activity = _parse_new_time_plan_activity(d.pop("new_time_plan_activity", UNSET))
 
-        inbox_task_create_result = cls(
+        big_plan_create_inbox_task_result = cls(
             new_inbox_task=new_inbox_task,
             new_time_plan_activity=new_time_plan_activity,
         )
 
-        inbox_task_create_result.additional_properties = d
-        return inbox_task_create_result
+        big_plan_create_inbox_task_result.additional_properties = d
+        return big_plan_create_inbox_task_result
 
     @property
     def additional_keys(self) -> list[str]:

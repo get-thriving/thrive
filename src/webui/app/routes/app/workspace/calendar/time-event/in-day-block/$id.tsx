@@ -1,5 +1,4 @@
 import type {
-  BigPlanSummary,
   ChapterSummary,
   GoalSummary,
   LifePlan,
@@ -241,7 +240,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
-      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
       inDayBlock: response.in_day_block,
       scheduleEvent: response.schedule_event,
       inboxTask: response.inbox_task,
@@ -352,14 +350,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          big_plan_ref_id: {
-            should_change: form.inboxTaskBigPlan !== undefined,
-            value:
-              form.inboxTaskBigPlan !== undefined &&
-              form.inboxTaskBigPlan !== "none"
-                ? form.inboxTaskBigPlan
-                : undefined,
-          },
           is_key: corePropertyEditable
             ? {
                 should_change: true,
@@ -443,7 +433,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.inboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
           difficulty: { should_change: false },
@@ -801,7 +790,6 @@ export default function TimeEventInDayBlockViewOne() {
           intentPrefix="inbox-task"
           namePrefix="inboxTask"
           topLevelInfo={topLevelInfo}
-          allBigPlans={loaderData.allBigPlans}
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
           inboxTask={loaderData.inboxTask}
           inboxTaskInfo={loaderData.inboxTaskInfo!}

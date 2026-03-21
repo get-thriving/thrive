@@ -7,8 +7,8 @@ import requests
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    sync_detailed as inbox_task_create_sync,
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
     sync_detailed as workspace_set_feature_sync,
@@ -29,8 +29,8 @@ from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateRes
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
-from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
+from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
+from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.recurring_task_period import RecurringTaskPeriod
 from jupiter_webapi_client.models.time_plan import TimePlan
 from jupiter_webapi_client.models.time_plan_activity import TimePlanActivity
@@ -75,8 +75,20 @@ def _enable_features(logged_in_client: AuthenticatedClient) -> Iterator[None]:
                 feature=WorkspaceFeature.BIG_PLANS, value=True
             ),
         )
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
         yield
     finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=False
+            ),
+        )
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
@@ -111,16 +123,16 @@ def create_time_plan(logged_in_client: AuthenticatedClient):
 @pytest.fixture()
 def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create(name: str) -> InboxTask:
-        result = inbox_task_create_sync(
+        result = todo_task_create_sync(
             client=logged_in_client,
-            body=InboxTaskCreateArgs(
+            body=TodoTaskCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
+        return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
 
     return _create
 

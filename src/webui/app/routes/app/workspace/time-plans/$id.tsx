@@ -638,14 +638,6 @@ export default function TimePlanView() {
               actions={[
                 NavMultipleCompact({
                   navs: [
-                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
-                      ? [
-                          NavSingle({
-                            text: "New Inbox Task",
-                            link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
-                          }),
-                        ]
-                      : []),
                     NavSingle({
                       text: "New Big Plan",
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,

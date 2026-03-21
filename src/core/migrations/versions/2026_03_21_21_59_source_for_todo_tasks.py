@@ -5,12 +5,13 @@ Revises: 3b8613010fee
 Create Date: 2026-03-21 21:59:15.760790
 
 """
+
 from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = '50d9f0ce54f9'
-down_revision = '3b8613010fee'
+revision = "50d9f0ce54f9"
+down_revision = "3b8613010fee"
 branch_labels = None
 depends_on = None
 
@@ -22,6 +23,9 @@ def upgrade():
         SET source = 'todo-task'
         WHERE source = 'todo'
         """
+    )
+    op.execute(
+        "UPDATE journal_stats SET report = REPLACE(report, '\"todo\"', '\"todo-task\"')"
     )
 
 

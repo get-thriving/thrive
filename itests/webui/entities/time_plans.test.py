@@ -12,8 +12,11 @@ from jupiter_webapi_client.api.big_plans.big_plan_create import (
 from jupiter_webapi_client.api.big_plans.big_plan_update import (
     sync_detailed as big_plan_update_sync,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    sync_detailed as inbox_task_create_sync,
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    sync_detailed as big_plan_create_inbox_task_sync,
+)
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     sync_detailed as inbox_task_update_sync,
@@ -67,15 +70,18 @@ from jupiter_webapi_client.models.big_plan_update_args_status import (
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
-from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
+from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
+    BigPlanCreateInboxTaskArgs,
+)
+from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
+    BigPlanCreateInboxTaskResult,
+)
+from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
+from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
 from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
 from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
     InboxTaskUpdateArgsActionableDate,
-)
-from jupiter_webapi_client.models.inbox_task_update_args_big_plan_ref_id import (
-    InboxTaskUpdateArgsBigPlanRefId,
 )
 from jupiter_webapi_client.models.inbox_task_update_args_difficulty import (
     InboxTaskUpdateArgsDifficulty,
@@ -141,8 +147,20 @@ def _enable_time_plans_feature(logged_in_client: AuthenticatedClient) -> Iterato
                 feature=WorkspaceFeature.BIG_PLANS, value=True
             ),
         )
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
         yield
     finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=False
+            ),
+        )
         workspace_set_feature_sync(
             client=logged_in_client,
             body=WorkspaceSetFeatureArgs(
@@ -218,18 +236,35 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create_inbox_task(
         name: str, big_plan_id: int | None = None, due_date: str | None = None
     ) -> InboxTask:
-        result = inbox_task_create_sync(
-            client=logged_in_client,
-            body=InboxTaskCreateArgs(
-                name=name,
-                is_key=False,
-                big_plan_ref_id=str(big_plan_id) if big_plan_id else UNSET,
-                due_date=due_date or UNSET,
-                eisen=Eisen.REGULAR,
-                difficulty=Difficulty.EASY,
-            ),
-        )
-        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
+        if big_plan_id is not None:
+            result = big_plan_create_inbox_task_sync(
+                client=logged_in_client,
+                body=BigPlanCreateInboxTaskArgs(
+                    big_plan_ref_id=str(big_plan_id),
+                    name=name,
+                    is_key=False,
+                    eisen=Eisen.REGULAR,
+                    difficulty=Difficulty.EASY,
+                    due_date=due_date or UNSET,
+                ),
+            )
+            return get_parsed_from_response(
+                BigPlanCreateInboxTaskResult, result
+            ).new_inbox_task
+        else:
+            result = todo_task_create_sync(
+                client=logged_in_client,
+                body=TodoTaskCreateArgs(
+                    name=name,
+                    is_key=False,
+                    due_date=due_date or UNSET,
+                    eisen=Eisen.REGULAR,
+                    difficulty=Difficulty.EASY,
+                ),
+            )
+            return get_parsed_from_response(
+                TodoTaskCreateResult, result
+            ).new_inbox_task
 
     return _create_inbox_task
 
@@ -1688,7 +1723,7 @@ def test_webui_time_plan_associate_previous_activity_some_already_associated(
     expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task 3")
 
 
-def test_webui_time_plan_add_an_inbox_task_to_a_big_plan_updates_all_time_plans(
+def test_webui_time_plan_inbox_task_with_big_plan_shows_in_all_time_plans(
     page: Page,
     logged_in_client: AuthenticatedClient,
     create_time_plan,
@@ -1701,21 +1736,9 @@ def test_webui_time_plan_add_an_inbox_task_to_a_big_plan_updates_all_time_plans(
     big_plan = create_big_plan(
         "The Big Plan", actionable_date="2024-06-10", due_date="2024-06-19"
     )
-    inbox_task = create_inbox_task("The Inbox Task")
+    inbox_task = create_inbox_task("The Inbox Task", big_plan_id=big_plan.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_1.ref_id, inbox_task.ref_id)
     _ = create_time_plan_activity_from_inbox_task(time_plan_2.ref_id, inbox_task.ref_id)
-
-    page.goto(f"/app/workspace/time-plans/{time_plan_1.ref_id}")
-
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan")
-
-    page.goto(f"/app/workspace/time-plans/{time_plan_2.ref_id}")
-
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Inbox Task")
-    expect(page.locator("#time-plan-activities")).not_to_contain_text("The Big Plan")
-
-    _associate_inbox_task_with_big_plan(logged_in_client, inbox_task, big_plan)
 
     page.goto(f"/app/workspace/time-plans/{time_plan_1.ref_id}")
 
@@ -2534,7 +2557,6 @@ def _mark_inbox_task_done(
             difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
             actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
             due_date=InboxTaskUpdateArgsDueDate(should_change=False),
-            big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
             is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )
@@ -2555,28 +2577,6 @@ def _clear_inbox_task_dates(
                 should_change=True, value=None
             ),
             due_date=InboxTaskUpdateArgsDueDate(should_change=True, value=None),
-            big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(should_change=False),
-            is_key=InboxTaskUpdateArgsIsKey(should_change=False),
-        ),
-    )
-
-
-def _associate_inbox_task_with_big_plan(
-    logged_in_client: AuthenticatedClient, inbox_task: InboxTask, big_plan: BigPlan
-) -> None:
-    inbox_task_update_sync(
-        client=logged_in_client,
-        body=InboxTaskUpdateArgs(
-            ref_id=inbox_task.ref_id,
-            name=InboxTaskUpdateArgsName(should_change=False),
-            status=InboxTaskUpdateArgsStatus(should_change=False),
-            eisen=InboxTaskUpdateArgsEisen(should_change=False),
-            difficulty=InboxTaskUpdateArgsDifficulty(should_change=False),
-            actionable_date=InboxTaskUpdateArgsActionableDate(should_change=False),
-            due_date=InboxTaskUpdateArgsDueDate(should_change=False),
-            big_plan_ref_id=InboxTaskUpdateArgsBigPlanRefId(
-                should_change=True, value=big_plan.ref_id
-            ),
             is_key=InboxTaskUpdateArgsIsKey(should_change=False),
         ),
     )

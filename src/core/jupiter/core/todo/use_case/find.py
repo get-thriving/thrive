@@ -150,7 +150,7 @@ class TodoTaskFindUseCase(
                 source_entity_ref_id=[todo_task.ref_id for todo_task in todo_tasks],
             )
             inbox_tasks_by_todo_ref_id = {
-                it.source_entity_ref_id_for_sure: it for it in inbox_tasks
+                it.source_entity_ref_id: it for it in inbox_tasks
             }
         else:
             inbox_tasks_by_todo_ref_id = {}

@@ -242,46 +242,46 @@ class ReportService:
                     it.source is InboxTaskSource.BIG_PLAN
                     and (
                         not (filter_big_plan_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_big_plan_ref_ids
+                        or it.source_entity_ref_id in filter_big_plan_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.HABIT
                     and (
                         not (filter_habit_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_habit_ref_ids
+                        or it.source_entity_ref_id in filter_habit_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.CHORE
                     and (
                         not (filter_chore_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_chore_ref_ids
+                        or it.source_entity_ref_id in filter_chore_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.METRIC
-                    and it.source_entity_ref_id_for_sure in metrics_by_ref_id
+                    and it.source_entity_ref_id in metrics_by_ref_id
                 )
                 or (
                     (
                         it.source is InboxTaskSource.PERSON_CATCH_UP
                         or it.source is InboxTaskSource.PERSON_OCCASION
                     )
-                    and it.source_entity_ref_id_for_sure in persons_by_ref_id
+                    and it.source_entity_ref_id in persons_by_ref_id
                 )
                 or (
                     it.source is InboxTaskSource.SLACK_TASK
                     and (
                         not (filter_slack_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_slack_task_ref_ids
+                        or it.source_entity_ref_id in filter_slack_task_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.EMAIL_TASK
                     and (
                         not (filter_email_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_email_task_ref_ids
+                        or it.source_entity_ref_id in filter_email_task_ref_ids
                     )
                 )
             ]

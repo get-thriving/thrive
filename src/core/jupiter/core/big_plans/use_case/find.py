@@ -286,7 +286,7 @@ class BigPlanFindUseCase(
                         [
                             it
                             for it in inbox_tasks
-                            if it.source_entity_ref_id_for_sure == bp.ref_id
+                            if it.source_entity_ref_id == bp.ref_id
                         ]
                         if inbox_tasks is not None
                         else None

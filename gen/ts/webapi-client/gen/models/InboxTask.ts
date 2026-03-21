@@ -31,7 +31,7 @@ export type InboxTask = {
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
     notes?: (string | null);
-    source_entity_ref_id?: (EntityId | null);
+    source_entity_ref_id: EntityId;
     recurring_timeline?: (string | null);
     recurring_repeat_index?: (number | null);
     recurring_gen_right_now?: (Timestamp | null);

@@ -31,8 +31,8 @@ interface SmallScreenKanbanBaseProps {
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
   emptyParent: string;
-  emptyParentLabel: string;
-  emptyParentNewLocations: string;
+  emptyParentLabel?: string;
+  emptyParentNewLocations?: string;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
   includeGeneratedNotStarted?: boolean;
 }

@@ -285,7 +285,7 @@ class PersonFindUseCase(
                         [
                             it
                             for it in catch_up_inbox_tasks
-                            if it.source_entity_ref_id_for_sure == p.ref_id
+                            if it.source_entity_ref_id == p.ref_id
                         ]
                         if catch_up_inbox_tasks is not None
                         else None
@@ -294,7 +294,7 @@ class PersonFindUseCase(
                         [
                             it
                             for it in birthday_inbox_tasks
-                            if it.source_entity_ref_id_for_sure == p.ref_id
+                            if it.source_entity_ref_id == p.ref_id
                         ]
                         if birthday_inbox_tasks is not None
                         else None

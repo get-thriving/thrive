@@ -245,7 +245,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
-      allBigPlans: summaryResponse.big_plans,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
@@ -352,14 +351,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             should_change: true,
             value: status,
           },
-          big_plan_ref_id: {
-            should_change: form.targetInboxTaskBigPlan !== undefined,
-            value:
-              form.targetInboxTaskBigPlan !== undefined &&
-              form.targetInboxTaskBigPlan !== "none"
-                ? form.targetInboxTaskBigPlan
-                : undefined,
-          },
           is_key: corePropertyEditable
             ? {
                 should_change: true,
@@ -443,7 +434,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.targetInboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
           difficulty: { should_change: false },
@@ -731,7 +721,6 @@ export default function TimePlanActivity() {
             intentPrefix="target-inbox-task"
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
-            allBigPlans={loaderData.allBigPlans ?? []}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
@@ -824,7 +813,7 @@ export default function TimePlanActivity() {
                           ? [
                               NavSingle({
                                 text: "New Inbox Task",
-                                link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
+                                link: `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&parentTimePlanActivityRefId=${activityId}`,
                                 highlight: true,
                               }),
                               NavSingle({

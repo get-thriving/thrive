@@ -1,4 +1,4 @@
-import type { BigPlanSummary, TimePlan } from "@jupiter/webapi-client";
+import type { TimePlan } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
@@ -8,27 +8,24 @@ import {
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
-  Autocomplete,
   FormControl,
   FormLabel,
   InputLabel,
   OutlinedInput,
   Stack,
-  TextField,
 } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { useActionData, useNavigation } from "@remix-run/react";
+import { useActionData, useNavigation, useParams } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { z } from "zod";
-import { CheckboxAsString, parseForm, parseQuery } from "zodix";
+import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import {
   getSuggestedDatesForInboxTaskActionableDate,
   getSuggestedDatesForInboxTaskDueDate,
 } from "@jupiter/core/common/suggested-date";
-import { autocompleteSingleLineSx } from "@jupiter/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
@@ -59,19 +56,18 @@ import { getLoggedInApiClient } from "~/api-clients.server";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 
-const ParamsSchema = z.object({});
+const ParamsSchema = z.object({
+  id: z.string(),
+});
 
 const QuerySchema = z.object({
   timePlanReason: z.literal("for-time-plan").optional(),
   timePlanRefId: z.string().optional(),
-  bigPlanReason: z.literal("for-big-plan").optional(),
-  bigPlanRefId: z.string().optional(),
   parentTimePlanActivityRefId: z.string().optional(),
 });
 
 const CreateFormSchema = z.object({
   name: z.string(),
-  bigPlan: z.string().optional(),
   isKey: CheckboxAsString,
   eisen: z.nativeEnum(Eisen),
   difficulty: z.nativeEnum(Difficulty),
@@ -83,18 +79,19 @@ const CreateFormSchema = z.object({
     .optional(),
 });
 
-type BigPlanACOption = {
-  label: string;
-  big_plan_id: string;
-};
-
 export const handle = {
-  displayType: DisplayType.LEAF,
+  displayType: DisplayType.LEAFLET,
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const { id: bigPlanId } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
+
+  const bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
+    allow_archived: false,
+    ref_id: bigPlanId,
+  });
 
   const timePlanReason = query.timePlanReason || "standard";
 
@@ -115,60 +112,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
     associatedTimePlan = timePlanResult.time_plan;
   }
 
-  const bigPlanReason = query.bigPlanReason || "standard";
-
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_big_plans: bigPlanReason === "standard",
-  });
-
-  let ownerBigPlan = null;
-  if (bigPlanReason === "for-big-plan") {
-    if (!query.bigPlanRefId) {
-      throw new Response("Missing Big Plan Id", { status: 500 });
-    }
-
-    const bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
-      allow_archived: false,
-      ref_id: query.bigPlanRefId,
-    });
-
-    ownerBigPlan = bigPlanResult.big_plan;
-  }
-
-  const defaultBigPlan: BigPlanACOption =
-    bigPlanReason === "for-big-plan"
-      ? {
-          label: ownerBigPlan?.name as string,
-          big_plan_id: query.bigPlanRefId as string,
-        }
-      : {
-          label: "None",
-          big_plan_id: "none",
-        };
-
   return json({
+    bigPlan: bigPlanResult.big_plan,
     timePlanReason: timePlanReason,
-    bigPlanReason: bigPlanReason,
     associatedTimePlan: associatedTimePlan,
-    defaultBigPlan: defaultBigPlan,
-    ownerBigPlan: ownerBigPlan,
-    allBigPlans:
-      bigPlanReason === "standard"
-        ? (summaryResponse.big_plans as Array<BigPlanSummary>)
-        : [ownerBigPlan as BigPlanSummary],
   });
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const { id: bigPlanId } = parseParams(params, ParamsSchema);
   const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, CreateFormSchema);
 
   try {
     const timePlanReason = query.timePlanReason || "standard";
-    const bigPlanReason = query.bigPlanReason || "standard";
 
-    const result = await apiClient.inboxTasks.inboxTaskCreate({
+    const result = await apiClient.bigPlans.bigPlanCreateInboxTask({
+      big_plan_ref_id: bigPlanId,
       name: form.name,
       time_plan_ref_id:
         timePlanReason === "standard"
@@ -176,12 +137,6 @@ export async function action({ request }: ActionFunctionArgs) {
           : (query.timePlanRefId as string),
       time_plan_activity_kind: form.timePlanActivityKind,
       time_plan_activity_feasability: form.timePlanActivityFeasability,
-      big_plan_ref_id:
-        bigPlanReason === "standard"
-          ? form.bigPlan !== undefined && form.bigPlan !== "none"
-            ? form.bigPlan
-            : undefined
-          : (query.bigPlanRefId as string),
       is_key: form.isKey,
       eisen: form.eisen,
       difficulty: form.difficulty,
@@ -197,31 +152,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
     switch (timePlanReason) {
       case "for-time-plan":
-        switch (bigPlanReason) {
-          case "for-big-plan":
-            return redirect(
-              `/app/workspace/time-plans/${query.timePlanRefId}/${query.parentTimePlanActivityRefId}`,
-            );
-          case "standard":
-            return redirect(
-              `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
-            );
-        }
-        break;
+        return redirect(
+          `/app/workspace/time-plans/${query.timePlanRefId}/${query.parentTimePlanActivityRefId}`,
+        );
 
       case "standard":
-        switch (bigPlanReason) {
-          case "for-big-plan":
-            return redirect(
-              `/app/workspace/big-plans/${query.bigPlanRefId as string}`,
-            );
-
-          case "standard":
-            return redirect(
-              `/app/workspace/inbox-tasks/${result.new_inbox_task.ref_id}`,
-            );
-        }
-        break;
+        return redirect(
+          `/app/workspace/big-plans/${bigPlanId}/inbox-tasks/${result.new_inbox_task.ref_id}`,
+        );
     }
   } catch (error) {
     if (
@@ -238,70 +176,35 @@ export async function action({ request }: ActionFunctionArgs) {
 export const shouldRevalidate: ShouldRevalidateFunction =
   standardShouldRevalidate;
 
-export default function NewInboxTask() {
+export default function BigPlanNewInboxTask() {
   const loaderData = useLoaderDataSafeForAnimation<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
-
-  const [selectedBigPlan, setSelectedBigPlan] = useState(
-    loaderData.defaultBigPlan,
-  );
+  const { id: bigPlanId } = useParams();
 
   const inputsEnabled = navigation.state === "idle";
 
-  const allBigPlansById: { [k: string]: BigPlanSummary } = {};
-  let allBigPlansAsOptions: Array<{ label: string; big_plan_id: string }> = [];
-
-  if (
-    isWorkspaceFeatureAvailable(
-      topLevelInfo.workspace,
-      WorkspaceFeature.BIG_PLANS,
-    )
-  ) {
-    for (const bigPlan of loaderData.allBigPlans) {
-      allBigPlansById[bigPlan.ref_id] = bigPlan;
-    }
-
-    allBigPlansAsOptions = [
-      {
-        label: "None",
-        big_plan_id: "none",
-      },
-    ].concat(
-      loaderData.allBigPlans.map((bp: BigPlanSummary) => ({
-        label: bp.name,
-        big_plan_id: bp.ref_id,
-      })),
-    );
-  }
-
-  function handleChangeBigPlan(
-    e: React.SyntheticEvent,
-    { label, big_plan_id }: BigPlanACOption,
-  ) {
-    setSelectedBigPlan({ label, big_plan_id });
-  }
-
   return (
     <LeafPanel
-      key="inbox-tasks/new"
-      fakeKey={"inbox-tasks/new"}
-      returnLocation="/app/workspace/inbox-tasks"
+      key="big-plan-inbox-tasks/new"
+      isLeaflet
+      fakeKey="big-plan-inbox-tasks/new"
+      returnLocation={`/app/workspace/big-plans/${bigPlanId}`}
       inputsEnabled={inputsEnabled}
     >
       <GlobalError actionResult={actionData} />
       <SectionCard
-        title="New Inbox Task"
+        title={`New Inbox Task for ${loaderData.bigPlan.name}`}
         actionsPosition={ActionsPosition.BELOW}
         actions={
           <SectionActions
-            id="inbox-task-create"
+            id="big-plan-inbox-task-create"
             topLevelInfo={topLevelInfo}
             inputsEnabled={inputsEnabled}
             actions={[
               ActionSingle({
-                id: "inbox-task-create",
+                id: "big-plan-inbox-task-create",
                 text: "Create",
                 value: "create",
                 highlight: true,
@@ -335,41 +238,6 @@ export default function NewInboxTask() {
           </FormControl>
         </Stack>
 
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.BIG_PLANS,
-        ) && (
-          <FormControl fullWidth>
-            <Autocomplete
-              disablePortal
-              id="bigPlan"
-              options={allBigPlansAsOptions}
-              sx={autocompleteSingleLineSx}
-              readOnly={
-                !inputsEnabled || loaderData.bigPlanReason !== "standard"
-              }
-              value={selectedBigPlan}
-              disableClearable={true}
-              onChange={handleChangeBigPlan}
-              isOptionEqualToValue={(o, v) => o.big_plan_id === v.big_plan_id}
-              renderInput={(params) => (
-                <TextField {...params} label="Big Plan" />
-              )}
-            />
-
-            <FieldError
-              actionResult={actionData}
-              fieldName="/big_plan_ref_id"
-            />
-
-            <input
-              type="hidden"
-              name="bigPlan"
-              value={selectedBigPlan.big_plan_id}
-            />
-          </FormControl>
-        )}
-
         <FormControl fullWidth>
           <FormLabel id="eisen">Eisenhower</FormLabel>
           <EisenhowerSelect
@@ -401,14 +269,11 @@ export default function NewInboxTask() {
             defaultValue={
               loaderData.timePlanReason === "for-time-plan"
                 ? (loaderData.associatedTimePlan as TimePlan).start_date
-                : loaderData.bigPlanReason === "for-big-plan" &&
-                    loaderData.ownerBigPlan?.actionable_date
-                  ? loaderData.ownerBigPlan.actionable_date
-                  : undefined
+                : (loaderData.bigPlan.actionable_date ?? undefined)
             }
             suggestedDates={getSuggestedDatesForInboxTaskActionableDate(
               topLevelInfo.today,
-              loaderData.ownerBigPlan,
+              loaderData.bigPlan,
               loaderData.associatedTimePlan,
             )}
           />
@@ -427,14 +292,11 @@ export default function NewInboxTask() {
             defaultValue={
               loaderData.timePlanReason === "for-time-plan"
                 ? (loaderData.associatedTimePlan as TimePlan).end_date
-                : loaderData.bigPlanReason === "for-big-plan" &&
-                    loaderData.ownerBigPlan?.due_date
-                  ? loaderData.ownerBigPlan.due_date
-                  : undefined
+                : (loaderData.bigPlan.due_date ?? undefined)
             }
             suggestedDates={getSuggestedDatesForInboxTaskDueDate(
               topLevelInfo.today,
-              loaderData.ownerBigPlan,
+              loaderData.bigPlan,
               loaderData.associatedTimePlan,
             )}
           />
@@ -482,11 +344,6 @@ export default function NewInboxTask() {
   );
 }
 
-export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/inbox-tasks",
-  ParamsSchema,
-  {
-    error: () =>
-      `There was an error creating the inbox task! Please try again!`,
-  },
-);
+export const ErrorBoundary = makeLeafErrorBoundary("../..", ParamsSchema, {
+  error: () => `There was an error creating the inbox task! Please try again!`,
+});

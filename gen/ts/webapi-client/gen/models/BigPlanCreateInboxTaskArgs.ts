@@ -10,14 +10,14 @@ import type { InboxTaskName } from './InboxTaskName';
 import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
 import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
- * InboxTaskCreate args.
+ * BigPlanCreateInboxTask args.
  */
-export type InboxTaskCreateArgs = {
+export type BigPlanCreateInboxTaskArgs = {
+    big_plan_ref_id: EntityId;
     name: InboxTaskName;
     time_plan_ref_id?: (EntityId | null);
     time_plan_activity_kind?: (TimePlanActivityKind | null);
     time_plan_activity_feasability?: (TimePlanActivityFeasability | null);
-    big_plan_ref_id?: (EntityId | null);
     is_key: boolean;
     eisen: Eisen;
     difficulty: Difficulty;

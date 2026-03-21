@@ -1,4 +1,4 @@
-import type { BigPlanSummary, Workspace } from "@jupiter/webapi-client";
+import type { Workspace } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
   ApiError,
@@ -128,7 +128,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const summaryResponse = await apiClient.application.getSummaries({
     allow_archived: false,
     include_workspace: true,
-    include_big_plans: true,
   });
 
   try {
@@ -152,7 +151,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     return json({
       info: result,
       timePlanEntries: timePlanEntries,
-      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -215,13 +213,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           status: {
             should_change: true,
             value: status,
-          },
-          big_plan_ref_id: {
-            should_change: form.bigPlan !== undefined,
-            value:
-              form.bigPlan !== undefined && form.bigPlan !== "none"
-                ? form.bigPlan
-                : undefined,
           },
           is_key: corePropertyEditable
             ? {
@@ -296,7 +287,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
           name: { should_change: false },
           status: { should_change: false },
-          big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
           difficulty: { should_change: false },
@@ -411,7 +401,6 @@ export default function InboxTask() {
       <InboxTaskPropertiesEditor
         title="Properties"
         topLevelInfo={topLevelInfo}
-        allBigPlans={loaderData.allBigPlans}
         inputsEnabled={inputsEnabled}
         inboxTask={inboxTask}
         inboxTaskInfo={info}

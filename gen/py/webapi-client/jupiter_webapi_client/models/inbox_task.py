@@ -32,12 +32,12 @@ class InboxTask:
         is_key (bool):
         eisen (Eisen): The Eisenhower status of a particular task.
         difficulty (Difficulty): The difficulty of a particular task.
+        source_entity_ref_id (str): A generic entity id.
         archival_reason (None | str | Unset):
         archived_time (None | str | Unset):
         actionable_date (None | str | Unset):
         due_date (None | str | Unset):
         notes (None | str | Unset):
-        source_entity_ref_id (None | str | Unset):
         recurring_timeline (None | str | Unset):
         recurring_repeat_index (int | None | Unset):
         recurring_gen_right_now (None | str | Unset):
@@ -57,12 +57,12 @@ class InboxTask:
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
+    source_entity_ref_id: str
     archival_reason: None | str | Unset = UNSET
     archived_time: None | str | Unset = UNSET
     actionable_date: None | str | Unset = UNSET
     due_date: None | str | Unset = UNSET
     notes: None | str | Unset = UNSET
-    source_entity_ref_id: None | str | Unset = UNSET
     recurring_timeline: None | str | Unset = UNSET
     recurring_repeat_index: int | None | Unset = UNSET
     recurring_gen_right_now: None | str | Unset = UNSET
@@ -95,6 +95,8 @@ class InboxTask:
 
         difficulty = self.difficulty.value
 
+        source_entity_ref_id = self.source_entity_ref_id
+
         archival_reason: None | str | Unset
         if isinstance(self.archival_reason, Unset):
             archival_reason = UNSET
@@ -124,12 +126,6 @@ class InboxTask:
             notes = UNSET
         else:
             notes = self.notes
-
-        source_entity_ref_id: None | str | Unset
-        if isinstance(self.source_entity_ref_id, Unset):
-            source_entity_ref_id = UNSET
-        else:
-            source_entity_ref_id = self.source_entity_ref_id
 
         recurring_timeline: None | str | Unset
         if isinstance(self.recurring_timeline, Unset):
@@ -177,6 +173,7 @@ class InboxTask:
                 "is_key": is_key,
                 "eisen": eisen,
                 "difficulty": difficulty,
+                "source_entity_ref_id": source_entity_ref_id,
             }
         )
         if archival_reason is not UNSET:
@@ -189,8 +186,6 @@ class InboxTask:
             field_dict["due_date"] = due_date
         if notes is not UNSET:
             field_dict["notes"] = notes
-        if source_entity_ref_id is not UNSET:
-            field_dict["source_entity_ref_id"] = source_entity_ref_id
         if recurring_timeline is not UNSET:
             field_dict["recurring_timeline"] = recurring_timeline
         if recurring_repeat_index is not UNSET:
@@ -230,6 +225,8 @@ class InboxTask:
         eisen = Eisen(d.pop("eisen"))
 
         difficulty = Difficulty(d.pop("difficulty"))
+
+        source_entity_ref_id = d.pop("source_entity_ref_id")
 
         def _parse_archival_reason(data: object) -> None | str | Unset:
             if data is None:
@@ -275,15 +272,6 @@ class InboxTask:
             return cast(None | str | Unset, data)
 
         notes = _parse_notes(d.pop("notes", UNSET))
-
-        def _parse_source_entity_ref_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        source_entity_ref_id = _parse_source_entity_ref_id(d.pop("source_entity_ref_id", UNSET))
 
         def _parse_recurring_timeline(data: object) -> None | str | Unset:
             if data is None:
@@ -343,12 +331,12 @@ class InboxTask:
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
+            source_entity_ref_id=source_entity_ref_id,
             archival_reason=archival_reason,
             archived_time=archived_time,
             actionable_date=actionable_date,
             due_date=due_date,
             notes=notes,
-            source_entity_ref_id=source_entity_ref_id,
             recurring_timeline=recurring_timeline,
             recurring_repeat_index=recurring_repeat_index,
             recurring_gen_right_now=recurring_gen_right_now,

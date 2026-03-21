@@ -5,9 +5,9 @@
 import type { InboxTask } from './InboxTask';
 import type { TimePlanActivity } from './TimePlanActivity';
 /**
- * InboxTaskCreate result.
+ * BigPlanCreateInboxTask result.
  */
-export type InboxTaskCreateResult = {
+export type BigPlanCreateInboxTaskResult = {
     new_inbox_task: InboxTask;
     new_time_plan_activity?: (TimePlanActivity | null);
 };

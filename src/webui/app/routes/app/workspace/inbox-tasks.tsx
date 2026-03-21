@@ -263,7 +263,6 @@ export default function InboxTasks() {
   return (
     <TrunkPanel
       key={"inbox-tasks"}
-      createLocation="/app/workspace/inbox-tasks/new"
       returnLocation="/app/workspace"
       actions={
         <SectionActions
@@ -380,8 +379,6 @@ export default function InboxTasks() {
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
                 emptyParent="inbox task"
-                emptyParentLabel="New Task"
-                emptyParentNewLocations="/app/workspace/inbox-tasks/new"
               />
             )}
           </>
@@ -413,8 +410,6 @@ export default function InboxTasks() {
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
                 emptyParent="inbox task"
-                emptyParentLabel="New Task"
-                emptyParentNewLocations="/app/workspace/inbox-tasks/new"
               />
             )}
           </>
@@ -1147,13 +1142,7 @@ function SwiftView(props: SwiftViewProps) {
       parentNewLocations="/app/workspace/chores/new"
     />
   );
-  const noRestsCard = (
-    <InboxTasksNoTasksCard
-      parent="inbox task"
-      parentLabel="New Task"
-      parentNewLocations="/app/workspace/inbox-tasks/new"
-    />
-  );
+  const noRestsCard = <InboxTasksNoTasksCard parent="inbox task" />;
   const noNothingCard = (
     <InboxTasksNoNothingCard topLevelInfo={props.topLevelInfo} />
   );
@@ -1262,13 +1251,7 @@ function BigScreenKanbanByEisen({
 }: BigScreenKanbanByEisenProps) {
   return (
     <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
+      {inboxTasks.length === 0 && <InboxTasksNoTasksCard parent="inbox task" />}
       {inboxTasks.length > 0 && (
         <>
           {EISENS.map((e) => {
@@ -1320,13 +1303,7 @@ function BigScreenKanban({
 }: BigScreenKanbanProps) {
   return (
     <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
+      {inboxTasks.length === 0 && <InboxTasksNoTasksCard parent="inbox task" />}
       {inboxTasks.length > 0 && (
         <KanbanBoard
           topLevelInfo={topLevelInfo}
@@ -1362,13 +1339,7 @@ function List({
 }: ListProps) {
   return (
     <>
-      {inboxTasks.length === 0 && (
-        <InboxTasksNoTasksCard
-          parent="inbox task"
-          parentLabel="New Task"
-          parentNewLocations="/app/workspace/inbox-tasks/new"
-        />
-      )}
+      {inboxTasks.length === 0 && <InboxTasksNoTasksCard parent="inbox task" />}
       <InboxTaskStack
         topLevelInfo={topLevelInfo}
         showOptions={{

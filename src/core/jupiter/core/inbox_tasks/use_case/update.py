@@ -63,12 +63,11 @@ from jupiter.framework.utils.generic_creator import generic_creator
 
 @use_case_args
 class InboxTaskUpdateArgs(UseCaseArgsBase):
-    """PersonFindArgs."""
+    """InboxTaskUpdate args."""
 
     ref_id: EntityId
     name: UpdateAction[InboxTaskName]
     status: UpdateAction[InboxTaskStatus]
-    big_plan_ref_id: UpdateAction[EntityId | None]
     is_key: UpdateAction[bool]
     eisen: UpdateAction[Eisen]
     difficulty: UpdateAction[Difficulty]
@@ -89,7 +88,7 @@ class InboxTaskUpdateUseCase(
         InboxTaskUpdateArgs, InboxTaskUpdateResult
     ]
 ):
-    """The command for updating a inbox task."""
+    """The command for updating a inbox task's generic properties."""
 
     async def _perform_transactional_mutation(
         self,
@@ -103,42 +102,27 @@ class InboxTaskUpdateUseCase(
         inbox_task = await uow.get_for(InboxTask).load_by_id(args.ref_id)
 
         try:
-            previous_big_plan: BigPlan | None
-            new_big_plan: BigPlan | None
-
+            big_plan = None
             if inbox_task.source == InboxTaskSource.BIG_PLAN:
-                previous_big_plan = await uow.get_for(BigPlan).load_by_id(
-                    inbox_task.source_entity_ref_id_for_sure
+                big_plan = await uow.get_for(BigPlan).load_by_id(
+                    inbox_task.source_entity_ref_id
                 )
-            else:
-                previous_big_plan = None
 
-            if args.big_plan_ref_id.should_change:
-                if args.big_plan_ref_id.just_the_value is not None:
-                    if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
-                        raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
+                if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
+                    raise UnavailableForContextError(WorkspaceFeature.BIG_PLANS)
 
-                    new_big_plan = await uow.get_for(BigPlan).load_by_id(
-                        args.big_plan_ref_id.just_the_value,
-                    )
-
-                    new_big_plan = await self._process_time_plans_for_big_plan(
-                        uow,
-                        progress_reporter,
-                        context,
-                        workspace,
-                        inbox_task,
-                        new_big_plan,
-                    )
-                else:
-                    new_big_plan = None
-            else:
-                new_big_plan = previous_big_plan
+                await self._process_time_plans_for_big_plan(
+                    uow,
+                    progress_reporter,
+                    context,
+                    workspace,
+                    inbox_task,
+                    big_plan,
+                )
 
             new_inbox_task = inbox_task.update(
                 ctx=context.domain_context,
                 name=args.name,
-                big_plan_ref_id=args.big_plan_ref_id,
                 is_key=args.is_key,
                 status=args.status,
                 eisen=args.eisen,
@@ -150,15 +134,15 @@ class InboxTaskUpdateUseCase(
             await uow.get_for(InboxTask).save(new_inbox_task)
             await progress_reporter.mark_updated(new_inbox_task)
 
-            await self._process_big_plan_stats(
-                uow,
-                progress_reporter,
-                context,
-                inbox_task,
-                new_inbox_task,
-                previous_big_plan,
-                new_big_plan,
-            )
+            if big_plan is not None:
+                await self._process_big_plan_stats(
+                    uow,
+                    progress_reporter,
+                    context,
+                    inbox_task,
+                    new_inbox_task,
+                    big_plan,
+                )
 
             await self._process_streak_marks(
                 uow,
@@ -242,42 +226,22 @@ class InboxTaskUpdateUseCase(
         context: JupiterLoggedInMutationContext,
         inbox_task_before_update: InboxTask,
         inbox_task_after_update: InboxTask,
-        previous_big_plan: BigPlan | None,
-        new_big_plan: BigPlan | None,
+        big_plan: BigPlan,
     ) -> None:
-        if previous_big_plan == new_big_plan:
-            if new_big_plan is None:
-                return
-
-            if (
-                not inbox_task_before_update.is_completed
-                and inbox_task_after_update.is_completed
-            ):
-                await uow.get(BigPlanStatsRepository).mark_inbox_task_done(
-                    new_big_plan.ref_id,
-                )
-            elif (
-                inbox_task_before_update.is_completed
-                and not inbox_task_after_update.is_completed
-            ):
-                await uow.get(BigPlanStatsRepository).mark_inbox_task_undone(
-                    new_big_plan.ref_id,
-                )
-        else:
-            if previous_big_plan is not None:
-                await uow.get(BigPlanStatsRepository).mark_remove_inbox_task(
-                    previous_big_plan.ref_id,
-                    inbox_task_before_update.is_completed,
-                )
-
-            if new_big_plan is not None:
-                await uow.get(BigPlanStatsRepository).mark_add_inbox_task(
-                    new_big_plan.ref_id,
-                )
-                if inbox_task_after_update.is_completed:
-                    await uow.get(BigPlanStatsRepository).mark_inbox_task_done(
-                        new_big_plan.ref_id,
-                    )
+        if (
+            not inbox_task_before_update.is_completed
+            and inbox_task_after_update.is_completed
+        ):
+            await uow.get(BigPlanStatsRepository).mark_inbox_task_done(
+                big_plan.ref_id,
+            )
+        elif (
+            inbox_task_before_update.is_completed
+            and not inbox_task_after_update.is_completed
+        ):
+            await uow.get(BigPlanStatsRepository).mark_inbox_task_undone(
+                big_plan.ref_id,
+            )
 
     async def _process_streak_marks(
         self,
@@ -289,9 +253,7 @@ class InboxTaskUpdateUseCase(
         if inbox_task.source != InboxTaskSource.HABIT:
             return
 
-        habit = await uow.get_for(Habit).load_by_id(
-            inbox_task.source_entity_ref_id_for_sure
-        )
+        habit = await uow.get_for(Habit).load_by_id(inbox_task.source_entity_ref_id)
         await HabitStreakRecorderService().update_with_status(
             ctx=context.domain_context,
             uow=uow,

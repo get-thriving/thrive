@@ -179,7 +179,14 @@ class BigPlanUpdateUseCase(
             for inbox_task in all_inbox_tasks:
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
-                    big_plan.ref_id,
+                    big_plan_ref_id=big_plan.ref_id,
+                    name=UpdateAction.do_nothing(),
+                    status=UpdateAction.do_nothing(),
+                    is_key=UpdateAction.do_nothing(),
+                    actionable_date=UpdateAction.do_nothing(),
+                    due_date=UpdateAction.do_nothing(),
+                    eisen=UpdateAction.do_nothing(),
+                    difficulty=UpdateAction.do_nothing(),
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
                 await progress_reporter.mark_updated(inbox_task)

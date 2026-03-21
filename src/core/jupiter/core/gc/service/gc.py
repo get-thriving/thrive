@@ -218,7 +218,7 @@ class GCService:
                     inbox_task.source == InboxTaskSource.TODO_TASK
                     and inbox_task.source_entity_ref_id is not None
                 ):
-                    todo_ref_id = inbox_task.source_entity_ref_id_for_sure
+                    todo_ref_id = inbox_task.source_entity_ref_id
                     todo_ref_id_as_str = str(todo_ref_id)
                     todo_task = await uow.get_for(TodoTask).load_by_id(
                         todo_ref_id,
@@ -305,13 +305,13 @@ class GCService:
         for inbox_task in inbox_tasks:
             if not (inbox_task.status.is_completed or inbox_task.archived):
                 continue
-            slack_task = slack_tasks_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
+            slack_task = slack_tasks_by_ref_id[inbox_task.source_entity_ref_id]
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 result = await slack_task_arhive_service.do_it(
                     ctx,
                     uow,
                     progress_reporter,
-                    slack_tasks_by_ref_id[inbox_task.source_entity_ref_id_for_sure],
+                    slack_tasks_by_ref_id[inbox_task.source_entity_ref_id],
                     JupiterArchivalReason.GC,
                 )
 
@@ -341,7 +341,7 @@ class GCService:
         for inbox_task in inbox_tasks:
             if not (inbox_task.status.is_completed or inbox_task.archived):
                 continue
-            email_task = email_tasks_by_ref_id[inbox_task.source_entity_ref_id_for_sure]
+            email_task = email_tasks_by_ref_id[inbox_task.source_entity_ref_id]
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 result = await email_task_arhive_service.do_it(
                     ctx, uow, progress_reporter, email_task, JupiterArchivalReason.GC
