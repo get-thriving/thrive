@@ -2,8 +2,6 @@ import { NoteNamespace } from "@jupiter/webapi-client";
 
 export function noteNamespaceName(namespace: NoteNamespace): string {
   switch (namespace) {
-    case NoteNamespace.INBOX_TASK:
-      return "Inbox Task";
     case NoteNamespace.TODO_TASK:
       return "Todo Task";
     case NoteNamespace.WORKING_MEM:

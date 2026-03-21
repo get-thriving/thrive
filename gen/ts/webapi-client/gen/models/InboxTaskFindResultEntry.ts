@@ -13,7 +13,6 @@ import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { Journal } from './Journal';
 import type { Metric } from './Metric';
-import type { Note } from './Note';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { SlackTask } from './SlackTask';
@@ -26,8 +25,6 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
  */
 export type InboxTaskFindResultEntry = {
     inbox_task: InboxTask;
-    contacts: Array<Contact>;
-    note?: (Note | null);
     aspect: Aspect;
     chapter?: (Chapter | null);
     goal?: (Goal | null);

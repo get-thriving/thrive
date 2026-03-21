@@ -5,7 +5,6 @@ import type {
   InboxTask,
   InboxTaskFindResultEntry,
   Aspect,
-  Contact,
   AspectSummary,
 } from "@jupiter/webapi-client";
 import {
@@ -58,7 +57,6 @@ import { TrunkPanel } from "@jupiter/core/infra/component/layout/trunk-panel";
 import {
   FilterFewOptionsCompact,
   SectionActions,
-  FilterManyOptions,
 } from "@jupiter/core/infra/component/section-actions";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
 import { TabPanel } from "@jupiter/core/infra/component/tab-panel";
@@ -106,15 +104,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_notes: false,
     include_time_event_blocks: false,
-  });
-  const allContacts = await apiClient.contacts.contactFind({
-    allow_archived: false,
   });
   return json({
     entries: response.entries,
-    allContacts: allContacts.contacts as Array<Contact>,
   });
 }
 
@@ -123,8 +116,7 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 
 export default function InboxTasks() {
   const topLevelInfo = useContext(TopLevelInfoContext);
-  const { entries, allContacts } =
-    useLoaderDataSafeForAnimation<typeof loader>();
+  const { entries } = useLoaderDataSafeForAnimation<typeof loader>();
 
   const serviceProperties = useContext(ServicePropertiesContext);
 
@@ -143,34 +135,7 @@ export default function InboxTasks() {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
 
-  const inboxTaskContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
-  for (const entry of entries) {
-    inboxTaskContactsByInboxTaskRefId.set(
-      entry.inbox_task.ref_id,
-      (
-        entry as InboxTaskFindResultEntry & {
-          contacts?: Array<Contact>;
-        }
-      ).contacts ?? [],
-    );
-  }
-
-  const [selectedContactsRefId, setSelectedContactsRefId] = useState<string[]>(
-    [],
-  );
-  const filteredSortedInboxTasks = sortedInboxTasks.filter((it) => {
-    const noContactFilter = selectedContactsRefId.length === 0;
-
-    const contacts = inboxTaskContactsByInboxTaskRefId.get(it.ref_id) ?? [];
-
-    const matchContact =
-      noContactFilter ||
-      contacts.some((contact: Contact) =>
-        selectedContactsRefId.includes(contact.ref_id),
-      );
-
-    return matchContact;
-  });
+  const filteredSortedInboxTasks = sortedInboxTasks;
 
   const [selectedView, setSelectedView] = useState(View.SWIFTVIEW);
 
@@ -385,14 +350,6 @@ export default function InboxTasks() {
               ],
               (selected) => setSelectedActionableTime(selected),
             ),
-            FilterManyOptions(
-              "Contacts",
-              allContacts.map((contact) => ({
-                value: contact.ref_id,
-                text: contact.name,
-              })),
-              setSelectedContactsRefId,
-            ),
           ]}
         />
       }
@@ -428,9 +385,6 @@ export default function InboxTasks() {
             actionableTime={selectedActionableTime}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
-            inboxTaskContactsByInboxTaskRefId={
-              inboxTaskContactsByInboxTaskRefId
-            }
           />
         )}
 
@@ -446,9 +400,6 @@ export default function InboxTasks() {
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </DragDropContext>
             )}
@@ -462,9 +413,6 @@ export default function InboxTasks() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
                 emptyParent="inbox task"
                 emptyParentLabel="New Task"
                 emptyParentNewLocations="/app/workspace/inbox-tasks/new"
@@ -485,9 +433,6 @@ export default function InboxTasks() {
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </DragDropContext>
             )}
@@ -501,9 +446,6 @@ export default function InboxTasks() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
               />
             )}
           </>
@@ -521,9 +463,6 @@ export default function InboxTasks() {
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </DragDropContext>
             )}
@@ -537,9 +476,6 @@ export default function InboxTasks() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
               />
             )}
           </>
@@ -557,9 +493,6 @@ export default function InboxTasks() {
                   moreInfoByRefId={entriesByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </DragDropContext>
             )}
@@ -573,9 +506,6 @@ export default function InboxTasks() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
                 emptyParent="inbox task"
                 emptyParentLabel="New Task"
                 emptyParentNewLocations="/app/workspace/inbox-tasks/new"
@@ -592,9 +522,6 @@ export default function InboxTasks() {
             moreInfoByRefId={entriesByRefId}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
-            inboxTaskContactsByInboxTaskRefId={
-              inboxTaskContactsByInboxTaskRefId
-            }
           />
         )}
 
@@ -606,9 +533,6 @@ export default function InboxTasks() {
             moreInfoByRefId={entriesByRefId}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
-            inboxTaskContactsByInboxTaskRefId={
-              inboxTaskContactsByInboxTaskRefId
-            }
           />
         )}
 
@@ -620,9 +544,6 @@ export default function InboxTasks() {
             moreInfoByRefId={entriesByRefId}
             onCardMarkDone={handleCardMarkDone}
             onCardMarkNotDone={handleCardMarkNotDone}
-            inboxTaskContactsByInboxTaskRefId={
-              inboxTaskContactsByInboxTaskRefId
-            }
           />
         )}
       </NestingAwareBlock>
@@ -667,7 +588,6 @@ interface SwiftViewProps {
   actionableTime: ActionableTime;
   onCardMarkDone: (inboxTask: InboxTask) => void;
   onCardMarkNotDone: (inboxTask: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SwiftView(props: SwiftViewProps) {
@@ -1011,9 +931,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1034,9 +951,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1058,9 +972,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1082,9 +993,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1106,9 +1014,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForHabitsDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1135,9 +1040,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1158,9 +1060,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1182,9 +1081,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1206,9 +1102,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1230,9 +1123,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForChoresDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1260,9 +1150,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueToday}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1284,9 +1171,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisWeek}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1309,9 +1193,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisMonth}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1334,9 +1215,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisQuarter}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1359,9 +1237,6 @@ function SwiftView(props: SwiftViewProps) {
           inboxTasks={inboxTasksForRestsDueThisYear}
           optimisticUpdates={props.optimisticUpdates}
           moreInfoByRefId={props.moreInfoByRefId}
-          inboxTaskContactsByInboxTaskRefId={
-            props.inboxTaskContactsByInboxTaskRefId
-          }
           onCardMarkDone={props.onCardMarkDone}
           onCardMarkNotDone={props.onCardMarkNotDone}
         />
@@ -1505,7 +1380,6 @@ interface BigScreenKanbanByEisenProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   actionableTime: ActionableTime;
   draggedInboxTaskId?: string;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanbanByEisen({
@@ -1516,7 +1390,6 @@ function BigScreenKanbanByEisen({
   moreInfoByRefId,
   actionableTime,
   draggedInboxTaskId,
-  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanByEisenProps) {
   return (
     <>
@@ -1545,9 +1418,6 @@ function BigScreenKanbanByEisen({
                   actionableTime={actionableTime}
                   allowEisen={e}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </Fragment>
             );
@@ -1567,7 +1437,6 @@ interface BigScreenKanbanProps {
   actionableTime: ActionableTime;
   allowEisen?: Eisen;
   draggedInboxTaskId?: string;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanban({
@@ -1579,7 +1448,6 @@ function BigScreenKanban({
   actionableTime,
   allowEisen,
   draggedInboxTaskId,
-  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanProps) {
   return (
     <>
@@ -1600,7 +1468,6 @@ function BigScreenKanban({
           actionableTime={actionableTime}
           allowEisen={allowEisen}
           draggedInboxTaskId={draggedInboxTaskId}
-          inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         />
       )}
     </>
@@ -1614,7 +1481,6 @@ interface ListProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function List({
@@ -1624,7 +1490,6 @@ function List({
   optimisticUpdates,
   onCardMarkDone,
   onCardMarkNotDone,
-  inboxTaskContactsByInboxTaskRefId,
 }: ListProps) {
   return (
     <>
@@ -1651,7 +1516,6 @@ function List({
         }}
         inboxTasks={inboxTasks}
         moreInfoByRefId={moreInfoByRefId}
-        inboxTaskContactsByInboxTaskRefId={inboxTaskContactsByInboxTaskRefId}
         optimisticUpdates={optimisticUpdates}
         onCardMarkDone={onCardMarkDone}
         onCardMarkNotDone={onCardMarkNotDone}
@@ -1693,7 +1557,6 @@ interface BigScreenKanbanByAspectProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   actionableTime: ActionableTime;
   draggedInboxTaskId?: string;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanbanByAspect({
@@ -1704,7 +1567,6 @@ function BigScreenKanbanByAspect({
   moreInfoByRefId,
   actionableTime,
   draggedInboxTaskId,
-  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanByAspectProps) {
   const aspects = useMemo(
     () => getUniqueAspectsSorted(moreInfoByRefId),
@@ -1739,9 +1601,6 @@ function BigScreenKanbanByAspect({
                   actionableTime={actionableTime}
                   groupId={aspect.ref_id}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                 />
               </Fragment>
             );
@@ -1760,7 +1619,6 @@ interface SmallScreenKanbanByAspectProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
@@ -1808,9 +1666,6 @@ function SmallScreenKanbanByAspect(props: SmallScreenKanbanByAspectProps) {
               actionableTime={props.actionableTime}
               onCardMarkDone={props.onCardMarkDone}
               onCardMarkNotDone={props.onCardMarkNotDone}
-              inboxTaskContactsByInboxTaskRefId={
-                props.inboxTaskContactsByInboxTaskRefId
-              }
               emptyParent="inbox task"
               emptyParentLabel="New Task"
               emptyParentNewLocations="/app/workspace/inbox-tasks/new"
@@ -1830,7 +1685,6 @@ interface BigScreenKanbanByAspectAndGoalProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   actionableTime: ActionableTime;
   draggedInboxTaskId?: string;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function BigScreenKanbanByAspectAndGoal({
@@ -1841,7 +1695,6 @@ function BigScreenKanbanByAspectAndGoal({
   moreInfoByRefId,
   actionableTime,
   draggedInboxTaskId,
-  inboxTaskContactsByInboxTaskRefId,
 }: BigScreenKanbanByAspectAndGoalProps) {
   const aspects = useMemo(
     () => getUniqueAspectsSorted(moreInfoByRefId),
@@ -1895,9 +1748,6 @@ function BigScreenKanbanByAspectAndGoal({
                         actionableTime={actionableTime}
                         groupId={`${aspect.ref_id}-${goal.ref_id}`}
                         draggedInboxTaskId={draggedInboxTaskId}
-                        inboxTaskContactsByInboxTaskRefId={
-                          inboxTaskContactsByInboxTaskRefId
-                        }
                       />
                     </Fragment>
                   );
@@ -1917,9 +1767,6 @@ function BigScreenKanbanByAspectAndGoal({
                       actionableTime={actionableTime}
                       groupId={`${aspect.ref_id}-no-goal`}
                       draggedInboxTaskId={draggedInboxTaskId}
-                      inboxTaskContactsByInboxTaskRefId={
-                        inboxTaskContactsByInboxTaskRefId
-                      }
                     />
                   </Fragment>
                 )}
@@ -1940,7 +1787,6 @@ interface SmallScreenKanbanByAspectAndGoalProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function SmallScreenKanbanByAspectAndGoal(
@@ -2008,9 +1854,6 @@ function SmallScreenKanbanByAspectAndGoal(
                     actionableTime={props.actionableTime}
                     onCardMarkDone={props.onCardMarkDone}
                     onCardMarkNotDone={props.onCardMarkNotDone}
-                    inboxTaskContactsByInboxTaskRefId={
-                      props.inboxTaskContactsByInboxTaskRefId
-                    }
                     emptyParent="inbox task"
                     emptyParentLabel="New Task"
                     emptyParentNewLocations="/app/workspace/inbox-tasks/new"
@@ -2032,9 +1875,6 @@ function SmallScreenKanbanByAspectAndGoal(
                   actionableTime={props.actionableTime}
                   onCardMarkDone={props.onCardMarkDone}
                   onCardMarkNotDone={props.onCardMarkNotDone}
-                  inboxTaskContactsByInboxTaskRefId={
-                    props.inboxTaskContactsByInboxTaskRefId
-                  }
                   emptyParent="inbox task"
                   emptyParentLabel="New Task"
                   emptyParentNewLocations="/app/workspace/inbox-tasks/new"
@@ -2055,7 +1895,6 @@ interface ListByAspectProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function ListByAspect({
@@ -2065,7 +1904,6 @@ function ListByAspect({
   optimisticUpdates,
   onCardMarkDone,
   onCardMarkNotDone,
-  inboxTaskContactsByInboxTaskRefId,
 }: ListByAspectProps) {
   const aspects = useMemo(
     () => getUniqueAspectsSorted(moreInfoByRefId),
@@ -2105,9 +1943,6 @@ function ListByAspect({
               }}
               inboxTasks={aspectTasks}
               moreInfoByRefId={moreInfoByRefId}
-              inboxTaskContactsByInboxTaskRefId={
-                inboxTaskContactsByInboxTaskRefId
-              }
               optimisticUpdates={optimisticUpdates}
               onCardMarkDone={onCardMarkDone}
               onCardMarkNotDone={onCardMarkNotDone}
@@ -2126,7 +1961,6 @@ interface ListByAspectAndGoalProps {
   moreInfoByRefId: { [key: string]: InboxTaskParent };
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function ListByAspectAndGoal({
@@ -2136,7 +1970,6 @@ function ListByAspectAndGoal({
   optimisticUpdates,
   onCardMarkDone,
   onCardMarkNotDone,
-  inboxTaskContactsByInboxTaskRefId,
 }: ListByAspectAndGoalProps) {
   const aspects = useMemo(
     () => getUniqueAspectsSorted(moreInfoByRefId),
@@ -2192,9 +2025,6 @@ function ListByAspectAndGoal({
                     }}
                     inboxTasks={goalTasks}
                     moreInfoByRefId={moreInfoByRefId}
-                    inboxTaskContactsByInboxTaskRefId={
-                      inboxTaskContactsByInboxTaskRefId
-                    }
                     optimisticUpdates={optimisticUpdates}
                     onCardMarkDone={onCardMarkDone}
                     onCardMarkNotDone={onCardMarkNotDone}
@@ -2224,9 +2054,6 @@ function ListByAspectAndGoal({
                   }}
                   inboxTasks={tasksWithoutGoal}
                   moreInfoByRefId={moreInfoByRefId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                   optimisticUpdates={optimisticUpdates}
                   onCardMarkDone={onCardMarkDone}
                   onCardMarkNotDone={onCardMarkNotDone}

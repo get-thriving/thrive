@@ -1,10 +1,6 @@
 """Shared service for archiving an inbox task."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.service.archive import (
-    NoteArchiveService,
-)
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -29,8 +25,3 @@ class InboxTaskArchiveService:
         inbox_task = inbox_task.mark_archived(ctx, archival_reason)
         await uow.get_for(InboxTask).save(inbox_task)
         await progress_reporter.mark_updated(inbox_task)
-
-        note_archive_service = NoteArchiveService()
-        await note_archive_service.archive_for_source(
-            ctx, uow, NoteNamespace.INBOX_TASK, inbox_task.ref_id, archival_reason
-        )

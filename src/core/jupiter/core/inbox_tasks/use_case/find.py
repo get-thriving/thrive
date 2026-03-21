@@ -10,9 +10,6 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.notes.collection import NoteCollection
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
@@ -85,7 +82,6 @@ class InboxTaskFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool | None
-    include_notes: bool | None
     include_time_event_blocks: bool | None
     filter_just_workable: bool | None
     filter_just_user: bool | None
@@ -101,8 +97,6 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     """A single entry in the load all inbox tasks response."""
 
     inbox_task: InboxTask
-    contacts: list[Contact]
-    note: Note | None
     aspect: Aspect
     chapter: Chapter | None
     goal: Goal | None
@@ -143,7 +137,6 @@ class InboxTaskFindUseCase(
     ) -> InboxTaskFindResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        include_notes = args.include_notes or False
         include_time_event_blocks = args.include_time_event_blocks or False
         workspace = context.workspace
 
@@ -369,29 +362,6 @@ class InboxTaskFindUseCase(
             )
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
-        # Load contacts linked to inbox tasks
-        contact_links_for_inbox_tasks = await uow.get_for(ContactLink).find_all_generic(
-            parent_ref_id=contact_domain.ref_id,
-            namespace=ContactNamespace.INBOX_TASK,
-            allow_archived=False,
-            source_entity_ref_id=[it.ref_id for it in inbox_tasks],
-        )
-        inbox_task_contacts_by_ref_id = {
-            link.source_entity_ref_id: link.contacts_ref_ids
-            for link in contact_links_for_inbox_tasks
-        }
-        all_inbox_task_contact_ref_ids = []
-        for contact_ref_ids in inbox_task_contacts_by_ref_id.values():
-            all_inbox_task_contact_ref_ids.extend(contact_ref_ids)
-        if all_inbox_task_contact_ref_ids:
-            additional_contacts = await uow.get_for(Contact).find_all_generic(
-                parent_ref_id=contact_domain.ref_id,
-                allow_archived=False,
-                ref_id=list(set(all_inbox_task_contact_ref_ids)),
-            )
-            for contact in additional_contacts:
-                contacts_by_ref_id[contact.ref_id] = contact
-
         slack_tasks = await uow.get_for(SlackTask).find_all(
             parent_ref_id=slack_task_collection.ref_id,
             allow_archived=True,
@@ -426,20 +396,6 @@ class InboxTaskFindUseCase(
         )
         todo_tasks_by_ref_id = {t.ref_id: t for t in todo_tasks}
 
-        notes_by_inbox_task_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
-        if include_notes:
-            note_collection = await uow.get_for(NoteCollection).load_by_parent(
-                workspace.ref_id
-            )
-            notes = await uow.get_for(Note).find_all_generic(
-                parent_ref_id=note_collection.ref_id,
-                namespace=NoteNamespace.INBOX_TASK,
-                allow_archived=True,
-                source_entity_ref_id=[it.ref_id for it in inbox_tasks],
-            )
-            for note in notes:
-                notes_by_inbox_task_ref_id[note.source_entity_ref_id] = note
-
         time_event_blocks_by_inbox_task_ref_id: defaultdict[
             EntityId, list[TimeEventInDayBlock]
         ] = defaultdict(list)
@@ -462,13 +418,6 @@ class InboxTaskFindUseCase(
             entries=[
                 InboxTaskFindResultEntry(
                     inbox_task=it,
-                    contacts=[
-                        contacts_by_ref_id[contact_ref_id]
-                        for contact_ref_id in inbox_task_contacts_by_ref_id.get(
-                            it.ref_id, []
-                        )
-                        if contact_ref_id in contacts_by_ref_id
-                    ],
                     aspect=aspect_by_ref_id[it.aspect_ref_id],
                     chapter=(
                         chapter_by_ref_id[it.chapter_ref_id]
@@ -566,7 +515,6 @@ class InboxTaskFindUseCase(
                         )
                         else None
                     ),
-                    note=notes_by_inbox_task_ref_id.get(it.ref_id, None),
                     time_event_blocks=time_event_blocks_by_inbox_task_ref_id.get(
                         it.ref_id, None
                     ),

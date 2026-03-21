@@ -1,4 +1,4 @@
-import type { Contact, InboxTask } from "@jupiter/webapi-client";
+import type { InboxTask } from "@jupiter/webapi-client";
 import { Stack, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { Link, useLocation, useSearchParams } from "@remix-run/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -23,7 +23,6 @@ interface InboxTaskStackProps {
   showOptions: InboxTaskShowOptions;
   label?: string;
   inboxTasks: InboxTask[];
-  inboxTaskContactsByInboxTaskRefId?: Map<string, Array<Contact>>;
   optimisticUpdates?: { [key: string]: InboxTaskOptimisticState };
   moreInfoByRefId?: {
     [key: string]: InboxTaskParent;
@@ -82,10 +81,6 @@ export function InboxTaskStack(props: InboxTaskStackProps) {
                   allowSwipe={true}
                   showOptions={props.showOptions}
                   inboxTask={it}
-                  contacts={
-                    props.inboxTaskContactsByInboxTaskRefId?.get(it.ref_id) ??
-                    []
-                  }
                   optimisticState={props.optimisticUpdates?.[it.ref_id]}
                   parent={props.moreInfoByRefId?.[it.ref_id]}
                   linkResolver={props.cardLinkResolver}

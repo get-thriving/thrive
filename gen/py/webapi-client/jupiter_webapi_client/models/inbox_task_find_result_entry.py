@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
     from ..models.metric import Metric
-    from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
@@ -39,9 +38,7 @@ class InboxTaskFindResultEntry:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        contacts (list[Contact]):
         aspect (Aspect): The aspect.
-        note (None | Note | Unset):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         time_event_blocks (list[TimeEventInDayBlock] | None | Unset):
@@ -61,9 +58,7 @@ class InboxTaskFindResultEntry:
     """
 
     inbox_task: InboxTask
-    contacts: list[Contact]
     aspect: Aspect
-    note: None | Note | Unset = UNSET
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     time_event_blocks: list[TimeEventInDayBlock] | None | Unset = UNSET
@@ -92,7 +87,6 @@ class InboxTaskFindResultEntry:
         from ..models.habit import Habit
         from ..models.journal import Journal
         from ..models.metric import Metric
-        from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
@@ -102,20 +96,7 @@ class InboxTaskFindResultEntry:
 
         inbox_task = self.inbox_task.to_dict()
 
-        contacts = []
-        for contacts_item_data in self.contacts:
-            contacts_item = contacts_item_data.to_dict()
-            contacts.append(contacts_item)
-
         aspect = self.aspect.to_dict()
-
-        note: dict[str, Any] | None | Unset
-        if isinstance(self.note, Unset):
-            note = UNSET
-        elif isinstance(self.note, Note):
-            note = self.note.to_dict()
-        else:
-            note = self.note
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -254,12 +235,9 @@ class InboxTaskFindResultEntry:
         field_dict.update(
             {
                 "inbox_task": inbox_task,
-                "contacts": contacts,
                 "aspect": aspect,
             }
         )
-        if note is not UNSET:
-            field_dict["note"] = note
         if chapter is not UNSET:
             field_dict["chapter"] = chapter
         if goal is not UNSET:
@@ -308,7 +286,6 @@ class InboxTaskFindResultEntry:
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
         from ..models.metric import Metric
-        from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
@@ -320,31 +297,7 @@ class InboxTaskFindResultEntry:
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
 
-        contacts = []
-        _contacts = d.pop("contacts")
-        for contacts_item_data in _contacts:
-            contacts_item = Contact.from_dict(contacts_item_data)
-
-            contacts.append(contacts_item)
-
         aspect = Aspect.from_dict(d.pop("aspect"))
-
-        def _parse_note(data: object) -> None | Note | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                note_type_0 = Note.from_dict(data)
-
-                return note_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Note | Unset, data)
-
-        note = _parse_note(d.pop("note", UNSET))
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -625,9 +578,7 @@ class InboxTaskFindResultEntry:
 
         inbox_task_find_result_entry = cls(
             inbox_task=inbox_task,
-            contacts=contacts,
             aspect=aspect,
-            note=note,
             chapter=chapter,
             goal=goal,
             time_event_blocks=time_event_blocks,

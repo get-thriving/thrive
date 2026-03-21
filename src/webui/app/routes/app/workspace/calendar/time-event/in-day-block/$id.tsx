@@ -833,8 +833,6 @@ export default function TimeEventInDayBlockViewOne() {
           allGoals={loaderData.allGoals}
           allMilestones={loaderData.allMilestones}
           allBigPlans={loaderData.allBigPlans}
-          allContacts={loaderData.allContacts}
-          contacts={loaderData.inboxTaskInfo?.contacts}
           inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
           inboxTask={loaderData.inboxTask}
           inboxTaskInfo={loaderData.inboxTaskInfo!}

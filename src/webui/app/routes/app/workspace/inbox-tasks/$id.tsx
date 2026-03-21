@@ -5,7 +5,6 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
-  Contact,
   Workspace,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
@@ -15,7 +14,6 @@ import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
-  NoteNamespace,
   TimePlanActivityTarget,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
@@ -39,7 +37,6 @@ import {
 import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
-import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -52,7 +49,6 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import {
   SectionActions,
-  ActionSingle,
   NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 
@@ -125,9 +121,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     ...CommonParamsSchema,
   }),
   z.object({
-    intent: z.literal("create-note"),
-  }),
-  z.object({
     intent: z.literal("archive"),
   }),
   z.object({
@@ -160,10 +153,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
     const workspace = summaryResponse.workspace as Workspace;
     let timePlanEntries = undefined;
     if (isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TIME_PLANS)) {
@@ -186,8 +175,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
-      contacts: result.contacts as Array<Contact>,
-      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -377,16 +364,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/inbox-tasks`);
       }
 
-      case "create-note": {
-        await apiClient.notes.noteCreate({
-          namespace: NoteNamespace.INBOX_TASK,
-          source_entity_ref_id: id,
-          content: [],
-        });
-
-        return redirect(`/app/workspace/inbox-tasks/${id}`);
-      }
-
       case "archive": {
         await apiClient.inboxTasks.inboxTaskArchive({
           ref_id: id,
@@ -490,41 +467,11 @@ export default function InboxTask() {
         allGoals={loaderData.allGoals}
         allMilestones={loaderData.allMilestones}
         allBigPlans={loaderData.allBigPlans}
-        allContacts={loaderData.allContacts}
-        contacts={loaderData.contacts}
         inputsEnabled={inputsEnabled}
         inboxTask={inboxTask}
         inboxTaskInfo={info}
         actionData={actionData}
       />
-
-      <SectionCard
-        title="Note"
-        actions={
-          <SectionActions
-            id="inbox-task-note"
-            topLevelInfo={topLevelInfo}
-            inputsEnabled={inputsEnabled}
-            actions={[
-              ActionSingle({
-                text: "Create",
-                value: "create-note",
-                highlight: false,
-                disabled: loaderData.info.note !== null,
-              }),
-            ]}
-          />
-        }
-      >
-        {loaderData.info.note && (
-          <>
-            <EntityNoteEditor
-              initialNote={loaderData.info.note}
-              inputsEnabled={inputsEnabled}
-            />
-          </>
-        )}
-      </SectionCard>
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,

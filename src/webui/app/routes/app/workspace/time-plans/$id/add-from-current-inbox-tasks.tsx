@@ -128,7 +128,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const inboxTasksResult = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      include_notes: false,
       include_time_event_blocks: false,
       filter_just_workable: true,
       filter_just_user: true,

@@ -131,7 +131,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_notes: false,
     include_time_event_blocks: false,
     filter_sources: [InboxTaskSource.HABIT],
   });

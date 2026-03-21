@@ -3,7 +3,6 @@ import type {
   LifePlan,
   AspectSummary,
   TimePlan,
-  Contact,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
@@ -165,9 +164,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     ...UpdateFormTargetInboxTaskSchema,
   }),
   z.object({
-    intent: z.literal("target-inbox-task-create-note"),
-  }),
-  z.object({
     intent: z.literal("target-big-plan-mark-done"),
     ...UpdateFormTargetBigPlanSchema,
   }),
@@ -245,10 +241,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
     return json({
       rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -263,7 +255,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       targetInboxTaskTimeEventBlocks: inboxTaskResult?.time_event_blocks,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: bigPlanResult,
-      allContacts: allContacts.contacts as Array<Contact>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -317,23 +308,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         return redirect(`/app/workspace/time-plans/${id}`);
-      }
-
-      case "target-inbox-task-create-note": {
-        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
-          ref_id: activityId,
-          allow_archived: true,
-        });
-
-        if (activityResult.target_inbox_task) {
-          await apiClient.notes.noteCreate({
-            namespace: NoteNamespace.INBOX_TASK,
-            source_entity_ref_id: activityResult.target_inbox_task.ref_id,
-            content: [],
-          });
-        }
-
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
       case "target-inbox-task-mark-done":
@@ -790,8 +764,6 @@ export default function TimePlanActivity() {
             allGoals={loaderData.allGoals ?? []}
             allMilestones={loaderData.allMilestones ?? []}
             allBigPlans={loaderData.allBigPlans ?? []}
-            allContacts={loaderData.allContacts}
-            contacts={loaderData.targetInboxTaskInfo?.contacts}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
@@ -799,36 +771,6 @@ export default function TimePlanActivity() {
             inboxTaskInfo={loaderData.targetInboxTaskInfo!}
             actionData={actionData}
           />
-
-          <SectionCard
-            title="Note"
-            actions={
-              <SectionActions
-                id="target-inbox-task-note"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  ActionSingle({
-                    text: "Create",
-                    value: "target-inbox-task-create-note",
-                    highlight: false,
-                    disabled:
-                      loaderData.targetInboxTaskInfo?.note !== null &&
-                      loaderData.targetInboxTaskInfo?.note !== undefined,
-                  }),
-                ]}
-              />
-            }
-          >
-            {loaderData.targetInboxTaskInfo?.note && (
-              <>
-                <EntityNoteEditor
-                  initialNote={loaderData.targetInboxTaskInfo.note}
-                  inputsEnabled={inputsEnabled}
-                />
-              </>
-            )}
-          </SectionCard>
 
           {isWorkspaceFeatureAvailable(
             topLevelInfo.workspace,

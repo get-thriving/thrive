@@ -6,7 +6,6 @@
  * The source of a note.
  */
 export enum NoteNamespace {
-    INBOX_TASK = 'inbox-task',
     TODO_TASK = 'todo-task',
     WORKING_MEM = 'working-mem',
     TIME_PLAN = 'time-plan',

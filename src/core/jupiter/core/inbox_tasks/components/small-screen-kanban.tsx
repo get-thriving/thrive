@@ -1,6 +1,5 @@
 import type {
   AspectSummary,
-  Contact,
   GoalSummary,
   InboxTask,
 } from "@jupiter/webapi-client";
@@ -39,7 +38,6 @@ interface SmallScreenKanbanBaseProps {
   actionableTime: ActionableTime;
   onCardMarkDone?: (it: InboxTask) => void;
   onCardMarkNotDone?: (it: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
   emptyParent: string;
   emptyParentLabel: string;
   emptyParentNewLocations: string;
@@ -439,9 +437,6 @@ function renderTabContent(
         inboxTasks={inboxTasks}
         optimisticUpdates={props.optimisticUpdates}
         moreInfoByRefId={props.moreInfoByRefId}
-        inboxTaskContactsByInboxTaskRefId={
-          props.inboxTaskContactsByInboxTaskRefId
-        }
         cardLinkResolver={props.cardLinkResolver}
         onCardMarkDone={props.onCardMarkDone}
         onCardMarkNotDone={props.onCardMarkNotDone}

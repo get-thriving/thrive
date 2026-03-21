@@ -9,7 +9,6 @@ class NoteNamespace(str, Enum):
     DOC = "doc"
     GOAL = "goal"
     HABIT = "habit"
-    INBOX_TASK = "inbox-task"
     JOURNAL = "journal"
     METRIC = "metric"
     METRIC_ENTRY = "metric-entry"

@@ -6,7 +6,6 @@
  * The namespace of a contact link.
  */
 export enum ContactNamespace {
-    INBOX_TASK = 'inbox-task',
     TODO_TASK = 'todo-task',
     SCHEDULE_EVENT_IN_DAY = 'schedule-event-in-day',
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = 'schedule-event-full-days-block',

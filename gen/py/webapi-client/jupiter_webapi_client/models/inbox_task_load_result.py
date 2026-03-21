@@ -13,14 +13,12 @@ if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.chapter import Chapter
     from ..models.chore import Chore
-    from ..models.contact import Contact
     from ..models.email_task import EmailTask
     from ..models.goal import Goal
     from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.journal import Journal
     from ..models.metric import Metric
-    from ..models.note import Note
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
@@ -39,7 +37,6 @@ class InboxTaskLoadResult:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        contacts (list[Contact]):
         aspect (Aspect): The aspect.
         time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
@@ -56,11 +53,9 @@ class InboxTaskLoadResult:
         slack_task (None | SlackTask | Unset):
         email_task (EmailTask | None | Unset):
         todo_task (None | TodoTask | Unset):
-        note (None | Note | Unset):
     """
 
     inbox_task: InboxTask
-    contacts: list[Contact]
     aspect: Aspect
     time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
@@ -77,7 +72,6 @@ class InboxTaskLoadResult:
     slack_task: None | SlackTask | Unset = UNSET
     email_task: EmailTask | None | Unset = UNSET
     todo_task: None | TodoTask | Unset = UNSET
-    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -89,7 +83,6 @@ class InboxTaskLoadResult:
         from ..models.habit import Habit
         from ..models.journal import Journal
         from ..models.metric import Metric
-        from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
@@ -98,11 +91,6 @@ class InboxTaskLoadResult:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
-
-        contacts = []
-        for contacts_item_data in self.contacts:
-            contacts_item = contacts_item_data.to_dict()
-            contacts.append(contacts_item)
 
         aspect = self.aspect.to_dict()
 
@@ -223,20 +211,11 @@ class InboxTaskLoadResult:
         else:
             todo_task = self.todo_task
 
-        note: dict[str, Any] | None | Unset
-        if isinstance(self.note, Unset):
-            note = UNSET
-        elif isinstance(self.note, Note):
-            note = self.note.to_dict()
-        else:
-            note = self.note
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "inbox_task": inbox_task,
-                "contacts": contacts,
                 "aspect": aspect,
                 "time_event_blocks": time_event_blocks,
             }
@@ -269,8 +248,6 @@ class InboxTaskLoadResult:
             field_dict["email_task"] = email_task
         if todo_task is not UNSET:
             field_dict["todo_task"] = todo_task
-        if note is not UNSET:
-            field_dict["note"] = note
 
         return field_dict
 
@@ -280,14 +257,12 @@ class InboxTaskLoadResult:
         from ..models.big_plan import BigPlan
         from ..models.chapter import Chapter
         from ..models.chore import Chore
-        from ..models.contact import Contact
         from ..models.email_task import EmailTask
         from ..models.goal import Goal
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.journal import Journal
         from ..models.metric import Metric
-        from ..models.note import Note
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
@@ -298,13 +273,6 @@ class InboxTaskLoadResult:
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
-
-        contacts = []
-        _contacts = d.pop("contacts")
-        for contacts_item_data in _contacts:
-            contacts_item = Contact.from_dict(contacts_item_data)
-
-            contacts.append(contacts_item)
 
         aspect = Aspect.from_dict(d.pop("aspect"))
 
@@ -553,26 +521,8 @@ class InboxTaskLoadResult:
 
         todo_task = _parse_todo_task(d.pop("todo_task", UNSET))
 
-        def _parse_note(data: object) -> None | Note | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                note_type_0 = Note.from_dict(data)
-
-                return note_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | Note | Unset, data)
-
-        note = _parse_note(d.pop("note", UNSET))
-
         inbox_task_load_result = cls(
             inbox_task=inbox_task,
-            contacts=contacts,
             aspect=aspect,
             time_event_blocks=time_event_blocks,
             chapter=chapter,
@@ -589,7 +539,6 @@ class InboxTaskLoadResult:
             slack_task=slack_task,
             email_task=email_task,
             todo_task=todo_task,
-            note=note,
         )
 
         inbox_task_load_result.additional_properties = d

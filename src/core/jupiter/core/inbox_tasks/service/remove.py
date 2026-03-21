@@ -1,10 +1,6 @@
 """Shared service for removing an inbox task."""
 
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
-from jupiter.core.common.sub.notes.namespace import NoteNamespace
-from jupiter.core.common.sub.notes.service.remove import (
-    NoteRemoveService,
-)
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.sub.activity.root import (
@@ -41,11 +37,6 @@ class InboxTaskRemoveService:
         )
         for time_plan_activity in time_plan_activities:
             await uow.get(TimePlanActivityRespository).remove(time_plan_activity.ref_id)
-
-        note_remove_service = NoteRemoveService()
-        await note_remove_service.remove_for_source(
-            ctx, uow, NoteNamespace.INBOX_TASK, inbox_task.ref_id
-        )
 
         await uow.get_for(InboxTask).remove(inbox_task.ref_id)
         await progress_reporter.mark_removed(inbox_task)

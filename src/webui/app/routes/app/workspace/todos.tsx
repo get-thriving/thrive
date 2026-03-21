@@ -167,7 +167,6 @@ export default function Todos() {
 
   const inboxTasksByRefId: { [key: string]: InboxTask } = {};
   const moreInfoByRefId: { [key: string]: InboxTaskParent } = {};
-  const inboxTaskContactsByInboxTaskRefId = new Map<string, Array<Contact>>();
   for (const entry of todoInboxEntries) {
     const inboxTask = entry.inbox_task as InboxTask;
     inboxTasksByRefId[inboxTask.ref_id] = inboxTask;
@@ -177,10 +176,6 @@ export default function Todos() {
       goal: entry.goal ?? undefined,
       todoTask: entry.todo_task,
     };
-    inboxTaskContactsByInboxTaskRefId.set(
-      inboxTask.ref_id,
-      entry.contacts ?? [],
-    );
   }
 
   function onDragStart(start: DragStart) {
@@ -471,9 +466,6 @@ export default function Todos() {
               actionableTime={selectedActionableTime}
               onCardMarkDone={handleCardMarkDone}
               onCardMarkNotDone={handleCardMarkNotDone}
-              inboxTaskContactsByInboxTaskRefId={
-                inboxTaskContactsByInboxTaskRefId
-              }
             />
           </>
         )}
@@ -491,9 +483,6 @@ export default function Todos() {
                   moreInfoByRefId={moreInfoByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  inboxTaskContactsByInboxTaskRefId={
-                    inboxTaskContactsByInboxTaskRefId
-                  }
                   includeGeneratedNotStarted={false}
                   showOptions={{
                     showSource: false,
@@ -532,9 +521,6 @@ export default function Todos() {
                       actionableTime={selectedActionableTime}
                       allowEisen={e}
                       draggedInboxTaskId={draggedInboxTaskId}
-                      inboxTaskContactsByInboxTaskRefId={
-                        inboxTaskContactsByInboxTaskRefId
-                      }
                       includeGeneratedNotStarted={false}
                       showOptions={{
                         showSource: false,
@@ -567,9 +553,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
                 includeGeneratedNotStarted={false}
                 emptyParent="todo task"
                 emptyParentLabel="New Todo Task"
@@ -595,9 +578,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                inboxTaskContactsByInboxTaskRefId={
-                  inboxTaskContactsByInboxTaskRefId
-                }
                 includeGeneratedNotStarted={false}
                 emptyParent="todo task"
                 emptyParentLabel="New Todo Task"
@@ -628,7 +608,6 @@ interface TodoSwiftViewProps {
   actionableTime: ActionableTime;
   onCardMarkDone: (inboxTask: InboxTask) => void;
   onCardMarkNotDone: (inboxTask: InboxTask) => void;
-  inboxTaskContactsByInboxTaskRefId: Map<string, Array<Contact>>;
 }
 
 function TodoSwiftView(props: TodoSwiftViewProps) {
@@ -750,7 +729,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
     },
     optimisticUpdates: props.optimisticUpdates,
     moreInfoByRefId: props.moreInfoByRefId,
-    inboxTaskContactsByInboxTaskRefId: props.inboxTaskContactsByInboxTaskRefId,
     onCardMarkDone: props.onCardMarkDone,
     onCardMarkNotDone: props.onCardMarkNotDone,
     cardLinkResolver: (inboxTask: InboxTask, parent?: InboxTaskParent) =>
