@@ -74,7 +74,6 @@ def test_api_working_mem_load_settings(api_url: str, api_key: str) -> None:
     )
     assert response.status_code == 200
     assert "generation_period" in response.json()
-    assert "cleanup_aspect" in response.json()
     assert "clean_up_inbox_tasks" in response.json()
 
 

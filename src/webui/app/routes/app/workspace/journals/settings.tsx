@@ -41,7 +41,6 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -69,7 +68,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationInAdvanceDaysForMonthly: z.coerce.number().optional(),
     generationInAdvanceDaysForQuarterly: z.coerce.number().optional(),
     generationInAdvanceDaysForYearly: z.coerce.number().optional(),
-    writingTaskAspect: z.string().optional(),
     writingTaskEisen: z.nativeEnum(Eisen).optional(),
     writingTaskDifficulty: z.nativeEnum(Difficulty).optional(),
   }),
@@ -85,11 +83,6 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_aspects: true,
-  });
-
   const journalSettingsResponse = await apiClient.journals.journalLoadSettings(
     {},
   );
@@ -98,10 +91,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     periods: journalSettingsResponse.periods,
     generationApproach: journalSettingsResponse.generation_approach,
     generationInAdvanceDays: journalSettingsResponse.generation_in_advance_days,
-    writingTaskAspect: journalSettingsResponse.writing_task_aspect,
     writingTaskGenParams: journalSettingsResponse.writing_task_gen_params,
     writingTasks: journalSettingsResponse.writing_tasks,
-    allAspects: summaryResponse.aspects || undefined,
   });
 }
 
@@ -148,10 +139,6 @@ export async function action({ request }: ActionFunctionArgs) {
           generation_in_advance_days: {
             should_change: true,
             value: generationInAdvanceDays,
-          },
-          writing_task_aspect_ref_id: {
-            should_change: true,
-            value: form.writingTaskAspect,
           },
           writing_task_eisen: {
             should_change: true,
@@ -322,26 +309,6 @@ export default function JournalsSettings() {
                 </Divider>
 
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  {isWorkspaceFeatureAvailable(
-                    topLevelInfo.workspace,
-                    WorkspaceFeature.LIFE_PLAN,
-                  ) && (
-                    <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                      <AspectSelect
-                        name="writingTaskAspect"
-                        label="Writing Task Aspect"
-                        inputsEnabled={inputsEnabled}
-                        disabled={false}
-                        allAspects={loaderData.allAspects!}
-                        defaultValue={loaderData.writingTaskAspect?.ref_id}
-                      />
-                      <FieldError
-                        actionResult={actionData}
-                        fieldName="/writing_task_aspect_ref_id"
-                      />
-                    </FormControl>
-                  )}
-
                   <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                     <FormLabel id="writingTaskEisen">
                       Writing Task Eisen

@@ -309,9 +309,6 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
 )
-from jupiter_webapi_client.api.metrics.metric_change_collection_aspect import (
-    asyncio_detailed as metric_change_collection_aspect,
-)
 from jupiter_webapi_client.api.metrics.metric_create import (
     asyncio_detailed as metric_create,
 )
@@ -402,9 +399,6 @@ from jupiter_webapi_client.api.prm.occasion_update import (
 )
 from jupiter_webapi_client.api.prm.person_archive import (
     asyncio_detailed as person_archive,
-)
-from jupiter_webapi_client.api.prm.person_change_catch_up_aspect import (
-    asyncio_detailed as person_change_catch_up_aspect,
 )
 from jupiter_webapi_client.api.prm.person_create import (
     asyncio_detailed as person_create,
@@ -1163,10 +1157,6 @@ async def main() -> None:
                     JupiterApiGatewayMethod.delete(metric_remove),
                 ),
                 JupiterApiResource.build(
-                    "change-collection-aspect",
-                    JupiterApiGatewayMethod.post(metric_change_collection_aspect),
-                ),
-                JupiterApiResource.build(
                     "entries",
                     JupiterApiGatewayMethod.post(metric_entry_create),
                     JupiterApiResource.build(
@@ -1188,10 +1178,6 @@ async def main() -> None:
             JupiterApiResource.build(
                 "settings",
                 JupiterApiGatewayMethod.get(person_load_settings),
-            ),
-            JupiterApiResource.build(
-                "change-catch-up-aspect",
-                JupiterApiGatewayMethod.post(person_change_catch_up_aspect),
             ),
             JupiterApiResource.build(
                 "persons",

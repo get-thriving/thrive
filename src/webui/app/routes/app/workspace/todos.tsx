@@ -171,9 +171,6 @@ export default function Todos() {
     const inboxTask = entry.inbox_task as InboxTask;
     inboxTasksByRefId[inboxTask.ref_id] = inboxTask;
     moreInfoByRefId[inboxTask.ref_id] = {
-      aspect: entry.aspect ?? undefined,
-      chapter: entry.chapter ?? undefined,
-      goal: entry.goal ?? undefined,
       todoTask: entry.todo_task,
     };
   }

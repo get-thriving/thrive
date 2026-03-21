@@ -25,17 +25,6 @@ from jupiter.core.journals.generation_approach import (
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
-from jupiter.core.metrics.collection import MetricCollection
-from jupiter.core.prm.root import PRM
-from jupiter.core.push_integrations.group import (
-    PushIntegrationGroup,
-)
-from jupiter.core.push_integrations.sub.email.task_collection import (
-    EmailTaskCollection,
-)
-from jupiter.core.push_integrations.sub.slack.task_collection import (
-    SlackTaskCollection,
-)
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -99,27 +88,6 @@ class ClearAllUseCase(JupiterLoggedInMutationUseCase[ClearAllArgs, None]):
 
                 life_plan = await uow.get_for(LifePlan).load_by_parent(
                     workspace.ref_id,
-                )
-                metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-                    workspace.ref_id,
-                )
-                prm = await uow.get_for(PRM).load_by_parent(
-                    workspace.ref_id,
-                )
-                push_integration_group = await uow.get_for(
-                    PushIntegrationGroup
-                ).load_by_parent(
-                    workspace.ref_id,
-                )
-                slack_task_collection = await uow.get_for(
-                    SlackTaskCollection
-                ).load_by_parent(
-                    push_integration_group.ref_id,
-                )
-                email_task_collection = await uow.get_for(
-                    EmailTaskCollection
-                ).load_by_parent(
-                    push_integration_group.ref_id,
                 )
 
                 async with progress_reporter.section("Setting things back to default"):

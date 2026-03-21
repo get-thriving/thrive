@@ -1,9 +1,8 @@
-import type { InboxTask, AspectSummary } from "@jupiter/webapi-client";
+import type { InboxTask } from "@jupiter/webapi-client";
 import {
   ApiError,
   InboxTaskStatus,
   RecurringTaskPeriod,
-  WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import { FormControl, FormLabel } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
@@ -16,12 +15,10 @@ import { z } from "zod";
 import { parseForm } from "zodix";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
-import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -39,7 +36,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("update"),
     generationPeriod: z.nativeEnum(RecurringTaskPeriod),
-    cleanupAspect: z.string().optional(),
   }),
 ]);
 
@@ -51,17 +47,12 @@ export const handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
 
   const response = await apiClient.workingMem.workingMemLoadSettings({});
 
   return json({
     generationPeriod: response.generation_period,
-    cleanupAspect: response.cleanup_aspect,
     cleanUpInboxTasks: response.clean_up_inbox_tasks,
-    allAspects: summaryResponse.aspects as Array<AspectSummary>,
   });
 }
 
@@ -76,10 +67,6 @@ export async function action({ request }: ActionFunctionArgs) {
           generation_period: {
             should_change: true,
             value: form.generationPeriod,
-          },
-          cleanup_aspect_ref_id: {
-            should_change: form.cleanupAspect !== undefined,
-            value: form.cleanupAspect,
           },
         });
 
@@ -194,26 +181,6 @@ export default function WorkingMemSettings() {
             fieldName="/generation_period"
           />
         </FormControl>
-
-        {isWorkspaceFeatureAvailable(
-          topLevelInfo.workspace,
-          WorkspaceFeature.LIFE_PLAN,
-        ) && (
-          <FormControl fullWidth>
-            <AspectSelect
-              name="cleanupAspect"
-              label="Clean Up Aspect"
-              inputsEnabled={inputsEnabled}
-              allAspects={loaderData.allAspects}
-              disabled={false}
-              defaultValue={loaderData.cleanupAspect.ref_id}
-            />
-            <FieldError
-              actionResult={actionData}
-              fieldName="/cleanup_aspect_ref_id"
-            />
-          </FormControl>
-        )}
       </SectionCard>
 
       <SectionCard title="Cleanup Tasks">

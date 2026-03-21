@@ -62,10 +62,7 @@ export function TimePlanListByAspectActivities(
         const aspectActivities = props.otherActivities.filter((activity) => {
           switch (activity.target) {
             case TimePlanActivityTarget.INBOX_TASK:
-              return (
-                props.targetInboxTasksByRefId.get(activity.target_ref_id)
-                  ?.aspect_ref_id === aspect.ref_id
-              );
+              return false;
             case TimePlanActivityTarget.BIG_PLAN:
               return (
                 props.targetBigPlansByRefId.get(activity.target_ref_id)

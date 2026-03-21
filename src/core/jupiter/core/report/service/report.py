@@ -347,8 +347,6 @@ class ReportService:
         # Build per aspect breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            per_aspect_inbox_tasks_summary: dict[EntityName, WorkableSummary] = {}
-
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                 # all_big_plans.groupBy(it -> it.aspect..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
                 per_aspect_big_plans_summary = {

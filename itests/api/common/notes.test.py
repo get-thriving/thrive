@@ -74,7 +74,7 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
         f"{api_url}/v1/common/notes",
         headers=_headers(api_key),
         json={
-            "namespace": "inbox-task",
+            "namespace": "todo-task",
             "source_entity_ref_id": task.ref_id,
             "content": [
                 {
@@ -89,7 +89,7 @@ def test_api_common_note_create(api_url: str, api_key: str, create_inbox_task) -
     assert response.status_code == 200
 
     note = response.json()["new_note"]
-    assert note["namespace"] == "inbox-task"
+    assert note["namespace"] == "todo-task"
     assert note["source_entity_ref_id"] == task.ref_id
     assert note["archived"] is False
     assert "ref_id" in note
@@ -112,7 +112,7 @@ def test_api_common_note_load(
 
     loaded = response.json()["note"]
     assert loaded["ref_id"] == note.ref_id
-    assert loaded["namespace"] == "inbox-task"
+    assert loaded["namespace"] == "todo-task"
 
 
 def test_api_common_note_find(
@@ -122,7 +122,7 @@ def test_api_common_note_find(
     note = create_note(task.ref_id, "Find me")
 
     response = requests.get(
-        f"{api_url}/v1/common/notes?allow_archived=false&filter_namespace=inbox-task",
+        f"{api_url}/v1/common/notes?allow_archived=false&filter_namespace=todo-task",
         headers=_headers(api_key),
         timeout=10,
     )

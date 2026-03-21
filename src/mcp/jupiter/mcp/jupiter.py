@@ -299,9 +299,6 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
 )
-from jupiter_webapi_client.api.metrics.metric_change_collection_aspect import (
-    asyncio_detailed as metric_change_collection_aspect,
-)
 from jupiter_webapi_client.api.metrics.metric_create import (
     asyncio_detailed as metric_create,
 )
@@ -392,9 +389,6 @@ from jupiter_webapi_client.api.prm.occasion_update import (
 )
 from jupiter_webapi_client.api.prm.person_archive import (
     asyncio_detailed as person_archive,
-)
-from jupiter_webapi_client.api.prm.person_change_catch_up_aspect import (
-    asyncio_detailed as person_change_catch_up_aspect,
 )
 from jupiter_webapi_client.api.prm.person_create import (
     asyncio_detailed as person_create,
@@ -1094,11 +1088,6 @@ async def main() -> None:
         JupiterMcpTool.tool(
             "load-metric-settings", "Load metric settings", metric_load_settings
         ),
-        JupiterMcpTool.tool(
-            "change-metric-collection-aspect",
-            "Change the collection aspect of a metric",
-            metric_change_collection_aspect,
-        ),
         # --- Metric Entries ---
         JupiterMcpTool.tool(
             "create-metric-entry", "Create a metric entry", metric_entry_create
@@ -1118,11 +1107,6 @@ async def main() -> None:
         # --- PRM ---
         JupiterMcpTool.tool(
             "load-person-settings", "Load PRM person settings", person_load_settings
-        ),
-        JupiterMcpTool.tool(
-            "change-person-catch-up-aspect",
-            "Change the catch-up aspect for persons",
-            person_change_catch_up_aspect,
         ),
         # --- Persons ---
         JupiterMcpResource.resource("jupiter://prm/persons", person_find),

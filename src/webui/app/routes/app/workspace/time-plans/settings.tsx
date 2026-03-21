@@ -39,7 +39,6 @@ import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { PeriodSelect } from "@jupiter/core/common/component/period-select";
-import { AspectSelect } from "@jupiter/core/life_plan/sub/aspects/component/select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -68,7 +67,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     generationInAdvanceDaysForMonthly: z.coerce.number().optional(),
     generationInAdvanceDaysForQuarterly: z.coerce.number().optional(),
     generationInAdvanceDaysForYearly: z.coerce.number().optional(),
-    planningTaskAspect: z.string().optional(),
     planningTaskEisen: z.nativeEnum(Eisen).optional(),
     planningTaskDifficulty: z.nativeEnum(Difficulty).optional(),
   }),
@@ -84,11 +82,6 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_workspace: true,
-    include_aspects: true,
-  });
-
   const timePlanSettingsResponse =
     await apiClient.timePlans.timePlanLoadSettings({});
 
@@ -97,10 +90,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     generationApproach: timePlanSettingsResponse.generation_approach,
     generationInAdvanceDays:
       timePlanSettingsResponse.generation_in_advance_days,
-    planningTaskAspect: timePlanSettingsResponse.planning_task_aspect,
     planningTaskGenParams: timePlanSettingsResponse.planning_task_gen_params,
     planningTasks: timePlanSettingsResponse.planning_tasks,
-    allAspects: summaryResponse.aspects || undefined,
   });
 }
 
@@ -148,10 +139,6 @@ export async function action({ request }: ActionFunctionArgs) {
             should_change: true,
             value: generationInAdvanceDays,
           },
-          planning_task_aspect_ref_id:
-            form.planningTaskAspect !== undefined
-              ? { should_change: true, value: form.planningTaskAspect }
-              : { should_change: false },
           planning_task_eisen: {
             should_change: true,
             value: form.planningTaskEisen,
@@ -291,26 +278,6 @@ export default function TimePlansSettings() {
                 </Divider>
 
                 <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-                  {isWorkspaceFeatureAvailable(
-                    topLevelInfo.workspace,
-                    WorkspaceFeature.LIFE_PLAN,
-                  ) && (
-                    <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
-                      <AspectSelect
-                        name="planningTaskAspect"
-                        label="Planning Task Aspect"
-                        inputsEnabled={inputsEnabled}
-                        disabled={false}
-                        allAspects={loaderData.allAspects!}
-                        defaultValue={loaderData.planningTaskAspect?.ref_id}
-                      />
-                      <FieldError
-                        actionResult={actionData}
-                        fieldName="/planning_task_aspect_ref_id"
-                      />
-                    </FormControl>
-                  )}
-
                   <FormControl fullWidth sx={{ alignSelf: "flex-end" }}>
                     <FormLabel id="planningTaskEisen">
                       Planning Task Eisen

@@ -132,7 +132,7 @@ def test_api_common_contact_link_upsert(
         f"{api_url}/v1/common/contacts/link",
         headers=_headers(api_key),
         json={
-            "namespace": "inbox-task",
+            "namespace": "todo-task",
             "source_entity_ref_id": task.ref_id,
             "contact_names": ["John Doe"],
         },

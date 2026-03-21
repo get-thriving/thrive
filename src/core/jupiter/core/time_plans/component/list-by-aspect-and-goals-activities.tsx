@@ -43,10 +43,7 @@ export function TimePlanListByAspectAndGoalsActivities(
   function goalRefIdForActivity(activity: TimePlanActivity): EntityId | null {
     switch (activity.target) {
       case TimePlanActivityTarget.INBOX_TASK:
-        return (
-          (props.targetInboxTasksByRefId.get(activity.target_ref_id)
-            ?.goal_ref_id as EntityId | null | undefined) ?? null
-        );
+        return null;
       case TimePlanActivityTarget.BIG_PLAN:
         return (
           (props.targetBigPlansByRefId.get(activity.target_ref_id)
@@ -104,10 +101,7 @@ export function TimePlanListByAspectAndGoalsActivities(
         const aspectActivities = props.otherActivities.filter((activity) => {
           switch (activity.target) {
             case TimePlanActivityTarget.INBOX_TASK:
-              return (
-                props.targetInboxTasksByRefId.get(activity.target_ref_id)
-                  ?.aspect_ref_id === aspect.ref_id
-              );
+              return false;
             case TimePlanActivityTarget.BIG_PLAN:
               return (
                 props.targetBigPlansByRefId.get(activity.target_ref_id)

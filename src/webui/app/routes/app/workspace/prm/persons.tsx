@@ -1,4 +1,3 @@
-import TuneIcon from "@mui/icons-material/Tune";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -242,11 +241,6 @@ export default function Persons() {
                   icon: <GroupWorkIcon />,
                 }),
               ],
-            }),
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/prm/settings`,
-              icon: <TuneIcon />,
             }),
             FilterManyOptions(
               "Circles",

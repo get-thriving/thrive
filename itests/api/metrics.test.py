@@ -87,6 +87,7 @@ def test_api_metric_create(api_url: str, api_key: str) -> None:
             "is_key": True,
             "icon": "⚖️",
             "metric_unit": "weight",
+            "metric_direction": "up_is_good",
         },
         timeout=10,
     )
@@ -137,7 +138,6 @@ def test_api_metric_load_settings(api_url: str, api_key: str) -> None:
         timeout=10,
     )
     assert response.status_code == 200
-    assert "collection_aspect" in response.json()
 
 
 def test_api_metric_update(api_url: str, api_key: str, create_metric) -> None:
@@ -158,7 +158,7 @@ def test_api_metric_update(api_url: str, api_key: str, create_metric) -> None:
             "collection_actionable_from_month": {"should_change": False},
             "collection_due_at_day": {"should_change": False},
             "collection_due_at_month": {"should_change": False},
-            "metric_unit": {"should_change": False},
+            "metric_direction": {"should_change": False},
         },
         timeout=10,
     )
