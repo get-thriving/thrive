@@ -4,11 +4,14 @@ import type {
   LifePlan,
   MilestoneSummary,
   AspectSummary,
+  TimePlan,
 } from "@jupiter/webapi-client";
 import {
   ApiError,
   Difficulty,
   Eisen,
+  TimePlanActivityFeasability,
+  TimePlanActivityKind,
   WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import {
@@ -23,7 +26,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { useActionData, useNavigation } from "@remix-run/react";
 import { StatusCodes } from "http-status-codes";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseQuery } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
@@ -42,6 +45,9 @@ import {
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
 import { LifePlanAssociations } from "@jupiter/core/life_plan/components/life-plan-associations";
+import { findActiveChaptersForSuggestions } from "@jupiter/core/life_plan/sub/chapters/root";
+import { TimePlanActivityFeasabilitySelect } from "@jupiter/core/time_plans/sub/activity/component/feasability-select";
+import { TimePlanActivitKindSelect } from "@jupiter/core/time_plans/sub/activity/component/kind-select";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -58,7 +64,10 @@ import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate
 import { getLoggedInApiClient } from "~/api-clients.server";
 
 const ParamsSchema = z.object({});
+
 const QuerySchema = z.object({
+  timePlanReason: z.literal("for-time-plan").optional(),
+  timePlanRefId: z.string().optional(),
   initialDueDate: z.enum(["day", "week", "month", "year"]).optional(),
 });
 
@@ -72,6 +81,10 @@ const CreateFormSchema = z.object({
   difficulty: z.nativeEnum(Difficulty),
   actionableDate: z.string().optional(),
   dueDate: z.string().optional(),
+  timePlanActivityKind: z.nativeEnum(TimePlanActivityKind).optional(),
+  timePlanActivityFeasability: z
+    .nativeEnum(TimePlanActivityFeasability)
+    .optional(),
 });
 
 export const handle = {
@@ -81,6 +94,25 @@ export const handle = {
 export async function loader({ request }: LoaderFunctionArgs) {
   const query = parseQuery(request, QuerySchema);
   const apiClient = await getLoggedInApiClient(request);
+
+  const timePlanReason = query.timePlanReason || "standard";
+
+  let associatedTimePlan = null;
+  if (timePlanReason === "for-time-plan") {
+    if (!query.timePlanRefId) {
+      throw new Response("Missing Time Plan Id", { status: 500 });
+    }
+
+    const timePlanResult = await apiClient.timePlans.timePlanLoad({
+      allow_archived: false,
+      ref_id: query.timePlanRefId,
+      include_targets: false,
+      include_completed_nontarget: false,
+      include_other_time_plans: false,
+    });
+
+    associatedTimePlan = timePlanResult.time_plan;
+  }
 
   const summaryResponse = await apiClient.application.getSummaries({
     include_life_plan: true,
@@ -92,6 +124,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return json({
     initialDueDate: query.initialDueDate,
+    timePlanReason: timePlanReason,
+    associatedTimePlan: associatedTimePlan,
     rootAspect: summaryResponse.root_aspect as AspectSummary | null,
     lifePlan: summaryResponse.life_plan as LifePlan | null,
     allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
@@ -103,11 +137,20 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
+  const query = parseQuery(request, QuerySchema);
   const form = await parseForm(request, CreateFormSchema);
 
   try {
+    const timePlanReason = query.timePlanReason || "standard";
+
     const result = await apiClient.todo.todoTaskCreate({
       name: form.name,
+      time_plan_ref_id:
+        timePlanReason === "standard"
+          ? undefined
+          : (query.timePlanRefId as string),
+      time_plan_activity_kind: form.timePlanActivityKind,
+      time_plan_activity_feasability: form.timePlanActivityFeasability,
       aspect_ref_id: form.aspect !== undefined ? form.aspect : undefined,
       chapter_ref_id:
         form.chapter !== undefined && form.chapter !== ""
@@ -128,7 +171,17 @@ export async function action({ request }: ActionFunctionArgs) {
           : undefined,
     });
 
-    return redirect(`/app/workspace/todos/${result.new_todo_task.ref_id}`);
+    switch (timePlanReason) {
+      case "standard":
+        return redirect(
+          `/app/workspace/todos/${result.new_todo_task.ref_id}`,
+        );
+
+      case "for-time-plan":
+        return redirect(
+          `/app/workspace/time-plans/${result.new_time_plan_activity?.time_plan_ref_id}/${result.new_time_plan_activity?.ref_id}`,
+        );
+    }
   } catch (error) {
     if (
       error instanceof ApiError &&
@@ -155,27 +208,55 @@ export default function NewTodo() {
   const birthdayDate = loaderData.lifePlan
     ? lifePlanBirthdayDate(loaderData.lifePlan)
     : null;
+  const todayDate = aDateToDate(topLevelInfo.today);
 
   const [selectedAspectRefId, setSelectedAspectRefId] = useState(
     loaderData.rootAspect?.ref_id ?? "",
   );
+  const chaptersForSuggestions = useMemo(
+    () =>
+      birthdayDate
+        ? findActiveChaptersForSuggestions(
+            (loaderData.allChapters ?? []).filter(
+              (chapter) => chapter.aspect_ref_id === selectedAspectRefId,
+            ),
+            birthdayDate,
+            todayDate,
+            loaderData.allMilestones ?? [],
+          )
+        : [],
+    [
+      loaderData.allChapters,
+      loaderData.allMilestones,
+      selectedAspectRefId,
+      birthdayDate,
+      todayDate,
+    ],
+  );
 
   const inferredInitialDueDate =
-    loaderData.initialDueDate === "day"
-      ? dateToAdate(aDateToDate(topLevelInfo.today).endOf("day"))
-      : loaderData.initialDueDate === "week"
-        ? dateToAdate(
-            aDateToDate(topLevelInfo.today).endOf("week").endOf("day"),
-          )
-        : loaderData.initialDueDate === "month"
+    loaderData.timePlanReason === "for-time-plan"
+      ? (loaderData.associatedTimePlan as TimePlan).end_date
+      : loaderData.initialDueDate === "day"
+        ? dateToAdate(aDateToDate(topLevelInfo.today).endOf("day"))
+        : loaderData.initialDueDate === "week"
           ? dateToAdate(
-              aDateToDate(topLevelInfo.today).endOf("month").endOf("day"),
+              aDateToDate(topLevelInfo.today).endOf("week").endOf("day"),
             )
-          : loaderData.initialDueDate === "year"
+          : loaderData.initialDueDate === "month"
             ? dateToAdate(
-                aDateToDate(topLevelInfo.today).endOf("year").endOf("day"),
+                aDateToDate(topLevelInfo.today).endOf("month").endOf("day"),
               )
-            : undefined;
+            : loaderData.initialDueDate === "year"
+              ? dateToAdate(
+                  aDateToDate(topLevelInfo.today).endOf("year").endOf("day"),
+                )
+              : undefined;
+
+  const inferredInitialActionableDate =
+    loaderData.timePlanReason === "for-time-plan"
+      ? (loaderData.associatedTimePlan as TimePlan).start_date
+      : undefined;
 
   return (
     <LeafPanel
@@ -272,8 +353,11 @@ export default function NewTodo() {
             name="actionableDate"
             label="actionableDate"
             inputsEnabled={inputsEnabled}
+            defaultValue={inferredInitialActionableDate}
             suggestedDates={getSuggestedDatesForTodoTaskActionableDate(
               topLevelInfo.today,
+              loaderData.associatedTimePlan,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/actionable_date" />
@@ -290,10 +374,46 @@ export default function NewTodo() {
             defaultValue={inferredInitialDueDate}
             suggestedDates={getSuggestedDatesForTodoTaskDueDate(
               topLevelInfo.today,
+              loaderData.associatedTimePlan,
+              chaptersForSuggestions,
             )}
           />
           <FieldError actionResult={actionData} fieldName="/due_date" />
         </FormControl>
+
+        {loaderData.timePlanReason === "for-time-plan" && (
+          <>
+            <FormControl fullWidth>
+              <FormLabel id="timePlanActivityKind">
+                Time Plan Activity Kind
+              </FormLabel>
+              <TimePlanActivitKindSelect
+                name="timePlanActivityKind"
+                defaultValue={TimePlanActivityKind.FINISH}
+                inputsEnabled={inputsEnabled}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/time_plan_activity_kind"
+              />
+            </FormControl>
+
+            <FormControl fullWidth>
+              <FormLabel id="timePlanActivityFeasability">
+                Time Plan Activity Feasability
+              </FormLabel>
+              <TimePlanActivityFeasabilitySelect
+                name="timePlanActivityFeasability"
+                defaultValue={TimePlanActivityFeasability.NICE_TO_HAVE}
+                inputsEnabled={inputsEnabled}
+              />
+              <FieldError
+                actionResult={actionData}
+                fieldName="/time_plan_activity_feasability"
+              />
+            </FormControl>
+          </>
+        )}
       </SectionCard>
     </LeafPanel>
   );

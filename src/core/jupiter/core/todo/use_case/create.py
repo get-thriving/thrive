@@ -15,6 +15,16 @@ from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect, AspectRepository
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
+from jupiter.core.time_plans.root import TimePlan
+from jupiter.core.time_plans.sub.activity.feasability import (
+    TimePlanActivityFeasability,
+)
+from jupiter.core.time_plans.sub.activity.kind import (
+    TimePlanActivityKind,
+)
+from jupiter.core.time_plans.sub.activity.root import (
+    TimePlanActivity,
+)
 from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.todo.root import TodoTask
@@ -33,6 +43,7 @@ from jupiter.framework.use_case_io import (
     use_case_args,
     use_case_result,
 )
+from jupiter.framework.utils.generic_creator import generic_creator
 
 
 @use_case_args
@@ -43,6 +54,9 @@ class TodoTaskCreateArgs(UseCaseArgsBase):
     aspect_ref_id: EntityId | None
     chapter_ref_id: EntityId | None
     goal_ref_id: EntityId | None
+    time_plan_ref_id: EntityId | None
+    time_plan_activity_kind: TimePlanActivityKind | None
+    time_plan_activity_feasability: TimePlanActivityFeasability | None
     is_key: bool
     eisen: Eisen
     difficulty: Difficulty
@@ -56,6 +70,7 @@ class TodoTaskCreateResult(UseCaseResultBase):
 
     new_todo_task: TodoTask
     new_inbox_task: InboxTask
+    new_time_plan_activity: TimePlanActivity | None
 
 
 @mutation_use_case(WorkspaceFeature.TODO_TASK)
@@ -106,6 +121,10 @@ class TodoTaskCreateUseCase(
                     f"Goal does not belong to aspect '{the_aspect.name}'"
                 )
 
+        time_plan: TimePlan | None = None
+        if args.time_plan_ref_id:
+            time_plan = await uow.get_for(TimePlan).load_by_id(args.time_plan_ref_id)
+
         todo_domain = await uow.get_for(TodoDomain).load_by_parent(workspace.ref_id)
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id
@@ -134,10 +153,29 @@ class TodoTaskCreateUseCase(
             actionable_date=args.actionable_date,
             due_date=args.due_date,
         )
-        new_inbox_task = await uow.get_for(InboxTask).create(new_inbox_task)
-        await progress_reporter.mark_created(new_inbox_task)
+        new_inbox_task = await generic_creator(uow, progress_reporter, new_inbox_task)
+
+        new_time_plan_activity = None
+        if time_plan:
+            time_plan_activity_kind = args.time_plan_activity_kind
+            time_plan_activity_feasability = args.time_plan_activity_feasability
+            if not time_plan_activity_kind:
+                raise InputValidationError("An activity kind is required")
+            if not time_plan_activity_feasability:
+                raise InputValidationError("An activity feasability is required")
+            new_time_plan_activity = TimePlanActivity.new_activity_for_inbox_task(
+                context.domain_context,
+                time_plan_ref_id=time_plan.ref_id,
+                inbox_task_ref_id=new_inbox_task.ref_id,
+                kind=time_plan_activity_kind,
+                feasability=time_plan_activity_feasability,
+            )
+            new_time_plan_activity = await generic_creator(
+                uow, progress_reporter, new_time_plan_activity
+            )
 
         return TodoTaskCreateResult(
             new_todo_task=new_todo_task,
             new_inbox_task=new_inbox_task,
+            new_time_plan_activity=new_time_plan_activity,
         )

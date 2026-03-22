@@ -474,18 +474,19 @@ def test_webui_time_plan_link_previous_time_plan(page: Page, create_time_plan) -
     )
 
 
-def test_webui_time_plan_create_new_inbox_task_activity(
+def test_webui_time_plan_create_new_todo_task_activity(
     page: Page, create_time_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
-    page.locator("a", has_text="New Inbox Task").click()
+    page.locator("#section-action-nav-multiple-compact-button").click()
+    page.get_by_role("menuitem", name="New Todo").click()
 
-    page.wait_for_url(re.compile("/app/workspace/inbox-tasks/new"))
+    page.wait_for_url(re.compile("/app/workspace/todos/new"))
 
-    page.locator('input[name="name"]').fill("New Inbox Task")
-    page.locator("button[id='inbox-task-create']").click()
+    page.locator('input[name="name"]').fill("New Todo Task")
+    page.locator("button[id='todo-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -497,26 +498,23 @@ def test_webui_time_plan_create_new_inbox_task_activity(
     ).to_have_attribute("aria-pressed", "true")
 
     expect(page.locator("input[name='targetInboxTaskName']")).to_have_value(
-        "New Inbox Task"
+        "New Todo Task"
     )
 
 
-def test_webui_time_plan_create_new_inbox_task_with_big_plan_activity(
-    page: Page, create_time_plan, create_big_plan
+def test_webui_time_plan_create_new_todo_task_shows_in_activities(
+    page: Page, create_time_plan
 ) -> None:
     time_plan = create_time_plan("2024-06-18", RecurringTaskPeriod.DAILY)
-    _ = create_big_plan("The Big Plan")
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
-    page.locator("a", has_text="New Inbox Task").click()
+    page.locator("#section-action-nav-multiple-compact-button").click()
+    page.get_by_role("menuitem", name="New Todo").click()
 
-    page.wait_for_url(re.compile("/app/workspace/inbox-tasks/new"))
+    page.wait_for_url(re.compile("/app/workspace/todos/new"))
 
-    page.locator('input[name="name"]').fill("New Inbox Task")
-    page.locator("#bigPlan").locator("..").click()
-    page.locator("li", has_text="The Big Plan").click()
-
-    page.locator("button[id='inbox-task-create']").click()
+    page.locator('input[name="name"]').fill("New Todo Task")
+    page.locator("button[id='todo-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -527,25 +525,9 @@ def test_webui_time_plan_create_new_inbox_task_with_big_plan_activity(
         page.locator("button[id='time-plan-activity-feasability-nice-to-have']")
     ).to_have_attribute("aria-pressed", "true")
 
-    expect(page.locator("input[name='targetInboxTaskName']")).to_have_value(
-        "New Inbox Task"
-    )
-
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
-    expect(page.locator("#time-plan-activities")).to_contain_text("New Inbox Task")
-    expect(page.locator("#time-plan-activities")).to_contain_text("The Big Plan")
-
-    page.locator("#time-plan-activities").locator("a", has_text="The Big Plan").click()
-
-    page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
-
-    expect(
-        page.locator("button[id='time-plan-activity-kind-finish']")
-    ).to_have_attribute("aria-pressed", "true")
-    expect(
-        page.locator("button[id='time-plan-activity-feasability-nice-to-have']")
-    ).to_have_attribute("aria-pressed", "true")
+    expect(page.locator("#time-plan-activities")).to_contain_text("New Todo Task")
 
 
 def test_webui_time_plan_create_new_big_plan_activity(
@@ -555,7 +537,7 @@ def test_webui_time_plan_create_new_big_plan_activity(
     page.goto(f"/app/workspace/time-plans/{time_plan.ref_id}")
 
     page.locator("#section-action-nav-multiple-compact-button").click()
-    page.locator("a", has_text="New Big Plan").click()
+    page.get_by_role("menuitem", name="New Big Plan").click()
 
     page.wait_for_url(re.compile("/app/workspace/big-plans/new"))
 
@@ -594,12 +576,10 @@ def test_webui_time_plan_create_new_inbox_task_from_big_plan_activity(
 
     page.locator("#leaf-panel").locator("a", has_text="New Inbox Task").click()
 
-    page.wait_for_url(re.compile(r"/app/workspace/inbox-tasks/new"))
+    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}/inbox-tasks/new"))
 
-    page.locator('input[name="name"]').fill("The New Inbox Task")
-    page.locator("button[id='inbox-task-create']").click()
-
-    expect(page.locator("input[id='bigPlan']")).to_have_value("The Big Plan")
+    page.locator("#leaflet-panel").locator('input[name="name"]').fill("The New Inbox Task")
+    page.locator("#leaflet-panel").locator("button[id='big-plan-inbox-task-create']").click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 
@@ -2296,8 +2276,6 @@ def test_webui_time_plan_generate_standard_config_via_gen(page: Page, new_user) 
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
@@ -2314,8 +2292,6 @@ def test_webui_time_plan_generate_standard_config_via_save(page: Page) -> None:
     expect(page.locator("#time-plans-all")).to_contain_text("Quarterly plan for")
 
     page.goto("/app/workspace/inbox-tasks")
-
-    page.locator("button", has_text="List").click()
 
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
@@ -2337,8 +2313,6 @@ def test_webui_time_plan_generate_different_config_add_monthly(page: Page) -> No
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).to_contain_text("Make monthly plan for")
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
@@ -2359,8 +2333,6 @@ def test_webui_time_plan_generate_different_config_remove_quarterly(page: Page) 
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
 
@@ -2380,8 +2352,6 @@ def test_webui_time_plan_generate_no_planning_tasks(page: Page) -> None:
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).not_to_contain_text("Make weekly plan for")
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
 
@@ -2400,8 +2370,6 @@ def test_webui_time_plan_generate_no_nothing(page: Page) -> None:
     expect(page.locator("#time-plans-all")).not_to_contain_text("Quarterly plan for")
 
     page.goto("/app/workspace/inbox-tasks")
-
-    page.locator("button", has_text="List").click()
 
     expect(page.locator("html")).not_to_contain_text("Make weekly plan for")
     expect(page.locator("html")).not_to_contain_text("Make quarterly plan for")
@@ -2434,8 +2402,6 @@ def test_webui_time_plan_generate_no_nothing_and_regenerate(page: Page) -> None:
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
@@ -2464,8 +2430,6 @@ def test_webui_time_plan_generate_does_not_override_existing_time_plans(
     ).to_contain_text("Recurring")
 
     page.goto("/app/workspace/inbox-tasks")
-
-    page.locator("button", has_text="List").click()
 
     expect(page.locator("html")).not_to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
@@ -2497,8 +2461,6 @@ def test_webui_time_plan_generate_does_not_override_existing_time_plans_with_no_
 
     page.goto("/app/workspace/inbox-tasks")
 
-    page.locator("button", has_text="List").click()
-
     expect(page.locator("html")).not_to_contain_text("Make weekly plan for")
     expect(page.locator("html")).to_contain_text("Make quarterly plan for")
 
@@ -2527,7 +2489,6 @@ def test_webui_time_plan_generate_planning_task_links_to_time_plan(page: Page) -
 
     page.goto("/app/workspace/inbox-tasks")
     page.reload()
-    page.locator("button", has_text="List").click()
 
     page.locator("p", has_text="Make weekly plan for").click()
 

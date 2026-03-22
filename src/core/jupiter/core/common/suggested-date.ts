@@ -91,10 +91,12 @@ export function getSuggestedDatesForInboxTaskDueDate(
 
 export function getSuggestedDatesForTodoTaskActionableDate(
   today: ADate,
+  timePlan?: TimePlan | null,
+  chapters?: ChapterForSuggestions[] | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
 
-  return [
+  const suggestedDates: SuggestedDate[] = [
     {
       date: today,
       label: "Today",
@@ -108,14 +110,34 @@ export function getSuggestedDatesForTodoTaskActionableDate(
       label: "Start of the next month",
     },
   ];
+
+  if (chapters) {
+    for (const chapter of chapters) {
+      suggestedDates.push({
+        date: chapter.start_date,
+        label: `Start of chapter "${chapter.name}"`,
+      });
+    }
+  }
+
+  if (timePlan) {
+    suggestedDates.push({
+      date: timePlan.start_date,
+      label: "Associated time plan start date",
+    });
+  }
+
+  return suggestedDates;
 }
 
 export function getSuggestedDatesForTodoTaskDueDate(
   today: ADate,
+  timePlan?: TimePlan | null,
+  chapters?: ChapterForSuggestions[] | null,
 ): SuggestedDate[] {
   const todayDate = aDateToDate(today);
 
-  return [
+  const suggestedDates: SuggestedDate[] = [
     {
       date: today,
       label: "Today",
@@ -129,6 +151,24 @@ export function getSuggestedDatesForTodoTaskDueDate(
       label: "End of the month",
     },
   ];
+
+  if (chapters) {
+    for (const chapter of chapters) {
+      suggestedDates.push({
+        date: chapter.end_date,
+        label: `End of chapter "${chapter.name}"`,
+      });
+    }
+  }
+
+  if (timePlan) {
+    suggestedDates.push({
+      date: timePlan.end_date,
+      label: "Associated time plan end date",
+    });
+  }
+
+  return suggestedDates;
 }
 
 export function getSuggestedDatesForBigPlanActionableDate(

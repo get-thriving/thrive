@@ -7,6 +7,8 @@ import type { Difficulty } from './Difficulty';
 import type { Eisen } from './Eisen';
 import type { EntityId } from './EntityId';
 import type { InboxTaskName } from './InboxTaskName';
+import type { TimePlanActivityFeasability } from './TimePlanActivityFeasability';
+import type { TimePlanActivityKind } from './TimePlanActivityKind';
 /**
  * TodoTaskCreate args.
  */
@@ -15,6 +17,9 @@ export type TodoTaskCreateArgs = {
     aspect_ref_id?: (EntityId | null);
     chapter_ref_id?: (EntityId | null);
     goal_ref_id?: (EntityId | null);
+    time_plan_ref_id?: (EntityId | null);
+    time_plan_activity_kind?: (TimePlanActivityKind | null);
+    time_plan_activity_feasability?: (TimePlanActivityFeasability | null);
     is_key: boolean;
     eisen: Eisen;
     difficulty: Difficulty;
