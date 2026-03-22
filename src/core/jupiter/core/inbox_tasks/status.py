@@ -12,7 +12,6 @@ class InboxTaskStatus(EnumValue):
 
     # Accepted
     NOT_STARTED = "not-started"
-    NOT_STARTED_GEN = "not-started-gen"
     # Working
     IN_PROGRESS = "in-progress"
     BLOCKED = "blocked"
@@ -28,7 +27,7 @@ class InboxTaskStatus(EnumValue):
     @property
     def is_not_started(self) -> bool:
         """Whether the status means work has been accepted on the inbox task."""
-        return self in (InboxTaskStatus.NOT_STARTED, InboxTaskStatus.NOT_STARTED_GEN)
+        return self == InboxTaskStatus.NOT_STARTED
 
     @property
     def is_working(self) -> bool:

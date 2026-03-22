@@ -34,11 +34,9 @@ interface SmallScreenKanbanBaseProps {
   emptyParentLabel?: string;
   emptyParentNewLocations?: string;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
-  includeGeneratedNotStarted?: boolean;
 }
 
 export function SmallScreenKanban(props: SmallScreenKanbanBaseProps) {
-  const includeGeneratedNotStarted = props.includeGeneratedNotStarted ?? true;
   const actionableDate = actionableTimeToDateTime(
     props.actionableTime,
     props.topLevelInfo.user.timezone,
@@ -56,21 +54,6 @@ export function SmallScreenKanban(props: SmallScreenKanbanBaseProps) {
       allowEisens: props.allowEisen ? [props.allowEisen] : undefined,
     },
   );
-  const recurringTasks = includeGeneratedNotStarted
-    ? filterInboxTasksForDisplay(
-        props.inboxTasks,
-        props.moreInfoByRefId,
-        props.optimisticUpdates,
-        {
-          allowArchived: false,
-          allowStatuses: [InboxTaskStatus.NOT_STARTED_GEN],
-          includeIfNoActionableDate: true,
-          includeIfNoDueDate: true,
-          actionableDateEnd: actionableDate,
-          allowEisens: props.allowEisen ? [props.allowEisen] : undefined,
-        },
-      )
-    : [];
   const inProgressTasks = filterInboxTasksForDisplay(
     props.inboxTasks,
     props.moreInfoByRefId,
@@ -127,16 +110,14 @@ export function SmallScreenKanban(props: SmallScreenKanbanBaseProps) {
   let initialSmallScreenSelectedTab = 0;
   if (notStartedTasks.length > 0) {
     initialSmallScreenSelectedTab = 0;
-  } else if (includeGeneratedNotStarted && recurringTasks.length > 0) {
-    initialSmallScreenSelectedTab = 1;
   } else if (inProgressTasks.length > 0) {
-    initialSmallScreenSelectedTab = includeGeneratedNotStarted ? 2 : 1;
+    initialSmallScreenSelectedTab = 1;
   } else if (blockedTasks.length > 0) {
-    initialSmallScreenSelectedTab = includeGeneratedNotStarted ? 3 : 2;
+    initialSmallScreenSelectedTab = 2;
   } else if (notDoneTasks.length > 0) {
-    initialSmallScreenSelectedTab = includeGeneratedNotStarted ? 4 : 3;
+    initialSmallScreenSelectedTab = 3;
   } else if (doneTasks.length > 0) {
-    initialSmallScreenSelectedTab = includeGeneratedNotStarted ? 5 : 4;
+    initialSmallScreenSelectedTab = 4;
   }
 
   const [smallScreenSelectedTab, setSmallScreenSelectedTab] = useState(
@@ -155,13 +136,6 @@ export function SmallScreenKanban(props: SmallScreenKanbanBaseProps) {
           iconPosition="top"
           label={inboxTaskStatusName(InboxTaskStatus.NOT_STARTED)}
         />
-        {includeGeneratedNotStarted && (
-          <Tab
-            icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.NOT_STARTED_GEN)}</p>}
-            iconPosition="top"
-            label={inboxTaskStatusName(InboxTaskStatus.NOT_STARTED_GEN)}
-          />
-        )}
         <Tab
           icon={<p>{inboxTaskStatusIcon(InboxTaskStatus.IN_PROGRESS)}</p>}
           iconPosition="top"
@@ -191,37 +165,29 @@ export function SmallScreenKanban(props: SmallScreenKanbanBaseProps) {
         props,
         props.allowEisen === undefined,
       )}
-      {includeGeneratedNotStarted &&
-        renderTabContent(
-          1,
-          recurringTasks,
-          smallScreenSelectedTab,
-          props,
-          props.allowEisen === undefined,
-        )}
       {renderTabContent(
-        includeGeneratedNotStarted ? 2 : 1,
+        1,
         inProgressTasks,
         smallScreenSelectedTab,
         props,
         props.allowEisen === undefined,
       )}
       {renderTabContent(
-        includeGeneratedNotStarted ? 3 : 2,
+        2,
         blockedTasks,
         smallScreenSelectedTab,
         props,
         props.allowEisen === undefined,
       )}
       {renderTabContent(
-        includeGeneratedNotStarted ? 4 : 3,
+        3,
         notDoneTasks,
         smallScreenSelectedTab,
         props,
         props.allowEisen === undefined,
       )}
       {renderTabContent(
-        includeGeneratedNotStarted ? 5 : 4,
+        4,
         doneTasks,
         smallScreenSelectedTab,
         props,

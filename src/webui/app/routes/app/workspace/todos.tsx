@@ -480,7 +480,7 @@ export default function Todos() {
                   moreInfoByRefId={moreInfoByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-                  includeGeneratedNotStarted={false}
+
                   showOptions={{
                     showSource: false,
                     showEisen: true,
@@ -517,7 +517,7 @@ export default function Todos() {
                       actionableTime={selectedActionableTime}
                       allowEisen={e}
                       draggedInboxTaskId={draggedInboxTaskId}
-                      includeGeneratedNotStarted={false}
+    
                       showOptions={{
                         showSource: false,
                         showEisen: false,
@@ -548,7 +548,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                includeGeneratedNotStarted={false}
                 emptyParent="todo task"
                 emptyParentLabel="New Todo Task"
                 emptyParentNewLocations="/app/workspace/todos/new"
@@ -573,7 +572,6 @@ export default function Todos() {
                 actionableTime={selectedActionableTime}
                 onCardMarkDone={handleCardMarkDone}
                 onCardMarkNotDone={handleCardMarkNotDone}
-                includeGeneratedNotStarted={false}
                 emptyParent="todo task"
                 emptyParentLabel="New Todo Task"
                 emptyParentNewLocations="/app/workspace/todos/new"
@@ -629,7 +627,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
       allowArchived: false,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],
@@ -647,7 +644,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
       allowArchived: false,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],
@@ -666,7 +662,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
       allowArchived: false,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],
@@ -685,7 +680,6 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
       allowArchived: false,
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

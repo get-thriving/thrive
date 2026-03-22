@@ -34,7 +34,6 @@ export function UpcomingBirthdaysWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.PERSON_OCCASION],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

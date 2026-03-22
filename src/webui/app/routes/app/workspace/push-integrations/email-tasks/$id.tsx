@@ -345,11 +345,7 @@ export default function EmailTask() {
             }
             label="Status"
           >
-            {Object.values(InboxTaskStatus)
-              .filter((s) => {
-                return s !== InboxTaskStatus.NOT_STARTED_GEN;
-              })
-              .map((s) => (
+            {Object.values(InboxTaskStatus).map((s) => (
                 <MenuItem key={s} value={s}>
                   {inboxTaskStatusName(s)}
                 </MenuItem>

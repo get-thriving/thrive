@@ -19,8 +19,6 @@ function statusToClass(
   switch (status) {
     case InboxTaskStatus.NOT_STARTED:
       return "primary";
-    case InboxTaskStatus.NOT_STARTED_GEN:
-      return "primary";
     case InboxTaskStatus.IN_PROGRESS:
       return "info";
     case InboxTaskStatus.BLOCKED:

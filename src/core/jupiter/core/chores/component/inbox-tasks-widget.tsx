@@ -38,7 +38,6 @@ export function ChoreInboxTasksWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],
@@ -57,7 +56,6 @@ export function ChoreInboxTasksWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

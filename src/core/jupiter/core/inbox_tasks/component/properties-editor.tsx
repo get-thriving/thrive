@@ -245,8 +245,7 @@ export function InboxTaskPropertiesEditor(
 
       <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
         <Stack direction="column" spacing={1} sx={{ width: "100%" }}>
-          {(props.inboxTask.status === InboxTaskStatus.NOT_STARTED ||
-            props.inboxTask.status === InboxTaskStatus.NOT_STARTED_GEN) && (
+          {props.inboxTask.status === InboxTaskStatus.NOT_STARTED && (
             <ButtonGroup fullWidth>
               <Button
                 size="small"

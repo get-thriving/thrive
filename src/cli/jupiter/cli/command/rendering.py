@@ -68,8 +68,6 @@ def inbox_task_status_to_rich_text(
 
     if status == InboxTaskStatus.NOT_STARTED:
         return Text("🔧")
-    elif status == InboxTaskStatus.NOT_STARTED_GEN:
-        return Text("🔧")
     elif status == InboxTaskStatus.IN_PROGRESS:
         return Text("🚧")
     elif status == InboxTaskStatus.BLOCKED:

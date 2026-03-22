@@ -431,8 +431,7 @@ export default function BigPlanInboxTaskEdit() {
 
         <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
           <Stack direction="column" spacing={1} sx={{ width: "100%" }}>
-            {(inboxTask.status === InboxTaskStatus.NOT_STARTED ||
-              inboxTask.status === InboxTaskStatus.NOT_STARTED_GEN) && (
+            {inboxTask.status === InboxTaskStatus.NOT_STARTED && (
               <ButtonGroup fullWidth>
                 <Button
                   size="small"

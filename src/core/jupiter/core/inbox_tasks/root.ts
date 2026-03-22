@@ -263,34 +263,10 @@ export function isInboxTaskCoreFieldEditable(source: InboxTaskSource): boolean {
 }
 
 export function canInboxTaskBeInStatus(
-  inboxTasks: InboxTask,
-  status: InboxTaskStatus,
+  _inboxTasks: InboxTask,
+  _status: InboxTaskStatus,
 ): boolean {
-  switch (inboxTasks.source) {
-    case InboxTaskSource.TODO_TASK:
-    case InboxTaskSource.BIG_PLAN:
-      if (status === InboxTaskStatus.NOT_STARTED_GEN) {
-        return false;
-      }
-
-      return true;
-    case InboxTaskSource.WORKING_MEM_CLEANUP:
-    case InboxTaskSource.TIME_PLAN:
-    case InboxTaskSource.HABIT:
-    case InboxTaskSource.CHORE:
-    case InboxTaskSource.JOURNAL:
-    case InboxTaskSource.METRIC:
-    case InboxTaskSource.PERSON_OCCASION:
-    case InboxTaskSource.PERSON_CATCH_UP:
-    case InboxTaskSource.SLACK_TASK:
-    case InboxTaskSource.EMAIL_TASK:
-    case InboxTaskSource.LIFE_PLAN_EVAL:
-      if (status === InboxTaskStatus.NOT_STARTED) {
-        return false;
-      }
-
-      return true;
-  }
+  return true;
 }
 
 export function doesInboxTaskAllowChangingBigPlan(

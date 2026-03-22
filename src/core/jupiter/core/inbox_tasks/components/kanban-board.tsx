@@ -50,7 +50,6 @@ export interface InboxTaskKanbanBoardProps {
   draggedInboxTaskId?: string;
   showOptions?: InboxTaskShowOptions;
   cardLinkResolver?: (it: InboxTask, parent?: InboxTaskParent) => string;
-  includeGeneratedNotStarted?: boolean;
 }
 
 export function InboxTaskKanbanBoard({
@@ -65,7 +64,6 @@ export function InboxTaskKanbanBoard({
   draggedInboxTaskId,
   showOptions,
   cardLinkResolver,
-  includeGeneratedNotStarted = true,
 }: InboxTaskKanbanBoardProps) {
   const resolvedShowOptions = {
     ...defaultShowOptions,
@@ -73,7 +71,7 @@ export function InboxTaskKanbanBoard({
     showEisen: allowEisen === undefined && (showOptions?.showEisen ?? true),
   };
 
-  const columnSize = includeGeneratedNotStarted ? 2 : 2.4;
+  const columnSize = 2.4;
 
   return (
     <Grid container spacing={2} style={{ paddingBottom: "1.25rem" }}>
@@ -93,25 +91,6 @@ export function InboxTaskKanbanBoard({
           cardLinkResolver={cardLinkResolver}
         />
       </Grid>
-
-      {includeGeneratedNotStarted && (
-        <Grid size={{ xs: columnSize }} sx={{ position: "relative" }}>
-          <InboxTasksColumn
-            topLevelInfo={topLevelInfo}
-            inboxTasks={inboxTasks}
-            optimisticUpdates={optimisticUpdates}
-            inboxTasksByRefId={inboxTasksByRefId}
-            moreInfoByRefId={moreInfoByRefId}
-            actionableTime={actionableTime}
-            allowStatus={InboxTaskStatus.NOT_STARTED_GEN}
-            allowEisen={allowEisen}
-            groupId={groupId}
-            showOptions={resolvedShowOptions}
-            draggedInboxTaskId={draggedInboxTaskId}
-            cardLinkResolver={cardLinkResolver}
-          />
-        </Grid>
-      )}
 
       <Grid size={{ xs: columnSize }} sx={{ position: "relative" }}>
         <InboxTasksColumn

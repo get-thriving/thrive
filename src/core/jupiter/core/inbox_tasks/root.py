@@ -169,7 +169,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.WORKING_MEM_CLEANUP,
             name=name,
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=Eisen.IMPORTANT,
             difficulty=Difficulty.EASY,
@@ -204,7 +204,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.TIME_PLAN,
             name=name,
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=eisen,
             difficulty=difficulty,
@@ -244,7 +244,7 @@ class InboxTask(LeafEntity):
             name=InboxTask._build_name_for_habit(
                 name, recurring_task_repeat_index, repeats_in_period_count
             ),
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
@@ -280,7 +280,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.CHORE,
             name=name,
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=is_key,
             eisen=eisen,
             difficulty=difficulty,
@@ -315,7 +315,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.JOURNAL,
             name=name,
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=eisen,
             difficulty=difficulty,
@@ -350,7 +350,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.METRIC,
             name=InboxTask._build_name_for_collection_task(name),
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=eisen,
             difficulty=difficulty,
@@ -385,7 +385,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.PERSON_CATCH_UP,
             name=InboxTask._build_name_for_catch_up_task(name),
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=eisen,
             difficulty=difficulty,
@@ -422,7 +422,7 @@ class InboxTask(LeafEntity):
             name=InboxTask._build_name_for_occasion_task(
                 name, occasion_kind, occasion_person_name
             ),
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=Eisen.IMPORTANT,
             difficulty=Difficulty.EASY,
@@ -547,11 +547,6 @@ class InboxTask(LeafEntity):
         the_working_time = self.working_time
         the_completed_time = self.completed_time
         if status.should_change:
-            if status.just_the_value == InboxTaskStatus.NOT_STARTED_GEN:
-                raise InputValidationError(
-                    "Trying to change a user created task to a generated-only status",
-                )
-
             if (
                 not self.status.is_working_or_more
                 and status.just_the_value.is_working_or_more
@@ -621,10 +616,6 @@ class InboxTask(LeafEntity):
         the_working_time = self.working_time
         the_completed_time = self.completed_time
         if status.should_change:
-            if status.just_the_value == InboxTaskStatus.NOT_STARTED_GEN:
-                raise InputValidationError(
-                    "Trying to change a user created task to a generated-only status",
-                )
 
             if (
                 not self.status.is_working_or_more
@@ -813,7 +804,7 @@ class InboxTask(LeafEntity):
             inbox_task_collection=ParentLink(inbox_task_collection_ref_id),
             source=InboxTaskSource.LIFE_PLAN_EVAL,
             name=name,
-            status=InboxTaskStatus.NOT_STARTED_GEN,
+            status=InboxTaskStatus.NOT_STARTED,
             is_key=False,
             eisen=eisen,
             difficulty=difficulty,
@@ -1011,21 +1002,6 @@ class InboxTask(LeafEntity):
         the_working_time = self.working_time
         the_completed_time = self.completed_time
         if status.should_change:
-            if (
-                self.source.allow_user_changes
-                and status.just_the_value == InboxTaskStatus.NOT_STARTED_GEN
-            ):
-                raise InputValidationError(
-                    "Trying to change a user created task to a generated-only status",
-                )
-            if (
-                not self.source.allow_user_changes
-                and status.just_the_value == InboxTaskStatus.NOT_STARTED
-            ):
-                raise InputValidationError(
-                    "Trying to change a generated task to a user-only status",
-                )
-
             if (
                 not self.status.is_working_or_more
                 and status.just_the_value.is_working_or_more

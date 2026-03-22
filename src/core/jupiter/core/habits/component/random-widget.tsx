@@ -35,7 +35,6 @@ export function HabitRandomWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.HABIT],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

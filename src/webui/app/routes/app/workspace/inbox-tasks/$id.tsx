@@ -193,13 +193,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         } else if (form.intent === "block") {
           status = InboxTaskStatus.BLOCKED;
         } else if (form.intent === "stop") {
-          status = allowUserChanges(form.source)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         } else if (form.intent === "reactivate") {
-          status = allowUserChanges(form.source)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         }
 
         const result = await apiClient.inboxTasks.inboxTaskUpdate({

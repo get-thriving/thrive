@@ -4,8 +4,6 @@ export function inboxTaskStatusIcon(status: InboxTaskStatus): string {
   switch (status) {
     case InboxTaskStatus.NOT_STARTED:
       return "📥";
-    case InboxTaskStatus.NOT_STARTED_GEN:
-      return "📥";
     case InboxTaskStatus.IN_PROGRESS:
       return "🚧";
     case InboxTaskStatus.BLOCKED:
@@ -21,8 +19,6 @@ export function inboxTaskStatusName(status: InboxTaskStatus): string {
   switch (status) {
     case InboxTaskStatus.NOT_STARTED:
       return "Not Started";
-    case InboxTaskStatus.NOT_STARTED_GEN:
-      return "Not Started - Gen";
     case InboxTaskStatus.IN_PROGRESS:
       return "In Progress";
     case InboxTaskStatus.BLOCKED:
