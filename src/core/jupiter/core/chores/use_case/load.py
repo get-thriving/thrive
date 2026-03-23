@@ -10,6 +10,11 @@ from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -63,6 +68,7 @@ class ChoreLoadResult(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(WorkspaceFeature.CHORES)
@@ -159,6 +165,16 @@ class ChoreLoadUseCase(
         else:
             contacts = []
 
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.CHORE,
+            source_entity_ref_id=[chore.ref_id],
+        )
+
         return ChoreLoadResult(
             chore=chore,
             aspect=aspect,
@@ -170,4 +186,5 @@ class ChoreLoadUseCase(
             tags=tags,
             contacts=contacts,
             note=note,
+            time_event_blocks=time_event_blocks,
         )

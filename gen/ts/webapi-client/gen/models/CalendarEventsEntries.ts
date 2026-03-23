@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlanEntry } from './BigPlanEntry';
+import type { ChoreEntry } from './ChoreEntry';
+import type { HabitEntry } from './HabitEntry';
 import type { InboxTaskEntry } from './InboxTaskEntry';
 import type { PersonOccasionEntry } from './PersonOccasionEntry';
 import type { ScheduleFullDaysEventEntry } from './ScheduleFullDaysEventEntry';
@@ -18,6 +20,8 @@ export type CalendarEventsEntries = {
     inbox_task_entries: Array<InboxTaskEntry>;
     big_plan_entries: Array<BigPlanEntry>;
     todo_task_entries: Array<TodoTaskEntry>;
+    habit_entries: Array<HabitEntry>;
+    chore_entries: Array<ChoreEntry>;
     person_occasion_entries: Array<PersonOccasionEntry>;
     vacation_entries: Array<VacationEntry>;
 };

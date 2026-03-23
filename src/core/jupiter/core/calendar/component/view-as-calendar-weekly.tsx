@@ -99,6 +99,28 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
       });
     }
   }
+  for (const entry of props.entries.habit_entries) {
+    for (const timeEvent of entry.time_events) {
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of props.entries.chore_entries) {
+    for (const timeEvent of entry.time_events) {
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
 
   const partitionedCombinedTimeEventFullDays =
     combinedTimeEventFullDayEntryPartionByDay(combinedTimeEventFullDays);

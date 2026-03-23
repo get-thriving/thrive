@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BigPlan } from './BigPlan';
+import type { Chore } from './Chore';
+import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
@@ -16,5 +18,7 @@ export type TimeEventInDayBlockLoadResult = {
     inbox_task?: (InboxTask | null);
     big_plan?: (BigPlan | null);
     todo_task?: (TodoTask | null);
+    habit?: (Habit | null);
+    chore?: (Chore | null);
 };
 

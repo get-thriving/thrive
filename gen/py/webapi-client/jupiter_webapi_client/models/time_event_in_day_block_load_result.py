@@ -10,6 +10,8 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
+    from ..models.chore import Chore
+    from ..models.habit import Habit
     from ..models.inbox_task import InboxTask
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -29,6 +31,8 @@ class TimeEventInDayBlockLoadResult:
         inbox_task (InboxTask | None | Unset):
         big_plan (BigPlan | None | Unset):
         todo_task (None | TodoTask | Unset):
+        habit (Habit | None | Unset):
+        chore (Chore | None | Unset):
     """
 
     in_day_block: TimeEventInDayBlock
@@ -36,10 +40,14 @@ class TimeEventInDayBlockLoadResult:
     inbox_task: InboxTask | None | Unset = UNSET
     big_plan: BigPlan | None | Unset = UNSET
     todo_task: None | TodoTask | Unset = UNSET
+    habit: Habit | None | Unset = UNSET
+    chore: Chore | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.big_plan import BigPlan
+        from ..models.chore import Chore
+        from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.todo_task import TodoTask
@@ -78,6 +86,22 @@ class TimeEventInDayBlockLoadResult:
         else:
             todo_task = self.todo_task
 
+        habit: dict[str, Any] | None | Unset
+        if isinstance(self.habit, Unset):
+            habit = UNSET
+        elif isinstance(self.habit, Habit):
+            habit = self.habit.to_dict()
+        else:
+            habit = self.habit
+
+        chore: dict[str, Any] | None | Unset
+        if isinstance(self.chore, Unset):
+            chore = UNSET
+        elif isinstance(self.chore, Chore):
+            chore = self.chore.to_dict()
+        else:
+            chore = self.chore
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -93,12 +117,18 @@ class TimeEventInDayBlockLoadResult:
             field_dict["big_plan"] = big_plan
         if todo_task is not UNSET:
             field_dict["todo_task"] = todo_task
+        if habit is not UNSET:
+            field_dict["habit"] = habit
+        if chore is not UNSET:
+            field_dict["chore"] = chore
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan import BigPlan
+        from ..models.chore import Chore
+        from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.time_event_in_day_block import TimeEventInDayBlock
@@ -175,12 +205,48 @@ class TimeEventInDayBlockLoadResult:
 
         todo_task = _parse_todo_task(d.pop("todo_task", UNSET))
 
+        def _parse_habit(data: object) -> Habit | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                habit_type_0 = Habit.from_dict(data)
+
+                return habit_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Habit | None | Unset, data)
+
+        habit = _parse_habit(d.pop("habit", UNSET))
+
+        def _parse_chore(data: object) -> Chore | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chore_type_0 = Chore.from_dict(data)
+
+                return chore_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Chore | None | Unset, data)
+
+        chore = _parse_chore(d.pop("chore", UNSET))
+
         time_event_in_day_block_load_result = cls(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
             inbox_task=inbox_task,
             big_plan=big_plan,
             todo_task=todo_task,
+            habit=habit,
+            chore=chore,
         )
 
         time_event_in_day_block_load_result.additional_properties = d

@@ -127,6 +127,7 @@ from .chore_archive_args import ChoreArchiveArgs
 from .chore_collection import ChoreCollection
 from .chore_create_args import ChoreCreateArgs
 from .chore_create_result import ChoreCreateResult
+from .chore_entry import ChoreEntry
 from .chore_find_args import ChoreFindArgs
 from .chore_find_result import ChoreFindResult
 from .chore_find_result_entry import ChoreFindResultEntry
@@ -269,6 +270,7 @@ from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
 from .habit_create_args import HabitCreateArgs
 from .habit_create_result import HabitCreateResult
+from .habit_entry import HabitEntry
 from .habit_find_args import HabitFindArgs
 from .habit_find_result import HabitFindResult
 from .habit_find_result_entry import HabitFindResultEntry
@@ -753,6 +755,10 @@ from .time_event_in_day_block import TimeEventInDayBlock
 from .time_event_in_day_block_archive_args import TimeEventInDayBlockArchiveArgs
 from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBlockCreateForBigPlanArgs
 from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
+from .time_event_in_day_block_create_for_chore_args import TimeEventInDayBlockCreateForChoreArgs
+from .time_event_in_day_block_create_for_chore_result import TimeEventInDayBlockCreateForChoreResult
+from .time_event_in_day_block_create_for_habit_args import TimeEventInDayBlockCreateForHabitArgs
+from .time_event_in_day_block_create_for_habit_result import TimeEventInDayBlockCreateForHabitResult
 from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
 from .time_event_in_day_block_create_for_todo_task_args import TimeEventInDayBlockCreateForTodoTaskArgs
@@ -1055,6 +1061,7 @@ __all__ = (
     "ChoreCollection",
     "ChoreCreateArgs",
     "ChoreCreateResult",
+    "ChoreEntry",
     "ChoreFindArgs",
     "ChoreFindResult",
     "ChoreFindResultEntry",
@@ -1197,6 +1204,7 @@ __all__ = (
     "HabitCollection",
     "HabitCreateArgs",
     "HabitCreateResult",
+    "HabitEntry",
     "HabitFindArgs",
     "HabitFindResult",
     "HabitFindResultEntry",
@@ -1667,6 +1675,10 @@ __all__ = (
     "TimeEventInDayBlockArchiveArgs",
     "TimeEventInDayBlockCreateForBigPlanArgs",
     "TimeEventInDayBlockCreateForBigPlanResult",
+    "TimeEventInDayBlockCreateForChoreArgs",
+    "TimeEventInDayBlockCreateForChoreResult",
+    "TimeEventInDayBlockCreateForHabitArgs",
+    "TimeEventInDayBlockCreateForHabitResult",
     "TimeEventInDayBlockCreateForInboxTaskArgs",
     "TimeEventInDayBlockCreateForInboxTaskResult",
     "TimeEventInDayBlockCreateForTodoTaskArgs",

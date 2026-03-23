@@ -101,6 +101,34 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
+    case TimeEventNamespace.HABIT: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/habits/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case TimeEventNamespace.CHORE: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/chores/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
     case TimeEventNamespace.VACATION: {
       return (
         <Button

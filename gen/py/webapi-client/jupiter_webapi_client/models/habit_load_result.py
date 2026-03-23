@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="HabitLoadResult")
@@ -38,6 +39,7 @@ class HabitLoadResult:
         streak_mark_latest_date (str): A date or possibly a datetime for the application.
         tags (list[Tag]):
         contacts (list[Contact]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -53,6 +55,7 @@ class HabitLoadResult:
     streak_mark_latest_date: str
     tags: list[Tag]
     contacts: list[Contact]
+    time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -95,6 +98,11 @@ class HabitLoadResult:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
 
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
+
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
             chapter = UNSET
@@ -133,6 +141,7 @@ class HabitLoadResult:
                 "streak_mark_latest_date": streak_mark_latest_date,
                 "tags": tags,
                 "contacts": contacts,
+                "time_event_blocks": time_event_blocks,
             }
         )
         if chapter is not UNSET:
@@ -155,6 +164,7 @@ class HabitLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         habit = Habit.from_dict(d.pop("habit"))
@@ -196,6 +206,13 @@ class HabitLoadResult:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -259,6 +276,7 @@ class HabitLoadResult:
             streak_mark_latest_date=streak_mark_latest_date,
             tags=tags,
             contacts=contacts,
+            time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,
             note=note,

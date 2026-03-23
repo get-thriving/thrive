@@ -570,6 +570,12 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_in
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
     asyncio_detailed as time_event_in_day_block_create_for_todo_task,
 )
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
+    asyncio_detailed as time_event_in_day_block_create_for_habit,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
+    asyncio_detailed as time_event_in_day_block_create_for_chore,
+)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
 )
@@ -1371,6 +1377,18 @@ async def main() -> None:
                         "for-todo-task",
                         JupiterApiGatewayMethod.post(
                             time_event_in_day_block_create_for_todo_task,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-habit",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_habit,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-chore",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_chore,
                         ),
                     ),
                     JupiterApiResource.build(

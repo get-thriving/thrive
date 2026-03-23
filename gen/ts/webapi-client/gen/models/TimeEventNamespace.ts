@@ -12,5 +12,7 @@ export enum TimeEventNamespace {
     BIG_PLAN = 'big-plan',
     PERSON_OCCASION = 'person-occasion',
     TODO_TASK = 'todo-task',
+    HABIT = 'habit',
+    CHORE = 'chore',
     VACATION = 'vacation',
 }

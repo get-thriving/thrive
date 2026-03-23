@@ -7,10 +7,12 @@ from jupiter.core.common.sub.time_events.namespace import (
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
 )
+from jupiter.core.chores.root import Chore
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
+from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
@@ -46,6 +48,8 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
     inbox_task: InboxTask | None
     big_plan: BigPlan | None
     todo_task: TodoTask | None
+    habit: Habit | None
+    chore: Chore | None
 
 
 @readonly_use_case()
@@ -97,10 +101,26 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
+        habit = None
+        if in_day_block.namespace == TimeEventNamespace.HABIT:
+            habit = await uow.get_for(Habit).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
+        chore = None
+        if in_day_block.namespace == TimeEventNamespace.CHORE:
+            chore = await uow.get_for(Chore).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
         return TimeEventInDayBlockLoadResult(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
             inbox_task=inbox_task,
             big_plan=big_plan,
             todo_task=todo_task,
+            habit=habit,
+            chore=chore,
         )

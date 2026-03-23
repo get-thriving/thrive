@@ -3,6 +3,8 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.collection import ChoreCollection
+from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
@@ -30,6 +32,8 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
+from jupiter.core.habits.collection import HabitCollection
+from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.collection import InboxTaskCollection
 from jupiter.core.inbox_tasks.root import InboxTask, InboxTaskRepository, InboxTaskSource
 from jupiter.core.prm.root import PRM
@@ -120,6 +124,22 @@ class TodoTaskEntry(UseCaseResultBase):
 
 
 @use_case_result_part
+class HabitEntry(UseCaseResultBase):
+    """Result entry."""
+
+    habit: Habit
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
+class ChoreEntry(UseCaseResultBase):
+    """Result entry."""
+
+    chore: Chore
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
 class PersonOccasionEntry(UseCaseResultBase):
     """Result entry."""
 
@@ -145,6 +165,8 @@ class CalendarEventsEntries(UseCaseResultBase):
     inbox_task_entries: list[InboxTaskEntry]
     big_plan_entries: list[BigPlanEntry]
     todo_task_entries: list[TodoTaskEntry]
+    habit_entries: list[HabitEntry]
+    chore_entries: list[ChoreEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
 
@@ -160,6 +182,8 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     inbox_task_cnt: int
     big_plan_cnt: int
     todo_task_cnt: int
+    habit_cnt: int
+    chore_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
 
@@ -505,6 +529,58 @@ class CalendarLoadForDateAndPeriodUseCase(
             if todo_task.ref_id in todo_task_inbox_tasks
         ]
 
+        time_events_in_day_for_habits: dict[EntityId, list[TimeEventInDayBlock]] = {
+            te.source_entity_ref_id: []
+            for te in time_events_in_day
+            if te.namespace == TimeEventNamespace.HABIT
+        }
+        for te in time_events_in_day:
+            if te.namespace == TimeEventNamespace.HABIT:
+                time_events_in_day_for_habits[te.source_entity_ref_id].append(te)
+        habits: list[Habit] = []
+        if len(time_events_in_day_for_habits) > 0:
+            habit_collection = await uow.get_for(HabitCollection).load_by_parent(
+                workspace.ref_id,
+            )
+            habits = await uow.get_for(Habit).find_all_generic(
+                parent_ref_id=habit_collection.ref_id,
+                allow_archived=JupiterArchivalReason.GC,
+                ref_id=list(time_events_in_day_for_habits.keys()),
+            )
+        habit_entries = [
+            HabitEntry(
+                habit=habit,
+                time_events=time_events_in_day_for_habits[habit.ref_id],
+            )
+            for habit in habits
+        ]
+
+        time_events_in_day_for_chores: dict[EntityId, list[TimeEventInDayBlock]] = {
+            te.source_entity_ref_id: []
+            for te in time_events_in_day
+            if te.namespace == TimeEventNamespace.CHORE
+        }
+        for te in time_events_in_day:
+            if te.namespace == TimeEventNamespace.CHORE:
+                time_events_in_day_for_chores[te.source_entity_ref_id].append(te)
+        chores: list[Chore] = []
+        if len(time_events_in_day_for_chores) > 0:
+            chore_collection = await uow.get_for(ChoreCollection).load_by_parent(
+                workspace.ref_id,
+            )
+            chores = await uow.get_for(Chore).find_all_generic(
+                parent_ref_id=chore_collection.ref_id,
+                allow_archived=JupiterArchivalReason.GC,
+                ref_id=list(time_events_in_day_for_chores.keys()),
+            )
+        chore_entries = [
+            ChoreEntry(
+                chore=chore,
+                time_events=time_events_in_day_for_chores[chore.ref_id],
+            )
+            for chore in chores
+        ]
+
         time_events_full_days_for_occasions: dict[EntityId, TimeEventFullDaysBlock] = {
             te.source_entity_ref_id: te
             for te in time_events_full_days
@@ -591,6 +667,8 @@ class CalendarLoadForDateAndPeriodUseCase(
             inbox_task_entries=inbox_task_entries,
             big_plan_entries=big_plan_entries,
             todo_task_entries=todo_task_entries,
+            habit_entries=habit_entries,
+            chore_entries=chore_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )
@@ -633,6 +711,8 @@ class CalendarLoadForDateAndPeriodUseCase(
             inbox_task_cnt = 0
             big_plan_cnt = 0
             todo_task_cnt = 0
+            habit_cnt = 0
+            chore_cnt = 0
             person_birthday_cnt = 0
             vacation_cnt = 0
 
@@ -669,6 +749,10 @@ class CalendarLoadForDateAndPeriodUseCase(
                         big_plan_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.TODO_TASK:
                         todo_task_cnt += in_day_stats.cnt
+                    elif in_day_stats.namespace == TimeEventNamespace.HABIT:
+                        habit_cnt += in_day_stats.cnt
+                    elif in_day_stats.namespace == TimeEventNamespace.CHORE:
+                        chore_cnt += in_day_stats.cnt
 
             per_subperiod.append(
                 CalendarEventsStatsPerSubperiod(
@@ -679,6 +763,8 @@ class CalendarLoadForDateAndPeriodUseCase(
                     inbox_task_cnt=inbox_task_cnt,
                     big_plan_cnt=big_plan_cnt,
                     todo_task_cnt=todo_task_cnt,
+                    habit_cnt=habit_cnt,
+                    chore_cnt=chore_cnt,
                     person_birthday_cnt=person_birthday_cnt,
                     vacation_cnt=vacation_cnt,
                 )

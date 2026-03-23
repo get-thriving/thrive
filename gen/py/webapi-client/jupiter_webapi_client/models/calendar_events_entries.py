@@ -8,6 +8,8 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.big_plan_entry import BigPlanEntry
+    from ..models.chore_entry import ChoreEntry
+    from ..models.habit_entry import HabitEntry
     from ..models.inbox_task_entry import InboxTaskEntry
     from ..models.person_occasion_entry import PersonOccasionEntry
     from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
@@ -29,6 +31,8 @@ class CalendarEventsEntries:
         inbox_task_entries (list[InboxTaskEntry]):
         big_plan_entries (list[BigPlanEntry]):
         todo_task_entries (list[TodoTaskEntry]):
+        habit_entries (list[HabitEntry]):
+        chore_entries (list[ChoreEntry]):
         person_occasion_entries (list[PersonOccasionEntry]):
         vacation_entries (list[VacationEntry]):
     """
@@ -38,6 +42,8 @@ class CalendarEventsEntries:
     inbox_task_entries: list[InboxTaskEntry]
     big_plan_entries: list[BigPlanEntry]
     todo_task_entries: list[TodoTaskEntry]
+    habit_entries: list[HabitEntry]
+    chore_entries: list[ChoreEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -68,6 +74,16 @@ class CalendarEventsEntries:
             todo_task_entries_item = todo_task_entries_item_data.to_dict()
             todo_task_entries.append(todo_task_entries_item)
 
+        habit_entries = []
+        for habit_entries_item_data in self.habit_entries:
+            habit_entries_item = habit_entries_item_data.to_dict()
+            habit_entries.append(habit_entries_item)
+
+        chore_entries = []
+        for chore_entries_item_data in self.chore_entries:
+            chore_entries_item = chore_entries_item_data.to_dict()
+            chore_entries.append(chore_entries_item)
+
         person_occasion_entries = []
         for person_occasion_entries_item_data in self.person_occasion_entries:
             person_occasion_entries_item = person_occasion_entries_item_data.to_dict()
@@ -87,6 +103,8 @@ class CalendarEventsEntries:
                 "inbox_task_entries": inbox_task_entries,
                 "big_plan_entries": big_plan_entries,
                 "todo_task_entries": todo_task_entries,
+                "habit_entries": habit_entries,
+                "chore_entries": chore_entries,
                 "person_occasion_entries": person_occasion_entries,
                 "vacation_entries": vacation_entries,
             }
@@ -97,6 +115,8 @@ class CalendarEventsEntries:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan_entry import BigPlanEntry
+        from ..models.chore_entry import ChoreEntry
+        from ..models.habit_entry import HabitEntry
         from ..models.inbox_task_entry import InboxTaskEntry
         from ..models.person_occasion_entry import PersonOccasionEntry
         from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
@@ -144,6 +164,20 @@ class CalendarEventsEntries:
 
             todo_task_entries.append(todo_task_entries_item)
 
+        habit_entries = []
+        _habit_entries = d.pop("habit_entries")
+        for habit_entries_item_data in _habit_entries:
+            habit_entries_item = HabitEntry.from_dict(habit_entries_item_data)
+
+            habit_entries.append(habit_entries_item)
+
+        chore_entries = []
+        _chore_entries = d.pop("chore_entries")
+        for chore_entries_item_data in _chore_entries:
+            chore_entries_item = ChoreEntry.from_dict(chore_entries_item_data)
+
+            chore_entries.append(chore_entries_item)
+
         person_occasion_entries = []
         _person_occasion_entries = d.pop("person_occasion_entries")
         for person_occasion_entries_item_data in _person_occasion_entries:
@@ -164,6 +198,8 @@ class CalendarEventsEntries:
             inbox_task_entries=inbox_task_entries,
             big_plan_entries=big_plan_entries,
             todo_task_entries=todo_task_entries,
+            habit_entries=habit_entries,
+            chore_entries=chore_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )

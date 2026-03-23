@@ -35,6 +35,11 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { DateTime } from "luxon";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { HabitRepeatStrategySelect } from "@jupiter/core/habits/component/repeat-strategy-select";
@@ -182,6 +187,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           }
         ).contacts ?? [],
       allContacts: allContacts.contacts as Array<Contact>,
+      timeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -384,6 +390,19 @@ export default function Habit() {
   const sortedInboxTasks = sortInboxTasksNaturally(loaderData.inboxTasks, {
     dueDateAscending: false,
   });
+
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      habit: loaderData.habit,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
   const cardActionFetcher = useFetcher();
 
@@ -635,6 +654,19 @@ export default function Habit() {
           </>
         )}
       </SectionCard>
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Time Events"
+          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-habit?habitRefId=${loaderData.habit.ref_id}`}
+          entries={sortedTimeEventEntries}
+        />
+      )}
 
       <SectionCard title="Inbox Tasks">
         {sortedInboxTasks.length > 0 && (

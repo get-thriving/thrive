@@ -1,6 +1,7 @@
 import type {
   ChapterSummary,
   GoalSummary,
+  InboxTask,
   LifePlan,
   MilestoneSummary,
   AspectSummary,
@@ -32,6 +33,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
+  useFetcher,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
@@ -48,6 +50,8 @@ import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -298,6 +302,31 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    const habit = response.habit ?? null;
+    const chore = response.chore ?? null;
+
+    let habitInboxTasks: InboxTask[] = [];
+    if (habit) {
+      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_just_workable: true,
+        filter_sources: [InboxTaskSource.HABIT],
+        filter_source_entity_ref_ids: [habit.ref_id],
+      });
+      habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+    }
+
+    let choreInboxTasks: InboxTask[] = [];
+    if (chore) {
+      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_just_workable: true,
+        filter_sources: [InboxTaskSource.CHORE],
+        filter_source_entity_ref_ids: [chore.ref_id],
+      });
+      choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+    }
+
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
@@ -322,6 +351,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       bigPlanInfo: bigPlanResult,
       todoTask: response.todo_task,
       todoTaskInfo: todoTaskResult,
+      habit: habit,
+      habitInboxTasks: habitInboxTasks,
+      chore: chore,
+      choreInboxTasks: choreInboxTasks,
       allContacts: allContacts.contacts as Array<Contact>,
       allTags: allTags.tags as Array<Tag>,
     });
@@ -798,6 +831,41 @@ export default function TimeEventInDayBlockViewOne() {
     loaderData.inDayBlock.namespace,
   );
 
+  const cardActionFetcher = useFetcher();
+
+  function handleCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.NOT_DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  const sortedHabitInboxTasks = sortInboxTasksNaturally(
+    loaderData.habitInboxTasks,
+  );
+  const sortedChoreInboxTasks = sortInboxTasksNaturally(
+    loaderData.choreInboxTasks,
+  );
+
   let name = null;
   switch (loaderData.inDayBlock.namespace) {
     case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
@@ -814,6 +882,14 @@ export default function TimeEventInDayBlockViewOne() {
 
     case TimeEventNamespace.TODO_TASK:
       name = loaderData.todoTask!.name;
+      break;
+
+    case TimeEventNamespace.HABIT:
+      name = loaderData.habit!.name;
+      break;
+
+    case TimeEventNamespace.CHORE:
+      name = loaderData.chore!.name;
       break;
 
     default:
@@ -1071,6 +1147,40 @@ export default function TimeEventInDayBlockViewOne() {
           inboxTask={loaderData.todoTaskInfo.inbox_task}
           actionData={actionData}
         />
+      )}
+
+      {loaderData.habit && sortedHabitInboxTasks.length > 0 && (
+        <SectionCard title="Habit Inbox Tasks">
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedHabitInboxTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        </SectionCard>
+      )}
+
+      {loaderData.chore && sortedChoreInboxTasks.length > 0 && (
+        <SectionCard title="Chore Inbox Tasks">
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedChoreInboxTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        </SectionCard>
       )}
     </LeafPanel>
   );

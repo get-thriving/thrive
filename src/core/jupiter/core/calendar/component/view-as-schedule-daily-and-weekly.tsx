@@ -125,6 +125,42 @@ export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
       });
     }
   }
+  for (const entry of props.entries.habit_entries) {
+    for (const timeEvent of entry.time_events) {
+      if (
+        props.showOnlyFromRightNowIfDaily &&
+        calculateStartTimeForTimeEvent(timeEvent) < props.rightNow
+      ) {
+        continue;
+      }
+
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of props.entries.chore_entries) {
+    for (const timeEvent of entry.time_events) {
+      if (
+        props.showOnlyFromRightNowIfDaily &&
+        calculateStartTimeForTimeEvent(timeEvent) < props.rightNow
+      ) {
+        continue;
+      }
+
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
 
   const periodStartDate = DateTime.fromISO(props.periodStartDate);
   const periodEndDate = DateTime.fromISO(props.periodEndDate);
