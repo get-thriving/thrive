@@ -15,4 +15,5 @@ class TimeEventNamespace(EnumValue):
     TODO_TASK = "todo-task"
     HABIT = "habit"
     CHORE = "chore"
+    TIME_PLAN_ACTIVITY = "time-plan-activity"
     VACATION = "vacation"

@@ -576,6 +576,9 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_ha
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
     asyncio_detailed as time_event_in_day_block_create_for_chore,
 )
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
+    asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
 )
@@ -1389,6 +1392,12 @@ async def main() -> None:
                         "for-chore",
                         JupiterApiGatewayMethod.post(
                             time_event_in_day_block_create_for_chore,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-time-plan-activity",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_time_plan_activity,
                         ),
                     ),
                     JupiterApiResource.build(

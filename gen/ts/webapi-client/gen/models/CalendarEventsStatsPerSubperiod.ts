@@ -17,6 +17,7 @@ export type CalendarEventsStatsPerSubperiod = {
     todo_task_cnt: number;
     habit_cnt: number;
     chore_cnt: number;
+    time_plan_activity_cnt: number;
     person_birthday_cnt: number;
     vacation_cnt: number;
 };

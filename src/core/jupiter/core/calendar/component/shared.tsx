@@ -17,6 +17,8 @@ import {
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
   Tag,
+  TimePlanActivity,
+  TimePlanActivityEntry,
   TimeEventNamespace,
   Timezone,
   TodoTask,
@@ -50,6 +52,7 @@ import {
   TODO_TASK_TIME_EVENT_COLOR,
   HABIT_TIME_EVENT_COLOR,
   CHORE_TIME_EVENT_COLOR,
+  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
   BIRTHDAY_TIME_EVENT_COLOR,
   occasionTimeEventName,
   VACATION_TIME_EVENT_COLOR,
@@ -1170,6 +1173,94 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+      const activityEntry = props.entry.entry as TimePlanActivityEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = timePlanActivityNameForEvent(
+        activityEntry,
+      );
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`time-plan-activity-event-in-day-block-${activityEntry.time_plan_activity.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(
+              TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+            ),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`time-plan-activity-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
+          </EntityLink>
+        </Box>
+      );
+    }
+
     default:
       throw new Error("Unkown namespace");
   }
@@ -1642,6 +1733,46 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+      const activityEntry = props.entry.entry as TimePlanActivityEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(
+              TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+            )}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={timePlanActivityNameForEvent(
+                  activityEntry,
+                )}
+                color={scheduleStreamColorContrastingHex(
+                  TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
     default:
       throw new Error("Unkown namespace");
   }
@@ -1755,6 +1886,10 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from chore" : ""}
         </span>
         <span>
+          📋 {props.stats.time_plan_activity_cnt}{" "}
+          {!props.showCompact ? "from activities" : ""}
+        </span>
+        <span>
           👨 {props.stats.person_birthday_cnt}{" "}
           {!props.showCompact ? "from birthdays" : ""}
         </span>
@@ -1806,4 +1941,24 @@ export function habitNameForEvent(habit: Habit): string {
 
 export function choreNameForEvent(chore: Chore): string {
   return `🧹 ${chore.name}`;
+}
+
+export function timePlanActivityNameForEvent(
+  entry: TimePlanActivityEntry,
+): string {
+  if (entry.target_inbox_task) {
+    if (entry.target_inbox_task.status === InboxTaskStatus.DONE) {
+      return `✅ ${entry.time_plan_activity.name}`;
+    } else if (entry.target_inbox_task.status === InboxTaskStatus.NOT_DONE) {
+      return `❌ ${entry.time_plan_activity.name}`;
+    }
+  }
+  if (entry.target_big_plan) {
+    if (entry.target_big_plan.status === BigPlanStatus.DONE) {
+      return `✅ ${entry.time_plan_activity.name}`;
+    } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
+      return `❌ ${entry.time_plan_activity.name}`;
+    }
+  }
+  return `📋 ${entry.time_plan_activity.name}`;
 }

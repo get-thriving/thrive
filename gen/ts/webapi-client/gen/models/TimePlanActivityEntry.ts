@@ -7,12 +7,12 @@ import type { InboxTask } from './InboxTask';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlanActivity } from './TimePlanActivity';
 /**
- * TimePlanActivityLoadResult.
+ * Result entry.
  */
-export type TimePlanActivityLoadResult = {
+export type TimePlanActivityEntry = {
     time_plan_activity: TimePlanActivity;
     target_inbox_task?: (InboxTask | null);
     target_big_plan?: (BigPlan | null);
-    time_event_blocks: Array<TimeEventInDayBlock>;
+    time_events: Array<TimeEventInDayBlock>;
 };
 

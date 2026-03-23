@@ -761,6 +761,10 @@ from .time_event_in_day_block_create_for_habit_args import TimeEventInDayBlockCr
 from .time_event_in_day_block_create_for_habit_result import TimeEventInDayBlockCreateForHabitResult
 from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
+from .time_event_in_day_block_create_for_time_plan_activity_args import TimeEventInDayBlockCreateForTimePlanActivityArgs
+from .time_event_in_day_block_create_for_time_plan_activity_result import (
+    TimeEventInDayBlockCreateForTimePlanActivityResult,
+)
 from .time_event_in_day_block_create_for_todo_task_args import TimeEventInDayBlockCreateForTodoTaskArgs
 from .time_event_in_day_block_create_for_todo_task_result import TimeEventInDayBlockCreateForTodoTaskResult
 from .time_event_in_day_block_load_args import TimeEventInDayBlockLoadArgs
@@ -777,6 +781,7 @@ from .time_plan import TimePlan
 from .time_plan_activity import TimePlanActivity
 from .time_plan_activity_archive_args import TimePlanActivityArchiveArgs
 from .time_plan_activity_doneness import TimePlanActivityDoneness
+from .time_plan_activity_entry import TimePlanActivityEntry
 from .time_plan_activity_feasability import TimePlanActivityFeasability
 from .time_plan_activity_find_for_target_args import TimePlanActivityFindForTargetArgs
 from .time_plan_activity_find_for_target_result import TimePlanActivityFindForTargetResult
@@ -1681,6 +1686,8 @@ __all__ = (
     "TimeEventInDayBlockCreateForHabitResult",
     "TimeEventInDayBlockCreateForInboxTaskArgs",
     "TimeEventInDayBlockCreateForInboxTaskResult",
+    "TimeEventInDayBlockCreateForTimePlanActivityArgs",
+    "TimeEventInDayBlockCreateForTimePlanActivityResult",
     "TimeEventInDayBlockCreateForTodoTaskArgs",
     "TimeEventInDayBlockCreateForTodoTaskResult",
     "TimeEventInDayBlockLoadArgs",
@@ -1697,6 +1704,7 @@ __all__ = (
     "TimePlanActivity",
     "TimePlanActivityArchiveArgs",
     "TimePlanActivityDoneness",
+    "TimePlanActivityEntry",
     "TimePlanActivityFeasability",
     "TimePlanActivityFindForTargetArgs",
     "TimePlanActivityFindForTargetResult",

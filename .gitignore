@@ -26,6 +26,7 @@ dist/
 !/build/.npmkeep
 infra/.terraform
 infra/terraform.tfstate*
+config.yaml
 
 # Using Android gitignore template: https://github.com/github/gitignore/blob/HEAD/Android.gitignore
 

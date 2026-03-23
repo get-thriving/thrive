@@ -129,6 +129,20 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/time-plans/no-parent/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
     case TimeEventNamespace.VACATION: {
       return (
         <Button

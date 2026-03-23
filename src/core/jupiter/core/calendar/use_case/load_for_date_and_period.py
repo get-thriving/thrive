@@ -47,6 +47,8 @@ from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
 from jupiter.core.schedule.sub.stream.root import ScheduleStream
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.time_plans.sub.activity.target import TimePlanActivityTarget
 from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.todo.root import TodoTask
 from jupiter.core.vacations.collection import VacationCollection
@@ -140,6 +142,16 @@ class ChoreEntry(UseCaseResultBase):
 
 
 @use_case_result_part
+class TimePlanActivityEntry(UseCaseResultBase):
+    """Result entry."""
+
+    time_plan_activity: TimePlanActivity
+    target_inbox_task: InboxTask | None
+    target_big_plan: BigPlan | None
+    time_events: list[TimeEventInDayBlock]
+
+
+@use_case_result_part
 class PersonOccasionEntry(UseCaseResultBase):
     """Result entry."""
 
@@ -167,6 +179,7 @@ class CalendarEventsEntries(UseCaseResultBase):
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
     chore_entries: list[ChoreEntry]
+    time_plan_activity_entries: list[TimePlanActivityEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
 
@@ -184,6 +197,7 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     todo_task_cnt: int
     habit_cnt: int
     chore_cnt: int
+    time_plan_activity_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
 
@@ -581,6 +595,64 @@ class CalendarLoadForDateAndPeriodUseCase(
             for chore in chores
         ]
 
+        time_events_in_day_for_activities: dict[EntityId, list[TimeEventInDayBlock]] = {
+            te.source_entity_ref_id: []
+            for te in time_events_in_day
+            if te.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY
+        }
+        for te in time_events_in_day:
+            if te.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+                time_events_in_day_for_activities[te.source_entity_ref_id].append(te)
+        time_plan_activities: list[TimePlanActivity] = []
+        if len(time_events_in_day_for_activities) > 0:
+            time_plan_activities = await uow.get_for(TimePlanActivity).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=list(time_events_in_day_for_activities.keys()),
+            )
+
+        activity_target_inbox_task_ref_ids = [
+            a.target_ref_id
+            for a in time_plan_activities
+            if a.target == TimePlanActivityTarget.INBOX_TASK
+        ]
+        activity_target_inbox_tasks_by_id: dict[EntityId, InboxTask] = {}
+        if activity_target_inbox_task_ref_ids:
+            activity_target_inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=activity_target_inbox_task_ref_ids,
+            )
+            activity_target_inbox_tasks_by_id = {
+                it.ref_id: it for it in activity_target_inbox_tasks
+            }
+
+        activity_target_big_plan_ref_ids = [
+            a.target_ref_id
+            for a in time_plan_activities
+            if a.target == TimePlanActivityTarget.BIG_PLAN
+        ]
+        activity_target_big_plans_by_id: dict[EntityId, BigPlan] = {}
+        if activity_target_big_plan_ref_ids:
+            activity_target_big_plans = await uow.get_for(BigPlan).find_all_generic(
+                parent_ref_id=None,
+                allow_archived=True,
+                ref_id=activity_target_big_plan_ref_ids,
+            )
+            activity_target_big_plans_by_id = {
+                bp.ref_id: bp for bp in activity_target_big_plans
+            }
+
+        time_plan_activity_entries = [
+            TimePlanActivityEntry(
+                time_plan_activity=activity,
+                target_inbox_task=activity_target_inbox_tasks_by_id.get(activity.target_ref_id),
+                target_big_plan=activity_target_big_plans_by_id.get(activity.target_ref_id),
+                time_events=time_events_in_day_for_activities[activity.ref_id],
+            )
+            for activity in time_plan_activities
+        ]
+
         time_events_full_days_for_occasions: dict[EntityId, TimeEventFullDaysBlock] = {
             te.source_entity_ref_id: te
             for te in time_events_full_days
@@ -669,6 +741,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,
             chore_entries=chore_entries,
+            time_plan_activity_entries=time_plan_activity_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )
@@ -713,6 +786,7 @@ class CalendarLoadForDateAndPeriodUseCase(
             todo_task_cnt = 0
             habit_cnt = 0
             chore_cnt = 0
+            time_plan_activity_cnt = 0
             person_birthday_cnt = 0
             vacation_cnt = 0
 
@@ -753,6 +827,8 @@ class CalendarLoadForDateAndPeriodUseCase(
                         habit_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.CHORE:
                         chore_cnt += in_day_stats.cnt
+                    elif in_day_stats.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+                        time_plan_activity_cnt += in_day_stats.cnt
 
             per_subperiod.append(
                 CalendarEventsStatsPerSubperiod(
@@ -765,6 +841,7 @@ class CalendarLoadForDateAndPeriodUseCase(
                     todo_task_cnt=todo_task_cnt,
                     habit_cnt=habit_cnt,
                     chore_cnt=chore_cnt,
+                    time_plan_activity_cnt=time_plan_activity_cnt,
                     person_birthday_cnt=person_birthday_cnt,
                     vacation_cnt=vacation_cnt,
                 )

@@ -8,6 +8,7 @@ import type { Habit } from './Habit';
 import type { InboxTask } from './InboxTask';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
+import type { TimePlanActivity } from './TimePlanActivity';
 import type { TodoTask } from './TodoTask';
 /**
  * InDayBlockLoadResult.
@@ -20,5 +21,6 @@ export type TimeEventInDayBlockLoadResult = {
     todo_task?: (TodoTask | null);
     habit?: (Habit | null);
     chore?: (Chore | null);
+    time_plan_activity?: (TimePlanActivity | null);
 };
 

@@ -25,6 +25,7 @@ class CalendarEventsStatsPerSubperiod:
         todo_task_cnt (int):
         habit_cnt (int):
         chore_cnt (int):
+        time_plan_activity_cnt (int):
         person_birthday_cnt (int):
         vacation_cnt (int):
     """
@@ -38,6 +39,7 @@ class CalendarEventsStatsPerSubperiod:
     todo_task_cnt: int
     habit_cnt: int
     chore_cnt: int
+    time_plan_activity_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -61,6 +63,8 @@ class CalendarEventsStatsPerSubperiod:
 
         chore_cnt = self.chore_cnt
 
+        time_plan_activity_cnt = self.time_plan_activity_cnt
+
         person_birthday_cnt = self.person_birthday_cnt
 
         vacation_cnt = self.vacation_cnt
@@ -78,6 +82,7 @@ class CalendarEventsStatsPerSubperiod:
                 "todo_task_cnt": todo_task_cnt,
                 "habit_cnt": habit_cnt,
                 "chore_cnt": chore_cnt,
+                "time_plan_activity_cnt": time_plan_activity_cnt,
                 "person_birthday_cnt": person_birthday_cnt,
                 "vacation_cnt": vacation_cnt,
             }
@@ -106,6 +111,8 @@ class CalendarEventsStatsPerSubperiod:
 
         chore_cnt = d.pop("chore_cnt")
 
+        time_plan_activity_cnt = d.pop("time_plan_activity_cnt")
+
         person_birthday_cnt = d.pop("person_birthday_cnt")
 
         vacation_cnt = d.pop("vacation_cnt")
@@ -120,6 +127,7 @@ class CalendarEventsStatsPerSubperiod:
             todo_task_cnt=todo_task_cnt,
             habit_cnt=habit_cnt,
             chore_cnt=chore_cnt,
+            time_plan_activity_cnt=time_plan_activity_cnt,
             person_birthday_cnt=person_birthday_cnt,
             vacation_cnt=vacation_cnt,
         )

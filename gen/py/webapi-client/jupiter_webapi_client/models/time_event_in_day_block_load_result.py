@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.time_event_in_day_block import TimeEventInDayBlock
+    from ..models.time_plan_activity import TimePlanActivity
     from ..models.todo_task import TodoTask
 
 
@@ -33,6 +34,7 @@ class TimeEventInDayBlockLoadResult:
         todo_task (None | TodoTask | Unset):
         habit (Habit | None | Unset):
         chore (Chore | None | Unset):
+        time_plan_activity (None | TimePlanActivity | Unset):
     """
 
     in_day_block: TimeEventInDayBlock
@@ -42,6 +44,7 @@ class TimeEventInDayBlockLoadResult:
     todo_task: None | TodoTask | Unset = UNSET
     habit: Habit | None | Unset = UNSET
     chore: Chore | None | Unset = UNSET
+    time_plan_activity: None | TimePlanActivity | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,6 +53,7 @@ class TimeEventInDayBlockLoadResult:
         from ..models.habit import Habit
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
+        from ..models.time_plan_activity import TimePlanActivity
         from ..models.todo_task import TodoTask
 
         in_day_block = self.in_day_block.to_dict()
@@ -102,6 +106,14 @@ class TimeEventInDayBlockLoadResult:
         else:
             chore = self.chore
 
+        time_plan_activity: dict[str, Any] | None | Unset
+        if isinstance(self.time_plan_activity, Unset):
+            time_plan_activity = UNSET
+        elif isinstance(self.time_plan_activity, TimePlanActivity):
+            time_plan_activity = self.time_plan_activity.to_dict()
+        else:
+            time_plan_activity = self.time_plan_activity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -121,6 +133,8 @@ class TimeEventInDayBlockLoadResult:
             field_dict["habit"] = habit
         if chore is not UNSET:
             field_dict["chore"] = chore
+        if time_plan_activity is not UNSET:
+            field_dict["time_plan_activity"] = time_plan_activity
 
         return field_dict
 
@@ -132,6 +146,7 @@ class TimeEventInDayBlockLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.time_event_in_day_block import TimeEventInDayBlock
+        from ..models.time_plan_activity import TimePlanActivity
         from ..models.todo_task import TodoTask
 
         d = dict(src_dict)
@@ -239,6 +254,23 @@ class TimeEventInDayBlockLoadResult:
 
         chore = _parse_chore(d.pop("chore", UNSET))
 
+        def _parse_time_plan_activity(data: object) -> None | TimePlanActivity | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                time_plan_activity_type_0 = TimePlanActivity.from_dict(data)
+
+                return time_plan_activity_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TimePlanActivity | Unset, data)
+
+        time_plan_activity = _parse_time_plan_activity(d.pop("time_plan_activity", UNSET))
+
         time_event_in_day_block_load_result = cls(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
@@ -247,6 +279,7 @@ class TimeEventInDayBlockLoadResult:
             todo_task=todo_task,
             habit=habit,
             chore=chore,
+            time_plan_activity=time_plan_activity,
         )
 
         time_event_in_day_block_load_result.additional_properties = d

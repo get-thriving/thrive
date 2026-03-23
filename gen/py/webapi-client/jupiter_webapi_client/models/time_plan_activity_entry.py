@@ -15,22 +15,22 @@ if TYPE_CHECKING:
     from ..models.time_plan_activity import TimePlanActivity
 
 
-T = TypeVar("T", bound="TimePlanActivityLoadResult")
+T = TypeVar("T", bound="TimePlanActivityEntry")
 
 
 @_attrs_define
-class TimePlanActivityLoadResult:
-    """TimePlanActivityLoadResult.
+class TimePlanActivityEntry:
+    """Result entry.
 
     Attributes:
         time_plan_activity (TimePlanActivity): A certain activity that happens in a plan.
-        time_event_blocks (list[TimeEventInDayBlock]):
+        time_events (list[TimeEventInDayBlock]):
         target_inbox_task (InboxTask | None | Unset):
         target_big_plan (BigPlan | None | Unset):
     """
 
     time_plan_activity: TimePlanActivity
-    time_event_blocks: list[TimeEventInDayBlock]
+    time_events: list[TimeEventInDayBlock]
     target_inbox_task: InboxTask | None | Unset = UNSET
     target_big_plan: BigPlan | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -41,10 +41,10 @@ class TimePlanActivityLoadResult:
 
         time_plan_activity = self.time_plan_activity.to_dict()
 
-        time_event_blocks = []
-        for time_event_blocks_item_data in self.time_event_blocks:
-            time_event_blocks_item = time_event_blocks_item_data.to_dict()
-            time_event_blocks.append(time_event_blocks_item)
+        time_events = []
+        for time_events_item_data in self.time_events:
+            time_events_item = time_events_item_data.to_dict()
+            time_events.append(time_events_item)
 
         target_inbox_task: dict[str, Any] | None | Unset
         if isinstance(self.target_inbox_task, Unset):
@@ -67,7 +67,7 @@ class TimePlanActivityLoadResult:
         field_dict.update(
             {
                 "time_plan_activity": time_plan_activity,
-                "time_event_blocks": time_event_blocks,
+                "time_events": time_events,
             }
         )
         if target_inbox_task is not UNSET:
@@ -87,12 +87,12 @@ class TimePlanActivityLoadResult:
         d = dict(src_dict)
         time_plan_activity = TimePlanActivity.from_dict(d.pop("time_plan_activity"))
 
-        time_event_blocks = []
-        _time_event_blocks = d.pop("time_event_blocks")
-        for time_event_blocks_item_data in _time_event_blocks:
-            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+        time_events = []
+        _time_events = d.pop("time_events")
+        for time_events_item_data in _time_events:
+            time_events_item = TimeEventInDayBlock.from_dict(time_events_item_data)
 
-            time_event_blocks.append(time_event_blocks_item)
+            time_events.append(time_events_item)
 
         def _parse_target_inbox_task(data: object) -> InboxTask | None | Unset:
             if data is None:
@@ -128,15 +128,15 @@ class TimePlanActivityLoadResult:
 
         target_big_plan = _parse_target_big_plan(d.pop("target_big_plan", UNSET))
 
-        time_plan_activity_load_result = cls(
+        time_plan_activity_entry = cls(
             time_plan_activity=time_plan_activity,
-            time_event_blocks=time_event_blocks,
+            time_events=time_events,
             target_inbox_task=target_inbox_task,
             target_big_plan=target_big_plan,
         )
 
-        time_plan_activity_load_result.additional_properties = d
-        return time_plan_activity_load_result
+        time_plan_activity_entry.additional_properties = d
+        return time_plan_activity_entry
 
     @property
     def additional_keys(self) -> list[str]:

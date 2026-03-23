@@ -248,9 +248,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
-      targetInboxTaskTimeEventBlocks: inboxTaskResult?.time_event_blocks,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: bigPlanResult,
+      activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -590,22 +590,6 @@ export default function TimePlanActivity() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlanActivity.archived;
 
-  const inboxTaskTimeEventEntries = (
-    loaderData.targetInboxTaskTimeEventBlocks || []
-  ).map((block) => ({
-    time_event_in_tz: timeEventInDayBlockToTimezone(
-      block,
-      topLevelInfo.user.timezone,
-    ),
-    entry: {
-      inbox_task: loaderData.targetInboxTask!,
-      time_events: [block],
-    },
-  }));
-  const sortedInboxTaskTimeEventEntries = sortInboxTaskTimeEventsNaturally(
-    inboxTaskTimeEventEntries,
-  );
-
   const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
     loaderData.targetBigPlanInfo?.inbox_tasks ?? [],
     { dueDateAscending: false },
@@ -633,24 +617,35 @@ export default function TimePlanActivity() {
     );
   }
 
-  let newInboxTaskTimeEventLocation = undefined;
+  const activityTimeEventEntries = (
+    loaderData.activityTimeEventBlocks || []
+  ).map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      time_plan_activity: loaderData.timePlanActivity,
+      time_events: [block],
+    },
+  }));
+  const sortedActivityTimeEventEntries = sortInboxTaskTimeEventsNaturally(
+    activityTimeEventEntries,
+  );
 
+  let newActivityTimeEventLocation: string | undefined = undefined;
   if (
-    loaderData.targetInboxTask &&
-    (timePlan.period === RecurringTaskPeriod.DAILY ||
-      timePlan.period === RecurringTaskPeriod.WEEKLY)
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
   ) {
     const params = new URLSearchParams({
       date: timePlan.start_date,
       period: timePlan.period,
       view: "calendar",
-      inboxTaskRefId: loaderData.targetInboxTask!.ref_id,
-      timePlanReason: "for-time-plan",
-      timePlanRefId: id as string,
       timePlanActivityRefId: activityId as string,
+      timePlanRefId: id as string,
     });
-
-    newInboxTaskTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?${params.toString()}`;
+    newActivityTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-time-plan-activity?${params.toString()}`;
   }
 
   return (
@@ -725,18 +720,6 @@ export default function TimePlanActivity() {
             actionData={actionData}
           />
 
-          {isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.SCHEDULE,
-          ) && (
-            <TimeEventInDayBlockStack
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              title="Time Events"
-              createLocation={newInboxTaskTimeEventLocation}
-              entries={sortedInboxTaskTimeEventEntries}
-            />
-          )}
         </>
       )}
 
@@ -844,6 +827,21 @@ export default function TimePlanActivity() {
             </SectionCard>
           </>
         )}
+
+
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Activity Time Events"
+          createLocation={newActivityTimeEventLocation}
+          entries={sortedActivityTimeEventEntries}
+        />
+      )}
     </LeafPanel>
   );
 }

@@ -616,6 +616,8 @@ export type { TimeEventInDayBlockCreateForHabitArgs } from './models/TimeEventIn
 export type { TimeEventInDayBlockCreateForHabitResult } from './models/TimeEventInDayBlockCreateForHabitResult';
 export type { TimeEventInDayBlockCreateForInboxTaskArgs } from './models/TimeEventInDayBlockCreateForInboxTaskArgs';
 export type { TimeEventInDayBlockCreateForInboxTaskResult } from './models/TimeEventInDayBlockCreateForInboxTaskResult';
+export type { TimeEventInDayBlockCreateForTimePlanActivityArgs } from './models/TimeEventInDayBlockCreateForTimePlanActivityArgs';
+export type { TimeEventInDayBlockCreateForTimePlanActivityResult } from './models/TimeEventInDayBlockCreateForTimePlanActivityResult';
 export type { TimeEventInDayBlockCreateForTodoTaskArgs } from './models/TimeEventInDayBlockCreateForTodoTaskArgs';
 export type { TimeEventInDayBlockCreateForTodoTaskResult } from './models/TimeEventInDayBlockCreateForTodoTaskResult';
 export type { TimeEventInDayBlockLoadArgs } from './models/TimeEventInDayBlockLoadArgs';
@@ -630,6 +632,7 @@ export type { TimePlan } from './models/TimePlan';
 export type { TimePlanActivity } from './models/TimePlanActivity';
 export type { TimePlanActivityArchiveArgs } from './models/TimePlanActivityArchiveArgs';
 export { TimePlanActivityDoneness } from './models/TimePlanActivityDoneness';
+export type { TimePlanActivityEntry } from './models/TimePlanActivityEntry';
 export { TimePlanActivityFeasability } from './models/TimePlanActivityFeasability';
 export type { TimePlanActivityFindForTargetArgs } from './models/TimePlanActivityFindForTargetArgs';
 export type { TimePlanActivityFindForTargetResult } from './models/TimePlanActivityFindForTargetResult';

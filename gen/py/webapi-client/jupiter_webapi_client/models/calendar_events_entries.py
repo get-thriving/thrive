@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.person_occasion_entry import PersonOccasionEntry
     from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
     from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
+    from ..models.time_plan_activity_entry import TimePlanActivityEntry
     from ..models.todo_task_entry import TodoTaskEntry
     from ..models.vacation_entry import VacationEntry
 
@@ -33,6 +34,7 @@ class CalendarEventsEntries:
         todo_task_entries (list[TodoTaskEntry]):
         habit_entries (list[HabitEntry]):
         chore_entries (list[ChoreEntry]):
+        time_plan_activity_entries (list[TimePlanActivityEntry]):
         person_occasion_entries (list[PersonOccasionEntry]):
         vacation_entries (list[VacationEntry]):
     """
@@ -44,6 +46,7 @@ class CalendarEventsEntries:
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
     chore_entries: list[ChoreEntry]
+    time_plan_activity_entries: list[TimePlanActivityEntry]
     person_occasion_entries: list[PersonOccasionEntry]
     vacation_entries: list[VacationEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -84,6 +87,11 @@ class CalendarEventsEntries:
             chore_entries_item = chore_entries_item_data.to_dict()
             chore_entries.append(chore_entries_item)
 
+        time_plan_activity_entries = []
+        for time_plan_activity_entries_item_data in self.time_plan_activity_entries:
+            time_plan_activity_entries_item = time_plan_activity_entries_item_data.to_dict()
+            time_plan_activity_entries.append(time_plan_activity_entries_item)
+
         person_occasion_entries = []
         for person_occasion_entries_item_data in self.person_occasion_entries:
             person_occasion_entries_item = person_occasion_entries_item_data.to_dict()
@@ -105,6 +113,7 @@ class CalendarEventsEntries:
                 "todo_task_entries": todo_task_entries,
                 "habit_entries": habit_entries,
                 "chore_entries": chore_entries,
+                "time_plan_activity_entries": time_plan_activity_entries,
                 "person_occasion_entries": person_occasion_entries,
                 "vacation_entries": vacation_entries,
             }
@@ -121,6 +130,7 @@ class CalendarEventsEntries:
         from ..models.person_occasion_entry import PersonOccasionEntry
         from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
         from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
+        from ..models.time_plan_activity_entry import TimePlanActivityEntry
         from ..models.todo_task_entry import TodoTaskEntry
         from ..models.vacation_entry import VacationEntry
 
@@ -178,6 +188,13 @@ class CalendarEventsEntries:
 
             chore_entries.append(chore_entries_item)
 
+        time_plan_activity_entries = []
+        _time_plan_activity_entries = d.pop("time_plan_activity_entries")
+        for time_plan_activity_entries_item_data in _time_plan_activity_entries:
+            time_plan_activity_entries_item = TimePlanActivityEntry.from_dict(time_plan_activity_entries_item_data)
+
+            time_plan_activity_entries.append(time_plan_activity_entries_item)
+
         person_occasion_entries = []
         _person_occasion_entries = d.pop("person_occasion_entries")
         for person_occasion_entries_item_data in _person_occasion_entries:
@@ -200,6 +217,7 @@ class CalendarEventsEntries:
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,
             chore_entries=chore_entries,
+            time_plan_activity_entries=time_plan_activity_entries,
             person_occasion_entries=person_occasion_entries,
             vacation_entries=vacation_entries,
         )

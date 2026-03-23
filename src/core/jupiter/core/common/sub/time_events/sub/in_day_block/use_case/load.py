@@ -17,6 +17,7 @@ from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -50,6 +51,7 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
     todo_task: TodoTask | None
     habit: Habit | None
     chore: Chore | None
+    time_plan_activity: TimePlanActivity | None
 
 
 @readonly_use_case()
@@ -115,6 +117,13 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
+        time_plan_activity = None
+        if in_day_block.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+            time_plan_activity = await uow.get_for(TimePlanActivity).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
         return TimeEventInDayBlockLoadResult(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
@@ -123,4 +132,5 @@ class TimeEventInDayBlockLoadUseCase(
             todo_task=todo_task,
             habit=habit,
             chore=chore,
+            time_plan_activity=time_plan_activity,
         )

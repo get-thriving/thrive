@@ -26,7 +26,8 @@ _cleanup() {
     local exit_code=$?
     log info "Cleaning up: stopping pm2, removing temp files..."
     npx pm2 delete "$RUN_ROOT/apigen/pm2.config.js" 2>/dev/null || true
-    rm -rf jupiter_webapi_client config.yaml
+    rm -rf config.yaml
+    rm -rf jupiter_webapi_client
     exit "$exit_code"
 }
 trap _cleanup EXIT

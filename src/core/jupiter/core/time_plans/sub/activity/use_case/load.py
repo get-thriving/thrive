@@ -2,6 +2,11 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -38,6 +43,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
     target_big_plan: BigPlan | None
+    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(
@@ -73,8 +79,19 @@ class TimePlanActivityLoadUseCase(
         if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
             target_big_plan = None
 
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
+            source_entity_ref_id=[time_plan_activity.ref_id],
+        )
+
         return TimePlanActivityLoadResult(
             time_plan_activity=time_plan_activity,
             target_inbox_task=target_inbox_task,
             target_big_plan=target_big_plan,
+            time_event_blocks=time_event_blocks,
         )

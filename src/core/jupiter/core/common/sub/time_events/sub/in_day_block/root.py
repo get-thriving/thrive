@@ -219,6 +219,36 @@ class TimeEventInDayBlock(LeafSupportEntity):
             duration_mins=duration_mins,
         )
 
+    @staticmethod
+    @create_entity_action
+    def new_time_event_for_time_plan_activity(
+        ctx: MutationContext,
+        time_event_domain_ref_id: EntityId,
+        time_plan_activity_ref_id: EntityId,
+        start_date: ADate,
+        start_time_in_day: TimeInDay,
+        duration_mins: int,
+    ) -> "TimeEventInDayBlock":
+        """Create a new time event for a time plan activity."""
+        if duration_mins < MIN_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at least {MIN_DURATION_MINS} minute."
+            )
+        if duration_mins > MAX_DURATION_MINS:
+            raise InputValidationError(
+                f"Duration must be at most {MAX_DURATION_MINS // 60} hours."
+            )
+        return TimeEventInDayBlock._create(
+            ctx,
+            time_event_domain=ParentLink(time_event_domain_ref_id),
+            namespace=TimeEventNamespace.TIME_PLAN_ACTIVITY,
+            source_entity_ref_id=time_plan_activity_ref_id,
+            name=NOT_USED_NAME,
+            start_date=start_date,
+            start_time_in_day=start_time_in_day,
+            duration_mins=duration_mins,
+        )
+
     @update_entity_action
     def update(
         self,
@@ -255,6 +285,8 @@ class TimeEventInDayBlock(LeafSupportEntity):
         if self.namespace == TimeEventNamespace.HABIT:
             return True
         if self.namespace == TimeEventNamespace.CHORE:
+            return True
+        if self.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
             return True
         if self.namespace == TimeEventNamespace.PERSON_OCCASION:
             return True

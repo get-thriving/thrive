@@ -566,6 +566,9 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_ha
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
     asyncio_detailed as time_event_in_day_block_create_for_chore,
 )
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
+    asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
 )
@@ -1257,6 +1260,11 @@ async def main() -> None:
             "create-time-event-in-day-block-for-chore",
             "Create an in-day time event block for a chore",
             time_event_in_day_block_create_for_chore,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-event-in-day-block-for-time-plan-activity",
+            "Create an in-day time event block for a time plan activity",
+            time_event_in_day_block_create_for_time_plan_activity,
         ),
         JupiterMcpTool.tool(
             "load-time-event-in-day-block",

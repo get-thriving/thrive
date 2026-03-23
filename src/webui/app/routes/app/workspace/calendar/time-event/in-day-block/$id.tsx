@@ -18,6 +18,7 @@ import {
   InboxTaskStatus,
   TagNamespace,
   TimeEventNamespace,
+  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -327,6 +328,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
     }
 
+    const timePlanActivity = response.time_plan_activity ?? null;
+
+    if (timePlanActivity) {
+      if (timePlanActivity.target === TimePlanActivityTarget.INBOX_TASK) {
+        inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
+          ref_id: timePlanActivity.target_ref_id,
+          allow_archived: true,
+        });
+      } else if (timePlanActivity.target === TimePlanActivityTarget.BIG_PLAN) {
+        bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
+          ref_id: timePlanActivity.target_ref_id,
+          allow_archived: true,
+        });
+      }
+    }
+
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
     });
@@ -345,9 +362,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
       inDayBlock: response.in_day_block,
       scheduleEvent: response.schedule_event,
-      inboxTask: response.inbox_task,
+      inboxTask: response.inbox_task ?? inboxTaskResult?.inbox_task ?? null,
       inboxTaskInfo: inboxTaskResult,
-      bigPlan: response.big_plan,
+      bigPlan: response.big_plan ?? bigPlanResult?.big_plan ?? null,
       bigPlanInfo: bigPlanResult,
       todoTask: response.todo_task,
       todoTaskInfo: todoTaskResult,
@@ -355,6 +372,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       habitInboxTasks: habitInboxTasks,
       chore: chore,
       choreInboxTasks: choreInboxTasks,
+      timePlanActivity: timePlanActivity,
       allContacts: allContacts.contacts as Array<Contact>,
       allTags: allTags.tags as Array<Tag>,
     });
@@ -890,6 +908,10 @@ export default function TimeEventInDayBlockViewOne() {
 
     case TimeEventNamespace.CHORE:
       name = loaderData.chore!.name;
+      break;
+
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY:
+      name = loaderData.timePlanActivity!.name;
       break;
 
     default:
