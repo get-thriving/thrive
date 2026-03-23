@@ -5,6 +5,7 @@ import type {
   MilestoneSummary,
   AspectSummary,
   Contact,
+  Tag,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
@@ -14,6 +15,7 @@ import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
+  TagNamespace,
   TimeEventNamespace,
 } from "@jupiter/webapi-client";
 import {
@@ -46,6 +48,7 @@ import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -95,6 +98,20 @@ const UpdateFormBigPlanSchema = {
   bigPlanDifficulty: z.nativeEnum(Difficulty),
   bigPlanActionableDate: z.string().optional(),
   bigPlanDueDate: z.string().optional(),
+};
+
+const UpdateFormTodoTaskSchema = {
+  todoTaskRefId: z.string(),
+  todoTaskName: z.string(),
+  todoTaskStatus: z.nativeEnum(InboxTaskStatus),
+  todoTaskAspect: z.string().optional(),
+  todoTaskChapter: z.string().optional(),
+  todoTaskGoal: z.string().optional(),
+  todoTaskIsKey: CheckboxAsString,
+  todoTaskEisen: z.nativeEnum(Eisen),
+  todoTaskDifficulty: z.nativeEnum(Difficulty),
+  todoTaskActionableDate: z.string().optional(),
+  todoTaskDueDate: z.string().optional(),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -187,6 +204,50 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("big-plan-update"),
     ...UpdateFormBigPlanSchema,
   }),
+  z.object({
+    intent: z.literal("todo-task-mark-done"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-mark-not-done"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-start"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-restart"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-block"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-stop"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-reactivate"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-update"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-day"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-week"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-month"),
+    ...UpdateFormTodoTaskSchema,
+  }),
 ]);
 
 export const handle = {
@@ -229,8 +290,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
+    let todoTaskResult = null;
+    if (response.todo_task) {
+      todoTaskResult = await apiClient.todo.todoTaskLoad({
+        ref_id: response.todo_task.ref_id,
+        allow_archived: true,
+      });
+    }
+
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
+    });
+
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.TODO_TASK],
     });
 
     return json({
@@ -246,7 +320,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       inboxTaskInfo: inboxTaskResult,
       bigPlan: response.big_plan,
       bigPlanInfo: bigPlanResult,
+      todoTask: response.todo_task,
+      todoTaskInfo: todoTaskResult,
       allContacts: allContacts.contacts as Array<Contact>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -540,6 +617,157 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
+      case "todo-task-mark-done":
+      case "todo-task-mark-not-done":
+      case "todo-task-start":
+      case "todo-task-restart":
+      case "todo-task-block":
+      case "todo-task-stop":
+      case "todo-task-reactivate":
+      case "todo-task-update": {
+        let status = form.todoTaskStatus;
+        if (form.intent === "todo-task-mark-done") {
+          status = InboxTaskStatus.DONE;
+        } else if (form.intent === "todo-task-mark-not-done") {
+          status = InboxTaskStatus.NOT_DONE;
+        } else if (
+          form.intent === "todo-task-start" ||
+          form.intent === "todo-task-restart"
+        ) {
+          status = InboxTaskStatus.IN_PROGRESS;
+        } else if (form.intent === "todo-task-block") {
+          status = InboxTaskStatus.BLOCKED;
+        } else if (
+          form.intent === "todo-task-stop" ||
+          form.intent === "todo-task-reactivate"
+        ) {
+          status = InboxTaskStatus.NOT_STARTED;
+        }
+
+        await apiClient.todo.todoTaskUpdate({
+          ref_id: form.todoTaskRefId,
+          name: {
+            should_change: true,
+            value: form.todoTaskName,
+          },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          aspect_ref_id:
+            form.todoTaskAspect !== undefined
+              ? { should_change: true, value: form.todoTaskAspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.todoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.todoTaskChapter !== undefined &&
+                    form.todoTaskChapter !== ""
+                      ? form.todoTaskChapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.todoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.todoTaskGoal !== undefined && form.todoTaskGoal !== ""
+                      ? form.todoTaskGoal
+                      : undefined,
+                }
+              : { should_change: false },
+          is_key: {
+            should_change: true,
+            value: form.todoTaskIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.todoTaskEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.todoTaskDifficulty,
+          },
+          actionable_date: {
+            should_change: true,
+            value:
+              form.todoTaskActionableDate !== undefined &&
+              form.todoTaskActionableDate !== ""
+                ? form.todoTaskActionableDate
+                : null,
+          },
+          due_date: {
+            should_change: true,
+            value:
+              form.todoTaskDueDate !== undefined && form.todoTaskDueDate !== ""
+                ? form.todoTaskDueDate
+                : null,
+          },
+        });
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
+      case "todo-task-delay-1-day":
+      case "todo-task-delay-1-week":
+      case "todo-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "todo-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "todo-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (
+          form.todoTaskDueDate !== undefined &&
+          form.todoTaskDueDate !== ""
+        ) {
+          const oldDueDate = DateTime.fromISO(form.todoTaskDueDate);
+          if (
+            form.todoTaskActionableDate !== undefined &&
+            form.todoTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.todoTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.todo.todoTaskUpdate({
+          ref_id: form.todoTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          aspect_ref_id: { should_change: false },
+          chapter_ref_id: { should_change: false },
+          goal_ref_id: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -582,6 +810,10 @@ export default function TimeEventInDayBlockViewOne() {
 
     case TimeEventNamespace.BIG_PLAN:
       name = loaderData.bigPlan!.name;
+      break;
+
+    case TimeEventNamespace.TODO_TASK:
+      name = loaderData.todoTask!.name;
       break;
 
     default:
@@ -808,6 +1040,35 @@ export default function TimeEventInDayBlockViewOne() {
           inputsEnabled={inputsEnabled && !loaderData.bigPlan.archived}
           bigPlan={loaderData.bigPlan}
           bigPlanInfo={loaderData.bigPlanInfo!}
+          actionData={actionData}
+        />
+      )}
+
+      {loaderData.todoTask && loaderData.todoTaskInfo && (
+        <TodoTaskPropertiesEditor
+          title="Todo Task"
+          showLinkToTodoTask
+          intentPrefix="todo-task"
+          namePrefix="todoTask"
+          topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
+          allAspects={loaderData.allAspects}
+          allChapters={loaderData.allChapters}
+          allGoals={loaderData.allGoals}
+          allMilestones={loaderData.allMilestones}
+          allTags={loaderData.allTags}
+          tags={loaderData.todoTaskInfo.tags}
+          allContacts={loaderData.allContacts}
+          contacts={
+            (
+              loaderData.todoTaskInfo as {
+                contacts?: Array<Contact>;
+              }
+            ).contacts ?? []
+          }
+          inputsEnabled={inputsEnabled && !loaderData.todoTask.archived}
+          todoTask={loaderData.todoTask}
+          inboxTask={loaderData.todoTaskInfo.inbox_task}
           actionData={actionData}
         />
       )}

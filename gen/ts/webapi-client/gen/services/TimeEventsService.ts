@@ -9,6 +9,8 @@ import type { TimeEventInDayBlockCreateForBigPlanArgs } from '../models/TimeEven
 import type { TimeEventInDayBlockCreateForBigPlanResult } from '../models/TimeEventInDayBlockCreateForBigPlanResult';
 import type { TimeEventInDayBlockCreateForInboxTaskArgs } from '../models/TimeEventInDayBlockCreateForInboxTaskArgs';
 import type { TimeEventInDayBlockCreateForInboxTaskResult } from '../models/TimeEventInDayBlockCreateForInboxTaskResult';
+import type { TimeEventInDayBlockCreateForTodoTaskArgs } from '../models/TimeEventInDayBlockCreateForTodoTaskArgs';
+import type { TimeEventInDayBlockCreateForTodoTaskResult } from '../models/TimeEventInDayBlockCreateForTodoTaskResult';
 import type { TimeEventInDayBlockLoadArgs } from '../models/TimeEventInDayBlockLoadArgs';
 import type { TimeEventInDayBlockLoadResult } from '../models/TimeEventInDayBlockLoadResult';
 import type { TimeEventInDayBlockRemoveArgs } from '../models/TimeEventInDayBlockRemoveArgs';
@@ -107,6 +109,32 @@ export class TimeEventsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/time-event-in-day-block-create-for-inbox-task',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * Use case for creating a time event associated with a todo task.
+     * @param requestBody The input data
+     * @returns TimeEventInDayBlockCreateForTodoTaskResult Successful response
+     * @throws ApiError
+     */
+    public timeEventInDayBlockCreateForTodoTask(
+        requestBody?: TimeEventInDayBlockCreateForTodoTaskArgs,
+    ): CancelablePromise<TimeEventInDayBlockCreateForTodoTaskResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/time-event-in-day-block-create-for-todo-task',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

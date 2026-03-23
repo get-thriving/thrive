@@ -17,6 +17,7 @@ import {
   PersonOccasionEntry,
   Occasion,
   OccasionKind,
+  TodoTaskEntry,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
@@ -44,6 +45,7 @@ export function occasionTimeEventName(
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIG_PLAN_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const TODO_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIRTHDAY_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const VACATION_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
 
@@ -73,7 +75,11 @@ export interface CombinedTimeEventFullDaysEntry {
 
 export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
-  entry: ScheduleInDayEventEntry | InboxTaskEntry | BigPlanEntry;
+  entry:
+    | ScheduleInDayEventEntry
+    | InboxTaskEntry
+    | BigPlanEntry
+    | TodoTaskEntry;
 }
 
 const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
@@ -97,6 +103,9 @@ export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
     return true;
   }
   if (namespace === TimeEventNamespace.BIG_PLAN) {
+    return true;
+  }
+  if (namespace === TimeEventNamespace.TODO_TASK) {
     return true;
   }
 

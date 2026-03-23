@@ -12,4 +12,5 @@ class TimeEventNamespace(EnumValue):
     INBOX_TASK = "inbox-task"
     BIG_PLAN = "big-plan"
     PERSON_OCCASION = "person-occasion"
+    TODO_TASK = "todo-task"
     VACATION = "vacation"

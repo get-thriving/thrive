@@ -567,6 +567,9 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_bi
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
     asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
 )
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
+)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
 )
@@ -1362,6 +1365,12 @@ async def main() -> None:
                         "for-big-plan",
                         JupiterApiGatewayMethod.post(
                             time_event_in_day_block_create_for_big_plan,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-todo-task",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_todo_task,
                         ),
                     ),
                     JupiterApiResource.build(

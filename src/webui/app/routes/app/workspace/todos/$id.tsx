@@ -15,6 +15,7 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   TagNamespace,
+  WorkspaceFeature,
 } from "@jupiter/webapi-client";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -24,6 +25,12 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
+import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
@@ -126,6 +133,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             contacts?: Array<Contact>;
           }
         ).contacts ?? [],
+      timeEventBlocks: result.time_event_blocks,
       lifePlan: summaryResponse.life_plan as LifePlan | null,
       allAspects: summaryResponse.aspects as Array<AspectSummary> | null,
       allChapters: summaryResponse.chapters as Array<ChapterSummary> | null,
@@ -326,6 +334,20 @@ export default function TodoTask() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.todoTask.archived;
 
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      todo_task: loaderData.todoTask,
+      inbox_task: loaderData.inboxTask,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
+
   return (
     <LeafPanel
       key={`todo-task-${loaderData.todoTask.ref_id}`}
@@ -353,6 +375,19 @@ export default function TodoTask() {
         inboxTask={loaderData.inboxTask}
         actionData={actionData}
       />
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Time Events"
+          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-todo-task?todoTaskRefId=${loaderData.todoTask.ref_id}`}
+          entries={sortedTimeEventEntries}
+        />
+      )}
 
       <SectionCard
         title="Note"

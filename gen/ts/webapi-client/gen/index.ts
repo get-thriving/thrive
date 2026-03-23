@@ -610,6 +610,8 @@ export type { TimeEventInDayBlockCreateForBigPlanArgs } from './models/TimeEvent
 export type { TimeEventInDayBlockCreateForBigPlanResult } from './models/TimeEventInDayBlockCreateForBigPlanResult';
 export type { TimeEventInDayBlockCreateForInboxTaskArgs } from './models/TimeEventInDayBlockCreateForInboxTaskArgs';
 export type { TimeEventInDayBlockCreateForInboxTaskResult } from './models/TimeEventInDayBlockCreateForInboxTaskResult';
+export type { TimeEventInDayBlockCreateForTodoTaskArgs } from './models/TimeEventInDayBlockCreateForTodoTaskArgs';
+export type { TimeEventInDayBlockCreateForTodoTaskResult } from './models/TimeEventInDayBlockCreateForTodoTaskResult';
 export type { TimeEventInDayBlockLoadArgs } from './models/TimeEventInDayBlockLoadArgs';
 export type { TimeEventInDayBlockLoadResult } from './models/TimeEventInDayBlockLoadResult';
 export type { TimeEventInDayBlockRemoveArgs } from './models/TimeEventInDayBlockRemoveArgs';
@@ -672,6 +674,7 @@ export type { TodoTask } from './models/TodoTask';
 export type { TodoTaskArchiveArgs } from './models/TodoTaskArchiveArgs';
 export type { TodoTaskCreateArgs } from './models/TodoTaskCreateArgs';
 export type { TodoTaskCreateResult } from './models/TodoTaskCreateResult';
+export type { TodoTaskEntry } from './models/TodoTaskEntry';
 export type { TodoTaskFindArgs } from './models/TodoTaskFindArgs';
 export type { TodoTaskFindResult } from './models/TodoTaskFindResult';
 export type { TodoTaskFindResultEntry } from './models/TodoTaskFindResultEntry';

@@ -755,6 +755,8 @@ from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBloc
 from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
 from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
 from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
+from .time_event_in_day_block_create_for_todo_task_args import TimeEventInDayBlockCreateForTodoTaskArgs
+from .time_event_in_day_block_create_for_todo_task_result import TimeEventInDayBlockCreateForTodoTaskResult
 from .time_event_in_day_block_load_args import TimeEventInDayBlockLoadArgs
 from .time_event_in_day_block_load_result import TimeEventInDayBlockLoadResult
 from .time_event_in_day_block_remove_args import TimeEventInDayBlockRemoveArgs
@@ -835,6 +837,7 @@ from .todo_task import TodoTask
 from .todo_task_archive_args import TodoTaskArchiveArgs
 from .todo_task_create_args import TodoTaskCreateArgs
 from .todo_task_create_result import TodoTaskCreateResult
+from .todo_task_entry import TodoTaskEntry
 from .todo_task_find_args import TodoTaskFindArgs
 from .todo_task_find_result import TodoTaskFindResult
 from .todo_task_find_result_entry import TodoTaskFindResultEntry
@@ -1666,6 +1669,8 @@ __all__ = (
     "TimeEventInDayBlockCreateForBigPlanResult",
     "TimeEventInDayBlockCreateForInboxTaskArgs",
     "TimeEventInDayBlockCreateForInboxTaskResult",
+    "TimeEventInDayBlockCreateForTodoTaskArgs",
+    "TimeEventInDayBlockCreateForTodoTaskResult",
     "TimeEventInDayBlockLoadArgs",
     "TimeEventInDayBlockLoadResult",
     "TimeEventInDayBlockRemoveArgs",
@@ -1744,6 +1749,7 @@ __all__ = (
     "TodoTaskArchiveArgs",
     "TodoTaskCreateArgs",
     "TodoTaskCreateResult",
+    "TodoTaskEntry",
     "TodoTaskFindArgs",
     "TodoTaskFindResult",
     "TodoTaskFindResultEntry",

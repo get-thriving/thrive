@@ -87,6 +87,20 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
+    case TimeEventNamespace.TODO_TASK: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/todos/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
     case TimeEventNamespace.VACATION: {
       return (
         <Button

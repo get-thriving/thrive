@@ -32,6 +32,11 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
       break;
     }
 
+    case TimeEventNamespace.TODO_TASK: {
+      name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
+      break;
+    }
+
     default:
       throw new Error("Unknown namespace");
   }

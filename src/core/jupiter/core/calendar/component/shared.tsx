@@ -15,6 +15,8 @@ import {
   Tag,
   TimeEventNamespace,
   Timezone,
+  TodoTask,
+  TodoTaskEntry,
   VacationEntry,
   RecurringTaskPeriod,
 } from "@jupiter/webapi-client";
@@ -41,6 +43,7 @@ import {
   scheduleTimeEventInDayDurationToRems,
   INBOX_TASK_TIME_EVENT_COLOR,
   BIG_PLAN_TIME_EVENT_COLOR,
+  TODO_TASK_TIME_EVENT_COLOR,
   BIRTHDAY_TIME_EVENT_COLOR,
   occasionTimeEventName,
   VACATION_TIME_EVENT_COLOR,
@@ -894,6 +897,100 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
+            </EntityLink>
+        </Box>
+      );
+    }
+
+    case TimeEventNamespace.TODO_TASK: {
+      const todoTaskEntry = props.entry.entry as TodoTaskEntry;
+
+      const startTime = calculateStartTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+      const endTime = calculateEndTimeForTimeEvent(
+        props.entry.time_event_in_tz,
+      );
+
+      const minutesSinceStartOfDay = startTime
+        .diff(props.startOfDay)
+        .as("minutes");
+
+      const nameWithStatus = todoTaskNameForEvent(
+        todoTaskEntry.todo_task,
+        todoTaskEntry.inbox_task,
+      );
+
+      const clippedName = clipTimeEventInDayNameToWhatFits(
+        startTime,
+        endTime,
+        nameWithStatus,
+        theme.typography.htmlFontSize,
+        containerWidth,
+        minutesSinceStartOfDay,
+        props.entry.time_event_in_tz.duration_mins,
+      );
+
+      const topRems = calendarTimeEventInDayStartMinutesToRems(
+        minutesSinceStartOfDay,
+        props.deltaHour,
+      );
+
+      if (topRems === undefined) {
+        return null;
+      }
+
+      return (
+        <Box
+          ref={containerRef}
+          id={`todo-task-event-in-day-block-${todoTaskEntry.todo_task.ref_id}`}
+          sx={{
+            fontSize: "10px",
+            position: "absolute",
+            top: topRems,
+            height: calendarTimeEventInDayDurationToRems(
+              minutesSinceStartOfDay,
+              props.entry.time_event_in_tz.duration_mins,
+            ),
+            backgroundColor: scheduleStreamColorHex(
+              TODO_TASK_TIME_EVENT_COLOR,
+              todoTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+                ? "lighter"
+                : todoTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                  ? "darker"
+                  : "normal",
+            ),
+            borderRadius: "0.25rem",
+            border: `1px solid ${theme.palette.background.paper}`,
+            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
+            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
+            marginLeft: `${props.offset * 0.8}rem`,
+            zIndex: props.offset,
+          }}
+        >
+          <EntityLink
+            key={`todo-task-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+            inline
+            block={props.isAdding}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: "0rem",
+                left: "0.1rem",
+                overflow: "hidden",
+              }}
+            >
+              <EntityNameComponent
+                name={clippedName}
+                color={scheduleStreamColorContrastingHex(
+                  TODO_TASK_TIME_EVENT_COLOR,
+                )}
+              />
+            </Box>
           </EntityLink>
         </Box>
       );
@@ -1253,6 +1350,52 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
+    case TimeEventNamespace.TODO_TASK: {
+      const todoTaskEntry = props.entry.entry as TodoTaskEntry;
+      return (
+        <Fragment>
+          <ViewAsScheduleTimeCell
+            period={props.period}
+            isbigscreen={isBigScreen.toString()}
+          >
+            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
+          </ViewAsScheduleTimeCell>
+
+          <ViewAsScheduleEventCell
+            color={scheduleStreamColorHex(
+              TODO_TASK_TIME_EVENT_COLOR,
+              todoTaskEntry.inbox_task.status === InboxTaskStatus.DONE
+                ? "lighter"
+                : todoTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
+                  ? "darker"
+                  : "normal",
+            )}
+            height={scheduleTimeEventInDayDurationToRems(
+              props.entry.time_event_in_tz.duration_mins,
+            )}
+          >
+            <EntityLink
+              light
+              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
+              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
+              inline
+              block={props.isAdding}
+            >
+              <EntityNameComponent
+                name={todoTaskNameForEvent(
+                  todoTaskEntry.todo_task,
+                  todoTaskEntry.inbox_task,
+                )}
+                color={scheduleStreamColorContrastingHex(
+                  TODO_TASK_TIME_EVENT_COLOR,
+                )}
+              />
+            </EntityLink>
+          </ViewAsScheduleEventCell>
+        </Fragment>
+      );
+    }
+
     default:
       throw new Error("Unkown namespace");
   }
@@ -1354,6 +1497,10 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from big plan" : ""}
         </span>
         <span>
+          📝 {props.stats.todo_task_cnt}{" "}
+          {!props.showCompact ? "from todo task" : ""}
+        </span>
+        <span>
           👨 {props.stats.person_birthday_cnt}{" "}
           {!props.showCompact ? "from birthdays" : ""}
         </span>
@@ -1383,5 +1530,18 @@ export function bigPlanNameForEvent(bigPlan: BigPlan): string {
     return `❌ ${bigPlan.name}`;
   } else {
     return `${bigPlan.name}`;
+  }
+}
+
+export function todoTaskNameForEvent(
+  todoTask: TodoTask,
+  inboxTask: InboxTask,
+): string {
+  if (inboxTask.status === InboxTaskStatus.DONE) {
+    return `✅ ${todoTask.name}`;
+  } else if (inboxTask.status === InboxTaskStatus.NOT_DONE) {
+    return `❌ ${todoTask.name}`;
+  } else {
+    return `${todoTask.name}`;
   }
 }

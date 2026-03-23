@@ -6,6 +6,7 @@ import type { BigPlan } from './BigPlan';
 import type { InboxTask } from './InboxTask';
 import type { ScheduleEventInDay } from './ScheduleEventInDay';
 import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
+import type { TodoTask } from './TodoTask';
 /**
  * InDayBlockLoadResult.
  */
@@ -14,5 +15,6 @@ export type TimeEventInDayBlockLoadResult = {
     schedule_event?: (ScheduleEventInDay | null);
     inbox_task?: (InboxTask | null);
     big_plan?: (BigPlan | null);
+    todo_task?: (TodoTask | null);
 };
 

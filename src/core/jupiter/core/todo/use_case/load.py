@@ -9,6 +9,11 @@ from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -53,6 +58,7 @@ class TodoTaskLoadResult(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(WorkspaceFeature.TODO_TASK)
@@ -146,6 +152,16 @@ class TodoTaskLoadUseCase(
         else:
             contacts = []
 
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.TODO_TASK,
+            source_entity_ref_id=[todo_task.ref_id],
+        )
+
         return TodoTaskLoadResult(
             todo_task=todo_task,
             inbox_task=inbox_task,
@@ -155,4 +171,5 @@ class TodoTaskLoadUseCase(
             tags=tags,
             contacts=contacts,
             note=note,
+            time_event_blocks=time_event_blocks,
         )
