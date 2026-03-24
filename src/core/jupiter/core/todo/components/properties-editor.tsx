@@ -28,9 +28,8 @@ import {
   Stack,
 } from "@mui/material";
 import { useState } from "react";
-
 import { Launch as LaunchIcon } from "@mui/icons-material";
-import { Link } from "@remix-run/react";
+
 import { aDateToDate } from "#/core/common/adate";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
@@ -44,9 +43,7 @@ import {
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 import { FieldError } from "#/core/infra/component/errors";
-import {
-  constructFieldName,
-} from "#/core/infra/field-names";
+import { constructFieldName } from "#/core/infra/field-names";
 import {
   ActionSingle,
   NavSingle,
@@ -139,7 +136,11 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
 
           <FormControl sx={{ flexGrow: 1, minWidth: "unset" }}>
             <InboxTaskStatusBigTag status={props.inboxTask.status} />
-            <input type="hidden" name={constructFieldName(props.namePrefix, "status")} value={props.inboxTask.status} />
+            <input
+              type="hidden"
+              name={constructFieldName(props.namePrefix, "status")}
+              value={props.inboxTask.status}
+            />
             <FieldError actionResult={props.actionData} fieldName="/status" />
           </FormControl>
 

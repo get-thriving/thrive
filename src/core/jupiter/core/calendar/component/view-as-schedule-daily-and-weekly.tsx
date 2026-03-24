@@ -71,24 +71,6 @@ export function ViewAsScheduleDailyAndWeekly(props: ViewAsProps) {
       entry: entry,
     });
   }
-  for (const entry of props.entries.inbox_task_entries) {
-    for (const timeEvent of entry.time_events) {
-      if (
-        props.showOnlyFromRightNowIfDaily &&
-        calculateStartTimeForTimeEvent(timeEvent) < props.rightNow
-      ) {
-        continue;
-      }
-
-      combinedTimeEventInDay.push({
-        time_event_in_tz: timeEventInDayBlockToTimezone(
-          timeEvent,
-          props.timezone,
-        ),
-        entry: entry,
-      });
-    }
-  }
   for (const entry of props.entries.big_plan_entries) {
     for (const timeEvent of entry.time_events) {
       if (

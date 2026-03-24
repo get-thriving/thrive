@@ -8,7 +8,6 @@
 export enum TimeEventNamespace {
     SCHEDULE_EVENT_IN_DAY = 'schedule-event-in-day',
     SCHEDULE_FULL_DAYS_BLOCK = 'schedule-full-days-block',
-    INBOX_TASK = 'inbox-task',
     BIG_PLAN = 'big-plan',
     PERSON_OCCASION = 'person-occasion',
     TODO_TASK = 'todo-task',

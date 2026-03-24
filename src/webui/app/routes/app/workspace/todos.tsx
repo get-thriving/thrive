@@ -480,7 +480,6 @@ export default function Todos() {
                   moreInfoByRefId={moreInfoByRefId}
                   actionableTime={selectedActionableTime}
                   draggedInboxTaskId={draggedInboxTaskId}
-
                   showOptions={{
                     showSource: false,
                     showEisen: true,
@@ -517,7 +516,6 @@ export default function Todos() {
                       actionableTime={selectedActionableTime}
                       allowEisen={e}
                       draggedInboxTaskId={draggedInboxTaskId}
-    
                       showOptions={{
                         showSource: false,
                         showEisen: false,

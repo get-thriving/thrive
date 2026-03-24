@@ -5,7 +5,6 @@ import {
   Contact,
   EntityId,
   HabitEntry,
-  InboxTaskEntry,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -83,7 +82,6 @@ export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
   entry:
     | ScheduleInDayEventEntry
-    | InboxTaskEntry
     | BigPlanEntry
     | TodoTaskEntry
     | HabitEntry
@@ -108,9 +106,6 @@ export function compareNamespaceForSortingFullDaysTimeEvents(
 }
 
 export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
-  if (namespace === TimeEventNamespace.INBOX_TASK) {
-    return true;
-  }
   if (namespace === TimeEventNamespace.BIG_PLAN) {
     return true;
   }

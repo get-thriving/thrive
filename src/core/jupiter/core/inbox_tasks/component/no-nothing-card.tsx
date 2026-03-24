@@ -72,14 +72,19 @@ export function InboxTasksNoNothingCard(props: InboxTasksNoNothingCardProps) {
             New Chore
           </Button>
         )}
-        <Button
-          variant="contained"
-          size="small"
-          component={Link}
-          to="/app/workspace/inbox-tasks/new"
-        >
-          New Inbox Task
-        </Button>
+        {isWorkspaceFeatureAvailable(
+          props.topLevelInfo.workspace,
+          WorkspaceFeature.TODO_TASK,
+        ) && (
+          <Button
+            variant="contained"
+            size="small"
+            component={Link}
+            to="/app/workspace/todos/new"
+          >
+            New Todo
+          </Button>
+        )}
       </CardActions>
     </Card>
   );

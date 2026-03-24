@@ -76,6 +76,4 @@ class TimeEventInDayBlockCreateForTodoTaskUseCase(
         )
         new_time_event = await uow.get_for(TimeEventInDayBlock).create(new_time_event)
 
-        return TimeEventInDayBlockCreateForTodoTaskResult(
-            new_time_event=new_time_event
-        )
+        return TimeEventInDayBlockCreateForTodoTaskResult(new_time_event=new_time_event)

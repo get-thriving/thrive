@@ -554,20 +554,17 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
     asyncio_detailed as time_event_in_day_block_create_for_big_plan,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
-)
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
+    asyncio_detailed as time_event_in_day_block_create_for_chore,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
     asyncio_detailed as time_event_in_day_block_create_for_habit,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
-    asyncio_detailed as time_event_in_day_block_create_for_chore,
-)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
     asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
@@ -1235,11 +1232,6 @@ async def main() -> None:
             "load-time-event-full-days-block",
             "Load a full-days time event block",
             time_event_full_days_block_load,
-        ),
-        JupiterMcpTool.tool(
-            "create-time-event-in-day-block-for-inbox-task",
-            "Create an in-day time event block for an inbox task",
-            time_event_in_day_block_create_for_inbox_task,
         ),
         JupiterMcpTool.tool(
             "create-time-event-in-day-block-for-big-plan",

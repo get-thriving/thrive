@@ -270,7 +270,6 @@ export { Hosting } from './models/Hosting';
 export type { InboxTask } from './models/InboxTask';
 export type { InboxTaskArchiveArgs } from './models/InboxTaskArchiveArgs';
 export type { InboxTaskCollection } from './models/InboxTaskCollection';
-export type { InboxTaskEntry } from './models/InboxTaskEntry';
 export type { InboxTaskFindArgs } from './models/InboxTaskFindArgs';
 export type { InboxTaskFindResult } from './models/InboxTaskFindResult';
 export type { InboxTaskFindResultEntry } from './models/InboxTaskFindResultEntry';
@@ -614,8 +613,6 @@ export type { TimeEventInDayBlockCreateForChoreArgs } from './models/TimeEventIn
 export type { TimeEventInDayBlockCreateForChoreResult } from './models/TimeEventInDayBlockCreateForChoreResult';
 export type { TimeEventInDayBlockCreateForHabitArgs } from './models/TimeEventInDayBlockCreateForHabitArgs';
 export type { TimeEventInDayBlockCreateForHabitResult } from './models/TimeEventInDayBlockCreateForHabitResult';
-export type { TimeEventInDayBlockCreateForInboxTaskArgs } from './models/TimeEventInDayBlockCreateForInboxTaskArgs';
-export type { TimeEventInDayBlockCreateForInboxTaskResult } from './models/TimeEventInDayBlockCreateForInboxTaskResult';
 export type { TimeEventInDayBlockCreateForTimePlanActivityArgs } from './models/TimeEventInDayBlockCreateForTimePlanActivityArgs';
 export type { TimeEventInDayBlockCreateForTimePlanActivityResult } from './models/TimeEventInDayBlockCreateForTimePlanActivityResult';
 export type { TimeEventInDayBlockCreateForTodoTaskArgs } from './models/TimeEventInDayBlockCreateForTodoTaskArgs';

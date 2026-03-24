@@ -332,7 +332,6 @@ from .hosting import Hosting
 from .inbox_task import InboxTask
 from .inbox_task_archive_args import InboxTaskArchiveArgs
 from .inbox_task_collection import InboxTaskCollection
-from .inbox_task_entry import InboxTaskEntry
 from .inbox_task_find_args import InboxTaskFindArgs
 from .inbox_task_find_result import InboxTaskFindResult
 from .inbox_task_find_result_entry import InboxTaskFindResultEntry
@@ -759,8 +758,6 @@ from .time_event_in_day_block_create_for_chore_args import TimeEventInDayBlockCr
 from .time_event_in_day_block_create_for_chore_result import TimeEventInDayBlockCreateForChoreResult
 from .time_event_in_day_block_create_for_habit_args import TimeEventInDayBlockCreateForHabitArgs
 from .time_event_in_day_block_create_for_habit_result import TimeEventInDayBlockCreateForHabitResult
-from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
-from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
 from .time_event_in_day_block_create_for_time_plan_activity_args import TimeEventInDayBlockCreateForTimePlanActivityArgs
 from .time_event_in_day_block_create_for_time_plan_activity_result import (
     TimeEventInDayBlockCreateForTimePlanActivityResult,
@@ -1271,7 +1268,6 @@ __all__ = (
     "InboxTask",
     "InboxTaskArchiveArgs",
     "InboxTaskCollection",
-    "InboxTaskEntry",
     "InboxTaskFindArgs",
     "InboxTaskFindResult",
     "InboxTaskFindResultEntry",
@@ -1684,8 +1680,6 @@ __all__ = (
     "TimeEventInDayBlockCreateForChoreResult",
     "TimeEventInDayBlockCreateForHabitArgs",
     "TimeEventInDayBlockCreateForHabitResult",
-    "TimeEventInDayBlockCreateForInboxTaskArgs",
-    "TimeEventInDayBlockCreateForInboxTaskResult",
     "TimeEventInDayBlockCreateForTimePlanActivityArgs",
     "TimeEventInDayBlockCreateForTimePlanActivityResult",
     "TimeEventInDayBlockCreateForTodoTaskArgs",

@@ -1,5 +1,6 @@
 """Use case for creating a time event associated with a chore."""
 
+from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
     TimeEventInDayBlock,
@@ -9,7 +10,6 @@ from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
-from jupiter.core.chores.root import Chore
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -76,6 +76,4 @@ class TimeEventInDayBlockCreateForChoreUseCase(
         )
         new_time_event = await uow.get_for(TimeEventInDayBlock).create(new_time_event)
 
-        return TimeEventInDayBlockCreateForChoreResult(
-            new_time_event=new_time_event
-        )
+        return TimeEventInDayBlockCreateForChoreResult(new_time_event=new_time_event)

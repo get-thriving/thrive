@@ -10,7 +10,6 @@ if TYPE_CHECKING:
     from ..models.big_plan_entry import BigPlanEntry
     from ..models.chore_entry import ChoreEntry
     from ..models.habit_entry import HabitEntry
-    from ..models.inbox_task_entry import InboxTaskEntry
     from ..models.person_occasion_entry import PersonOccasionEntry
     from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
     from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
@@ -29,7 +28,6 @@ class CalendarEventsEntries:
     Attributes:
         schedule_event_full_days_entries (list[ScheduleFullDaysEventEntry]):
         schedule_event_in_day_entries (list[ScheduleInDayEventEntry]):
-        inbox_task_entries (list[InboxTaskEntry]):
         big_plan_entries (list[BigPlanEntry]):
         todo_task_entries (list[TodoTaskEntry]):
         habit_entries (list[HabitEntry]):
@@ -41,7 +39,6 @@ class CalendarEventsEntries:
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
-    inbox_task_entries: list[InboxTaskEntry]
     big_plan_entries: list[BigPlanEntry]
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
@@ -61,11 +58,6 @@ class CalendarEventsEntries:
         for schedule_event_in_day_entries_item_data in self.schedule_event_in_day_entries:
             schedule_event_in_day_entries_item = schedule_event_in_day_entries_item_data.to_dict()
             schedule_event_in_day_entries.append(schedule_event_in_day_entries_item)
-
-        inbox_task_entries = []
-        for inbox_task_entries_item_data in self.inbox_task_entries:
-            inbox_task_entries_item = inbox_task_entries_item_data.to_dict()
-            inbox_task_entries.append(inbox_task_entries_item)
 
         big_plan_entries = []
         for big_plan_entries_item_data in self.big_plan_entries:
@@ -108,7 +100,6 @@ class CalendarEventsEntries:
             {
                 "schedule_event_full_days_entries": schedule_event_full_days_entries,
                 "schedule_event_in_day_entries": schedule_event_in_day_entries,
-                "inbox_task_entries": inbox_task_entries,
                 "big_plan_entries": big_plan_entries,
                 "todo_task_entries": todo_task_entries,
                 "habit_entries": habit_entries,
@@ -126,7 +117,6 @@ class CalendarEventsEntries:
         from ..models.big_plan_entry import BigPlanEntry
         from ..models.chore_entry import ChoreEntry
         from ..models.habit_entry import HabitEntry
-        from ..models.inbox_task_entry import InboxTaskEntry
         from ..models.person_occasion_entry import PersonOccasionEntry
         from ..models.schedule_full_days_event_entry import ScheduleFullDaysEventEntry
         from ..models.schedule_in_day_event_entry import ScheduleInDayEventEntry
@@ -152,13 +142,6 @@ class CalendarEventsEntries:
             )
 
             schedule_event_in_day_entries.append(schedule_event_in_day_entries_item)
-
-        inbox_task_entries = []
-        _inbox_task_entries = d.pop("inbox_task_entries")
-        for inbox_task_entries_item_data in _inbox_task_entries:
-            inbox_task_entries_item = InboxTaskEntry.from_dict(inbox_task_entries_item_data)
-
-            inbox_task_entries.append(inbox_task_entries_item)
 
         big_plan_entries = []
         _big_plan_entries = d.pop("big_plan_entries")
@@ -212,7 +195,6 @@ class CalendarEventsEntries:
         calendar_events_entries = cls(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
-            inbox_task_entries=inbox_task_entries,
             big_plan_entries=big_plan_entries,
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,

@@ -108,9 +108,7 @@ def create_archivable_inbox_task(logged_in_client: AuthenticatedClient):
                 difficulty=Difficulty.EASY,
             ),
         )
-        big_plan = get_parsed_from_response(
-            BigPlanCreateResult, bp_result
-        ).new_big_plan
+        big_plan = get_parsed_from_response(BigPlanCreateResult, bp_result).new_big_plan
         result = big_plan_create_inbox_task_sync(
             client=logged_in_client,
             body=BigPlanCreateInboxTaskArgs(
@@ -288,7 +286,9 @@ def test_api_inbox_task_find_excludes_archived(
     assert "Archive Filter Task" not in names
 
 
-def test_api_inbox_task_archive(api_url: str, api_key: str, create_archivable_inbox_task) -> None:
+def test_api_inbox_task_archive(
+    api_url: str, api_key: str, create_archivable_inbox_task
+) -> None:
     created = create_archivable_inbox_task("Archive Me Task")
 
     response = requests.delete(
@@ -315,7 +315,9 @@ def test_api_inbox_task_archive(api_url: str, api_key: str, create_archivable_in
     assert response2.json()["inbox_task"]["archived"] is True
 
 
-def test_api_inbox_task_remove(api_url: str, api_key: str, create_archivable_inbox_task) -> None:
+def test_api_inbox_task_remove(
+    api_url: str, api_key: str, create_archivable_inbox_task
+) -> None:
     created = create_archivable_inbox_task("Remove Me Task")
 
     response = requests.delete(

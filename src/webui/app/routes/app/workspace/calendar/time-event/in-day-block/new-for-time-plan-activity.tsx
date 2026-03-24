@@ -64,11 +64,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const query = parseQuery(request, QuerySchema);
 
-  const activityResponse =
-    await apiClient.timePlans.timePlanActivityLoad({
-      ref_id: query.timePlanActivityRefId,
-      allow_archived: true,
-    });
+  const activityResponse = await apiClient.timePlans.timePlanActivityLoad({
+    ref_id: query.timePlanActivityRefId,
+    allow_archived: true,
+  });
 
   return json({
     date: query.date,

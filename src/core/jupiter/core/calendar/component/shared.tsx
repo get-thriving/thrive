@@ -9,7 +9,6 @@ import {
   ChoreEntry,
   Habit,
   HabitEntry,
-  InboxTaskEntry,
   CalendarEventsStatsPerSubperiod,
   InboxTask,
   InboxTaskStatus,
@@ -17,7 +16,6 @@ import {
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
   Tag,
-  TimePlanActivity,
   TimePlanActivityEntry,
   TimeEventNamespace,
   Timezone,
@@ -47,7 +45,6 @@ import { useNavigate, useLocation, useSearchParams } from "@remix-run/react";
 import {
   CombinedTimeEventFullDaysEntry,
   scheduleTimeEventInDayDurationToRems,
-  INBOX_TASK_TIME_EVENT_COLOR,
   BIG_PLAN_TIME_EVENT_COLOR,
   TODO_TASK_TIME_EVENT_COLOR,
   HABIT_TIME_EVENT_COLOR,
@@ -526,16 +523,6 @@ export function ViewAsCalendarTimeEventInDayColumn(
         replace: true,
       });
     } else if (
-      location.pathname ===
-      `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task`
-    ) {
-      navigate(
-        `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?${newQuery}`,
-        {
-          replace: true,
-        },
-      );
-    } else if (
       location.pathname.startsWith(
         `/app/workspace/calendar/time-event/in-day-block/`,
       )
@@ -729,97 +716,6 @@ export function ViewAsCalendarTimeEventInDayCell(
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      const inboxTaskEntry = props.entry.entry as InboxTaskEntry;
-
-      const startTime = calculateStartTimeForTimeEvent(
-        props.entry.time_event_in_tz,
-      );
-      const endTime = calculateEndTimeForTimeEvent(
-        props.entry.time_event_in_tz,
-      );
-
-      const minutesSinceStartOfDay = startTime
-        .diff(props.startOfDay)
-        .as("minutes");
-
-      const nameWithStatus = inboxTaskNameForEvent(inboxTaskEntry.inbox_task);
-
-      const clippedName = clipTimeEventInDayNameToWhatFits(
-        startTime,
-        endTime,
-        nameWithStatus,
-        theme.typography.htmlFontSize,
-        containerWidth,
-        minutesSinceStartOfDay,
-        props.entry.time_event_in_tz.duration_mins,
-      );
-
-      const topRems = calendarTimeEventInDayStartMinutesToRems(
-        minutesSinceStartOfDay,
-        props.deltaHour,
-      );
-
-      if (topRems === undefined) {
-        return null;
-      }
-
-      return (
-        <Box
-          ref={containerRef}
-          id={`inbox-task-event-in-day-block-${(props.entry.entry as InboxTaskEntry).inbox_task.ref_id}`}
-          sx={{
-            fontSize: "10px",
-            position: "absolute",
-            top: topRems,
-            height: calendarTimeEventInDayDurationToRems(
-              minutesSinceStartOfDay,
-              props.entry.time_event_in_tz.duration_mins,
-            ),
-            backgroundColor: scheduleStreamColorHex(
-              INBOX_TASK_TIME_EVENT_COLOR,
-              inboxTaskEntry.inbox_task.status === InboxTaskStatus.DONE
-                ? "lighter"
-                : inboxTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
-                  ? "darker"
-                  : "normal",
-            ),
-            borderRadius: "0.25rem",
-            border: `1px solid ${theme.palette.background.paper}`,
-            minWidth: `calc(7rem - ${props.offset * 0.8}rem  - 0.5rem)`,
-            width: `calc(100% - ${props.offset * 0.8}rem - 0.5rem)`,
-            marginLeft: `${props.offset * 0.8}rem`,
-            zIndex: props.offset,
-          }}
-        >
-          <EntityLink
-            key={`inbox-task-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-            to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
-            inline
-            block={props.isAdding}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                top: "0rem",
-                left: "0.1rem",
-                overflow: "hidden",
-              }}
-            >
-              <EntityNameComponent
-                name={clippedName}
-                color={scheduleStreamColorContrastingHex(
-                  INBOX_TASK_TIME_EVENT_COLOR,
-                )}
-              />
-            </Box>
-          </EntityLink>
-        </Box>
-      );
-    }
-
     case TimeEventNamespace.BIG_PLAN: {
       const bigPlanEntry = props.entry.entry as BigPlanEntry;
 
@@ -906,7 +802,7 @@ export function ViewAsCalendarTimeEventInDayCell(
                 )}
               />
             </Box>
-            </EntityLink>
+          </EntityLink>
         </Box>
       );
     }
@@ -1187,9 +1083,7 @@ export function ViewAsCalendarTimeEventInDayCell(
         .diff(props.startOfDay)
         .as("minutes");
 
-      const nameWithStatus = timePlanActivityNameForEvent(
-        activityEntry,
-      );
+      const nameWithStatus = timePlanActivityNameForEvent(activityEntry);
 
       const clippedName = clipTimeEventInDayNameToWhatFits(
         startTime,
@@ -1529,49 +1423,6 @@ export function ViewAsScheduleTimeEventInDaysRows(
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      const inboxTaskEntry = props.entry.entry as InboxTaskEntry;
-      return (
-        <Fragment>
-          <ViewAsScheduleTimeCell
-            period={props.period}
-            isbigscreen={isBigScreen.toString()}
-          >
-            [{startTime.toFormat("HH:mm")} - {endTime.toFormat("HH:mm")}]
-          </ViewAsScheduleTimeCell>
-
-          <ViewAsScheduleEventCell
-            color={scheduleStreamColorHex(
-              INBOX_TASK_TIME_EVENT_COLOR,
-              inboxTaskEntry.inbox_task.status === InboxTaskStatus.DONE
-                ? "lighter"
-                : inboxTaskEntry.inbox_task.status === InboxTaskStatus.NOT_DONE
-                  ? "darker"
-                  : "normal",
-            )}
-            height={scheduleTimeEventInDayDurationToRems(
-              props.entry.time_event_in_tz.duration_mins,
-            )}
-          >
-            <EntityLink
-              light
-              key={`time-event-in-day-block-${props.entry.time_event_in_tz.ref_id}`}
-              to={`/app/workspace/calendar/time-event/in-day-block/${props.entry.time_event_in_tz.ref_id}?${query}`}
-              inline
-              block={props.isAdding}
-            >
-              <EntityNameComponent
-                name={inboxTaskNameForEvent(inboxTaskEntry.inbox_task)}
-                color={scheduleStreamColorContrastingHex(
-                  INBOX_TASK_TIME_EVENT_COLOR,
-                )}
-              />
-            </EntityLink>
-          </ViewAsScheduleEventCell>
-        </Fragment>
-      );
-    }
-
     case TimeEventNamespace.BIG_PLAN: {
       const bigPlanEntry = props.entry.entry as BigPlanEntry;
       return (
@@ -1745,9 +1596,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
           </ViewAsScheduleTimeCell>
 
           <ViewAsScheduleEventCell
-            color={scheduleStreamColorHex(
-              TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
-            )}
+            color={scheduleStreamColorHex(TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR)}
             height={scheduleTimeEventInDayDurationToRems(
               props.entry.time_event_in_tz.duration_mins,
             )}
@@ -1760,9 +1609,7 @@ export function ViewAsScheduleTimeEventInDaysRows(
               block={props.isAdding}
             >
               <EntityNameComponent
-                name={timePlanActivityNameForEvent(
-                  activityEntry,
-                )}
+                name={timePlanActivityNameForEvent(activityEntry)}
                 color={scheduleStreamColorContrastingHex(
                   TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR,
                 )}
@@ -1866,10 +1713,6 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from scheduled in day events" : ""}
         </span>
         <span>
-          📥 {props.stats.inbox_task_cnt}{" "}
-          {!props.showCompact ? "from inbox task" : ""}
-        </span>
-        <span>
           🎯 {props.stats.big_plan_cnt}{" "}
           {!props.showCompact ? "from big plan" : ""}
         </span>
@@ -1878,12 +1721,10 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
           {!props.showCompact ? "from todo task" : ""}
         </span>
         <span>
-          🔄 {props.stats.habit_cnt}{" "}
-          {!props.showCompact ? "from habit" : ""}
+          🔄 {props.stats.habit_cnt} {!props.showCompact ? "from habit" : ""}
         </span>
         <span>
-          🧹 {props.stats.chore_cnt}{" "}
-          {!props.showCompact ? "from chore" : ""}
+          🧹 {props.stats.chore_cnt} {!props.showCompact ? "from chore" : ""}
         </span>
         <span>
           📋 {props.stats.time_plan_activity_cnt}{" "}
@@ -1900,16 +1741,6 @@ export function ViewAsStatsPerSubperiod(props: ViewAsStatsPerSubperiodProps) {
       </Box>
     </EntityLink>
   );
-}
-
-export function inboxTaskNameForEvent(inboxTask: InboxTask): string {
-  if (inboxTask.status === InboxTaskStatus.DONE) {
-    return `✅ ${inboxTask.name}`;
-  } else if (inboxTask.status === InboxTaskStatus.NOT_DONE) {
-    return `❌ ${inboxTask.name}`;
-  } else {
-    return `${inboxTask.name}`;
-  }
 }
 
 export function bigPlanNameForEvent(bigPlan: BigPlan): string {
@@ -1946,19 +1777,21 @@ export function choreNameForEvent(chore: Chore): string {
 export function timePlanActivityNameForEvent(
   entry: TimePlanActivityEntry,
 ): string {
+  const activityName = `Work on activity ${entry.time_plan_activity.ref_id}`;
+
   if (entry.target_inbox_task) {
     if (entry.target_inbox_task.status === InboxTaskStatus.DONE) {
-      return `✅ ${entry.time_plan_activity.name}`;
+      return `✅ ${activityName}`;
     } else if (entry.target_inbox_task.status === InboxTaskStatus.NOT_DONE) {
-      return `❌ ${entry.time_plan_activity.name}`;
+      return `❌ ${activityName}`;
     }
   }
   if (entry.target_big_plan) {
     if (entry.target_big_plan.status === BigPlanStatus.DONE) {
-      return `✅ ${entry.time_plan_activity.name}`;
+      return `✅ ${activityName}`;
     } else if (entry.target_big_plan.status === BigPlanStatus.NOT_DONE) {
-      return `❌ ${entry.time_plan_activity.name}`;
+      return `❌ ${activityName}`;
     }
   }
-  return `📋 ${entry.time_plan_activity.name}`;
+  return `📋 ${activityName}`;
 }

@@ -564,20 +564,17 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
     asyncio_detailed as time_event_in_day_block_create_for_big_plan,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
-)
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
+    asyncio_detailed as time_event_in_day_block_create_for_chore,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
     asyncio_detailed as time_event_in_day_block_create_for_habit,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
-    asyncio_detailed as time_event_in_day_block_create_for_chore,
-)
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
     asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
@@ -1364,12 +1361,6 @@ async def main() -> None:
                 "time-events",
                 JupiterApiResource.build(
                     "in-day-blocks",
-                    JupiterApiResource.build(
-                        "for-inbox-task",
-                        JupiterApiGatewayMethod.post(
-                            time_event_in_day_block_create_for_inbox_task,
-                        ),
-                    ),
                     JupiterApiResource.build(
                         "for-big-plan",
                         JupiterApiGatewayMethod.post(

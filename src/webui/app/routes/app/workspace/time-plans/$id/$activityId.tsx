@@ -38,7 +38,6 @@ import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
@@ -719,7 +718,6 @@ export default function TimePlanActivity() {
             inboxTaskInfo={loaderData.targetInboxTaskInfo!}
             actionData={actionData}
           />
-
         </>
       )}
 
@@ -827,8 +825,6 @@ export default function TimePlanActivity() {
             </SectionCard>
           </>
         )}
-
-
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,

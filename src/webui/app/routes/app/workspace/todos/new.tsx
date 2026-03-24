@@ -173,9 +173,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     switch (timePlanReason) {
       case "standard":
-        return redirect(
-          `/app/workspace/todos/${result.new_todo_task.ref_id}`,
-        );
+        return redirect(`/app/workspace/todos/${result.new_todo_task.ref_id}`);
 
       case "for-time-plan":
         return redirect(

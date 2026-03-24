@@ -13,7 +13,6 @@ import type { Metric } from './Metric';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { SlackTask } from './SlackTask';
-import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
 import type { TodoTask } from './TodoTask';
 import type { WorkingMemCollection } from './WorkingMemCollection';
@@ -22,7 +21,6 @@ import type { WorkingMemCollection } from './WorkingMemCollection';
  */
 export type InboxTaskFindResultEntry = {
     inbox_task: InboxTask;
-    time_event_blocks?: (Array<TimeEventInDayBlock> | null);
     working_mem_collection?: (WorkingMemCollection | null);
     time_plan?: (TimePlan | null);
     habit?: (Habit | null);

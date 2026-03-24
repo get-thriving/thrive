@@ -9,7 +9,6 @@ import type { InboxTaskSource } from './InboxTaskSource';
  */
 export type InboxTaskFindArgs = {
     allow_archived?: (boolean | null);
-    include_time_event_blocks?: (boolean | null);
     filter_just_workable?: (boolean | null);
     filter_just_user?: (boolean | null);
     filter_just_generated?: (boolean | null);

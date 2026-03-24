@@ -35,7 +35,11 @@ from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
 from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask, InboxTaskRepository, InboxTaskSource
+from jupiter.core.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
@@ -98,14 +102,6 @@ class ScheduleFullDaysEventEntry(UseCaseResultBase):
     tags: list[Tag]
     time_event: TimeEventFullDaysBlock
     stream: ScheduleStream
-
-
-@use_case_result_part
-class InboxTaskEntry(UseCaseResultBase):
-    """Result entry."""
-
-    inbox_task: InboxTask
-    time_events: list[TimeEventInDayBlock]
 
 
 @use_case_result_part
@@ -174,7 +170,6 @@ class CalendarEventsEntries(UseCaseResultBase):
 
     schedule_event_full_days_entries: list[ScheduleFullDaysEventEntry]
     schedule_event_in_day_entries: list[ScheduleInDayEventEntry]
-    inbox_task_entries: list[InboxTaskEntry]
     big_plan_entries: list[BigPlanEntry]
     todo_task_entries: list[TodoTaskEntry]
     habit_entries: list[HabitEntry]
@@ -192,7 +187,6 @@ class CalendarEventsStatsPerSubperiod(UseCaseResultBase):
     period_start_date: ADate
     schedule_event_full_days_cnt: int
     schedule_event_in_day_cnt: int
-    inbox_task_cnt: int
     big_plan_cnt: int
     todo_task_cnt: int
     habit_cnt: int
@@ -444,36 +438,6 @@ class CalendarLoadForDateAndPeriodUseCase(
             for se in schedule_events_in_day
         ]
 
-        time_events_in_day_for_inbox_tasks: dict[
-            EntityId, list[TimeEventInDayBlock]
-        ] = {
-            te.source_entity_ref_id: []
-            for te in time_events_in_day
-            if te.namespace == TimeEventNamespace.INBOX_TASK
-        }
-        for te in time_events_in_day:
-            if te.namespace == TimeEventNamespace.INBOX_TASK:
-                time_events_in_day_for_inbox_tasks[te.source_entity_ref_id].append(te)
-        inbox_tasks = []
-        if len(time_events_in_day_for_inbox_tasks) > 0:
-            inbox_task_collection = await uow.get_for(
-                InboxTaskCollection
-            ).load_by_parent(
-                workspace.ref_id,
-            )
-            inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
-                parent_ref_id=inbox_task_collection.ref_id,
-                allow_archived=JupiterArchivalReason.GC,
-                ref_id=list(time_events_in_day_for_inbox_tasks.keys()),
-            )
-        inbox_task_entries = [
-            InboxTaskEntry(
-                inbox_task=inbox_task,
-                time_events=time_events_in_day_for_inbox_tasks[inbox_task.ref_id],
-            )
-            for inbox_task in inbox_tasks
-        ]
-
         time_events_in_day_for_big_plans: dict[EntityId, list[TimeEventInDayBlock]] = {
             te.source_entity_ref_id: []
             for te in time_events_in_day
@@ -646,8 +610,12 @@ class CalendarLoadForDateAndPeriodUseCase(
         time_plan_activity_entries = [
             TimePlanActivityEntry(
                 time_plan_activity=activity,
-                target_inbox_task=activity_target_inbox_tasks_by_id.get(activity.target_ref_id),
-                target_big_plan=activity_target_big_plans_by_id.get(activity.target_ref_id),
+                target_inbox_task=activity_target_inbox_tasks_by_id.get(
+                    activity.target_ref_id
+                ),
+                target_big_plan=activity_target_big_plans_by_id.get(
+                    activity.target_ref_id
+                ),
                 time_events=time_events_in_day_for_activities[activity.ref_id],
             )
             for activity in time_plan_activities
@@ -736,7 +704,6 @@ class CalendarLoadForDateAndPeriodUseCase(
         entries = CalendarEventsEntries(
             schedule_event_full_days_entries=schedule_event_full_days_entries,
             schedule_event_in_day_entries=schedule_event_in_day_entries,
-            inbox_task_entries=inbox_task_entries,
             big_plan_entries=big_plan_entries,
             todo_task_entries=todo_task_entries,
             habit_entries=habit_entries,
@@ -781,7 +748,6 @@ class CalendarLoadForDateAndPeriodUseCase(
 
             schedule_event_full_days_cnt = 0
             schedule_event_in_day_cnt = 0
-            inbox_task_cnt = 0
             big_plan_cnt = 0
             todo_task_cnt = 0
             habit_cnt = 0
@@ -817,8 +783,6 @@ class CalendarLoadForDateAndPeriodUseCase(
                         == TimeEventNamespace.SCHEDULE_EVENT_IN_DAY
                     ):
                         schedule_event_in_day_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.INBOX_TASK:
-                        inbox_task_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.BIG_PLAN:
                         big_plan_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.TODO_TASK:
@@ -827,7 +791,9 @@ class CalendarLoadForDateAndPeriodUseCase(
                         habit_cnt += in_day_stats.cnt
                     elif in_day_stats.namespace == TimeEventNamespace.CHORE:
                         chore_cnt += in_day_stats.cnt
-                    elif in_day_stats.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+                    elif (
+                        in_day_stats.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY
+                    ):
                         time_plan_activity_cnt += in_day_stats.cnt
 
             per_subperiod.append(
@@ -836,7 +802,6 @@ class CalendarLoadForDateAndPeriodUseCase(
                     period_start_date=curr_day,
                     schedule_event_full_days_cnt=schedule_event_full_days_cnt,
                     schedule_event_in_day_cnt=schedule_event_in_day_cnt,
-                    inbox_task_cnt=inbox_task_cnt,
                     big_plan_cnt=big_plan_cnt,
                     todo_task_cnt=todo_task_cnt,
                     habit_cnt=habit_cnt,

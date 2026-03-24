@@ -2,13 +2,6 @@
 
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.root import Chore
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
-from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
-    TimeEventInDayBlock,
-)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -64,7 +57,6 @@ class InboxTaskLoadResult(UseCaseResultBase):
     slack_task: SlackTask | None
     email_task: EmailTask | None
     todo_task: TodoTask | None
-    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(WorkspaceFeature.INBOX_TASKS)
@@ -82,10 +74,6 @@ class InboxTaskLoadUseCase(
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
 
-        workspace = context.workspace
-        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-            workspace.ref_id
-        )
         inbox_task = await uow.get_for(InboxTask).load_by_id(
             args.ref_id, allow_archived=allow_archived
         )
@@ -179,13 +167,6 @@ class InboxTaskLoadUseCase(
         else:
             todo_task = None
 
-        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-            parent_ref_id=time_event_domain.ref_id,
-            allow_archived=False,
-            namespace=TimeEventNamespace.INBOX_TASK,
-            source_entity_ref_id=[inbox_task.ref_id],
-        )
-
         return InboxTaskLoadResult(
             inbox_task=inbox_task,
             working_mem_collection=working_mem_collection,
@@ -200,5 +181,4 @@ class InboxTaskLoadUseCase(
             slack_task=slack_task,
             email_task=email_task,
             todo_task=todo_task,
-            time_event_blocks=time_event_blocks,
         )

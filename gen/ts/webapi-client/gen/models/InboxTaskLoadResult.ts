@@ -12,7 +12,6 @@ import type { Metric } from './Metric';
 import type { Occasion } from './Occasion';
 import type { Person } from './Person';
 import type { SlackTask } from './SlackTask';
-import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 import type { TimePlan } from './TimePlan';
 import type { TodoTask } from './TodoTask';
 import type { WorkingMemCollection } from './WorkingMemCollection';
@@ -33,6 +32,5 @@ export type InboxTaskLoadResult = {
     slack_task?: (SlackTask | null);
     email_task?: (EmailTask | null);
     todo_task?: (TodoTask | null);
-    time_event_blocks: Array<TimeEventInDayBlock>;
 };
 

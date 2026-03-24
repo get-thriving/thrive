@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
-    from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
     from ..models.working_mem_collection import WorkingMemCollection
@@ -35,7 +34,6 @@ class InboxTaskFindResultEntry:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        time_event_blocks (list[TimeEventInDayBlock] | None | Unset):
         working_mem_collection (None | Unset | WorkingMemCollection):
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
@@ -52,7 +50,6 @@ class InboxTaskFindResultEntry:
     """
 
     inbox_task: InboxTask
-    time_event_blocks: list[TimeEventInDayBlock] | None | Unset = UNSET
     working_mem_collection: None | Unset | WorkingMemCollection = UNSET
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
@@ -84,18 +81,6 @@ class InboxTaskFindResultEntry:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
-
-        time_event_blocks: list[dict[str, Any]] | None | Unset
-        if isinstance(self.time_event_blocks, Unset):
-            time_event_blocks = UNSET
-        elif isinstance(self.time_event_blocks, list):
-            time_event_blocks = []
-            for time_event_blocks_type_0_item_data in self.time_event_blocks:
-                time_event_blocks_type_0_item = time_event_blocks_type_0_item_data.to_dict()
-                time_event_blocks.append(time_event_blocks_type_0_item)
-
-        else:
-            time_event_blocks = self.time_event_blocks
 
         working_mem_collection: dict[str, Any] | None | Unset
         if isinstance(self.working_mem_collection, Unset):
@@ -208,8 +193,6 @@ class InboxTaskFindResultEntry:
                 "inbox_task": inbox_task,
             }
         )
-        if time_event_blocks is not UNSET:
-            field_dict["time_event_blocks"] = time_event_blocks
         if working_mem_collection is not UNSET:
             field_dict["working_mem_collection"] = working_mem_collection
         if time_plan is not UNSET:
@@ -252,35 +235,12 @@ class InboxTaskFindResultEntry:
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
         from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
-
-        def _parse_time_event_blocks(data: object) -> list[TimeEventInDayBlock] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                time_event_blocks_type_0 = []
-                _time_event_blocks_type_0 = data
-                for time_event_blocks_type_0_item_data in _time_event_blocks_type_0:
-                    time_event_blocks_type_0_item = TimeEventInDayBlock.from_dict(time_event_blocks_type_0_item_data)
-
-                    time_event_blocks_type_0.append(time_event_blocks_type_0_item)
-
-                return time_event_blocks_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[TimeEventInDayBlock] | None | Unset, data)
-
-        time_event_blocks = _parse_time_event_blocks(d.pop("time_event_blocks", UNSET))
 
         def _parse_working_mem_collection(data: object) -> None | Unset | WorkingMemCollection:
             if data is None:
@@ -505,7 +465,6 @@ class InboxTaskFindResultEntry:
 
         inbox_task_find_result_entry = cls(
             inbox_task=inbox_task,
-            time_event_blocks=time_event_blocks,
             working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,

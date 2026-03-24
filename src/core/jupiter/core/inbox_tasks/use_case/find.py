@@ -1,7 +1,5 @@
 """The command for finding a inbox task."""
 
-from collections import defaultdict
-
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.chores.collection import ChoreCollection
@@ -10,13 +8,6 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
-from jupiter.core.common.sub.time_events.domain import TimeEventDomain
-from jupiter.core.common.sub.time_events.namespace import (
-    TimeEventNamespace,
-)
-from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
-    TimeEventInDayBlock,
-)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
@@ -78,7 +69,6 @@ class InboxTaskFindArgs(UseCaseArgsBase):
     """PersonFindArgs."""
 
     allow_archived: bool | None
-    include_time_event_blocks: bool | None
     filter_just_workable: bool | None
     filter_just_user: bool | None
     filter_just_generated: bool | None
@@ -92,7 +82,6 @@ class InboxTaskFindResultEntry(UseCaseResultBase):
     """A single entry in the load all inbox tasks response."""
 
     inbox_task: InboxTask
-    time_event_blocks: list[TimeEventInDayBlock] | None
     working_mem_collection: WorkingMemCollection | None
     time_plan: TimePlan | None
     habit: Habit | None
@@ -129,7 +118,6 @@ class InboxTaskFindUseCase(
     ) -> InboxTaskFindResult:
         """Execute the command's action."""
         allow_archived = args.allow_archived or False
-        include_time_event_blocks = args.include_time_event_blocks or False
         workspace = context.workspace
 
         if args.filter_just_user and args.filter_just_generated:
@@ -357,24 +345,6 @@ class InboxTaskFindUseCase(
         )
         todo_tasks_by_ref_id = {t.ref_id: t for t in todo_tasks}
 
-        time_event_blocks_by_inbox_task_ref_id: defaultdict[
-            EntityId, list[TimeEventInDayBlock]
-        ] = defaultdict(list)
-        if include_time_event_blocks:
-            time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
-                workspace.ref_id
-            )
-            time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
-                parent_ref_id=time_event_domain.ref_id,
-                allow_archived=True,
-                namespace=TimeEventNamespace.INBOX_TASK,
-                source_entity_ref_id=[it.ref_id for it in inbox_tasks],
-            )
-            for block in time_event_blocks:
-                time_event_blocks_by_inbox_task_ref_id[
-                    block.source_entity_ref_id
-                ].append(block)
-
         return InboxTaskFindResult(
             entries=[
                 InboxTaskFindResultEntry(
@@ -466,9 +436,6 @@ class InboxTaskFindUseCase(
                             and it.source_entity_ref_id is not None
                         )
                         else None
-                    ),
-                    time_event_blocks=time_event_blocks_by_inbox_task_ref_id.get(
-                        it.ref_id, None
                     ),
                 )
                 for it in inbox_tasks

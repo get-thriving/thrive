@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from ..models.occasion import Occasion
     from ..models.person import Person
     from ..models.slack_task import SlackTask
-    from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan import TimePlan
     from ..models.todo_task import TodoTask
     from ..models.working_mem_collection import WorkingMemCollection
@@ -34,7 +33,6 @@ class InboxTaskLoadResult:
 
     Attributes:
         inbox_task (InboxTask): An inbox task.
-        time_event_blocks (list[TimeEventInDayBlock]):
         working_mem_collection (None | Unset | WorkingMemCollection):
         time_plan (None | TimePlan | Unset):
         habit (Habit | None | Unset):
@@ -50,7 +48,6 @@ class InboxTaskLoadResult:
     """
 
     inbox_task: InboxTask
-    time_event_blocks: list[TimeEventInDayBlock]
     working_mem_collection: None | Unset | WorkingMemCollection = UNSET
     time_plan: None | TimePlan | Unset = UNSET
     habit: Habit | None | Unset = UNSET
@@ -80,11 +77,6 @@ class InboxTaskLoadResult:
         from ..models.working_mem_collection import WorkingMemCollection
 
         inbox_task = self.inbox_task.to_dict()
-
-        time_event_blocks = []
-        for time_event_blocks_item_data in self.time_event_blocks:
-            time_event_blocks_item = time_event_blocks_item_data.to_dict()
-            time_event_blocks.append(time_event_blocks_item)
 
         working_mem_collection: dict[str, Any] | None | Unset
         if isinstance(self.working_mem_collection, Unset):
@@ -187,7 +179,6 @@ class InboxTaskLoadResult:
         field_dict.update(
             {
                 "inbox_task": inbox_task,
-                "time_event_blocks": time_event_blocks,
             }
         )
         if working_mem_collection is not UNSET:
@@ -229,20 +220,12 @@ class InboxTaskLoadResult:
         from ..models.occasion import Occasion
         from ..models.person import Person
         from ..models.slack_task import SlackTask
-        from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan import TimePlan
         from ..models.todo_task import TodoTask
         from ..models.working_mem_collection import WorkingMemCollection
 
         d = dict(src_dict)
         inbox_task = InboxTask.from_dict(d.pop("inbox_task"))
-
-        time_event_blocks = []
-        _time_event_blocks = d.pop("time_event_blocks")
-        for time_event_blocks_item_data in _time_event_blocks:
-            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
-
-            time_event_blocks.append(time_event_blocks_item)
 
         def _parse_working_mem_collection(data: object) -> None | Unset | WorkingMemCollection:
             if data is None:
@@ -450,7 +433,6 @@ class InboxTaskLoadResult:
 
         inbox_task_load_result = cls(
             inbox_task=inbox_task,
-            time_event_blocks=time_event_blocks,
             working_mem_collection=working_mem_collection,
             time_plan=time_plan,
             habit=habit,

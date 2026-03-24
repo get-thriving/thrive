@@ -9,14 +9,11 @@ import pytest
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     sync_detailed as big_plan_create_sync,
 )
-from jupiter_webapi_client.api.big_plans.big_plan_update import (
-    sync_detailed as big_plan_update_sync,
-)
 from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
     sync_detailed as big_plan_create_inbox_task_sync,
 )
-from jupiter_webapi_client.api.todo.todo_task_create import (
-    sync_detailed as todo_task_create_sync,
+from jupiter_webapi_client.api.big_plans.big_plan_update import (
+    sync_detailed as big_plan_update_sync,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_update import (
     sync_detailed as inbox_task_update_sync,
@@ -33,9 +30,18 @@ from jupiter_webapi_client.api.time_plans.time_plan_associate_with_inbox_tasks i
 from jupiter_webapi_client.api.time_plans.time_plan_create import (
     sync_detailed as time_plan_create_sync,
 )
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    sync_detailed as todo_task_create_sync,
+)
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.big_plan import BigPlan
 from jupiter_webapi_client.models.big_plan_create_args import BigPlanCreateArgs
+from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
+    BigPlanCreateInboxTaskArgs,
+)
+from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
+    BigPlanCreateInboxTaskResult,
+)
 from jupiter_webapi_client.models.big_plan_create_result import BigPlanCreateResult
 from jupiter_webapi_client.models.big_plan_status import BigPlanStatus
 from jupiter_webapi_client.models.big_plan_update_args import BigPlanUpdateArgs
@@ -70,14 +76,6 @@ from jupiter_webapi_client.models.big_plan_update_args_status import (
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
-from jupiter_webapi_client.models.big_plan_create_inbox_task_args import (
-    BigPlanCreateInboxTaskArgs,
-)
-from jupiter_webapi_client.models.big_plan_create_inbox_task_result import (
-    BigPlanCreateInboxTaskResult,
-)
-from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
-from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.inbox_task_status import InboxTaskStatus
 from jupiter_webapi_client.models.inbox_task_update_args import InboxTaskUpdateArgs
 from jupiter_webapi_client.models.inbox_task_update_args_actionable_date import (
@@ -122,6 +120,8 @@ from jupiter_webapi_client.models.time_plan_associate_with_inbox_tasks_result im
 )
 from jupiter_webapi_client.models.time_plan_create_args import TimePlanCreateArgs
 from jupiter_webapi_client.models.time_plan_create_result import TimePlanCreateResult
+from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
+from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
 from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
 from jupiter_webapi_client.models.workspace_set_feature_args import (
     WorkspaceSetFeatureArgs,
@@ -262,9 +262,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                     difficulty=Difficulty.EASY,
                 ),
             )
-            return get_parsed_from_response(
-                TodoTaskCreateResult, result
-            ).new_inbox_task
+            return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
 
     return _create_inbox_task
 
@@ -576,10 +574,16 @@ def test_webui_time_plan_create_new_inbox_task_from_big_plan_activity(
 
     page.locator("#leaf-panel").locator("a", has_text="New Inbox Task").click()
 
-    page.wait_for_url(re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}/inbox-tasks/new"))
+    page.wait_for_url(
+        re.compile(rf"/app/workspace/big-plans/{big_plan.ref_id}/inbox-tasks/new")
+    )
 
-    page.locator("#leaflet-panel").locator('input[name="name"]').fill("The New Inbox Task")
-    page.locator("#leaflet-panel").locator("button[id='big-plan-inbox-task-create']").click()
+    page.locator("#leaflet-panel").locator('input[name="name"]').fill(
+        "The New Inbox Task"
+    )
+    page.locator("#leaflet-panel").locator(
+        "button[id='big-plan-inbox-task-create']"
+    ).click()
 
     page.wait_for_url(re.compile(rf"/app/workspace/time-plans/{time_plan.ref_id}/\d+"))
 

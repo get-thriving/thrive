@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.chore import Chore
     from ..models.habit import Habit
-    from ..models.inbox_task import InboxTask
     from ..models.schedule_event_in_day import ScheduleEventInDay
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan_activity import TimePlanActivity
@@ -29,7 +28,6 @@ class TimeEventInDayBlockLoadResult:
     Attributes:
         in_day_block (TimeEventInDayBlock): Time event.
         schedule_event (None | ScheduleEventInDay | Unset):
-        inbox_task (InboxTask | None | Unset):
         big_plan (BigPlan | None | Unset):
         todo_task (None | TodoTask | Unset):
         habit (Habit | None | Unset):
@@ -39,7 +37,6 @@ class TimeEventInDayBlockLoadResult:
 
     in_day_block: TimeEventInDayBlock
     schedule_event: None | ScheduleEventInDay | Unset = UNSET
-    inbox_task: InboxTask | None | Unset = UNSET
     big_plan: BigPlan | None | Unset = UNSET
     todo_task: None | TodoTask | Unset = UNSET
     habit: Habit | None | Unset = UNSET
@@ -51,7 +48,6 @@ class TimeEventInDayBlockLoadResult:
         from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.habit import Habit
-        from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.time_plan_activity import TimePlanActivity
         from ..models.todo_task import TodoTask
@@ -65,14 +61,6 @@ class TimeEventInDayBlockLoadResult:
             schedule_event = self.schedule_event.to_dict()
         else:
             schedule_event = self.schedule_event
-
-        inbox_task: dict[str, Any] | None | Unset
-        if isinstance(self.inbox_task, Unset):
-            inbox_task = UNSET
-        elif isinstance(self.inbox_task, InboxTask):
-            inbox_task = self.inbox_task.to_dict()
-        else:
-            inbox_task = self.inbox_task
 
         big_plan: dict[str, Any] | None | Unset
         if isinstance(self.big_plan, Unset):
@@ -123,8 +111,6 @@ class TimeEventInDayBlockLoadResult:
         )
         if schedule_event is not UNSET:
             field_dict["schedule_event"] = schedule_event
-        if inbox_task is not UNSET:
-            field_dict["inbox_task"] = inbox_task
         if big_plan is not UNSET:
             field_dict["big_plan"] = big_plan
         if todo_task is not UNSET:
@@ -143,7 +129,6 @@ class TimeEventInDayBlockLoadResult:
         from ..models.big_plan import BigPlan
         from ..models.chore import Chore
         from ..models.habit import Habit
-        from ..models.inbox_task import InboxTask
         from ..models.schedule_event_in_day import ScheduleEventInDay
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan_activity import TimePlanActivity
@@ -168,23 +153,6 @@ class TimeEventInDayBlockLoadResult:
             return cast(None | ScheduleEventInDay | Unset, data)
 
         schedule_event = _parse_schedule_event(d.pop("schedule_event", UNSET))
-
-        def _parse_inbox_task(data: object) -> InboxTask | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                inbox_task_type_0 = InboxTask.from_dict(data)
-
-                return inbox_task_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(InboxTask | None | Unset, data)
-
-        inbox_task = _parse_inbox_task(d.pop("inbox_task", UNSET))
 
         def _parse_big_plan(data: object) -> BigPlan | None | Unset:
             if data is None:
@@ -274,7 +242,6 @@ class TimeEventInDayBlockLoadResult:
         time_event_in_day_block_load_result = cls(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
-            inbox_task=inbox_task,
             big_plan=big_plan,
             todo_task=todo_task,
             habit=habit,

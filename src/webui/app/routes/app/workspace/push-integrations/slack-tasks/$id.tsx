@@ -311,10 +311,10 @@ export default function SlackTask() {
             label="Status"
           >
             {Object.values(InboxTaskStatus).map((s) => (
-                <MenuItem key={s} value={s}>
-                  {inboxTaskStatusName(s)}
-                </MenuItem>
-              ))}
+              <MenuItem key={s} value={s}>
+                {inboxTaskStatusName(s)}
+              </MenuItem>
+            ))}
           </Select>
           <FieldError
             actionResult={actionData}

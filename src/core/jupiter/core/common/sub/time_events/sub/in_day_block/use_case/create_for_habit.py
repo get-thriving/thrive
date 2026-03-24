@@ -76,6 +76,4 @@ class TimeEventInDayBlockCreateForHabitUseCase(
         )
         new_time_event = await uow.get_for(TimeEventInDayBlock).create(new_time_event)
 
-        return TimeEventInDayBlockCreateForHabitResult(
-            new_time_event=new_time_event
-        )
+        return TimeEventInDayBlockCreateForHabitResult(new_time_event=new_time_event)

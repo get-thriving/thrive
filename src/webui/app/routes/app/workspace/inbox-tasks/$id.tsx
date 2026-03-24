@@ -22,18 +22,12 @@ import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import {
-  sortInboxTaskTimeEventsNaturally,
-  timeEventInDayBlockToTimezone,
-} from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
-import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
 import { TimePlanActivityList } from "@jupiter/core/time_plans/sub/activity/component/list";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { saveScoreAction } from "@jupiter/core/gamification/scores.server";
@@ -364,25 +358,6 @@ export default function InboxTask() {
     }
   }
 
-  const timeEventsByRefId = new Map();
-  timeEventsByRefId.set(
-    `it:${loaderData.info.inbox_task.ref_id}`,
-    loaderData.info.time_event_blocks,
-  );
-
-  const timeEventEntries = loaderData.info.time_event_blocks.map((block) => ({
-    time_event_in_tz: timeEventInDayBlockToTimezone(
-      block,
-      topLevelInfo.user.timezone,
-    ),
-    entry: {
-      inbox_task: loaderData.info.inbox_task,
-      time_events: [block],
-    },
-  }));
-  const sortedTimeEventEntries =
-    sortInboxTaskTimeEventsNaturally(timeEventEntries);
-
   return (
     <LeafPanel
       key={`inbox-task-${inboxTask.ref_id}`}
@@ -402,19 +377,6 @@ export default function InboxTask() {
         inboxTaskInfo={info}
         actionData={actionData}
       />
-
-      {isWorkspaceFeatureAvailable(
-        topLevelInfo.workspace,
-        WorkspaceFeature.SCHEDULE,
-      ) && (
-        <TimeEventInDayBlockStack
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={inputsEnabled}
-          title="Time Events"
-          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?inboxTaskRefId=${loaderData.info.inbox_task.ref_id}`}
-          entries={sortedTimeEventEntries}
-        />
-      )}
 
       {isWorkspaceFeatureAvailable(
         topLevelInfo.workspace,
@@ -446,7 +408,7 @@ export default function InboxTask() {
               inboxTasksByRefId={inboxTasksByRefId}
               bigPlansByRefId={new Map()}
               activityDoneness={{}}
-              timeEventsByRefId={timeEventsByRefId}
+              timeEventsByRefId={{}}
               fullInfo={false}
               showTimePlanName={true}
             />

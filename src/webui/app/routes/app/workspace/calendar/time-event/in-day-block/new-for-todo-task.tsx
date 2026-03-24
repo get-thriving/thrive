@@ -125,9 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
           `/app/workspace/time-plans/${query.timePlanRefId}/${query.timePlanActivityRefId}`,
         );
       case "standard":
-        return redirect(
-          `/app/workspace/todos/${query.todoTaskRefId}`,
-        );
+        return redirect(`/app/workspace/todos/${query.todoTaskRefId}`);
     }
   } catch (error) {
     if (

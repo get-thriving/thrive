@@ -59,20 +59,6 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      return (
-        <Button
-          startIcon={<LaunchIcon />}
-          variant="outlined"
-          size="small"
-          component={Link}
-          to={`/app/workspace/inbox-tasks/${props.timeEvent.source_entity_ref_id}`}
-        >
-          Link
-        </Button>
-      );
-    }
-
     case TimeEventNamespace.BIG_PLAN: {
       return (
         <Button
