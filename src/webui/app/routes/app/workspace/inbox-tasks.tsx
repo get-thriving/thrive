@@ -95,7 +95,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const response = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_time_event_blocks: false,
   });
   return json({
     entries: response.entries,

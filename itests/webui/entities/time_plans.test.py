@@ -237,7 +237,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
         name: str, big_plan_id: int | None = None, due_date: str | None = None
     ) -> InboxTask:
         if big_plan_id is not None:
-            result = big_plan_create_inbox_task_sync(
+            big_plan_result = big_plan_create_inbox_task_sync(
                 client=logged_in_client,
                 body=BigPlanCreateInboxTaskArgs(
                     big_plan_ref_id=str(big_plan_id),
@@ -249,10 +249,10 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                 ),
             )
             return get_parsed_from_response(
-                BigPlanCreateInboxTaskResult, result
+                BigPlanCreateInboxTaskResult, big_plan_result
             ).new_inbox_task
         else:
-            result = todo_task_create_sync(
+            todo_task_result = todo_task_create_sync(
                 client=logged_in_client,
                 body=TodoTaskCreateArgs(
                     name=name,
@@ -262,7 +262,9 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
                     difficulty=Difficulty.EASY,
                 ),
             )
-            return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
+            return get_parsed_from_response(
+                TodoTaskCreateResult, todo_task_result
+            ).new_inbox_task
 
     return _create_inbox_task
 

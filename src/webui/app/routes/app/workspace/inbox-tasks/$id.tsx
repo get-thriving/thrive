@@ -1,4 +1,9 @@
-import type { Workspace } from "@jupiter/webapi-client";
+import type {
+  BigPlan,
+  TimeEventInDayBlock,
+  TimePlan,
+  Workspace,
+} from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
   ApiError,
@@ -351,12 +356,15 @@ export default function InboxTask() {
   const timePlanActivities = loaderData.timePlanEntries?.map(
     (entry) => entry.time_plan_activity,
   );
-  const timePlansByRefId = new Map();
+  const timePlansByRefId = new Map<string, TimePlan>();
   if (loaderData.timePlanEntries) {
     for (const entry of loaderData.timePlanEntries) {
       timePlansByRefId.set(entry.time_plan.ref_id, entry.time_plan);
     }
   }
+
+  const emptyBigPlansByRefId = new Map<string, BigPlan>();
+  const emptyTimeEventsByRefId = new Map<string, Array<TimeEventInDayBlock>>();
 
   return (
     <LeafPanel
@@ -406,9 +414,9 @@ export default function InboxTask() {
               activities={timePlanActivities}
               timePlansByRefId={timePlansByRefId}
               inboxTasksByRefId={inboxTasksByRefId}
-              bigPlansByRefId={new Map()}
+              bigPlansByRefId={emptyBigPlansByRefId}
               activityDoneness={{}}
-              timeEventsByRefId={{}}
+              timeEventsByRefId={emptyTimeEventsByRefId}
               fullInfo={false}
               showTimePlanName={true}
             />

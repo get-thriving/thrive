@@ -49,8 +49,10 @@ import {
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
-import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import {
+  isInboxTaskCoreFieldEditable,
+  sortInboxTasksNaturally,
+} from "@jupiter/core/inbox_tasks/root";
 import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
 import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
@@ -328,7 +330,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           ref_id: timePlanActivity.target_ref_id,
           allow_archived: true,
         });
-      } else if (timePlanActivity.target === TimePlanActivityTarget.INBOX_TASK) {
+      } else if (
+        timePlanActivity.target === TimePlanActivityTarget.INBOX_TASK
+      ) {
         inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
           ref_id: timePlanActivity.target_ref_id,
           allow_archived: true,

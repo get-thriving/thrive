@@ -80,8 +80,6 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
-        inbox_task = None
-
         big_plan = None
         if in_day_block.namespace == TimeEventNamespace.BIG_PLAN:
             big_plan = await uow.get_for(BigPlan).load_by_id(

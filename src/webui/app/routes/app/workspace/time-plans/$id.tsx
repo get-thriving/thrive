@@ -211,8 +211,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       previousTimePlan: result.previous_time_plan as TimePlan,
       journal: journalResult?.journal,
       subPeriodJournals: journalResult?.sub_period_journals || [],
-      timeEventForInboxTasks:
-        timeEventResult?.entries?.inbox_task_entries || [],
+      timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
       timeEventForBigPlans: [],
     });
   } catch (error) {
