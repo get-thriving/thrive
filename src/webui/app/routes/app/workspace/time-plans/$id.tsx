@@ -448,6 +448,7 @@ export default function TimePlanView() {
     timePlanActivities: loaderData.activities,
     targetInboxTasksByRefId: targetInboxTasksByRefId,
     activityDoneness: loaderData.activityDoneness,
+    completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
   });
 
   return (
