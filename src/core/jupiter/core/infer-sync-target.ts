@@ -19,11 +19,6 @@ export function inferSyncTargetsForEnabledFeatures(
 
   for (const syncTarget of syncTargets) {
     if (
-      syncTarget === SyncTarget.INBOX_TASKS &&
-      isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.INBOX_TASKS)
-    ) {
-      inferredSyncTargets.push(syncTarget);
-    } else if (
       syncTarget === SyncTarget.TODO_TASKS &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
     ) {

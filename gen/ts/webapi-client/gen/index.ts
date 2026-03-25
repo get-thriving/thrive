@@ -688,6 +688,7 @@ export type { TodoTaskLoadArgs } from './models/TodoTaskLoadArgs';
 export type { TodoTaskLoadResult } from './models/TodoTaskLoadResult';
 export type { TodoTaskName } from './models/TodoTaskName';
 export type { TodoTaskRemoveArgs } from './models/TodoTaskRemoveArgs';
+export type { TodoTaskSummary } from './models/TodoTaskSummary';
 export type { TodoTaskUpdateArgs } from './models/TodoTaskUpdateArgs';
 export type { TodoTaskUpdateResult } from './models/TodoTaskUpdateResult';
 export type { Universe } from './models/Universe';

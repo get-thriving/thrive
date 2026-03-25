@@ -107,8 +107,8 @@ class GCService:
             )
 
         if (
-            workspace.is_feature_available(WorkspaceFeature.INBOX_TASKS)
-            and SyncTarget.INBOX_TASKS in gc_targets
+            workspace.is_feature_available(WorkspaceFeature.TODO_TASK)
+            and SyncTarget.TODO_TASKS in gc_targets
         ):
             async with progress_reporter.section("Inbox Tasks"):
                 async with progress_reporter.section(

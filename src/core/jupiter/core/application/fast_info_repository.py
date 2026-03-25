@@ -21,6 +21,7 @@ from jupiter.core.schedule.sub.stream.color import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.smart_lists.name import SmartListName
+from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
@@ -94,6 +95,17 @@ class InboxTaskSummary(CompositeValue):
 
     ref_id: EntityId
     name: InboxTaskName
+
+
+@value
+class TodoTaskSummary(CompositeValue):
+    """Summary information about a todo task."""
+
+    ref_id: EntityId
+    name: TodoTaskName
+    aspect_ref_id: EntityId
+    chapter_ref_id: EntityId | None
+    goal_ref_id: EntityId | None
 
 
 @value
@@ -220,6 +232,14 @@ class FastInfoRepository(Repository, abc.ABC):
         allow_archived: bool,
     ) -> list[InboxTaskSummary]:
         """Find all summaries about inbox tasks."""
+
+    @abc.abstractmethod
+    async def find_all_todo_task_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[TodoTaskSummary]:
+        """Find all summaries about todo tasks."""
 
     @abc.abstractmethod
     async def find_all_journal_summaries(

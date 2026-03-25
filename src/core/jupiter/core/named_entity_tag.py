@@ -12,7 +12,6 @@ class NamedEntityTag(EnumValue):
 
     HOME_TAB = "HomeTab"  # HomeTab.__name__
     HOME_WIDGET = "HomeWidget"  # HomeWidget.__name__
-    INBOX_TASK = "InboxTask"  # InboxTask.__name__
     TODO_TASK = "TodoTask"  # TodoTask.__name__
     WORKING_MEM = "WorkingMem"  # WorkingMem.__name__
     TIME_PLAN = "TimePlan"  # TimePlan.__name__
@@ -51,6 +50,8 @@ class NamedEntityTag(EnumValue):
     @staticmethod
     def from_entity(entity: CrownEntity) -> "NamedEntityTag":
         """Construct a tag from an entity."""
+        if entity.__class__.__name__ == "InboxTask":
+            return NamedEntityTag.TODO_TASK
         return NamedEntityTag(entity.__class__.__name__)
 
     def __str__(self) -> str:

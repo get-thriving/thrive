@@ -10,8 +10,6 @@ export function entityTagName(entityTag: NamedEntityTag): string {
       return "Home Tab";
     case NamedEntityTag.HOME_WIDGET:
       return "Home Widget";
-    case NamedEntityTag.INBOX_TASK:
-      return "Inbox Task";
     case NamedEntityTag.WORKING_MEM:
       return "Working Mem";
     case NamedEntityTag.TIME_PLAN:

@@ -59,7 +59,7 @@ class InboxTaskLoadResult(UseCaseResultBase):
     todo_task: TodoTask | None
 
 
-@readonly_use_case(WorkspaceFeature.INBOX_TASKS)
+@readonly_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskLoadUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[InboxTaskLoadArgs, InboxTaskLoadResult]
 ):

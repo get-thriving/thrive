@@ -136,7 +136,7 @@ class LoadTopLevelInfoUseCase(
             default_root_aspect_name=AspectName("Life"),
             workspace_feature_flag_controls=workspace_feature_flags_controls,
             default_workspace_feature_flags=BASIC_WORKSPACE_FEATURE_FLAGS,
-            workspace_feature_hack=WorkspaceFeature.INBOX_TASKS,
+            workspace_feature_hack=WorkspaceFeature.TODO_TASK,
             user=user,
             user_score_overview=user_score_overview,
             workspace=workspace,

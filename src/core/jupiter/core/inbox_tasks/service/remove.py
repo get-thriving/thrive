@@ -39,7 +39,6 @@ class InboxTaskRemoveService:
             await uow.get(TimePlanActivityRespository).remove(time_plan_activity.ref_id)
 
         await uow.get_for(InboxTask).remove(inbox_task.ref_id)
-        await progress_reporter.mark_removed(inbox_task)
 
         if inbox_task.source == InboxTaskSource.BIG_PLAN:
             await uow.get(BigPlanStatsRepository).mark_remove_inbox_task(

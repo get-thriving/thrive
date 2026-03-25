@@ -16,11 +16,7 @@ def infer_sync_targets_for_enabled_features(
     all_sync_targets = sync_targets or [s for s in SyncTarget]
     inferred_sync_targets: list[SyncTarget] = []
     for sync_target in all_sync_targets:
-        if sync_target is SyncTarget.INBOX_TASKS and workspace.is_feature_available(
-            WorkspaceFeature.INBOX_TASKS
-        ):
-            inferred_sync_targets.append(sync_target)
-        elif sync_target is SyncTarget.TODO_TASKS and workspace.is_feature_available(
+        if sync_target is SyncTarget.TODO_TASKS and workspace.is_feature_available(
             WorkspaceFeature.TODO_TASK
         ):
             inferred_sync_targets.append(sync_target)

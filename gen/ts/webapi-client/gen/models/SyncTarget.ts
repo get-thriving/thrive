@@ -6,7 +6,6 @@
  * What exactly to generate, gc, or look at systematically.
  */
 export enum SyncTarget {
-    INBOX_TASKS = 'inbox-tasks',
     TODO_TASKS = 'todo-tasks',
     WORKING_MEM = 'working-mem',
     TIME_PLANS = 'time-plans',

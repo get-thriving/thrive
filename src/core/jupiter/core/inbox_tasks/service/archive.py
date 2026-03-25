@@ -24,4 +24,3 @@ class InboxTaskArchiveService:
 
         inbox_task = inbox_task.mark_archived(ctx, archival_reason)
         await uow.get_for(InboxTask).save(inbox_task)
-        await progress_reporter.mark_updated(inbox_task)

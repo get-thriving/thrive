@@ -645,7 +645,9 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
             <ValueAndPctCell value="-" colSpan={plannedTextColSpan} />
 
             <ValueAndPctCell
-              value={timeAndEffortSummary.achieved.completedNontargetDoneActivities}
+              value={
+                timeAndEffortSummary.achieved.completedNontargetDoneActivities
+              }
             />
             <ValueAndPctCell value="-" />
             <ValueAndPctCell value="-" />
@@ -656,7 +658,9 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
             ) && (
               <>
                 <ValueAndPctCell
-                  value={timeAndEffortSummary.achieved.completedNontargetDoneScore}
+                  value={
+                    timeAndEffortSummary.achieved.completedNontargetDoneScore
+                  }
                 />
                 <ValueAndPctCell value="-" />
                 <ValueAndPctCell value="-" />

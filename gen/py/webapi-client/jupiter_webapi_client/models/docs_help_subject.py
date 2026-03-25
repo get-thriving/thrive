@@ -10,7 +10,6 @@ class DocsHelpSubject(str, Enum):
     GAMIFICATION = "gamification"
     HABITS = "habits"
     HOME = "home"
-    INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     LIFE_PLAN = "life-plan"
     LIFE_PLANASPECTS = "life-plan/aspects"

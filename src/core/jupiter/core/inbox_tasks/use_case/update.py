@@ -82,7 +82,7 @@ class InboxTaskUpdateResult(UseCaseResultBase):
     record_score_result: RecordScoreResult | None
 
 
-@mutation_use_case(WorkspaceFeature.INBOX_TASKS)
+@mutation_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskUpdateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         InboxTaskUpdateArgs, InboxTaskUpdateResult
@@ -132,7 +132,6 @@ class InboxTaskUpdateUseCase(
             )
 
             await uow.get_for(InboxTask).save(new_inbox_task)
-            await progress_reporter.mark_updated(new_inbox_task)
 
             if big_plan is not None:
                 await self._process_big_plan_stats(

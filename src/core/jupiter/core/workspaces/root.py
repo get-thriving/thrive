@@ -154,9 +154,7 @@ class Workspace(RootEntity):
         all_entity_tags = filter_entity_tags or [s for s in NamedEntityTag]
         inferred_entity_tags: list[NamedEntityTag] = []
         for entity_tag in all_entity_tags:
-            if entity_tag is NamedEntityTag.INBOX_TASK:
-                inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
+            if entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
                 WorkspaceFeature.TODO_TASK
             ):
                 inferred_entity_tags.append(entity_tag)

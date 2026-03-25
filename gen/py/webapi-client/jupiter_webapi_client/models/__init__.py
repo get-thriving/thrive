@@ -852,6 +852,7 @@ from .todo_task_find_result_entry import TodoTaskFindResultEntry
 from .todo_task_load_args import TodoTaskLoadArgs
 from .todo_task_load_result import TodoTaskLoadResult
 from .todo_task_remove_args import TodoTaskRemoveArgs
+from .todo_task_summary import TodoTaskSummary
 from .todo_task_update_args import TodoTaskUpdateArgs
 from .todo_task_update_args_actionable_date import TodoTaskUpdateArgsActionableDate
 from .todo_task_update_args_aspect_ref_id import TodoTaskUpdateArgsAspectRefId
@@ -1770,6 +1771,7 @@ __all__ = (
     "TodoTaskLoadArgs",
     "TodoTaskLoadResult",
     "TodoTaskRemoveArgs",
+    "TodoTaskSummary",
     "TodoTaskUpdateArgs",
     "TodoTaskUpdateArgsActionableDate",
     "TodoTaskUpdateArgsAspectRefId",

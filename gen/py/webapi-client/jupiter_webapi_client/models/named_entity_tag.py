@@ -14,7 +14,6 @@ class NamedEntityTag(str, Enum):
     HABIT = "Habit"
     HOMETAB = "HomeTab"
     HOMEWIDGET = "HomeWidget"
-    INBOXTASK = "InboxTask"
     JOURNAL = "Journal"
     METRIC = "Metric"
     METRICENTRY = "MetricEntry"

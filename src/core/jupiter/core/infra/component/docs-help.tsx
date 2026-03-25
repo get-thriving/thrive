@@ -42,8 +42,6 @@ function subjectToUrl(subject: DocsHelpSubject) {
       return "concepts/home";
     case DocsHelpSubject.GAMIFICATION:
       return "concepts/gamification";
-    case DocsHelpSubject.INBOX_TASKS:
-      return "concepts/inbox-tasks";
     case DocsHelpSubject.TODOS:
       return "concepts/todos";
     case DocsHelpSubject.WORKING_MEM:

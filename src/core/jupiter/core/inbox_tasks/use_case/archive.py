@@ -27,7 +27,7 @@ class InboxTaskArchiveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.INBOX_TASKS)
+@mutation_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskArchiveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[InboxTaskArchiveArgs, None]
 ):
