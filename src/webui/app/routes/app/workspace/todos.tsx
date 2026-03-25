@@ -220,7 +220,7 @@ export default function Todos() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     } else {
@@ -232,7 +232,7 @@ export default function Todos() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }
@@ -255,7 +255,7 @@ export default function Todos() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -278,7 +278,7 @@ export default function Todos() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -489,7 +489,7 @@ export default function Todos() {
                   cardLinkResolver={(inboxTask, parent) =>
                     parent?.todoTask
                       ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-                      : `/app/workspace/inbox-tasks/${inboxTask.ref_id}`
+                      : `/app/workspace/core/inbox-tasks/${inboxTask.ref_id}`
                   }
                 />
               </DragDropContext>
@@ -525,7 +525,7 @@ export default function Todos() {
                       cardLinkResolver={(inboxTask, parent) =>
                         parent?.todoTask
                           ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-                          : `/app/workspace/inbox-tasks/${inboxTask.ref_id}`
+                          : `/app/workspace/core/inbox-tasks/${inboxTask.ref_id}`
                       }
                     />
                   </Fragment>
@@ -552,7 +552,7 @@ export default function Todos() {
                 cardLinkResolver={(inboxTask, parent) =>
                   parent?.todoTask
                     ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-                    : `/app/workspace/inbox-tasks/${inboxTask.ref_id}`
+                    : `/app/workspace/core/inbox-tasks/${inboxTask.ref_id}`
                 }
               />
             </>
@@ -576,7 +576,7 @@ export default function Todos() {
                 cardLinkResolver={(inboxTask, parent) =>
                   parent?.todoTask
                     ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-                    : `/app/workspace/inbox-tasks/${inboxTask.ref_id}`
+                    : `/app/workspace/core/inbox-tasks/${inboxTask.ref_id}`
                 }
               />
             </>
@@ -720,7 +720,7 @@ function TodoSwiftView(props: TodoSwiftViewProps) {
     cardLinkResolver: (inboxTask: InboxTask, parent?: InboxTaskParent) =>
       parent?.todoTask
         ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-        : `/app/workspace/inbox-tasks/${inboxTask.ref_id}`,
+        : `/app/workspace/core/inbox-tasks/${inboxTask.ref_id}`,
   };
 
   function renderBucket(

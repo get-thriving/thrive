@@ -392,7 +392,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -405,7 +405,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }

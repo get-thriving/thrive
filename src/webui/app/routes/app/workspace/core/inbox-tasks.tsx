@@ -185,7 +185,7 @@ export default function InboxTasks() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     } else {
@@ -193,7 +193,7 @@ export default function InboxTasks() {
         { id: result.draggableId, eisen: "no-go", status: status },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }
@@ -218,7 +218,7 @@ export default function InboxTasks() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -243,7 +243,7 @@ export default function InboxTasks() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);

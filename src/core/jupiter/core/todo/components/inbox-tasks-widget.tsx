@@ -122,7 +122,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -147,7 +147,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -172,7 +172,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -197,7 +197,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}

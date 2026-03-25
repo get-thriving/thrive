@@ -76,7 +76,7 @@ export function InboxTaskPropertiesEditor(
                   NavSingle({
                     text: "Inbox Task",
                     icon: <LaunchIcon />,
-                    link: `/app/workspace/inbox-tasks/${props.inboxTask.ref_id}`,
+                    link: `/app/workspace/core/inbox-tasks/${props.inboxTask.ref_id}`,
                   }),
                   ActionSingle({
                     id: "inbox-task-editor-save",

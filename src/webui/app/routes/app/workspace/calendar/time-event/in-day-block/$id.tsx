@@ -867,7 +867,7 @@ export default function TimeEventInDayBlockViewOne() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -880,7 +880,7 @@ export default function TimeEventInDayBlockViewOne() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }

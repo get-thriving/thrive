@@ -192,7 +192,7 @@ export default function Chores() {
         { id: it.ref_id, status: InboxTaskStatus.DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -211,7 +211,7 @@ export default function Chores() {
         { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);

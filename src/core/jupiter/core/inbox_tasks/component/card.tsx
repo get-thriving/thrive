@@ -151,7 +151,7 @@ export function InboxTaskCard(props: InboxTaskCardProps) {
     props.inboxTask.archived === false && !handlerInProgress;
   const targetLink = props.linkResolver
     ? props.linkResolver(props.inboxTask, props.parent)
-    : `/app/workspace/inbox-tasks/${props.inboxTask.ref_id}`;
+    : `/app/workspace/core/inbox-tasks/${props.inboxTask.ref_id}`;
 
   return (
     <motion.div

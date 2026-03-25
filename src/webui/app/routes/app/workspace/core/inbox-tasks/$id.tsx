@@ -244,14 +244,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
         });
 
         if (result.record_score_result) {
-          return redirect(`/app/workspace/inbox-tasks`, {
+          return redirect(`/app/workspace/core/inbox-tasks`, {
             headers: {
               "Set-Cookie": await saveScoreAction(result.record_score_result),
             },
           });
         }
 
-        return redirect(`/app/workspace/inbox-tasks`);
+        return redirect(`/app/workspace/core/inbox-tasks`);
       }
 
       case "delay-1-day":
@@ -297,7 +297,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           },
         });
 
-        return redirect(`/app/workspace/inbox-tasks`);
+        return redirect(`/app/workspace/core/inbox-tasks`);
       }
 
       case "archive": {
@@ -305,7 +305,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/inbox-tasks`);
+        return redirect(`/app/workspace/core/inbox-tasks`);
       }
 
       case "remove": {
@@ -313,7 +313,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: id,
         });
 
-        return redirect(`/app/workspace/inbox-tasks`);
+        return redirect(`/app/workspace/core/inbox-tasks`);
       }
 
       default:
@@ -374,7 +374,7 @@ export default function InboxTask() {
       inputsEnabled={inputsEnabled}
       entityArchived={inboxTask.archived}
       entityNotEditable={!corePropertyEditable}
-      returnLocation="/app/workspace/inbox-tasks"
+      returnLocation="/app/workspace/core/inbox-tasks"
     >
       <GlobalError actionResult={actionData} />
       <InboxTaskPropertiesEditor
@@ -427,7 +427,7 @@ export default function InboxTask() {
 }
 
 export const ErrorBoundary = makeLeafErrorBoundary(
-  "/app/workspace/inbox-tasks",
+  "/app/workspace/core/inbox-tasks",
   ParamsSchema,
   {
     notFound: (params) => `Could not find inbox task #${params.id}!`,

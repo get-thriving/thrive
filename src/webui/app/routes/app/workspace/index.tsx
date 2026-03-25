@@ -453,7 +453,7 @@ export default function WorkspaceHome() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -478,7 +478,7 @@ export default function WorkspaceHome() {
         },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);

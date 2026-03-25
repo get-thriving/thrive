@@ -32,7 +32,7 @@ export const standardShouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
   nextUrl,
 }) => {
-  if (formAction === "/app/workspace/inbox-tasks/update-status-and-eisen") {
+  if (formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen") {
     return false;
   }
 

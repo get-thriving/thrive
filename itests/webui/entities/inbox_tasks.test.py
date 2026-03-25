@@ -65,7 +65,7 @@ def create_inbox_task(logged_in_client: AuthenticatedClient):
 
 
 def test_webui_inbox_task_view_nothing(page: Page) -> None:
-    page.goto("/app/workspace/inbox-tasks")
+    page.goto("/app/workspace/core/inbox-tasks")
 
     expect(page.locator("#trunk-panel")).to_contain_text("You have to start somewhere")
 
@@ -75,7 +75,7 @@ def test_webui_inbox_task_view_all(page: Page, create_inbox_task) -> None:
     inbox_task2 = create_inbox_task("Inbox Task 2", Eisen.REGULAR, Difficulty.EASY)
     inbox_task3 = create_inbox_task("Inbox Task 3", Eisen.REGULAR, Difficulty.EASY)
 
-    page.goto("/app/workspace/inbox-tasks")
+    page.goto("/app/workspace/core/inbox-tasks")
 
     expect(page.locator(f"#inbox-task-{inbox_task1.ref_id}")).to_contain_text(
         "Inbox Task 1"
