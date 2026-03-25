@@ -8,14 +8,14 @@ from jupiter.core.common.sub.notes.service.remove import (
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
-from jupiter.core.inbox_tasks.collection import (
+from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.inbox_tasks.root import (
+from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

@@ -18,7 +18,7 @@ from jupiter.core.gamification.score_stats import (
 from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.users.root import User
 from jupiter.framework.context import MutationContext
 from jupiter.framework.storage.repository import (

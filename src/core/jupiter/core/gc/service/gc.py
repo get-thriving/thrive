@@ -12,11 +12,11 @@ from jupiter.core.big_plans.service.archive import (
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gc.log import GCLog
 from jupiter.core.gc.log_entry import GCLogEntry
-from jupiter.core.inbox_tasks.collection import (
+from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.service.archive import (
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
 from jupiter.core.sync_target import SyncTarget

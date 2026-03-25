@@ -11,7 +11,7 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
     JournalStats,

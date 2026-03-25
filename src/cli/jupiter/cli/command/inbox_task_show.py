@@ -14,7 +14,7 @@ from jupiter.cli.command.rendering import (
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.use_case.find import (
+from jupiter.core.common.sub.inbox_tasks.use_case.find import (
     InboxTaskFindResult,
     InboxTaskFindUseCase,
 )

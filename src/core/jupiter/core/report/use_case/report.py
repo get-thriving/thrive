@@ -5,7 +5,7 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterLoggedInReadonlyUseCase,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     ReportPeriodResult,

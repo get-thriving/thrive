@@ -1,7 +1,7 @@
 import { InboxTaskSource } from "@jupiter/webapi-client";
 
 import { SlimChip } from "#/core/infra/component/chips";
-import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
+import { inboxTaskSourceName } from "#/core/common/sub/inbox_tasks/source";
 
 interface Props {
   source: InboxTaskSource;

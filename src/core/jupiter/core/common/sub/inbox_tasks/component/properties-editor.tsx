@@ -35,7 +35,7 @@ import { useEffect, useState } from "react";
 
 import { autocompleteSingleLineSx } from "#/core/common/component/autocomplete-sx";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
-import { isInboxTaskCoreFieldEditable } from "#/core/inbox_tasks/root";
+import { isInboxTaskCoreFieldEditable } from "#/core/common/sub/inbox_tasks/root";
 import {
   getSuggestedDatesForInboxTaskActionableDate,
   getSuggestedDatesForInboxTaskDueDate,
@@ -44,8 +44,8 @@ import type { SomeErrorNoData } from "#/core/infra/action-result";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "#/core/common/component/eisenhower-select";
-import { InboxTaskSourceLink } from "#/core/inbox_tasks/component/source-link";
-import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
+import { InboxTaskSourceLink } from "#/core/common/sub/inbox_tasks/component/source-link";
+import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
 import { FieldError } from "#/core/infra/component/errors";
 import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import {

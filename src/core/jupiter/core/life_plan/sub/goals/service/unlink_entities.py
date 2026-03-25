@@ -9,9 +9,9 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.time_plans.life_plan_links import (

@@ -5,13 +5,13 @@ import {
 } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
-import { filterInboxTasksForDisplay } from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
+import { filterInboxTasksForDisplay } from "#/core/common/sub/inbox_tasks/root";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 import {
   getDeterministicRandomElement,
   WidgetProps,

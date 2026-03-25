@@ -31,7 +31,7 @@ import { Fragment, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { periodName } from "#/core/common/recurring-task-period";
-import { inboxTaskSourceName } from "#/core/inbox_tasks/source";
+import { inboxTaskSourceName } from "#/core/common/sub/inbox_tasks/source";
 import {
   computeProjectHierarchicalNameFromRoot,
   sortProjectsByTreeOrder,

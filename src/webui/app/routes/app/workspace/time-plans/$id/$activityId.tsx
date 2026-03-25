@@ -40,14 +40,14 @@ import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
+import { allowUserChanges } from "@jupiter/core/common/sub/inbox_tasks/source";
 import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "@jupiter/core/common/sub/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
-import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";

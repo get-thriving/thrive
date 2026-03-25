@@ -33,7 +33,7 @@ import { TimeEventParamsSource } from "@jupiter/core/common/sub/time_events/comp
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import { inferDurationMinsFromInboxTask } from "#/core/inbox_tasks/root";
+import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
 
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

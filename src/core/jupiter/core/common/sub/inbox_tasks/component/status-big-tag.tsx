@@ -4,7 +4,7 @@ import { Box, useTheme } from "@mui/material";
 import {
   inboxTaskStatusIcon,
   inboxTaskStatusName,
-} from "#/core/inbox_tasks/status";
+} from "#/core/common/sub/inbox_tasks/status";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
 
 interface InboxTaskStatusBigTagProps {

@@ -45,7 +45,7 @@ import {
   InboxTaskOptimisticState,
   InboxTaskParent,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "@jupiter/core/common/sub/inbox_tasks/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { isUserFeatureAvailable } from "@jupiter/core/users/root";
 import { sortAndFilterTabsByTheirOrder } from "@jupiter/core/home/sub/tab/root";

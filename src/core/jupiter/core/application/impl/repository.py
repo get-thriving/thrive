@@ -25,7 +25,7 @@ from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.habits.name import HabitName
-from jupiter.core.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName

@@ -50,7 +50,7 @@ import {
   ActionSingle,
   SectionActions,
 } from "@jupiter/core/infra/component/section-actions";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 
 import { selectZod, fixSelectOutputToEnumStrict } from "~/logic/select";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

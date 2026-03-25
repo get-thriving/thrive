@@ -36,7 +36,7 @@ import { Link } from "@remix-run/react";
 import {
   InboxTaskParent,
   InboxTaskOptimisticState,
-} from "#/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import {
   isWidgetDimensionFlex,
   isWidgetDimensionKSized,

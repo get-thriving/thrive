@@ -27,9 +27,9 @@ import {
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
   sortInboxTasksByEisenAndDifficulty,
-} from "@jupiter/core/inbox_tasks/root";
-import type { InboxTaskParent } from "@jupiter/core/inbox_tasks/root";
-import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
+} from "@jupiter/core/common/sub/inbox_tasks/root";
+import type { InboxTaskParent } from "@jupiter/core/common/sub/inbox_tasks/root";
+import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";

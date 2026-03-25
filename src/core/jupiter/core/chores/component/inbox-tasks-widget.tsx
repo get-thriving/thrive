@@ -8,13 +8,13 @@ import { aDateToDate } from "#/core/common/adate";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
-} from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
+} from "#/core/common/sub/inbox_tasks/root";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 import { WidgetProps } from "#/core/home/component/common";
 
 export function ChoreInboxTasksWidget(props: WidgetProps) {

@@ -36,7 +36,7 @@ import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   inboxTaskStatusIcon,
   inboxTaskStatusName,
-} from "@jupiter/core/inbox_tasks/status";
+} from "@jupiter/core/common/sub/inbox_tasks/status";
 import {
   canInboxTaskBeInStatus,
   filterInboxTasksForDisplay,
@@ -44,17 +44,17 @@ import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksByEisenAndDifficulty,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "@jupiter/core/common/sub/inbox_tasks/root";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "@jupiter/core/inbox_tasks/root";
-import type { InboxTaskShowOptions } from "@jupiter/core/inbox_tasks/component/card";
-import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
-import { InboxTaskStatusTag } from "@jupiter/core/inbox_tasks/component/status-tag";
-import { InboxTasksNoNothingCard } from "@jupiter/core/inbox_tasks/component/no-nothing-card";
-import { InboxTasksNoTasksCard } from "@jupiter/core/inbox_tasks/component/no-tasks-card";
+} from "@jupiter/core/common/sub/inbox_tasks/root";
+import type { InboxTaskShowOptions } from "@jupiter/core/common/sub/inbox_tasks/component/card";
+import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import { InboxTaskStatusTag } from "@jupiter/core/common/sub/inbox_tasks/component/status-tag";
+import { InboxTasksNoNothingCard } from "@jupiter/core/common/sub/inbox_tasks/component/no-nothing-card";
+import { InboxTasksNoTasksCard } from "@jupiter/core/common/sub/inbox_tasks/component/no-tasks-card";
 import { makeTrunkErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";

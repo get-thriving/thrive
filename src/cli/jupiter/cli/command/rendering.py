@@ -18,9 +18,9 @@ from jupiter.core.gamification.user_score_overview import (
     UserScore,
     UserScoreOverview,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.sub.aspects.name import ProjectName
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.core.named_entity_tag import NamedEntityTag

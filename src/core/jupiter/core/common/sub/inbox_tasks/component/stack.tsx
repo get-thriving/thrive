@@ -6,10 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "#/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
-import type { InboxTaskShowOptions } from "#/core/inbox_tasks/component/card";
-import { InboxTaskCard } from "#/core/inbox_tasks/component/card";
+import type { InboxTaskShowOptions } from "#/core/common/sub/inbox_tasks/component/card";
+import { InboxTaskCard } from "#/core/common/sub/inbox_tasks/component/card";
 import { StandardDivider } from "#/core/infra/component/standard-divider";
 
 interface PagesProps {

@@ -31,11 +31,11 @@ import { useContext, useState } from "react";
 
 import { aDateToDate } from "#/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
-import { isCompleted } from "#/core/inbox_tasks/status";
+import { isCompleted } from "#/core/common/sub/inbox_tasks/status";
 import type {
   InboxTaskOptimisticState,
   InboxTaskParent,
-} from "#/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { ClientOnly } from "#/core/infra/component/client-only";
 import { ServicePropertiesContext } from "#/core/config-client";
 import { useBigScreen } from "#/core/infra/component/use-big-screen";
@@ -47,8 +47,8 @@ import { DifficultyTag } from "#/core/common/component/difficulty-tag";
 import { EisenTag } from "#/core/common/component/eisen-tag";
 import { EntityNameComponent } from "#/core/common/component/entity-name";
 import { HabitTag } from "#/core/habits/component/habit-tag";
-import { InboxTaskSourceTag } from "#/core/inbox_tasks/component/source-tag";
-import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
+import { InboxTaskSourceTag } from "#/core/common/sub/inbox_tasks/component/source-tag";
+import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityLink } from "#/core/infra/component/entity-card";
 import { MetricTag } from "#/core/metrics/component/tag";
 import { ContactTag as ParentContactTag } from "#/core/common/sub/contacts/sub/contact/component/tag";

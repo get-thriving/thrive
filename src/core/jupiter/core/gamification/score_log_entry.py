@@ -7,8 +7,8 @@ from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.gamification.score_source import ScoreSource
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext

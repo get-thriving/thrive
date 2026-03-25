@@ -6,7 +6,7 @@ import {
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
-import { inferDurationMinsFromInboxTask } from "#/core/inbox_tasks/root";
+import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
 
 export interface TimeAndEffortSummary {

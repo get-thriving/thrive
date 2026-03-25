@@ -14,7 +14,7 @@ import { Typography } from "@mui/material";
 
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 import { BigPlanStatusTag } from "#/core/big_plans/component/status-tag";
-import { InboxTaskStatusTag } from "#/core/inbox_tasks/component/status-tag";
+import { InboxTaskStatusTag } from "#/core/common/sub/inbox_tasks/component/status-tag";
 import { EntityCard, EntityLink } from "#/core/infra/component/entity-card";
 import { TimePlanActivityFeasabilityTag } from "#/core/time_plans/sub/activity/component/feasability-tag";
 import { TimePlanActivityKindTag } from "#/core/time_plans/sub/activity/component/kind-tag";
