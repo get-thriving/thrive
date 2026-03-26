@@ -194,6 +194,9 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   z.object({
     intent: z.literal("target-big-plan-create-note"),
   }),
+  z.object({
+    intent: z.literal("activity-create-note"),
+  }),
 ]);
 
 export const handle = {
@@ -249,6 +252,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       targetInboxTaskInfo: inboxTaskResult,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: bigPlanResult,
+      activityNote: result.note,
       activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
@@ -560,6 +564,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
+      case "activity-create-note": {
+        await apiClient.notes.noteCreate({
+          namespace: NoteNamespace.TIME_PLAN_ACTIVITY,
+          source_entity_ref_id: activityId,
+          content: [],
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -701,6 +715,34 @@ export default function TimePlanActivity() {
             <FieldError actionResult={actionData} fieldName="/feasability" />
           </FormControl>
         </Stack>
+      </SectionCard>
+
+      <SectionCard
+        title="Note"
+        actions={
+          <SectionActions
+            id="activity-note"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create",
+                value: "activity-create-note",
+                highlight: false,
+                disabled:
+                  loaderData.activityNote !== null &&
+                  loaderData.activityNote !== undefined,
+              }),
+            ]}
+          />
+        }
+      >
+        {loaderData.activityNote && (
+          <EntityNoteEditor
+            initialNote={loaderData.activityNote}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
       </SectionCard>
 
       {loaderData.targetInboxTask && (

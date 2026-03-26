@@ -107,7 +107,9 @@ export async function action({ request }: ActionFunctionArgs) {
           feasability: form.feasability,
         });
 
-        return redirect(`/app/workspace/core/inbox-tasks/${query.inboxTaskRefId}`);
+        return redirect(
+          `/app/workspace/core/inbox-tasks/${query.inboxTaskRefId}`,
+        );
       }
 
       default:

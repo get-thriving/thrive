@@ -2,6 +2,8 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
@@ -43,6 +45,7 @@ class TimePlanActivityLoadResult(UseCaseResultBase):
     time_plan_activity: TimePlanActivity
     target_inbox_task: InboxTask | None
     target_big_plan: BigPlan | None
+    note: Note | None
     time_event_blocks: list[TimeEventInDayBlock]
 
 
@@ -76,6 +79,14 @@ class TimePlanActivityLoadUseCase(
             allow_subentity_archived=allow_archived,
         )
 
+        notes = await uow.get_for(Note).find_all_generic(
+            parent_ref_id=None,
+            allow_archived=allow_archived,
+            namespace=NoteNamespace.TIME_PLAN_ACTIVITY,
+            source_entity_ref_id=time_plan_activity.ref_id,
+        )
+        note = notes[0] if len(notes) > 0 else None
+
         if not workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
             target_big_plan = None
 
@@ -93,5 +104,6 @@ class TimePlanActivityLoadUseCase(
             time_plan_activity=time_plan_activity,
             target_inbox_task=target_inbox_task,
             target_big_plan=target_big_plan,
+            note=note,
             time_event_blocks=time_event_blocks,
         )

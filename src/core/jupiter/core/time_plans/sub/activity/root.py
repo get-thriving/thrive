@@ -4,6 +4,8 @@ import abc
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.notes.namespace import NoteNamespace
+from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -19,7 +21,9 @@ from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.context import MutationContext
 from jupiter.framework.entity import (
     IsFieldRefId,
+    IsRefId,
     LeafEntity,
+    OwnsAtMostOne,
     ParentLink,
     RefsAtMostOneCond,
     SelfCond,
@@ -54,6 +58,9 @@ class TimePlanActivity(LeafEntity):
         BigPlan,
         SelfCond(target=TimePlanActivityTarget.BIG_PLAN),
         ref_id=IsFieldRefId("target_ref_id"),
+    )
+    note = OwnsAtMostOne(
+        Note, namespace=NoteNamespace.TIME_PLAN_ACTIVITY, source_entity_ref_id=IsRefId()
     )
 
     @staticmethod

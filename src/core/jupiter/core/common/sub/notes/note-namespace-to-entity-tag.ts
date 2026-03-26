@@ -52,5 +52,11 @@ export function noteNamespaceToEntityTag(
       return NamedEntityTag.PERSON;
     case NoteNamespace.OCCASION:
       return NamedEntityTag.OCCASION;
+    case NoteNamespace.TIME_PLAN_ACTIVITY:
+      return NamedEntityTag.TIME_PLAN_ACTIVITY;
+    default: {
+      const _exhaustiveCheck: never = namespace;
+      throw new Error(`Unhandled NoteNamespace: ${_exhaustiveCheck}`);
+    }
   }
 }

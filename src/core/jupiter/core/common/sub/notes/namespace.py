@@ -10,6 +10,7 @@ class NoteNamespace(EnumValue):
     TODO_TASK = "todo-task"
     WORKING_MEM = "working-mem"
     TIME_PLAN = "time-plan"
+    TIME_PLAN_ACTIVITY = "time-plan-activity"
     SCHEDULE_STREAM = "schedule-stream"
     SCHEDULE_EXPORT = "schedule-export"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"

@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.big_plan import BigPlan
     from ..models.inbox_task import InboxTask
+    from ..models.note import Note
     from ..models.time_event_in_day_block import TimeEventInDayBlock
     from ..models.time_plan_activity import TimePlanActivity
 
@@ -27,17 +28,20 @@ class TimePlanActivityLoadResult:
         time_event_blocks (list[TimeEventInDayBlock]):
         target_inbox_task (InboxTask | None | Unset):
         target_big_plan (BigPlan | None | Unset):
+        note (None | Note | Unset):
     """
 
     time_plan_activity: TimePlanActivity
     time_event_blocks: list[TimeEventInDayBlock]
     target_inbox_task: InboxTask | None | Unset = UNSET
     target_big_plan: BigPlan | None | Unset = UNSET
+    note: None | Note | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.big_plan import BigPlan
         from ..models.inbox_task import InboxTask
+        from ..models.note import Note
 
         time_plan_activity = self.time_plan_activity.to_dict()
 
@@ -62,6 +66,14 @@ class TimePlanActivityLoadResult:
         else:
             target_big_plan = self.target_big_plan
 
+        note: dict[str, Any] | None | Unset
+        if isinstance(self.note, Unset):
+            note = UNSET
+        elif isinstance(self.note, Note):
+            note = self.note.to_dict()
+        else:
+            note = self.note
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -74,6 +86,8 @@ class TimePlanActivityLoadResult:
             field_dict["target_inbox_task"] = target_inbox_task
         if target_big_plan is not UNSET:
             field_dict["target_big_plan"] = target_big_plan
+        if note is not UNSET:
+            field_dict["note"] = note
 
         return field_dict
 
@@ -81,6 +95,7 @@ class TimePlanActivityLoadResult:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.big_plan import BigPlan
         from ..models.inbox_task import InboxTask
+        from ..models.note import Note
         from ..models.time_event_in_day_block import TimeEventInDayBlock
         from ..models.time_plan_activity import TimePlanActivity
 
@@ -128,11 +143,29 @@ class TimePlanActivityLoadResult:
 
         target_big_plan = _parse_target_big_plan(d.pop("target_big_plan", UNSET))
 
+        def _parse_note(data: object) -> None | Note | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                note_type_0 = Note.from_dict(data)
+
+                return note_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Note | Unset, data)
+
+        note = _parse_note(d.pop("note", UNSET))
+
         time_plan_activity_load_result = cls(
             time_plan_activity=time_plan_activity,
             time_event_blocks=time_event_blocks,
             target_inbox_task=target_inbox_task,
             target_big_plan=target_big_plan,
+            note=note,
         )
 
         time_plan_activity_load_result.additional_properties = d
