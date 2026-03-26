@@ -24,7 +24,7 @@ execution properties as inbox tasks:
 
 The main difference is organizational:
 
-* [Inbox Tasks](inbox-tasks.md) are your broad execution queue.
+* [Inbox Tasks](core-entities/inbox-tasks.md) are your broad execution queue.
 * Todos are a curated list of intentional personal tasks.
 
 When needed, you can open the todo directly from related inbox task UI.
@@ -71,6 +71,6 @@ work. They fit well between long-term planning and immediate execution:
 
 * use [Big Plans](big-plans.md) for multi-step efforts that unfold over weeks or
   months,
-* use [Inbox Tasks](inbox-tasks.md) for day-to-day execution,
+* use [Inbox Tasks](core-entities/inbox-tasks.md) for day-to-day execution,
 * use todos for the important standalone tasks you want to keep organized and
   connected to the bigger picture.
