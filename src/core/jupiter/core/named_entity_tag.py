@@ -50,8 +50,6 @@ class NamedEntityTag(EnumValue):
     @staticmethod
     def from_entity(entity: CrownEntity) -> "NamedEntityTag":
         """Construct a tag from an entity."""
-        if entity.__class__.__name__ == "InboxTask":
-            return NamedEntityTag.TODO_TASK
         return NamedEntityTag(entity.__class__.__name__)
 
     def __str__(self) -> str:

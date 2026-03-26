@@ -247,7 +247,6 @@ class GCService:
                     await inbox_task_archive_service.do_it(
                         ctx,
                         uow,
-                        progress_reporter,
                         inbox_task,
                         JupiterArchivalReason.GC,
                     )

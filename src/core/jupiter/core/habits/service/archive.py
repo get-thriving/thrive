@@ -56,7 +56,7 @@ class HabitArchiveService:
 
         for inbox_task in inbox_tasks_to_archive:
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
 
         habit = habit.mark_archived(ctx, archival_reason)

@@ -105,4 +105,3 @@ class WorkingMemUpdateSettingsUseCase(
                     recurring_timeline=schedule.timeline,
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)

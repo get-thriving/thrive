@@ -114,7 +114,7 @@ class BigPlanCreateInboxTaskUseCase(
             big_plan_due_date=big_plan.due_date,
         )
 
-        new_inbox_task = await generic_creator(uow, progress_reporter, new_inbox_task)
+        new_inbox_task = await uow.get_for(InboxTask).create(new_inbox_task)
 
         new_time_plan_activity = None
         if time_plan:

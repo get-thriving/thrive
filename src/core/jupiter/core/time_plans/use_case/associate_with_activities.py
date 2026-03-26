@@ -155,7 +155,6 @@ class TimePlanAssociateWithActivitiesUseCase(
                     context.domain_context, due_date=time_plan.end_date
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
             if inbox_task.source == InboxTaskSource.BIG_PLAN:
                 big_plan = await uow.get_for(BigPlan).load_by_id(

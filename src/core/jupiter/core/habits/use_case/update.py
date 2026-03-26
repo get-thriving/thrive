@@ -259,7 +259,6 @@ class HabitUpdateUseCase(
                 )
 
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

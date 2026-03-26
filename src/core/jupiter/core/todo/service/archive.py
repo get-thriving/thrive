@@ -51,7 +51,6 @@ class TodoTaskArchiveService:
             await inbox_task_archive_service.do_it(
                 ctx,
                 uow,
-                progress_reporter,
                 linked_inbox_task,
                 archival_reason,
             )

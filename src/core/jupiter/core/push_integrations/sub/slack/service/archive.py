@@ -71,7 +71,7 @@ class SlackTaskArchiveService:
         inbox_task_archive_service = InboxTaskArchiveService()
         for inbox_task in inbox_tasks_to_archive:
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
             archived_inbox_taskd.append(inbox_task)
 

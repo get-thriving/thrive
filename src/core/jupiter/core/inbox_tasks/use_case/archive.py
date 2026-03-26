@@ -47,7 +47,6 @@ class InboxTaskArchiveUseCase(
         await InboxTaskArchiveService().do_it(
             context.domain_context,
             uow,
-            progress_reporter,
             inbox_task,
             JupiterArchivalReason.USER,
         )

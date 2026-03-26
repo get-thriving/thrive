@@ -318,7 +318,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -1082,7 +1081,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -1204,7 +1202,6 @@ class GenService:
                     inbox_task = await uow.get_for(InboxTask).create(
                         inbox_task,
                     )
-                    await progress_reporter.mark_created(inbox_task)
 
                 remaining_tasks.add(inbox_task)
                 gen_log_entry = gen_log_entry.add_entity_created(
@@ -1332,7 +1329,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1492,7 +1488,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -1577,7 +1572,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1664,7 +1658,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1802,7 +1795,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1866,7 +1858,6 @@ class GenService:
                 await progress_reporter.mark_updated(slack_task)
 
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1934,7 +1925,6 @@ class GenService:
                 await progress_reporter.mark_updated(email_task)
 
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -2027,7 +2017,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,

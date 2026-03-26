@@ -371,7 +371,6 @@ class StatsService:
                     inbox_task,
                 )
                 if record_score_result is not None:
-                    await progress_reporter.mark_updated(inbox_task)
                     stats_log_entry = stats_log_entry.add_entity_updated(
                         ctx, inbox_task
                     )

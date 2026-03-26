@@ -3,7 +3,6 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.framework.context import MutationContext
-from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -14,7 +13,6 @@ class InboxTaskArchiveService:
         self,
         ctx: MutationContext,
         uow: DomainUnitOfWork,
-        progress_reporter: ProgressReporter,
         inbox_task: InboxTask,
         archival_reason: JupiterArchivalReason,
     ) -> None:

@@ -257,7 +257,6 @@ class PersonUpdateUseCase(
                 await inbox_task_archive_service.do_it(
                     context.domain_context,
                     uow,
-                    progress_reporter,
                     inbox_task,
                     JupiterArchivalReason.USER,
                 )
@@ -286,7 +285,6 @@ class PersonUpdateUseCase(
                 )
                 # Situation 2a: we're handling the same aspect.
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

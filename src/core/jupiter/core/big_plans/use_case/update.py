@@ -189,7 +189,6 @@ class BigPlanUpdateUseCase(
                     difficulty=UpdateAction.do_nothing(),
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
         record_score_result = None
         if context.user.is_feature_available(UserFeature.GAMIFICATION):

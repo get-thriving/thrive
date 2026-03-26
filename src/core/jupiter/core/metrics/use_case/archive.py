@@ -77,7 +77,6 @@ class MetricArchiveUseCase(
             await inbox_task_archive_service.do_it(
                 context.domain_context,
                 uow,
-                progress_reporter,
                 inbox_task,
                 JupiterArchivalReason.USER,
             )

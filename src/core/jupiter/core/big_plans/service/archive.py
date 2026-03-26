@@ -82,7 +82,7 @@ class BigPlanArchiveService:
             if inbox_task.archived:
                 continue
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
             archived_inbox_tasks.append(inbox_task)
 
