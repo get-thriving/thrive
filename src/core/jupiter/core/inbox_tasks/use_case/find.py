@@ -445,7 +445,11 @@ class InboxTaskFindUseCase(
     def _filter_sources_for_generated_tasks(
         self, sources: list[InboxTaskSource]
     ) -> list[InboxTaskSource]:
-        return [s for s in sources if not s.allow_user_changes]
+        return [
+            s
+            for s in sources
+            if s not in (InboxTaskSource.TODO_TASK, InboxTaskSource.BIG_PLAN)
+        ]
 
     def _filter_sources_for_user_tasks(
         self, sources: list[InboxTaskSource]

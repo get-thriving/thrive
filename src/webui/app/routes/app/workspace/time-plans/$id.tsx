@@ -639,14 +639,14 @@ export default function TimePlanView() {
                 NavMultipleCompact({
                   navs: [
                     NavSingle({
-                      text: "New Big Plan",
-                      link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
-                      gatedOn: WorkspaceFeature.BIG_PLANS,
-                    }),
-                    NavSingle({
                       text: "New Todo",
                       link: `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
                       gatedOn: WorkspaceFeature.TODO_TASK,
+                    }),
+                    NavSingle({
+                      text: "New Big Plan",
+                      link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                      gatedOn: WorkspaceFeature.BIG_PLANS,
                     }),
                     ...(timePlanAllowsInboxTasks(loaderData.timePlan)
                       ? [
