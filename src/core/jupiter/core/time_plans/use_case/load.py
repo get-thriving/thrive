@@ -7,6 +7,14 @@ from jupiter.core.app import AppCore
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -16,14 +24,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
@@ -217,7 +217,10 @@ class TimePlanLoadUseCase(
                 allow_archived=True,
                 filter_start_completed_date=schedule.first_day,
                 filter_end_completed_date=schedule.end_day,
-                filter_include_sources=[InboxTaskSource.USER, InboxTaskSource.BIG_PLAN],
+                filter_include_sources=[
+                    InboxTaskSource.TODO_TASK,
+                    InboxTaskSource.BIG_PLAN,
+                ],
                 filter_exclude_ref_ids=[it.ref_id for it in target_inbox_tasks],
             )
 
@@ -311,7 +314,7 @@ class TimePlanLoadUseCase(
 
                 if inbox_task.source == InboxTaskSource.BIG_PLAN:
                     activities_by_big_plan_ref_id[
-                        inbox_task.source_entity_ref_id_for_sure
+                        inbox_task.source_entity_ref_id
                     ].append(activity.ref_id)
 
             for activity in activities:

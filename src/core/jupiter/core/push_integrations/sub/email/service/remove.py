@@ -1,13 +1,13 @@
 """Service for hard removing a email task and associated inbox task."""
 
-from jupiter.core.inbox_tasks.collection import (
+from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.inbox_tasks.service.remove import (
+from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.service.remove import (
     InboxTaskRemoveService,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )

@@ -37,7 +37,7 @@ import {
   InboxTaskOptimisticState,
   InboxTaskParent,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import { sortChoresNaturally } from "@jupiter/core/chores/root";
 import Check from "@jupiter/core/infra/component/check";
@@ -129,9 +129,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const choreInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_tags: true,
-    include_notes: false,
-    include_time_event_blocks: false,
     filter_sources: [InboxTaskSource.CHORE],
   });
 
@@ -195,7 +192,7 @@ export default function Chores() {
         { id: it.ref_id, status: InboxTaskStatus.DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -214,7 +211,7 @@ export default function Chores() {
         { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);

@@ -50,6 +50,19 @@ mise run generate-client-code
 ```
 
 This is the **only** way to properly update the code in `gen`.
+This script exits non-zero on failure — wait for the line Client code generation complete on stderr before considering it done
+
+## Adding migrations
+
+If you want to make changes to the database, generate a migration
+scaffold with
+
+```bash
+mise run add-migration "The name of the migration"
+```
+
+This will generate a new file in src/core/migrations/versions, link it in the sequence of migrations,
+and you can then edit it there, based on the patterns established.
 
 ### Lint, fix & check commands
 

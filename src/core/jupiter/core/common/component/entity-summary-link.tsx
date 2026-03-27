@@ -58,7 +58,7 @@ export function EntitySummaryLink({
 
   if (summary.entity_tag === NamedEntityTag.TODO_TASK) {
     return (
-      <EntityLink to={`/app/workspace/todo-tasks/${summary.ref_id}`}>
+      <EntityLink to={`/app/workspace/todos/${summary.ref_id}`}>
         <SlimChip label={"Todo Task"} color={"primary"} />
         {commonSequence}
       </EntityLink>
@@ -70,13 +70,6 @@ export function EntitySummaryLink({
       return (
         <EntityLink to={"/nowhere"} block>
           <SlimChip label={"Score Log Entry"} color={"primary"} />
-          {commonSequence}
-        </EntityLink>
-      );
-    case NamedEntityTag.INBOX_TASK:
-      return (
-        <EntityLink to={`/app/workspace/inbox-tasks/${summary.ref_id}`}>
-          <SlimChip label={"Inbox Task"} color={"primary"} />
           {commonSequence}
         </EntityLink>
       );

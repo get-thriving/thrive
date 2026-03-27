@@ -22,6 +22,9 @@ from jupiter_webapi_client.api.big_plans.big_plan_archive import (
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     asyncio_detailed as big_plan_create,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    asyncio_detailed as big_plan_create_inbox_task,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_find import (
     asyncio_detailed as big_plan_find,
 )
@@ -148,9 +151,6 @@ from jupiter_webapi_client.api.habits.habit_update import (
 # --- Inbox Tasks API ---
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     asyncio_detailed as inbox_task_archive,
-)
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    asyncio_detailed as inbox_task_create,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
     asyncio_detailed as inbox_task_find,
@@ -299,9 +299,6 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
 )
-from jupiter_webapi_client.api.metrics.metric_change_collection_aspect import (
-    asyncio_detailed as metric_change_collection_aspect,
-)
 from jupiter_webapi_client.api.metrics.metric_create import (
     asyncio_detailed as metric_create,
 )
@@ -392,9 +389,6 @@ from jupiter_webapi_client.api.prm.occasion_update import (
 )
 from jupiter_webapi_client.api.prm.person_archive import (
     asyncio_detailed as person_archive,
-)
-from jupiter_webapi_client.api.prm.person_change_catch_up_aspect import (
-    asyncio_detailed as person_change_catch_up_aspect,
 )
 from jupiter_webapi_client.api.prm.person_create import (
     asyncio_detailed as person_create,
@@ -560,8 +554,17 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
     asyncio_detailed as time_event_in_day_block_create_for_big_plan,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
+    asyncio_detailed as time_event_in_day_block_create_for_chore,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
+    asyncio_detailed as time_event_in_day_block_create_for_habit,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
+    asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
@@ -710,22 +713,6 @@ async def main() -> None:
         ports,
         global_properties,
         service_properties,
-        # --- Inbox Tasks ---
-        JupiterMcpResource.resource("jupiter://inbox-tasks", inbox_task_find),
-        JupiterMcpTool.tool("find-inbox-tasks", "Find inbox tasks", inbox_task_find),
-        JupiterMcpTool.tool(
-            "create-inbox-task", "Create an inbox task", inbox_task_create
-        ),
-        JupiterMcpTool.tool("load-inbox-task", "Load an inbox task", inbox_task_load),
-        JupiterMcpTool.tool(
-            "update-inbox-task", "Update an inbox task", inbox_task_update
-        ),
-        JupiterMcpTool.tool(
-            "archive-inbox-task", "Archive an inbox task", inbox_task_archive
-        ),
-        JupiterMcpTool.tool(
-            "remove-inbox-task", "Remove an inbox task", inbox_task_remove
-        ),
         # --- Working Mem ---
         JupiterMcpResource.resource("jupiter://working-mem", working_mem_load_current),
         JupiterMcpTool.tool(
@@ -964,6 +951,11 @@ async def main() -> None:
         JupiterMcpTool.tool("update-big-plan", "Update a big plan", big_plan_update),
         JupiterMcpTool.tool("archive-big-plan", "Archive a big plan", big_plan_archive),
         JupiterMcpTool.tool("remove-big-plan", "Remove a big plan", big_plan_remove),
+        JupiterMcpTool.tool(
+            "create-inbox-task-for-big-plan",
+            "Create an inbox task for a big plan",
+            big_plan_create_inbox_task,
+        ),
         # --- Big Plan Milestones ---
         JupiterMcpTool.tool(
             "create-big-plan-milestone",
@@ -1094,11 +1086,6 @@ async def main() -> None:
         JupiterMcpTool.tool(
             "load-metric-settings", "Load metric settings", metric_load_settings
         ),
-        JupiterMcpTool.tool(
-            "change-metric-collection-aspect",
-            "Change the collection aspect of a metric",
-            metric_change_collection_aspect,
-        ),
         # --- Metric Entries ---
         JupiterMcpTool.tool(
             "create-metric-entry", "Create a metric entry", metric_entry_create
@@ -1118,11 +1105,6 @@ async def main() -> None:
         # --- PRM ---
         JupiterMcpTool.tool(
             "load-person-settings", "Load PRM person settings", person_load_settings
-        ),
-        JupiterMcpTool.tool(
-            "change-person-catch-up-aspect",
-            "Change the catch-up aspect for persons",
-            person_change_catch_up_aspect,
         ),
         # --- Persons ---
         JupiterMcpResource.resource("jupiter://prm/persons", person_find),
@@ -1200,6 +1182,19 @@ async def main() -> None:
         JupiterMcpTool.tool("update-todo", "Update a todo task", todo_task_update),
         JupiterMcpTool.tool("archive-todo", "Archive a todo task", todo_task_archive),
         JupiterMcpTool.tool("remove-todo", "Remove a todo task", todo_task_remove),
+        # --- Inbox Tasks ---
+        JupiterMcpResource.resource("jupiter://inbox-tasks", inbox_task_find),
+        JupiterMcpTool.tool("find-inbox-tasks", "Find inbox tasks", inbox_task_find),
+        JupiterMcpTool.tool("load-inbox-task", "Load an inbox task", inbox_task_load),
+        JupiterMcpTool.tool(
+            "update-inbox-task", "Update an inbox task", inbox_task_update
+        ),
+        JupiterMcpTool.tool(
+            "archive-inbox-task", "Archive an inbox task", inbox_task_archive
+        ),
+        JupiterMcpTool.tool(
+            "remove-inbox-task", "Remove an inbox task", inbox_task_remove
+        ),
         # --- Notes ---
         JupiterMcpResource.resource("jupiter://notes", note_find),
         JupiterMcpTool.tool("find-notes", "Find notes", note_find),
@@ -1239,14 +1234,29 @@ async def main() -> None:
             time_event_full_days_block_load,
         ),
         JupiterMcpTool.tool(
-            "create-time-event-in-day-block-for-inbox-task",
-            "Create an in-day time event block for an inbox task",
-            time_event_in_day_block_create_for_inbox_task,
-        ),
-        JupiterMcpTool.tool(
             "create-time-event-in-day-block-for-big-plan",
             "Create an in-day time event block for a big plan",
             time_event_in_day_block_create_for_big_plan,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-event-in-day-block-for-todo-task",
+            "Create an in-day time event block for a todo task",
+            time_event_in_day_block_create_for_todo_task,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-event-in-day-block-for-habit",
+            "Create an in-day time event block for a habit",
+            time_event_in_day_block_create_for_habit,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-event-in-day-block-for-chore",
+            "Create an in-day time event block for a chore",
+            time_event_in_day_block_create_for_chore,
+        ),
+        JupiterMcpTool.tool(
+            "create-time-event-in-day-block-for-time-plan-activity",
+            "Create an in-day time event block for a time plan activity",
+            time_event_in_day_block_create_for_time_plan_activity,
         ),
         JupiterMcpTool.tool(
             "load-time-event-in-day-block",

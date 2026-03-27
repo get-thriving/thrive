@@ -1,12 +1,17 @@
 """Tests for the contacts API using inbox tasks."""
 
+from collections.abc import Iterator
+
 import pytest
 import requests
 from jupiter_webapi_client.api.contacts.contact_create import (
     sync_detailed as contact_create_sync,
 )
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    sync_detailed as inbox_task_create_sync,
+from jupiter_webapi_client.api.test_helper.workspace_set_feature import (
+    sync_detailed as workspace_set_feature_sync,
+)
+from jupiter_webapi_client.api.todo.todo_task_create import (
+    sync_detailed as todo_task_create_sync,
 )
 from jupiter_webapi_client.client import AuthenticatedClient
 from jupiter_webapi_client.models.contact import Contact
@@ -15,25 +20,48 @@ from jupiter_webapi_client.models.contact_create_result import ContactCreateResu
 from jupiter_webapi_client.models.difficulty import Difficulty
 from jupiter_webapi_client.models.eisen import Eisen
 from jupiter_webapi_client.models.inbox_task import InboxTask
-from jupiter_webapi_client.models.inbox_task_create_args import InboxTaskCreateArgs
-from jupiter_webapi_client.models.inbox_task_create_result import InboxTaskCreateResult
+from jupiter_webapi_client.models.todo_task_create_args import TodoTaskCreateArgs
+from jupiter_webapi_client.models.todo_task_create_result import TodoTaskCreateResult
+from jupiter_webapi_client.models.workspace_feature import WorkspaceFeature
+from jupiter_webapi_client.models.workspace_set_feature_args import (
+    WorkspaceSetFeatureArgs,
+)
 
 from itests.helpers import get_parsed_from_response
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _enable_todo_feature(logged_in_client: AuthenticatedClient) -> Iterator[None]:
+    try:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=True
+            ),
+        )
+        yield
+    finally:
+        workspace_set_feature_sync(
+            client=logged_in_client,
+            body=WorkspaceSetFeatureArgs(
+                feature=WorkspaceFeature.TODO_TASK, value=False
+            ),
+        )
 
 
 @pytest.fixture()
 def create_inbox_task(logged_in_client: AuthenticatedClient):
     def _create(name: str) -> InboxTask:
-        result = inbox_task_create_sync(
+        result = todo_task_create_sync(
             client=logged_in_client,
-            body=InboxTaskCreateArgs(
+            body=TodoTaskCreateArgs(
                 name=name,
                 is_key=False,
                 eisen=Eisen.REGULAR,
                 difficulty=Difficulty.EASY,
             ),
         )
-        return get_parsed_from_response(InboxTaskCreateResult, result).new_inbox_task
+        return get_parsed_from_response(TodoTaskCreateResult, result).new_inbox_task
 
     return _create
 
@@ -132,7 +160,7 @@ def test_api_common_contact_link_upsert(
         f"{api_url}/v1/common/contacts/link",
         headers=_headers(api_key),
         json={
-            "namespace": "inbox-task",
+            "namespace": "todo-task",
             "source_entity_ref_id": task.ref_id,
             "contact_names": ["John Doe"],
         },

@@ -24,9 +24,6 @@ export type InboxTask = {
     name: InboxTaskName;
     inbox_task_collection_ref_id: string;
     source: InboxTaskSource;
-    aspect_ref_id: EntityId;
-    chapter_ref_id?: (EntityId | null);
-    goal_ref_id?: (EntityId | null);
     status: InboxTaskStatus;
     is_key: boolean;
     eisen: Eisen;
@@ -34,7 +31,7 @@ export type InboxTask = {
     actionable_date?: (ADate | null);
     due_date?: (ADate | null);
     notes?: (string | null);
-    source_entity_ref_id?: (EntityId | null);
+    source_entity_ref_id: EntityId;
     recurring_timeline?: (string | null);
     recurring_repeat_index?: (number | null);
     recurring_gen_right_now?: (Timestamp | null);

@@ -75,9 +75,14 @@ class StatsLogEntry(LeafSupportEntity):
         """Add an entity to the stats log entry."""
         if not self.opened:
             raise Exception("Can't add an entity to a closed stats log entry.")
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
-            entity_records=[*self.entity_records, EntitySummary.from_entity(entity)],
+            entity_records=[*self.entity_records, entity_summary],
         )
 
     @update_entity_action

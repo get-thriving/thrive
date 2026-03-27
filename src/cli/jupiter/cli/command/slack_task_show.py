@@ -14,7 +14,6 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
 from jupiter.core.push_integrations.sub.slack.use_case.find import (
     SlackTaskFindResult,
     SlackTaskFindUseCase,
@@ -41,12 +40,6 @@ class SlackTaskShow(
         )
 
         rich_tree = Tree("💬 Slack Tasks", guide_style="bold bright_blue")
-
-        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            generation_aspect_text = Text(
-                f"The generation aspect is {result.generation_aspect.name}",
-            )
-            rich_tree.add(generation_aspect_text)
 
         for slack_task_entry in sorted_slack_tasks:
             slack_task = slack_task_entry.slack_task

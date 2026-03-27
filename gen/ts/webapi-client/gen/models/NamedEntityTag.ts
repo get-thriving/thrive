@@ -6,10 +6,10 @@
  * A tag for all known entities.
  */
 export enum NamedEntityTag {
+    OTHER = 'Other',
     SCORE_LOG_ENTRY = 'ScoreLogEntry',
     HOME_TAB = 'HomeTab',
     HOME_WIDGET = 'HomeWidget',
-    INBOX_TASK = 'InboxTask',
     TODO_TASK = 'TodoTask',
     WORKING_MEM = 'WorkingMem',
     TIME_PLAN = 'TimePlan',

@@ -14,6 +14,9 @@ from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -35,9 +38,6 @@ from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.generation_approach import (
     JournalGenerationApproach,
@@ -282,7 +282,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     ctx=context.domain_context,
                     workspace_ref_id=new_workspace.ref_id,
                     generation_period=RecurringTaskPeriod.DAILY,
-                    cleanup_aspect_ref_id=new_root_aspect.ref_id,
                 )
             )
             new_working_mem_collection = await uow.get_for(WorkingMemCollection).create(
@@ -313,7 +312,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                     RecurringTaskPeriod.QUARTERLY: 14,
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                planning_task_aspect_ref_id=new_root_aspect.ref_id,
                 planning_task_eisen=Eisen.IMPORTANT,
                 planning_task_difficulty=Difficulty.MEDIUM,
             )
@@ -387,7 +385,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
                 generation_in_advance_days={
                     RecurringTaskPeriod.WEEKLY: 3,
                 },
-                writing_task_aspect_ref_id=new_root_aspect.ref_id,
                 writing_task_eisen=Eisen.IMPORTANT,
                 writing_task_difficulty=Difficulty.MEDIUM,
             )
@@ -414,7 +411,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_metric_collection = MetricCollection.new_metric_collection(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                collection_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_metric_collection = await uow.get_for(MetricCollection).create(
                 new_metric_collection,
@@ -423,7 +419,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_prm = PRM.new_prm(
                 ctx=context.domain_context,
                 workspace_ref_id=new_workspace.ref_id,
-                catch_up_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_prm = await uow.get_for(PRM).create(
                 new_prm,
@@ -460,7 +455,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_slack_task_collection = SlackTaskCollection.new_slack_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_slack_task_collection = await uow.get_for(SlackTaskCollection).create(
                 new_slack_task_collection,
@@ -469,7 +463,6 @@ class InitUseCase(JupiterGuestMutationUseCase[InitArgs, InitResult]):
             new_email_task_collection = EmailTaskCollection.new_email_task_collection(
                 ctx=context.domain_context,
                 push_integration_group_ref_id=new_push_integration_group.ref_id,
-                generation_aspect_ref_id=new_root_aspect.ref_id,
             )
             new_email_task_collection = await uow.get_for(EmailTaskCollection).create(
                 new_email_task_collection,

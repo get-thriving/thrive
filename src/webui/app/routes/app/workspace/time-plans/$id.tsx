@@ -45,7 +45,7 @@ import { sortGoalsNaturally } from "#/core/life_plan/sub/goals/root";
 import { BigPlanStack } from "@jupiter/core/big_plans/component/stack";
 import { EntityNoNothingCard } from "@jupiter/core/infra/component/entity-no-nothing-card";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeBranchErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { BranchPanel } from "@jupiter/core/infra/component/layout/branch-panel";
@@ -211,8 +211,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       previousTimePlan: result.previous_time_plan as TimePlan,
       journal: journalResult?.journal,
       subPeriodJournals: journalResult?.sub_period_journals || [],
-      timeEventForInboxTasks:
-        timeEventResult?.entries?.inbox_task_entries || [],
+      timeEventForInboxTasks: timeEventResult?.entries?.todo_task_entries || [],
       timeEventForBigPlans: [],
     });
   } catch (error) {
@@ -449,6 +448,7 @@ export default function TimePlanView() {
     timePlanActivities: loaderData.activities,
     targetInboxTasksByRefId: targetInboxTasksByRefId,
     activityDoneness: loaderData.activityDoneness,
+    completedNontargetInboxTasks: loaderData.completedNontargetInboxTasks ?? [],
   });
 
   return (
@@ -638,14 +638,11 @@ export default function TimePlanView() {
               actions={[
                 NavMultipleCompact({
                   navs: [
-                    ...(timePlanAllowsInboxTasks(loaderData.timePlan)
-                      ? [
-                          NavSingle({
-                            text: "New Inbox Task",
-                            link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
-                          }),
-                        ]
-                      : []),
+                    NavSingle({
+                      text: "New Todo",
+                      link: `/app/workspace/todos/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,
+                      gatedOn: WorkspaceFeature.TODO_TASK,
+                    }),
                     NavSingle({
                       text: "New Big Plan",
                       link: `/app/workspace/big-plans/new?timePlanReason=for-time-plan&timePlanRefId=${loaderData.timePlan.ref_id}`,

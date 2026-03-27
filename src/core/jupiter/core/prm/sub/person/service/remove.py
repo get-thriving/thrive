@@ -4,20 +4,20 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.service.remove import (
     ContactLinkRemoveService,
 )
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion

@@ -2,16 +2,16 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.core.inbox_tasks.root import InboxTask, InboxTaskRepository
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -141,7 +141,7 @@ class TodoTaskUpdateUseCase(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.USER,
+            source=InboxTaskSource.TODO_TASK,
             source_entity_ref_id=todo_task.ref_id,
             allow_archived=True,
         )
@@ -159,9 +159,6 @@ class TodoTaskUpdateUseCase(
             todo_ref_id=todo_task.ref_id,
             name=args.name,
             status=args.status,
-            aspect_ref_id=args.aspect_ref_id,
-            chapter_ref_id=args.chapter_ref_id,
-            goal_ref_id=args.goal_ref_id,
             is_key=args.is_key,
             actionable_date=args.actionable_date,
             due_date=args.due_date,
@@ -169,7 +166,6 @@ class TodoTaskUpdateUseCase(
             difficulty=args.difficulty,
         )
         await uow.get_for(InboxTask).save(updated_inbox_task)
-        await progress_reporter.mark_updated(updated_inbox_task)
 
         return TodoTaskUpdateResult(
             updated_todo_task=updated_todo_task,

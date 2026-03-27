@@ -59,20 +59,6 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
       );
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
-      return (
-        <Button
-          startIcon={<LaunchIcon />}
-          variant="outlined"
-          size="small"
-          component={Link}
-          to={`/app/workspace/inbox-tasks/${props.timeEvent.source_entity_ref_id}`}
-        >
-          Link
-        </Button>
-      );
-    }
-
     case TimeEventNamespace.BIG_PLAN: {
       return (
         <Button
@@ -81,6 +67,62 @@ export function TimeEventSourceLink(props: TimeEventSourceLinkProps) {
           size="small"
           component={Link}
           to={`/app/workspace/big-plans/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case TimeEventNamespace.TODO_TASK: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/todos/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case TimeEventNamespace.HABIT: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/habits/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case TimeEventNamespace.CHORE: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/chores/${props.timeEvent.source_entity_ref_id}`}
+        >
+          Link
+        </Button>
+      );
+    }
+
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
+      return (
+        <Button
+          startIcon={<LaunchIcon />}
+          variant="outlined"
+          size="small"
+          component={Link}
+          to={`/app/workspace/time-plans/no-parent/${props.timeEvent.source_entity_ref_id}`}
         >
           Link
         </Button>

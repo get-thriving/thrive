@@ -1,7 +1,7 @@
 """A Slack task which needs to be converted into an inbox task."""
 
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )

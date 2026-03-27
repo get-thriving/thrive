@@ -4,23 +4,23 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -82,7 +82,7 @@ class BigPlanArchiveService:
             if inbox_task.archived:
                 continue
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
             archived_inbox_tasks.append(inbox_task)
 

@@ -6,7 +6,6 @@
  * The namespace of a tag.
  */
 export enum TagNamespace {
-    INBOX_TASK = 'inbox-task',
     TODO_TASK = 'todo-task',
     TIME_PLAN = 'time-plan',
     SCHEDULE_STREAM = 'schedule-stream',

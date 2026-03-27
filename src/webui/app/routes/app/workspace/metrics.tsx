@@ -1,4 +1,3 @@
-import TuneIcon from "@mui/icons-material/Tune";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -28,7 +27,6 @@ import { IsKeyTag } from "@jupiter/core/common/component/is-key-tag";
 import {
   FilterManyOptions,
   SectionActions,
-  NavSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagTag } from "#/core/common/sub/tags/component/tag-tag";
 
@@ -95,11 +93,6 @@ export default function Metrics() {
           topLevelInfo={topLevelInfo}
           inputsEnabled={true}
           actions={[
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/metrics/settings`,
-              icon: <TuneIcon />,
-            }),
             FilterManyOptions(
               "Tags",
               loaderData.allTags.map((tag) => ({

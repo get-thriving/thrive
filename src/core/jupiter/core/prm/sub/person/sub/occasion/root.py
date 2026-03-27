@@ -3,6 +3,8 @@
 import abc
 
 from jupiter.core.common.birthday import Birthday
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
@@ -11,8 +13,6 @@ from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlock,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.framework.base.adate import ADate

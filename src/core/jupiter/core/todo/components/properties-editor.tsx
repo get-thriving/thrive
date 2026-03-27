@@ -28,6 +28,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useState } from "react";
+import { Launch as LaunchIcon } from "@mui/icons-material";
 
 import { aDateToDate } from "#/core/common/adate";
 import { DifficultySelect } from "#/core/common/component/difficulty-select";
@@ -42,19 +43,24 @@ import {
 import type { SomeErrorNoData } from "#/core/infra/action-result";
 import { DateInputWithSuggestions } from "#/core/infra/component/date-input-with-suggestions";
 import { FieldError } from "#/core/infra/component/errors";
+import { constructFieldName } from "#/core/infra/field-names";
 import {
   ActionSingle,
+  NavSingle,
   SectionActions,
 } from "#/core/infra/component/section-actions";
 import { SectionCard } from "#/core/infra/component/section-card";
 import type { TopLevelInfo } from "#/core/infra/top-level-context";
-import { InboxTaskStatusBigTag } from "#/core/inbox_tasks/component/status-big-tag";
+import { InboxTaskStatusBigTag } from "#/core/common/sub/inbox_tasks/component/status-big-tag";
 import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { LifePlanAssociations } from "#/core/life_plan/components/life-plan-associations";
 import { isWorkspaceFeatureAvailable } from "#/core/workspaces/root";
 
 interface TodoTaskPropertiesEditorProps {
   title: string;
+  showLinkToTodoTask?: boolean;
+  intentPrefix?: string;
+  namePrefix?: string;
   topLevelInfo: TopLevelInfo;
   lifePlan: LifePlan | null;
   allAspects: AspectSummary[];
@@ -91,20 +97,36 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
             ActionSingle({
               id: "todo-update",
               text: "Save",
-              value: "update",
+              value: constructIntentName(props.intentPrefix, "update"),
               highlight: true,
             }),
           ]}
+          extraActions={
+            props.showLinkToTodoTask
+              ? [
+                  NavSingle({
+                    text: "Todo Task",
+                    link: `/app/workspace/todos/${props.todoTask.ref_id}`,
+                    icon: <LaunchIcon />,
+                  }),
+                ]
+              : undefined
+          }
         />
       }
     >
       <Stack spacing={2} useFlexGap>
         <Stack direction="row" useFlexGap spacing={1}>
+          <input
+            type="hidden"
+            name={constructFieldName(props.namePrefix, "refId")}
+            value={props.todoTask.ref_id}
+          />
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
               label="name"
-              name="name"
+              name={constructFieldName(props.namePrefix, "name")}
               readOnly={!props.inputsEnabled}
               disabled={!props.inputsEnabled}
               defaultValue={props.todoTask.name}
@@ -114,13 +136,17 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
 
           <FormControl sx={{ flexGrow: 1, minWidth: "unset" }}>
             <InboxTaskStatusBigTag status={props.inboxTask.status} />
-            <input type="hidden" name="status" value={props.inboxTask.status} />
+            <input
+              type="hidden"
+              name={constructFieldName(props.namePrefix, "status")}
+              value={props.inboxTask.status}
+            />
             <FieldError actionResult={props.actionData} fieldName="/status" />
           </FormControl>
 
           <FormControl sx={{ flexGrow: 1 }}>
             <IsKeySelect
-              name="isKey"
+              name={constructFieldName(props.namePrefix, "isKey")}
               defaultValue={props.inboxTask.is_key}
               inputsEnabled={props.inputsEnabled}
             />
@@ -169,6 +195,9 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
           <FormControl fullWidth>
             <LifePlanAssociations
               inputsEnabled={props.inputsEnabled}
+              aspectName={constructFieldName(props.namePrefix, "aspect")}
+              chapterName={constructFieldName(props.namePrefix, "chapter")}
+              goalName={constructFieldName(props.namePrefix, "goal")}
               allAspects={props.allAspects}
               aspectValue={selectedAspectRefId}
               onAspectChange={setSelectedAspectRefId}
@@ -199,7 +228,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
         <FormControl fullWidth>
           <FormLabel id="eisen">Eisenhower</FormLabel>
           <EisenhowerSelect
-            name="eisen"
+            name={constructFieldName(props.namePrefix, "eisen")}
             defaultValue={props.inboxTask.eisen as Eisen}
             inputsEnabled={props.inputsEnabled}
           />
@@ -209,7 +238,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
         <FormControl fullWidth>
           <FormLabel id="difficulty">Difficulty</FormLabel>
           <DifficultySelect
-            name="difficulty"
+            name={constructFieldName(props.namePrefix, "difficulty")}
             defaultValue={props.inboxTask.difficulty as Difficulty}
             inputsEnabled={props.inputsEnabled}
           />
@@ -221,7 +250,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
             Actionable From [Optional]
           </InputLabel>
           <DateInputWithSuggestions
-            name="actionableDate"
+            name={constructFieldName(props.namePrefix, "actionableDate")}
             label="actionableDate"
             inputsEnabled={props.inputsEnabled}
             defaultValue={props.inboxTask.actionable_date ?? undefined}
@@ -240,7 +269,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
             Due Date [Optional]
           </InputLabel>
           <DateInputWithSuggestions
-            name="dueDate"
+            name={constructFieldName(props.namePrefix, "dueDate")}
             label="dueDate"
             inputsEnabled={props.inputsEnabled}
             defaultValue={props.inboxTask.due_date ?? undefined}
@@ -254,8 +283,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
 
       <CardActions sx={{ paddingLeft: "0px", paddingRight: "0px" }}>
         <Stack direction="column" spacing={1} sx={{ width: "100%" }}>
-          {(props.inboxTask.status === InboxTaskStatus.NOT_STARTED ||
-            props.inboxTask.status === InboxTaskStatus.NOT_STARTED_GEN) && (
+          {props.inboxTask.status === InboxTaskStatus.NOT_STARTED && (
             <ButtonGroup fullWidth>
               <Button
                 size="small"
@@ -263,7 +291,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-done"
+                value={constructIntentName(props.intentPrefix, "mark-done")}
               >
                 Mark Done
               </Button>
@@ -273,7 +301,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-not-done"
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>
@@ -283,7 +311,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="start"
+                value={constructIntentName(props.intentPrefix, "start")}
               >
                 Start
               </Button>
@@ -293,7 +321,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="block"
+                value={constructIntentName(props.intentPrefix, "block")}
               >
                 Block
               </Button>
@@ -308,7 +336,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-done"
+                value={constructIntentName(props.intentPrefix, "mark-done")}
               >
                 Mark Done
               </Button>
@@ -318,7 +346,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-not-done"
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>
@@ -328,7 +356,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="block"
+                value={constructIntentName(props.intentPrefix, "block")}
               >
                 Block
               </Button>
@@ -338,7 +366,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="stop"
+                value={constructIntentName(props.intentPrefix, "stop")}
               >
                 Stop
               </Button>
@@ -353,7 +381,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-done"
+                value={constructIntentName(props.intentPrefix, "mark-done")}
               >
                 Mark Done
               </Button>
@@ -363,7 +391,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="mark-not-done"
+                value={constructIntentName(props.intentPrefix, "mark-not-done")}
               >
                 Mark Not Done
               </Button>
@@ -373,7 +401,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="restart"
+                value={constructIntentName(props.intentPrefix, "restart")}
               >
                 Restart
               </Button>
@@ -383,7 +411,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="stop"
+                value={constructIntentName(props.intentPrefix, "stop")}
               >
                 Stop
               </Button>
@@ -399,7 +427,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
                 disabled={!props.inputsEnabled}
                 type="submit"
                 name="intent"
-                value="reactivate"
+                value={constructIntentName(props.intentPrefix, "reactivate")}
               >
                 Reactivate
               </Button>
@@ -413,7 +441,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               disabled={!props.inputsEnabled}
               type="submit"
               name="intent"
-              value="delay-1-day"
+              value={constructIntentName(props.intentPrefix, "delay-1-day")}
             >
               Delay by 1 Day
             </Button>
@@ -423,7 +451,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               disabled={!props.inputsEnabled}
               type="submit"
               name="intent"
-              value="delay-1-week"
+              value={constructIntentName(props.intentPrefix, "delay-1-week")}
             >
               Delay by 1 Week
             </Button>
@@ -433,7 +461,7 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
               disabled={!props.inputsEnabled}
               type="submit"
               name="intent"
-              value="delay-1-month"
+              value={constructIntentName(props.intentPrefix, "delay-1-month")}
             >
               Delay by 1 Month
             </Button>
@@ -442,4 +470,14 @@ export function TodoTaskPropertiesEditor(props: TodoTaskPropertiesEditorProps) {
       </CardActions>
     </SectionCard>
   );
+}
+
+function constructIntentName(
+  intentPrefix: string | undefined,
+  intent: string,
+): string {
+  if (!intentPrefix) {
+    return intent;
+  }
+  return `${intentPrefix}-${intent}`;
 }

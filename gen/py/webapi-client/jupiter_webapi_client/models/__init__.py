@@ -56,6 +56,8 @@ from .big_plan_archive_args import BigPlanArchiveArgs
 from .big_plan_archive_service_result import BigPlanArchiveServiceResult
 from .big_plan_collection import BigPlanCollection
 from .big_plan_create_args import BigPlanCreateArgs
+from .big_plan_create_inbox_task_args import BigPlanCreateInboxTaskArgs
+from .big_plan_create_inbox_task_result import BigPlanCreateInboxTaskResult
 from .big_plan_create_result import BigPlanCreateResult
 from .big_plan_entry import BigPlanEntry
 from .big_plan_find_args import BigPlanFindArgs
@@ -125,6 +127,7 @@ from .chore_archive_args import ChoreArchiveArgs
 from .chore_collection import ChoreCollection
 from .chore_create_args import ChoreCreateArgs
 from .chore_create_result import ChoreCreateResult
+from .chore_entry import ChoreEntry
 from .chore_find_args import ChoreFindArgs
 from .chore_find_result import ChoreFindResult
 from .chore_find_result_entry import ChoreFindResultEntry
@@ -205,7 +208,6 @@ from .eisen import Eisen
 from .email_task import EmailTask
 from .email_task_archive_args import EmailTaskArchiveArgs
 from .email_task_archive_service_result import EmailTaskArchiveServiceResult
-from .email_task_change_generation_aspect_args import EmailTaskChangeGenerationAspectArgs
 from .email_task_collection import EmailTaskCollection
 from .email_task_find_args import EmailTaskFindArgs
 from .email_task_find_result import EmailTaskFindResult
@@ -268,6 +270,7 @@ from .habit_archive_args import HabitArchiveArgs
 from .habit_collection import HabitCollection
 from .habit_create_args import HabitCreateArgs
 from .habit_create_result import HabitCreateResult
+from .habit_entry import HabitEntry
 from .habit_find_args import HabitFindArgs
 from .habit_find_result import HabitFindResult
 from .habit_find_result_entry import HabitFindResultEntry
@@ -329,9 +332,6 @@ from .hosting import Hosting
 from .inbox_task import InboxTask
 from .inbox_task_archive_args import InboxTaskArchiveArgs
 from .inbox_task_collection import InboxTaskCollection
-from .inbox_task_create_args import InboxTaskCreateArgs
-from .inbox_task_create_result import InboxTaskCreateResult
-from .inbox_task_entry import InboxTaskEntry
 from .inbox_task_find_args import InboxTaskFindArgs
 from .inbox_task_find_result import InboxTaskFindResult
 from .inbox_task_find_result_entry import InboxTaskFindResultEntry
@@ -343,13 +343,9 @@ from .inbox_task_status import InboxTaskStatus
 from .inbox_task_summary import InboxTaskSummary
 from .inbox_task_update_args import InboxTaskUpdateArgs
 from .inbox_task_update_args_actionable_date import InboxTaskUpdateArgsActionableDate
-from .inbox_task_update_args_aspect_ref_id import InboxTaskUpdateArgsAspectRefId
-from .inbox_task_update_args_big_plan_ref_id import InboxTaskUpdateArgsBigPlanRefId
-from .inbox_task_update_args_chapter_ref_id import InboxTaskUpdateArgsChapterRefId
 from .inbox_task_update_args_difficulty import InboxTaskUpdateArgsDifficulty
 from .inbox_task_update_args_due_date import InboxTaskUpdateArgsDueDate
 from .inbox_task_update_args_eisen import InboxTaskUpdateArgsEisen
-from .inbox_task_update_args_goal_ref_id import InboxTaskUpdateArgsGoalRefId
 from .inbox_task_update_args_is_key import InboxTaskUpdateArgsIsKey
 from .inbox_task_update_args_name import InboxTaskUpdateArgsName
 from .inbox_task_update_args_status import InboxTaskUpdateArgsStatus
@@ -390,7 +386,6 @@ from .journal_update_settings_args_generation_in_advance_days_value import (
     JournalUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .journal_update_settings_args_periods import JournalUpdateSettingsArgsPeriods
-from .journal_update_settings_args_writing_task_aspect_ref_id import JournalUpdateSettingsArgsWritingTaskAspectRefId
 from .journal_update_settings_args_writing_task_difficulty import JournalUpdateSettingsArgsWritingTaskDifficulty
 from .journal_update_settings_args_writing_task_eisen import JournalUpdateSettingsArgsWritingTaskEisen
 from .jupiter_archival_reason import JupiterArchivalReason
@@ -444,7 +439,6 @@ from .mcp_key_update_args import MCPKeyUpdateArgs
 from .mcp_key_update_args_name import MCPKeyUpdateArgsName
 from .metric import Metric
 from .metric_archive_args import MetricArchiveArgs
-from .metric_change_collection_aspect_args import MetricChangeCollectionAspectArgs
 from .metric_collection import MetricCollection
 from .metric_create_args import MetricCreateArgs
 from .metric_create_result import MetricCreateResult
@@ -544,7 +538,6 @@ from .per_habit_breakdown_item import PerHabitBreakdownItem
 from .per_period_breakdown_item import PerPeriodBreakdownItem
 from .person import Person
 from .person_archive_args import PersonArchiveArgs
-from .person_change_catch_up_aspect_args import PersonChangeCatchUpAspectArgs
 from .person_circle_link import PersonCircleLink
 from .person_create_args import PersonCreateArgs
 from .person_create_result import PersonCreateResult
@@ -673,7 +666,6 @@ from .search_result import SearchResult
 from .slack_task import SlackTask
 from .slack_task_archive_args import SlackTaskArchiveArgs
 from .slack_task_archive_service_result import SlackTaskArchiveServiceResult
-from .slack_task_change_generation_aspect_args import SlackTaskChangeGenerationAspectArgs
 from .slack_task_collection import SlackTaskCollection
 from .slack_task_find_args import SlackTaskFindArgs
 from .slack_task_find_result import SlackTaskFindResult
@@ -762,8 +754,16 @@ from .time_event_in_day_block import TimeEventInDayBlock
 from .time_event_in_day_block_archive_args import TimeEventInDayBlockArchiveArgs
 from .time_event_in_day_block_create_for_big_plan_args import TimeEventInDayBlockCreateForBigPlanArgs
 from .time_event_in_day_block_create_for_big_plan_result import TimeEventInDayBlockCreateForBigPlanResult
-from .time_event_in_day_block_create_for_inbox_task_args import TimeEventInDayBlockCreateForInboxTaskArgs
-from .time_event_in_day_block_create_for_inbox_task_result import TimeEventInDayBlockCreateForInboxTaskResult
+from .time_event_in_day_block_create_for_chore_args import TimeEventInDayBlockCreateForChoreArgs
+from .time_event_in_day_block_create_for_chore_result import TimeEventInDayBlockCreateForChoreResult
+from .time_event_in_day_block_create_for_habit_args import TimeEventInDayBlockCreateForHabitArgs
+from .time_event_in_day_block_create_for_habit_result import TimeEventInDayBlockCreateForHabitResult
+from .time_event_in_day_block_create_for_time_plan_activity_args import TimeEventInDayBlockCreateForTimePlanActivityArgs
+from .time_event_in_day_block_create_for_time_plan_activity_result import (
+    TimeEventInDayBlockCreateForTimePlanActivityResult,
+)
+from .time_event_in_day_block_create_for_todo_task_args import TimeEventInDayBlockCreateForTodoTaskArgs
+from .time_event_in_day_block_create_for_todo_task_result import TimeEventInDayBlockCreateForTodoTaskResult
 from .time_event_in_day_block_load_args import TimeEventInDayBlockLoadArgs
 from .time_event_in_day_block_load_result import TimeEventInDayBlockLoadResult
 from .time_event_in_day_block_remove_args import TimeEventInDayBlockRemoveArgs
@@ -778,6 +778,7 @@ from .time_plan import TimePlan
 from .time_plan_activity import TimePlanActivity
 from .time_plan_activity_archive_args import TimePlanActivityArchiveArgs
 from .time_plan_activity_doneness import TimePlanActivityDoneness
+from .time_plan_activity_entry import TimePlanActivityEntry
 from .time_plan_activity_feasability import TimePlanActivityFeasability
 from .time_plan_activity_find_for_target_args import TimePlanActivityFindForTargetArgs
 from .time_plan_activity_find_for_target_result import TimePlanActivityFindForTargetResult
@@ -837,9 +838,6 @@ from .time_plan_update_settings_args_generation_in_advance_days_value import (
     TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue,
 )
 from .time_plan_update_settings_args_periods import TimePlanUpdateSettingsArgsPeriods
-from .time_plan_update_settings_args_planning_task_aspect_ref_id import (
-    TimePlanUpdateSettingsArgsPlanningTaskAspectRefId,
-)
 from .time_plan_update_settings_args_planning_task_difficulty import TimePlanUpdateSettingsArgsPlanningTaskDifficulty
 from .time_plan_update_settings_args_planning_task_eisen import TimePlanUpdateSettingsArgsPlanningTaskEisen
 from .todo_domain import TodoDomain
@@ -847,12 +845,14 @@ from .todo_task import TodoTask
 from .todo_task_archive_args import TodoTaskArchiveArgs
 from .todo_task_create_args import TodoTaskCreateArgs
 from .todo_task_create_result import TodoTaskCreateResult
+from .todo_task_entry import TodoTaskEntry
 from .todo_task_find_args import TodoTaskFindArgs
 from .todo_task_find_result import TodoTaskFindResult
 from .todo_task_find_result_entry import TodoTaskFindResultEntry
 from .todo_task_load_args import TodoTaskLoadArgs
 from .todo_task_load_result import TodoTaskLoadResult
 from .todo_task_remove_args import TodoTaskRemoveArgs
+from .todo_task_summary import TodoTaskSummary
 from .todo_task_update_args import TodoTaskUpdateArgs
 from .todo_task_update_args_actionable_date import TodoTaskUpdateArgsActionableDate
 from .todo_task_update_args_aspect_ref_id import TodoTaskUpdateArgsAspectRefId
@@ -933,7 +933,6 @@ from .working_mem_load_current_result import WorkingMemLoadCurrentResult
 from .working_mem_load_settings_args import WorkingMemLoadSettingsArgs
 from .working_mem_load_settings_result import WorkingMemLoadSettingsResult
 from .working_mem_update_settings_args import WorkingMemUpdateSettingsArgs
-from .working_mem_update_settings_args_cleanup_aspect_ref_id import WorkingMemUpdateSettingsArgsCleanupAspectRefId
 from .working_mem_update_settings_args_generation_period import WorkingMemUpdateSettingsArgsGenerationPeriod
 from .workspace import Workspace
 from .workspace_change_feature_flags_args import WorkspaceChangeFeatureFlagsArgs
@@ -994,6 +993,8 @@ __all__ = (
     "BigPlanArchiveServiceResult",
     "BigPlanCollection",
     "BigPlanCreateArgs",
+    "BigPlanCreateInboxTaskArgs",
+    "BigPlanCreateInboxTaskResult",
     "BigPlanCreateResult",
     "BigPlanEntry",
     "BigPlanFindArgs",
@@ -1063,6 +1064,7 @@ __all__ = (
     "ChoreCollection",
     "ChoreCreateArgs",
     "ChoreCreateResult",
+    "ChoreEntry",
     "ChoreFindArgs",
     "ChoreFindResult",
     "ChoreFindResultEntry",
@@ -1143,7 +1145,6 @@ __all__ = (
     "EmailTask",
     "EmailTaskArchiveArgs",
     "EmailTaskArchiveServiceResult",
-    "EmailTaskChangeGenerationAspectArgs",
     "EmailTaskCollection",
     "EmailTaskFindArgs",
     "EmailTaskFindResult",
@@ -1206,6 +1207,7 @@ __all__ = (
     "HabitCollection",
     "HabitCreateArgs",
     "HabitCreateResult",
+    "HabitEntry",
     "HabitFindArgs",
     "HabitFindResult",
     "HabitFindResultEntry",
@@ -1267,9 +1269,6 @@ __all__ = (
     "InboxTask",
     "InboxTaskArchiveArgs",
     "InboxTaskCollection",
-    "InboxTaskCreateArgs",
-    "InboxTaskCreateResult",
-    "InboxTaskEntry",
     "InboxTaskFindArgs",
     "InboxTaskFindResult",
     "InboxTaskFindResultEntry",
@@ -1282,13 +1281,9 @@ __all__ = (
     "InboxTaskSummary",
     "InboxTaskUpdateArgs",
     "InboxTaskUpdateArgsActionableDate",
-    "InboxTaskUpdateArgsAspectRefId",
-    "InboxTaskUpdateArgsBigPlanRefId",
-    "InboxTaskUpdateArgsChapterRefId",
     "InboxTaskUpdateArgsDifficulty",
     "InboxTaskUpdateArgsDueDate",
     "InboxTaskUpdateArgsEisen",
-    "InboxTaskUpdateArgsGoalRefId",
     "InboxTaskUpdateArgsIsKey",
     "InboxTaskUpdateArgsName",
     "InboxTaskUpdateArgsStatus",
@@ -1326,7 +1321,6 @@ __all__ = (
     "JournalUpdateSettingsArgsGenerationInAdvanceDays",
     "JournalUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "JournalUpdateSettingsArgsPeriods",
-    "JournalUpdateSettingsArgsWritingTaskAspectRefId",
     "JournalUpdateSettingsArgsWritingTaskDifficulty",
     "JournalUpdateSettingsArgsWritingTaskEisen",
     "JupiterArchivalReason",
@@ -1372,7 +1366,6 @@ __all__ = (
     "MCPKeyUpdateArgsName",
     "Metric",
     "MetricArchiveArgs",
-    "MetricChangeCollectionAspectArgs",
     "MetricCollection",
     "MetricCreateArgs",
     "MetricCreateResult",
@@ -1472,7 +1465,6 @@ __all__ = (
     "PerPeriodBreakdownItem",
     "Person",
     "PersonArchiveArgs",
-    "PersonChangeCatchUpAspectArgs",
     "PersonCircleLink",
     "PersonCreateArgs",
     "PersonCreateResult",
@@ -1599,7 +1591,6 @@ __all__ = (
     "SlackTask",
     "SlackTaskArchiveArgs",
     "SlackTaskArchiveServiceResult",
-    "SlackTaskChangeGenerationAspectArgs",
     "SlackTaskCollection",
     "SlackTaskFindArgs",
     "SlackTaskFindResult",
@@ -1686,8 +1677,14 @@ __all__ = (
     "TimeEventInDayBlockArchiveArgs",
     "TimeEventInDayBlockCreateForBigPlanArgs",
     "TimeEventInDayBlockCreateForBigPlanResult",
-    "TimeEventInDayBlockCreateForInboxTaskArgs",
-    "TimeEventInDayBlockCreateForInboxTaskResult",
+    "TimeEventInDayBlockCreateForChoreArgs",
+    "TimeEventInDayBlockCreateForChoreResult",
+    "TimeEventInDayBlockCreateForHabitArgs",
+    "TimeEventInDayBlockCreateForHabitResult",
+    "TimeEventInDayBlockCreateForTimePlanActivityArgs",
+    "TimeEventInDayBlockCreateForTimePlanActivityResult",
+    "TimeEventInDayBlockCreateForTodoTaskArgs",
+    "TimeEventInDayBlockCreateForTodoTaskResult",
     "TimeEventInDayBlockLoadArgs",
     "TimeEventInDayBlockLoadResult",
     "TimeEventInDayBlockRemoveArgs",
@@ -1702,6 +1699,7 @@ __all__ = (
     "TimePlanActivity",
     "TimePlanActivityArchiveArgs",
     "TimePlanActivityDoneness",
+    "TimePlanActivityEntry",
     "TimePlanActivityFeasability",
     "TimePlanActivityFindForTargetArgs",
     "TimePlanActivityFindForTargetResult",
@@ -1759,7 +1757,6 @@ __all__ = (
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDays",
     "TimePlanUpdateSettingsArgsGenerationInAdvanceDaysValue",
     "TimePlanUpdateSettingsArgsPeriods",
-    "TimePlanUpdateSettingsArgsPlanningTaskAspectRefId",
     "TimePlanUpdateSettingsArgsPlanningTaskDifficulty",
     "TimePlanUpdateSettingsArgsPlanningTaskEisen",
     "TodoDomain",
@@ -1767,12 +1764,14 @@ __all__ = (
     "TodoTaskArchiveArgs",
     "TodoTaskCreateArgs",
     "TodoTaskCreateResult",
+    "TodoTaskEntry",
     "TodoTaskFindArgs",
     "TodoTaskFindResult",
     "TodoTaskFindResultEntry",
     "TodoTaskLoadArgs",
     "TodoTaskLoadResult",
     "TodoTaskRemoveArgs",
+    "TodoTaskSummary",
     "TodoTaskUpdateArgs",
     "TodoTaskUpdateArgsActionableDate",
     "TodoTaskUpdateArgsAspectRefId",
@@ -1853,7 +1852,6 @@ __all__ = (
     "WorkingMemLoadSettingsArgs",
     "WorkingMemLoadSettingsResult",
     "WorkingMemUpdateSettingsArgs",
-    "WorkingMemUpdateSettingsArgsCleanupAspectRefId",
     "WorkingMemUpdateSettingsArgsGenerationPeriod",
     "Workspace",
     "WorkspaceChangeFeatureFlagsArgs",

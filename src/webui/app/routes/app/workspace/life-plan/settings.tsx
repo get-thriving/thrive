@@ -45,7 +45,7 @@ import { periodName } from "@jupiter/core/common/recurring-task-period";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 
 import { getLoggedInApiClient } from "~/api-clients.server";
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";

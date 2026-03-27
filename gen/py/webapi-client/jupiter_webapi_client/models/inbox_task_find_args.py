@@ -18,27 +18,19 @@ class InboxTaskFindArgs:
 
     Attributes:
         allow_archived (bool | None | Unset):
-        include_notes (bool | None | Unset):
-        include_time_event_blocks (bool | None | Unset):
-        include_tags (bool | None | Unset):
         filter_just_workable (bool | None | Unset):
         filter_just_user (bool | None | Unset):
         filter_just_generated (bool | None | Unset):
         filter_ref_ids (list[str] | None | Unset):
-        filter_aspect_ref_ids (list[str] | None | Unset):
         filter_sources (list[InboxTaskSource] | None | Unset):
         filter_source_entity_ref_ids (list[str] | None | Unset):
     """
 
     allow_archived: bool | None | Unset = UNSET
-    include_notes: bool | None | Unset = UNSET
-    include_time_event_blocks: bool | None | Unset = UNSET
-    include_tags: bool | None | Unset = UNSET
     filter_just_workable: bool | None | Unset = UNSET
     filter_just_user: bool | None | Unset = UNSET
     filter_just_generated: bool | None | Unset = UNSET
     filter_ref_ids: list[str] | None | Unset = UNSET
-    filter_aspect_ref_ids: list[str] | None | Unset = UNSET
     filter_sources: list[InboxTaskSource] | None | Unset = UNSET
     filter_source_entity_ref_ids: list[str] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -49,24 +41,6 @@ class InboxTaskFindArgs:
             allow_archived = UNSET
         else:
             allow_archived = self.allow_archived
-
-        include_notes: bool | None | Unset
-        if isinstance(self.include_notes, Unset):
-            include_notes = UNSET
-        else:
-            include_notes = self.include_notes
-
-        include_time_event_blocks: bool | None | Unset
-        if isinstance(self.include_time_event_blocks, Unset):
-            include_time_event_blocks = UNSET
-        else:
-            include_time_event_blocks = self.include_time_event_blocks
-
-        include_tags: bool | None | Unset
-        if isinstance(self.include_tags, Unset):
-            include_tags = UNSET
-        else:
-            include_tags = self.include_tags
 
         filter_just_workable: bool | None | Unset
         if isinstance(self.filter_just_workable, Unset):
@@ -95,15 +69,6 @@ class InboxTaskFindArgs:
         else:
             filter_ref_ids = self.filter_ref_ids
 
-        filter_aspect_ref_ids: list[str] | None | Unset
-        if isinstance(self.filter_aspect_ref_ids, Unset):
-            filter_aspect_ref_ids = UNSET
-        elif isinstance(self.filter_aspect_ref_ids, list):
-            filter_aspect_ref_ids = self.filter_aspect_ref_ids
-
-        else:
-            filter_aspect_ref_ids = self.filter_aspect_ref_ids
-
         filter_sources: list[str] | None | Unset
         if isinstance(self.filter_sources, Unset):
             filter_sources = UNSET
@@ -130,12 +95,6 @@ class InboxTaskFindArgs:
         field_dict.update({})
         if allow_archived is not UNSET:
             field_dict["allow_archived"] = allow_archived
-        if include_notes is not UNSET:
-            field_dict["include_notes"] = include_notes
-        if include_time_event_blocks is not UNSET:
-            field_dict["include_time_event_blocks"] = include_time_event_blocks
-        if include_tags is not UNSET:
-            field_dict["include_tags"] = include_tags
         if filter_just_workable is not UNSET:
             field_dict["filter_just_workable"] = filter_just_workable
         if filter_just_user is not UNSET:
@@ -144,8 +103,6 @@ class InboxTaskFindArgs:
             field_dict["filter_just_generated"] = filter_just_generated
         if filter_ref_ids is not UNSET:
             field_dict["filter_ref_ids"] = filter_ref_ids
-        if filter_aspect_ref_ids is not UNSET:
-            field_dict["filter_aspect_ref_ids"] = filter_aspect_ref_ids
         if filter_sources is not UNSET:
             field_dict["filter_sources"] = filter_sources
         if filter_source_entity_ref_ids is not UNSET:
@@ -165,33 +122,6 @@ class InboxTaskFindArgs:
             return cast(bool | None | Unset, data)
 
         allow_archived = _parse_allow_archived(d.pop("allow_archived", UNSET))
-
-        def _parse_include_notes(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        include_notes = _parse_include_notes(d.pop("include_notes", UNSET))
-
-        def _parse_include_time_event_blocks(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        include_time_event_blocks = _parse_include_time_event_blocks(d.pop("include_time_event_blocks", UNSET))
-
-        def _parse_include_tags(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        include_tags = _parse_include_tags(d.pop("include_tags", UNSET))
 
         def _parse_filter_just_workable(data: object) -> bool | None | Unset:
             if data is None:
@@ -237,23 +167,6 @@ class InboxTaskFindArgs:
 
         filter_ref_ids = _parse_filter_ref_ids(d.pop("filter_ref_ids", UNSET))
 
-        def _parse_filter_aspect_ref_ids(data: object) -> list[str] | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                filter_aspect_ref_ids_type_0 = cast(list[str], data)
-
-                return filter_aspect_ref_ids_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(list[str] | None | Unset, data)
-
-        filter_aspect_ref_ids = _parse_filter_aspect_ref_ids(d.pop("filter_aspect_ref_ids", UNSET))
-
         def _parse_filter_sources(data: object) -> list[InboxTaskSource] | None | Unset:
             if data is None:
                 return data
@@ -295,14 +208,10 @@ class InboxTaskFindArgs:
 
         inbox_task_find_args = cls(
             allow_archived=allow_archived,
-            include_notes=include_notes,
-            include_time_event_blocks=include_time_event_blocks,
-            include_tags=include_tags,
             filter_just_workable=filter_just_workable,
             filter_just_user=filter_just_user,
             filter_just_generated=filter_just_generated,
             filter_ref_ids=filter_ref_ids,
-            filter_aspect_ref_ids=filter_aspect_ref_ids,
             filter_sources=filter_sources,
             filter_source_entity_ref_ids=filter_source_entity_ref_ids,
         )

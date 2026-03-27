@@ -18,6 +18,14 @@ from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -36,14 +44,6 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.infer_sync_targets import (
     infer_sync_targets_for_enabled_features,
 )
@@ -202,15 +202,11 @@ class GenService:
             life_plan = await uow.get_for(LifePlan).load_by_parent(
                 workspace.ref_id,
             )
-            all_aspects = await uow.get_for(Aspect).find_all(
-                parent_ref_id=life_plan.ref_id,
-            )
             all_syncable_aspects = await uow.get_for(Aspect).find_all_generic(
                 parent_ref_id=life_plan.ref_id,
                 allow_archived=False,
                 ref_id=filter_aspect_ref_ids or NoFilter(),
             )
-            all_aspects_by_ref_id = {p.ref_id: p for p in all_aspects}
             filter_aspect_ref_ids = [p.ref_id for p in all_syncable_aspects]
 
             inbox_task_collection = await uow.get_for(
@@ -291,19 +287,19 @@ class GenService:
                     ):
                         pass
                     else:
-                        found_inbox_task = found_inbox_task.update_link_to_working_mem_cleanup(
-                            ctx,
-                            aspect_ref_id=working_mem_collection.cleanup_aspect_ref_id,
-                            name=schedule.full_name,
-                            recurring_timeline=schedule.timeline,
-                            due_date=schedule.due_date,
+                        found_inbox_task = (
+                            found_inbox_task.update_link_to_working_mem_cleanup(
+                                ctx,
+                                name=schedule.full_name,
+                                recurring_timeline=schedule.timeline,
+                                due_date=schedule.due_date,
+                            )
                         )
 
                         async with (
                             self._domain_storage_engine.get_unit_of_work() as uow
                         ):
                             await uow.get_for(InboxTask).save(found_inbox_task)
-                            await progress_reporter.mark_updated(found_inbox_task)
                         gen_log_entry = gen_log_entry.add_entity_updated(
                             ctx,
                             found_inbox_task,
@@ -314,7 +310,6 @@ class GenService:
                         inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                         name=schedule.full_name,
                         due_date=schedule.due_date,
-                        aspect_ref_id=working_mem_collection.cleanup_aspect_ref_id,
                         working_mem_collection_ref_id=working_mem_collection.ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -322,7 +317,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -374,7 +368,6 @@ class GenService:
                     user=user,
                     inbox_task_collection=inbox_task_collection,
                     note_collection=note_collection,
-                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     time_plan_domain=time_plan_domain,
@@ -428,13 +421,11 @@ class GenService:
                     ].append(inbox_task)
 
                 for habit in all_habits:
-                    aspect = all_aspects_by_ref_id[habit.aspect_ref_id]
                     gen_log_entry = await self._generate_inbox_tasks_for_habit(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         habit=habit,
@@ -484,14 +475,12 @@ class GenService:
                     ] = inbox_task
 
                 for chore in all_chores:
-                    aspect = all_aspects_by_ref_id[chore.aspect_ref_id]
                     gen_log_entry = await self._generate_inbox_tasks_for_chore(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         workspace=workspace,
                         inbox_task_collection=inbox_task_collection,
-                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         all_vacations=all_vacations,
@@ -548,7 +537,6 @@ class GenService:
                     user=user,
                     inbox_task_collection=inbox_task_collection,
                     note_collection=note_collection,
-                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     journal_collection=journal_collection,
@@ -606,15 +594,11 @@ class GenService:
                         continue
 
                     # MyPy not smart enough to infer that if (not A and not B) then (A or B)
-                    aspect = all_aspects_by_ref_id[
-                        metric_collection.collection_aspect_ref_id
-                    ]
                     gen_log_entry = await self._generate_collection_inbox_tasks_for_metric(
                         ctx,
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         metric=metric,
@@ -729,8 +713,6 @@ class GenService:
                         (inbox_task.source_entity_ref_id, inbox_task.recurring_timeline)
                     ] = inbox_task
 
-                aspect = all_aspects_by_ref_id[prm.catch_up_aspect_ref_id]
-
                 for person in all_persons:
                     if person.catch_up_params is None:
                         continue
@@ -747,7 +729,6 @@ class GenService:
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        aspect=aspect,
                         today=today,
                         period_filter=frozenset(period) if period else None,
                         person=person,
@@ -804,7 +785,6 @@ class GenService:
                         progress_reporter=progress_reporter,
                         user=user,
                         inbox_task_collection=inbox_task_collection,
-                        aspect=aspect,
                         today=today.add_days(idx * 365),
                         person=person,
                         person_contact_name=person_contact_name,
@@ -849,19 +829,15 @@ class GenService:
                     )
 
                 all_inbox_tasks_by_slack_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_slack_inbox_tasks
+                    it.source_entity_ref_id: it for it in all_slack_inbox_tasks
                 }
                 for slack_task in all_slack_tasks:
-                    aspect = all_aspects_by_ref_id[
-                        slack_collection.generation_aspect_ref_id
-                    ]
                     gen_log_entry = (
                         await self._generate_slack_inbox_task_for_slack_task(
                             ctx,
                             progress_reporter=progress_reporter,
                             slack_task=slack_task,
                             inbox_task_collection=inbox_task_collection,
-                            aspect=aspect,
                             all_inbox_tasks_by_slack_task_ref_id=typing.cast(
                                 dict[EntityId, InboxTask],
                                 all_inbox_tasks_by_slack_task_ref_id,
@@ -906,19 +882,15 @@ class GenService:
                     )
 
                 all_inbox_tasks_by_email_task_ref_id = {
-                    it.source_entity_ref_id_for_sure: it for it in all_email_inbox_tasks
+                    it.source_entity_ref_id: it for it in all_email_inbox_tasks
                 }
                 for email_task in all_email_tasks:
-                    aspect = all_aspects_by_ref_id[
-                        email_collection.generation_aspect_ref_id
-                    ]
                     gen_log_entry = (
                         await self._generate_email_inbox_task_for_email_task(
                             ctx,
                             progress_reporter=progress_reporter,
                             email_task=email_task,
                             inbox_task_collection=inbox_task_collection,
-                            aspect=aspect,
                             all_inbox_tasks_by_email_task_ref_id=typing.cast(
                                 dict[EntityId, InboxTask],
                                 all_inbox_tasks_by_email_task_ref_id,
@@ -954,7 +926,6 @@ class GenService:
                     ctx,
                     progress_reporter=progress_reporter,
                     inbox_task_collection=inbox_task_collection,
-                    all_aspects_by_ref_id=all_aspects_by_ref_id,
                     today=today,
                     period_filter=frozenset(period) if period else None,
                     life_plan=life_plan,
@@ -974,7 +945,6 @@ class GenService:
         user: User,
         inbox_task_collection: InboxTaskCollection,
         note_collection: NoteCollection,
-        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         time_plan_domain: TimePlanDomain,
@@ -1070,9 +1040,6 @@ class GenService:
             if time_plan_domain.generation_approach.should_generate_a_planning_task:
                 if time_plan_domain.planning_task_gen_params is None:
                     raise Exception("Planning task gen params is not set")
-                aspect = all_aspects_by_ref_id[
-                    time_plan_domain.planning_task_aspect_ref_id
-                ]
                 gen_params = time_plan_domain.planning_task_gen_params
 
                 if found_planning_task:
@@ -1085,7 +1052,6 @@ class GenService:
 
                     found_planning_task = found_planning_task.update_link_to_time_plan(
                         ctx,
-                        aspect_ref_id=aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=cast(TimePlan, found_time_plan).start_date,
@@ -1093,7 +1059,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         await uow.get_for(InboxTask).save(found_planning_task)
-                        await progress_reporter.mark_updated(found_planning_task)
                     gen_log_entry = gen_log_entry.add_entity_updated(
                         ctx,
                         found_planning_task,
@@ -1107,7 +1072,6 @@ class GenService:
                         difficulty=gen_params.difficulty,
                         actionable_date=schedule.actionable_date,
                         due_date=cast(TimePlan, found_time_plan).start_date,
-                        aspect_ref_id=aspect.ref_id,
                         time_plan_ref_id=cast(TimePlan, found_time_plan).ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
@@ -1115,7 +1079,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -1129,7 +1092,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         habit: Habit,
@@ -1197,9 +1159,6 @@ class GenService:
 
                 found_task = found_task.update_link_to_habit(
                     ctx,
-                    aspect_ref_id=aspect.ref_id,
-                    chapter_ref_id=habit.chapter_ref_id,
-                    goal_ref_id=habit.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=habit.is_key,
@@ -1213,7 +1172,6 @@ class GenService:
 
                 async with self._domain_storage_engine.get_unit_of_work() as uow:
                     found_task = await uow.get_for(InboxTask).save(found_task)
-                    await progress_reporter.mark_updated(found_task)
 
                 remaining_tasks.add(found_task)
                 gen_log_entry = gen_log_entry.add_entity_updated(
@@ -1225,9 +1183,6 @@ class GenService:
                     ctx,
                     inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                     name=schedule.full_name,
-                    habit_aspect_ref_id=aspect.ref_id,
-                    habit_chapter_ref_id=habit.chapter_ref_id,
-                    habit_goal_ref_id=habit.goal_ref_id,
                     habit_ref_id=habit.ref_id,
                     recurring_task_timeline=schedule.timeline,
                     recurring_task_repeat_index=task_idx,
@@ -1244,7 +1199,6 @@ class GenService:
                     inbox_task = await uow.get_for(InboxTask).create(
                         inbox_task,
                     )
-                    await progress_reporter.mark_created(inbox_task)
 
                 remaining_tasks.add(inbox_task)
                 gen_log_entry = gen_log_entry.add_entity_created(
@@ -1284,7 +1238,6 @@ class GenService:
         user: User,
         workspace: Workspace,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         all_vacations: list[Vacation],
@@ -1339,9 +1292,6 @@ class GenService:
 
             found_task = found_task.update_link_to_chore(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
-                chapter_ref_id=chore.chapter_ref_id,
-                goal_ref_id=chore.goal_ref_id,
                 name=schedule.full_name,
                 timeline=schedule.timeline,
                 is_key=chore.is_key,
@@ -1353,7 +1303,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1364,9 +1313,6 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                chore_aspect_ref_id=aspect.ref_id,
-                chore_chapter_ref_id=chore.chapter_ref_id,
-                chore_goal_ref_id=chore.goal_ref_id,
                 chore_ref_id=chore.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -1379,7 +1325,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1396,7 +1341,6 @@ class GenService:
         user: User,
         inbox_task_collection: InboxTaskCollection,
         note_collection: NoteCollection,
-        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         journal_collection: JournalCollection,
@@ -1498,9 +1442,6 @@ class GenService:
             if journal_collection.generation_approach.should_generate_a_writing_task:
                 if journal_collection.writing_task_gen_params is None:
                     raise Exception("Writing task gen params is not set")
-                aspect = all_aspects_by_ref_id[
-                    journal_collection.writing_task_aspect_ref_id
-                ]
                 gen_params = journal_collection.writing_task_gen_params
 
                 if found_writing_task:
@@ -1513,7 +1454,6 @@ class GenService:
 
                     found_writing_task = found_writing_task.update_link_to_journal(
                         ctx,
-                        aspect_ref_id=aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=schedule.due_date,
@@ -1521,7 +1461,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         await uow.get_for(InboxTask).save(found_writing_task)
-                        await progress_reporter.mark_updated(found_writing_task)
                     gen_log_entry = gen_log_entry.add_entity_updated(
                         ctx,
                         found_writing_task,
@@ -1537,7 +1476,6 @@ class GenService:
                             -journal_collection.generation_in_advance_days[period]
                         ),
                         due_date=schedule.due_date,
-                        aspect_ref_id=aspect.ref_id,
                         journal_ref_id=cast(Journal, found_journal).ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
@@ -1545,7 +1483,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,
@@ -1559,7 +1496,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         metric: Metric,
@@ -1599,7 +1535,6 @@ class GenService:
 
             found_task = found_task.update_link_to_metric(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 eisen=collection_params.eisen,
@@ -1610,7 +1545,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1620,7 +1554,6 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_metric_collection(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 metric_ref_id=metric.ref_id,
                 recurring_task_timeline=schedule.timeline,
@@ -1633,7 +1566,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1648,7 +1580,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         person: Person,
@@ -1689,7 +1620,6 @@ class GenService:
 
             found_task = found_task.update_link_to_person_catch_up(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 eisen=catch_up_params.eisen,
@@ -1700,7 +1630,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1711,7 +1640,6 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                aspect_ref_id=aspect.ref_id,
                 person_ref_id=person.ref_id,
                 recurring_task_timeline=schedule.timeline,
                 recurring_task_gen_right_now=today.to_timestamp_at_end_of_day(),
@@ -1723,7 +1651,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1787,7 +1714,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         today: ADate,
         person: Person,
         person_contact_name: ContactName,
@@ -1830,7 +1756,6 @@ class GenService:
 
             found_task = found_task.update_link_to_person_occasion(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,
@@ -1841,7 +1766,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1852,7 +1776,6 @@ class GenService:
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
                 name=schedule.full_name,
-                aspect_ref_id=aspect.ref_id,
                 occasion_kind=occasion.kind,
                 occasion_person_name=person_contact_name,
                 occasion_ref_id=occasion.ref_id,
@@ -1864,7 +1787,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1879,7 +1801,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         all_inbox_tasks_by_slack_task_ref_id: dict[EntityId, InboxTask],
         gen_even_if_not_modified: bool,
         gen_log_entry: GenLogEntry,
@@ -1898,7 +1819,6 @@ class GenService:
 
             found_task = found_task.update_link_to_slack_task(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
                 user=slack_task.user,
                 channel=slack_task.channel,
                 message=slack_task.message,
@@ -1907,7 +1827,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1917,7 +1836,6 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_slack_task(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                aspect_ref_id=aspect.ref_id,
                 slack_task_ref_id=slack_task.ref_id,
                 user=slack_task.user,
                 channel=slack_task.channel,
@@ -1928,10 +1846,8 @@ class GenService:
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 slack_task = slack_task.mark_as_used_for_generation(ctx)
                 await uow.get_for(SlackTask).save(slack_task)
-                await progress_reporter.mark_updated(slack_task)
 
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -1946,7 +1862,6 @@ class GenService:
         progress_reporter: ProgressReporter,
         email_task: EmailTask,
         inbox_task_collection: InboxTaskCollection,
-        aspect: Aspect,
         all_inbox_tasks_by_email_task_ref_id: dict[EntityId, InboxTask],
         gen_even_if_not_modified: bool,
         gen_log_entry: GenLogEntry,
@@ -1965,7 +1880,6 @@ class GenService:
 
             found_task = found_task.update_link_to_email_task(
                 ctx,
-                aspect_ref_id=aspect.ref_id,
                 from_address=email_task.from_address,
                 from_name=email_task.from_name,
                 to_address=email_task.to_address,
@@ -1976,7 +1890,6 @@ class GenService:
 
             async with self._domain_storage_engine.get_unit_of_work() as uow:
                 await uow.get_for(InboxTask).save(found_task)
-                await progress_reporter.mark_updated(found_task)
 
             gen_log_entry = gen_log_entry.add_entity_updated(
                 ctx,
@@ -1986,7 +1899,6 @@ class GenService:
             inbox_task = InboxTask.new_inbox_task_for_email_task(
                 ctx,
                 inbox_task_collection_ref_id=inbox_task_collection.ref_id,
-                aspect_ref_id=aspect.ref_id,
                 email_task_ref_id=email_task.ref_id,
                 from_address=email_task.from_address,
                 from_name=email_task.from_name,
@@ -2002,7 +1914,6 @@ class GenService:
                 await progress_reporter.mark_updated(email_task)
 
                 inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                await progress_reporter.mark_created(inbox_task)
 
             gen_log_entry = gen_log_entry.add_entity_created(
                 ctx,
@@ -2016,7 +1927,6 @@ class GenService:
         ctx: MutationContext,
         progress_reporter: ProgressReporter,
         inbox_task_collection: InboxTaskCollection,
-        all_aspects_by_ref_id: dict[EntityId, Aspect],
         today: ADate,
         period_filter: frozenset[RecurringTaskPeriod] | None,
         life_plan: LifePlan,
@@ -2028,13 +1938,6 @@ class GenService:
             return gen_log_entry
 
         if life_plan.eval_task_gen_params is None:
-            return gen_log_entry
-
-        root_aspect = next(
-            (aspect for aspect in all_aspects_by_ref_id.values() if aspect.is_root),
-            None,
-        )
-        if root_aspect is None:
             return gen_log_entry
 
         for period in life_plan.eval_periods:
@@ -2071,7 +1974,6 @@ class GenService:
 
                     found_eval_task = found_eval_task.update_link_to_life_plan_eval(
                         ctx,
-                        aspect_ref_id=root_aspect.ref_id,
                         eisen=gen_params.eisen,
                         difficulty=gen_params.difficulty,
                         due_date=schedule.due_date,
@@ -2079,7 +1981,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         await uow.get_for(InboxTask).save(found_eval_task)
-                        await progress_reporter.mark_updated(found_eval_task)
                     gen_log_entry = gen_log_entry.add_entity_updated(
                         ctx,
                         found_eval_task,
@@ -2097,7 +1998,6 @@ class GenService:
                             )
                         ),
                         due_date=schedule.due_date,
-                        aspect_ref_id=root_aspect.ref_id,
                         life_plan_ref_id=life_plan.ref_id,
                         recurring_task_timeline=schedule.timeline,
                         recurring_task_gen_right_now=real_today.to_timestamp_at_end_of_day(),
@@ -2105,7 +2005,6 @@ class GenService:
 
                     async with self._domain_storage_engine.get_unit_of_work() as uow:
                         inbox_task = await uow.get_for(InboxTask).create(inbox_task)
-                        await progress_reporter.mark_created(inbox_task)
                     gen_log_entry = gen_log_entry.add_entity_created(
                         ctx,
                         inbox_task,

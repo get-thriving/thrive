@@ -94,17 +94,6 @@ export default function Sidebar(props: SidebarProps) {
               </ListItem>
             )}
 
-            <ListItem disablePadding>
-              <ListItemButton
-                to="/app/workspace/inbox-tasks"
-                component={Link}
-                onClick={onClickNavigation}
-              >
-                <ListItemIcon>📥</ListItemIcon>
-                <ListItemText primary="Inbox Tasks" />
-              </ListItemButton>
-            </ListItem>
-
             {isWorkspaceFeatureAvailable(
               topLevelInfo.workspace,
               WorkspaceFeature.WORKING_MEM,
@@ -390,6 +379,17 @@ export default function Sidebar(props: SidebarProps) {
             </ListItem>
 
             <StandardDivider title="Core" size="small" />
+
+            <ListItem disablePadding>
+              <ListItemButton
+                to="/app/workspace/core/inbox-tasks"
+                component={Link}
+                onClick={onClickNavigation}
+              >
+                <ListItemIcon>📥</ListItemIcon>
+                <ListItemText primary="Inbox Tasks" />
+              </ListItemButton>
+            </ListItem>
 
             <ListItem disablePadding>
               <ListItemButton

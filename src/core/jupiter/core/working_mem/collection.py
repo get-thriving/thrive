@@ -1,8 +1,8 @@
 """The working memory log."""
 
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.working_mem.root import WorkingMem
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -27,7 +27,6 @@ class WorkingMemCollection(TrunkEntity):
     workspace: ParentLink
 
     generation_period: RecurringTaskPeriod
-    cleanup_aspect_ref_id: EntityId
 
     working_mem = ContainsOne(WorkingMem, working_mem_collection_ref_id=IsRefId())
     cleanup_tasks = ContainsMany(InboxTask, source=InboxTaskSource.WORKING_MEM_CLEANUP)
@@ -38,7 +37,6 @@ class WorkingMemCollection(TrunkEntity):
         ctx: MutationContext,
         workspace_ref_id: EntityId,
         generation_period: RecurringTaskPeriod,
-        cleanup_aspect_ref_id: EntityId,
     ) -> "WorkingMemCollection":
         """Create a new working memory log."""
         if (
@@ -50,7 +48,6 @@ class WorkingMemCollection(TrunkEntity):
             ctx,
             workspace=ParentLink(workspace_ref_id),
             generation_period=generation_period,
-            cleanup_aspect_ref_id=cleanup_aspect_ref_id,
         )
 
     @update_entity_action
@@ -58,7 +55,6 @@ class WorkingMemCollection(TrunkEntity):
         self,
         ctx: MutationContext,
         generation_period: UpdateAction[RecurringTaskPeriod],
-        cleanup_aspect_ref_id: UpdateAction[EntityId],
     ) -> "WorkingMemCollection":
         """Change the generation period."""
         if (
@@ -72,7 +68,4 @@ class WorkingMemCollection(TrunkEntity):
         return self._new_version(
             ctx,
             generation_period=generation_period.or_else(self.generation_period),
-            cleanup_aspect_ref_id=cleanup_aspect_ref_id.or_else(
-                self.cleanup_aspect_ref_id
-            ),
         )

@@ -10,6 +10,7 @@ import type { Goal } from './Goal';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
+import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
  * ChoreLoadResult.
  */
@@ -24,5 +25,6 @@ export type ChoreLoadResult = {
     tags: Array<Tag>;
     contacts: Array<Contact>;
     note?: (Note | null);
+    time_event_blocks: Array<TimeEventInDayBlock>;
 };
 

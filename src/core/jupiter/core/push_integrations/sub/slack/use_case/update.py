@@ -2,22 +2,22 @@
 
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -124,7 +124,6 @@ class SlackTaskUpdateUseCase(
 
         generated_inbox_task = generated_inbox_task.update_link_to_slack_task(
             ctx=context.domain_context,
-            aspect_ref_id=generated_inbox_task.aspect_ref_id,
             user=slack_task.user,
             channel=slack_task.channel,
             message=slack_task.message,
@@ -132,7 +131,6 @@ class SlackTaskUpdateUseCase(
         )
 
         await uow.get_for(InboxTask).save(generated_inbox_task)
-        await progress_reporter.mark_updated(generated_inbox_task)
 
         slack_task = slack_task.update(
             ctx=context.domain_context,

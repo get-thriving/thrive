@@ -101,11 +101,16 @@ class GenLogEntry(LeafSupportEntity):
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_created_records=[
                 *self.entity_created_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 
@@ -118,11 +123,16 @@ class GenLogEntry(LeafSupportEntity):
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_updated_records=[
                 *self.entity_updated_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 
@@ -135,11 +145,16 @@ class GenLogEntry(LeafSupportEntity):
             raise Exception(
                 "Can't add an entity to a closed task generation log entry."
             )
+        entity_summary = (
+            EntitySummary.from_inbox_task(entity)
+            if entity.__class__.__name__ == "InboxTask"
+            else EntitySummary.from_entity(entity)
+        )
         return self._new_version(
             ctx,
             entity_removed_records=[
                 *self.entity_removed_records,
-                EntitySummary.from_entity(entity),
+                entity_summary,
             ],
         )
 

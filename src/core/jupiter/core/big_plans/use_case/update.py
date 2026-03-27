@@ -6,6 +6,9 @@ from jupiter.core.big_plans.status import BigPlanStatus
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
@@ -15,14 +18,6 @@ from jupiter.core.gamification.service.record_score import (
     RecordScoreResult,
     RecordScoreService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -184,13 +179,16 @@ class BigPlanUpdateUseCase(
             for inbox_task in all_inbox_tasks:
                 inbox_task = inbox_task.update_link_to_big_plan(
                     context.domain_context,
-                    big_plan.aspect_ref_id,
-                    big_plan.chapter_ref_id,
-                    big_plan.goal_ref_id,
-                    big_plan.ref_id,
+                    big_plan_ref_id=big_plan.ref_id,
+                    name=UpdateAction.do_nothing(),
+                    status=UpdateAction.do_nothing(),
+                    is_key=UpdateAction.do_nothing(),
+                    actionable_date=UpdateAction.do_nothing(),
+                    due_date=UpdateAction.do_nothing(),
+                    eisen=UpdateAction.do_nothing(),
+                    difficulty=UpdateAction.do_nothing(),
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
         record_score_result = None
         if context.user.is_feature_available(UserFeature.GAMIFICATION):

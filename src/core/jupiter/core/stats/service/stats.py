@@ -6,6 +6,14 @@ from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.big_plans.root import BigPlan, BigPlanRepository
 from jupiter.core.big_plans.stats import BigPlanStats, BigPlanStatsRepository
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.features import UserFeature, WorkspaceFeature
 from jupiter.core.gamification.service.record_score import (
     RecordScoreService,
@@ -15,14 +23,6 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.service.streak_recorder import (
     HabitStreakRecorderService,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
@@ -248,8 +248,6 @@ class StatsService:
         # Group inbox tasks by habit ref id
         inbox_tasks_by_habit_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
             if inbox_task.source_entity_ref_id not in inbox_tasks_by_habit_ref_id:
                 inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id] = []
             inbox_tasks_by_habit_ref_id[inbox_task.source_entity_ref_id].append(
@@ -289,8 +287,6 @@ class StatsService:
         # Group inbox tasks by big plan ref id
         inbox_tasks_by_big_plan_ref_id: dict[EntityId, list[InboxTask]] = {}
         for inbox_task in all_inbox_tasks:
-            if inbox_task.source_entity_ref_id is None:
-                continue
             if inbox_task.source_entity_ref_id not in inbox_tasks_by_big_plan_ref_id:
                 inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id] = []
             inbox_tasks_by_big_plan_ref_id[inbox_task.source_entity_ref_id].append(
@@ -375,7 +371,6 @@ class StatsService:
                     inbox_task,
                 )
                 if record_score_result is not None:
-                    await progress_reporter.mark_updated(inbox_task)
                     stats_log_entry = stats_log_entry.add_entity_updated(
                         ctx, inbox_task
                     )

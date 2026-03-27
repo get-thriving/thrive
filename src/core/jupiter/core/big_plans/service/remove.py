@@ -3,20 +3,20 @@
 from jupiter.core.big_plans.root import BigPlan
 from jupiter.core.big_plans.stats import BigPlanStatsRepository
 from jupiter.core.big_plans.sub.milestones.root import BigPlanMilestone
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.sub.activity.root import (
     TimePlanActivityRespository,
 )
@@ -81,7 +81,6 @@ class BigPlanRemoveService:
 
         for inbox_task in inbox_tasks_to_remove:
             await uow.get_for(InboxTask).remove(inbox_task.ref_id)
-            await reporter.mark_removed(inbox_task)
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(

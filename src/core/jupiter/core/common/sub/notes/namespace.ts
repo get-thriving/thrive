@@ -2,8 +2,6 @@ import { NoteNamespace } from "@jupiter/webapi-client";
 
 export function noteNamespaceName(namespace: NoteNamespace): string {
   switch (namespace) {
-    case NoteNamespace.INBOX_TASK:
-      return "Inbox Task";
     case NoteNamespace.TODO_TASK:
       return "Todo Task";
     case NoteNamespace.WORKING_MEM:
@@ -52,5 +50,11 @@ export function noteNamespaceName(namespace: NoteNamespace): string {
       return "Person";
     case NoteNamespace.OCCASION:
       return "Occasion";
+    case NoteNamespace.TIME_PLAN_ACTIVITY:
+      return "Time Plan Activity";
+    default: {
+      const _exhaustiveCheck: never = namespace;
+      throw new Error(`Unhandled NoteNamespace: ${_exhaustiveCheck}`);
+    }
   }
 }

@@ -8,11 +8,12 @@ from jupiter.framework.value import EnumValue, enum_value
 class NamedEntityTag(EnumValue):
     """A tag for all known entities."""
 
+    OTHER = "Other"
+
     SCORE_LOG_ENTRY = "ScoreLogEntry"  # ScoreLogEntry.__name__
 
     HOME_TAB = "HomeTab"  # HomeTab.__name__
     HOME_WIDGET = "HomeWidget"  # HomeWidget.__name__
-    INBOX_TASK = "InboxTask"  # InboxTask.__name__
     TODO_TASK = "TodoTask"  # TodoTask.__name__
     WORKING_MEM = "WorkingMem"  # WorkingMem.__name__
     TIME_PLAN = "TimePlan"  # TimePlan.__name__
@@ -47,6 +48,11 @@ class NamedEntityTag(EnumValue):
     CIRCLE = "Circle"  # Circle.__name__
     SLACK_TASK = "SlackTask"  # SlackTask.__name__
     EMAIL_TASK = "EmailTask"  # EmailTask.__name__
+
+    @staticmethod
+    def from_inbox_task() -> "NamedEntityTag":
+        """Construct a tag from an inbox task."""
+        return NamedEntityTag.OTHER
 
     @staticmethod
     def from_entity(entity: CrownEntity) -> "NamedEntityTag":

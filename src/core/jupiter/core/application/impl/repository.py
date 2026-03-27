@@ -17,6 +17,7 @@ from jupiter.core.application.fast_info_repository import (
     PersonSummary,
     ScheduleStreamSummary,
     SmartListSummary,
+    TodoTaskSummary,
     VacationSummary,
 )
 from jupiter.core.big_plans.name import BigPlanName
@@ -24,8 +25,8 @@ from jupiter.core.chores.name import ChoreName
 from jupiter.core.common.entity_icon import EntityIconDatabaseDecoder
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
 from jupiter.core.habits.name import HabitName
-from jupiter.core.inbox_tasks.name import InboxTaskName
 from jupiter.core.life_plan.partial_date import PartialDateDatabaseDecoder
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
@@ -38,6 +39,7 @@ from jupiter.core.schedule.sub.stream.color import (
 from jupiter.core.schedule.sub.stream.name import ScheduleStreamName
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.core.smart_lists.name import SmartListName
+from jupiter.core.todo.name import TodoTaskName
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate, ADateDatabaseDecoder
 from jupiter.framework.base.entity_id import EntityId, EntityIdDatabaseDecoder
@@ -49,6 +51,7 @@ _ENTITY_ID_DECODER = EntityIdDatabaseDecoder()
 _SCHEDULE_STREAM_NAME_DECODER = EntityNameDatabaseDecoder(ScheduleStreamName)
 _VACATION_NAME_DECODER = EntityNameDatabaseDecoder(VacationName)
 _INBOX_TASK_NAME_DECODER = EntityNameDatabaseDecoder(InboxTaskName)
+_TODO_TASK_NAME_DECODER = EntityNameDatabaseDecoder(TodoTaskName)
 _ASPECT_NAME_DECODER = EntityNameDatabaseDecoder(AspectName)
 _CHAPTER_NAME_DECODER = EntityNameDatabaseDecoder(ChapterName)
 _GOAL_NAME_DECODER = EntityNameDatabaseDecoder(GoalName)
@@ -274,6 +277,43 @@ class SqliteFastInfoRepository(SqliteRepository, FastInfoRepository):
             InboxTaskSummary(
                 ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
                 name=_INBOX_TASK_NAME_DECODER.decode(row["name"]),
+            )
+            for row in result
+        ]
+
+    async def find_all_todo_task_summaries(
+        self,
+        parent_ref_id: EntityId,
+        allow_archived: bool,
+    ) -> list[TodoTaskSummary]:
+        """Find all summaries about todo tasks."""
+        query = """select ref_id, name, aspect_ref_id, chapter_ref_id, goal_ref_id from todo_task where todo_domain_ref_id = :parent_ref_id"""
+        if not allow_archived:
+            query += " and archived=0"
+        result = (
+            (
+                await self._connection.execute(
+                    text(query), {"parent_ref_id": parent_ref_id.as_int()}
+                )
+            )
+            .mappings()
+            .all()
+        )
+        return [
+            TodoTaskSummary(
+                ref_id=_ENTITY_ID_DECODER.decode(str(row["ref_id"])),
+                name=_TODO_TASK_NAME_DECODER.decode(row["name"]),
+                aspect_ref_id=_ENTITY_ID_DECODER.decode(str(row["aspect_ref_id"])),
+                chapter_ref_id=(
+                    _ENTITY_ID_DECODER.decode(str(row["chapter_ref_id"]))
+                    if row["chapter_ref_id"] is not None
+                    else None
+                ),
+                goal_ref_id=(
+                    _ENTITY_ID_DECODER.decode(str(row["goal_ref_id"]))
+                    if row["goal_ref_id"] is not None
+                    else None
+                ),
             )
             for row in result
         ]

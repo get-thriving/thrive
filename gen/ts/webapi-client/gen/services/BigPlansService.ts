@@ -4,6 +4,8 @@
 /* eslint-disable */
 import type { BigPlanArchiveArgs } from '../models/BigPlanArchiveArgs';
 import type { BigPlanCreateArgs } from '../models/BigPlanCreateArgs';
+import type { BigPlanCreateInboxTaskArgs } from '../models/BigPlanCreateInboxTaskArgs';
+import type { BigPlanCreateInboxTaskResult } from '../models/BigPlanCreateInboxTaskResult';
 import type { BigPlanCreateResult } from '../models/BigPlanCreateResult';
 import type { BigPlanFindArgs } from '../models/BigPlanFindArgs';
 import type { BigPlanFindResult } from '../models/BigPlanFindResult';
@@ -192,6 +194,32 @@ export class BigPlansService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/big-plan-create',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Error response for EntityAlreadyExistsError`,
+                401: `Error response for ExpiredAuthTokenError`,
+                404: `Error response for EntityNotFoundError`,
+                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
+                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
+                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
+                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
+                426: `Error response for InvalidAuthTokenError`,
+            },
+        });
+    }
+    /**
+     * The command for creating an inbox task for a big plan.
+     * @param requestBody The input data
+     * @returns BigPlanCreateInboxTaskResult Successful response
+     * @throws ApiError
+     */
+    public bigPlanCreateInboxTask(
+        requestBody?: BigPlanCreateInboxTaskArgs,
+    ): CancelablePromise<BigPlanCreateInboxTaskResult> {
+        return this.httpRequest.request({
+            method: 'POST',
+            url: '/big-plan-create-inbox-task',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

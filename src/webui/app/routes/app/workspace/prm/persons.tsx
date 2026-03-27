@@ -1,4 +1,3 @@
-import TuneIcon from "@mui/icons-material/Tune";
 import GroupWorkIcon from "@mui/icons-material/GroupWork";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -50,7 +49,7 @@ import {
   inboxTaskFindEntryToParent,
   InboxTaskOptimisticState,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { WidgetContainer } from "@jupiter/core/home/component/common";
 import { UpcomingBirthdaysWidget } from "@jupiter/core/prm/sub/person/component/upcoming-birthdays-widget";
@@ -93,9 +92,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const personInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_tags: true,
-    include_notes: false,
-    include_time_event_blocks: false,
     filter_sources: [
       InboxTaskSource.PERSON_OCCASION,
       InboxTaskSource.PERSON_CATCH_UP,
@@ -181,7 +177,7 @@ export default function Persons() {
         { id: it.ref_id, status: InboxTaskStatus.DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -200,7 +196,7 @@ export default function Persons() {
         { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -244,11 +240,6 @@ export default function Persons() {
                   icon: <GroupWorkIcon />,
                 }),
               ],
-            }),
-            NavSingle({
-              text: "Settings",
-              link: `/app/workspace/prm/settings`,
-              icon: <TuneIcon />,
             }),
             FilterManyOptions(
               "Circles",

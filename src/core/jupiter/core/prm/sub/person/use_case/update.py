@@ -16,24 +16,23 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
@@ -224,9 +223,6 @@ class PersonUpdateUseCase(
         else:
             catch_up_params = UpdateAction.do_nothing()
 
-        aspect = await uow.get_for(Aspect).load_by_id(
-            prm.catch_up_aspect_ref_id,
-        )
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             workspace.ref_id,
         )
@@ -261,7 +257,6 @@ class PersonUpdateUseCase(
                 await inbox_task_archive_service.do_it(
                     context.domain_context,
                     uow,
-                    progress_reporter,
                     inbox_task,
                     JupiterArchivalReason.USER,
                 )
@@ -281,7 +276,6 @@ class PersonUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_person_catch_up(
                     ctx=context.domain_context,
-                    aspect_ref_id=aspect.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=person.catch_up_params.eisen,
@@ -291,7 +285,6 @@ class PersonUpdateUseCase(
                 )
                 # Situation 2a: we're handling the same aspect.
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

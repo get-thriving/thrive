@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { EmailTaskArchiveArgs } from '../models/EmailTaskArchiveArgs';
-import type { EmailTaskChangeGenerationAspectArgs } from '../models/EmailTaskChangeGenerationAspectArgs';
 import type { EmailTaskFindArgs } from '../models/EmailTaskFindArgs';
 import type { EmailTaskFindResult } from '../models/EmailTaskFindResult';
 import type { EmailTaskLoadArgs } from '../models/EmailTaskLoadArgs';
@@ -13,7 +12,6 @@ import type { EmailTaskLoadSettingsResult } from '../models/EmailTaskLoadSetting
 import type { EmailTaskRemoveArgs } from '../models/EmailTaskRemoveArgs';
 import type { EmailTaskUpdateArgs } from '../models/EmailTaskUpdateArgs';
 import type { SlackTaskArchiveArgs } from '../models/SlackTaskArchiveArgs';
-import type { SlackTaskChangeGenerationAspectArgs } from '../models/SlackTaskChangeGenerationAspectArgs';
 import type { SlackTaskFindArgs } from '../models/SlackTaskFindArgs';
 import type { SlackTaskFindResult } from '../models/SlackTaskFindResult';
 import type { SlackTaskLoadArgs } from '../models/SlackTaskLoadArgs';
@@ -38,32 +36,6 @@ export class PushIntegrationsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/email-task-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating the generation up aspect for email tasks.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public emailTaskChangeGenerationAspect(
-        requestBody?: EmailTaskChangeGenerationAspectArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/email-task-change-generation-aspect',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -220,32 +192,6 @@ export class PushIntegrationsService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/slack-task-archive',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating the generation up aspect for slack tasks.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public slackTaskChangeGenerationAspect(
-        requestBody?: SlackTaskChangeGenerationAspectArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/slack-task-change-generation-aspect',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

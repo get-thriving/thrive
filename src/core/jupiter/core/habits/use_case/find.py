@@ -6,6 +6,11 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -22,11 +27,6 @@ from jupiter.core.features import (
 )
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
@@ -239,7 +239,7 @@ class HabitFindUseCase(
                         [
                             it
                             for it in inbox_tasks
-                            if it.source_entity_ref_id_for_sure == rt.ref_id
+                            if it.source_entity_ref_id == rt.ref_id
                         ]
                         if inbox_tasks is not None
                         else None

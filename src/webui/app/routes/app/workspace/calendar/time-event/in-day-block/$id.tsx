@@ -1,12 +1,12 @@
 import type {
-  BigPlanSummary,
   ChapterSummary,
   GoalSummary,
+  InboxTask,
   LifePlan,
   MilestoneSummary,
   AspectSummary,
-  Tag,
   Contact,
+  Tag,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
@@ -16,8 +16,9 @@ import {
   Eisen,
   InboxTaskSource,
   InboxTaskStatus,
-  TimeEventNamespace,
   TagNamespace,
+  TimeEventNamespace,
+  TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 import {
   Box,
@@ -33,6 +34,7 @@ import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import {
   useActionData,
+  useFetcher,
   useNavigation,
   useSearchParams,
 } from "@remix-run/react";
@@ -45,10 +47,14 @@ import {
   timeEventInDayBlockParamsToTimezone,
   timeEventInDayBlockParamsToUtc,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
-import { isInboxTaskCoreFieldEditable } from "@jupiter/core/inbox_tasks/root";
-import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
+import {
+  isInboxTaskCoreFieldEditable,
+  sortInboxTasksNaturally,
+} from "#/core/common/sub/inbox_tasks/root";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
+import { TodoTaskPropertiesEditor } from "@jupiter/core/todo/components/properties-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -73,22 +79,6 @@ const ParamsSchema = z.object({
   id: z.string(),
 });
 
-const UpdateFormInboxTaskSchema = {
-  inboxTaskRefId: z.string(),
-  inboxTaskSource: z.nativeEnum(InboxTaskSource),
-  inboxTaskName: z.string(),
-  inboxTaskAspect: z.string().optional(),
-  inboxTaskChapter: z.string().optional(),
-  inboxTaskGoal: z.string().optional(),
-  inboxTaskBigPlan: z.string().optional(),
-  inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
-  inboxTaskIsKey: CheckboxAsString,
-  inboxTaskEisen: z.nativeEnum(Eisen),
-  inboxTaskDifficulty: z.nativeEnum(Difficulty),
-  inboxTaskActionableDate: z.string().optional(),
-  inboxTaskDueDate: z.string().optional(),
-};
-
 const UpdateFormBigPlanSchema = {
   bigPlanRefId: z.string(),
   bigPlanName: z.string(),
@@ -101,6 +91,32 @@ const UpdateFormBigPlanSchema = {
   bigPlanDifficulty: z.nativeEnum(Difficulty),
   bigPlanActionableDate: z.string().optional(),
   bigPlanDueDate: z.string().optional(),
+};
+
+const UpdateFormTodoTaskSchema = {
+  todoTaskRefId: z.string(),
+  todoTaskName: z.string(),
+  todoTaskStatus: z.nativeEnum(InboxTaskStatus),
+  todoTaskAspect: z.string().optional(),
+  todoTaskChapter: z.string().optional(),
+  todoTaskGoal: z.string().optional(),
+  todoTaskIsKey: CheckboxAsString,
+  todoTaskEisen: z.nativeEnum(Eisen),
+  todoTaskDifficulty: z.nativeEnum(Difficulty),
+  todoTaskActionableDate: z.string().optional(),
+  todoTaskDueDate: z.string().optional(),
+};
+
+const UpdateFormInboxTaskSchema = {
+  inboxTaskRefId: z.string(),
+  inboxTaskSource: z.nativeEnum(InboxTaskSource),
+  inboxTaskName: z.string(),
+  inboxTaskStatus: z.nativeEnum(InboxTaskStatus),
+  inboxTaskIsKey: CheckboxAsString,
+  inboxTaskEisen: z.nativeEnum(Eisen),
+  inboxTaskDifficulty: z.nativeEnum(Difficulty),
+  inboxTaskActionableDate: z.string().optional(),
+  inboxTaskDueDate: z.string().optional(),
 };
 
 const UpdateFormSchema = z.discriminatedUnion("intent", [
@@ -116,6 +132,82 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("remove"),
+  }),
+  z.object({
+    intent: z.literal("big-plan-mark-done"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-mark-not-done"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-start"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-restart"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-block"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-stop"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-reactivate"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("big-plan-update"),
+    ...UpdateFormBigPlanSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-mark-done"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-mark-not-done"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-start"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-restart"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-block"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-stop"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-reactivate"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-update"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-day"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-week"),
+    ...UpdateFormTodoTaskSchema,
+  }),
+  z.object({
+    intent: z.literal("todo-task-delay-1-month"),
+    ...UpdateFormTodoTaskSchema,
   }),
   z.object({
     intent: z.literal("inbox-task-mark-done"),
@@ -161,38 +253,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     intent: z.literal("inbox-task-delay-1-month"),
     ...UpdateFormInboxTaskSchema,
   }),
-  z.object({
-    intent: z.literal("big-plan-mark-done"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-mark-not-done"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-start"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-restart"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-block"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-stop"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-reactivate"),
-    ...UpdateFormBigPlanSchema,
-  }),
-  z.object({
-    intent: z.literal("big-plan-update"),
-    ...UpdateFormBigPlanSchema,
-  }),
 ]);
 
 export const handle = {
@@ -219,14 +279,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allow_archived: true,
     });
 
-    let inboxTaskResult = null;
-    if (response.inbox_task) {
-      inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
-        ref_id: response.inbox_task.ref_id,
-        allow_archived: true,
-      });
-    }
-
     let bigPlanResult = null;
     if (response.big_plan) {
       bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
@@ -235,13 +287,78 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-      filter_namespace: [TagNamespace.INBOX_TASK],
-    });
+    let todoTaskResult = null;
+    if (response.todo_task) {
+      todoTaskResult = await apiClient.todo.todoTaskLoad({
+        ref_id: response.todo_task.ref_id,
+        allow_archived: true,
+      });
+    }
+
+    let inboxTaskResult = null;
+
+    const habit = response.habit ?? null;
+    const chore = response.chore ?? null;
+
+    let habitInboxTasks: InboxTask[] = [];
+    if (habit) {
+      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_just_workable: true,
+        filter_sources: [InboxTaskSource.HABIT],
+        filter_source_entity_ref_ids: [habit.ref_id],
+      });
+      habitInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+    }
+
+    let choreInboxTasks: InboxTask[] = [];
+    if (chore) {
+      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_just_workable: true,
+        filter_sources: [InboxTaskSource.CHORE],
+        filter_source_entity_ref_ids: [chore.ref_id],
+      });
+      choreInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+    }
+
+    const timePlanActivity = response.time_plan_activity ?? null;
+
+    if (timePlanActivity) {
+      if (timePlanActivity.target === TimePlanActivityTarget.BIG_PLAN) {
+        bigPlanResult = await apiClient.bigPlans.bigPlanLoad({
+          ref_id: timePlanActivity.target_ref_id,
+          allow_archived: true,
+        });
+      } else if (
+        timePlanActivity.target === TimePlanActivityTarget.INBOX_TASK
+      ) {
+        inboxTaskResult = await apiClient.inboxTasks.inboxTaskLoad({
+          ref_id: timePlanActivity.target_ref_id,
+          allow_archived: true,
+        });
+      }
+    }
+
+    const bigPlan = response.big_plan ?? bigPlanResult?.big_plan ?? null;
+    let bigPlanInboxTasks: InboxTask[] = [];
+    if (bigPlan) {
+      const inboxTaskResult = await apiClient.inboxTasks.inboxTaskFind({
+        allow_archived: false,
+        filter_just_workable: true,
+        filter_sources: [InboxTaskSource.BIG_PLAN],
+        filter_source_entity_ref_ids: [bigPlan.ref_id],
+      });
+      bigPlanInboxTasks = inboxTaskResult.entries.map((e) => e.inbox_task);
+    }
 
     const allContacts = await apiClient.contacts.contactFind({
       allow_archived: false,
+    });
+
+    const allTags = await apiClient.tags.tagFind({
+      allow_archived: false,
+      filter_namespace: [TagNamespace.TODO_TASK],
     });
 
     return json({
@@ -251,15 +368,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters as Array<ChapterSummary>,
       allGoals: summaryResponse.goals as Array<GoalSummary>,
       allMilestones: summaryResponse.milestones as Array<MilestoneSummary>,
-      allBigPlans: summaryResponse.big_plans as Array<BigPlanSummary>,
       inDayBlock: response.in_day_block,
       scheduleEvent: response.schedule_event,
-      inboxTask: response.inbox_task,
-      inboxTaskInfo: inboxTaskResult,
-      bigPlan: response.big_plan,
+      bigPlan: bigPlan,
       bigPlanInfo: bigPlanResult,
-      allTags: allTags.tags as Array<Tag>,
+      bigPlanInboxTasks: bigPlanInboxTasks,
+      inboxTask: inboxTaskResult?.inbox_task ?? null,
+      inboxTaskInfo: inboxTaskResult,
+      todoTask: response.todo_task,
+      todoTaskInfo: todoTaskResult,
+      habit: habit,
+      habitInboxTasks: habitInboxTasks,
+      chore: chore,
+      choreInboxTasks: choreInboxTasks,
+      timePlanActivity: timePlanActivity,
       allContacts: allContacts.contacts as Array<Contact>,
+      allTags: allTags.tags as Array<Tag>,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -315,183 +439,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         await apiClient.timeEvents.timeEventInDayBlockRemove({
           ref_id: id,
         });
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
-      }
-
-      case "inbox-task-mark-done":
-      case "inbox-task-mark-not-done":
-      case "inbox-task-start":
-      case "inbox-task-restart":
-      case "inbox-task-block":
-      case "inbox-task-stop":
-      case "inbox-task-reactivate":
-      case "inbox-task-update": {
-        const corePropertyEditable = isInboxTaskCoreFieldEditable(
-          form.inboxTaskSource,
-        );
-
-        let status = form.inboxTaskStatus;
-        if (form.intent === "inbox-task-mark-done") {
-          status = InboxTaskStatus.DONE;
-        } else if (form.intent === "inbox-task-mark-not-done") {
-          status = InboxTaskStatus.NOT_DONE;
-        } else if (form.intent === "inbox-task-start") {
-          status = InboxTaskStatus.IN_PROGRESS;
-        } else if (form.intent === "inbox-task-restart") {
-          status = InboxTaskStatus.IN_PROGRESS;
-        } else if (form.intent === "inbox-task-block") {
-          status = InboxTaskStatus.BLOCKED;
-        } else if (form.intent === "inbox-task-stop") {
-          status = allowUserChanges(form.inboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
-        } else if (form.intent === "inbox-task-reactivate") {
-          status = allowUserChanges(form.inboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
-        }
-
-        const result = await apiClient.inboxTasks.inboxTaskUpdate({
-          ref_id: form.inboxTaskRefId,
-          name: corePropertyEditable
-            ? {
-                should_change: true,
-                value: form.inboxTaskName,
-              }
-            : { should_change: false },
-          status: {
-            should_change: true,
-            value: status,
-          },
-          aspect_ref_id: {
-            should_change: true,
-            value: form.inboxTaskAspect,
-          },
-          chapter_ref_id: {
-            should_change: form.inboxTaskChapter !== undefined,
-            value:
-              form.inboxTaskChapter !== undefined &&
-              form.inboxTaskChapter !== ""
-                ? form.inboxTaskChapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.inboxTaskGoal !== undefined,
-            value:
-              form.inboxTaskGoal !== undefined && form.inboxTaskGoal !== ""
-                ? form.inboxTaskGoal
-                : null,
-          },
-          big_plan_ref_id: {
-            should_change: form.inboxTaskBigPlan !== undefined,
-            value:
-              form.inboxTaskBigPlan !== undefined &&
-              form.inboxTaskBigPlan !== "none"
-                ? form.inboxTaskBigPlan
-                : undefined,
-          },
-          is_key: corePropertyEditable
-            ? {
-                should_change: true,
-                value: form.inboxTaskIsKey,
-              }
-            : { should_change: false },
-          eisen: corePropertyEditable
-            ? {
-                should_change: true,
-                value: form.inboxTaskEisen,
-              }
-            : { should_change: false },
-          difficulty: corePropertyEditable
-            ? {
-                should_change: true,
-                value: form.inboxTaskDifficulty,
-              }
-            : { should_change: false },
-          actionable_date: {
-            should_change: true,
-            value:
-              form.inboxTaskActionableDate !== undefined &&
-              form.inboxTaskActionableDate !== ""
-                ? form.inboxTaskActionableDate
-                : undefined,
-          },
-          due_date: {
-            should_change: true,
-            value:
-              form.inboxTaskDueDate !== undefined &&
-              form.inboxTaskDueDate !== ""
-                ? form.inboxTaskDueDate
-                : undefined,
-          },
-        });
-
-        if (result.record_score_result) {
-          return redirect(`/app/workspace/calendar?${url.searchParams}`, {
-            headers: {
-              "Set-Cookie": await saveScoreAction(result.record_score_result),
-            },
-          });
-        }
-
-        return redirect(`/app/workspace/calendar?${url.searchParams}`);
-      }
-
-      case "inbox-task-delay-1-day":
-      case "inbox-task-delay-1-week":
-      case "inbox-task-delay-1-month": {
-        const today = DateTime.now().startOf("day");
-        const delay =
-          form.intent === "inbox-task-delay-1-day"
-            ? { days: 1 }
-            : form.intent === "inbox-task-delay-1-week"
-              ? { weeks: 1 }
-              : { months: 1 };
-        const newActionableDate = today.plus(delay);
-
-        let newDueDate: DateTime | undefined;
-        if (
-          form.inboxTaskDueDate !== undefined &&
-          form.inboxTaskDueDate !== ""
-        ) {
-          const oldDueDate = DateTime.fromISO(form.inboxTaskDueDate);
-          if (
-            form.inboxTaskActionableDate !== undefined &&
-            form.inboxTaskActionableDate !== ""
-          ) {
-            const oldActionableDate = DateTime.fromISO(
-              form.inboxTaskActionableDate,
-            );
-            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
-            newDueDate = newActionableDate.plus({ days: gapDays });
-          } else {
-            newDueDate = newActionableDate;
-          }
-        }
-
-        await apiClient.inboxTasks.inboxTaskUpdate({
-          ref_id: form.inboxTaskRefId,
-          name: { should_change: false },
-          status: { should_change: false },
-          aspect_ref_id: { should_change: false },
-          chapter_ref_id: { should_change: false },
-          goal_ref_id: { should_change: false },
-          big_plan_ref_id: { should_change: false },
-          is_key: { should_change: false },
-          eisen: { should_change: false },
-          difficulty: { should_change: false },
-          actionable_date: {
-            should_change: true,
-            value: newActionableDate.toISODate() ?? undefined,
-          },
-          due_date: {
-            should_change: true,
-            value: newDueDate
-              ? (newDueDate.toISODate() ?? undefined)
-              : undefined,
-          },
-        });
-
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
@@ -588,6 +535,298 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/calendar?${url.searchParams}`);
       }
 
+      case "todo-task-mark-done":
+      case "todo-task-mark-not-done":
+      case "todo-task-start":
+      case "todo-task-restart":
+      case "todo-task-block":
+      case "todo-task-stop":
+      case "todo-task-reactivate":
+      case "todo-task-update": {
+        let status = form.todoTaskStatus;
+        if (form.intent === "todo-task-mark-done") {
+          status = InboxTaskStatus.DONE;
+        } else if (form.intent === "todo-task-mark-not-done") {
+          status = InboxTaskStatus.NOT_DONE;
+        } else if (
+          form.intent === "todo-task-start" ||
+          form.intent === "todo-task-restart"
+        ) {
+          status = InboxTaskStatus.IN_PROGRESS;
+        } else if (form.intent === "todo-task-block") {
+          status = InboxTaskStatus.BLOCKED;
+        } else if (
+          form.intent === "todo-task-stop" ||
+          form.intent === "todo-task-reactivate"
+        ) {
+          status = InboxTaskStatus.NOT_STARTED;
+        }
+
+        await apiClient.todo.todoTaskUpdate({
+          ref_id: form.todoTaskRefId,
+          name: {
+            should_change: true,
+            value: form.todoTaskName,
+          },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          aspect_ref_id:
+            form.todoTaskAspect !== undefined
+              ? { should_change: true, value: form.todoTaskAspect }
+              : { should_change: false },
+          chapter_ref_id:
+            form.todoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.todoTaskChapter !== undefined &&
+                    form.todoTaskChapter !== ""
+                      ? form.todoTaskChapter
+                      : undefined,
+                }
+              : { should_change: false },
+          goal_ref_id:
+            form.todoTaskAspect !== undefined
+              ? {
+                  should_change: true,
+                  value:
+                    form.todoTaskGoal !== undefined && form.todoTaskGoal !== ""
+                      ? form.todoTaskGoal
+                      : undefined,
+                }
+              : { should_change: false },
+          is_key: {
+            should_change: true,
+            value: form.todoTaskIsKey,
+          },
+          eisen: {
+            should_change: true,
+            value: form.todoTaskEisen,
+          },
+          difficulty: {
+            should_change: true,
+            value: form.todoTaskDifficulty,
+          },
+          actionable_date: {
+            should_change: true,
+            value:
+              form.todoTaskActionableDate !== undefined &&
+              form.todoTaskActionableDate !== ""
+                ? form.todoTaskActionableDate
+                : null,
+          },
+          due_date: {
+            should_change: true,
+            value:
+              form.todoTaskDueDate !== undefined && form.todoTaskDueDate !== ""
+                ? form.todoTaskDueDate
+                : null,
+          },
+        });
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
+      case "todo-task-delay-1-day":
+      case "todo-task-delay-1-week":
+      case "todo-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "todo-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "todo-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (form.todoTaskDueDate !== undefined && form.todoTaskDueDate !== "") {
+          const oldDueDate = DateTime.fromISO(form.todoTaskDueDate);
+          if (
+            form.todoTaskActionableDate !== undefined &&
+            form.todoTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.todoTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.todo.todoTaskUpdate({
+          ref_id: form.todoTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          aspect_ref_id: { should_change: false },
+          chapter_ref_id: { should_change: false },
+          goal_ref_id: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
+      case "inbox-task-mark-done":
+      case "inbox-task-mark-not-done":
+      case "inbox-task-start":
+      case "inbox-task-restart":
+      case "inbox-task-block":
+      case "inbox-task-stop":
+      case "inbox-task-reactivate":
+      case "inbox-task-update": {
+        let status = form.inboxTaskStatus;
+        const corePropertyEditable = isInboxTaskCoreFieldEditable(
+          form.inboxTaskSource,
+        );
+
+        if (form.intent === "inbox-task-mark-done") {
+          status = InboxTaskStatus.DONE;
+        } else if (form.intent === "inbox-task-mark-not-done") {
+          status = InboxTaskStatus.NOT_DONE;
+        } else if (
+          form.intent === "inbox-task-start" ||
+          form.intent === "inbox-task-restart"
+        ) {
+          status = InboxTaskStatus.IN_PROGRESS;
+        } else if (form.intent === "inbox-task-block") {
+          status = InboxTaskStatus.BLOCKED;
+        } else if (
+          form.intent === "inbox-task-stop" ||
+          form.intent === "inbox-task-reactivate"
+        ) {
+          status = InboxTaskStatus.NOT_STARTED;
+        }
+
+        const result = await apiClient.inboxTasks.inboxTaskUpdate({
+          ref_id: form.inboxTaskRefId,
+          name: corePropertyEditable
+            ? {
+                should_change: true,
+                value: form.inboxTaskName,
+              }
+            : { should_change: false },
+          status: {
+            should_change: true,
+            value: status,
+          },
+          is_key: corePropertyEditable
+            ? {
+                should_change: true,
+                value: form.inboxTaskIsKey,
+              }
+            : { should_change: false },
+          eisen: corePropertyEditable
+            ? {
+                should_change: true,
+                value: form.inboxTaskEisen,
+              }
+            : { should_change: false },
+          difficulty: corePropertyEditable
+            ? {
+                should_change: true,
+                value: form.inboxTaskDifficulty,
+              }
+            : { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value:
+              form.inboxTaskActionableDate !== undefined &&
+              form.inboxTaskActionableDate !== ""
+                ? form.inboxTaskActionableDate
+                : undefined,
+          },
+          due_date: {
+            should_change: true,
+            value:
+              form.inboxTaskDueDate !== undefined &&
+              form.inboxTaskDueDate !== ""
+                ? form.inboxTaskDueDate
+                : undefined,
+          },
+        });
+
+        if (result.record_score_result) {
+          return redirect(`/app/workspace/calendar?${url.searchParams}`, {
+            headers: {
+              "Set-Cookie": await saveScoreAction(result.record_score_result),
+            },
+          });
+        }
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
+      case "inbox-task-delay-1-day":
+      case "inbox-task-delay-1-week":
+      case "inbox-task-delay-1-month": {
+        const today = DateTime.now().startOf("day");
+        const delay =
+          form.intent === "inbox-task-delay-1-day"
+            ? { days: 1 }
+            : form.intent === "inbox-task-delay-1-week"
+              ? { weeks: 1 }
+              : { months: 1 };
+        const newActionableDate = today.plus(delay);
+
+        let newDueDate: DateTime | undefined;
+        if (
+          form.inboxTaskDueDate !== undefined &&
+          form.inboxTaskDueDate !== ""
+        ) {
+          const oldDueDate = DateTime.fromISO(form.inboxTaskDueDate);
+          if (
+            form.inboxTaskActionableDate !== undefined &&
+            form.inboxTaskActionableDate !== ""
+          ) {
+            const oldActionableDate = DateTime.fromISO(
+              form.inboxTaskActionableDate,
+            );
+            const gapDays = oldDueDate.diff(oldActionableDate, "days").days;
+            newDueDate = newActionableDate.plus({ days: gapDays });
+          } else {
+            newDueDate = newActionableDate;
+          }
+        }
+
+        await apiClient.inboxTasks.inboxTaskUpdate({
+          ref_id: form.inboxTaskRefId,
+          name: { should_change: false },
+          status: { should_change: false },
+          is_key: { should_change: false },
+          eisen: { should_change: false },
+          difficulty: { should_change: false },
+          actionable_date: {
+            should_change: true,
+            value: newActionableDate.toISODate() ?? undefined,
+          },
+          due_date: {
+            should_change: true,
+            value: newDueDate
+              ? (newDueDate.toISODate() ?? undefined)
+              : undefined,
+          },
+        });
+
+        return redirect(`/app/workspace/calendar?${url.searchParams}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -618,18 +857,68 @@ export default function TimeEventInDayBlockViewOne() {
     loaderData.inDayBlock.namespace,
   );
 
+  const cardActionFetcher = useFetcher();
+
+  function handleCardMarkDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  function handleCardMarkNotDone(it: InboxTask) {
+    cardActionFetcher.submit(
+      {
+        id: it.ref_id,
+        status: InboxTaskStatus.NOT_DONE,
+      },
+      {
+        method: "post",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+      },
+    );
+  }
+
+  const sortedHabitInboxTasks = sortInboxTasksNaturally(
+    loaderData.habitInboxTasks,
+  );
+  const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
+    loaderData.bigPlanInboxTasks,
+  );
+  const sortedChoreInboxTasks = sortInboxTasksNaturally(
+    loaderData.choreInboxTasks,
+  );
+
   let name = null;
   switch (loaderData.inDayBlock.namespace) {
     case TimeEventNamespace.SCHEDULE_EVENT_IN_DAY:
       name = loaderData.scheduleEvent!.name;
       break;
 
-    case TimeEventNamespace.INBOX_TASK:
-      name = loaderData.inboxTask!.name;
-      break;
-
     case TimeEventNamespace.BIG_PLAN:
       name = loaderData.bigPlan!.name;
+      break;
+
+    case TimeEventNamespace.TODO_TASK:
+      name = loaderData.todoTask!.name;
+      break;
+
+    case TimeEventNamespace.HABIT:
+      name = loaderData.habit!.name;
+      break;
+
+    case TimeEventNamespace.CHORE:
+      name = loaderData.chore!.name;
+      break;
+
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY:
+      name = `Work on activity ${loaderData.timePlanActivity!.ref_id}`;
       break;
 
     default:
@@ -827,31 +1116,6 @@ export default function TimeEventInDayBlockViewOne() {
         </Stack>
       </SectionCard>
 
-      {loaderData.inboxTask && (
-        <InboxTaskPropertiesEditor
-          title="Inbox Task"
-          showLinkToInboxTask
-          intentPrefix="inbox-task"
-          namePrefix="inboxTask"
-          topLevelInfo={topLevelInfo}
-          lifePlan={loaderData.lifePlan}
-          rootAspect={loaderData.rootAspect}
-          allAspects={loaderData.allAspects}
-          allChapters={loaderData.allChapters}
-          allGoals={loaderData.allGoals}
-          allMilestones={loaderData.allMilestones}
-          allBigPlans={loaderData.allBigPlans}
-          allTags={loaderData.allTags}
-          tags={loaderData.inboxTaskInfo?.tags}
-          allContacts={loaderData.allContacts}
-          contacts={loaderData.inboxTaskInfo?.contacts}
-          inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
-          inboxTask={loaderData.inboxTask}
-          inboxTaskInfo={loaderData.inboxTaskInfo!}
-          actionData={actionData}
-        />
-      )}
-
       {loaderData.bigPlan && (
         <BigPlanPropertiesEditor
           title="Big Plan"
@@ -869,6 +1133,100 @@ export default function TimeEventInDayBlockViewOne() {
           bigPlanInfo={loaderData.bigPlanInfo!}
           actionData={actionData}
         />
+      )}
+
+      {loaderData.inboxTask && loaderData.inboxTaskInfo && (
+        <InboxTaskPropertiesEditor
+          title="Inbox Task"
+          showLinkToInboxTask
+          intentPrefix="inbox-task"
+          namePrefix="inboxTask"
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled && !loaderData.inboxTask.archived}
+          inboxTask={loaderData.inboxTask}
+          inboxTaskInfo={loaderData.inboxTaskInfo}
+          actionData={actionData}
+        />
+      )}
+
+      {loaderData.todoTask && loaderData.todoTaskInfo && (
+        <TodoTaskPropertiesEditor
+          title="Todo Task"
+          showLinkToTodoTask
+          intentPrefix="todo-task"
+          namePrefix="todoTask"
+          topLevelInfo={topLevelInfo}
+          lifePlan={loaderData.lifePlan}
+          allAspects={loaderData.allAspects}
+          allChapters={loaderData.allChapters}
+          allGoals={loaderData.allGoals}
+          allMilestones={loaderData.allMilestones}
+          allTags={loaderData.allTags}
+          tags={loaderData.todoTaskInfo.tags}
+          allContacts={loaderData.allContacts}
+          contacts={
+            (
+              loaderData.todoTaskInfo as {
+                contacts?: Array<Contact>;
+              }
+            ).contacts ?? []
+          }
+          inputsEnabled={inputsEnabled && !loaderData.todoTask.archived}
+          todoTask={loaderData.todoTask}
+          inboxTask={loaderData.todoTaskInfo.inbox_task}
+          actionData={actionData}
+        />
+      )}
+
+      {loaderData.habit && sortedHabitInboxTasks.length > 0 && (
+        <SectionCard title="Habit Inbox Tasks">
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedHabitInboxTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        </SectionCard>
+      )}
+
+      {loaderData.bigPlan && sortedBigPlanInboxTasks.length > 0 && (
+        <SectionCard title="Big Plan Inbox Tasks">
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedBigPlanInboxTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        </SectionCard>
+      )}
+
+      {loaderData.chore && sortedChoreInboxTasks.length > 0 && (
+        <SectionCard title="Chore Inbox Tasks">
+          <InboxTaskStack
+            topLevelInfo={topLevelInfo}
+            showOptions={{
+              showStatus: true,
+              showDueDate: true,
+              showHandleMarkDone: true,
+              showHandleMarkNotDone: true,
+            }}
+            inboxTasks={sortedChoreInboxTasks}
+            onCardMarkDone={handleCardMarkDone}
+            onCardMarkNotDone={handleCardMarkNotDone}
+          />
+        </SectionCard>
       )}
     </LeafPanel>
   );

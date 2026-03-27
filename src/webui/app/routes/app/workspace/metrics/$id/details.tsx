@@ -29,11 +29,11 @@ import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { useContext } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { IconSelector } from "@jupiter/core/infra/component/icon-selector";
 import { MetricDirectionSelect } from "@jupiter/core/metrics/component/direction-select";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -309,7 +309,7 @@ export default function MetricDetails() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -322,7 +322,7 @@ export default function MetricDetails() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }

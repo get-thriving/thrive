@@ -12,6 +12,7 @@ import type { HabitStreakMark } from './HabitStreakMark';
 import type { InboxTask } from './InboxTask';
 import type { Note } from './Note';
 import type { Tag } from './Tag';
+import type { TimeEventInDayBlock } from './TimeEventInDayBlock';
 /**
  * HabitLoadResult.
  */
@@ -29,5 +30,6 @@ export type HabitLoadResult = {
     tags: Array<Tag>;
     contacts: Array<Contact>;
     note?: (Note | null);
+    time_event_blocks: Array<TimeEventInDayBlock>;
 };
 

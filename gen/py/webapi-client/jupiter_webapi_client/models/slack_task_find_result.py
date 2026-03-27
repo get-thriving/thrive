@@ -7,7 +7,6 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.aspect import Aspect
     from ..models.slack_task_find_result_entry import SlackTaskFindResultEntry
 
 
@@ -19,17 +18,13 @@ class SlackTaskFindResult:
     """PersonFindResult.
 
     Attributes:
-        generation_aspect (Aspect): The aspect.
         entries (list[SlackTaskFindResultEntry]):
     """
 
-    generation_aspect: Aspect
     entries: list[SlackTaskFindResultEntry]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        generation_aspect = self.generation_aspect.to_dict()
-
         entries = []
         for entries_item_data in self.entries:
             entries_item = entries_item_data.to_dict()
@@ -39,7 +34,6 @@ class SlackTaskFindResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "generation_aspect": generation_aspect,
                 "entries": entries,
             }
         )
@@ -48,12 +42,9 @@ class SlackTaskFindResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect import Aspect
         from ..models.slack_task_find_result_entry import SlackTaskFindResultEntry
 
         d = dict(src_dict)
-        generation_aspect = Aspect.from_dict(d.pop("generation_aspect"))
-
         entries = []
         _entries = d.pop("entries")
         for entries_item_data in _entries:
@@ -62,7 +53,6 @@ class SlackTaskFindResult:
             entries.append(entries_item)
 
         slack_task_find_result = cls(
-            generation_aspect=generation_aspect,
             entries=entries,
         )
 

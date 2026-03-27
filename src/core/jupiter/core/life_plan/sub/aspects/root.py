@@ -9,7 +9,6 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -45,7 +44,6 @@ class Aspect(LeafEntity):
     goals = RefsMany(Goal, aspect_ref_id=IsRefId())
     milestones = RefsMany(Milestone, aspect_ref_id=IsRefId())
 
-    inbox_tasks = RefsMany(InboxTask, aspect_ref_id=IsRefId())
     habits = RefsMany(Habit, aspect_ref_id=IsRefId())
     chores = RefsMany(Chore, aspect_ref_id=IsRefId())
     big_plans = RefsMany(BigPlan, aspect_ref_id=IsRefId())

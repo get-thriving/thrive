@@ -2,6 +2,7 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.common import schedules
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
@@ -11,7 +12,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.root import InboxTask
 from jupiter.core.journals.root import Journal, JournalRepository
 from jupiter.core.journals.stats import (
     JournalStats,

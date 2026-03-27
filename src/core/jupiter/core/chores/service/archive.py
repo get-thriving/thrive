@@ -3,20 +3,20 @@
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.archive import (
     NoteArchiveService,
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -56,7 +56,7 @@ class ChoreArchiveService:
 
         for inbox_task in inbox_tasks_to_archive:
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
 
         chore = chore.mark_archived(ctx, archival_reason)

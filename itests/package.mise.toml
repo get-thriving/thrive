@@ -2,7 +2,7 @@
 hide = true
 run = '''
 #!/usr/bin/env bash
-playwright install-deps
+sudo playwright install-deps
 playwright install
 '''
 

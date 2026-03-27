@@ -2,13 +2,13 @@
 
 from jupiter.core.app import AppCore
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,
@@ -155,11 +155,10 @@ class TimePlanAssociateWithActivitiesUseCase(
                     context.domain_context, due_date=time_plan.end_date
                 )
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
             if inbox_task.source == InboxTaskSource.BIG_PLAN:
                 big_plan = await uow.get_for(BigPlan).load_by_id(
-                    inbox_task.source_entity_ref_id_for_sure
+                    inbox_task.source_entity_ref_id
                 )
 
                 try:

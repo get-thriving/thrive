@@ -1,17 +1,17 @@
 """Service for archiving a Slack task and associated entities."""
 
 from jupiter.core.archival_reason import JupiterArchivalReason
-from jupiter.core.inbox_tasks.collection import (
+from jupiter.core.common.sub.inbox_tasks.collection import (
     InboxTaskCollection,
 )
-from jupiter.core.inbox_tasks.root import (
+from jupiter.core.common.sub.inbox_tasks.root import (
     InboxTask,
     InboxTaskRepository,
 )
-from jupiter.core.inbox_tasks.service.archive import (
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
     InboxTaskArchiveService,
 )
-from jupiter.core.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -71,7 +71,7 @@ class SlackTaskArchiveService:
         inbox_task_archive_service = InboxTaskArchiveService()
         for inbox_task in inbox_tasks_to_archive:
             await inbox_task_archive_service.do_it(
-                ctx, uow, progress_reporter, inbox_task, archival_reason
+                ctx, uow, inbox_task, archival_reason
             )
             archived_inbox_taskd.append(inbox_task)
 

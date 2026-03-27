@@ -7,7 +7,6 @@ from jupiter.framework.value import EnumValue, enum_value
 class TagNamespace(EnumValue):
     """The namespace of a tag."""
 
-    INBOX_TASK = "inbox-task"
     TODO_TASK = "todo-task"
     TIME_PLAN = "time-plan"
     SCHEDULE_STREAM = "schedule-stream"

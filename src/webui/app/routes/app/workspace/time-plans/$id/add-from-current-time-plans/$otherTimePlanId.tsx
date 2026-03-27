@@ -139,7 +139,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         TimePlanActivityDoneness
       >,
       otherTimeEventForInboxTasks:
-        otherTimeEventResult?.entries?.inbox_task_entries || [],
+        otherTimeEventResult?.entries?.todo_task_entries || [],
       otherTimeEventForBigPlans: [],
       otherHigherTimePlan: otherResult.higher_time_plan as TimePlan,
       otherPreviousTimePlan: otherResult.previous_time_plan as TimePlan,

@@ -3,10 +3,13 @@ from enum import Enum
 
 class TimeEventNamespace(str, Enum):
     BIG_PLAN = "big-plan"
-    INBOX_TASK = "inbox-task"
+    CHORE = "chore"
+    HABIT = "habit"
     PERSON_OCCASION = "person-occasion"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"
     SCHEDULE_FULL_DAYS_BLOCK = "schedule-full-days-block"
+    TIME_PLAN_ACTIVITY = "time-plan-activity"
+    TODO_TASK = "todo-task"
     VACATION = "vacation"
 
     def __str__(self) -> str:

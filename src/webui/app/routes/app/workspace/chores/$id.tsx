@@ -37,9 +37,14 @@ import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams, parseQuery } from "zodix";
 import { aDateToDate } from "@jupiter/core/common/adate";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import {
+  sortInboxTaskTimeEventsNaturally,
+  timeEventInDayBlockToTimezone,
+} from "@jupiter/core/common/sub/time_events/time-event";
+import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -164,6 +169,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           }
         ).contacts ?? [],
       allContacts: allContacts.contacts as Array<Contact>,
+      timeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -363,6 +369,19 @@ export default function Chore() {
     dueDateAscending: false,
   });
 
+  const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      chore: loaderData.chore,
+      time_events: [block],
+    },
+  }));
+  const sortedTimeEventEntries =
+    sortInboxTaskTimeEventsNaturally(timeEventEntries);
+
   const cardActionFetcher = useFetcher();
 
   function handleCardMarkDone(it: InboxTask) {
@@ -373,7 +392,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -386,7 +405,7 @@ export default function Chore() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -610,6 +629,19 @@ export default function Chore() {
           </>
         )}
       </SectionCard>
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Time Events"
+          createLocation={`/app/workspace/calendar/time-event/in-day-block/new-for-chore?choreRefId=${loaderData.chore.ref_id}`}
+          entries={sortedTimeEventEntries}
+        />
+      )}
 
       <SectionCard title="Inbox Tasks">
         {sortedInboxTasks.length > 0 && (

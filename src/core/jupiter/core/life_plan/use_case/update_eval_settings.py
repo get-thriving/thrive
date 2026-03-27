@@ -5,6 +5,9 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.timeline import infer_period_from_timeline
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
@@ -12,9 +15,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.eval_approach import LifePlanEvalApproach
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.sync_target import SyncTarget

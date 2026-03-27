@@ -13,25 +13,23 @@ from jupiter.core.common.recurring_task_due_at_month import (
 )
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.service.archive import (
+    InboxTaskArchiveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.service.archive import (
-    InboxTaskArchiveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.direction import MetricDirection
 from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.root import Metric
@@ -81,9 +79,6 @@ class MetricUpdateUseCase(
         """Execute the command's action."""
         workspace = context.workspace
 
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
         metric = await uow.get_for(Metric).load_by_id(
             args.ref_id,
         )
@@ -208,16 +203,11 @@ class MetricUpdateUseCase(
                 await inbox_task_archive_service.do_it(
                     context.domain_context,
                     uow,
-                    progress_reporter,
                     inbox_task,
                     JupiterArchivalReason.USER,
                 )
         else:
             # Situation 2: we need to update the existing metrics.
-            aspect = await uow.get_for(Aspect).load_by_id(
-                metric_collection.collection_aspect_ref_id,
-            )
-
             for inbox_task in metric_collection_tasks:
                 schedule = schedules.get_schedule(
                     metric.collection_params.period,
@@ -232,7 +222,6 @@ class MetricUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_metric(
                     ctx=context.domain_context,
-                    aspect_ref_id=aspect.ref_id,
                     name=schedule.full_name,
                     recurring_timeline=schedule.timeline,
                     eisen=metric.collection_params.eisen,
@@ -242,7 +231,6 @@ class MetricUpdateUseCase(
                 )
 
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)
 
     async def _perform_post_transactional_mutation_work(
         self,

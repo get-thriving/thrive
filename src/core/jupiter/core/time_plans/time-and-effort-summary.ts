@@ -1,12 +1,13 @@
 import {
   InboxTask,
+  InboxTaskStatus,
   TimePlanActivity,
   TimePlanActivityDoneness,
   TimePlanActivityFeasability,
   TimePlanActivityTarget,
 } from "@jupiter/webapi-client";
 
-import { inferDurationMinsFromInboxTask } from "#/core/inbox_tasks/root";
+import { inferDurationMinsFromInboxTask } from "#/core/common/sub/inbox_tasks/root";
 import { estimateScoreForInboxTask } from "#/core/gamification/scores";
 
 export interface TimeAndEffortSummary {
@@ -20,6 +21,8 @@ export interface TimeAndEffortSummary {
   };
   achieved: {
     totalActivitiesByDoneness: Record<TimePlanActivityDoneness, number>;
+    completedNontargetDoneActivities: number;
+    completedNontargetDoneScore: number;
     activitiesByFeasabilityByDoneness: Record<
       TimePlanActivityDoneness,
       Record<TimePlanActivityFeasability, number>
@@ -38,6 +41,7 @@ interface ComputeTimeAndEffortSummaryParams {
   timePlanActivities: TimePlanActivity[];
   targetInboxTasksByRefId: Map<string, InboxTask>;
   activityDoneness: Record<string, TimePlanActivityDoneness>;
+  completedNontargetInboxTasks: InboxTask[];
 }
 
 export function computeTimeAndEffortSummary(
@@ -160,6 +164,13 @@ function computeAchievedTimeAndEffortSummary(
     [TimePlanActivityFeasability.NICE_TO_HAVE]: 0,
     [TimePlanActivityFeasability.STRETCH]: 0,
   };
+  const completedNontargetDoneActivities =
+    params.completedNontargetInboxTasks.filter(
+      (task) => task.status === InboxTaskStatus.DONE,
+    ).length;
+  const completedNontargetDoneScore = params.completedNontargetInboxTasks
+    .filter((task) => task.status === InboxTaskStatus.DONE)
+    .reduce((sum, task) => sum + estimateScoreForInboxTask(task), 0);
 
   for (const activity of params.timePlanActivities) {
     if (activity.target !== TimePlanActivityTarget.INBOX_TASK) {
@@ -192,6 +203,8 @@ function computeAchievedTimeAndEffortSummary(
   return {
     achieved: {
       totalActivitiesByDoneness: totalActivitiesByDoneness,
+      completedNontargetDoneActivities: completedNontargetDoneActivities,
+      completedNontargetDoneScore: completedNontargetDoneScore,
       activitiesByFeasabilityByDoneness: activitiesByFeasabilityByDoneness,
       totalScoreByDoneness: totalScoreByDoneness,
       scoreByFeasabilityByDoneness: scoreByFeasabilityByDoneness,

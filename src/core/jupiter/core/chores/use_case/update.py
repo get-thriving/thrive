@@ -14,19 +14,19 @@ from jupiter.core.common.recurring_task_due_at_month import (
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.recurring_task_skip_rule import RecurringTaskSkipRule
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -104,9 +104,6 @@ class ChoreUpdateUseCase(
 
         need_to_change_inbox_tasks = (
             args.name.should_change
-            or args.aspect_ref_id.should_change
-            or args.chapter_ref_id.should_change
-            or args.goal_ref_id.should_change
             or args.period.should_change
             or args.eisen.should_change
             or args.difficulty.should_change
@@ -217,9 +214,6 @@ class ChoreUpdateUseCase(
 
                 inbox_task = inbox_task.update_link_to_chore(
                     ctx=context.domain_context,
-                    aspect_ref_id=chore.aspect_ref_id,
-                    chapter_ref_id=chore.chapter_ref_id,
-                    goal_ref_id=chore.goal_ref_id,
                     name=schedule.full_name,
                     timeline=schedule.timeline,
                     is_key=chore.is_key,
@@ -230,4 +224,3 @@ class ChoreUpdateUseCase(
                 )
 
                 await uow.get_for(InboxTask).save(inbox_task)
-                await progress_reporter.mark_updated(inbox_task)

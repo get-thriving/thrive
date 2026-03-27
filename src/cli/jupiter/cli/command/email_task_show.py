@@ -43,10 +43,7 @@ class EmailTaskShow(
         rich_tree = Tree("💬 Email Tasks", guide_style="bold bright_blue")
 
         if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            generation_aspect_text = Text(
-                f"The generation aspect is {result.generation_aspect.name}",
-            )
-            rich_tree.add(generation_aspect_text)
+            rich_tree.add(Text("The generation aspect is not available"))
 
         for email_task_entry in sorted_email_tasks:
             email_task = email_task_entry.email_task

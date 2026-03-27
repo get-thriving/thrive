@@ -4,19 +4,24 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask, InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLinkRepository
 from jupiter.core.common.sub.tags.sub.tag.root import Tag, TagRepository
+from jupiter.core.common.sub.time_events.domain import TimeEventDomain
+from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
+from jupiter.core.common.sub.time_events.sub.in_day_block.root import (
+    TimeEventInDayBlock,
+)
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask, InboxTaskRepository
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
@@ -53,6 +58,7 @@ class TodoTaskLoadResult(UseCaseResultBase):
     tags: list[Tag]
     contacts: list[Contact]
     note: Note | None
+    time_event_blocks: list[TimeEventInDayBlock]
 
 
 @readonly_use_case(WorkspaceFeature.TODO_TASK)
@@ -93,7 +99,7 @@ class TodoTaskLoadUseCase(
             InboxTaskRepository
         ).find_all_for_source_created_desc(
             parent_ref_id=inbox_task_collection.ref_id,
-            source=InboxTaskSource.USER,
+            source=InboxTaskSource.TODO_TASK,
             source_entity_ref_id=todo_task.ref_id,
             allow_archived=allow_archived,
         )
@@ -146,6 +152,16 @@ class TodoTaskLoadUseCase(
         else:
             contacts = []
 
+        time_event_domain = await uow.get_for(TimeEventDomain).load_by_parent(
+            workspace.ref_id
+        )
+        time_event_blocks = await uow.get_for(TimeEventInDayBlock).find_all_generic(
+            parent_ref_id=time_event_domain.ref_id,
+            allow_archived=False,
+            namespace=TimeEventNamespace.TODO_TASK,
+            source_entity_ref_id=[todo_task.ref_id],
+        )
+
         return TodoTaskLoadResult(
             todo_task=todo_task,
             inbox_task=inbox_task,
@@ -155,4 +171,5 @@ class TodoTaskLoadUseCase(
             tags=tags,
             contacts=contacts,
             note=note,
+            time_event_blocks=time_event_blocks,
         )

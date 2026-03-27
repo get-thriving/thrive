@@ -5,17 +5,17 @@ import {
 } from "@jupiter/webapi-client";
 
 import { aDateToDate } from "#/core/common/adate";
-import { filterInboxTasksForDisplay } from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
+import { filterInboxTasksForDisplay } from "#/core/common/sub/inbox_tasks/root";
 import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
 import {
   getDeterministicRandomElement,
   WidgetProps,
 } from "#/core/home/component/common";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 
 export function ChoreRandomWidget(props: WidgetProps) {
   const choreTasks = props.choreTasks!;
@@ -35,7 +35,6 @@ export function ChoreRandomWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.CHORE],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],
@@ -74,7 +73,6 @@ export function ChoreRandomWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,

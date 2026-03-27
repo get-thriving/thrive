@@ -5,7 +5,6 @@ class ContactNamespace(str, Enum):
     BIG_PLAN = "big-plan"
     CHORE = "chore"
     HABIT = "habit"
-    INBOX_TASK = "inbox-task"
     METRIC_ENTRY = "metric-entry"
     PERSON = "person"
     SCHEDULE_EVENT_FULL_DAYS_BLOCK = "schedule-event-full-days-block"

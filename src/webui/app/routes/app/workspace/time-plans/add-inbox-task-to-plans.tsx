@@ -107,7 +107,9 @@ export async function action({ request }: ActionFunctionArgs) {
           feasability: form.feasability,
         });
 
-        return redirect(`/app/workspace/inbox-tasks/${query.inboxTaskRefId}`);
+        return redirect(
+          `/app/workspace/core/inbox-tasks/${query.inboxTaskRefId}`,
+        );
       }
 
       default:
@@ -156,7 +158,7 @@ export default function AddInboxTaskToPlans() {
     <LeafPanel
       key="add-inbox-task-to-plans"
       fakeKey={`add-inbox-task-to-plans/${searchParams.get("inboxTaskRefId")}`}
-      returnLocation={`/app/workspace/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
+      returnLocation={`/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`}
       returnLocationDiscriminator="add-inbox-task-to-plans"
       inputsEnabled={inputsEnabled}
       initialExpansionState={LeafPanelExpansionState.MEDIUM}
@@ -259,7 +261,7 @@ export default function AddInboxTaskToPlans() {
 
 export const ErrorBoundary = makeLeafErrorBoundary(
   (params, searchParams) =>
-    `/app/workspace/inbox-tasks/${searchParams.get("inboxTaskRefId")}`,
+    `/app/workspace/core/inbox-tasks/${searchParams.get("inboxTaskRefId")}`,
   ParamsSchema,
   {
     error: () =>

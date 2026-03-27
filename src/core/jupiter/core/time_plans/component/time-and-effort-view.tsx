@@ -639,6 +639,39 @@ export function TimeAndEffortView(props: TimeAndEffortViewProps) {
               />
             )}
           </TableRow>
+
+          <TableRow>
+            <ValueAndPctCell value="Done outside time plan" align="left" />
+            <ValueAndPctCell value="-" colSpan={plannedTextColSpan} />
+
+            <ValueAndPctCell
+              value={
+                timeAndEffortSummary.achieved.completedNontargetDoneActivities
+              }
+            />
+            <ValueAndPctCell value="-" />
+            <ValueAndPctCell value="-" />
+
+            {isUserFeatureAvailable(
+              props.topLevelInfo.user,
+              UserFeature.GAMIFICATION,
+            ) && (
+              <>
+                <ValueAndPctCell
+                  value={
+                    timeAndEffortSummary.achieved.completedNontargetDoneScore
+                  }
+                />
+                <ValueAndPctCell value="-" />
+                <ValueAndPctCell value="-" />
+              </>
+            )}
+
+            {isWorkspaceFeatureAvailable(
+              props.topLevelInfo.workspace,
+              WorkspaceFeature.SCHEDULE,
+            ) && <ValueAndPctCell value="-" />}
+          </TableRow>
         </TableBody>
       </Table>
     </TableContainer>

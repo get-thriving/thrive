@@ -374,6 +374,102 @@ def test_api_big_plan_load_includes_time_event_blocks(
     assert time_event_blocks[0]["duration_mins"] == 30
 
 
+def test_api_big_plan_create_inbox_task(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    bp = create_big_plan("Plan With Inbox Task")
+
+    response = requests.post(
+        f"{api_url}/v1/big-plans/{bp.ref_id}/inbox-tasks",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": bp.ref_id,
+            "name": "My Inbox Task",
+            "is_key": False,
+            "eisen": "regular",
+            "difficulty": "easy",
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    it = response.json()["new_inbox_task"]
+    assert it["name"] == "My Inbox Task"
+    assert it["is_key"] is False
+    assert it["eisen"] == "regular"
+    assert it["difficulty"] == "easy"
+    assert it["source"] == "big-plan"
+    assert it["source_entity_ref_id"] == bp.ref_id
+    assert it["archived"] is False
+    assert response.json()["new_time_plan_activity"] is None
+
+
+def test_api_big_plan_create_inbox_task_with_dates(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    bp = create_big_plan("Plan With Dated Task")
+
+    response = requests.post(
+        f"{api_url}/v1/big-plans/{bp.ref_id}/inbox-tasks",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": bp.ref_id,
+            "name": "Dated Task",
+            "is_key": True,
+            "eisen": "important",
+            "difficulty": "hard",
+            "actionable_date": "2024-04-01",
+            "due_date": "2024-04-30",
+        },
+        timeout=10,
+    )
+    assert response.status_code == 200
+
+    it = response.json()["new_inbox_task"]
+    assert it["name"] == "Dated Task"
+    assert it["is_key"] is True
+    assert it["eisen"] == "important"
+    assert it["difficulty"] == "hard"
+    assert it["actionable_date"] == "2024-04-01"
+    assert it["due_date"] == "2024-04-30"
+    assert it["source"] == "big-plan"
+    assert it["source_entity_ref_id"] == bp.ref_id
+
+
+def test_api_big_plan_create_inbox_task_visible_in_inbox(
+    api_url: str, api_key: str, create_big_plan
+) -> None:
+    bp = create_big_plan("Plan For Inbox Check")
+
+    create_response = requests.post(
+        f"{api_url}/v1/big-plans/{bp.ref_id}/inbox-tasks",
+        headers=_headers(api_key),
+        json={
+            "big_plan_ref_id": bp.ref_id,
+            "name": "Visible In Inbox",
+            "is_key": False,
+            "eisen": "regular",
+            "difficulty": "easy",
+        },
+        timeout=10,
+    )
+    assert create_response.status_code == 200
+    created_ref_id = create_response.json()["new_inbox_task"]["ref_id"]
+
+    load_response = requests.get(
+        f"{api_url}/v1/common/inbox-tasks/{created_ref_id}?allow_archived=false",
+        headers=_headers(api_key),
+        timeout=10,
+    )
+    assert load_response.status_code == 200
+
+    it = load_response.json()["inbox_task"]
+    assert it["ref_id"] == created_ref_id
+    assert it["name"] == "Visible In Inbox"
+    assert it["source"] == "big-plan"
+    assert it["source_entity_ref_id"] == bp.ref_id
+
+
 def test_api_big_plan_requires_auth(api_url: str) -> None:
     response = requests.get(
         f"{api_url}/v1/big-plans?allow_archived=false&include_notes=false&include_time_event_blocks=false&include_tags=false",

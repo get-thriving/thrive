@@ -803,31 +803,28 @@ wait_for_service_to_start() {
     local url=${2/0.0.0.0/localhost}/healthz
 
     local attempts=0
-    local max_attempts=21
+    local max_attempts=60  # increased: 60s total
 
-    log info "Waiting for ${service}. Attempt $attempts of $max_attempts."
+    log info "Waiting for ${service} at ${url} (max ${max_attempts}s)..."
 
     while [ "$attempts" -lt "$max_attempts" ]; do
         set +e
-        http --follow --timeout 10 --verify=no --check-status get "${url}" > /dev/null 2>&1
-        resp=$?
+        http --follow --timeout 5 --verify=no --check-status get "${url}" > /dev/null 2>&1
+        local resp=$?
         set -e
-        
+
         if [ "$resp" -eq 0 ]; then
-            log info "${service} is up and responding."
-            break
-        else
-            log info "Waiting for ${service}. Attempt $((attempts+1)) of $max_attempts."
+            log info "${service} is up after $((attempts + 1))s."
+            return 0
         fi
-        
+
         attempts=$((attempts + 1))
-        sleep 1  # Adjust the sleep time as needed
+        log debug "Waiting for ${service}. Attempt ${attempts}/${max_attempts}..."
+        sleep 1
     done
 
-    if [ "$attempts" -eq "$max_attempts" ]; then
-        log info "Reached maximum attempts for ${service}."
-        return 1
-    fi
+    log error "Timed out waiting for ${service} at ${url} after ${max_attempts}s."
+    return 1
 }
 
 check_service_is_running() {

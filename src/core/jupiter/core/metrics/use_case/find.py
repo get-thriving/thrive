@@ -8,6 +8,11 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.root import ContactDomain
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
@@ -20,12 +25,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.metrics.collection import MetricCollection
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
@@ -74,7 +73,6 @@ class MetricFindResponseEntry(UseCaseResultBase):
 class MetricFindResult(UseCaseResultBase):
     """PersonFindResult object."""
 
-    collection_aspect: Aspect
     entries: list[MetricFindResponseEntry]
 
 
@@ -107,10 +105,6 @@ class MetricFindUseCase(
             parent_ref_id=metric_collection.ref_id,
             allow_archived=allow_archived,
             filter_ref_ids=args.filter_ref_ids,
-        )
-
-        collection_aspect = await uow.get_for(Aspect).load_by_id(
-            metric_collection.collection_aspect_ref_id,
         )
 
         all_notes_by_metric_ref_id: defaultdict[EntityId, Note] = defaultdict(None)
@@ -172,7 +166,7 @@ class MetricFindUseCase(
 
             for inbox_task in all_inbox_tasks:
                 metric_collection_inbox_tasks_by_ref_id[
-                    inbox_task.source_entity_ref_id_for_sure
+                    inbox_task.source_entity_ref_id
                 ].append(inbox_task)
         else:
             metric_collection_inbox_tasks_by_ref_id = defaultdict(list)
@@ -238,7 +232,6 @@ class MetricFindUseCase(
         contacts_by_ref_id = {c.ref_id: c for c in contacts}
 
         return MetricFindResult(
-            collection_aspect=collection_aspect,
             entries=[
                 MetricFindResponseEntry(
                     metric=m,

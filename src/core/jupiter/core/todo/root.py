@@ -2,12 +2,12 @@
 
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
@@ -36,7 +36,7 @@ class TodoTask(LeafEntity):
     goal_ref_id: EntityId | None
 
     inbox_task = OwnsOne(
-        InboxTask, source=InboxTaskSource.USER, source_entity_ref_id=IsRefId()
+        InboxTask, source=InboxTaskSource.TODO_TASK, source_entity_ref_id=IsRefId()
     )  # pyright: ignore[reportUndefinedVariable]
     tag_link = OwnsAtMostOne(
         TagLink, namespace=TagNamespace.TODO_TASK, source_entity_ref_id=IsRefId()

@@ -4,14 +4,14 @@ import { aDateToDate } from "#/core/common/adate";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
-} from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
+} from "#/core/common/sub/inbox_tasks/root";
 import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
 import { WidgetProps } from "#/core/home/component/common";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 
 export function UpcomingBirthdaysWidget(props: WidgetProps) {
   const personTasks = props.personTasks!;
@@ -34,7 +34,6 @@ export function UpcomingBirthdaysWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.PERSON_OCCASION],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

@@ -7,10 +7,10 @@ from jupiter.framework.value import EnumValue, enum_value
 class NoteNamespace(EnumValue):
     """The source of a note."""
 
-    INBOX_TASK = "inbox-task"
     TODO_TASK = "todo-task"
     WORKING_MEM = "working-mem"
     TIME_PLAN = "time-plan"
+    TIME_PLAN_ACTIVITY = "time-plan-activity"
     SCHEDULE_STREAM = "schedule-stream"
     SCHEDULE_EXPORT = "schedule-export"
     SCHEDULE_EVENT_IN_DAY = "schedule-event-in-day"

@@ -10,6 +10,12 @@ from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLinkRepository
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.time_events.namespace import TimeEventNamespace
 from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
     TimeEventFullDaysBlockRepository,
@@ -19,13 +25,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
@@ -91,8 +90,6 @@ class OccasionUpdateUseCase(
             contact_link.contacts_ref_ids[0]
         )
 
-        prm = await uow.get_for(PRM).load_by_id(person.prm.ref_id)
-
         inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
             context.workspace.ref_id,
         )
@@ -126,7 +123,6 @@ class OccasionUpdateUseCase(
 
             inbox_task = inbox_task.update_link_to_person_occasion(
                 ctx=context.domain_context,
-                aspect_ref_id=prm.catch_up_aspect_ref_id,
                 name=schedule.full_name,
                 recurring_timeline=schedule.timeline,
                 occasion_kind=occasion.kind,
@@ -136,7 +132,6 @@ class OccasionUpdateUseCase(
             )
 
             await uow.get_for(InboxTask).save(inbox_task)
-            await progress_reporter.mark_updated(inbox_task)
 
         occasion_time_event_blocks = await uow.get(
             TimeEventFullDaysBlockRepository

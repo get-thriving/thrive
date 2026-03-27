@@ -51,7 +51,7 @@ def new_user_and_workspace(webapi_url: str, new_user: TestUser) -> Iterator[Init
             workspace_root_aspect_name="Root Aspect",
             workspace_first_schedule_stream_name="Life",
             workspace_feature_flags=[
-                WorkspaceFeature.INBOX_TASKS,
+                WorkspaceFeature.TODO_TASK,
                 WorkspaceFeature.HABITS,
                 WorkspaceFeature.DOCS,
             ],

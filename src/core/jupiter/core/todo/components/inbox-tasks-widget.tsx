@@ -4,13 +4,13 @@ import { aDateToDate } from "#/core/common/adate";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksNaturally,
-} from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
+} from "#/core/common/sub/inbox_tasks/root";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
 import {
   ActionableTime,
   actionableTimeToDateTime,
 } from "#/core/infra/actionable-time";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 import { WidgetProps } from "#/core/home/component/common";
 
 export function TodoInboxTasksWidget(props: WidgetProps) {
@@ -31,7 +31,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
   const sortedInboxTasks = sortInboxTasksNaturally(todoTasks.todoInboxTasks);
 
   const commonFilterOptions = {
-    allowSources: [InboxTaskSource.USER],
+    allowSources: [InboxTaskSource.TODO_TASK],
     allowStatuses: [
       InboxTaskStatus.NOT_STARTED,
       InboxTaskStatus.IN_PROGRESS,
@@ -108,7 +108,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -123,7 +122,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -134,7 +133,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -149,7 +147,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -160,7 +158,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -175,7 +172,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}
@@ -186,7 +183,6 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         topLevelInfo={props.topLevelInfo}
         showOptions={{
           showStatus: true,
-          showLifePlan: true,
           showEisen: true,
           showDifficulty: true,
           showParent: true,
@@ -201,7 +197,7 @@ export function TodoInboxTasksWidget(props: WidgetProps) {
         cardLinkResolver={(_, parent) =>
           parent?.todoTask
             ? `/app/workspace/todos/${parent.todoTask.ref_id}`
-            : "/app/workspace/inbox-tasks"
+            : "/app/workspace/core/inbox-tasks"
         }
         onCardMarkDone={todoTasks.onCardMarkDone}
         onCardMarkNotDone={todoTasks.onCardMarkNotDone}

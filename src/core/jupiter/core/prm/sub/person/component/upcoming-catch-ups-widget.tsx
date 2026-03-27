@@ -4,10 +4,10 @@ import { aDateToDate } from "#/core/common/adate";
 import {
   filterInboxTasksForDisplay,
   sortInboxTasksByEisenAndDifficulty,
-} from "#/core/inbox_tasks/root";
-import { InboxTaskStack } from "#/core/inbox_tasks/component/stack";
-import { InboxTasksNoTasksCard } from "#/core/inbox_tasks/component/no-tasks-card";
+} from "#/core/common/sub/inbox_tasks/root";
 import { WidgetProps } from "#/core/home/component/common";
+import { InboxTaskStack } from "#/core/common/sub/inbox_tasks/component/stack";
+import { InboxTasksNoTasksCard } from "#/core/common/sub/inbox_tasks/component/no-tasks-card";
 
 export function UpcomingCatchUpsWidget(props: WidgetProps) {
   const personTasks = props.personTasks!;
@@ -26,7 +26,6 @@ export function UpcomingCatchUpsWidget(props: WidgetProps) {
       allowSources: [InboxTaskSource.PERSON_CATCH_UP],
       allowStatuses: [
         InboxTaskStatus.NOT_STARTED,
-        InboxTaskStatus.NOT_STARTED_GEN,
         InboxTaskStatus.IN_PROGRESS,
         InboxTaskStatus.BLOCKED,
       ],

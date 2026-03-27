@@ -3,22 +3,22 @@
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.email_address import EmailAddress
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.name import InboxTaskName
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterTransactionalLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.name import InboxTaskName
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.push_integrations.extra_info import (
     PushGenerationExtraInfo,
 )
@@ -124,7 +124,6 @@ class EmailTaskUpdateUseCase(
 
         generated_inbox_task = generated_inbox_task.update_link_to_email_task(
             ctx=context.domain_context,
-            aspect_ref_id=generated_inbox_task.aspect_ref_id,
             from_address=email_task.from_address,
             from_name=email_task.from_name,
             to_address=email_task.to_address,
@@ -134,7 +133,6 @@ class EmailTaskUpdateUseCase(
         )
 
         await uow.get_for(InboxTask).save(generated_inbox_task)
-        await progress_reporter.mark_updated(generated_inbox_task)
 
         email_task = email_task.update(
             ctx=context.domain_context,

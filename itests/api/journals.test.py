@@ -193,7 +193,6 @@ def test_api_journal_update_settings(api_url: str, api_key: str) -> None:
             "periods": {"should_change": False},
             "generation_approach": {"should_change": False},
             "generation_in_advance_days": {"should_change": False},
-            "writing_task_aspect_ref_id": {"should_change": False},
             "writing_task_eisen": {"should_change": False},
             "writing_task_difficulty": {"should_change": False},
         },

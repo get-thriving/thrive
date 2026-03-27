@@ -20,9 +20,7 @@ export function inferEntityTagsForEnabledFeatures(
   const inferredEntityTags: Array<NamedEntityTag> = [];
 
   for (const entityTag of entityTags) {
-    if (entityTag === NamedEntityTag.INBOX_TASK) {
-      inferredEntityTags.push(entityTag);
-    } else if (
+    if (
       entityTag === NamedEntityTag.TODO_TASK &&
       isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.TODO_TASK)
     ) {
@@ -166,7 +164,7 @@ export function inferSourcesForEnabledFeatures(
   const inferredSources: Array<InboxTaskSource> = [];
 
   for (const source of sources) {
-    if (source === InboxTaskSource.USER) {
+    if (source === InboxTaskSource.TODO_TASK) {
       inferredSources.push(source);
     } else if (
       source === InboxTaskSource.WORKING_MEM_CLEANUP &&

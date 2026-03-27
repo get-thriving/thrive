@@ -12,7 +12,6 @@ class SyncTarget(str, Enum):
     GAMIFICATION = "gamification"
     GOALS = "goals"
     HABITS = "habits"
-    INBOX_TASKS = "inbox-tasks"
     JOURNALS = "journals"
     LIFE_PLAN_EVAL = "life-plan-eval"
     METRICS = "metrics"

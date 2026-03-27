@@ -20,8 +20,11 @@ class CalendarEventsStatsPerSubperiod:
         period_start_date (str): A date or possibly a datetime for the application.
         schedule_event_full_days_cnt (int):
         schedule_event_in_day_cnt (int):
-        inbox_task_cnt (int):
         big_plan_cnt (int):
+        todo_task_cnt (int):
+        habit_cnt (int):
+        chore_cnt (int):
+        time_plan_activity_cnt (int):
         person_birthday_cnt (int):
         vacation_cnt (int):
     """
@@ -30,8 +33,11 @@ class CalendarEventsStatsPerSubperiod:
     period_start_date: str
     schedule_event_full_days_cnt: int
     schedule_event_in_day_cnt: int
-    inbox_task_cnt: int
     big_plan_cnt: int
+    todo_task_cnt: int
+    habit_cnt: int
+    chore_cnt: int
+    time_plan_activity_cnt: int
     person_birthday_cnt: int
     vacation_cnt: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -45,9 +51,15 @@ class CalendarEventsStatsPerSubperiod:
 
         schedule_event_in_day_cnt = self.schedule_event_in_day_cnt
 
-        inbox_task_cnt = self.inbox_task_cnt
-
         big_plan_cnt = self.big_plan_cnt
+
+        todo_task_cnt = self.todo_task_cnt
+
+        habit_cnt = self.habit_cnt
+
+        chore_cnt = self.chore_cnt
+
+        time_plan_activity_cnt = self.time_plan_activity_cnt
 
         person_birthday_cnt = self.person_birthday_cnt
 
@@ -61,8 +73,11 @@ class CalendarEventsStatsPerSubperiod:
                 "period_start_date": period_start_date,
                 "schedule_event_full_days_cnt": schedule_event_full_days_cnt,
                 "schedule_event_in_day_cnt": schedule_event_in_day_cnt,
-                "inbox_task_cnt": inbox_task_cnt,
                 "big_plan_cnt": big_plan_cnt,
+                "todo_task_cnt": todo_task_cnt,
+                "habit_cnt": habit_cnt,
+                "chore_cnt": chore_cnt,
+                "time_plan_activity_cnt": time_plan_activity_cnt,
                 "person_birthday_cnt": person_birthday_cnt,
                 "vacation_cnt": vacation_cnt,
             }
@@ -81,9 +96,15 @@ class CalendarEventsStatsPerSubperiod:
 
         schedule_event_in_day_cnt = d.pop("schedule_event_in_day_cnt")
 
-        inbox_task_cnt = d.pop("inbox_task_cnt")
-
         big_plan_cnt = d.pop("big_plan_cnt")
+
+        todo_task_cnt = d.pop("todo_task_cnt")
+
+        habit_cnt = d.pop("habit_cnt")
+
+        chore_cnt = d.pop("chore_cnt")
+
+        time_plan_activity_cnt = d.pop("time_plan_activity_cnt")
 
         person_birthday_cnt = d.pop("person_birthday_cnt")
 
@@ -94,8 +115,11 @@ class CalendarEventsStatsPerSubperiod:
             period_start_date=period_start_date,
             schedule_event_full_days_cnt=schedule_event_full_days_cnt,
             schedule_event_in_day_cnt=schedule_event_in_day_cnt,
-            inbox_task_cnt=inbox_task_cnt,
             big_plan_cnt=big_plan_cnt,
+            todo_task_cnt=todo_task_cnt,
+            habit_cnt=habit_cnt,
+            chore_cnt=chore_cnt,
+            time_plan_activity_cnt=time_plan_activity_cnt,
             person_birthday_cnt=person_birthday_cnt,
             vacation_cnt=vacation_cnt,
         )

@@ -14,6 +14,15 @@ from jupiter.core.chores.root import Chore
 from jupiter.core.common import schedules
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.common.schedules import Schedule
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.features import (
     UserFeature,
     WorkspaceFeature,
@@ -23,15 +32,6 @@ from jupiter.core.gamification.service.score_overview import (
 )
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.name import AspectName
 from jupiter.core.life_plan.sub.aspects.root import Aspect
@@ -230,7 +230,6 @@ class ReportService:
                 parent_ref_id=inbox_task_collection.ref_id,
                 allow_archived=True,
                 filter_sources=sources,
-                filter_aspect_ref_ids=filter_aspect_ref_ids,
                 filter_last_modified_time_start=schedule.first_day,
                 filter_last_modified_time_end=schedule.end_day.next_day(),
             )
@@ -238,51 +237,51 @@ class ReportService:
                 it
                 for it in raw_all_inbox_tasks
                 # (source is BIG_PLAN and (need to filter then (big_plan_ref_id in filter))
-                if it.source is InboxTaskSource.USER
+                if it.source is InboxTaskSource.TODO_TASK
                 or (
                     it.source is InboxTaskSource.BIG_PLAN
                     and (
                         not (filter_big_plan_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_big_plan_ref_ids
+                        or it.source_entity_ref_id in filter_big_plan_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.HABIT
                     and (
                         not (filter_habit_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_habit_ref_ids
+                        or it.source_entity_ref_id in filter_habit_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.CHORE
                     and (
                         not (filter_chore_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_chore_ref_ids
+                        or it.source_entity_ref_id in filter_chore_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.METRIC
-                    and it.source_entity_ref_id_for_sure in metrics_by_ref_id
+                    and it.source_entity_ref_id in metrics_by_ref_id
                 )
                 or (
                     (
                         it.source is InboxTaskSource.PERSON_CATCH_UP
                         or it.source is InboxTaskSource.PERSON_OCCASION
                     )
-                    and it.source_entity_ref_id_for_sure in persons_by_ref_id
+                    and it.source_entity_ref_id in persons_by_ref_id
                 )
                 or (
                     it.source is InboxTaskSource.SLACK_TASK
                     and (
                         not (filter_slack_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_slack_task_ref_ids
+                        or it.source_entity_ref_id in filter_slack_task_ref_ids
                     )
                 )
                 or (
                     it.source is InboxTaskSource.EMAIL_TASK
                     and (
                         not (filter_email_task_ref_ids is not None)
-                        or it.source_entity_ref_id_for_sure in filter_email_task_ref_ids
+                        or it.source_entity_ref_id in filter_email_task_ref_ids
                     )
                 )
             ]
@@ -348,21 +347,6 @@ class ReportService:
         # Build per aspect breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            # all_inbox_tasks.groupBy(it -> it.aspect.name).map((k, v) -> (k, run_report_for_group(v))).asDict()
-            per_aspect_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
-                for (k, v) in groupby(
-                    sorted(
-                        [
-                            (aspects_by_ref_id[it.aspect_ref_id].name, it)
-                            for it in all_inbox_tasks
-                        ],
-                        key=itemgetter(0),
-                    ),
-                    key=itemgetter(0),
-                )
-            }
-
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                 # all_big_plans.groupBy(it -> it.aspect..name).map((k, v) -> (k, run_report_for_group(v))).asDict()
                 per_aspect_big_plans_summary = {
@@ -381,17 +365,18 @@ class ReportService:
             else:
                 per_aspect_big_plans_summary = {}
 
+            all_aspect_names = per_aspect_big_plans_summary.keys()
             per_aspect_breakdown = [
                 PerAspectBreakdownItem(
                     ref_id=aspects_by_name[s].ref_id,
                     name=s,
-                    inbox_tasks_summary=v,
                     big_plans_summary=per_aspect_big_plans_summary.get(
                         s,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (s, v) in per_aspect_inbox_tasks_summary.items()
+                for s in all_aspect_names
+                if s in aspects_by_name
             ]
         else:
             per_aspect_breakdown = []
@@ -399,20 +384,7 @@ class ReportService:
         # Build per goal breakdown
 
         if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            per_goal_inbox_tasks_summary = {
-                k: self._run_report_for_inbox_tasks(schedule, (vx[1] for vx in v))
-                for (k, v) in groupby(
-                    sorted(
-                        [
-                            (it.goal_ref_id, it)
-                            for it in all_inbox_tasks
-                            if it.goal_ref_id is not None
-                        ],
-                        key=itemgetter(0),
-                    ),
-                    key=itemgetter(0),
-                )
-            }
+            per_goal_inbox_tasks_summary: dict[EntityId, WorkableSummary] = {}
 
             if workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                 per_goal_big_plans_summary = {
@@ -432,17 +404,19 @@ class ReportService:
             else:
                 per_goal_big_plans_summary = {}
 
+            all_goal_ref_ids = set(per_goal_inbox_tasks_summary.keys()) | set(
+                per_goal_big_plans_summary.keys()
+            )
             per_goal_breakdown = [
                 PerGoalBreakdownItem(
                     ref_id=goal_ref_id,
                     name=all_goals_by_ref_id[goal_ref_id].name,
-                    inbox_tasks_summary=inbox_summary,
                     big_plans_summary=per_goal_big_plans_summary.get(
                         goal_ref_id,
                         WorkableSummary(0, 0, 0, 0, 0, [], []),
                     ),
                 )
-                for (goal_ref_id, inbox_summary) in per_goal_inbox_tasks_summary.items()
+                for goal_ref_id in all_goal_ref_ids
                 if goal_ref_id in all_goals_by_ref_id
                 and not all_goals_by_ref_id[goal_ref_id].archived
             ]

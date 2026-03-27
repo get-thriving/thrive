@@ -11,7 +11,6 @@ from ..models.time_plan_generation_approach import TimePlanGenerationApproach
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.aspect import Aspect
     from ..models.inbox_task import InboxTask
     from ..models.recurring_task_gen_params import RecurringTaskGenParams
     from ..models.time_plan_load_settings_result_generation_in_advance_days import (
@@ -31,7 +30,6 @@ class TimePlanLoadSettingsResult:
         generation_approach (TimePlanGenerationApproach): The approach to generate time plans.
         generation_in_advance_days (TimePlanLoadSettingsResultGenerationInAdvanceDays):
         planning_tasks (list[InboxTask]):
-        planning_task_aspect (Aspect | None | Unset):
         planning_task_gen_params (None | RecurringTaskGenParams | Unset):
     """
 
@@ -39,12 +37,10 @@ class TimePlanLoadSettingsResult:
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: TimePlanLoadSettingsResultGenerationInAdvanceDays
     planning_tasks: list[InboxTask]
-    planning_task_aspect: Aspect | None | Unset = UNSET
     planning_task_gen_params: None | RecurringTaskGenParams | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.aspect import Aspect
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
 
         periods = []
@@ -60,14 +56,6 @@ class TimePlanLoadSettingsResult:
         for planning_tasks_item_data in self.planning_tasks:
             planning_tasks_item = planning_tasks_item_data.to_dict()
             planning_tasks.append(planning_tasks_item)
-
-        planning_task_aspect: dict[str, Any] | None | Unset
-        if isinstance(self.planning_task_aspect, Unset):
-            planning_task_aspect = UNSET
-        elif isinstance(self.planning_task_aspect, Aspect):
-            planning_task_aspect = self.planning_task_aspect.to_dict()
-        else:
-            planning_task_aspect = self.planning_task_aspect
 
         planning_task_gen_params: dict[str, Any] | None | Unset
         if isinstance(self.planning_task_gen_params, Unset):
@@ -87,8 +75,6 @@ class TimePlanLoadSettingsResult:
                 "planning_tasks": planning_tasks,
             }
         )
-        if planning_task_aspect is not UNSET:
-            field_dict["planning_task_aspect"] = planning_task_aspect
         if planning_task_gen_params is not UNSET:
             field_dict["planning_task_gen_params"] = planning_task_gen_params
 
@@ -96,7 +82,6 @@ class TimePlanLoadSettingsResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect import Aspect
         from ..models.inbox_task import InboxTask
         from ..models.recurring_task_gen_params import RecurringTaskGenParams
         from ..models.time_plan_load_settings_result_generation_in_advance_days import (
@@ -124,23 +109,6 @@ class TimePlanLoadSettingsResult:
 
             planning_tasks.append(planning_tasks_item)
 
-        def _parse_planning_task_aspect(data: object) -> Aspect | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                planning_task_aspect_type_0 = Aspect.from_dict(data)
-
-                return planning_task_aspect_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Aspect | None | Unset, data)
-
-        planning_task_aspect = _parse_planning_task_aspect(d.pop("planning_task_aspect", UNSET))
-
         def _parse_planning_task_gen_params(data: object) -> None | RecurringTaskGenParams | Unset:
             if data is None:
                 return data
@@ -163,7 +131,6 @@ class TimePlanLoadSettingsResult:
             generation_approach=generation_approach,
             generation_in_advance_days=generation_in_advance_days,
             planning_tasks=planning_tasks,
-            planning_task_aspect=planning_task_aspect,
             planning_task_gen_params=planning_task_gen_params,
         )
 

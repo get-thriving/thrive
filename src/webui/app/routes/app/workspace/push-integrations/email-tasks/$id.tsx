@@ -22,10 +22,10 @@ import { useContext } from "react";
 import { z } from "zod";
 import { parseForm, parseParams } from "zodix";
 import { aDateToDate } from "@jupiter/core/common/adate";
-import { inboxTaskStatusName } from "@jupiter/core/inbox_tasks/status";
+import { inboxTaskStatusName } from "#/core/common/sub/inbox_tasks/status";
 import { DifficultySelect } from "@jupiter/core/common/component/difficulty-select";
 import { EisenhowerSelect } from "@jupiter/core/common/component/eisenhower-select";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -219,7 +219,7 @@ export default function EmailTask() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -232,7 +232,7 @@ export default function EmailTask() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -345,15 +345,11 @@ export default function EmailTask() {
             }
             label="Status"
           >
-            {Object.values(InboxTaskStatus)
-              .filter((s) => {
-                return s !== InboxTaskStatus.NOT_STARTED_GEN;
-              })
-              .map((s) => (
-                <MenuItem key={s} value={s}>
-                  {inboxTaskStatusName(s)}
-                </MenuItem>
-              ))}
+            {Object.values(InboxTaskStatus).map((s) => (
+              <MenuItem key={s} value={s}>
+                {inboxTaskStatusName(s)}
+              </MenuItem>
+            ))}
           </Select>
           <FieldError
             actionResult={actionData}

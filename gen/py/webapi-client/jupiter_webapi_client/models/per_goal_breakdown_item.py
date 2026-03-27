@@ -7,7 +7,6 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.inbox_tasks_summary import InboxTasksSummary
     from ..models.workable_summary import WorkableSummary
 
 
@@ -21,13 +20,11 @@ class PerGoalBreakdownItem:
     Attributes:
         ref_id (str): A generic entity id.
         name (str): The name for an entity which acts as both name and unique identifier.
-        inbox_tasks_summary (InboxTasksSummary): A bigger summary for inbox tasks.
         big_plans_summary (WorkableSummary): The reporting summary.
     """
 
     ref_id: str
     name: str
-    inbox_tasks_summary: InboxTasksSummary
     big_plans_summary: WorkableSummary
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -35,8 +32,6 @@ class PerGoalBreakdownItem:
         ref_id = self.ref_id
 
         name = self.name
-
-        inbox_tasks_summary = self.inbox_tasks_summary.to_dict()
 
         big_plans_summary = self.big_plans_summary.to_dict()
 
@@ -46,7 +41,6 @@ class PerGoalBreakdownItem:
             {
                 "ref_id": ref_id,
                 "name": name,
-                "inbox_tasks_summary": inbox_tasks_summary,
                 "big_plans_summary": big_plans_summary,
             }
         )
@@ -55,7 +49,6 @@ class PerGoalBreakdownItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.inbox_tasks_summary import InboxTasksSummary
         from ..models.workable_summary import WorkableSummary
 
         d = dict(src_dict)
@@ -63,14 +56,11 @@ class PerGoalBreakdownItem:
 
         name = d.pop("name")
 
-        inbox_tasks_summary = InboxTasksSummary.from_dict(d.pop("inbox_tasks_summary"))
-
         big_plans_summary = WorkableSummary.from_dict(d.pop("big_plans_summary"))
 
         per_goal_breakdown_item = cls(
             ref_id=ref_id,
             name=name,
-            inbox_tasks_summary=inbox_tasks_summary,
             big_plans_summary=big_plans_summary,
         )
 

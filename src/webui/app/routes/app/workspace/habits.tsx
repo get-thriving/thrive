@@ -75,7 +75,7 @@ import {
   InboxTaskOptimisticState,
   InboxTaskParent,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { GoalTag } from "#/core/life_plan/sub/goals/components/tag";
 import { ChapterTag } from "#/core/life_plan/sub/chapters/components/tag";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
@@ -131,9 +131,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const habitInboxTasksResponse = await apiClient.inboxTasks.inboxTaskFind({
     allow_archived: false,
-    include_tags: true,
-    include_notes: false,
-    include_time_event_blocks: false,
     filter_sources: [InboxTaskSource.HABIT],
   });
 
@@ -226,7 +223,7 @@ export default function Habits() {
         { id: it.ref_id, status: InboxTaskStatus.DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);
@@ -245,7 +242,7 @@ export default function Habits() {
         { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
         {
           method: "post",
-          action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
         },
       );
     }, 0);

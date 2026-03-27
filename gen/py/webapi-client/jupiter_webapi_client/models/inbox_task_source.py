@@ -13,7 +13,7 @@ class InboxTaskSource(str, Enum):
     PERSON_OCCASION = "person-occasion"
     SLACK_TASK = "slack-task"
     TIME_PLAN = "time-plan"
-    USER = "user"
+    TODO_TASK = "todo-task"
     WORKING_MEM_CLEANUP = "working-mem-cleanup"
 
     def __str__(self) -> str:

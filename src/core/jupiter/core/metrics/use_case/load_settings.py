@@ -6,8 +6,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Aspect
-from jupiter.core.metrics.collection import MetricCollection
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     readonly_use_case,
@@ -29,8 +27,6 @@ class MetricLoadSettingsArgs(UseCaseArgsBase):
 class MetricLoadSettingsResult(UseCaseResultBase):
     """MetricLoadSettings results."""
 
-    collection_aspect: Aspect
-
 
 @readonly_use_case(WorkspaceFeature.METRICS, exclude_component=[AppCore.CLI])
 class MetricLoadSettingsUseCase(
@@ -47,13 +43,4 @@ class MetricLoadSettingsUseCase(
         args: MetricLoadSettingsArgs,
     ) -> MetricLoadSettingsResult:
         """Execute the command's action."""
-        workspace = context.workspace
-
-        metric_collection = await uow.get_for(MetricCollection).load_by_parent(
-            workspace.ref_id,
-        )
-        collection_aspect = await uow.get_for(Aspect).load_by_id(
-            metric_collection.collection_aspect_ref_id,
-        )
-
-        return MetricLoadSettingsResult(collection_aspect=collection_aspect)
+        return MetricLoadSettingsResult()

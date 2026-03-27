@@ -2,16 +2,16 @@ import { NamedEntityTag } from "@jupiter/webapi-client";
 
 export function entityTagName(entityTag: NamedEntityTag): string {
   switch (entityTag) {
+    case NamedEntityTag.OTHER:
+      return "Other";
     case NamedEntityTag.SCORE_LOG_ENTRY:
       return "Score Log Entry";
+    case NamedEntityTag.TODO_TASK:
+      return "Todo Task";
     case NamedEntityTag.HOME_TAB:
       return "Home Tab";
     case NamedEntityTag.HOME_WIDGET:
       return "Home Widget";
-    case NamedEntityTag.INBOX_TASK:
-      return "Inbox Task";
-    case NamedEntityTag.TODO_TASK:
-      return "Todo Task";
     case NamedEntityTag.WORKING_MEM:
       return "Working Mem";
     case NamedEntityTag.TIME_PLAN:

@@ -8,13 +8,13 @@ from jupiter.core.application.fast_info_repository import (
     FastInfoRepository,
     GoalSummary,
     HabitSummary,
-    InboxTaskSummary,
     JournalSummary,
     MetricSummary,
     MilestoneSummary,
     PersonSummary,
     ScheduleStreamSummary,
     SmartListSummary,
+    TodoTaskSummary,
     VacationSummary,
 )
 from jupiter.core.big_plans.collection import BigPlanCollection
@@ -25,9 +25,6 @@ from jupiter.core.config import (
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.collection import HabitCollection
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.aspects.root import AspectRepository
@@ -39,6 +36,7 @@ from jupiter.core.schedule.domain import ScheduleDomain
 from jupiter.core.smart_lists.collection import (
     SmartListCollection,
 )
+from jupiter.core.todo.domain import TodoDomain
 from jupiter.core.users.root import User
 from jupiter.core.vacations.collection import VacationCollection
 from jupiter.core.workspaces.root import Workspace
@@ -69,7 +67,7 @@ class GetSummariesArgs(UseCaseArgsBase):
     include_chapters: bool | None
     include_goals: bool | None
     include_milestones: bool | None
-    include_inbox_tasks: bool | None
+    include_todo_tasks: bool | None
     include_journals_last_year: bool | None
     include_habits: bool | None
     include_chores: bool | None
@@ -94,7 +92,7 @@ class GetSummariesResult(UseCaseResultBase):
     chapters: list[ChapterSummary] | None
     goals: list[GoalSummary] | None
     milestones: list[MilestoneSummary] | None
-    inbox_tasks: list[InboxTaskSummary] | None
+    todo_tasks: list[TodoTaskSummary] | None
     journals_last_year: list[JournalSummary] | None
     habits: list[HabitSummary] | None
     chores: list[ChoreSummary] | None
@@ -124,7 +122,7 @@ class GetSummariesUseCase(
         vacation_collection = await uow.get_for(VacationCollection).load_by_parent(
             workspace.ref_id,
         )
-        inbox_task_collection = await uow.get_for(InboxTaskCollection).load_by_parent(
+        todo_domain = await uow.get_for(TodoDomain).load_by_parent(
             workspace.ref_id,
         )
         schedule_domain = await uow.get_for(ScheduleDomain).load_by_parent(
@@ -208,15 +206,13 @@ class GetSummariesUseCase(
                 parent_ref_id=life_plan.workspace.ref_id,
                 allow_archived=allow_archived,
             )
-        inbox_tasks = None
+        todo_tasks = None
         if (
-            workspace.is_feature_available(WorkspaceFeature.INBOX_TASKS)
-            and args.include_inbox_tasks
+            workspace.is_feature_available(WorkspaceFeature.TODO_TASK)
+            and args.include_todo_tasks
         ):
-            inbox_tasks = await uow.get(
-                FastInfoRepository
-            ).find_all_inbox_task_summaries(
-                parent_ref_id=inbox_task_collection.workspace.ref_id,
+            todo_tasks = await uow.get(FastInfoRepository).find_all_todo_task_summaries(
+                parent_ref_id=todo_domain.ref_id,
                 allow_archived=allow_archived,
             )
 
@@ -335,7 +331,7 @@ class GetSummariesUseCase(
             chapters=chapters,
             goals=goals,
             milestones=milestones,
-            inbox_tasks=inbox_tasks,
+            todo_tasks=todo_tasks,
             journals_last_year=journals_last_year,
             habits=habits,
             chores=chores,

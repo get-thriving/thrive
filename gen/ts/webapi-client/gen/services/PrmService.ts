@@ -19,7 +19,6 @@ import type { OccasionLoadResult } from '../models/OccasionLoadResult';
 import type { OccasionRemoveArgs } from '../models/OccasionRemoveArgs';
 import type { OccasionUpdateArgs } from '../models/OccasionUpdateArgs';
 import type { PersonArchiveArgs } from '../models/PersonArchiveArgs';
-import type { PersonChangeCatchUpAspectArgs } from '../models/PersonChangeCatchUpAspectArgs';
 import type { PersonCreateArgs } from '../models/PersonCreateArgs';
 import type { PersonCreateResult } from '../models/PersonCreateResult';
 import type { PersonFindArgs } from '../models/PersonFindArgs';
@@ -489,32 +488,6 @@ export class PrmService {
         return this.httpRequest.request({
             method: 'POST',
             url: '/person-update',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Error response for EntityAlreadyExistsError`,
-                401: `Error response for ExpiredAuthTokenError`,
-                404: `Error response for EntityNotFoundError`,
-                406: `Error response for UnavailableGloballyError, UnavailableForComponentError, UnavailableForContextError`,
-                409: `Error response for TimePlanExistsForDatePeriodCombinationError, BigPlanMilestoneAlreadyExistsForDateError, JournalExistsForDatePeriodCombinationError, ContactAlreadyExistsError, TagAlreadyExistsError`,
-                410: `Error response for UserNotFoundError, WorkspaceNotFoundError`,
-                422: `Error response for JSONDecodeError, InputValidationError, MultiInputValidationError, RealmDecodingError, UserAlreadyExistsError, InvalidLoginCredentialsError, InvalidAPIKeyError, AspectInSignificantUseError, ContactInSignificantUseError`,
-                426: `Error response for InvalidAuthTokenError`,
-            },
-        });
-    }
-    /**
-     * The command for updating the catch up aspect for persons.
-     * @param requestBody The input data
-     * @returns any Successful response / Empty body
-     * @throws ApiError
-     */
-    public personChangeCatchUpAspect(
-        requestBody?: PersonChangeCatchUpAspectArgs,
-    ): CancelablePromise<any> {
-        return this.httpRequest.request({
-            method: 'POST',
-            url: '/person-change-catch-up-aspect',
             body: requestBody,
             mediaType: 'application/json',
             errors: {

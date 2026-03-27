@@ -477,7 +477,6 @@ def test_api_prm_prm_load_settings(api_url: str, api_key: str) -> None:
         timeout=10,
     )
     assert response.status_code == 200
-    assert "catch_up_aspect" in response.json()
     assert "max_circles_per_person" in response.json()
 
 

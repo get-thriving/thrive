@@ -1,8 +1,8 @@
 """The domain service which constructs a time and effort summary."""
 
 from jupiter.core.common.difficulty import Difficulty
-from jupiter.core.inbox_tasks.collection import InboxTaskCollection
-from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.collection import InboxTaskCollection
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.core.time_plans.sub.activity.feasability import (
     TimePlanActivityFeasability,

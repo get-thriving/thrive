@@ -57,8 +57,6 @@ class CalendarShow(
 
             in_day_events_tree = Tree("In Day Events", guide_style="bold bright_blue")
 
-            self._build_inbox_tasks(result.entries, in_day_events_tree)
-
             self._build_schedule_in_day(result.entries, in_day_events_tree)
 
             rich_tree.add(in_day_events_tree)
@@ -121,36 +119,6 @@ class CalendarShow(
             )
 
             full_day_events_tree.add(schedule_event_full_days_text)
-
-    def _build_inbox_tasks(
-        self, entries: CalendarEventsEntries, in_day_events_tree: Tree
-    ) -> None:
-        for inbox_task_entry in sorted(
-            entries.inbox_task_entries,
-            key=lambda it: (
-                it.time_events[0].start_date,
-                it.time_events[0].start_time_in_day,
-                it.time_events[0].duration_mins,
-            ),
-        ):
-            inbox_task = inbox_task_entry.inbox_task
-            time_event = inbox_task_entry.time_events
-
-            inbox_task_text = Text("")
-            inbox_task_text.append(entity_name_to_rich_text(inbox_task.name))
-            inbox_task_text.append(" ")
-            inbox_task_text.append(
-                date_with_label_to_rich_text(time_event[0].start_date, "from")
-            )
-            inbox_task_text.append(" at ")
-            inbox_task_text.append(
-                time_in_day_to_rich_text(time_event[0].start_time_in_day)
-            )
-            inbox_task_text.append(
-                f" that lasts for {time_event[0].duration_mins} minutes"
-            )
-
-            in_day_events_tree.add(inbox_task_text)
 
     def _build_schedule_in_day(
         self, entries: CalendarEventsEntries, in_day_events_tree: Tree
@@ -217,12 +185,6 @@ class CalendarShow(
                     style=(
                         "gray62" if stat.schedule_event_in_day_cnt == 0 else "default"
                     ),
-                )
-            )
-            per_subperiod_tree.add(
-                Text(
-                    f"{stat.inbox_task_cnt} inbox tasks",
-                    style="gray62" if stat.inbox_task_cnt == 0 else "default",
                 )
             )
             per_subperiod_tree.add(

@@ -1,16 +1,15 @@
 """The command for finding a email task."""
 
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.push_integrations.group import (
     PushIntegrationGroup,
 )
@@ -53,7 +52,6 @@ class EmailTaskFindResultEntry(UseCaseResultBase):
 class EmailTaskFindResult(UseCaseResultBase):
     """PersonFindResult."""
 
-    generation_aspect: Aspect
     entries: list[EmailTaskFindResultEntry]
 
 
@@ -90,10 +88,6 @@ class EmailTaskFindUseCase(
             filter_ref_ids=args.filter_ref_ids,
         )
 
-        generation_aspect = await uow.get_for(Aspect).load_by_id(
-            email_task_collection.generation_aspect_ref_id,
-        )
-
         if include_inbox_task:
             inbox_tasks = await uow.get_for(InboxTask).find_all_generic(
                 parent_ref_id=inbox_task_collection.ref_id,
@@ -102,13 +96,12 @@ class EmailTaskFindUseCase(
                 source_entity_ref_id=[st.ref_id for st in email_tasks],
             )
             inbox_tasks_by_email_task_ref_id = {
-                it.source_entity_ref_id_for_sure: it for it in inbox_tasks
+                it.source_entity_ref_id: it for it in inbox_tasks
             }
         else:
             inbox_tasks_by_email_task_ref_id = None
 
         return EmailTaskFindResult(
-            generation_aspect=generation_aspect,
             entries=[
                 EmailTaskFindResultEntry(
                     email_task=st,

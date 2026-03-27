@@ -23,6 +23,9 @@ from jupiter_webapi_client.api.big_plans.big_plan_archive import (
 from jupiter_webapi_client.api.big_plans.big_plan_create import (
     asyncio_detailed as big_plan_create,
 )
+from jupiter_webapi_client.api.big_plans.big_plan_create_inbox_task import (
+    asyncio_detailed as big_plan_create_inbox_task,
+)
 from jupiter_webapi_client.api.big_plans.big_plan_find import (
     asyncio_detailed as big_plan_find,
 )
@@ -149,9 +152,6 @@ from jupiter_webapi_client.api.habits.habit_update import (
 # --- Inbox Tasks API ---
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_archive import (
     asyncio_detailed as inbox_task_archive,
-)
-from jupiter_webapi_client.api.inbox_tasks.inbox_task_create import (
-    asyncio_detailed as inbox_task_create,
 )
 from jupiter_webapi_client.api.inbox_tasks.inbox_task_find import (
     asyncio_detailed as inbox_task_find,
@@ -309,9 +309,6 @@ from jupiter_webapi_client.api.life_plan.vision_remove import (
 from jupiter_webapi_client.api.metrics.metric_archive import (
     asyncio_detailed as metric_archive,
 )
-from jupiter_webapi_client.api.metrics.metric_change_collection_aspect import (
-    asyncio_detailed as metric_change_collection_aspect,
-)
 from jupiter_webapi_client.api.metrics.metric_create import (
     asyncio_detailed as metric_create,
 )
@@ -402,9 +399,6 @@ from jupiter_webapi_client.api.prm.occasion_update import (
 )
 from jupiter_webapi_client.api.prm.person_archive import (
     asyncio_detailed as person_archive,
-)
-from jupiter_webapi_client.api.prm.person_change_catch_up_aspect import (
-    asyncio_detailed as person_change_catch_up_aspect,
 )
 from jupiter_webapi_client.api.prm.person_create import (
     asyncio_detailed as person_create,
@@ -570,8 +564,17 @@ from jupiter_webapi_client.api.time_events.time_event_in_day_block_archive impor
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_big_plan import (
     asyncio_detailed as time_event_in_day_block_create_for_big_plan,
 )
-from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_inbox_task import (
-    asyncio_detailed as time_event_in_day_block_create_for_inbox_task,
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_chore import (
+    asyncio_detailed as time_event_in_day_block_create_for_chore,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_habit import (
+    asyncio_detailed as time_event_in_day_block_create_for_habit,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_time_plan_activity import (
+    asyncio_detailed as time_event_in_day_block_create_for_time_plan_activity,
+)
+from jupiter_webapi_client.api.time_events.time_event_in_day_block_create_for_todo_task import (
+    asyncio_detailed as time_event_in_day_block_create_for_todo_task,
 )
 from jupiter_webapi_client.api.time_events.time_event_in_day_block_load import (
     asyncio_detailed as time_event_in_day_block_load,
@@ -727,22 +730,6 @@ async def main() -> None:
         service_properties,
         request_time_provider,
         cron_run_time_provider,
-        # Inbox Tasks
-        JupiterApiResource.build(
-            "inbox-tasks",
-            JupiterApiGatewayMethod.get(inbox_task_find),
-            JupiterApiGatewayMethod.post(inbox_task_create),
-            JupiterApiResource.build(
-                ":ref_id",
-                JupiterApiGatewayMethod.get(inbox_task_load),
-                JupiterApiGatewayMethod.put(inbox_task_update),
-                JupiterApiGatewayMethod.delete(inbox_task_archive),
-                JupiterApiResource.build(
-                    "remove",
-                    JupiterApiGatewayMethod.delete(inbox_task_remove),
-                ),
-            ),
-        ),
         # Working Mem
         JupiterApiResource.build(
             "working-mem",
@@ -980,6 +967,10 @@ async def main() -> None:
                     JupiterApiGatewayMethod.delete(big_plan_remove),
                 ),
                 JupiterApiResource.build(
+                    "inbox-tasks",
+                    JupiterApiGatewayMethod.post(big_plan_create_inbox_task),
+                ),
+                JupiterApiResource.build(
                     "milestones",
                     JupiterApiGatewayMethod.post(big_plan_milestone_create),
                     JupiterApiResource.build(
@@ -1163,10 +1154,6 @@ async def main() -> None:
                     JupiterApiGatewayMethod.delete(metric_remove),
                 ),
                 JupiterApiResource.build(
-                    "change-collection-aspect",
-                    JupiterApiGatewayMethod.post(metric_change_collection_aspect),
-                ),
-                JupiterApiResource.build(
                     "entries",
                     JupiterApiGatewayMethod.post(metric_entry_create),
                     JupiterApiResource.build(
@@ -1188,10 +1175,6 @@ async def main() -> None:
             JupiterApiResource.build(
                 "settings",
                 JupiterApiGatewayMethod.get(person_load_settings),
-            ),
-            JupiterApiResource.build(
-                "change-catch-up-aspect",
-                JupiterApiGatewayMethod.post(person_change_catch_up_aspect),
             ),
             JupiterApiResource.build(
                 "persons",
@@ -1302,6 +1285,21 @@ async def main() -> None:
         ),
         JupiterApiResource.build(
             "common",
+            # Inbox Tasks
+            JupiterApiResource.build(
+                "inbox-tasks",
+                JupiterApiGatewayMethod.get(inbox_task_find),
+                JupiterApiResource.build(
+                    ":ref_id",
+                    JupiterApiGatewayMethod.get(inbox_task_load),
+                    JupiterApiGatewayMethod.put(inbox_task_update),
+                    JupiterApiGatewayMethod.delete(inbox_task_archive),
+                    JupiterApiResource.build(
+                        "remove",
+                        JupiterApiGatewayMethod.delete(inbox_task_remove),
+                    ),
+                ),
+            ),
             # Notes
             JupiterApiResource.build(
                 "notes",
@@ -1364,15 +1362,33 @@ async def main() -> None:
                 JupiterApiResource.build(
                     "in-day-blocks",
                     JupiterApiResource.build(
-                        "for-inbox-task",
-                        JupiterApiGatewayMethod.post(
-                            time_event_in_day_block_create_for_inbox_task,
-                        ),
-                    ),
-                    JupiterApiResource.build(
                         "for-big-plan",
                         JupiterApiGatewayMethod.post(
                             time_event_in_day_block_create_for_big_plan,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-todo-task",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_todo_task,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-habit",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_habit,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-chore",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_chore,
+                        ),
+                    ),
+                    JupiterApiResource.build(
+                        "for-time-plan-activity",
+                        JupiterApiGatewayMethod.post(
+                            time_event_in_day_block_create_for_time_plan_activity,
                         ),
                     ),
                     JupiterApiResource.build(

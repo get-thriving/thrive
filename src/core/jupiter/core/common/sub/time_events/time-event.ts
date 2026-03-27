@@ -1,9 +1,10 @@
 import {
   ADate,
   BigPlanEntry,
+  ChoreEntry,
   Contact,
   EntityId,
-  InboxTaskEntry,
+  HabitEntry,
   RecurringTaskPeriod,
   ScheduleFullDaysEventEntry,
   ScheduleInDayEventEntry,
@@ -17,6 +18,8 @@ import {
   PersonOccasionEntry,
   Occasion,
   OccasionKind,
+  TimePlanActivityEntry,
+  TodoTaskEntry,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 
@@ -44,6 +47,10 @@ export function occasionTimeEventName(
 
 export const INBOX_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIG_PLAN_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const TODO_TASK_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
+export const HABIT_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
+export const CHORE_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
+export const TIME_PLAN_ACTIVITY_TIME_EVENT_COLOR = ScheduleStreamColor.BLUE;
 export const BIRTHDAY_TIME_EVENT_COLOR = ScheduleStreamColor.GREEN;
 export const VACATION_TIME_EVENT_COLOR = ScheduleStreamColor.ORANGE;
 
@@ -73,7 +80,13 @@ export interface CombinedTimeEventFullDaysEntry {
 
 export interface CombinedTimeEventInDayEntry {
   time_event_in_tz: TimeEventInDayBlock;
-  entry: ScheduleInDayEventEntry | InboxTaskEntry | BigPlanEntry;
+  entry:
+    | ScheduleInDayEventEntry
+    | BigPlanEntry
+    | TodoTaskEntry
+    | HabitEntry
+    | ChoreEntry
+    | TimePlanActivityEntry;
 }
 
 const FULL_DaYS_TIME_EVENT_NAMESPACES_IN_ORDER = [
@@ -93,10 +106,19 @@ export function compareNamespaceForSortingFullDaysTimeEvents(
 }
 
 export function isTimeEventInDayBlockEditable(namespace: TimeEventNamespace) {
-  if (namespace === TimeEventNamespace.INBOX_TASK) {
+  if (namespace === TimeEventNamespace.BIG_PLAN) {
     return true;
   }
-  if (namespace === TimeEventNamespace.BIG_PLAN) {
+  if (namespace === TimeEventNamespace.TODO_TASK) {
+    return true;
+  }
+  if (namespace === TimeEventNamespace.HABIT) {
+    return true;
+  }
+  if (namespace === TimeEventNamespace.CHORE) {
+    return true;
+  }
+  if (namespace === TimeEventNamespace.TIME_PLAN_ACTIVITY) {
     return true;
   }
 

@@ -88,7 +88,6 @@ class UserFeatureFlagsControls(CompositeValue):
 class WorkspaceFeature(EnumValue):
     """A particular feature of a jupiter workspace."""
 
-    INBOX_TASKS = "inbox-tasks"
     TODO_TASK = "todo-task"
     WORKING_MEM = "working-mem"
     TIME_PLANS = "time-plans"
@@ -162,7 +161,6 @@ USER_FEATURE_FLAGS_CONTROLS = UserFeatureFlagsControls(
 
 
 BASIC_WORKSPACE_FEATURE_FLAGS = {
-    WorkspaceFeature.INBOX_TASKS: True,
     WorkspaceFeature.TODO_TASK: False,
     WorkspaceFeature.WORKING_MEM: False,
     WorkspaceFeature.TIME_PLANS: False,
@@ -187,7 +185,6 @@ BASIC_WORKSPACE_FEATURE_FLAGS_ARR = [
 
 HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
     {
-        WorkspaceFeature.INBOX_TASKS: FeatureControl.ALWAYS_ON,
         WorkspaceFeature.TODO_TASK: FeatureControl.USER,
         WorkspaceFeature.WORKING_MEM: FeatureControl.USER,
         WorkspaceFeature.TIME_PLANS: FeatureControl.USER,
@@ -210,7 +207,6 @@ HOSTED_GLOBAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
 
 LOCAL_WORKSPACE_FEATURE_FLAGS_CONTROLS = WorkspaceFeatureFlagsControls(
     {
-        WorkspaceFeature.INBOX_TASKS: FeatureControl.ALWAYS_ON,
         WorkspaceFeature.TODO_TASK: FeatureControl.USER,
         WorkspaceFeature.WORKING_MEM: FeatureControl.USER,
         WorkspaceFeature.TIME_PLANS: FeatureControl.USER,

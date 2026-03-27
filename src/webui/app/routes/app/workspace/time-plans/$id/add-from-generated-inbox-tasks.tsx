@@ -1,14 +1,11 @@
-import type { InboxTask, Workspace } from "@jupiter/webapi-client";
+import type { InboxTask } from "@jupiter/webapi-client";
 import {
   ApiError,
   RecurringTaskPeriod,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   TimePlanActivityTarget,
-  WorkspaceFeature,
 } from "@jupiter/webapi-client";
-import FlareIcon from "@mui/icons-material/Flare";
-import ViewListIcon from "@mui/icons-material/ViewList";
 import {
   FormControl,
   FormLabel,
@@ -26,22 +23,17 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { z } from "zod";
 import { parseForm, parseParams, parseQuery } from "zodix";
 import { allHigherPeriods } from "@jupiter/core/common/recurring-task-period";
-import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
-import {
-  computeAspectHierarchicalNameFromRoot,
-  sortAspectsByTreeOrder,
-} from "#/core/life_plan/sub/aspects/root";
 import {
   filterInboxTasksForDisplay,
   inboxTaskFindEntryToParent,
   sortInboxTasksByEisenAndDifficulty,
-} from "@jupiter/core/inbox_tasks/root";
-import type { InboxTaskParent } from "@jupiter/core/inbox_tasks/root";
-import { InboxTaskCard } from "@jupiter/core/inbox_tasks/component/card";
+} from "#/core/common/sub/inbox_tasks/root";
+import type { InboxTaskParent } from "#/core/common/sub/inbox_tasks/root";
+import { InboxTaskCard } from "@jupiter/core/common/sub/inbox_tasks/component/card";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -73,11 +65,6 @@ import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-a
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { fixSelectOutputToEnum, selectZod } from "~/logic/select";
 import { getLoggedInApiClient } from "~/api-clients.server";
-
-enum View {
-  MERGED = "merged",
-  BY_ASPECT = "by-aspect",
-}
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -111,10 +98,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const apiClient = await getLoggedInApiClient(request);
   const { id } = parseParams(params, ParamsSchema);
 
-  const summaryResponse = await apiClient.application.getSummaries({
-    include_aspects: true,
-  });
-
   try {
     const timePlanResult = await apiClient.timePlans.timePlanLoad({
       ref_id: id,
@@ -126,15 +109,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
     const inboxTasksResult = await apiClient.inboxTasks.inboxTaskFind({
       allow_archived: false,
-      include_tags: true,
-      include_notes: false,
-      include_time_event_blocks: false,
       filter_just_workable: true,
       filter_just_generated: true,
     });
 
     return json({
-      allAspects: summaryResponse.aspects || undefined,
       timePlan: timePlanResult.time_plan,
       activities: timePlanResult.activities,
       inboxTasks: inboxTasksResult.entries,
@@ -232,9 +211,6 @@ export default function TimePlanAddFromCurrentInboxTasks() {
     entriesByRefId[entry.inbox_task.ref_id] = inboxTaskFindEntryToParent(entry);
   }
 
-  const [selectedView, setSelectedView] = useState(
-    inferDefaultSelectedView(topLevelInfo.workspace),
-  );
   const [selectedActionableTime, setSelectedActionableTime] = useState(
     ActionableTime.ONE_WEEK,
   );
@@ -257,15 +233,6 @@ export default function TimePlanAddFromCurrentInboxTasks() {
       allowPeriodsForRecurringTasks: allHigherPeriods(selectedPeriod),
     },
   );
-
-  const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
-  const allAspectsByRefId = new Map(
-    loaderData.allAspects?.map((p) => [p.ref_id, p]),
-  );
-
-  useEffect(() => {
-    setSelectedView(inferDefaultSelectedView(topLevelInfo.workspace));
-  }, [topLevelInfo]);
 
   return (
     <LeafPanel
@@ -303,24 +270,6 @@ export default function TimePlanAddFromCurrentInboxTasks() {
                   }),
                 ],
               }),
-              FilterFewOptionsCompact(
-                "View",
-                selectedView,
-                [
-                  {
-                    value: View.MERGED,
-                    text: "Merged",
-                    icon: <ViewListIcon />,
-                  },
-                  {
-                    value: View.BY_ASPECT,
-                    text: "By Aspect",
-                    icon: <FlareIcon />,
-                    gatedOn: WorkspaceFeature.LIFE_PLAN,
-                  },
-                ],
-                (selected) => setSelectedView(selected),
-              ),
               FilterFewOptionsCompact(
                 "Actionable",
                 selectedActionableTime,
@@ -431,63 +380,19 @@ export default function TimePlanAddFromCurrentInboxTasks() {
           </FormControl>
         </Stack>
 
-        {selectedView === View.MERGED && (
-          <>
-            <StandardDivider title="All Inbox Tasks" size="large" />
-            <InboxTaskList
-              topLevelInfo={topLevelInfo}
-              inboxTasks={filteredInboxTasks}
-              alreadyIncludedInboxTaskRefIds={alreadyIncludedInboxTaskRefIds}
-              targetInboxTaskRefIds={targetInboxTaskRefIds}
-              inboxTasksByRefId={entriesByRefId}
-              onSelected={(it) =>
-                setTargetInboxTaskRefIds((itri) =>
-                  toggleInboxTaskRefIds(itri, it.ref_id),
-                )
-              }
-            />
-          </>
-        )}
-
-        {selectedView === View.BY_ASPECT && (
-          <>
-            {sortedAspects.map((p) => {
-              const theInboxTasks = filteredInboxTasks.filter(
-                (se) => entriesByRefId[se.ref_id]?.aspect?.ref_id === p.ref_id,
-              );
-
-              if (theInboxTasks.length === 0) {
-                return null;
-              }
-
-              const fullAspectName = computeAspectHierarchicalNameFromRoot(
-                p,
-                allAspectsByRefId,
-              );
-
-              return (
-                <Fragment key={`aspect-${p.ref_id}`}>
-                  <StandardDivider title={fullAspectName} size="large" />
-
-                  <InboxTaskList
-                    topLevelInfo={topLevelInfo}
-                    inboxTasks={theInboxTasks}
-                    alreadyIncludedInboxTaskRefIds={
-                      alreadyIncludedInboxTaskRefIds
-                    }
-                    targetInboxTaskRefIds={targetInboxTaskRefIds}
-                    inboxTasksByRefId={entriesByRefId}
-                    onSelected={(it) =>
-                      setTargetInboxTaskRefIds((itri) =>
-                        toggleInboxTaskRefIds(itri, it.ref_id),
-                      )
-                    }
-                  />
-                </Fragment>
-              );
-            })}
-          </>
-        )}
+        <StandardDivider title="All Inbox Tasks" size="large" />
+        <InboxTaskList
+          topLevelInfo={topLevelInfo}
+          inboxTasks={filteredInboxTasks}
+          alreadyIncludedInboxTaskRefIds={alreadyIncludedInboxTaskRefIds}
+          targetInboxTaskRefIds={targetInboxTaskRefIds}
+          inboxTasksByRefId={entriesByRefId}
+          onSelected={(it) =>
+            setTargetInboxTaskRefIds((itri) =>
+              toggleInboxTaskRefIds(itri, it.ref_id),
+            )
+          }
+        />
 
         <input
           name="targetInboxTaskRefIds"
@@ -532,7 +437,6 @@ function InboxTaskList(props: InboxTaskListProps) {
             props.targetInboxTaskRefIds.has(inboxTask.ref_id)
           }
           showOptions={{
-            showLifePlan: true,
             showEisen: true,
             showDifficulty: true,
             showDueDate: true,
@@ -573,12 +477,4 @@ function toggleInboxTaskRefIds(
     newInboxTaskRefIds.add(newRefId);
     return newInboxTaskRefIds;
   }
-}
-
-function inferDefaultSelectedView(workspace: Workspace) {
-  if (!isWorkspaceFeatureAvailable(workspace, WorkspaceFeature.LIFE_PLAN)) {
-    return View.MERGED;
-  }
-
-  return View.BY_ASPECT;
 }

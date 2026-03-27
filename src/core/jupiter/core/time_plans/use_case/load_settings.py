@@ -3,17 +3,16 @@
 from jupiter.core.app import AppCore
 from jupiter.core.common.recurring_task_gen_params import RecurringTaskGenParams
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
     TimePlanGenerationApproach,
@@ -42,7 +41,6 @@ class TimePlanLoadSettingsResult(UseCaseResultBase):
     periods: list[RecurringTaskPeriod]
     generation_approach: TimePlanGenerationApproach
     generation_in_advance_days: dict[RecurringTaskPeriod, int]
-    planning_task_aspect: Aspect | None
     planning_task_gen_params: RecurringTaskGenParams | None
     planning_tasks: list[InboxTask]
 
@@ -73,13 +71,6 @@ class TimePlanLoadSettingsUseCase(
             workspace.ref_id,
         )
 
-        if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            planning_task_aspect = await uow.get_for(Aspect).load_by_id(
-                time_plan_domain.planning_task_aspect_ref_id,
-            )
-        else:
-            planning_task_aspect = None
-
         planning_tasks = await uow.get_for(InboxTask).find_all_generic(
             parent_ref_id=inbox_task_collection.ref_id,
             allow_archived=True,
@@ -90,7 +81,6 @@ class TimePlanLoadSettingsUseCase(
             periods=list(time_plan_domain.periods),
             generation_approach=time_plan_domain.generation_approach,
             generation_in_advance_days=time_plan_domain.generation_in_advance_days,
-            planning_task_aspect=planning_task_aspect,
             planning_task_gen_params=time_plan_domain.planning_task_gen_params,
             planning_tasks=planning_tasks,
         )

@@ -41,10 +41,10 @@ import {
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
 import { TimeEventInDayBlockStack } from "@jupiter/core/common/sub/time_events/sub/in_day_block/component/stack";
-import { sortInboxTasksNaturally } from "@jupiter/core/inbox_tasks/root";
+import { sortInboxTasksNaturally } from "#/core/common/sub/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
@@ -439,7 +439,7 @@ export default function BigPlan() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -452,7 +452,7 @@ export default function BigPlan() {
       },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -547,7 +547,7 @@ export default function BigPlan() {
               actions={[
                 NavSingle({
                   text: "New",
-                  link: `/app/workspace/inbox-tasks/new?bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.bigPlan.ref_id}`,
+                  link: `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
                 }),
               ]}
             />
@@ -566,6 +566,9 @@ export default function BigPlan() {
                 showHandleMarkNotDone: true,
               }}
               inboxTasks={sortedInboxTasks}
+              cardLinkResolver={(it) =>
+                `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+              }
               onCardMarkDone={handleCardMarkDone}
               onCardMarkNotDone={handleCardMarkNotDone}
             />

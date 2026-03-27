@@ -9,7 +9,6 @@ from jupiter.cli.command.rendering import (
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
 from jupiter.core.config import JupiterLoggedInReadonlyContext
-from jupiter.core.features import WorkspaceFeature
 from jupiter.core.prm.sub.person.use_case.find import (
     PersonFindResult,
     PersonFindUseCase,
@@ -41,12 +40,6 @@ class PersonShow(JupiterLoggedInReadonlyCommand[PersonFindUseCase, PersonFindRes
         )
 
         rich_tree = Tree("👨 Persons", guide_style="bold bright_blue")
-
-        if context.workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-            catch_up_aspect_text = Text(
-                f"The catch up aspect is {result.catch_up_aspect.name}",
-            )
-            rich_tree.add(catch_up_aspect_text)
 
         for entry in sorted_entries:
             person = entry.person

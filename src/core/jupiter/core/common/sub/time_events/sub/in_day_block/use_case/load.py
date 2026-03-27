@@ -1,6 +1,7 @@
 """Load an in day block with associated data."""
 
 from jupiter.core.big_plans.root import BigPlan
+from jupiter.core.chores.root import Chore
 from jupiter.core.common.sub.time_events.namespace import (
     TimeEventNamespace,
 )
@@ -11,10 +12,12 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.inbox_tasks.root import InboxTask
+from jupiter.core.habits.root import Habit
 from jupiter.core.schedule.sub.event_in_day.root import (
     ScheduleEventInDay,
 )
+from jupiter.core.time_plans.sub.activity.root import TimePlanActivity
+from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -42,8 +45,11 @@ class TimeEventInDayBlockLoadResult(UseCaseResultBase):
 
     in_day_block: TimeEventInDayBlock
     schedule_event: ScheduleEventInDay | None
-    inbox_task: InboxTask | None
     big_plan: BigPlan | None
+    todo_task: TodoTask | None
+    habit: Habit | None
+    chore: Chore | None
+    time_plan_activity: TimePlanActivity | None
 
 
 @readonly_use_case()
@@ -74,13 +80,6 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
-        inbox_task = None
-        if in_day_block.namespace == TimeEventNamespace.INBOX_TASK:
-            inbox_task = await uow.get_for(InboxTask).load_by_id(
-                in_day_block.source_entity_ref_id,
-                allow_archived=allow_archived,
-            )
-
         big_plan = None
         if in_day_block.namespace == TimeEventNamespace.BIG_PLAN:
             big_plan = await uow.get_for(BigPlan).load_by_id(
@@ -88,9 +87,40 @@ class TimeEventInDayBlockLoadUseCase(
                 allow_archived=allow_archived,
             )
 
+        todo_task = None
+        if in_day_block.namespace == TimeEventNamespace.TODO_TASK:
+            todo_task = await uow.get_for(TodoTask).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
+        habit = None
+        if in_day_block.namespace == TimeEventNamespace.HABIT:
+            habit = await uow.get_for(Habit).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
+        chore = None
+        if in_day_block.namespace == TimeEventNamespace.CHORE:
+            chore = await uow.get_for(Chore).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
+        time_plan_activity = None
+        if in_day_block.namespace == TimeEventNamespace.TIME_PLAN_ACTIVITY:
+            time_plan_activity = await uow.get_for(TimePlanActivity).load_by_id(
+                in_day_block.source_entity_ref_id,
+                allow_archived=allow_archived,
+            )
+
         return TimeEventInDayBlockLoadResult(
             in_day_block=in_day_block,
             schedule_event=schedule_event,
-            inbox_task=inbox_task,
             big_plan=big_plan,
+            todo_task=todo_task,
+            habit=habit,
+            chore=chore,
+            time_plan_activity=time_plan_activity,
         )

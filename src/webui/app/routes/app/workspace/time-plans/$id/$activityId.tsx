@@ -3,8 +3,6 @@ import type {
   LifePlan,
   AspectSummary,
   TimePlan,
-  Tag,
-  Contact,
 } from "@jupiter/webapi-client";
 import { DateTime } from "luxon";
 import {
@@ -16,7 +14,6 @@ import {
   InboxTaskStatus,
   NoteNamespace,
   RecurringTaskPeriod,
-  TagNamespace,
   TimePlanActivityFeasability,
   TimePlanActivityKind,
   WorkspaceFeature,
@@ -41,14 +38,13 @@ import {
   sortInboxTaskTimeEventsNaturally,
   timeEventInDayBlockToTimezone,
 } from "@jupiter/core/common/sub/time_events/time-event";
-import { allowUserChanges } from "@jupiter/core/inbox_tasks/source";
 import {
   isInboxTaskCoreFieldEditable,
   sortInboxTasksNaturally,
-} from "@jupiter/core/inbox_tasks/root";
+} from "#/core/common/sub/inbox_tasks/root";
 import { BigPlanPropertiesEditor } from "@jupiter/core/big_plans/component/properties-editor";
-import { InboxTaskPropertiesEditor } from "@jupiter/core/inbox_tasks/component/properties-editor";
-import { InboxTaskStack } from "@jupiter/core/inbox_tasks/component/stack";
+import { InboxTaskPropertiesEditor } from "@jupiter/core/common/sub/inbox_tasks/component/properties-editor";
+import { InboxTaskStack } from "@jupiter/core/common/sub/inbox_tasks/component/stack";
 import { EntityNoteEditor } from "@jupiter/core/infra/component/entity-note-editor";
 import { makeLeafErrorBoundary } from "@jupiter/core/infra/component/error-boundary";
 import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
@@ -84,9 +80,6 @@ const UpdateFormTargetInboxTaskSchema = {
   targetInboxTaskRefId: z.string(),
   targetInboxTaskSource: z.nativeEnum(InboxTaskSource),
   targetInboxTaskName: z.string(),
-  targetInboxTaskAspect: z.string().optional(),
-  targetInboxTaskChapter: z.string().optional(),
-  targetInboxTaskGoal: z.string().optional(),
   targetInboxTaskBigPlan: z.string().optional(),
   targetInboxTaskIsKey: CheckboxAsString,
   targetInboxTaskStatus: z.nativeEnum(InboxTaskStatus),
@@ -167,9 +160,6 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
     ...UpdateFormTargetInboxTaskSchema,
   }),
   z.object({
-    intent: z.literal("target-inbox-task-create-note"),
-  }),
-  z.object({
     intent: z.literal("target-big-plan-mark-done"),
     ...UpdateFormTargetBigPlanSchema,
   }),
@@ -203,6 +193,9 @@ const UpdateFormSchema = z.discriminatedUnion("intent", [
   }),
   z.object({
     intent: z.literal("target-big-plan-create-note"),
+  }),
+  z.object({
+    intent: z.literal("activity-create-note"),
   }),
 ]);
 
@@ -247,15 +240,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       });
     }
 
-    const allTags = await apiClient.tags.tagFind({
-      allow_archived: false,
-      filter_namespace: [TagNamespace.INBOX_TASK],
-    });
-
-    const allContacts = await apiClient.contacts.contactFind({
-      allow_archived: false,
-    });
-
     return json({
       rootAspect: summaryResponse.root_aspect as AspectSummary,
       lifePlan: summaryResponse.life_plan as LifePlan,
@@ -263,15 +247,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       allChapters: summaryResponse.chapters,
       allGoals: summaryResponse.goals,
       allMilestones: summaryResponse.milestones,
-      allBigPlans: summaryResponse.big_plans,
       timePlanActivity: result.time_plan_activity,
       targetInboxTask: result.target_inbox_task,
       targetInboxTaskInfo: inboxTaskResult,
-      targetInboxTaskTimeEventBlocks: inboxTaskResult?.time_event_blocks,
       targetBigPlan: result.target_big_plan,
       targetBigPlanInfo: bigPlanResult,
-      allTags: allTags.tags as Array<Tag>,
-      allContacts: allContacts.contacts as Array<Contact>,
+      activityNote: result.note,
+      activityTimeEventBlocks: result.time_event_blocks,
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === StatusCodes.NOT_FOUND) {
@@ -327,23 +309,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}`);
       }
 
-      case "target-inbox-task-create-note": {
-        const activityResult = await apiClient.timePlans.timePlanActivityLoad({
-          ref_id: activityId,
-          allow_archived: true,
-        });
-
-        if (activityResult.target_inbox_task) {
-          await apiClient.notes.noteCreate({
-            namespace: NoteNamespace.INBOX_TASK,
-            source_entity_ref_id: activityResult.target_inbox_task.ref_id,
-            content: [],
-          });
-        }
-
-        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
-      }
-
       case "target-inbox-task-mark-done":
       case "target-inbox-task-mark-not-done":
       case "target-inbox-task-start":
@@ -368,13 +333,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         } else if (form.intent === "target-inbox-task-block") {
           status = InboxTaskStatus.BLOCKED;
         } else if (form.intent === "target-inbox-task-stop") {
-          status = allowUserChanges(form.targetInboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         } else if (form.intent === "target-inbox-task-reactivate") {
-          status = allowUserChanges(form.targetInboxTaskSource)
-            ? InboxTaskStatus.NOT_STARTED
-            : InboxTaskStatus.NOT_STARTED_GEN;
+          status = InboxTaskStatus.NOT_STARTED;
         }
 
         const result = await apiClient.inboxTasks.inboxTaskUpdate({
@@ -388,34 +349,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           status: {
             should_change: true,
             value: status,
-          },
-          aspect_ref_id: {
-            should_change: true,
-            value: form.targetInboxTaskAspect,
-          },
-          chapter_ref_id: {
-            should_change: form.targetInboxTaskChapter !== undefined,
-            value:
-              form.targetInboxTaskChapter !== undefined &&
-              form.targetInboxTaskChapter !== ""
-                ? form.targetInboxTaskChapter
-                : null,
-          },
-          goal_ref_id: {
-            should_change: form.targetInboxTaskGoal !== undefined,
-            value:
-              form.targetInboxTaskGoal !== undefined &&
-              form.targetInboxTaskGoal !== ""
-                ? form.targetInboxTaskGoal
-                : null,
-          },
-          big_plan_ref_id: {
-            should_change: form.targetInboxTaskBigPlan !== undefined,
-            value:
-              form.targetInboxTaskBigPlan !== undefined &&
-              form.targetInboxTaskBigPlan !== "none"
-                ? form.targetInboxTaskBigPlan
-                : undefined,
           },
           is_key: corePropertyEditable
             ? {
@@ -500,10 +433,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
           ref_id: form.targetInboxTaskRefId,
           name: { should_change: false },
           status: { should_change: false },
-          aspect_ref_id: { should_change: false },
-          chapter_ref_id: { should_change: false },
-          goal_ref_id: { should_change: false },
-          big_plan_ref_id: { should_change: false },
           is_key: { should_change: false },
           eisen: { should_change: false },
           difficulty: { should_change: false },
@@ -635,6 +564,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
         return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
       }
 
+      case "activity-create-note": {
+        await apiClient.notes.noteCreate({
+          namespace: NoteNamespace.TIME_PLAN_ACTIVITY,
+          source_entity_ref_id: activityId,
+          content: [],
+        });
+
+        return redirect(`/app/workspace/time-plans/${id}/${activityId}`);
+      }
+
       default:
         throw new Response("Bad Intent", { status: 500 });
     }
@@ -664,22 +603,6 @@ export default function TimePlanActivity() {
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.timePlanActivity.archived;
 
-  const inboxTaskTimeEventEntries = (
-    loaderData.targetInboxTaskTimeEventBlocks || []
-  ).map((block) => ({
-    time_event_in_tz: timeEventInDayBlockToTimezone(
-      block,
-      topLevelInfo.user.timezone,
-    ),
-    entry: {
-      inbox_task: loaderData.targetInboxTask!,
-      time_events: [block],
-    },
-  }));
-  const sortedInboxTaskTimeEventEntries = sortInboxTaskTimeEventsNaturally(
-    inboxTaskTimeEventEntries,
-  );
-
   const sortedBigPlanInboxTasks = sortInboxTasksNaturally(
     loaderData.targetBigPlanInfo?.inbox_tasks ?? [],
     { dueDateAscending: false },
@@ -692,7 +615,7 @@ export default function TimePlanActivity() {
       { id: it.ref_id, status: InboxTaskStatus.DONE },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
@@ -702,29 +625,40 @@ export default function TimePlanActivity() {
       { id: it.ref_id, status: InboxTaskStatus.NOT_DONE },
       {
         method: "post",
-        action: "/app/workspace/inbox-tasks/update-status-and-eisen",
+        action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
       },
     );
   }
 
-  let newInboxTaskTimeEventLocation = undefined;
+  const activityTimeEventEntries = (
+    loaderData.activityTimeEventBlocks || []
+  ).map((block) => ({
+    time_event_in_tz: timeEventInDayBlockToTimezone(
+      block,
+      topLevelInfo.user.timezone,
+    ),
+    entry: {
+      time_plan_activity: loaderData.timePlanActivity,
+      time_events: [block],
+    },
+  }));
+  const sortedActivityTimeEventEntries = sortInboxTaskTimeEventsNaturally(
+    activityTimeEventEntries,
+  );
 
+  let newActivityTimeEventLocation: string | undefined = undefined;
   if (
-    loaderData.targetInboxTask &&
-    (timePlan.period === RecurringTaskPeriod.DAILY ||
-      timePlan.period === RecurringTaskPeriod.WEEKLY)
+    timePlan.period === RecurringTaskPeriod.DAILY ||
+    timePlan.period === RecurringTaskPeriod.WEEKLY
   ) {
     const params = new URLSearchParams({
       date: timePlan.start_date,
       period: timePlan.period,
       view: "calendar",
-      inboxTaskRefId: loaderData.targetInboxTask!.ref_id,
-      timePlanReason: "for-time-plan",
-      timePlanRefId: id as string,
       timePlanActivityRefId: activityId as string,
+      timePlanRefId: id as string,
     });
-
-    newInboxTaskTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-inbox-task?${params.toString()}`;
+    newActivityTimeEventLocation = `/app/workspace/calendar/time-event/in-day-block/new-for-time-plan-activity?${params.toString()}`;
   }
 
   return (
@@ -783,6 +717,34 @@ export default function TimePlanActivity() {
         </Stack>
       </SectionCard>
 
+      <SectionCard
+        title="Note"
+        actions={
+          <SectionActions
+            id="activity-note"
+            topLevelInfo={topLevelInfo}
+            inputsEnabled={inputsEnabled}
+            actions={[
+              ActionSingle({
+                text: "Create",
+                value: "activity-create-note",
+                highlight: false,
+                disabled:
+                  loaderData.activityNote !== null &&
+                  loaderData.activityNote !== undefined,
+              }),
+            ]}
+          />
+        }
+      >
+        {loaderData.activityNote && (
+          <EntityNoteEditor
+            initialNote={loaderData.activityNote}
+            inputsEnabled={inputsEnabled}
+          />
+        )}
+      </SectionCard>
+
       {loaderData.targetInboxTask && (
         <>
           <InboxTaskPropertiesEditor
@@ -791,17 +753,6 @@ export default function TimePlanActivity() {
             intentPrefix="target-inbox-task"
             namePrefix="targetInboxTask"
             topLevelInfo={topLevelInfo}
-            lifePlan={loaderData.lifePlan}
-            rootAspect={loaderData.rootAspect}
-            allAspects={loaderData.allAspects ?? []}
-            allChapters={loaderData.allChapters ?? []}
-            allGoals={loaderData.allGoals ?? []}
-            allMilestones={loaderData.allMilestones ?? []}
-            allBigPlans={loaderData.allBigPlans ?? []}
-            allTags={loaderData.allTags}
-            tags={loaderData.targetInboxTaskInfo?.tags}
-            allContacts={loaderData.allContacts}
-            contacts={loaderData.targetInboxTaskInfo?.contacts}
             inputsEnabled={
               inputsEnabled && !loaderData.targetInboxTask.archived
             }
@@ -809,49 +760,6 @@ export default function TimePlanActivity() {
             inboxTaskInfo={loaderData.targetInboxTaskInfo!}
             actionData={actionData}
           />
-
-          <SectionCard
-            title="Note"
-            actions={
-              <SectionActions
-                id="target-inbox-task-note"
-                topLevelInfo={topLevelInfo}
-                inputsEnabled={inputsEnabled}
-                actions={[
-                  ActionSingle({
-                    text: "Create",
-                    value: "target-inbox-task-create-note",
-                    highlight: false,
-                    disabled:
-                      loaderData.targetInboxTaskInfo?.note !== null &&
-                      loaderData.targetInboxTaskInfo?.note !== undefined,
-                  }),
-                ]}
-              />
-            }
-          >
-            {loaderData.targetInboxTaskInfo?.note && (
-              <>
-                <EntityNoteEditor
-                  initialNote={loaderData.targetInboxTaskInfo.note}
-                  inputsEnabled={inputsEnabled}
-                />
-              </>
-            )}
-          </SectionCard>
-
-          {isWorkspaceFeatureAvailable(
-            topLevelInfo.workspace,
-            WorkspaceFeature.SCHEDULE,
-          ) && (
-            <TimeEventInDayBlockStack
-              topLevelInfo={topLevelInfo}
-              inputsEnabled={inputsEnabled}
-              title="Time Events"
-              createLocation={newInboxTaskTimeEventLocation}
-              entries={sortedInboxTaskTimeEventEntries}
-            />
-          )}
         </>
       )}
 
@@ -924,7 +832,7 @@ export default function TimePlanActivity() {
                           ? [
                               NavSingle({
                                 text: "New Inbox Task",
-                                link: `/app/workspace/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&bigPlanReason=for-big-plan&bigPlanRefId=${loaderData.targetBigPlan.ref_id}&parentTimePlanActivityRefId=${activityId}`,
+                                link: `/app/workspace/big-plans/${loaderData.targetBigPlan.ref_id}/inbox-tasks/new?timePlanReason=for-time-plan&timePlanRefId=${id}&parentTimePlanActivityRefId=${activityId}`,
                                 highlight: true,
                               }),
                               NavSingle({
@@ -959,6 +867,19 @@ export default function TimePlanActivity() {
             </SectionCard>
           </>
         )}
+
+      {isWorkspaceFeatureAvailable(
+        topLevelInfo.workspace,
+        WorkspaceFeature.SCHEDULE,
+      ) && (
+        <TimeEventInDayBlockStack
+          topLevelInfo={topLevelInfo}
+          inputsEnabled={inputsEnabled}
+          title="Activity Time Events"
+          createLocation={newActivityTimeEventLocation}
+          entries={sortedActivityTimeEventEntries}
+        />
+      )}
     </LeafPanel>
   );
 }

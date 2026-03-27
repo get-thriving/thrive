@@ -1,26 +1,22 @@
 """Update settings around time plans."""
 
-from typing import cast
-
 from jupiter.core.app import AppCore
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common import schedules
 from jupiter.core.common.difficulty import Difficulty
 from jupiter.core.common.eisen import Eisen
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTask
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.config import (
     JupiterLoggedInMutationContext,
     JupiterLoggedInMutationUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
 from jupiter.core.gen.service.gen import GenService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTask
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.life_plan.root import LifePlan
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.sync_target import SyncTarget
 from jupiter.core.time_plans.domain import TimePlanDomain
 from jupiter.core.time_plans.generation_approach import (
@@ -31,7 +27,6 @@ from jupiter.core.time_plans.root import (
     TimePlanRepository,
 )
 from jupiter.core.time_plans.source import TimePlanSource
-from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.update_action import UpdateAction
@@ -49,7 +44,6 @@ class TimePlanUpdateSettingsArgs(UseCaseArgsBase):
     periods: UpdateAction[list[RecurringTaskPeriod]]
     generation_approach: UpdateAction[TimePlanGenerationApproach]
     generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]]
-    planning_task_aspect_ref_id: UpdateAction[EntityId | None]
     planning_task_eisen: UpdateAction[Eisen | None]
     planning_task_difficulty: UpdateAction[Difficulty | None]
 
@@ -78,36 +72,12 @@ class TimePlanUpdateSettingsUseCase(
             inbox_task_collection = await uow.get_for(
                 InboxTaskCollection
             ).load_by_parent(workspace.ref_id)
-            life_plan = await uow.get_for(LifePlan).load_by_parent(workspace.ref_id)
-
-            if workspace.is_feature_available(WorkspaceFeature.LIFE_PLAN):
-                if args.planning_task_aspect_ref_id.test(lambda x: x is None):
-                    raise Exception("Planning task aspect ref id is required")
-                if args.planning_task_aspect_ref_id.should_change:
-                    aspect = await uow.get_for(Aspect).load_by_id(
-                        cast(EntityId, args.planning_task_aspect_ref_id.just_the_value)
-                    )
-                    planning_task_aspect_ref_id = UpdateAction.change_to(aspect.ref_id)
-                else:
-                    planning_task_aspect_ref_id = UpdateAction.do_nothing()
-            else:
-                root_aspect = await uow.get_for(Aspect).find_all_generic(
-                    parent_ref_id=life_plan.ref_id,
-                    allow_archived=False,
-                    parent_aspect_ref_id=None,
-                )
-                if len(root_aspect) != 1:
-                    raise Exception("Root aspect not found")
-                planning_task_aspect_ref_id = UpdateAction.change_to(
-                    root_aspect[0].ref_id
-                )
 
             time_plan_domain = time_plan_domain.update(
                 context.domain_context,
                 periods=args.periods.transform(lambda s: set(s)),
                 generation_approach=args.generation_approach,
                 generation_in_advance_days=args.generation_in_advance_days,
-                planning_task_aspect_ref_id=planning_task_aspect_ref_id,
                 planning_task_eisen=args.planning_task_eisen,
                 planning_task_difficulty=args.planning_task_difficulty,
             )

@@ -12,8 +12,11 @@ export type CalendarEventsStatsPerSubperiod = {
     period_start_date: ADate;
     schedule_event_full_days_cnt: number;
     schedule_event_in_day_cnt: number;
-    inbox_task_cnt: number;
     big_plan_cnt: number;
+    todo_task_cnt: number;
+    habit_cnt: number;
+    chore_cnt: number;
+    time_plan_activity_cnt: number;
     person_birthday_cnt: number;
     vacation_cnt: number;
 };

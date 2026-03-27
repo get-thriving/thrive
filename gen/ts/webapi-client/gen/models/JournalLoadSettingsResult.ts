@@ -2,7 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Aspect } from './Aspect';
 import type { InboxTask } from './InboxTask';
 import type { JournalGenerationApproach } from './JournalGenerationApproach';
 import type { RecurringTaskGenParams } from './RecurringTaskGenParams';
@@ -14,7 +13,6 @@ export type JournalLoadSettingsResult = {
     periods: Array<RecurringTaskPeriod>;
     generation_approach: JournalGenerationApproach;
     generation_in_advance_days: Record<string, number>;
-    writing_task_aspect?: (Aspect | null);
     writing_task_gen_params?: (RecurringTaskGenParams | null);
     writing_tasks: Array<InboxTask>;
 };

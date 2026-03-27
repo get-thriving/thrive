@@ -6,6 +6,10 @@ from collections.abc import Iterable
 from jupiter.core.big_plans.collection import BigPlanCollection
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.common.sub.contacts.root import ContactDomain
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.collection import NoteCollection
 from jupiter.core.common.sub.tags.root import TagDomain
 from jupiter.core.common.sub.time_events.domain import TimeEventDomain
@@ -19,10 +23,6 @@ from jupiter.core.gc.log import GCLog
 from jupiter.core.gen.log import GenLog
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.home.config import HomeConfig
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.core.journals.collection import JournalCollection
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.metrics.collection import MetricCollection
@@ -154,9 +154,7 @@ class Workspace(RootEntity):
         all_entity_tags = filter_entity_tags or [s for s in NamedEntityTag]
         inferred_entity_tags: list[NamedEntityTag] = []
         for entity_tag in all_entity_tags:
-            if entity_tag is NamedEntityTag.INBOX_TASK:
-                inferred_entity_tags.append(entity_tag)
-            elif entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
+            if entity_tag is NamedEntityTag.TODO_TASK and self.is_feature_available(
                 WorkspaceFeature.TODO_TASK
             ):
                 inferred_entity_tags.append(entity_tag)
@@ -277,7 +275,7 @@ class Workspace(RootEntity):
         all_sources = filter_sources or [s for s in InboxTaskSource]
         inferred_sources: list[InboxTaskSource] = []
         for source in all_sources:
-            if source is InboxTaskSource.USER:
+            if source is InboxTaskSource.TODO_TASK:
                 inferred_sources.append(source)
             elif (
                 source is InboxTaskSource.WORKING_MEM_CLEANUP

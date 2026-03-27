@@ -1,5 +1,13 @@
 """Shared service for removing a habit."""
 
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import InboxTaskRepository
+from jupiter.core.common.sub.inbox_tasks.service.remove import (
+    InboxTaskRemoveService,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
@@ -11,14 +19,6 @@ from jupiter.core.habits.root import Habit
 from jupiter.core.habits.streak_mark import (
     HabitStreakMarkRepository,
 )
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import InboxTaskRepository
-from jupiter.core.inbox_tasks.service.remove import (
-    InboxTaskRemoveService,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter

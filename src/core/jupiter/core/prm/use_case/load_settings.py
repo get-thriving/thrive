@@ -6,7 +6,6 @@ from jupiter.core.config import (
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.life_plan.sub.aspects.root import Aspect
 from jupiter.core.prm.root import PRM
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
@@ -29,7 +28,6 @@ class PersonLoadSettingsArgs(UseCaseArgsBase):
 class PersonLoadSettingsResult(UseCaseResultBase):
     """PersonLoadSettings results."""
 
-    catch_up_aspect: Aspect
     max_circles_per_person: int
 
 
@@ -53,11 +51,7 @@ class PersonLoadSettingsUseCase(
         prm = await uow.get_for(PRM).load_by_parent(
             workspace.ref_id,
         )
-        catch_up_aspect = await uow.get_for(Aspect).load_by_id(
-            prm.catch_up_aspect_ref_id,
-        )
 
         return PersonLoadSettingsResult(
-            catch_up_aspect=catch_up_aspect,
             max_circles_per_person=prm.max_circles_per_person,
         )

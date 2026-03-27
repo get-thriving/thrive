@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ..models.inbox_task import InboxTask
     from ..models.note import Note
     from ..models.tag import Tag
+    from ..models.time_event_in_day_block import TimeEventInDayBlock
 
 
 T = TypeVar("T", bound="ChoreLoadResult")
@@ -34,6 +35,7 @@ class ChoreLoadResult:
         inbox_tasks_page_size (int):
         tags (list[Tag]):
         contacts (list[Contact]):
+        time_event_blocks (list[TimeEventInDayBlock]):
         chapter (Chapter | None | Unset):
         goal (Goal | None | Unset):
         note (None | Note | Unset):
@@ -46,6 +48,7 @@ class ChoreLoadResult:
     inbox_tasks_page_size: int
     tags: list[Tag]
     contacts: list[Contact]
+    time_event_blocks: list[TimeEventInDayBlock]
     chapter: Chapter | None | Unset = UNSET
     goal: Goal | None | Unset = UNSET
     note: None | Note | Unset = UNSET
@@ -78,6 +81,11 @@ class ChoreLoadResult:
         for contacts_item_data in self.contacts:
             contacts_item = contacts_item_data.to_dict()
             contacts.append(contacts_item)
+
+        time_event_blocks = []
+        for time_event_blocks_item_data in self.time_event_blocks:
+            time_event_blocks_item = time_event_blocks_item_data.to_dict()
+            time_event_blocks.append(time_event_blocks_item)
 
         chapter: dict[str, Any] | None | Unset
         if isinstance(self.chapter, Unset):
@@ -114,6 +122,7 @@ class ChoreLoadResult:
                 "inbox_tasks_page_size": inbox_tasks_page_size,
                 "tags": tags,
                 "contacts": contacts,
+                "time_event_blocks": time_event_blocks,
             }
         )
         if chapter is not UNSET:
@@ -135,6 +144,7 @@ class ChoreLoadResult:
         from ..models.inbox_task import InboxTask
         from ..models.note import Note
         from ..models.tag import Tag
+        from ..models.time_event_in_day_block import TimeEventInDayBlock
 
         d = dict(src_dict)
         chore = Chore.from_dict(d.pop("chore"))
@@ -165,6 +175,13 @@ class ChoreLoadResult:
             contacts_item = Contact.from_dict(contacts_item_data)
 
             contacts.append(contacts_item)
+
+        time_event_blocks = []
+        _time_event_blocks = d.pop("time_event_blocks")
+        for time_event_blocks_item_data in _time_event_blocks:
+            time_event_blocks_item = TimeEventInDayBlock.from_dict(time_event_blocks_item_data)
+
+            time_event_blocks.append(time_event_blocks_item)
 
         def _parse_chapter(data: object) -> Chapter | None | Unset:
             if data is None:
@@ -225,6 +242,7 @@ class ChoreLoadResult:
             inbox_tasks_page_size=inbox_tasks_page_size,
             tags=tags,
             contacts=contacts,
+            time_event_blocks=time_event_blocks,
             chapter=chapter,
             goal=goal,
             note=note,

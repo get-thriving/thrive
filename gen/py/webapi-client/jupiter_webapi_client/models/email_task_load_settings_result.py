@@ -1,52 +1,31 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-if TYPE_CHECKING:
-    from ..models.aspect import Aspect
-
 
 T = TypeVar("T", bound="EmailTaskLoadSettingsResult")
 
 
 @_attrs_define
 class EmailTaskLoadSettingsResult:
-    """EmailTaskLoadSettings results.
+    """EmailTaskLoadSettings results."""
 
-    Attributes:
-        generation_aspect (Aspect): The aspect.
-    """
-
-    generation_aspect: Aspect
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        generation_aspect = self.generation_aspect.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "generation_aspect": generation_aspect,
-            }
-        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aspect import Aspect
-
         d = dict(src_dict)
-        generation_aspect = Aspect.from_dict(d.pop("generation_aspect"))
-
-        email_task_load_settings_result = cls(
-            generation_aspect=generation_aspect,
-        )
+        email_task_load_settings_result = cls()
 
         email_task_load_settings_result.additional_properties = d
         return email_task_load_settings_result

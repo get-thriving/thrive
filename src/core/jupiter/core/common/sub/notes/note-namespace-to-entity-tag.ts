@@ -4,8 +4,6 @@ export function noteNamespaceToEntityTag(
   namespace: NoteNamespace,
 ): NamedEntityTag {
   switch (namespace) {
-    case NoteNamespace.INBOX_TASK:
-      return NamedEntityTag.INBOX_TASK;
     case NoteNamespace.TODO_TASK:
       return NamedEntityTag.TODO_TASK;
     case NoteNamespace.WORKING_MEM:
@@ -54,5 +52,11 @@ export function noteNamespaceToEntityTag(
       return NamedEntityTag.PERSON;
     case NoteNamespace.OCCASION:
       return NamedEntityTag.OCCASION;
+    case NoteNamespace.TIME_PLAN_ACTIVITY:
+      return NamedEntityTag.TIME_PLAN_ACTIVITY;
+    default: {
+      const _exhaustiveCheck: never = namespace;
+      throw new Error(`Unhandled NoteNamespace: ${_exhaustiveCheck}`);
+    }
   }
 }

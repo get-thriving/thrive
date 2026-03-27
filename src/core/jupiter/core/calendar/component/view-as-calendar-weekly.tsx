@@ -66,7 +66,7 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
       entry: entry,
     });
   }
-  for (const entry of props.entries.inbox_task_entries) {
+  for (const entry of props.entries.big_plan_entries) {
     for (const timeEvent of entry.time_events) {
       combinedTimeEventInDay.push({
         time_event_in_tz: timeEventInDayBlockToTimezone(
@@ -77,7 +77,40 @@ export function ViewAsCalendarWeekly(props: ViewAsProps) {
       });
     }
   }
-  for (const entry of props.entries.big_plan_entries) {
+  for (const entry of props.entries.todo_task_entries) {
+    for (const timeEvent of entry.time_events) {
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of props.entries.habit_entries) {
+    for (const timeEvent of entry.time_events) {
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of props.entries.chore_entries) {
+    for (const timeEvent of entry.time_events) {
+      combinedTimeEventInDay.push({
+        time_event_in_tz: timeEventInDayBlockToTimezone(
+          timeEvent,
+          props.timezone,
+        ),
+        entry: entry,
+      });
+    }
+  }
+  for (const entry of props.entries.time_plan_activity_entries) {
     for (const timeEvent of entry.time_events) {
       combinedTimeEventInDay.push({
         time_event_in_tz: timeEventInDayBlockToTimezone(

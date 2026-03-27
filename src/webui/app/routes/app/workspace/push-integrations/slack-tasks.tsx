@@ -4,8 +4,6 @@ import { json } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
 import { Outlet } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useContext } from "react";
-import TuneIcon from "@mui/icons-material/Tune";
 import { slackTaskNiceName } from "@jupiter/core/push_integrations/sub/slack/task";
 import { ADateTag } from "@jupiter/core/common/component/adate-tag";
 import { DifficultyTag } from "@jupiter/core/common/component/difficulty-tag";
@@ -23,11 +21,6 @@ import {
   DisplayType,
   useTrunkNeedsToShowLeaf,
 } from "@jupiter/core/infra/component/use-nested-entities";
-import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
-import {
-  NavSingle,
-  SectionActions,
-} from "@jupiter/core/infra/component/section-actions";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -52,31 +45,12 @@ export const shouldRevalidate: ShouldRevalidateFunction =
 export default function SlackTasks() {
   const entries = useLoaderDataSafeForAnimation<typeof loader>();
 
-  const topLevelInfo = useContext(TopLevelInfoContext);
-
   const shouldShowALeaf = useTrunkNeedsToShowLeaf();
 
   const sortedEntries = [...entries];
 
   return (
-    <TrunkPanel
-      key={"slack-tasks"}
-      actions={
-        <SectionActions
-          id="slack-tasks-actions"
-          topLevelInfo={topLevelInfo}
-          inputsEnabled={true}
-          actions={[
-            NavSingle({
-              text: "Settings",
-              icon: <TuneIcon />,
-              link: "/app/workspace/push-integrations/slack-tasks/settings",
-            }),
-          ]}
-        />
-      }
-      returnLocation="/app/workspace"
-    >
+    <TrunkPanel key={"slack-tasks"} returnLocation="/app/workspace">
       <NestingAwareBlock shouldHide={shouldShowALeaf}>
         <EntityStack>
           {sortedEntries.map((entry) => (

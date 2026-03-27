@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     from ..models.chore_summary import ChoreSummary
     from ..models.goal_summary import GoalSummary
     from ..models.habit_summary import HabitSummary
-    from ..models.inbox_task_summary import InboxTaskSummary
     from ..models.journal_summary import JournalSummary
     from ..models.life_plan import LifePlan
     from ..models.metric_summary import MetricSummary
@@ -23,6 +22,7 @@ if TYPE_CHECKING:
     from ..models.person_summary import PersonSummary
     from ..models.schedule_stream_summary import ScheduleStreamSummary
     from ..models.smart_list_summary import SmartListSummary
+    from ..models.todo_task_summary import TodoTaskSummary
     from ..models.user import User
     from ..models.vacation_summary import VacationSummary
     from ..models.vision import Vision
@@ -48,7 +48,7 @@ class GetSummariesResult:
         chapters (list[ChapterSummary] | None | Unset):
         goals (list[GoalSummary] | None | Unset):
         milestones (list[MilestoneSummary] | None | Unset):
-        inbox_tasks (list[InboxTaskSummary] | None | Unset):
+        todo_tasks (list[TodoTaskSummary] | None | Unset):
         journals_last_year (list[JournalSummary] | None | Unset):
         habits (list[HabitSummary] | None | Unset):
         chores (list[ChoreSummary] | None | Unset):
@@ -69,7 +69,7 @@ class GetSummariesResult:
     chapters: list[ChapterSummary] | None | Unset = UNSET
     goals: list[GoalSummary] | None | Unset = UNSET
     milestones: list[MilestoneSummary] | None | Unset = UNSET
-    inbox_tasks: list[InboxTaskSummary] | None | Unset = UNSET
+    todo_tasks: list[TodoTaskSummary] | None | Unset = UNSET
     journals_last_year: list[JournalSummary] | None | Unset = UNSET
     habits: list[HabitSummary] | None | Unset = UNSET
     chores: list[ChoreSummary] | None | Unset = UNSET
@@ -198,17 +198,17 @@ class GetSummariesResult:
         else:
             milestones = self.milestones
 
-        inbox_tasks: list[dict[str, Any]] | None | Unset
-        if isinstance(self.inbox_tasks, Unset):
-            inbox_tasks = UNSET
-        elif isinstance(self.inbox_tasks, list):
-            inbox_tasks = []
-            for inbox_tasks_type_0_item_data in self.inbox_tasks:
-                inbox_tasks_type_0_item = inbox_tasks_type_0_item_data.to_dict()
-                inbox_tasks.append(inbox_tasks_type_0_item)
+        todo_tasks: list[dict[str, Any]] | None | Unset
+        if isinstance(self.todo_tasks, Unset):
+            todo_tasks = UNSET
+        elif isinstance(self.todo_tasks, list):
+            todo_tasks = []
+            for todo_tasks_type_0_item_data in self.todo_tasks:
+                todo_tasks_type_0_item = todo_tasks_type_0_item_data.to_dict()
+                todo_tasks.append(todo_tasks_type_0_item)
 
         else:
-            inbox_tasks = self.inbox_tasks
+            todo_tasks = self.todo_tasks
 
         journals_last_year: list[dict[str, Any]] | None | Unset
         if isinstance(self.journals_last_year, Unset):
@@ -319,8 +319,8 @@ class GetSummariesResult:
             field_dict["goals"] = goals
         if milestones is not UNSET:
             field_dict["milestones"] = milestones
-        if inbox_tasks is not UNSET:
-            field_dict["inbox_tasks"] = inbox_tasks
+        if todo_tasks is not UNSET:
+            field_dict["todo_tasks"] = todo_tasks
         if journals_last_year is not UNSET:
             field_dict["journals_last_year"] = journals_last_year
         if habits is not UNSET:
@@ -346,7 +346,6 @@ class GetSummariesResult:
         from ..models.chore_summary import ChoreSummary
         from ..models.goal_summary import GoalSummary
         from ..models.habit_summary import HabitSummary
-        from ..models.inbox_task_summary import InboxTaskSummary
         from ..models.journal_summary import JournalSummary
         from ..models.life_plan import LifePlan
         from ..models.metric_summary import MetricSummary
@@ -354,6 +353,7 @@ class GetSummariesResult:
         from ..models.person_summary import PersonSummary
         from ..models.schedule_stream_summary import ScheduleStreamSummary
         from ..models.smart_list_summary import SmartListSummary
+        from ..models.todo_task_summary import TodoTaskSummary
         from ..models.user import User
         from ..models.vacation_summary import VacationSummary
         from ..models.vision import Vision
@@ -578,7 +578,7 @@ class GetSummariesResult:
 
         milestones = _parse_milestones(d.pop("milestones", UNSET))
 
-        def _parse_inbox_tasks(data: object) -> list[InboxTaskSummary] | None | Unset:
+        def _parse_todo_tasks(data: object) -> list[TodoTaskSummary] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -586,19 +586,19 @@ class GetSummariesResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                inbox_tasks_type_0 = []
-                _inbox_tasks_type_0 = data
-                for inbox_tasks_type_0_item_data in _inbox_tasks_type_0:
-                    inbox_tasks_type_0_item = InboxTaskSummary.from_dict(inbox_tasks_type_0_item_data)
+                todo_tasks_type_0 = []
+                _todo_tasks_type_0 = data
+                for todo_tasks_type_0_item_data in _todo_tasks_type_0:
+                    todo_tasks_type_0_item = TodoTaskSummary.from_dict(todo_tasks_type_0_item_data)
 
-                    inbox_tasks_type_0.append(inbox_tasks_type_0_item)
+                    todo_tasks_type_0.append(todo_tasks_type_0_item)
 
-                return inbox_tasks_type_0
+                return todo_tasks_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(list[InboxTaskSummary] | None | Unset, data)
+            return cast(list[TodoTaskSummary] | None | Unset, data)
 
-        inbox_tasks = _parse_inbox_tasks(d.pop("inbox_tasks", UNSET))
+        todo_tasks = _parse_todo_tasks(d.pop("todo_tasks", UNSET))
 
         def _parse_journals_last_year(data: object) -> list[JournalSummary] | None | Unset:
             if data is None:
@@ -766,7 +766,7 @@ class GetSummariesResult:
             chapters=chapters,
             goals=goals,
             milestones=milestones,
-            inbox_tasks=inbox_tasks,
+            todo_tasks=todo_tasks,
             journals_last_year=journals_last_year,
             habits=habits,
             chores=chores,

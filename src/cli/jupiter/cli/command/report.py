@@ -9,10 +9,10 @@ from jupiter.cli.command.rendering import (
 )
 from jupiter.cli.config import JupiterLoggedInReadonlyCommand
 from jupiter.core.common.recurring_task_period import RecurringTaskPeriod
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
+from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.config import JupiterLoggedInReadonlyContext
 from jupiter.core.features import WorkspaceFeature
-from jupiter.core.inbox_tasks.source import InboxTaskSource
-from jupiter.core.inbox_tasks.status import InboxTaskStatus
 from jupiter.core.report.breakdown import ReportBreakdown
 from jupiter.core.report.period_result import (
     InboxTasksSummary,
@@ -82,16 +82,6 @@ class Report(JupiterLoggedInReadonlyCommand[ReportUseCase, ReportResult]):
             global_tree = rich_tree.add(global_text)
 
             for aspect_item in result.period_result.per_aspect_breakdown:
-                aspect_text = entity_name_to_rich_text(aspect_item.name)
-
-                aspect_tree = global_tree.add(aspect_text)
-
-                inbox_task_table = self._build_inbox_tasks_summary_table(
-                    aspect_item.inbox_tasks_summary,
-                    sources_to_present,
-                )
-                aspect_tree.add(inbox_task_table)
-
                 if context.workspace.is_feature_available(WorkspaceFeature.BIG_PLANS):
                     big_plan_tree = self._build_big_plans_summary_tree(
                         aspect_item.big_plans_summary,

@@ -2,20 +2,20 @@
 
 from jupiter.core.chores.collection import ChoreCollection
 from jupiter.core.chores.root import Chore
+from jupiter.core.common.sub.inbox_tasks.collection import (
+    InboxTaskCollection,
+)
+from jupiter.core.common.sub.inbox_tasks.root import (
+    InboxTask,
+    InboxTaskRepository,
+)
+from jupiter.core.common.sub.inbox_tasks.source import InboxTaskSource
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.service.remove import (
     NoteRemoveService,
 )
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
-from jupiter.core.inbox_tasks.collection import (
-    InboxTaskCollection,
-)
-from jupiter.core.inbox_tasks.root import (
-    InboxTask,
-    InboxTaskRepository,
-)
-from jupiter.core.inbox_tasks.source import InboxTaskSource
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -51,7 +51,6 @@ class ChoreRemoveService:
 
         for inbox_task in inbox_tasks_to_archive:
             await uow.get_for(InboxTask).remove(inbox_task.ref_id)
-            await progress_reporter.mark_removed(inbox_task)
 
         note_remove_service = NoteRemoveService()
         await note_remove_service.remove_for_source(

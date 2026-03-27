@@ -22,12 +22,27 @@ export function TimeEventInDayBlockCard(props: TimeEventInDayBlockCardProps) {
       break;
     }
 
-    case TimeEventNamespace.INBOX_TASK: {
+    case TimeEventNamespace.BIG_PLAN: {
       name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
       break;
     }
 
-    case TimeEventNamespace.BIG_PLAN: {
+    case TimeEventNamespace.TODO_TASK: {
+      name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
+      break;
+    }
+
+    case TimeEventNamespace.HABIT: {
+      name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
+      break;
+    }
+
+    case TimeEventNamespace.CHORE: {
+      name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
+      break;
+    }
+
+    case TimeEventNamespace.TIME_PLAN_ACTIVITY: {
       name = `On ${props.entry.time_event_in_tz.start_date} at ${props.entry.time_event_in_tz.start_time_in_day}`;
       break;
     }

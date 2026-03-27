@@ -23,8 +23,6 @@ export function userFeatureToDocsHelpSubject(
 
 export function workspaceFeatureName(feature: WorkspaceFeature): string {
   switch (feature) {
-    case WorkspaceFeature.INBOX_TASKS:
-      return "Inbox Tasks";
     case WorkspaceFeature.TODO_TASK:
       return "Todo Tasks";
     case WorkspaceFeature.WORKING_MEM:
@@ -64,8 +62,6 @@ export function workspaceFeatureToDocsHelpSubject(
   feature: WorkspaceFeature,
 ): DocsHelpSubject {
   switch (feature) {
-    case WorkspaceFeature.INBOX_TASKS:
-      return DocsHelpSubject.INBOX_TASKS;
     case WorkspaceFeature.TODO_TASK:
       return DocsHelpSubject.TODOS;
     case WorkspaceFeature.WORKING_MEM:
