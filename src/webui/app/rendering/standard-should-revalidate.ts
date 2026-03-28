@@ -7,6 +7,12 @@ export const basicShouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
   nextUrl,
 }) => {
+  if (
+    formAction === "/app/workspace/core/inbox-tasks/update-status-and-eisen"
+  ) {
+    return false;
+  }
+
   if (formAction === "/app/workspace/core/notes/update") {
     return false;
   }
