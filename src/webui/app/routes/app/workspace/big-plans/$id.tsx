@@ -21,6 +21,8 @@ import {
   WorkspaceFeature,
   SyncTarget,
 } from "@jupiter/webapi-client";
+import type { DragStart, DropResult } from "@hello-pangea/dnd";
+import { DragDropContext } from "@hello-pangea/dnd";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
@@ -31,10 +33,26 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
-import { useContext } from "react";
+import { Fragment, useContext, useState } from "react";
 import { z } from "zod";
 import { CheckboxAsString, parseForm, parseParams } from "zodix";
 import { AnimatePresence } from "framer-motion";
+import ViewKanbanIcon from "@mui/icons-material/ViewKanban";
+import ViewListIcon from "@mui/icons-material/ViewList";
+import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
+import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
+import {
+  SmallScreenKanban,
+  SmallScreenKanbanByEisen,
+} from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
+import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
+import { ActionableTime } from "@jupiter/core/infra/actionable-time";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
+import {
+  isInboxTaskCoreFieldEditable,
+  type InboxTaskOptimisticState,
+} from "@jupiter/core/common/sub/inbox_tasks/root";
+import type { SomeErrorNoData } from "@jupiter/core/infra/action-result";
 import { isWorkspaceFeatureAvailable } from "@jupiter/core/workspaces/root";
 import {
   sortInboxTaskTimeEventsNaturally,
@@ -61,13 +79,28 @@ import {
   SectionActions,
   ActionSingle,
   NavSingle,
+  FilterFewOptionsCompact,
 } from "@jupiter/core/infra/component/section-actions";
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+
+enum InboxTasksView {
+  KANBAN_BY_EISEN = "kanban-by-eisen",
+  KANBAN = "kanban",
+  LIST = "list",
+}
+
+const EISENS = [
+  Eisen.IMPORTANT_AND_URGENT,
+  Eisen.URGENT,
+  Eisen.IMPORTANT,
+  Eisen.REGULAR,
+];
 
 const ParamsSchema = z.object({
   id: z.string(),
@@ -379,6 +412,7 @@ export default function BigPlan() {
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.bigPlan.archived;
@@ -416,6 +450,11 @@ export default function BigPlan() {
     dueDateAscending: false,
   });
 
+  const inboxTasksByRefId: { [key: string]: InboxTask } = {};
+  for (const it of loaderData.inboxTasks) {
+    inboxTasksByRefId[it.ref_id] = it;
+  }
+
   const timeEventEntries = loaderData.timeEventBlocks.map((block) => ({
     time_event_in_tz: timeEventInDayBlockToTimezone(
       block,
@@ -429,9 +468,84 @@ export default function BigPlan() {
   const sortedTimeEventEntries =
     sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
+  const [selectedInboxTasksView, setSelectedInboxTasksView] = useState(
+    isBigScreen ? InboxTasksView.KANBAN_BY_EISEN : InboxTasksView.KANBAN,
+  );
+  const [optimisticUpdates, setOptimisticUpdates] = useState<{
+    [key: string]: InboxTaskOptimisticState;
+  }>({});
+  const [draggedInboxTaskId, setDraggedInboxTaskId] = useState<
+    string | undefined
+  >(undefined);
+
   const cardActionFetcher = useFetcher();
+  const kanbanMoveFetcher = useFetcher<SomeErrorNoData>();
+
+  function onDragStart(start: DragStart) {
+    setDraggedInboxTaskId(start.draggableId);
+  }
+
+  function onDragEnd(result: DropResult) {
+    setDraggedInboxTaskId(undefined);
+
+    if (!result.destination) {
+      return null;
+    }
+
+    const destination = result.destination.droppableId.split(":");
+
+    const eisenSchema = z
+      .nativeEnum(Eisen)
+      .or(z.literal("undefined").transform((_) => undefined));
+    const statusSchema = z.nativeEnum(InboxTaskStatus);
+
+    const eisen = eisenSchema.parse(destination[1]);
+    const status = statusSchema.parse(destination[2]);
+
+    const inboxTask = inboxTasksByRefId[result.draggableId];
+
+    if (!isInboxTaskCoreFieldEditable(inboxTask.source)) {
+      if (eisen && inboxTask.eisen !== eisen) {
+        return null;
+      }
+    }
+
+    setOptimisticUpdates((prev) => ({
+      ...prev,
+      [result.draggableId]: { status, eisen },
+    }));
+
+    if (isInboxTaskCoreFieldEditable(inboxTask.source)) {
+      kanbanMoveFetcher.submit(
+        {
+          id: result.draggableId,
+          eisen: eisen?.toString() || "no-go",
+          status,
+        },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    } else {
+      kanbanMoveFetcher.submit(
+        { id: result.draggableId, eisen: "no-go", status },
+        {
+          method: "post",
+          action: "/app/workspace/core/inbox-tasks/update-status-and-eisen",
+        },
+      );
+    }
+  }
 
   function handleCardMarkDone(it: InboxTask) {
+    setOptimisticUpdates((prev) => ({
+      ...prev,
+      [it.ref_id]: {
+        status: InboxTaskStatus.DONE,
+        eisen: prev[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
     cardActionFetcher.submit(
       {
         id: it.ref_id,
@@ -445,6 +559,13 @@ export default function BigPlan() {
   }
 
   function handleCardMarkNotDone(it: InboxTask) {
+    setOptimisticUpdates((prev) => ({
+      ...prev,
+      [it.ref_id]: {
+        status: InboxTaskStatus.NOT_DONE,
+        eisen: prev[it.ref_id]?.eisen ?? it.eisen,
+      },
+    }));
     cardActionFetcher.submit(
       {
         id: it.ref_id,
@@ -466,6 +587,7 @@ export default function BigPlan() {
       entityArchived={loaderData.bigPlan.archived}
       returnLocation={"/app/workspace/big-plans"}
       shouldShowALeaflet={shouldShowALeaflet}
+      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
@@ -549,11 +671,122 @@ export default function BigPlan() {
                   text: "New",
                   link: `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
                 }),
+                FilterFewOptionsCompact(
+                  "View",
+                  selectedInboxTasksView,
+                  [
+                    {
+                      value: InboxTasksView.KANBAN_BY_EISEN,
+                      text: "Kanban by Eisen",
+                      icon: <ViewKanbanIcon />,
+                    },
+                    {
+                      value: InboxTasksView.KANBAN,
+                      text: "Kanban",
+                      icon: <ViewKanbanIcon />,
+                    },
+                    {
+                      value: InboxTasksView.LIST,
+                      text: "List",
+                      icon: <ViewListIcon />,
+                    },
+                  ],
+                  (selected) => setSelectedInboxTasksView(selected),
+                ),
               ]}
             />
           }
         >
-          {sortedInboxTasks.length > 0 && (
+          {selectedInboxTasksView === InboxTasksView.KANBAN_BY_EISEN && (
+            <>
+              {isBigScreen && (
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
+                  <>
+                    {EISENS.map((e) => (
+                      <Fragment key={e}>
+                        <StandardDivider
+                          title={`${eisenIcon(e)} ${eisenName(e)}`}
+                          size="large"
+                        />
+                        <InboxTaskKanbanBoard
+                          topLevelInfo={topLevelInfo}
+                          inboxTasks={sortedInboxTasks}
+                          optimisticUpdates={optimisticUpdates}
+                          inboxTasksByRefId={inboxTasksByRefId}
+                          moreInfoByRefId={{}}
+                          actionableTime={ActionableTime.NOW}
+                          allowEisen={e}
+                          draggedInboxTaskId={draggedInboxTaskId}
+                          cardLinkResolver={(it) =>
+                            `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                          }
+                        />
+                      </Fragment>
+                    ))}
+                  </>
+                </DragDropContext>
+              )}
+              {!isBigScreen && (
+                <SmallScreenKanbanByEisen
+                  topLevelInfo={topLevelInfo}
+                  inboxTasks={sortedInboxTasks}
+                  optimisticUpdates={optimisticUpdates}
+                  moreInfoByRefId={{}}
+                  actionableTime={ActionableTime.NOW}
+                  onCardMarkDone={handleCardMarkDone}
+                  onCardMarkNotDone={handleCardMarkNotDone}
+                  emptyParent="inbox task"
+                  cardLinkResolver={(it) =>
+                    `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                  }
+                />
+              )}
+            </>
+          )}
+
+          {selectedInboxTasksView === InboxTasksView.KANBAN && (
+            <>
+              {isBigScreen && (
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
+                  <InboxTaskKanbanBoard
+                    topLevelInfo={topLevelInfo}
+                    inboxTasks={sortedInboxTasks}
+                    optimisticUpdates={optimisticUpdates}
+                    inboxTasksByRefId={inboxTasksByRefId}
+                    moreInfoByRefId={{}}
+                    actionableTime={ActionableTime.NOW}
+                    draggedInboxTaskId={draggedInboxTaskId}
+                    cardLinkResolver={(it) =>
+                      `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                    }
+                  />
+                </DragDropContext>
+              )}
+              {!isBigScreen && (
+                <SmallScreenKanban
+                  topLevelInfo={topLevelInfo}
+                  inboxTasks={sortedInboxTasks}
+                  optimisticUpdates={optimisticUpdates}
+                  moreInfoByRefId={{}}
+                  actionableTime={ActionableTime.NOW}
+                  onCardMarkDone={handleCardMarkDone}
+                  onCardMarkNotDone={handleCardMarkNotDone}
+                  emptyParent="inbox task"
+                  cardLinkResolver={(it) =>
+                    `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
+                  }
+                />
+              )}
+            </>
+          )}
+
+          {selectedInboxTasksView === InboxTasksView.LIST && (
             <InboxTaskStack
               topLevelInfo={topLevelInfo}
               showOptions={{
@@ -566,6 +799,7 @@ export default function BigPlan() {
                 showHandleMarkNotDone: true,
               }}
               inboxTasks={sortedInboxTasks}
+              optimisticUpdates={optimisticUpdates}
               cardLinkResolver={(it) =>
                 `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/${it.ref_id}`
               }

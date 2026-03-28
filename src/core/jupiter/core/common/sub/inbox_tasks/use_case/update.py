@@ -50,7 +50,6 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
 from jupiter.framework.use_case import (
     UnavailableForContextError,
-    mutation_use_case,
 )
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,

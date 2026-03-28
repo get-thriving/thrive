@@ -52,9 +52,5 @@ export function noteNamespaceName(namespace: NoteNamespace): string {
       return "Occasion";
     case NoteNamespace.TIME_PLAN_ACTIVITY:
       return "Time Plan Activity";
-    default: {
-      const _exhaustiveCheck: never = namespace;
-      throw new Error(`Unhandled NoteNamespace: ${_exhaustiveCheck}`);
-    }
   }
 }

@@ -8,7 +8,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.features import WorkspaceFeature
 from jupiter.core.habits.root import Habit
 from jupiter.core.journals.root import Journal
 from jupiter.core.metrics.root import Metric
@@ -21,9 +20,6 @@ from jupiter.core.todo.root import TodoTask
 from jupiter.core.working_mem.collection import WorkingMemCollection
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.storage.repository import DomainUnitOfWork
-from jupiter.framework.use_case import (
-    readonly_use_case,
-)
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
     UseCaseResultBase,
