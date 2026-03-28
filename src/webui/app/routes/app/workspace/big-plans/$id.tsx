@@ -46,9 +46,7 @@ import {
   SmallScreenKanbanByEisen,
 } from "@jupiter/core/common/sub/inbox_tasks/components/small-screen-kanban";
 import { StandardDivider } from "@jupiter/core/infra/component/standard-divider";
-import {
-  ActionableTime,
-} from "@jupiter/core/infra/actionable-time";
+import { ActionableTime } from "@jupiter/core/infra/actionable-time";
 import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import {
   isInboxTaskCoreFieldEditable,
@@ -85,11 +83,11 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { BigPlanMilestoneStack } from "@jupiter/core/big_plans/sub/milestones/component/stack";
 import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-aware-block";
+import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
-import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -702,7 +700,10 @@ export default function BigPlan() {
           {selectedInboxTasksView === InboxTasksView.KANBAN_BY_EISEN && (
             <>
               {isBigScreen && (
-                <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
                   <>
                     {EISENS.map((e) => (
                       <Fragment key={e}>
@@ -749,7 +750,10 @@ export default function BigPlan() {
           {selectedInboxTasksView === InboxTasksView.KANBAN && (
             <>
               {isBigScreen && (
-                <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
                   <InboxTaskKanbanBoard
                     topLevelInfo={topLevelInfo}
                     inboxTasks={sortedInboxTasks}

@@ -31,7 +31,12 @@ import { FormControl, InputLabel, OutlinedInput, Stack } from "@mui/material";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import type { ShouldRevalidateFunction } from "@remix-run/react";
-import { Outlet, useActionData, useFetcher, useNavigation } from "@remix-run/react";
+import {
+  Outlet,
+  useActionData,
+  useFetcher,
+  useNavigation,
+} from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
 import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -903,7 +908,10 @@ export default function TimePlanView() {
           {selectedView === ViewMode.KANBAN_BY_EISEN && (
             <>
               {isBigScreen && (
-                <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
                   <>
                     {EISENS.map((e) => (
                       <Fragment key={e}>
@@ -938,7 +946,7 @@ export default function TimePlanView() {
                   actionableTime={ActionableTime.NOW}
                   emptyParent="inbox task"
                   cardLinkResolver={(it) =>
-                    `/app/workspace/inbox-tasks/${it.ref_id}`
+                    `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
                   }
                 />
               )}
@@ -948,7 +956,10 @@ export default function TimePlanView() {
           {selectedView === ViewMode.KANBAN && (
             <>
               {isBigScreen && (
-                <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <DragDropContext
+                  onDragStart={onDragStart}
+                  onDragEnd={onDragEnd}
+                >
                   <InboxTaskKanbanBoard
                     topLevelInfo={topLevelInfo}
                     inboxTasks={loaderData.targetInboxTasks}
@@ -958,7 +969,7 @@ export default function TimePlanView() {
                     actionableTime={ActionableTime.NOW}
                     draggedInboxTaskId={draggedInboxTaskId}
                     cardLinkResolver={(it) =>
-                      `/app/workspace/inbox-tasks/${it.ref_id}`
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
                     }
                   />
                 </DragDropContext>
@@ -972,7 +983,7 @@ export default function TimePlanView() {
                   actionableTime={ActionableTime.NOW}
                   emptyParent="inbox task"
                   cardLinkResolver={(it) =>
-                    `/app/workspace/inbox-tasks/${it.ref_id}`
+                    `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
                   }
                 />
               )}

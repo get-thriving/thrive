@@ -18,9 +18,6 @@ from jupiter.core.config import (
     JupiterLoggedInReadonlyContext,
     JupiterTransactionalLoggedInReadOnlyUseCase,
 )
-from jupiter.core.features import (
-    WorkspaceFeature,
-)
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
 from jupiter.core.journals.collection import JournalCollection
@@ -53,7 +50,6 @@ from jupiter.framework.errors import InputValidationError
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.use_case import (
     UnavailableForContextError,
-    readonly_use_case,
 )
 from jupiter.framework.use_case_io import (
     UseCaseArgsBase,
