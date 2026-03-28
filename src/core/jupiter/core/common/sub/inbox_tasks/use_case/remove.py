@@ -26,7 +26,6 @@ class InboxTaskRemoveArgs(UseCaseArgsBase):
     ref_id: EntityId
 
 
-@mutation_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskRemoveUseCase(
     JupiterTransactionalLoggedInMutationUseCase[InboxTaskRemoveArgs, None]
 ):

@@ -65,7 +65,7 @@ class EntityIdDatabaseDecoder(RealmDecoder[EntityId, DatabaseRealm]):
         """Decode from a database realm."""
         if not isinstance(value, (int, str)):
             raise RealmDecodingError(
-                f"Expected value for {self.__class__} to be an int or string"
+                f"Expected value for {self.__class__} to be an int or string but was {value}"
             )
 
         return EntityId(str(value))

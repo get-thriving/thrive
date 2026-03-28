@@ -82,7 +82,6 @@ class InboxTaskUpdateResult(UseCaseResultBase):
     record_score_result: RecordScoreResult | None
 
 
-@mutation_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskUpdateUseCase(
     JupiterTransactionalLoggedInMutationUseCase[
         InboxTaskUpdateArgs, InboxTaskUpdateResult

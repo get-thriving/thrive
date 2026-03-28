@@ -139,6 +139,7 @@ class TodoTaskCreateUseCase(
             name=TodoTaskName(str(args.name)),
         )
         new_todo_task = await uow.get_for(TodoTask).create(new_todo_task)
+        await progress_reporter.mark_created(new_todo_task)
 
         new_inbox_task = InboxTask.new_inbox_task_for_todo(
             ctx=context.domain_context,

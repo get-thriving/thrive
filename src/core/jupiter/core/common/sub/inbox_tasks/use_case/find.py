@@ -104,7 +104,6 @@ class InboxTaskFindResult(UseCaseResultBase):
     entries: list[InboxTaskFindResultEntry]
 
 
-@readonly_use_case(WorkspaceFeature.TODO_TASK)
 class InboxTaskFindUseCase(
     JupiterTransactionalLoggedInReadOnlyUseCase[InboxTaskFindArgs, InboxTaskFindResult]
 ):
