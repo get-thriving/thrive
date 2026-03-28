@@ -390,6 +390,12 @@ export default function TimePlanView() {
     inboxTasksByRefId[it.ref_id] = it;
   }
 
+  const activityByInboxTaskRefId = new Map<string, TimePlanActivity>(
+    loaderData.activities
+      .filter((a) => a.target === TimePlanActivityTarget.INBOX_TASK)
+      .map((a) => [a.target_ref_id, a]),
+  );
+
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
   }>({});
@@ -915,7 +921,7 @@ export default function TimePlanView() {
                           allowEisen={e}
                           draggedInboxTaskId={draggedInboxTaskId}
                           cardLinkResolver={(it) =>
-                            `/app/workspace/inbox-tasks/${it.ref_id}`
+                            `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
                           }
                         />
                       </Fragment>
