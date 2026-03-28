@@ -66,6 +66,7 @@ def upgrade():
     )
 
 
+
 def downgrade():
     # Data removal is irreversible.
     pass
