@@ -89,6 +89,7 @@ import { NestingAwareBlock } from "@jupiter/core/infra/component/layout/nesting-
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
 import { getLoggedInApiClient } from "~/api-clients.server";
+import { LeafPanelExpansionState } from "#/core/infra/leaf-panel-expansion";
 
 enum InboxTasksView {
   KANBAN_BY_EISEN = "kanban-by-eisen",
@@ -470,7 +471,7 @@ export default function BigPlan() {
     sortInboxTaskTimeEventsNaturally(timeEventEntries);
 
   const [selectedInboxTasksView, setSelectedInboxTasksView] = useState(
-    isBigScreen ? InboxTasksView.KANBAN : InboxTasksView.LIST,
+    isBigScreen ? InboxTasksView.KANBAN_BY_EISEN : InboxTasksView.KANBAN,
   );
   const [optimisticUpdates, setOptimisticUpdates] = useState<{
     [key: string]: InboxTaskOptimisticState;
@@ -588,6 +589,7 @@ export default function BigPlan() {
       entityArchived={loaderData.bigPlan.archived}
       returnLocation={"/app/workspace/big-plans"}
       shouldShowALeaflet={shouldShowALeaflet}
+      initialExpansionState={LeafPanelExpansionState.MEDIUM}
     >
       <NestingAwareBlock shouldHide={shouldShowALeaflet}>
         <GlobalError actionResult={actionData} />
@@ -667,6 +669,10 @@ export default function BigPlan() {
               topLevelInfo={topLevelInfo}
               inputsEnabled={inputsEnabled}
               actions={[
+                NavSingle({
+                  text: "New",
+                  link: `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
+                }),
                 FilterFewOptionsCompact(
                   "View",
                   selectedInboxTasksView,
@@ -689,10 +695,6 @@ export default function BigPlan() {
                   ],
                   (selected) => setSelectedInboxTasksView(selected),
                 ),
-                NavSingle({
-                  text: "New",
-                  link: `/app/workspace/big-plans/${loaderData.bigPlan.ref_id}/inbox-tasks/new`,
-                }),
               ]}
             />
           }
