@@ -12,6 +12,6 @@
     "node": ">=14",
     "@remix-run/node": "^1.17.0"
   },
-  "author": "Horia Coman <horia141@gmail.com>",
+  "author": "Mike Bestcat <mike@get-thriving.com>",
   "license": "MIT"
 }

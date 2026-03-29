@@ -21,7 +21,7 @@ tmp_dir=$(mktemp -d)
 trap 'rm -rf "$tmp_dir"' EXIT
 
 log info "Cloning thrive repo into $tmp_dir ..."
-git clone --quiet --branch "$branch" https://github.com/horia141/thrive.git "$tmp_dir/thrive"
+git clone --quiet --branch "$branch" https://github.com/get-thriving/thrive.git "$tmp_dir/thrive"
 
 cd "$tmp_dir/thrive"
 

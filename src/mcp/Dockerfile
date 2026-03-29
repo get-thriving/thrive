@@ -1,5 +1,5 @@
 FROM python:3.13.0
-LABEL maintainer='horia141@gmail.com'
+LABEL maintainer='mike@get-thriving.com'
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

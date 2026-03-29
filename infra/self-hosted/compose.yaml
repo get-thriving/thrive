@@ -10,7 +10,7 @@ services:
       - PORT=2000
       - AUTH_TOKEN_SECRET=${AUTH_TOKEN_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
-    image: ${DOCKER_IMAGE_WEBAPI:-horia141/jupiter-webapi:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_WEBAPI:-getthriving/webapi:${VERSION:-latest}}
     ports:
     - "${WEBAPI_PORT:-0}:2000"
     volumes:
@@ -30,7 +30,7 @@ services:
       - WEBAPI_SERVER_PORT=2000
       - MOUNT_PATH=/api
     restart: always
-    image: ${DOCKER_IMAGE_API:-horia141/jupiter-api:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_API:-getthriving/api:${VERSION:-latest}}
     ports:
       - "${API_PORT:-0}:10020"
     depends_on:
@@ -49,7 +49,7 @@ services:
       - WEBAPI_SERVER_HOST=webapi
       - WEBAPI_SERVER_PORT=2000
     restart: always
-    image: ${DOCKER_IMAGE_MCP:-horia141/jupiter-mcp:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_MCP:-getthriving/mcp:${VERSION:-latest}}
     ports:
       - "${MCP_PORT:-0}:10030"
     depends_on:
@@ -76,7 +76,7 @@ services:
       - SESSION_COOKIE_SECURE=${SESSION_COOKIE_SECURE:-false}
       - SESSION_COOKIE_SECRET=${SESSION_COOKIE_SECRET:?Check https://docs.get-thriving.com/how-tos/self-hosting}
     restart: always
-    image: ${DOCKER_IMAGE_WEBUI:-horia141/jupiter-webui:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_WEBUI:-getthriving/webui:${VERSION:-latest}}
     depends_on:
       - webapi
     healthcheck:
@@ -94,7 +94,7 @@ services:
       - API_URL=${API_SERVER_URL:-${PROTOCOL:-https}://${DOMAIN:?Check https://docs.get-thriving.com/how-tos/self-hosting}}/api
       - PUBLIC_NAME=${PUBLIC_NAME}
     restart: always
-    image: ${DOCKER_IMAGE_DOCS:-horia141/jupiter-docs:${VERSION:-latest}}
+    image: ${DOCKER_IMAGE_DOCS:-getthriving/docs:${VERSION:-latest}}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s

@@ -7,7 +7,7 @@ source secrets/Config.secrets
 export THRIVE_SH_TEST_UNIVERSE=thrive-sh-test
 export THRIVE_SH_TEST_DNS_ZONE=thrive-sh-test
 export THRIVE_SH_TEST_DOMAIN=.thrive-test.xyz
-export THRIVE_GCP_PROJECT=thrive-449010
+export THRIVE_GCP_PROJECT=get-thriving-main
 export THRIVE_GCP_ZONE=europe-west1-c
 export RUN_ROOT=.build-cache/run
 export STANDARD_INSTANCE=dev
@@ -413,9 +413,9 @@ _run_thrive_sh_test_webapp() {
     if [[ "$source" == "registry" ]]; then
         local gh_prefix
         if [[ "$version" == "latest" ]]; then
-            gh_prefix="https://github.com/horia141/thrive/releases/latest/download"
+            gh_prefix="https://github.com/get-thriving/thrive/releases/latest/download"
         else
-            gh_prefix="https://github.com/horia141/thrive/releases/download/v${version}"
+            gh_prefix="https://github.com/get-thriving/thrive/releases/download/v${version}"
         fi
 
         log info "Preparing Thrive on $gcp_vm_name from registry"
