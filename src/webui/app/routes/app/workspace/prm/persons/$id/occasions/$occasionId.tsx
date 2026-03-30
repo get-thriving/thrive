@@ -33,6 +33,7 @@ import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { OccasionKindSelect } from "#/core/prm/sub/person/sub/occasion/components/kind-select";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -162,6 +163,7 @@ export default function OccasionView() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled = navigation.state === "idle" && !occasion.archived;
 
@@ -194,7 +196,7 @@ export default function OccasionView() {
           />
         }
       >
-        <Stack direction="row" spacing={1}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -210,6 +212,7 @@ export default function OccasionView() {
             <TagsEditor
               name="tags"
               label={null}
+              aloneOnLine={!isBigScreen}
               allTags={allTags}
               defaultValue={tags.map((tag: Tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}

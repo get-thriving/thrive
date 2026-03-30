@@ -23,6 +23,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -162,6 +163,7 @@ export default function SmartListDetails() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.smartList.archived;
@@ -193,7 +195,7 @@ export default function SmartListDetails() {
           />
         }
       >
-        <Stack direction="row" useFlexGap spacing={1}>
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -205,9 +207,10 @@ export default function SmartListDetails() {
             <FieldError actionResult={actionData} fieldName="/name" />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 1, width: "50%" }}>
+          <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"
+              aloneOnLine={!isBigScreen}
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((t) => t.ref_id)}
               inputsEnabled={inputsEnabled}

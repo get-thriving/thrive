@@ -61,7 +61,7 @@ export function BigPlanTimelineBigScreen({
 }: BigPlanTimelineBigScreenProps) {
   const theme = useTheme();
   return (
-    <TableContainer component={Box}>
+    <TableContainer component={Box} sx={{ overflow: "visible" }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <TableHead>
           <TableRow>

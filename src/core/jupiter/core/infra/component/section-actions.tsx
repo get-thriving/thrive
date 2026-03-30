@@ -85,6 +85,7 @@ interface FilterOption<K> {
   text: string;
   icon?: JSX.Element;
   gatedOn?: WorkspaceFeature;
+  disabled?: boolean;
 }
 
 interface FilterFewOptionsDesc<K> {
@@ -908,7 +909,7 @@ function FilterFewOptionsSpreadView<K>(props: FilterFewOptionsViewProps<K>) {
           <Button
             key={`filter-few-options-${index}`}
             variant={option.value === selected ? "contained" : "outlined"}
-            disabled={!props.inputsEnabled}
+            disabled={!props.inputsEnabled || option.disabled}
             startIcon={option.icon}
             onClick={() => {
               setSelected(option.value);
@@ -972,7 +973,11 @@ function FilterFewOptionsCompactView<K>(props: FilterFewOptionsViewProps<K>) {
         )}
       >
         {realOptions.map((option, index) => (
-          <MenuItem key={`filter-few-multiple-${index}`} value={index}>
+          <MenuItem
+            key={`filter-few-multiple-${index}`}
+            value={index}
+            disabled={option.disabled}
+          >
             {option.icon} {option.text}
           </MenuItem>
         ))}
@@ -1028,6 +1033,7 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
         props.action.onSelect(selected.map((option) => option.value));
       }}
       isOptionEqualToValue={(option, value) => option.value === value.value}
+      getOptionDisabled={(option: FilterOption<K>) => option.disabled || false}
       renderOption={(props, option, { selected }) => (
         <li {...props}>
           <Checkbox
@@ -1035,6 +1041,7 @@ function FilterManyOptionsView<K>(props: FilterManyOptionsViewProps<K>) {
             checkedIcon={checkedIcon}
             style={{ marginRight: 8 }}
             checked={selected}
+            disabled={option.disabled || false}
           />
           {option.text}
         </li>

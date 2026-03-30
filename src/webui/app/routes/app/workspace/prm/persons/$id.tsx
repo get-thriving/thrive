@@ -56,6 +56,7 @@ import { OccasionStack } from "@jupiter/core/prm/sub/person/sub/occasion/compone
 import { AnimatePresence } from "framer-motion";
 import { NestingAwareBlock } from "#/core/infra/component/layout/nesting-aware-block";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -308,6 +309,7 @@ export default function Person() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const shouldShowALeaflet = useLeafNeedsToShowLeaflet();
 
   const person = loaderData.person;
@@ -405,7 +407,7 @@ export default function Person() {
             />
           }
         >
-          <Stack direction="row" spacing={1}>
+          <Stack direction={isBigScreen ? "row" : "column"} spacing={1}>
             <FormControl fullWidth sx={{ flexGrow: 3 }}>
               <InputLabel id="name">Name</InputLabel>
               <OutlinedInput
@@ -421,6 +423,7 @@ export default function Person() {
               <TagsEditor
                 name="tags"
                 label={null}
+                aloneOnLine={!isBigScreen}
                 allTags={loaderData.allTags}
                 defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
                 inputsEnabled={inputsEnabled}

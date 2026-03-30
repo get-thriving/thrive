@@ -309,7 +309,7 @@ export default function ScheduleEventFullDaysViewOne() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" useFlexGap gap={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"

@@ -49,6 +49,7 @@ import {
   ActionSingle,
 } from "@jupiter/core/infra/component/section-actions";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -289,6 +290,7 @@ export default function MetricDetails() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.metric.archived;
@@ -359,7 +361,7 @@ export default function MetricDetails() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
           <FormControl fullWidth sx={{ flexGrow: 3 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput
@@ -375,6 +377,7 @@ export default function MetricDetails() {
             <TagsEditor
               name="tags"
               label={null}
+              aloneOnLine={!isBigScreen}
               allTags={loaderData.allTags}
               defaultValue={loaderData.tags.map((tag) => tag.ref_id)}
               inputsEnabled={inputsEnabled}

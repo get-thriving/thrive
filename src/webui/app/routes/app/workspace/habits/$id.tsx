@@ -64,6 +64,7 @@ import { lifePlanBirthdayDate } from "#/core/life_plan/root";
 import { aDateToDate } from "#/core/common/adate";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { basicShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -368,6 +369,7 @@ export default function Habit() {
   const [query] = useSearchParams();
 
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
   const birthdayDate = loaderData.lifePlan
     ? lifePlanBirthdayDate(loaderData.lifePlan)
     : null;
@@ -495,7 +497,7 @@ export default function Habit() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" useFlexGap spacing={1}>
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
           <FormControl fullWidth sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"
