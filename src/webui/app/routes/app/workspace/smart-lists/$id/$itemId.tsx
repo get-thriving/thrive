@@ -27,6 +27,7 @@ import { FieldError, GlobalError } from "@jupiter/core/infra/component/errors";
 import { LeafPanel } from "@jupiter/core/infra/component/layout/leaf-panel";
 import { TagsEditor } from "@jupiter/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "@jupiter/core/common/sub/contacts/component/contacts-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 import { validationErrorToUIErrorInfo } from "@jupiter/core/infra/action-result";
 import { DisplayType } from "@jupiter/core/infra/component/use-nested-entities";
 import { TopLevelInfoContext } from "@jupiter/core/infra/top-level-context";
@@ -190,6 +191,7 @@ export default function SmartListItem() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.item.archived;
@@ -235,7 +237,7 @@ export default function SmartListItem() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" spacing={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
           <FormControl sx={{ flexGrow: 1, width: "50%" }}>
             <TagsEditor
               name="generic_tags_names"

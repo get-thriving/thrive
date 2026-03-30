@@ -31,6 +31,7 @@ import {
 import { SectionCard } from "@jupiter/core/infra/component/section-card";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -178,6 +179,7 @@ export default function MetricEntry() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled =
     navigation.state === "idle" && !loaderData.metricEntry.archived;
@@ -209,7 +211,7 @@ export default function MetricEntry() {
           />
         }
       >
-        <Stack direction="row" spacing={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
           <TimeDiffTag
             today={topLevelInfo.today}
             labelPrefix="Collected"

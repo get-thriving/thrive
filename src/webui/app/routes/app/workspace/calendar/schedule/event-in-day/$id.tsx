@@ -365,7 +365,7 @@ export default function ScheduleEventInDayViewOne() {
           <FieldError actionResult={actionData} fieldName="/name" />
         </FormControl>
 
-        <Stack direction="row" useFlexGap gap={2}>
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap gap={2}>
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <TagsEditor
               name="tags_names"

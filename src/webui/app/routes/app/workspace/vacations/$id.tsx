@@ -33,6 +33,7 @@ import {
 } from "@jupiter/core/infra/component/section-actions";
 import { TagsEditor } from "#/core/common/sub/tags/component/tags-editor";
 import { ContactsEditor } from "#/core/common/sub/contacts/component/contacts-editor";
+import { useBigScreen } from "@jupiter/core/infra/component/use-big-screen";
 
 import { useLoaderDataSafeForAnimation } from "~/rendering/use-loader-data-for-animation";
 import { standardShouldRevalidate } from "~/rendering/standard-should-revalidate";
@@ -190,6 +191,7 @@ export default function Vacation() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const topLevelInfo = useContext(TopLevelInfoContext);
+  const isBigScreen = useBigScreen();
 
   const inputsEnabled = navigation.state === "idle" && !vacation.archived;
 
@@ -243,7 +245,7 @@ export default function Vacation() {
           </FormControl>
         </Stack>
 
-        <Stack direction="row" useFlexGap spacing={1}>
+        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
           {allTags && tags && (
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor
