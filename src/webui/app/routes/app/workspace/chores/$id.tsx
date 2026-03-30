@@ -471,7 +471,11 @@ export default function Chore() {
           </FormControl>
         </Stack>
 
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
           <FormControl sx={{ flexGrow: 2 }}>
             <TagsEditor
               name="tags"

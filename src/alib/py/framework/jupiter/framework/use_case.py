@@ -21,6 +21,7 @@ from jupiter.framework.auth.auth_token import (
 )
 from jupiter.framework.auth.auth_token_ext import AuthTokenExt
 from jupiter.framework.auth.auth_token_stamper import AuthTokenStamper
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.component_properties import (
     ComponentProperties,
     UnavailableForComponentError,
@@ -340,6 +341,7 @@ class GuestSession(EmptySession):
     """The application use case session."""
 
     component_properties: ComponentProperties
+    trace_id: TraceId
     auth_token_ext: AuthTokenExt | None
 
 
@@ -424,6 +426,7 @@ class GuestMutationUseCase(
 
         domain_context = MutationContext.build(
             session.component_properties,
+            session.trace_id,
             self._time_provider.get_current_time(),
         )
 
@@ -510,6 +513,7 @@ class LoggedInSession(SessionBase):
     """The application use case session for logged-in-OK interactions."""
 
     component_properties: ComponentProperties
+    trace_id: TraceId
     auth_token_ext: AuthTokenExt
 
 
@@ -638,6 +642,7 @@ class LoggedInMutationUseCase(
 
         domain_context = MutationContext.build(
             session.component_properties,
+            session.trace_id,
             self._time_provider.get_current_time(),
         )
 

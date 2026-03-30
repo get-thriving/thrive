@@ -245,7 +245,11 @@ export default function Vacation() {
           </FormControl>
         </Stack>
 
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
           {allTags && tags && (
             <FormControl sx={{ flexGrow: 2 }}>
               <TagsEditor

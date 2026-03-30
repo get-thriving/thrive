@@ -46,6 +46,7 @@ from jupiter.framework.auth.auth_token_ext import (
     AuthTokenExt,
     AuthTokenExtDatabaseDecoder,
 )
+from jupiter.framework.base.trace_id import TraceId, TraceIdDatabaseDecoder
 from jupiter.framework.realm.standard import (
     _StandardEnumValueDatabaseDecoder,
 )
@@ -59,12 +60,14 @@ INSTANCE_HEADER: Final[str] = "X-Jupiter-Instance"
 HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
 VERSION_HEADER: Final[str] = "X-Jupiter-Version"
 FRONTDOOR_HEADER: Final[str] = "X-Jupiter-FrontDoor"
+TRACE_ID_HEADER: Final[str] = "X-Jupiter-Trace-Id"
 
 _AUTH_TOKEN_EXT_DECODER = AuthTokenExtDatabaseDecoder()
 _APP_VERSION_DECODER = AppVersionDatabaseDecoder()
 _APP_SHELL_DECODER = _StandardEnumValueDatabaseDecoder(AppShell)
 _APP_PLATFORM_DECODER = _StandardEnumValueDatabaseDecoder(AppPlatform)
 _APP_DISTRIBUTION_DECODER = _StandardEnumValueDatabaseDecoder(AppDistribution)
+_TRACE_ID_DECODER = TraceIdDatabaseDecoder()
 
 
 _JupiterGuestMutationUseCaseT = TypeVar("_JupiterGuestMutationUseCaseT", bound=JupiterGuestMutationUseCase[object, object])  # type: ignore
@@ -168,10 +171,12 @@ class JupiterGuestMutationCommand(
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
+        trace_id = _extract_trace_id(request)
         app_component = _extract_component_from_frontdoor(request)
 
         return JupiterGuestSession(
             app_component,
+            trace_id,
             auth_token_ext_str,
         )
 
@@ -193,10 +198,12 @@ class JupiterGuestReadonlyCommand(
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
+        trace_id = _extract_trace_id(request)
         app_component = _extract_component_from_frontdoor(request)
 
         return JupiterGuestSession(
             app_component,
+            trace_id,
             auth_token_ext_str,
         )
 
@@ -218,6 +225,7 @@ class JupiterLoggedInMutationCommand(
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
+        trace_id = _extract_trace_id(request)
         if auth_token_ext_str is None:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
@@ -228,6 +236,7 @@ class JupiterLoggedInMutationCommand(
 
         return JupiterLoggedInSession(
             app_component,
+            trace_id,
             auth_token_ext_str,
         )
 
@@ -249,6 +258,7 @@ class JupiterLoggedInReadonlyCommand(
         """Build the session."""
         # extract auth token from the "Authorization" header,
         auth_token_ext_str = _extract_auth_token_ext(request)
+        trace_id = _extract_trace_id(request)
         if auth_token_ext_str is None:
             raise HTTPException(
                 status_code=HTTP_401_UNAUTHORIZED,
@@ -259,6 +269,7 @@ class JupiterLoggedInReadonlyCommand(
 
         return JupiterLoggedInSession(
             app_component,
+            trace_id,
             auth_token_ext_str,
         )
 
@@ -367,6 +378,7 @@ class JupiterWebApiAppForm(
                     distribution=AppDistribution.WEB,
                     version=self._global_properties.version,
                 ),
+                trace_id=TraceId.new(),
                 auth_token_ext=None,
             ),
             LoginArgs(email_address=email_address, password=password),
@@ -388,6 +400,13 @@ def _extract_auth_token_ext(request: Request) -> AuthTokenExt | None:
         return None
     return _AUTH_TOKEN_EXT_DECODER.decode(param)
 
+
+def _extract_trace_id(request: Request) -> TraceId:
+    """Extract the trace id from the request."""
+    trace_id_header = request.headers.get(TRACE_ID_HEADER)
+    if trace_id_header is None:
+        return TraceId.new()
+    return _TRACE_ID_DECODER.decode(trace_id_header)
 
 def _extract_component_from_frontdoor(request: Request) -> JupiterComponentProperties:
     """Extract the app component from the frontdoor."""

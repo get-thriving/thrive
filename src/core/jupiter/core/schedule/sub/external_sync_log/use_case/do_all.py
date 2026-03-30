@@ -12,6 +12,7 @@ from jupiter.core.schedule.service.external_sync_service import (
     ScheduleExternalSyncService,
 )
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.use_case import EmptyContext
 from jupiter.framework.use_case_io import UseCaseArgsBase, use_case_args
@@ -40,6 +41,7 @@ class ScheduleExternalSyncDoAllUseCase(
                 component=AppComponent.SCHEDULE_EXTERNAL_SYNC_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
+            TraceId.new(),
             self._time_provider.get_current_time(),
         )
 

@@ -17,6 +17,7 @@ from jupiter.core.user_workspace_link.user_workspace_link import (
 )
 from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.context import MutationContext
 from jupiter.framework.use_case import (
     EmptyContext,
@@ -54,6 +55,7 @@ class StatsDoAllUseCase(JupiterBackgroundMutationUseCase[StatsDoAllArgs, None]):
                 component=AppComponent.STATS_CRON,
                 version=cast(JupiterGlobalProperties, self._global_properties).version,
             ),
+            TraceId.new(),
             self._time_provider.get_current_time(),
         )
 
