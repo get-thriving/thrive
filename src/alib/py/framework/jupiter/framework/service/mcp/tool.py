@@ -14,6 +14,7 @@ from typing import (
 )
 
 import attr
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.mcp.resource import (
@@ -175,7 +176,8 @@ class McpApiGatewayTool(
             if token is None:
                 return json.dumps({"error": "Not authenticated"})
 
-            client = get_client_fn(ports, token)
+            trace_id = TraceId.new() # TODO: Extract trace id from the request
+            client = get_client_fn(ports, trace_id, token)
 
             body: Any  # type: ignore[explicit-any]
             if args_type is not None:
@@ -235,6 +237,6 @@ class McpApiGatewayTool(
 
     @abstractmethod
     def get_authenticated_client(  # type: ignore[explicit-any]
-        self, ports: Any, token: str
+        self, ports: Any, trace_id: TraceId, token: str
     ) -> _WebApiAuthenticatedClientT:
         """Create an authenticated webapi client from ``ports`` and ``token``."""

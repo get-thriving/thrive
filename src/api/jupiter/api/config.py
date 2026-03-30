@@ -15,6 +15,7 @@ import dotenv
 from fastapi import Response, status
 from jupiter.api.headers import (
     FRONTDOOR_HEADER,
+    TRACE_ID_HEADER,
     build_frontdoor_header,
     build_response_headers,
 )
@@ -41,10 +42,13 @@ from jupiter_webapi_client.models import (
     ErrorResponse,
 )
 from jupiter_webapi_client.types import Unset
+from jupiter.framework.base.trace_id import TraceId, TraceIdDatabaseEncoder
 
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
 _ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
 _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # type: ignore[explicit-any]
+
+_TRACE_ID_ENCODER = TraceIdDatabaseEncoder()
 
 
 @dataclass(frozen=True)
@@ -136,13 +140,16 @@ class JupiterApiGatewayMethod(
 ):
     """The Jupiter API gateway method."""
 
-    def get_authenticated_client(self, token: str) -> AuthenticatedClient:  # type: ignore[explicit-any]
+    def get_authenticated_client(self, trace_id: TraceId, token: str) -> AuthenticatedClient:  # type: ignore[explicit-any]
         """Get the authenticated client."""
         return AuthenticatedClient(
             base_url=self._ports.webapi_client.client._base_url,
             raise_on_unexpected_status=True,
             token=token,
-            headers={FRONTDOOR_HEADER: build_frontdoor_header(self._global_properties)},
+            headers={
+                FRONTDOOR_HEADER: build_frontdoor_header(self._global_properties),
+                TRACE_ID_HEADER: str(_TRACE_ID_ENCODER.encode(trace_id)),
+            },
         )
 
     async def _do_key_exchange(self, key: str) -> str | Response:  # type: ignore[explicit-any]

@@ -24,8 +24,6 @@ class MutationContext:
         action_timestamp: Timestamp,
     ) -> "MutationContext":
         """Create a mutation context from an app."""
-        from rich import print
-        print(f"Building mutation context for trace id: {trace_id} and mutation id: {MutationId.new()}")
         return MutationContext(
             trace_id=trace_id,
             mutation_id=MutationId.new(),

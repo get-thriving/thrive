@@ -33,6 +33,7 @@ from jupiter.framework.openapi import OPENAPI_ERROR_RESPONSES
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.rest.method import RestMethod
 from jupiter.framework.service_properties import ServiceProperties
+from jupiter.framework.base.trace_id import TraceId
 
 _PortsT = TypeVar("_PortsT", bound=Ports)
 _GlobalPropertiesT = TypeVar("_GlobalPropertiesT", bound=GlobalProperties)
@@ -767,7 +768,7 @@ class RestApiGatewayMethod(
         else:
             args = None
 
-        auth_client = self.get_authenticated_client(auth_token)
+        auth_client = self.get_authenticated_client(request.state.trace_id, auth_token)
 
         try:
             response = await self._api_call(
@@ -944,7 +945,7 @@ class RestApiGatewayMethod(
         )
 
     @abstractmethod
-    def get_authenticated_client(self, token: str) -> _WebApiAuthenticatedClientT:  # type: ignore[explicit-any]
+    def get_authenticated_client(self, trace_id: TraceId, token: str) -> _WebApiAuthenticatedClientT:  # type: ignore[explicit-any]
         """The authenticated client for the method."""
 
     @abstractmethod
