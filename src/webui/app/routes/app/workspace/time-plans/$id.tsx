@@ -49,6 +49,7 @@ import { filterActivityByFeasabilityWithParents } from "@jupiter/core/time_plans
 import {
   sortTimePlansNaturally,
   timePlanAllowsInboxTasks,
+  timePlanAllowsKanbanViews,
 } from "@jupiter/core/time_plans/root";
 import { eisenIcon, eisenName } from "@jupiter/core/common/eisen";
 import { InboxTaskKanbanBoard } from "@jupiter/core/common/sub/inbox_tasks/components/kanban-board";
@@ -541,6 +542,20 @@ export default function TimePlanView() {
     setSelectedDoneness([]);
   }, [topLevelInfo.workspace, loaderData.timePlan]);
 
+  // If the selected view is no longer allowed (e.g., kanban for monthly/quarterly/yearly),
+  // switch to a valid default view
+  useEffect(() => {
+    if (
+      !timePlanAllowsKanbanViews(loaderData.timePlan) &&
+      (selectedView === ViewMode.KANBAN ||
+        selectedView === ViewMode.KANBAN_BY_EISEN)
+    ) {
+      setSelectedView(
+        inferDefaultSelectedView(topLevelInfo.workspace, loaderData.timePlan),
+      );
+    }
+  }, [loaderData.timePlan, selectedView, topLevelInfo.workspace]);
+
   const sortedAspects = sortAspectsByTreeOrder(loaderData.allAspects || []);
   const allAspectsByRefId = new Map(
     loaderData.allAspects?.map((p) => [p.ref_id, p]),
@@ -788,11 +803,13 @@ export default function TimePlanView() {
                       value: ViewMode.KANBAN_BY_EISEN,
                       text: "Kanban by Eisen",
                       icon: <ViewKanbanIcon />,
+                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
                     },
                     {
                       value: ViewMode.KANBAN,
                       text: "Kanban",
                       icon: <ViewKanbanIcon />,
+                      disabled: !timePlanAllowsKanbanViews(loaderData.timePlan),
                     },
                     {
                       value: ViewMode.LIST,
@@ -905,90 +922,92 @@ export default function TimePlanView() {
             />
           )}
 
-          {selectedView === ViewMode.KANBAN_BY_EISEN && (
-            <>
-              {isBigScreen && (
-                <DragDropContext
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                >
-                  <>
-                    {EISENS.map((e) => (
-                      <Fragment key={e}>
-                        <StandardDivider
-                          title={`${eisenIcon(e)} ${eisenName(e)}`}
-                          size="large"
-                        />
-                        <InboxTaskKanbanBoard
-                          topLevelInfo={topLevelInfo}
-                          inboxTasks={loaderData.targetInboxTasks}
-                          optimisticUpdates={optimisticUpdates}
-                          inboxTasksByRefId={inboxTasksByRefId}
-                          moreInfoByRefId={{}}
-                          actionableTime={ActionableTime.NOW}
-                          allowEisen={e}
-                          draggedInboxTaskId={draggedInboxTaskId}
-                          cardLinkResolver={(it) =>
-                            `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
-                          }
-                        />
-                      </Fragment>
-                    ))}
-                  </>
-                </DragDropContext>
-              )}
-              {!isBigScreen && (
-                <SmallScreenKanbanByEisen
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={loaderData.targetInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={{}}
-                  actionableTime={ActionableTime.NOW}
-                  emptyParent="inbox task"
-                  cardLinkResolver={(it) =>
-                    `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
-                  }
-                />
-              )}
-            </>
-          )}
-
-          {selectedView === ViewMode.KANBAN && (
-            <>
-              {isBigScreen && (
-                <DragDropContext
-                  onDragStart={onDragStart}
-                  onDragEnd={onDragEnd}
-                >
-                  <InboxTaskKanbanBoard
+          {selectedView === ViewMode.KANBAN_BY_EISEN &&
+            timePlanAllowsKanbanViews(loaderData.timePlan) && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <>
+                      {EISENS.map((e) => (
+                        <Fragment key={e}>
+                          <StandardDivider
+                            title={`${eisenIcon(e)} ${eisenName(e)}`}
+                            size="large"
+                          />
+                          <InboxTaskKanbanBoard
+                            topLevelInfo={topLevelInfo}
+                            inboxTasks={loaderData.targetInboxTasks}
+                            optimisticUpdates={optimisticUpdates}
+                            inboxTasksByRefId={inboxTasksByRefId}
+                            moreInfoByRefId={{}}
+                            actionableTime={ActionableTime.NOW}
+                            allowEisen={e}
+                            draggedInboxTaskId={draggedInboxTaskId}
+                            cardLinkResolver={(it) =>
+                              `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                            }
+                          />
+                        </Fragment>
+                      ))}
+                    </>
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanbanByEisen
                     topLevelInfo={topLevelInfo}
                     inboxTasks={loaderData.targetInboxTasks}
                     optimisticUpdates={optimisticUpdates}
-                    inboxTasksByRefId={inboxTasksByRefId}
                     moreInfoByRefId={{}}
                     actionableTime={ActionableTime.NOW}
-                    draggedInboxTaskId={draggedInboxTaskId}
+                    emptyParent="inbox task"
                     cardLinkResolver={(it) =>
                       `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
                     }
                   />
-                </DragDropContext>
-              )}
-              {!isBigScreen && (
-                <SmallScreenKanban
-                  topLevelInfo={topLevelInfo}
-                  inboxTasks={loaderData.targetInboxTasks}
-                  optimisticUpdates={optimisticUpdates}
-                  moreInfoByRefId={{}}
-                  actionableTime={ActionableTime.NOW}
-                  emptyParent="inbox task"
-                  cardLinkResolver={(it) =>
-                    `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
-                  }
-                />
-              )}
-            </>
-          )}
+                )}
+              </>
+            )}
+
+          {selectedView === ViewMode.KANBAN &&
+            timePlanAllowsKanbanViews(loaderData.timePlan) && (
+              <>
+                {isBigScreen && (
+                  <DragDropContext
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                  >
+                    <InboxTaskKanbanBoard
+                      topLevelInfo={topLevelInfo}
+                      inboxTasks={loaderData.targetInboxTasks}
+                      optimisticUpdates={optimisticUpdates}
+                      inboxTasksByRefId={inboxTasksByRefId}
+                      moreInfoByRefId={{}}
+                      actionableTime={ActionableTime.NOW}
+                      draggedInboxTaskId={draggedInboxTaskId}
+                      cardLinkResolver={(it) =>
+                        `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                      }
+                    />
+                  </DragDropContext>
+                )}
+                {!isBigScreen && (
+                  <SmallScreenKanban
+                    topLevelInfo={topLevelInfo}
+                    inboxTasks={loaderData.targetInboxTasks}
+                    optimisticUpdates={optimisticUpdates}
+                    moreInfoByRefId={{}}
+                    actionableTime={ActionableTime.NOW}
+                    emptyParent="inbox task"
+                    cardLinkResolver={(it) =>
+                      `/app/workspace/time-plans/${loaderData.timePlan.ref_id}/${activityByInboxTaskRefId.get(it.ref_id)?.ref_id ?? it.ref_id}`
+                    }
+                  />
+                )}
+              </>
+            )}
 
           {selectedView === ViewMode.LIST &&
             selectedGrouping === Grouping.MERGED && (

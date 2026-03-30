@@ -15,6 +15,11 @@ export function timePlanAllowsInboxTasks(timePlan: TimePlan): boolean {
   );
 }
 
+export function timePlanAllowsKanbanViews(timePlan: TimePlan): boolean {
+  // Kanban views show inbox tasks, so they're only available for daily and weekly periods
+  return timePlanAllowsInboxTasks(timePlan);
+}
+
 export function findTimePlansThatAreActive(
   timePlans: Array<TimePlan>,
   rightNow: ADate,

@@ -28,7 +28,8 @@ module.exports = {
     {
       name: "@electron-forge/maker-pkg",
       config: {
-        identity: "3rd Party Mac Developer Installer: Mike Bestcat (BTZYJ9V34R)",
+        identity:
+          "3rd Party Mac Developer Installer: Mike Bestcat (BTZYJ9V34R)",
       },
     },
   ],
