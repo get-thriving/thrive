@@ -4,7 +4,7 @@ import abc
 
 from jupiter.core.common.sub.contacts.sub.contact.name import ContactName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -37,7 +37,7 @@ class Contact(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_contact(
-        ctx: MutationContext,
+        ctx: DomainContext,
         contact_domain_ref_id: EntityId,
         name: ContactName,
     ) -> "Contact":
@@ -51,7 +51,7 @@ class Contact(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ContactName],
     ) -> "Contact":
         """Update the contact."""

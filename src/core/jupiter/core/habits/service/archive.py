@@ -17,7 +17,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.habits.collection import HabitCollection
 from jupiter.core.habits.root import Habit
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -27,7 +27,7 @@ class HabitArchiveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         habit: Habit,

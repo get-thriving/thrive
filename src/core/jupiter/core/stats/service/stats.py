@@ -37,7 +37,7 @@ from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainStorageEngine
@@ -54,7 +54,7 @@ class StatsService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         workspace: Workspace,
@@ -237,7 +237,7 @@ class StatsService:
 
     async def _compute_stats_for_habits(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -276,7 +276,7 @@ class StatsService:
 
     async def _compute_stats_for_big_plans(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -319,7 +319,7 @@ class StatsService:
 
     async def _compute_stats_for_journals(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,
@@ -353,7 +353,7 @@ class StatsService:
 
     async def _compute_stats_for_gamification(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: User,
         workspace: Workspace,
         progress_reporter: ProgressReporter,

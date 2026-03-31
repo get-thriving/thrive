@@ -17,7 +17,7 @@ from jupiter.core.prm.sub.person.sub.occasion.kind import OccasionKind
 from jupiter.core.prm.sub.person.sub.occasion.name import OccasionName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -62,7 +62,7 @@ class Occasion(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_occasion(
-        ctx: MutationContext,
+        ctx: DomainContext,
         person_ref_id: EntityId,
         kind: OccasionKind,
         name: OccasionName,
@@ -80,7 +80,7 @@ class Occasion(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         kind: UpdateAction[OccasionKind],
         name: UpdateAction[OccasionName],
         date: UpdateAction[Birthday],

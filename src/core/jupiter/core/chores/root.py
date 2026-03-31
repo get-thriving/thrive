@@ -10,7 +10,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -54,7 +54,7 @@ class Chore(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_chore(
-        ctx: MutationContext,
+        ctx: DomainContext,
         chore_collection_ref_id: EntityId,
         aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
@@ -99,7 +99,7 @@ class Chore(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ChoreName],
         aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
@@ -141,7 +141,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: MutationContext) -> "Chore":
+    def suspend(self, ctx: DomainContext) -> "Chore":
         """Suspend the chore."""
         if self.suspended:
             return self
@@ -151,7 +151,7 @@ class Chore(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: MutationContext) -> "Chore":
+    def unsuspend(self, ctx: DomainContext) -> "Chore":
         """Unsuspend the chore."""
         if not self.suspended:
             return self

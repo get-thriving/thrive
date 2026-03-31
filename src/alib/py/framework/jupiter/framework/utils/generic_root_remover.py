@@ -1,7 +1,7 @@
 """A generic archiver service."""
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
@@ -17,7 +17,7 @@ from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
 async def generic_root_remover(
-    ctx: MutationContext,
+    ctx: DomainContext,
     uow: DomainUnitOfWork,
     progress_reporter: ProgressReporter,
     entity_type: type[RootEntity],

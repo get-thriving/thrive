@@ -5,7 +5,7 @@ import abc
 from jupiter.core.common.sub.inbox_tasks.status import InboxTaskStatus
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import ParentLink
 from jupiter.framework.record import (
     Record,
@@ -27,7 +27,7 @@ class HabitStreakMark(Record):
     @staticmethod
     @create_record_action
     def new_mark(
-        ctx: MutationContext,
+        ctx: DomainContext,
         habit_ref_id: EntityId,
         date: ADate,
         statuses: dict[EntityId, InboxTaskStatus],
@@ -42,7 +42,7 @@ class HabitStreakMark(Record):
 
     @update_record_action
     def update_status(
-        self, ctx: MutationContext, inbox_task_ref_id: EntityId, status: InboxTaskStatus
+        self, ctx: DomainContext, inbox_task_ref_id: EntityId, status: InboxTaskStatus
     ) -> "HabitStreakMark":
         """Update the status of the streak mark."""
         return HabitStreakMark._new_version(
@@ -51,7 +51,7 @@ class HabitStreakMark(Record):
 
     @update_record_action
     def remove_status(
-        self, ctx: MutationContext, inbox_task_ref_id: EntityId
+        self, ctx: DomainContext, inbox_task_ref_id: EntityId
     ) -> "HabitStreakMark":
         """Remove the status of the streak mark."""
         return HabitStreakMark._new_version(

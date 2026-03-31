@@ -3,7 +3,7 @@
 from typing import TypeVar
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsLink,
     CrownEntity,
@@ -19,7 +19,7 @@ _ArchivalReasonT = TypeVar("_ArchivalReasonT", bound=EnumValue)
 
 
 async def generic_full_archiver(
-    ctx: MutationContext,
+    ctx: DomainContext,
     uow: DomainUnitOfWork,
     entity_type: type[RootEntity],
     ref_id: EntityId,

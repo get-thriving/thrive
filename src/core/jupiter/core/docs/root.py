@@ -9,7 +9,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.docs.idempotency_key import DocIdempotencyKey
 from jupiter.core.docs.name import DocName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -41,7 +41,7 @@ class Doc(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_doc(
-        ctx: MutationContext,
+        ctx: DomainContext,
         doc_collection_ref_id: EntityId,
         parent_doc_ref_id: EntityId | None,
         idempotency_key: DocIdempotencyKey,
@@ -59,7 +59,7 @@ class Doc(LeafEntity):
     @update_entity_action
     def change_parent(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         parent_doc_ref_id: EntityId | None,
     ) -> "Doc":
         """Change the parent doc of the doc."""
@@ -71,7 +71,7 @@ class Doc(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[DocName],
     ) -> "Doc":
         """Update the doc name and content."""

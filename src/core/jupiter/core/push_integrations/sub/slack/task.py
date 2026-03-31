@@ -13,7 +13,7 @@ from jupiter.core.push_integrations.sub.slack.user_name import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -45,7 +45,7 @@ class SlackTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_slack_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         slack_task_collection_ref_id: EntityId,
         user: SlackUserName,
         channel: SlackChannelName | None,
@@ -67,7 +67,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         user: UpdateAction[SlackUserName],
         channel: UpdateAction[SlackChannelName | None],
         message: UpdateAction[str],
@@ -87,7 +87,7 @@ class SlackTask(LeafEntity):
     @update_entity_action
     def mark_as_used_for_generation(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
     ) -> "SlackTask":
         """Mark this task as used for generating an inbox task."""
         if self.has_generated_task:

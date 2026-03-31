@@ -17,7 +17,7 @@ from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveSe
 from jupiter.core.metrics.root import Metric
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -27,7 +27,7 @@ class MetricRemoveService:
 
     async def execute(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         workspace: Workspace,

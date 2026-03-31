@@ -14,7 +14,7 @@ from jupiter.core.habits.repeats_strategy import (
 )
 from jupiter.core.habits.streak_mark import HabitStreakMark
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -62,7 +62,7 @@ class Habit(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_habit(
-        ctx: MutationContext,
+        ctx: DomainContext,
         habit_collection_ref_id: EntityId,
         aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
@@ -108,7 +108,7 @@ class Habit(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[HabitName],
         aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],
@@ -173,7 +173,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def suspend(self, ctx: MutationContext) -> "Habit":
+    def suspend(self, ctx: DomainContext) -> "Habit":
         """Suspend the habit."""
         if self.suspended:
             return self
@@ -183,7 +183,7 @@ class Habit(LeafEntity):
         )
 
     @update_entity_action
-    def unsuspend(self, ctx: MutationContext) -> "Habit":
+    def unsuspend(self, ctx: DomainContext) -> "Habit":
         """Unsuspend the habit."""
         if not self.suspended:
             return self

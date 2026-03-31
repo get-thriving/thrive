@@ -4,7 +4,7 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink, TagLinkRepository
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -13,7 +13,7 @@ class TagLinkArchiveService:
 
     async def archive_for_entity(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         namespace: TagNamespace,
         source_entity_ref_id: EntityId,

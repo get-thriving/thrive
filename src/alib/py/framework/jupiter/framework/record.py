@@ -17,7 +17,7 @@ from typing import (
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.concept import Concept
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import IsOneOfRefId, IsRefId, ParentLink
 from jupiter.framework.primitive import Primitive
 from jupiter.framework.value import AtomicValue, EnumValue
@@ -36,7 +36,7 @@ class Record(Concept):
     @classmethod
     def _create(
         cls: type[_RecordT],
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _RecordT:
         """Create a new record."""
@@ -48,7 +48,7 @@ class Record(Concept):
 
     def _new_version(
         self: _RecordT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _RecordT:
         # To hell with your types!
@@ -117,7 +117,7 @@ def create_record_action(f: _CreateEventT) -> _CreateEventT:  # type: ignore
     """A decorator that marks a record method as a creation one."""
 
     def wrapper(  #  type: ignore
-        ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+        ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> Record:
         """The wrapper."""
         return f(ctx, *args, **kwargs)
@@ -131,7 +131,7 @@ _UpdateEventT = TypeVar("_UpdateEventT", bound=Callable[..., Record])  #  type: 
 def update_record_action(f: _UpdateEventT) -> _UpdateEventT:  # type: ignore
     """A decorator that marks a record method as an update one."""
 
-    def wrapper(self: Record, ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Record:  # type: ignore
+    def wrapper(self: Record, ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Record:  # type: ignore
         """The wrapper."""
         return f(self, ctx, *args, **kwargs)
 

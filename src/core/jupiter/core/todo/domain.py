@@ -2,7 +2,7 @@
 
 from jupiter.core.todo.root import TodoTask
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -22,7 +22,7 @@ class TodoDomain(TrunkEntity):
 
     @staticmethod
     def new_todo_domain(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "TodoDomain":
         """Create a todo domain."""

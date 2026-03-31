@@ -16,7 +16,7 @@ from jupiter.core.journals.stats import JournalStats
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -68,7 +68,7 @@ class Journal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_journal_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -87,7 +87,7 @@ class Journal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_journal_generated(
-        ctx: MutationContext,
+        ctx: DomainContext,
         journal_collection_ref_id: EntityId,
         right_now: ADate,
         period: RecurringTaskPeriod,
@@ -107,7 +107,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def change_time_config(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: UpdateAction[ADate],
         period: UpdateAction[RecurringTaskPeriod],
     ) -> "Journal":
@@ -128,7 +128,7 @@ class Journal(LeafEntity):
     @update_entity_action
     def update_link_to_journal_collection(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         right_now: ADate,
     ) -> "Journal":
         """Update the link to the journal collection."""

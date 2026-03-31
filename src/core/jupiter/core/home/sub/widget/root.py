@@ -9,7 +9,7 @@ from jupiter.core.home.widget import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
     ParentLink,
@@ -30,7 +30,7 @@ class HomeWidget(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_home_widget(
-        ctx: MutationContext,
+        ctx: DomainContext,
         home_tab_ref_id: EntityId,
         home_tab_target: HomeTabTarget,
         the_type: WidgetType,
@@ -59,7 +59,7 @@ class HomeWidget(LeafEntity):
     @update_entity_action
     def move_and_resize(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         home_tab_target_for_reference: HomeTabTarget,
         row: int,
         col: int,

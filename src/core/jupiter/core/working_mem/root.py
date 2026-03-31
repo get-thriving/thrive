@@ -5,7 +5,7 @@ import abc
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     OwnsOne,
@@ -30,7 +30,7 @@ class WorkingMem(StubEntity):
     @staticmethod
     @create_entity_action
     def new_working_mem(
-        ctx: MutationContext,
+        ctx: DomainContext,
         working_mem_collection_ref_id: EntityId,
     ) -> "WorkingMem":
         """Create a working memory entry."""

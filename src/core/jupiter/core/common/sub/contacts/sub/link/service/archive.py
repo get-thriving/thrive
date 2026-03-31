@@ -7,7 +7,7 @@ from jupiter.core.common.sub.contacts.sub.link.root import (
     ContactLinkRepository,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -16,7 +16,7 @@ class ContactLinkArchiveService:
 
     async def archive_for_entity(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         namespace: ContactNamespace,
         source_entity_ref_id: EntityId,

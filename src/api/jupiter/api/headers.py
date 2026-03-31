@@ -11,6 +11,7 @@ INSTANCE_HEADER: Final[str] = "X-Jupiter-Instance"
 HOSTING_HEADER: Final[str] = "X-Jupiter-Hosting"
 VERSION_HEADER: Final[str] = "X-Jupiter-Version"
 FRONTDOOR_HEADER: Final[str] = "X-Jupiter-FrontDoor"
+TRACE_ID_HEADER: Final[str] = "X-Jupiter-Trace-Id"
 
 
 def build_response_headers(

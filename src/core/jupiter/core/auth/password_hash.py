@@ -7,6 +7,7 @@ from jupiter.core.auth.password_plain import PasswordPlain
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
+    EventStoreRealm,
     RealmDecoder,
     RealmEncoder,
     RealmThing,
@@ -19,7 +20,7 @@ _PASSWORD_HASHER = PasswordHasher.from_parameters(_PROFILE)
 
 
 @secret_value
-@only_in_realm(DatabaseRealm)
+@only_in_realm(DatabaseRealm, EventStoreRealm)
 class PasswordHash(SecretValue):
     """A hashed password, suitable for storage."""
 
@@ -77,3 +78,11 @@ class PasswordHashDatabaseDecoder(RealmDecoder[PasswordHash, DatabaseRealm]):
                 f"Expected password hash to be a string, got {value}"
             )
         return PasswordHash.from_raw(value)
+
+
+class PasswordHashEventStoreRealmEncoder(RealmEncoder[PasswordHash, EventStoreRealm]):
+    """Encode a password hash for storage in the Event Store."""
+
+    def encode(self, value: PasswordHash) -> RealmThing:
+        """Encode a password hash for storage in the Event Store."""
+        return "***********"

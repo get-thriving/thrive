@@ -41,10 +41,20 @@ from jupiter.framework.base.entity_name import (
     EntityNameDatabaseDecoder,
     EntityNameDatabaseEncoder,
 )
+from jupiter.framework.base.mutation_id import (
+    MutationId,
+    MutationIdDatabaseDecoder,
+    MutationIdDatabaseEncoder,
+)
 from jupiter.framework.base.timestamp import (
     Timestamp,
     TimestampDatabaseDecoder,
     TimestampDatabaseEncoder,
+)
+from jupiter.framework.base.trace_id import (
+    TraceId,
+    TraceIdDatabaseDecoder,
+    TraceIdDatabaseEncoder,
 )
 from jupiter.framework.concept import Concept
 from jupiter.framework.entity import Entity, ParentLink
@@ -1634,6 +1644,11 @@ class ModuleExplorerRealmCodecRegistry(RealmCodecRegistry):
         registry._add_encoder(EntityId, DatabaseRealm, EntityIdDatabaseEncoder())
         registry._add_encoder(EntityId, WebRealm, EntityIdWebEncoder())
         registry._add_decoder(EntityId, DatabaseRealm, EntityIdDatabaseDecoder())
+
+        registry._add_encoder(TraceId, DatabaseRealm, TraceIdDatabaseEncoder())
+        registry._add_decoder(TraceId, DatabaseRealm, TraceIdDatabaseDecoder())
+        registry._add_encoder(MutationId, DatabaseRealm, MutationIdDatabaseEncoder())
+        registry._add_decoder(MutationId, DatabaseRealm, MutationIdDatabaseDecoder())
 
         registry._add_encoder(
             EntityName, DatabaseRealm, EntityNameDatabaseEncoder(EntityName)

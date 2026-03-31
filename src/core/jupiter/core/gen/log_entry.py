@@ -9,7 +9,7 @@ from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
@@ -46,7 +46,7 @@ class GenLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         gen_log_ref_id: EntityId,
         gen_even_if_not_modified: bool,
         today: ADate,
@@ -94,7 +94,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_created(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an newly created entity to the task generation log entry."""
         if not self.opened:
@@ -116,7 +116,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_updated(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an updated entity to the task generation log entry."""
         if not self.opened:
@@ -138,7 +138,7 @@ class GenLogEntry(LeafSupportEntity):
 
     @update_entity_action
     def add_entity_removed(
-        self, ctx: MutationContext, entity: CrownEntity
+        self, ctx: DomainContext, entity: CrownEntity
     ) -> "GenLogEntry":
         """Add an removed entity to the task generation log entry."""
         if not self.opened:
@@ -159,7 +159,7 @@ class GenLogEntry(LeafSupportEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: MutationContext) -> "GenLogEntry":
+    def close(self, ctx: DomainContext) -> "GenLogEntry":
         """Close the task generation log entry."""
         return self._new_version(
             ctx,

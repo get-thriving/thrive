@@ -7,7 +7,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -38,7 +38,7 @@ class MetricEntry(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_metric_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         metric_ref_id: EntityId,
         collection_time: ADate,
         value: float,
@@ -55,7 +55,7 @@ class MetricEntry(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         collection_time: UpdateAction[ADate],
         value: UpdateAction[float],
     ) -> "MetricEntry":

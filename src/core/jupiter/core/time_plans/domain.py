@@ -11,7 +11,7 @@ from jupiter.core.time_plans.generation_approach import (
 )
 from jupiter.core.time_plans.root import TimePlan
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -43,7 +43,7 @@ class TimePlanDomain(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_time_plan_domain(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
         periods: set[RecurringTaskPeriod],
         generation_approach: TimePlanGenerationApproach,
@@ -122,7 +122,7 @@ class TimePlanDomain(TrunkEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[TimePlanGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],

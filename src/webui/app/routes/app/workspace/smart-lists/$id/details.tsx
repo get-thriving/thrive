@@ -195,7 +195,11 @@ export default function SmartListDetails() {
           />
         }
       >
-        <Stack direction={isBigScreen ? "row" : "column"} useFlexGap spacing={1}>
+        <Stack
+          direction={isBigScreen ? "row" : "column"}
+          useFlexGap
+          spacing={1}
+        >
           <FormControl fullWidth sx={{ flexGrow: 1 }}>
             <InputLabel id="name">Name</InputLabel>
             <OutlinedInput

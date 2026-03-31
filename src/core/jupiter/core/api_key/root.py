@@ -5,7 +5,7 @@ from jupiter.core.api_key.key_secret_hash import KeySecretHash
 from jupiter.core.api_key.key_secret_plain import KeySecretPlain
 from jupiter.core.api_key.name import APIKeyName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
     ParentLink,
@@ -37,7 +37,7 @@ class APIKey(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_api_key(
-        ctx: MutationContext,
+        ctx: DomainContext,
         user_ref_id: EntityId,
         name: APIKeyName,
         secret_plain: KeySecretPlain,
@@ -56,7 +56,7 @@ class APIKey(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[APIKeyName],
     ) -> "APIKey":
         """Update the API key."""

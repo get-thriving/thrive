@@ -7,6 +7,7 @@ import uvicorn
 from fastapi import FastAPI, Request, Response, status
 from fastapi.openapi.utils import get_openapi
 from fastapi.routing import APIRoute
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.rest.resource import RestResource
@@ -107,6 +108,9 @@ class RestService(
             BaseHTTPMiddleware, dispatch=self._time_provider_middleware
         )
         self._fast_app.add_middleware(
+            BaseHTTPMiddleware, dispatch=self._trace_id_middleware
+        )
+        self._fast_app.add_middleware(
             BaseHTTPMiddleware, dispatch=self._setting_middleware
         )
 
@@ -128,6 +132,15 @@ class RestService(
     ) -> Response:
         """Middleware to provide the time provider."""
         self._request_time_provider.set_request_time()
+        return await call_next(request)
+
+    async def _trace_id_middleware(
+        self,
+        request: Request,
+        call_next: RequestResponseEndpoint,
+    ) -> Response:
+        """Middleware to provide the trace id."""
+        request.state.trace_id = TraceId.new()
         return await call_next(request)
 
     async def _setting_middleware(

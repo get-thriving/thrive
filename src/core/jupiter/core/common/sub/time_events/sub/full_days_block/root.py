@@ -8,7 +8,7 @@ from jupiter.core.common.sub.time_events.namespace import (
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -37,7 +37,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_schedule_event(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         schedule_event_ref_id: EntityId,
         start_date: ADate,
@@ -60,7 +60,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_person_occasion(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         occasion_ref_id: EntityId,
         occasion_date: ADate,
@@ -80,7 +80,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_vacation(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         vacation_ref_id: EntityId,
         start_date: ADate,
@@ -104,7 +104,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @update_entity_action
     def update_for_schedule_event(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         start_date: UpdateAction[ADate],
         duration_days: UpdateAction[int],
     ) -> "TimeEventFullDaysBlock":
@@ -123,7 +123,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @update_entity_action
     def update_for_person_occasion(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         occasion_date: ADate,
     ) -> "TimeEventFullDaysBlock":
         """Update the time event."""
@@ -137,7 +137,7 @@ class TimeEventFullDaysBlock(LeafSupportEntity):
     @update_entity_action
     def update_for_vacation(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         start_date: ADate,
         end_date: ADate,
     ) -> "TimeEventFullDaysBlock":

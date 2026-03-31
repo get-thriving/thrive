@@ -9,7 +9,7 @@ from jupiter.core.smart_lists.sub.item.name import (
     SmartListItemName,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -43,7 +43,7 @@ class SmartListItem(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_smart_list_item(
-        ctx: MutationContext,
+        ctx: DomainContext,
         smart_list_ref_id: EntityId,
         name: SmartListItemName,
         is_done: bool,
@@ -61,7 +61,7 @@ class SmartListItem(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[SmartListItemName],
         is_done: UpdateAction[bool],
         url: UpdateAction[URL | None],

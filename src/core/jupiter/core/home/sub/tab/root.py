@@ -10,7 +10,7 @@ from jupiter.core.home.sub.widget.root import HomeWidget
 from jupiter.core.home.widget import WidgetGeometry
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
@@ -41,7 +41,7 @@ class HomeTab(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_home_tab(
-        ctx: MutationContext,
+        ctx: DomainContext,
         home_config_ref_id: EntityId,
         target: HomeTabTarget,
         name: EntityName,
@@ -60,7 +60,7 @@ class HomeTab(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[EntityName],
         icon: UpdateAction[EntityIcon | None],
     ) -> "HomeTab":
@@ -74,7 +74,7 @@ class HomeTab(BranchEntity):
     @update_entity_action
     def add_widget(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTab":
@@ -85,7 +85,7 @@ class HomeTab(BranchEntity):
     @update_entity_action
     def remove_widget(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         widget_ref_id: EntityId,
     ) -> "HomeTab":
         """Remove a widget from the home tab."""
@@ -95,7 +95,7 @@ class HomeTab(BranchEntity):
     @update_entity_action
     def move_widget_to(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         widget_ref_id: EntityId,
         geometry: WidgetGeometry,
     ) -> "HomeTab":

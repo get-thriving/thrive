@@ -20,7 +20,7 @@ from jupiter.core.gamification.user_score_overview import (
     UserScoreOverview,
 )
 from jupiter.core.users.root import User
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import (
     DomainUnitOfWork,
     EntityAlreadyExistsError,
@@ -42,7 +42,7 @@ class RecordScoreService:
 
     async def record_task(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         user: User,
         task: InboxTask | BigPlan,
@@ -252,7 +252,7 @@ class RecordScoreService:
 
     async def _update_current_stats(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         period: RecurringTaskPeriod | None,
         uow: DomainUnitOfWork,
         score_log: ScoreLog,
@@ -285,7 +285,7 @@ class RecordScoreService:
 
     async def _update_best(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         period: RecurringTaskPeriod | None,
         sub_period: RecurringTaskPeriod,
         score_stats: ScoreStats,

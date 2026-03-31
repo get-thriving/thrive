@@ -8,7 +8,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.smart_lists.name import SmartListName
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
@@ -44,7 +44,7 @@ class SmartList(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_smart_list(
-        ctx: MutationContext,
+        ctx: DomainContext,
         smart_list_collection_ref_id: EntityId,
         name: SmartListName,
         icon: EntityIcon | None,
@@ -60,7 +60,7 @@ class SmartList(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[SmartListName],
         icon: UpdateAction[EntityIcon | None],
     ) -> "SmartList":

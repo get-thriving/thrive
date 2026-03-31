@@ -6,6 +6,7 @@ from jupiter.core.auth.recovery_token_plain import RecoveryTokenPlain
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.realm.realm import (
     DatabaseRealm,
+    EventStoreRealm,
     RealmDecoder,
     RealmEncoder,
     RealmThing,
@@ -18,7 +19,7 @@ _PASSWORD_HASHER = PasswordHasher.from_parameters(_PROFILE)
 
 
 @secret_value
-@only_in_realm(DatabaseRealm)
+@only_in_realm(DatabaseRealm, EventStoreRealm)
 class RecoveryTokenHash(SecretValue):
     """A hashed recovery token, suitable for storage."""
 
@@ -69,3 +70,13 @@ class RecoveryTokenHashDatabaseDecoder(RealmDecoder[RecoveryTokenHash, DatabaseR
             )
 
         return RecoveryTokenHash(value)
+
+
+class RecoveryTokenHashEventStoreRealmEncoder(
+    RealmEncoder[RecoveryTokenHash, EventStoreRealm]
+):
+    """Encode a recovery token hash for storage in the Event Store."""
+
+    def encode(self, value: RecoveryTokenHash) -> RealmThing:
+        """Encode a recovery token hash for storage in the Event Store."""
+        return "***********"

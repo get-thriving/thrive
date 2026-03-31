@@ -6,7 +6,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsOneOfRefId,
     LeafSupportEntity,
@@ -35,7 +35,7 @@ class TagLink(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_tag_link(
-        ctx: MutationContext,
+        ctx: DomainContext,
         tag_domain_ref_id: EntityId,
         namespace: TagNamespace,
         source_entity_ref_id: EntityId,
@@ -54,7 +54,7 @@ class TagLink(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         ref_ids: UpdateAction[list[EntityId]],
     ) -> "TagLink":
         """Update the tag link."""

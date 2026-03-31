@@ -16,7 +16,7 @@ from jupiter.framework.base.entity_id import BAD_REF_ID, EntityId
 from jupiter.framework.base.entity_name import EntityName
 from jupiter.framework.base.timestamp import Timestamp
 from jupiter.framework.concept import Concept
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.event import Event, EventKind
 from jupiter.framework.optional import normalize_optional
 from jupiter.framework.primitive import Primitive
@@ -45,7 +45,7 @@ class Entity(Concept):
     @classmethod
     def _create(
         cls: type[_EntityT],
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _EntityT:
         """Create a new entity."""
@@ -63,7 +63,7 @@ class Entity(Concept):
 
     def _new_version(
         self: _EntityT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         **kwargs: None | bool | str | float | object,
     ) -> _EntityT:
         # To hell with your types!
@@ -90,7 +90,7 @@ class Entity(Concept):
 
     def mark_archived(
         self: _EntityT,
-        ctx: MutationContext,
+        ctx: DomainContext,
         reason: _ArchivalReasonT,
     ) -> _EntityT:
         """Archive the root."""
@@ -102,12 +102,15 @@ class Entity(Concept):
         )
         archived_entity.events.append(
             Event(
+                trace_id=ctx.trace_id,
+                mutation_id=ctx.mutation_id,
                 source=str(ctx.event_source),
                 entity_version=archived_entity.version,
                 timestamp=ctx.action_timestamp,
                 frame_args={"reason": (str(reason.value), str)},
                 kind=EventKind.ARCHIVE,
                 name="mark_archived",
+                context_str=ctx.context_str,
             )
         )
         return archived_entity
@@ -347,7 +350,7 @@ class RefsMany(RefsLink[_EntityT], Generic[_EntityT]):
 
 def _make_event_from_frame_args(  # type: ignore
     f: Callable[..., Entity],
-    ctx: MutationContext,
+    ctx: DomainContext,
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
     event_kind: EventKind,
@@ -382,12 +385,15 @@ def _make_event_from_frame_args(  # type: ignore
         frame_args[arg_name] = (arg_value, f.__annotations__[arg_name])
 
     new_event = Event(
+        trace_id=ctx.trace_id,
+        mutation_id=ctx.mutation_id,
         source=str(ctx.event_source),
         entity_version=entity_version,
         timestamp=created_time,
         frame_args=frame_args,
         kind=event_kind,
         name=f.__name__,
+        context_str=ctx.context_str,
     )
     return new_event
 
@@ -399,7 +405,7 @@ def create_entity_action(f: _CreateEventT) -> _CreateEventT:  # type: ignore
     """A decorator that marks an entity method as a creation one."""
 
     def wrapper(  #  type: ignore
-        ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
+        ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]
     ) -> Entity:
         """The wrapper."""
         new_entity = f(ctx, *args, **kwargs)
@@ -425,7 +431,7 @@ _UpdateEventT = TypeVar("_UpdateEventT", bound=Callable[..., Entity])  #  type: 
 def update_entity_action(f: _UpdateEventT) -> _UpdateEventT:  # type: ignore
     """A decorator that marks an entity method as an update one."""
 
-    def wrapper(self: Entity, ctx: MutationContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Entity:  # type: ignore
+    def wrapper(self: Entity, ctx: DomainContext, *args: tuple[Any, ...], **kwargs: dict[str, Any]) -> Entity:  # type: ignore
         """The wrapper."""
         new_entity = f(self, ctx, *args, **kwargs)
         new_entity.events.append(

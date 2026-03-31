@@ -18,7 +18,7 @@ from jupiter.core.time_plans.sub.activity.target import (
 )
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsFieldRefId,
     IsRefId,
@@ -66,7 +66,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_from_existing(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_plan_ref_id: EntityId,
         existing_activity_name: EntityName,
         existing_activity_target: TimePlanActivityTarget,
@@ -88,7 +88,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_for_inbox_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_plan_ref_id: EntityId,
         inbox_task_ref_id: EntityId,
         kind: TimePlanActivityKind,
@@ -110,7 +110,7 @@ class TimePlanActivity(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_activity_for_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_plan_ref_id: EntityId,
         big_plan_ref_id: EntityId,
         kind: TimePlanActivityKind,
@@ -132,7 +132,7 @@ class TimePlanActivity(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         kind: UpdateAction[TimePlanActivityKind],
         feasability: UpdateAction[TimePlanActivityFeasability],
     ) -> "TimePlanActivity":

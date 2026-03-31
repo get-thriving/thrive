@@ -7,7 +7,7 @@ from jupiter.core.gamification.score_period_best import (
     ScorePeriodBest,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -32,7 +32,7 @@ class ScoreLog(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_score_log(
-        ctx: MutationContext,
+        ctx: DomainContext,
         user_ref_id: EntityId,
     ) -> "ScoreLog":
         """Create a score log for a user."""

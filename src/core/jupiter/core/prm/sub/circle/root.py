@@ -2,7 +2,7 @@
 
 from jupiter.core.prm.sub.circle.name import CircleName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
     ParentLink,
@@ -23,7 +23,7 @@ class Circle(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_circle(
-        ctx: MutationContext,
+        ctx: DomainContext,
         prm_ref_id: EntityId,
         name: CircleName,
     ) -> "Circle":
@@ -37,7 +37,7 @@ class Circle(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[CircleName],
     ) -> "Circle":
         """Update the circle."""

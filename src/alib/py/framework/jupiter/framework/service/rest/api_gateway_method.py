@@ -28,6 +28,7 @@ import attr
 import httpx
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse
+from jupiter.framework.base.trace_id import TraceId
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.openapi import OPENAPI_ERROR_RESPONSES
 from jupiter.framework.ports import Ports
@@ -767,7 +768,7 @@ class RestApiGatewayMethod(
         else:
             args = None
 
-        auth_client = self.get_authenticated_client(auth_token)
+        auth_client = self.get_authenticated_client(request.state.trace_id, auth_token)
 
         try:
             response = await self._api_call(
@@ -944,7 +945,7 @@ class RestApiGatewayMethod(
         )
 
     @abstractmethod
-    def get_authenticated_client(self, token: str) -> _WebApiAuthenticatedClientT:  # type: ignore[explicit-any]
+    def get_authenticated_client(self, trace_id: TraceId, token: str) -> _WebApiAuthenticatedClientT:  # type: ignore[explicit-any]
         """The authenticated client for the method."""
 
     @abstractmethod

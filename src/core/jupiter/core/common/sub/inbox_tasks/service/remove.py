@@ -9,7 +9,7 @@ from jupiter.core.time_plans.sub.activity.root import (
 from jupiter.core.time_plans.sub.activity.target import (
     TimePlanActivityTarget,
 )
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -19,7 +19,7 @@ class InboxTaskRemoveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         inbox_task: InboxTask,

@@ -19,7 +19,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -70,7 +70,7 @@ class BigPlan(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         big_plan_collection_ref_id: EntityId,
         aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
@@ -108,7 +108,7 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[BigPlanName],
         status: UpdateAction[BigPlanStatus],
         aspect_ref_id: UpdateAction[EntityId],
@@ -173,7 +173,7 @@ class BigPlan(LeafEntity):
     @update_entity_action
     def change_dates_via_time_plan(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         actionable_date: ADate,
         due_date: ADate,
     ) -> "BigPlan":

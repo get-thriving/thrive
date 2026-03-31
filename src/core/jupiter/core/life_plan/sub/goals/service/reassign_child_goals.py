@@ -6,7 +6,7 @@ from jupiter.core.life_plan.sub.goals.service.check_cycles import (
     GoalCheckCyclesService,
     GoalTreeHasCyclesError,
 )
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.errors import InputValidationError
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
@@ -18,7 +18,7 @@ class GoalReassignChildGoalsService:
 
     async def reassign_child_goals(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         life_plan: LifePlan,

@@ -3,7 +3,7 @@
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.core.common.sub.contacts.sub.link.root import ContactLink
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class ContactDomain(TrunkEntity):
 
     @staticmethod
     def new_contact_domain(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "ContactDomain":
         """Create a contacts domain."""

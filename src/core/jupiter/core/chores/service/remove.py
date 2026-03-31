@@ -17,7 +17,7 @@ from jupiter.core.common.sub.notes.service.remove import (
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -27,7 +27,7 @@ class ChoreRemoveService:
 
     async def remove(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         ref_id: EntityId,

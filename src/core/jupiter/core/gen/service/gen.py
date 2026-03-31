@@ -88,7 +88,7 @@ from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.progress_reporter.reporter import (
     ProgressReporter,
@@ -111,7 +111,7 @@ class GenService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         workspace: Workspace,
@@ -940,7 +940,7 @@ class GenService:
 
     async def _generate_time_plans_and_planning_tasks_for_time_plan_domain(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
@@ -1088,7 +1088,7 @@ class GenService:
 
     async def _generate_inbox_tasks_for_habit(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
@@ -1233,7 +1233,7 @@ class GenService:
 
     async def _generate_inbox_tasks_for_chore(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         workspace: Workspace,
@@ -1335,7 +1335,7 @@ class GenService:
 
     async def _generate_journals_and_writing_tasks_for_journal_collection(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         user: User,
@@ -1492,7 +1492,7 @@ class GenService:
 
     async def _generate_collection_inbox_tasks_for_metric(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
@@ -1576,7 +1576,7 @@ class GenService:
 
     async def _generate_catch_up_inbox_tasks_for_person(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
@@ -1661,7 +1661,7 @@ class GenService:
 
     async def _generate_time_event_block_for_occasion(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         time_event_domain: TimeEventDomain,
         today: ADate,
@@ -1710,7 +1710,7 @@ class GenService:
 
     async def _generate_inbox_task_for_occasion(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         user: User,
         inbox_task_collection: InboxTaskCollection,
@@ -1797,7 +1797,7 @@ class GenService:
 
     async def _generate_slack_inbox_task_for_slack_task(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         slack_task: SlackTask,
         inbox_task_collection: InboxTaskCollection,
@@ -1858,7 +1858,7 @@ class GenService:
 
     async def _generate_email_inbox_task_for_email_task(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         email_task: EmailTask,
         inbox_task_collection: InboxTaskCollection,
@@ -1924,7 +1924,7 @@ class GenService:
 
     async def _generate_eval_tasks_for_life_plan(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         inbox_task_collection: InboxTaskCollection,
         today: ADate,

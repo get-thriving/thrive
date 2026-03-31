@@ -29,7 +29,7 @@ from jupiter.core.users.root import User
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.auth.auth_token import AuthToken
 from jupiter.framework.component_properties import ComponentProperties
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.global_properties import GlobalProperties
 from jupiter.framework.ports import DomainPorts
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
@@ -386,9 +386,11 @@ class JupiterGuestMutationUseCase(
     """A Jupiter command that does some sort of mutation, but does not assume a logged in use."""
 
     async def _construct_context(
-        self, auth_token: AuthToken | None, domain_context: MutationContext
+        self, auth_token: AuthToken | None, domain_context: DomainContext
     ) -> JupiterGuestMutationContext:
-        return JupiterGuestMutationContext(auth_token, domain_context)
+        return JupiterGuestMutationContext(
+            auth_token=auth_token, domain_context=domain_context
+        )
 
 
 class JupiterGuestReadonlyUseCase(
@@ -428,7 +430,7 @@ class JupiterLoggedInMutationUseCase(
     """A Jupiter command that does some sort of mutation, and assumes a logged-in user."""
 
     async def _construct_context(
-        self, auth_token: AuthToken, domain_context: MutationContext
+        self, auth_token: AuthToken, domain_context: DomainContext
     ) -> JupiterLoggedInMutationContext:
         """Build a context here."""
         async with self._ports.domain_storage_engine.get_unit_of_work() as uow:

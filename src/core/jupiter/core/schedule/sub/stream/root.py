@@ -19,7 +19,7 @@ from jupiter.core.schedule.sub.stream.source import (
     ScheduleStreamSource,
 )
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -60,7 +60,7 @@ class ScheduleStream(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_stream_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -78,7 +78,7 @@ class ScheduleStream(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_stream_from_external_ical(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleStreamName,
         color: ScheduleStreamColor,
@@ -97,7 +97,7 @@ class ScheduleStream(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ScheduleStreamName],
         color: UpdateAction[ScheduleStreamColor],
     ) -> "ScheduleStream":

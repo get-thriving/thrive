@@ -8,7 +8,7 @@ from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.sub.chapters.name import ChapterName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -42,7 +42,7 @@ class Chapter(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_chapter(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
@@ -80,7 +80,7 @@ class Chapter(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         birthday: ADate,
         milestone_dates_by_ref_id: dict[EntityId, ADate],
         aspect_ref_id: UpdateAction[EntityId],

@@ -14,7 +14,7 @@ from jupiter.core.common.sub.notes.service.archive import NoteArchiveService
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.archive import TagLinkArchiveService
 from jupiter.core.todo.root import TodoTask
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -24,7 +24,7 @@ class TodoTaskArchiveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         todo_task: TodoTask,

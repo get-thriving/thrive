@@ -3,7 +3,7 @@
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.common.sub.tags.sub.tag.root import Tag
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class TagDomain(TrunkEntity):
 
     @staticmethod
     def new_tag_domain(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "TagDomain":
         """Create a tags domain."""

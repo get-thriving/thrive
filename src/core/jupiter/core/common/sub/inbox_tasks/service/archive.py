@@ -2,7 +2,7 @@
 
 from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.inbox_tasks.root import InboxTask
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -11,7 +11,7 @@ class InboxTaskArchiveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         inbox_task: InboxTask,
         archival_reason: JupiterArchivalReason,

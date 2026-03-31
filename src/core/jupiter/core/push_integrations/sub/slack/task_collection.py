@@ -2,7 +2,7 @@
 
 from jupiter.core.push_integrations.sub.slack.task import SlackTask
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class SlackTaskCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_slack_task_collection(
-        ctx: MutationContext,
+        ctx: DomainContext,
         push_integration_group_ref_id: EntityId,
     ) -> "SlackTaskCollection":
         """Create a slack task collection."""

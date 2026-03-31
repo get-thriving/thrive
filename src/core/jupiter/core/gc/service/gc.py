@@ -41,7 +41,7 @@ from jupiter.core.sync_target import SyncTarget
 from jupiter.core.todo.root import TodoTask
 from jupiter.core.todo.service.archive import TodoTaskArchiveService
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import (
     DomainStorageEngine,
@@ -67,7 +67,7 @@ class GCService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         gc_targets: list[SyncTarget],
@@ -201,7 +201,7 @@ class GCService:
 
     async def _archive_done_inbox_tasks(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         inbox_tasks: Iterable[InboxTask],
         gc_log_entry: GCLogEntry,
@@ -261,7 +261,7 @@ class GCService:
 
     async def _archive_done_big_plans(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         big_plans: Iterable[BigPlan],
@@ -292,7 +292,7 @@ class GCService:
 
     async def _archive_slack_tasks_whose_inbox_tasks_are_completed_or_archived(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         slack_tasks: list[SlackTask],
         inbox_tasks: list[InboxTask],
@@ -328,7 +328,7 @@ class GCService:
 
     async def _archive_email_tasks_whose_inbox_tasks_are_completed_or_archived(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         email_tasks: list[EmailTask],
         inbox_tasks: list[InboxTask],

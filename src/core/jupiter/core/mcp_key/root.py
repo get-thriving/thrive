@@ -5,7 +5,7 @@ from jupiter.core.api_key.key_secret_plain import KeySecretPlain
 from jupiter.core.mcp_key.mcp_key_summary import MCPKeySummary
 from jupiter.core.mcp_key.name import MCPKeyName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafEntity,
     ParentLink,
@@ -37,7 +37,7 @@ class MCPKey(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_mcp_key(
-        ctx: MutationContext,
+        ctx: DomainContext,
         user_ref_id: EntityId,
         name: MCPKeyName,
         secret_plain: KeySecretPlain,
@@ -56,7 +56,7 @@ class MCPKey(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[MCPKeyName],
     ) -> "MCPKey":
         """Update the MCP key."""

@@ -13,7 +13,7 @@ from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -60,7 +60,7 @@ class Person(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_person(
-        ctx: MutationContext,
+        ctx: DomainContext,
         prm_ref_id: EntityId,
         catch_up_params: RecurringTaskGenParams | None,
     ) -> "Person":
@@ -75,7 +75,7 @@ class Person(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         catch_up_params: UpdateAction[RecurringTaskGenParams | None],
     ) -> "Person":
         """Update info about the of the person."""

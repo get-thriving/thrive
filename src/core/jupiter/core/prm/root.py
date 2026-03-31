@@ -3,7 +3,7 @@
 from jupiter.core.prm.sub.circle.root import Circle
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -29,7 +29,7 @@ class PRM(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_prm(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "PRM":
         """Create a new personal database."""

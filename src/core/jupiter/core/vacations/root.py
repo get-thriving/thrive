@@ -15,7 +15,7 @@ from jupiter.core.common.sub.time_events.sub.full_days_block.root import (
 from jupiter.core.vacations.name import VacationName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -54,7 +54,7 @@ class Vacation(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_vacation(
-        ctx: MutationContext,
+        ctx: DomainContext,
         vacation_collection_ref_id: EntityId,
         name: VacationName,
         start_date: ADate,
@@ -75,7 +75,7 @@ class Vacation(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[VacationName],
         start_date: UpdateAction[ADate],
         end_date: UpdateAction[ADate],

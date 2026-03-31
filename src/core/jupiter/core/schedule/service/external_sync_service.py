@@ -53,7 +53,7 @@ from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.timestamp import Timestamp
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import NoFilter
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.realm.realm import RealmCodecRegistry
@@ -83,7 +83,7 @@ class ScheduleExternalSyncService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         progress_reporter: ProgressReporter,
         workspace: Workspace,
         today: ADate,
@@ -201,7 +201,7 @@ class ScheduleExternalSyncService:
 
     async def _process_schedule_stream(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         today: ADate,
         start_of_window: ADate,
         end_of_window: ADate,

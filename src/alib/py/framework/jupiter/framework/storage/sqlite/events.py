@@ -13,7 +13,6 @@ from sqlalchemy import (
     JSON,
     Column,
     DateTime,
-    ForeignKey,
     Integer,
     MetaData,
     String,
@@ -27,20 +26,27 @@ from sqlalchemy.ext.asyncio import AsyncConnection
 def build_event_table(entity_table: Table, metadata: MetaData) -> Table:
     """Construct a standard events table for a given entity table."""
     return Table(
-        entity_table.name + "_event",
+        "mutation_entity_event",
         metadata,
         Column(
-            "owner_ref_id",
+            "entity_type",
+            String(48),
+            nullable=False,
+        ),
+        Column(
+            "entity_ref_id",
             Integer,
-            ForeignKey(entity_table.c.ref_id),
             primary_key=True,
         ),
+        Column("entity_version", Integer, nullable=False),
+        Column("kind", String(16), nullable=False),
+        Column("name", String(32), primary_key=True),
+        Column("trace_id", String(64), nullable=False),
+        Column("mutation_id", String(64), nullable=False),
         Column("timestamp", DateTime, primary_key=True),
         Column("session_index", Integer, primary_key=True),
-        Column("name", String(32), primary_key=True),
         Column("source", String(16), nullable=False),
-        Column("owner_version", Integer, nullable=False),
-        Column("kind", String(16), nullable=False),
+        Column("context_str", String(32), nullable=False),
         Column("data", JSON, nullable=False),
         keep_existing=True,
     )
@@ -58,13 +64,17 @@ async def upsert_events(
             insert(event_table)
             .prefix_with("OR IGNORE")
             .values(
-                owner_ref_id=aggreggate_root.ref_id.as_int(),
+                entity_type=aggreggate_root.__class__.__name__,
+                entity_ref_id=realm_codec_registry.db_encode(aggreggate_root.ref_id),
+                entity_version=aggreggate_root.version,
+                kind=str(event.kind.value),
+                name=str(event.name),
+                trace_id=realm_codec_registry.db_encode(event.trace_id),
+                mutation_id=realm_codec_registry.db_encode(event.mutation_id),
                 timestamp=realm_codec_registry.db_encode(event.timestamp),
                 session_index=event_idx,
-                name=str(event.name),
                 source=event.source,
-                owner_version=event.entity_version,
-                kind=str(event.kind.value),
+                context_str=event.context_str,
                 data=_serialize_event(realm_codec_registry, event),
             ),
             # .on_conflict_do_nothing(
@@ -96,5 +106,7 @@ async def remove_events(
 ) -> None:
     """Remove all the events for a given entity in an events table."""
     await connection.execute(
-        delete(event_table).where(event_table.c.owner_ref_id == entity_ref_id.as_int()),
+        delete(event_table).where(
+            event_table.c.entity_ref_id == entity_ref_id.as_int()
+        ),
     )

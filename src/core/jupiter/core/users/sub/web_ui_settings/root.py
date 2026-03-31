@@ -1,7 +1,7 @@
 """Web UI settings for a user."""
 
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ParentLink,
     StubEntity,
@@ -22,7 +22,7 @@ class WebUiSettings(StubEntity):
     @staticmethod
     @create_entity_action
     def new_web_ui_settings(
-        ctx: MutationContext,
+        ctx: DomainContext,
         user_ref_id: EntityId,
     ) -> "WebUiSettings":
         """Create new web UI settings for a user."""
@@ -35,7 +35,7 @@ class WebUiSettings(StubEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         use_night_mode: UpdateAction[bool],
     ) -> "WebUiSettings":
         """Update the web UI settings."""

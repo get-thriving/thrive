@@ -4,7 +4,7 @@ import abc
 
 from jupiter.core.docs.root import Doc
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -27,7 +27,7 @@ class DocCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_doc_collection(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "DocCollection":
         """Create a inbox task collection."""

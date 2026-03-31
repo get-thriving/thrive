@@ -9,7 +9,7 @@ from jupiter.core.common.time_in_day import TimeInDay
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -42,7 +42,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_schedule_event(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         schedule_event_ref_id: EntityId,
         start_date: ADate,
@@ -72,7 +72,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_big_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         big_plan_ref_id: EntityId,
         start_date: ADate,
@@ -102,7 +102,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_todo_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         todo_task_ref_id: EntityId,
         start_date: ADate,
@@ -132,7 +132,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_habit(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         habit_ref_id: EntityId,
         start_date: ADate,
@@ -162,7 +162,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_chore(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         chore_ref_id: EntityId,
         start_date: ADate,
@@ -192,7 +192,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_time_event_for_time_plan_activity(
-        ctx: MutationContext,
+        ctx: DomainContext,
         time_event_domain_ref_id: EntityId,
         time_plan_activity_ref_id: EntityId,
         start_date: ADate,
@@ -222,7 +222,7 @@ class TimeEventInDayBlock(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         start_date: UpdateAction[ADate],
         start_time_in_day: UpdateAction[TimeInDay],
         duration_mins: UpdateAction[int],

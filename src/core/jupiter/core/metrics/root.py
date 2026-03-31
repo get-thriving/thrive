@@ -13,7 +13,7 @@ from jupiter.core.metrics.name import MetricName
 from jupiter.core.metrics.sub.entry.root import MetricEntry
 from jupiter.core.metrics.unit import MetricUnit
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     BranchEntity,
     ContainsMany,
@@ -54,7 +54,7 @@ class Metric(BranchEntity):
     @staticmethod
     @create_entity_action
     def new_metric(
-        ctx: MutationContext,
+        ctx: DomainContext,
         metric_collection_ref_id: EntityId,
         name: MetricName,
         is_key: bool,
@@ -78,7 +78,7 @@ class Metric(BranchEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[MetricName],
         is_key: UpdateAction[bool],
         icon: UpdateAction[EntityIcon | None],

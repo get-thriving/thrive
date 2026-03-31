@@ -4,7 +4,7 @@ from jupiter.core.archival_reason import JupiterArchivalReason
 from jupiter.core.common.sub.notes.namespace import NoteNamespace
 from jupiter.core.common.sub.notes.root import Note, NoteRepository
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
 
@@ -13,7 +13,7 @@ class NoteArchiveService:
 
     async def archive(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         note: Note,
         archival_reason: JupiterArchivalReason,
@@ -30,7 +30,7 @@ class NoteArchiveService:
 
     async def archive_for_source(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         domain: NoteNamespace,
         source_entity_ref_id: EntityId,

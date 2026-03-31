@@ -22,7 +22,7 @@ from jupiter.core.prm.root import PRM
 from jupiter.core.prm.sub.person.root import Person
 from jupiter.core.prm.sub.person.sub.occasion.root import Occasion
 from jupiter.core.prm.sub.person_circle_links.root import PersonCircleLink
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -32,7 +32,7 @@ class PersonRemoveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         prm: PRM,

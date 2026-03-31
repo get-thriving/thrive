@@ -2,7 +2,7 @@
 
 from jupiter.core.gc.log_entry import GCLogEntry
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -24,7 +24,7 @@ class GCLog(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_gc_log(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
     ) -> "GCLog":
         """Create a new GC log."""

@@ -19,7 +19,7 @@ from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.core.life_plan.sub.visions.root import Vision
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -67,7 +67,7 @@ class LifePlan(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_life_plan(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
         birthday: Birthday,
         birth_year: BirthYear,
@@ -89,7 +89,7 @@ class LifePlan(TrunkEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         birthday: UpdateAction[Birthday],
         birth_year: UpdateAction[BirthYear],
     ) -> "LifePlan":
@@ -103,7 +103,7 @@ class LifePlan(TrunkEntity):
     @update_entity_action
     def update_eval_settings(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         eval_approach: UpdateAction[LifePlanEvalApproach],
         eval_periods: UpdateAction[set[RecurringTaskPeriod]],
         eval_task_eisen: UpdateAction[Eisen | None],

@@ -7,7 +7,7 @@ from jupiter.core.sync_target import SyncTarget
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     CrownEntity,
     LeafSupportEntity,
@@ -36,7 +36,7 @@ class StatsLogEntry(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_log_entry(
-        ctx: MutationContext,
+        ctx: DomainContext,
         stats_log_ref_id: EntityId,
         stats_targets: list[SyncTarget],
         today: ADate,
@@ -69,7 +69,7 @@ class StatsLogEntry(LeafSupportEntity):
     @update_entity_action
     def add_entity_updated(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         entity: CrownEntity,
     ) -> "StatsLogEntry":
         """Add an entity to the stats log entry."""
@@ -86,7 +86,7 @@ class StatsLogEntry(LeafSupportEntity):
         )
 
     @update_entity_action
-    def close(self, ctx: MutationContext) -> "StatsLogEntry":
+    def close(self, ctx: DomainContext) -> "StatsLogEntry":
         """Close the stats log entry."""
         return self._new_version(
             ctx,

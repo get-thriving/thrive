@@ -8,7 +8,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.service.remove import TagLinkRemoveService
 from jupiter.core.smart_lists.root import SmartList
 from jupiter.core.smart_lists.sub.item.root import SmartListItem
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -18,7 +18,7 @@ class SmartListRemoveService:
 
     async def execute(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         smart_list: SmartList,

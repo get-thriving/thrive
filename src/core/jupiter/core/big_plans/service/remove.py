@@ -25,7 +25,7 @@ from jupiter.core.time_plans.sub.activity.target import (
 )
 from jupiter.core.workspaces.root import Workspace
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 
@@ -35,7 +35,7 @@ class BigPlanRemoveService:
 
     async def remove(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         reporter: ProgressReporter,
         workspace: Workspace,

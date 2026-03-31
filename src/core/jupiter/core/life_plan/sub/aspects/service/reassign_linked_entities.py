@@ -14,7 +14,7 @@ from jupiter.core.time_plans.life_plan_links import (
     TimePlanAspectLinkRepository,
 )
 from jupiter.core.workspaces.root import Workspace
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -25,7 +25,7 @@ class AspectReassignLinkedEntitiesService:
 
     async def reassign_linked_entities(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         workspace: Workspace,

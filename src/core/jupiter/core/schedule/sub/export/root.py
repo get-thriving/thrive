@@ -9,7 +9,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.schedule.sub.export.name import ScheduleExportName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -42,7 +42,7 @@ class ScheduleExport(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_export(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         name: ScheduleExportName,
         schedule_stream_ref_ids: list[EntityId],
@@ -59,7 +59,7 @@ class ScheduleExport(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ScheduleExportName],
         schedule_stream_ref_ids: UpdateAction[list[EntityId]],
     ) -> "ScheduleExport":

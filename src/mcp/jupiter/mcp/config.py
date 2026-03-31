@@ -13,6 +13,7 @@ from typing import (
 
 import dotenv
 from jupiter.core.config import JupiterGlobalProperties
+from jupiter.framework.base.trace_id import TraceId, TraceIdDatabaseEncoder
 from jupiter.framework.ports import Ports
 from jupiter.framework.service.mcp.resource import McpApiGatewayResource
 from jupiter.framework.service.mcp.service import McpService
@@ -24,6 +25,7 @@ from jupiter.framework.service.rest.api_gateway_method import (
 from jupiter.framework.service_properties import ServiceProperties
 from jupiter.mcp.headers import (
     FRONTDOOR_HEADER,
+    TRACE_ID_HEADER,
     build_frontdoor_header,
 )
 from jupiter.mcp.webapi_client import WebApiClient
@@ -34,6 +36,8 @@ from jupiter_webapi_client.types import Unset
 _ApiArgsT = TypeVar("_ApiArgsT", bound=WebApiClientSerializable)
 _ApiResultT = TypeVar("_ApiResultT", bound=WebApiClientSerializable)
 _ApiCallT = TypeVar("_ApiCallT", bound=WebApiClientCallable[Any, Any, Any])  # type: ignore[explicit-any]
+
+_TRACE_ID_ENCODER = TraceIdDatabaseEncoder()
 
 
 @dataclass(frozen=True)
@@ -89,6 +93,7 @@ def build_mcp_properties() -> JupiterMcpProperties:
 def _make_authenticated_client(
     ports: JupiterMcpPorts,
     global_properties: JupiterGlobalProperties,
+    trace_id: TraceId,
     token: str,
 ) -> AuthenticatedClient:
     """Create an ``AuthenticatedClient`` for calls to the webapi."""
@@ -98,6 +103,7 @@ def _make_authenticated_client(
         token=token,
         headers={
             FRONTDOOR_HEADER: build_frontdoor_header(global_properties),
+            TRACE_ID_HEADER: str(_TRACE_ID_ENCODER.encode(trace_id)),
         },
     )
 
@@ -157,11 +163,11 @@ class JupiterMcpResource(
         return build_it
 
     def get_authenticated_client(  # type: ignore[explicit-any]
-        self, ports: Any, token: str
+        self, ports: Any, trace_id: TraceId, token: str
     ) -> AuthenticatedClient:
         """Create an authenticated client."""
         return _make_authenticated_client(
-            cast(JupiterMcpPorts, ports), self._global_properties, token
+            cast(JupiterMcpPorts, ports), self._global_properties, trace_id, token
         )
 
 
@@ -222,11 +228,11 @@ class JupiterMcpTool(
         return build_it
 
     def get_authenticated_client(  # type: ignore[explicit-any]
-        self, ports: Any, token: str
+        self, ports: Any, trace_id: TraceId, token: str
     ) -> AuthenticatedClient:
         """Create an authenticated client."""
         return _make_authenticated_client(
-            cast(JupiterMcpPorts, ports), self._global_properties, token
+            cast(JupiterMcpPorts, ports), self._global_properties, trace_id, token
         )
 
 

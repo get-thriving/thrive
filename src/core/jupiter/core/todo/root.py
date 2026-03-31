@@ -10,7 +10,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.todo.name import TodoTaskName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -53,7 +53,7 @@ class TodoTask(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_todo_task(
-        ctx: MutationContext,
+        ctx: DomainContext,
         todo_domain_ref_id: EntityId,
         aspect_ref_id: EntityId,
         chapter_ref_id: EntityId | None,
@@ -73,7 +73,7 @@ class TodoTask(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[TodoTaskName],
         aspect_ref_id: UpdateAction[EntityId],
         chapter_ref_id: UpdateAction[EntityId | None],

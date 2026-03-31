@@ -16,7 +16,7 @@ from jupiter.core.schedule.sub.external_sync_log.external_uid import (
 )
 from jupiter.core.schedule.sub.stream.source import ScheduleStreamSource
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -60,7 +60,7 @@ class ScheduleEventInDay(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_event_in_day_for_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventInDayName,
@@ -78,7 +78,7 @@ class ScheduleEventInDay(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_schedule_event_in_day_from_external_ical(
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_domain_ref_id: EntityId,
         schedule_stream_ref_id: EntityId,
         name: ScheduleEventInDayName,
@@ -97,7 +97,7 @@ class ScheduleEventInDay(LeafEntity):
     @update_entity_action
     def change_schedule_stream(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         schedule_stream_ref_id: EntityId,
     ) -> "ScheduleEventInDay":
         """Change the schedule stream."""
@@ -113,7 +113,7 @@ class ScheduleEventInDay(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[ScheduleEventInDayName],
     ) -> "ScheduleEventInDay":
         """Update the schedule event."""

@@ -7,7 +7,7 @@ from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.sub.milestones.name import MilestoneName
 from jupiter.framework.base.adate import ADate
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -39,7 +39,7 @@ class Milestone(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_milestone(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         name: MilestoneName,
         aspect_ref_id: EntityId,
@@ -57,7 +57,7 @@ class Milestone(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[MilestoneName],
         date: UpdateAction[ADate],
         aspect_ref_id: UpdateAction[EntityId],

@@ -43,7 +43,7 @@ from jupiter.core.working_mem.collection import (
     WorkingMemCollection,
 )
 from jupiter.core.workspaces.name import WorkspaceName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
@@ -100,7 +100,7 @@ class Workspace(RootEntity):
     @staticmethod
     @create_entity_action
     def new_workspace(
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: WorkspaceName,
         feature_flag_controls: WorkspaceFeatureFlagsControls,
         feature_flags: WorkspaceFeatureFlags,
@@ -117,7 +117,7 @@ class Workspace(RootEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[WorkspaceName],
     ) -> "Workspace":
         """Update properties of the workspace."""
@@ -129,7 +129,7 @@ class Workspace(RootEntity):
     @update_entity_action
     def change_feature_flags(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         feature_flag_controls: WorkspaceFeatureFlagsControls,
         feature_flags: WorkspaceFeatureFlags,
     ) -> "Workspace":

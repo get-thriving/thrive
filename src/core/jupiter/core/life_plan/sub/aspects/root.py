@@ -14,7 +14,7 @@ from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.goals.root import Goal
 from jupiter.core.life_plan.sub.milestones.root import Milestone
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -58,7 +58,7 @@ class Aspect(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_root_aspect(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         name: AspectName,
     ) -> "Aspect":
@@ -74,7 +74,7 @@ class Aspect(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_aspect(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         parent_aspect_ref_id: EntityId,
         name: AspectName,
@@ -91,7 +91,7 @@ class Aspect(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[AspectName],
         parent_aspect_ref_id: UpdateAction[EntityId | None],
     ) -> "Aspect":
@@ -109,7 +109,7 @@ class Aspect(LeafEntity):
     @update_entity_action
     def add_child_aspect(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         child_aspect_ref_id: EntityId,
     ) -> "Aspect":
         """Add a child aspect."""
@@ -124,7 +124,7 @@ class Aspect(LeafEntity):
     @update_entity_action
     def remove_child_aspect(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         child_aspect_ref_id: EntityId,
     ) -> "Aspect":
         """Remove a child aspect."""
@@ -140,7 +140,7 @@ class Aspect(LeafEntity):
     @update_entity_action
     def reorder_child_aspects(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         new_order: list[EntityId],
     ) -> "Aspect":
         """Reorder child aspects."""

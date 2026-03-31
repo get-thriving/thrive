@@ -11,7 +11,7 @@ from jupiter.core.journals.generation_approach import (
 )
 from jupiter.core.journals.root import Journal
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsMany,
     IsRefId,
@@ -42,7 +42,7 @@ class JournalCollection(TrunkEntity):
     @staticmethod
     @create_entity_action
     def new_journal_collection(
-        ctx: MutationContext,
+        ctx: DomainContext,
         workspace_ref_id: EntityId,
         periods: set[RecurringTaskPeriod],
         generation_approach: JournalGenerationApproach,
@@ -121,7 +121,7 @@ class JournalCollection(TrunkEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         periods: UpdateAction[set[RecurringTaskPeriod]],
         generation_approach: UpdateAction[JournalGenerationApproach],
         generation_in_advance_days: UpdateAction[dict[RecurringTaskPeriod, int]],

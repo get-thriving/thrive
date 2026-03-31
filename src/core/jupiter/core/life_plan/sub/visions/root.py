@@ -5,7 +5,7 @@ from jupiter.core.common.sub.notes.root import Note
 from jupiter.core.life_plan.sub.visions.status import VisionStatus
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import EntityName
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -33,7 +33,7 @@ class Vision(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_draft_vision(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
     ) -> "Vision":
         """Create a vision."""
@@ -49,7 +49,7 @@ class Vision(LeafEntity):
     @update_entity_action
     def mark_as_active(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
     ) -> "Vision":
         """Mark the vision as active."""
         return self._new_version(
@@ -60,7 +60,7 @@ class Vision(LeafEntity):
     @update_entity_action
     def mark_as_old(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
     ) -> "Vision":
         """Mark the vision as old."""
         return self._new_version(

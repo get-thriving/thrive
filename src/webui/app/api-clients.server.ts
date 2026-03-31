@@ -6,7 +6,12 @@ import {
 } from "@jupiter/core/config-server";
 import type { FrontDoorInfo } from "@jupiter/core/frontdoor";
 import { loadFrontDoorInfo } from "@jupiter/core/frontdoor.server";
-import { AUTH_TOKEN_NAME, FRONTDOOR_HEADER } from "@jupiter/core/infra/names";
+import {
+  AUTH_TOKEN_NAME,
+  FRONTDOOR_HEADER,
+  TRACE_ID_HEADER,
+} from "@jupiter/core/infra/names";
+import { newTraceId } from "@jupiter/core/common/trace-id";
 
 import { getSession } from "~/sessions";
 
@@ -42,6 +47,7 @@ export async function getGuestApiClient(
     TOKEN: token,
     HEADERS: {
       [FRONTDOOR_HEADER]: `${frontDoor.clientVersion}:${frontDoor.appShell}:${frontDoor.appPlatform}:${frontDoor.appDistribution}`,
+      [TRACE_ID_HEADER]: newTraceId(),
     },
   });
 
@@ -81,6 +87,7 @@ export async function getLoggedInApiClient(
     TOKEN: authTokenExtStr,
     HEADERS: {
       [FRONTDOOR_HEADER]: `${frontDoor.clientVersion}:${frontDoor.appShell}:${frontDoor.appPlatform}:${frontDoor.appDistribution}`,
+      [TRACE_ID_HEADER]: newTraceId(),
     },
   });
 

@@ -6,7 +6,7 @@ from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.link.root import TagLink
 from jupiter.core.life_plan.sub.goals.name import GoalName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsRefId,
     LeafEntity,
@@ -40,7 +40,7 @@ class Goal(LeafEntity):
     @staticmethod
     @create_entity_action
     def new_goal(
-        ctx: MutationContext,
+        ctx: DomainContext,
         life_plan_ref_id: EntityId,
         name: GoalName,
         aspect_ref_id: EntityId,
@@ -58,7 +58,7 @@ class Goal(LeafEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[GoalName],
         aspect_ref_id: UpdateAction[EntityId],
         parent_goal_ref_id: UpdateAction[EntityId | None],

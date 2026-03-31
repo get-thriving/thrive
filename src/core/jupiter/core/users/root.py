@@ -15,7 +15,7 @@ from jupiter.core.users.avatar import Avatar
 from jupiter.core.users.category import UserCategory
 from jupiter.core.users.name import UserName
 from jupiter.core.users.sub.web_ui_settings.root import WebUiSettings
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     ContainsOne,
     IsRefId,
@@ -50,7 +50,7 @@ class User(RootEntity):
     @staticmethod
     @create_entity_action
     def new_standard_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         email_address: EmailAddress,
         name: UserName,
         timezone: Timezone,
@@ -73,7 +73,7 @@ class User(RootEntity):
     @staticmethod
     @create_entity_action
     def new_app_store_review_user(
-        ctx: MutationContext,
+        ctx: DomainContext,
         email_address: EmailAddress,
         name: UserName,
         feature_flag_controls: UserFeatureFlagsControls,
@@ -94,7 +94,7 @@ class User(RootEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[UserName],
         timezone: UpdateAction[Timezone],
     ) -> "User":
@@ -111,7 +111,7 @@ class User(RootEntity):
     @update_entity_action
     def change_feature_flags(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         feature_flag_controls: UserFeatureFlagsControls,
         feature_flags: UserFeatureFlags,
     ) -> "User":

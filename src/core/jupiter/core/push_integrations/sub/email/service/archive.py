@@ -19,7 +19,7 @@ from jupiter.core.push_integrations.sub.email.task import EmailTask
 from jupiter.core.push_integrations.sub.email.task_collection import (
     EmailTaskCollection,
 )
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.value import CompositeValue, value
@@ -37,7 +37,7 @@ class EmailTaskArchiveService:
 
     async def do_it(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         email_task: EmailTask,

@@ -5,7 +5,7 @@ import abc
 from jupiter.core.common.sub.tags.namespace import TagNamespace
 from jupiter.core.common.sub.tags.sub.tag.name import TagName
 from jupiter.framework.base.entity_id import EntityId
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     LeafSupportEntity,
     ParentLink,
@@ -35,7 +35,7 @@ class Tag(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_tag(
-        ctx: MutationContext,
+        ctx: DomainContext,
         tag_domain_ref_id: EntityId,
         namespace: TagNamespace,
         name: TagName,
@@ -51,7 +51,7 @@ class Tag(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         name: UpdateAction[TagName],
     ) -> "Tag":
         """Update the tag."""

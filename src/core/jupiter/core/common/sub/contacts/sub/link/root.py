@@ -6,7 +6,7 @@ from jupiter.core.common.sub.contacts.namespace import ContactNamespace
 from jupiter.core.common.sub.contacts.sub.contact.root import Contact
 from jupiter.framework.base.entity_id import EntityId
 from jupiter.framework.base.entity_name import NOT_USED_NAME
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.entity import (
     IsOneOfRefId,
     LeafSupportEntity,
@@ -35,7 +35,7 @@ class ContactLink(LeafSupportEntity):
     @staticmethod
     @create_entity_action
     def new_contact_link(
-        ctx: MutationContext,
+        ctx: DomainContext,
         contact_domain_ref_id: EntityId,
         namespace: ContactNamespace,
         source_entity_ref_id: EntityId,
@@ -54,7 +54,7 @@ class ContactLink(LeafSupportEntity):
     @update_entity_action
     def update(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         contacts_ref_ids: UpdateAction[list[EntityId]],
     ) -> "ContactLink":
         """Update the contact link."""

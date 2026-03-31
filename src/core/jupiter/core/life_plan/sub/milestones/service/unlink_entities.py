@@ -4,7 +4,7 @@ from jupiter.core.life_plan.partial_date import PartialDate
 from jupiter.core.life_plan.root import LifePlan
 from jupiter.core.life_plan.sub.chapters.root import Chapter
 from jupiter.core.life_plan.sub.milestones.root import Milestone
-from jupiter.framework.context import MutationContext
+from jupiter.framework.context import DomainContext
 from jupiter.framework.progress_reporter.reporter import ProgressReporter
 from jupiter.framework.storage.repository import DomainUnitOfWork
 from jupiter.framework.update_action import UpdateAction
@@ -15,7 +15,7 @@ class MilestoneUnlinkEntitiesService:
 
     async def unlink_entities(
         self,
-        ctx: MutationContext,
+        ctx: DomainContext,
         uow: DomainUnitOfWork,
         progress_reporter: ProgressReporter,
         life_plan: LifePlan,
