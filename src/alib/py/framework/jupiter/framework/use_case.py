@@ -242,6 +242,8 @@ class MutationUseCase(
                 self._realm_codec_registry.db_encode(args, EventStoreRealm),
             )
             invocation_record = MutationInvocationRecord.build_failure(
+                trace_id=context.domain_context.trace_id,
+                mutation_id=context.domain_context.mutation_id,
                 context_str=context.as_str(),
                 timestamp=self._time_provider.get_current_time(),
                 name=self.__class__.__name__,
@@ -259,6 +261,8 @@ class MutationUseCase(
             self._realm_codec_registry.db_encode(args, EventStoreRealm),
         )
         invocation_record = MutationInvocationRecord.build_success(
+            trace_id=context.trace_id,
+            mutation_id=context.mutation_id,
             context_str=context.as_str(),
             timestamp=self._time_provider.get_current_time(),
             name=self.__class__.__name__,

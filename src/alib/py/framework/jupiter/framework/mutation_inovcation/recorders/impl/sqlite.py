@@ -48,8 +48,10 @@ class SqliteMutationInvocationRecordRepository(
         self._mutation_invocation_record_table = Table(
             "mutation_invocation_record",
             metadata,
-            Column("context_str", String, primary_key=True),
+            Column("trace_id", String, primary_key=True),
+            Column("mutation_id", String, primary_key=True),
             Column("timestamp", DateTime, primary_key=True),
+            Column("context_str", String, primary_key=True),
             Column("name", String, primary_key=True),
             Column("args", JSON, nullable=False),
             Column("result", String, nullable=False),
@@ -64,10 +66,12 @@ class SqliteMutationInvocationRecordRepository(
         """Create a new invocation record."""
         await self._connection.execute(
             insert(self._mutation_invocation_record_table).values(
-                context_str=invocation_record.context_str,
+                trace_id=self._realm_codec_registry.db_encode(invocation_record.trace_id),
+                mutation_id=self._realm_codec_registry.db_encode(invocation_record.mutation_id),
                 timestamp=self._realm_codec_registry.db_encode(
                     invocation_record.timestamp
                 ),
+                context_str=invocation_record.context_str,
                 name=invocation_record.name,
                 args=invocation_record.args,
                 result=str(invocation_record.result.value),
