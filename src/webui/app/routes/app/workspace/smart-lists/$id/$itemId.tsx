@@ -238,7 +238,7 @@ export default function SmartListItem() {
         </Stack>
 
         <Stack direction={isBigScreen ? "row" : "column"} spacing={2}>
-          <FormControl sx={{ flexGrow: 1, width: "50%" }}>
+          <FormControl sx={{ flexGrow: 1, minWidth: "25%" }}>
             <TagsEditor
               name="generic_tags_names"
               aloneOnLine
@@ -251,7 +251,7 @@ export default function SmartListItem() {
             />
           </FormControl>
 
-          <FormControl sx={{ flexGrow: 1, width: "50%" }}>
+          <FormControl sx={{ flexGrow: 1, minWidth: "25%"  }}>
             <ContactsEditor
               name="contacts_names"
               aloneOnLine
